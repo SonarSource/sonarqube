@@ -27,7 +27,10 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -294,28 +297,49 @@ public class BatchReportWriterTest {
     // no data yet
     assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isFalse();
 
-    // write data
-    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
-      .setFileRef(1)
-      .addAllConditionsByLine(Arrays.asList(1, 5))
-      .addAllUtHitsByLine(Arrays.asList(true, false))
-      .addAllItHitsByLine(Arrays.asList(false, false))
-      .addAllUtCoveredConditionsByLine(Arrays.asList(1, 4))
-      .addAllItCoveredConditionsByLine(Arrays.asList(1, 5))
-      .addAllOverallCoveredConditionsByLine(Arrays.asList(1, 5))
-      .build());
+    writer.writeFileCoverage(1, Arrays.asList(
+      BatchReport.Coverage.newBuilder()
+        .setLine(1)
+        .setConditions(1)
+        .setUtHits(true)
+        .setItHits(false)
+        .setUtCoveredConditions(1)
+        .setItCoveredConditions(1)
+        .setOverallCoveredConditions(1)
+        .build(),
+      BatchReport.Coverage.newBuilder()
+        .setLine(2)
+        .setConditions(5)
+        .setUtHits(false)
+        .setItHits(false)
+        .setUtCoveredConditions(4)
+        .setItCoveredConditions(5)
+        .setOverallCoveredConditions(5)
+        .build()
+      ));
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
 
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.COVERAGE, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Coverage read = ProtobufUtil.readFile(file, BatchReport.Coverage.PARSER);
-    assertThat(read.getFileRef()).isEqualTo(1);
-    assertThat(read.getConditionsByLineList()).hasSize(2);
-    assertThat(read.getUtHitsByLineList()).hasSize(2);
-    assertThat(read.getItHitsByLineList()).hasSize(2);
-    assertThat(read.getUtCoveredConditionsByLineList()).hasSize(2);
-    assertThat(read.getItCoveredConditionsByLineList()).hasSize(2);
-    assertThat(read.getOverallCoveredConditionsByLineList()).hasSize(2);
+
+    InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+    BatchReport.Coverage read = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+    assertThat(read.getLine()).isEqualTo(1);
+    assertThat(read.getConditions()).isEqualTo(1);
+    assertThat(read.getUtHits()).isTrue();
+    assertThat(read.getItHits()).isFalse();
+    assertThat(read.getUtCoveredConditions()).isEqualTo(1);
+    assertThat(read.getItCoveredConditions()).isEqualTo(1);
+    assertThat(read.getOverallCoveredConditions()).isEqualTo(1);
+
+    read = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+    assertThat(read.getLine()).isEqualTo(2);
+    assertThat(read.getConditions()).isEqualTo(5);
+    assertThat(read.getUtHits()).isFalse();
+    assertThat(read.getItHits()).isFalse();
+    assertThat(read.getUtCoveredConditions()).isEqualTo(4);
+    assertThat(read.getItCoveredConditions()).isEqualTo(5);
+    assertThat(read.getOverallCoveredConditions()).isEqualTo(5);
   }
 }

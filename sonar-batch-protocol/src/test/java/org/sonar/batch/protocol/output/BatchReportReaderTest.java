@@ -30,8 +30,10 @@ import org.sonar.batch.protocol.output.BatchReport.Range;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
 
 public class BatchReportReaderTest {
 
@@ -171,24 +173,47 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
-      .setFileRef(1)
-      .addAllConditionsByLine(Arrays.asList(1, 5))
-      .addAllUtHitsByLine(Arrays.asList(true, false))
-      .addAllItHitsByLine(Arrays.asList(false, false))
-      .addAllUtCoveredConditionsByLine(Arrays.asList(1, 4))
-      .addAllItCoveredConditionsByLine(Arrays.asList(1, 5))
-      .addAllOverallCoveredConditionsByLine(Arrays.asList(1, 5))
-      .build());
+    writer.writeFileCoverage(1, Arrays.asList(
+      BatchReport.Coverage.newBuilder()
+        .setLine(1)
+        .setConditions(1)
+        .setUtHits(true)
+        .setItHits(false)
+        .setUtCoveredConditions(1)
+        .setItCoveredConditions(1)
+        .setOverallCoveredConditions(1)
+        .build(),
+      BatchReport.Coverage.newBuilder()
+        .setLine(2)
+        .setConditions(5)
+        .setUtHits(false)
+        .setItHits(false)
+        .setUtCoveredConditions(4)
+        .setItCoveredConditions(5)
+        .setOverallCoveredConditions(5)
+        .build()));
 
     sut = new BatchReportReader(dir);
-    assertThat(sut.readFileCoverage(1).getFileRef()).isEqualTo(1);
-    assertThat(sut.readFileCoverage(1).getConditionsByLineList()).hasSize(2);
-    assertThat(sut.readFileCoverage(1).getUtHitsByLineList()).hasSize(2);
-    assertThat(sut.readFileCoverage(1).getItHitsByLineList()).hasSize(2);
-    assertThat(sut.readFileCoverage(1).getUtCoveredConditionsByLineList()).hasSize(2);
-    assertThat(sut.readFileCoverage(1).getItCoveredConditionsByLineList()).hasSize(2);
-    assertThat(sut.readFileCoverage(1).getOverallCoveredConditionsByLineList()).hasSize(2);
+    List<BatchReport.Coverage> coverageList = newArrayList(sut.readFileCoverage(1));
+    assertThat(coverageList).hasSize(2);
+
+    BatchReport.Coverage coverage = coverageList.get(0);
+    assertThat(coverage.getLine()).isEqualTo(1);
+    assertThat(coverage.getConditions()).isEqualTo(1);
+    assertThat(coverage.getUtHits()).isTrue();
+    assertThat(coverage.getItHits()).isFalse();
+    assertThat(coverage.getUtCoveredConditions()).isEqualTo(1);
+    assertThat(coverage.getItCoveredConditions()).isEqualTo(1);
+    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(1);
+
+    coverage = coverageList.get(1);
+    assertThat(coverage.getLine()).isEqualTo(2);
+    assertThat(coverage.getConditions()).isEqualTo(5);
+    assertThat(coverage.getUtHits()).isFalse();
+    assertThat(coverage.getItHits()).isFalse();
+    assertThat(coverage.getUtCoveredConditions()).isEqualTo(4);
+    assertThat(coverage.getItCoveredConditions()).isEqualTo(5);
+    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(5);
   }
 
   @Test(expected = IllegalStateException.class)

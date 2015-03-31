@@ -36,8 +36,8 @@ import org.sonar.test.DbTests;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -70,26 +70,28 @@ public class PersistCoverageStepTest extends BaseStepTest {
 
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
-    assertThat(step.getFileSourceData()).isNull();
+    assertThat(step.getFileSourceData().getLinesList()).isEmpty();
   }
 
   @Test
   public void compute_coverage_from_one_line() throws Exception {
     BatchReportWriter writer = initReport();
 
-    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
-      .setFileRef(FILE_REF)
-      .addAllConditionsByLine(Arrays.asList(10))
-      .addAllUtHitsByLine(Arrays.asList(true))
-      .addAllUtCoveredConditionsByLine(Arrays.asList(2))
-      .addAllItHitsByLine(Arrays.asList(false))
-      .addAllItCoveredConditionsByLine(Arrays.asList(3))
-      .addAllOverallCoveredConditionsByLine(Arrays.asList(4))
-      .build());
+    writer.writeFileCoverage(FILE_REF, newArrayList(BatchReport.Coverage.newBuilder()
+      .setLine(1)
+      .setConditions(10)
+      .setUtHits(true)
+      .setUtCoveredConditions(2)
+      .setItHits(false)
+      .setItCoveredConditions(3)
+      .setOverallCoveredConditions(4)
+      .build()));
 
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
     FileSourceDb.Data data = step.getFileSourceData();
+    assertThat(data.getLinesList()).hasSize(1);
+
     assertThat(data.getLines(0).getUtLineHits()).isEqualTo(1);
     assertThat(data.getLines(0).getUtConditions()).isEqualTo(10);
     assertThat(data.getLines(0).getUtCoveredConditions()).isEqualTo(2);
@@ -105,19 +107,40 @@ public class PersistCoverageStepTest extends BaseStepTest {
   public void compute_coverage_from_lines() throws Exception {
     BatchReportWriter writer = initReport();
 
-    writer.writeFileCoverage(BatchReport.Coverage.newBuilder()
-      .setFileRef(FILE_REF)
-      .addAllConditionsByLine(Arrays.asList(10, 0, 4))
-      .addAllUtHitsByLine(Arrays.asList(true, false, false))
-      .addAllItHitsByLine(Arrays.asList(false, true, true))
-      .addAllUtCoveredConditionsByLine(Arrays.asList(1, 0, 4))
-      .addAllItCoveredConditionsByLine(Arrays.asList(1, 0, 5))
-      .addAllOverallCoveredConditionsByLine(Arrays.asList(1, 0, 5))
-      .build());
+    writer.writeFileCoverage(FILE_REF, newArrayList(
+      BatchReport.Coverage.newBuilder()
+        .setLine(1)
+        .setConditions(10)
+        .setUtHits(true)
+        .setUtCoveredConditions(1)
+        .setItHits(false)
+        .setItCoveredConditions(1)
+        .setOverallCoveredConditions(1)
+        .build(),
+      BatchReport.Coverage.newBuilder()
+        .setLine(2)
+        .setConditions(0)
+        .setUtHits(false)
+        .setUtCoveredConditions(0)
+        .setItHits(true)
+        .setItCoveredConditions(0)
+        .setOverallCoveredConditions(0)
+        .build(),
+      BatchReport.Coverage.newBuilder()
+        .setLine(3)
+        .setConditions(4)
+        .setUtHits(false)
+        .setUtCoveredConditions(4)
+        .setItHits(true)
+        .setItCoveredConditions(5)
+        .setOverallCoveredConditions(5)
+        .build()));
 
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
     FileSourceDb.Data data = step.getFileSourceData();
+    assertThat(data.getLinesList()).hasSize(3);
+
     assertThat(data.getLines(0).getUtLineHits()).isEqualTo(1);
     assertThat(data.getLines(0).hasItLineHits()).isFalse();
 

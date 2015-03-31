@@ -19464,174 +19464,82 @@ public final class BatchReport {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 file_ref = 1;</code>
-     *
-     * <pre>
-     * Only FILE component has coverage information
-     * </pre>
+     * <code>optional int32 line = 1;</code>
      */
-    boolean hasFileRef();
+    boolean hasLine();
     /**
-     * <code>optional int32 file_ref = 1;</code>
-     *
-     * <pre>
-     * Only FILE component has coverage information
-     * </pre>
+     * <code>optional int32 line = 1;</code>
      */
-    int getFileRef();
+    int getLine();
 
     /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+     * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+     * Number of conditions to cover (never 0)
      * </pre>
      */
-    java.util.List<java.lang.Integer> getConditionsByLineList();
+    boolean hasConditions();
     /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+     * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+     * Number of conditions to cover (never 0)
      * </pre>
      */
-    int getConditionsByLineCount();
-    /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
-     * </pre>
-     */
-    int getConditionsByLine(int index);
+    int getConditions();
 
     /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
+     * <code>optional bool ut_hits = 3;</code>
      */
-    java.util.List<java.lang.Boolean> getUtHitsByLineList();
+    boolean hasUtHits();
     /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
+     * <code>optional bool ut_hits = 3;</code>
      */
-    int getUtHitsByLineCount();
-    /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
-     */
-    boolean getUtHitsByLine(int index);
+    boolean getUtHits();
 
     /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
+     * <code>optional bool it_hits = 4;</code>
      */
-    java.util.List<java.lang.Boolean> getItHitsByLineList();
+    boolean hasItHits();
     /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
+     * <code>optional bool it_hits = 4;</code>
      */
-    int getItHitsByLineCount();
-    /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
-     */
-    boolean getItHitsByLine(int index);
+    boolean getItHits();
 
     /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
+     * <code>optional int32 ut_covered_conditions = 5;</code>
      */
-    java.util.List<java.lang.Integer> getUtCoveredConditionsByLineList();
+    boolean hasUtCoveredConditions();
     /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
+     * <code>optional int32 ut_covered_conditions = 5;</code>
      */
-    int getUtCoveredConditionsByLineCount();
-    /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
-     */
-    int getUtCoveredConditionsByLine(int index);
+    int getUtCoveredConditions();
 
     /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
+     * <code>optional int32 it_covered_conditions = 6;</code>
      */
-    java.util.List<java.lang.Integer> getItCoveredConditionsByLineList();
+    boolean hasItCoveredConditions();
     /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
+     * <code>optional int32 it_covered_conditions = 6;</code>
      */
-    int getItCoveredConditionsByLineCount();
-    /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
-     */
-    int getItCoveredConditionsByLine(int index);
+    int getItCoveredConditions();
 
     /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
+     * <code>optional int32 overall_covered_conditions = 7;</code>
      */
-    java.util.List<java.lang.Integer> getOverallCoveredConditionsByLineList();
+    boolean hasOverallCoveredConditions();
     /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
+     * <code>optional int32 overall_covered_conditions = 7;</code>
      */
-    int getOverallCoveredConditionsByLineCount();
-    /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
-     */
-    int getOverallCoveredConditionsByLine(int index);
+    int getOverallCoveredConditions();
   }
   /**
    * Protobuf type {@code Coverage}
+   *
+   * <pre>
+   * Only FILE component has coverage information
+   * </pre>
    */
   public static final class Coverage extends
       com.google.protobuf.GeneratedMessage implements
@@ -19684,133 +19592,37 @@ public final class BatchReport {
             }
             case 8: {
               bitField0_ |= 0x00000001;
-              fileRef_ = input.readInt32();
+              line_ = input.readInt32();
               break;
             }
             case 16: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                conditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              conditionsByLine_.add(input.readInt32());
-              break;
-            }
-            case 18: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
-                conditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                conditionsByLine_.add(input.readInt32());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000002;
+              conditions_ = input.readInt32();
               break;
             }
             case 24: {
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                utHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>();
-                mutable_bitField0_ |= 0x00000004;
-              }
-              utHitsByLine_.add(input.readBool());
-              break;
-            }
-            case 26: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
-                utHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>();
-                mutable_bitField0_ |= 0x00000004;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                utHitsByLine_.add(input.readBool());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000004;
+              utHits_ = input.readBool();
               break;
             }
             case 32: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                itHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>();
-                mutable_bitField0_ |= 0x00000008;
-              }
-              itHitsByLine_.add(input.readBool());
-              break;
-            }
-            case 34: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008) && input.getBytesUntilLimit() > 0) {
-                itHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>();
-                mutable_bitField0_ |= 0x00000008;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                itHitsByLine_.add(input.readBool());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000008;
+              itHits_ = input.readBool();
               break;
             }
             case 40: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                utCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              utCoveredConditionsByLine_.add(input.readInt32());
-              break;
-            }
-            case 42: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
-                utCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                utCoveredConditionsByLine_.add(input.readInt32());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000010;
+              utCoveredConditions_ = input.readInt32();
               break;
             }
             case 48: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-                itCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000020;
-              }
-              itCoveredConditionsByLine_.add(input.readInt32());
-              break;
-            }
-            case 50: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
-                itCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000020;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                itCoveredConditionsByLine_.add(input.readInt32());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000020;
+              itCoveredConditions_ = input.readInt32();
               break;
             }
             case 56: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
-                overallCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
-              }
-              overallCoveredConditionsByLine_.add(input.readInt32());
-              break;
-            }
-            case 58: {
-              int length = input.readRawVarint32();
-              int limit = input.pushLimit(length);
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
-                overallCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>();
-                mutable_bitField0_ |= 0x00000040;
-              }
-              while (input.getBytesUntilLimit() > 0) {
-                overallCoveredConditionsByLine_.add(input.readInt32());
-              }
-              input.popLimit(limit);
+              bitField0_ |= 0x00000040;
+              overallCoveredConditions_ = input.readInt32();
               break;
             }
           }
@@ -19821,24 +19633,6 @@ public final class BatchReport {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          conditionsByLine_ = java.util.Collections.unmodifiableList(conditionsByLine_);
-        }
-        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          utHitsByLine_ = java.util.Collections.unmodifiableList(utHitsByLine_);
-        }
-        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-          itHitsByLine_ = java.util.Collections.unmodifiableList(itHitsByLine_);
-        }
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-          utCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(utCoveredConditionsByLine_);
-        }
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-          itCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(itCoveredConditionsByLine_);
-        }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
-          overallCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(overallCoveredConditionsByLine_);
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -19871,247 +19665,127 @@ public final class BatchReport {
     }
 
     private int bitField0_;
-    public static final int FILE_REF_FIELD_NUMBER = 1;
-    private int fileRef_;
+    public static final int LINE_FIELD_NUMBER = 1;
+    private int line_;
     /**
-     * <code>optional int32 file_ref = 1;</code>
-     *
-     * <pre>
-     * Only FILE component has coverage information
-     * </pre>
+     * <code>optional int32 line = 1;</code>
      */
-    public boolean hasFileRef() {
+    public boolean hasLine() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int32 file_ref = 1;</code>
-     *
-     * <pre>
-     * Only FILE component has coverage information
-     * </pre>
+     * <code>optional int32 line = 1;</code>
      */
-    public int getFileRef() {
-      return fileRef_;
+    public int getLine() {
+      return line_;
     }
 
-    public static final int CONDITIONS_BY_LINE_FIELD_NUMBER = 2;
-    private java.util.List<java.lang.Integer> conditionsByLine_;
+    public static final int CONDITIONS_FIELD_NUMBER = 2;
+    private int conditions_;
     /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+     * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+     * Number of conditions to cover (never 0)
      * </pre>
      */
-    public java.util.List<java.lang.Integer>
-        getConditionsByLineList() {
-      return conditionsByLine_;
+    public boolean hasConditions() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+     * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+     * Number of conditions to cover (never 0)
      * </pre>
      */
-    public int getConditionsByLineCount() {
-      return conditionsByLine_.size();
+    public int getConditions() {
+      return conditions_;
     }
-    /**
-     * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
-     * </pre>
-     */
-    public int getConditionsByLine(int index) {
-      return conditionsByLine_.get(index);
-    }
-    private int conditionsByLineMemoizedSerializedSize = -1;
 
-    public static final int UT_HITS_BY_LINE_FIELD_NUMBER = 3;
-    private java.util.List<java.lang.Boolean> utHitsByLine_;
+    public static final int UT_HITS_FIELD_NUMBER = 3;
+    private boolean utHits_;
     /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
+     * <code>optional bool ut_hits = 3;</code>
      */
-    public java.util.List<java.lang.Boolean>
-        getUtHitsByLineList() {
-      return utHitsByLine_;
+    public boolean hasUtHits() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
+     * <code>optional bool ut_hits = 3;</code>
      */
-    public int getUtHitsByLineCount() {
-      return utHitsByLine_.size();
+    public boolean getUtHits() {
+      return utHits_;
     }
-    /**
-     * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-     *
-     * <pre>
-     * List of unit test hits by line
-     * </pre>
-     */
-    public boolean getUtHitsByLine(int index) {
-      return utHitsByLine_.get(index);
-    }
-    private int utHitsByLineMemoizedSerializedSize = -1;
 
-    public static final int IT_HITS_BY_LINE_FIELD_NUMBER = 4;
-    private java.util.List<java.lang.Boolean> itHitsByLine_;
+    public static final int IT_HITS_FIELD_NUMBER = 4;
+    private boolean itHits_;
     /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
+     * <code>optional bool it_hits = 4;</code>
      */
-    public java.util.List<java.lang.Boolean>
-        getItHitsByLineList() {
-      return itHitsByLine_;
+    public boolean hasItHits() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
+     * <code>optional bool it_hits = 4;</code>
      */
-    public int getItHitsByLineCount() {
-      return itHitsByLine_.size();
+    public boolean getItHits() {
+      return itHits_;
     }
-    /**
-     * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-     *
-     * <pre>
-     * List of integration test hits by line
-     * </pre>
-     */
-    public boolean getItHitsByLine(int index) {
-      return itHitsByLine_.get(index);
-    }
-    private int itHitsByLineMemoizedSerializedSize = -1;
 
-    public static final int UT_COVERED_CONDITIONS_BY_LINE_FIELD_NUMBER = 5;
-    private java.util.List<java.lang.Integer> utCoveredConditionsByLine_;
+    public static final int UT_COVERED_CONDITIONS_FIELD_NUMBER = 5;
+    private int utCoveredConditions_;
     /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
+     * <code>optional int32 ut_covered_conditions = 5;</code>
      */
-    public java.util.List<java.lang.Integer>
-        getUtCoveredConditionsByLineList() {
-      return utCoveredConditionsByLine_;
+    public boolean hasUtCoveredConditions() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
+     * <code>optional int32 ut_covered_conditions = 5;</code>
      */
-    public int getUtCoveredConditionsByLineCount() {
-      return utCoveredConditionsByLine_.size();
+    public int getUtCoveredConditions() {
+      return utCoveredConditions_;
     }
-    /**
-     * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by unit test by line
-     * </pre>
-     */
-    public int getUtCoveredConditionsByLine(int index) {
-      return utCoveredConditionsByLine_.get(index);
-    }
-    private int utCoveredConditionsByLineMemoizedSerializedSize = -1;
 
-    public static final int IT_COVERED_CONDITIONS_BY_LINE_FIELD_NUMBER = 6;
-    private java.util.List<java.lang.Integer> itCoveredConditionsByLine_;
+    public static final int IT_COVERED_CONDITIONS_FIELD_NUMBER = 6;
+    private int itCoveredConditions_;
     /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
+     * <code>optional int32 it_covered_conditions = 6;</code>
      */
-    public java.util.List<java.lang.Integer>
-        getItCoveredConditionsByLineList() {
-      return itCoveredConditionsByLine_;
+    public boolean hasItCoveredConditions() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
+     * <code>optional int32 it_covered_conditions = 6;</code>
      */
-    public int getItCoveredConditionsByLineCount() {
-      return itCoveredConditionsByLine_.size();
+    public int getItCoveredConditions() {
+      return itCoveredConditions_;
     }
-    /**
-     * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by integration test by line
-     * </pre>
-     */
-    public int getItCoveredConditionsByLine(int index) {
-      return itCoveredConditionsByLine_.get(index);
-    }
-    private int itCoveredConditionsByLineMemoizedSerializedSize = -1;
 
-    public static final int OVERALL_COVERED_CONDITIONS_BY_LINE_FIELD_NUMBER = 7;
-    private java.util.List<java.lang.Integer> overallCoveredConditionsByLine_;
+    public static final int OVERALL_COVERED_CONDITIONS_FIELD_NUMBER = 7;
+    private int overallCoveredConditions_;
     /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
+     * <code>optional int32 overall_covered_conditions = 7;</code>
      */
-    public java.util.List<java.lang.Integer>
-        getOverallCoveredConditionsByLineList() {
-      return overallCoveredConditionsByLine_;
+    public boolean hasOverallCoveredConditions() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
+     * <code>optional int32 overall_covered_conditions = 7;</code>
      */
-    public int getOverallCoveredConditionsByLineCount() {
-      return overallCoveredConditionsByLine_.size();
+    public int getOverallCoveredConditions() {
+      return overallCoveredConditions_;
     }
-    /**
-     * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-     *
-     * <pre>
-     * List of number of conditions covered by overall test by line
-     * </pre>
-     */
-    public int getOverallCoveredConditionsByLine(int index) {
-      return overallCoveredConditionsByLine_.get(index);
-    }
-    private int overallCoveredConditionsByLineMemoizedSerializedSize = -1;
 
     private void initFields() {
-      fileRef_ = 0;
-      conditionsByLine_ = java.util.Collections.emptyList();
-      utHitsByLine_ = java.util.Collections.emptyList();
-      itHitsByLine_ = java.util.Collections.emptyList();
-      utCoveredConditionsByLine_ = java.util.Collections.emptyList();
-      itCoveredConditionsByLine_ = java.util.Collections.emptyList();
-      overallCoveredConditionsByLine_ = java.util.Collections.emptyList();
+      line_ = 0;
+      conditions_ = 0;
+      utHits_ = false;
+      itHits_ = false;
+      utCoveredConditions_ = 0;
+      itCoveredConditions_ = 0;
+      overallCoveredConditions_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -20127,49 +19801,25 @@ public final class BatchReport {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(1, fileRef_);
+        output.writeInt32(1, line_);
       }
-      if (getConditionsByLineList().size() > 0) {
-        output.writeRawVarint32(18);
-        output.writeRawVarint32(conditionsByLineMemoizedSerializedSize);
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, conditions_);
       }
-      for (int i = 0; i < conditionsByLine_.size(); i++) {
-        output.writeInt32NoTag(conditionsByLine_.get(i));
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBool(3, utHits_);
       }
-      if (getUtHitsByLineList().size() > 0) {
-        output.writeRawVarint32(26);
-        output.writeRawVarint32(utHitsByLineMemoizedSerializedSize);
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBool(4, itHits_);
       }
-      for (int i = 0; i < utHitsByLine_.size(); i++) {
-        output.writeBoolNoTag(utHitsByLine_.get(i));
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, utCoveredConditions_);
       }
-      if (getItHitsByLineList().size() > 0) {
-        output.writeRawVarint32(34);
-        output.writeRawVarint32(itHitsByLineMemoizedSerializedSize);
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeInt32(6, itCoveredConditions_);
       }
-      for (int i = 0; i < itHitsByLine_.size(); i++) {
-        output.writeBoolNoTag(itHitsByLine_.get(i));
-      }
-      if (getUtCoveredConditionsByLineList().size() > 0) {
-        output.writeRawVarint32(42);
-        output.writeRawVarint32(utCoveredConditionsByLineMemoizedSerializedSize);
-      }
-      for (int i = 0; i < utCoveredConditionsByLine_.size(); i++) {
-        output.writeInt32NoTag(utCoveredConditionsByLine_.get(i));
-      }
-      if (getItCoveredConditionsByLineList().size() > 0) {
-        output.writeRawVarint32(50);
-        output.writeRawVarint32(itCoveredConditionsByLineMemoizedSerializedSize);
-      }
-      for (int i = 0; i < itCoveredConditionsByLine_.size(); i++) {
-        output.writeInt32NoTag(itCoveredConditionsByLine_.get(i));
-      }
-      if (getOverallCoveredConditionsByLineList().size() > 0) {
-        output.writeRawVarint32(58);
-        output.writeRawVarint32(overallCoveredConditionsByLineMemoizedSerializedSize);
-      }
-      for (int i = 0; i < overallCoveredConditionsByLine_.size(); i++) {
-        output.writeInt32NoTag(overallCoveredConditionsByLine_.get(i));
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeInt32(7, overallCoveredConditions_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -20182,85 +19832,31 @@ public final class BatchReport {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, fileRef_);
+          .computeInt32Size(1, line_);
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < conditionsByLine_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(conditionsByLine_.get(i));
-        }
-        size += dataSize;
-        if (!getConditionsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        conditionsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, conditions_);
       }
-      {
-        int dataSize = 0;
-        dataSize = 1 * getUtHitsByLineList().size();
-        size += dataSize;
-        if (!getUtHitsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        utHitsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, utHits_);
       }
-      {
-        int dataSize = 0;
-        dataSize = 1 * getItHitsByLineList().size();
-        size += dataSize;
-        if (!getItHitsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        itHitsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(4, itHits_);
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < utCoveredConditionsByLine_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(utCoveredConditionsByLine_.get(i));
-        }
-        size += dataSize;
-        if (!getUtCoveredConditionsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        utCoveredConditionsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, utCoveredConditions_);
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < itCoveredConditionsByLine_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(itCoveredConditionsByLine_.get(i));
-        }
-        size += dataSize;
-        if (!getItCoveredConditionsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        itCoveredConditionsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(6, itCoveredConditions_);
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < overallCoveredConditionsByLine_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeInt32SizeNoTag(overallCoveredConditionsByLine_.get(i));
-        }
-        size += dataSize;
-        if (!getOverallCoveredConditionsByLineList().isEmpty()) {
-          size += 1;
-          size += com.google.protobuf.CodedOutputStream
-              .computeInt32SizeNoTag(dataSize);
-        }
-        overallCoveredConditionsByLineMemoizedSerializedSize = dataSize;
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(7, overallCoveredConditions_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -20342,6 +19938,10 @@ public final class BatchReport {
     }
     /**
      * Protobuf type {@code Coverage}
+     *
+     * <pre>
+     * Only FILE component has coverage information
+     * </pre>
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
@@ -20379,19 +19979,19 @@ public final class BatchReport {
 
       public Builder clear() {
         super.clear();
-        fileRef_ = 0;
+        line_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        conditionsByLine_ = java.util.Collections.emptyList();
+        conditions_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
-        utHitsByLine_ = java.util.Collections.emptyList();
+        utHits_ = false;
         bitField0_ = (bitField0_ & ~0x00000004);
-        itHitsByLine_ = java.util.Collections.emptyList();
+        itHits_ = false;
         bitField0_ = (bitField0_ & ~0x00000008);
-        utCoveredConditionsByLine_ = java.util.Collections.emptyList();
+        utCoveredConditions_ = 0;
         bitField0_ = (bitField0_ & ~0x00000010);
-        itCoveredConditionsByLine_ = java.util.Collections.emptyList();
+        itCoveredConditions_ = 0;
         bitField0_ = (bitField0_ & ~0x00000020);
-        overallCoveredConditionsByLine_ = java.util.Collections.emptyList();
+        overallCoveredConditions_ = 0;
         bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
@@ -20424,37 +20024,31 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.fileRef_ = fileRef_;
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          conditionsByLine_ = java.util.Collections.unmodifiableList(conditionsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000002);
+        result.line_ = line_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
         }
-        result.conditionsByLine_ = conditionsByLine_;
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          utHitsByLine_ = java.util.Collections.unmodifiableList(utHitsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000004);
+        result.conditions_ = conditions_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
         }
-        result.utHitsByLine_ = utHitsByLine_;
-        if (((bitField0_ & 0x00000008) == 0x00000008)) {
-          itHitsByLine_ = java.util.Collections.unmodifiableList(itHitsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000008);
+        result.utHits_ = utHits_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
         }
-        result.itHitsByLine_ = itHitsByLine_;
-        if (((bitField0_ & 0x00000010) == 0x00000010)) {
-          utCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(utCoveredConditionsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000010);
+        result.itHits_ = itHits_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
         }
-        result.utCoveredConditionsByLine_ = utCoveredConditionsByLine_;
-        if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          itCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(itCoveredConditionsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000020);
+        result.utCoveredConditions_ = utCoveredConditions_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
         }
-        result.itCoveredConditionsByLine_ = itCoveredConditionsByLine_;
-        if (((bitField0_ & 0x00000040) == 0x00000040)) {
-          overallCoveredConditionsByLine_ = java.util.Collections.unmodifiableList(overallCoveredConditionsByLine_);
-          bitField0_ = (bitField0_ & ~0x00000040);
+        result.itCoveredConditions_ = itCoveredConditions_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
         }
-        result.overallCoveredConditionsByLine_ = overallCoveredConditionsByLine_;
+        result.overallCoveredConditions_ = overallCoveredConditions_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -20471,68 +20065,26 @@ public final class BatchReport {
 
       public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Coverage other) {
         if (other == org.sonar.batch.protocol.output.BatchReport.Coverage.getDefaultInstance()) return this;
-        if (other.hasFileRef()) {
-          setFileRef(other.getFileRef());
+        if (other.hasLine()) {
+          setLine(other.getLine());
         }
-        if (!other.conditionsByLine_.isEmpty()) {
-          if (conditionsByLine_.isEmpty()) {
-            conditionsByLine_ = other.conditionsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000002);
-          } else {
-            ensureConditionsByLineIsMutable();
-            conditionsByLine_.addAll(other.conditionsByLine_);
-          }
-          onChanged();
+        if (other.hasConditions()) {
+          setConditions(other.getConditions());
         }
-        if (!other.utHitsByLine_.isEmpty()) {
-          if (utHitsByLine_.isEmpty()) {
-            utHitsByLine_ = other.utHitsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000004);
-          } else {
-            ensureUtHitsByLineIsMutable();
-            utHitsByLine_.addAll(other.utHitsByLine_);
-          }
-          onChanged();
+        if (other.hasUtHits()) {
+          setUtHits(other.getUtHits());
         }
-        if (!other.itHitsByLine_.isEmpty()) {
-          if (itHitsByLine_.isEmpty()) {
-            itHitsByLine_ = other.itHitsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000008);
-          } else {
-            ensureItHitsByLineIsMutable();
-            itHitsByLine_.addAll(other.itHitsByLine_);
-          }
-          onChanged();
+        if (other.hasItHits()) {
+          setItHits(other.getItHits());
         }
-        if (!other.utCoveredConditionsByLine_.isEmpty()) {
-          if (utCoveredConditionsByLine_.isEmpty()) {
-            utCoveredConditionsByLine_ = other.utCoveredConditionsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000010);
-          } else {
-            ensureUtCoveredConditionsByLineIsMutable();
-            utCoveredConditionsByLine_.addAll(other.utCoveredConditionsByLine_);
-          }
-          onChanged();
+        if (other.hasUtCoveredConditions()) {
+          setUtCoveredConditions(other.getUtCoveredConditions());
         }
-        if (!other.itCoveredConditionsByLine_.isEmpty()) {
-          if (itCoveredConditionsByLine_.isEmpty()) {
-            itCoveredConditionsByLine_ = other.itCoveredConditionsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000020);
-          } else {
-            ensureItCoveredConditionsByLineIsMutable();
-            itCoveredConditionsByLine_.addAll(other.itCoveredConditionsByLine_);
-          }
-          onChanged();
+        if (other.hasItCoveredConditions()) {
+          setItCoveredConditions(other.getItCoveredConditions());
         }
-        if (!other.overallCoveredConditionsByLine_.isEmpty()) {
-          if (overallCoveredConditionsByLine_.isEmpty()) {
-            overallCoveredConditionsByLine_ = other.overallCoveredConditionsByLine_;
-            bitField0_ = (bitField0_ & ~0x00000040);
-          } else {
-            ensureOverallCoveredConditionsByLineIsMutable();
-            overallCoveredConditionsByLine_.addAll(other.overallCoveredConditionsByLine_);
-          }
-          onChanged();
+        if (other.hasOverallCoveredConditions()) {
+          setOverallCoveredConditions(other.getOverallCoveredConditions());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -20561,614 +20113,242 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private int fileRef_ ;
+      private int line_ ;
       /**
-       * <code>optional int32 file_ref = 1;</code>
-       *
-       * <pre>
-       * Only FILE component has coverage information
-       * </pre>
+       * <code>optional int32 line = 1;</code>
        */
-      public boolean hasFileRef() {
+      public boolean hasLine() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int32 file_ref = 1;</code>
-       *
-       * <pre>
-       * Only FILE component has coverage information
-       * </pre>
+       * <code>optional int32 line = 1;</code>
        */
-      public int getFileRef() {
-        return fileRef_;
+      public int getLine() {
+        return line_;
       }
       /**
-       * <code>optional int32 file_ref = 1;</code>
-       *
-       * <pre>
-       * Only FILE component has coverage information
-       * </pre>
+       * <code>optional int32 line = 1;</code>
        */
-      public Builder setFileRef(int value) {
+      public Builder setLine(int value) {
         bitField0_ |= 0x00000001;
-        fileRef_ = value;
+        line_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 file_ref = 1;</code>
-       *
-       * <pre>
-       * Only FILE component has coverage information
-       * </pre>
+       * <code>optional int32 line = 1;</code>
        */
-      public Builder clearFileRef() {
+      public Builder clearLine() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        fileRef_ = 0;
+        line_ = 0;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Integer> conditionsByLine_ = java.util.Collections.emptyList();
-      private void ensureConditionsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          conditionsByLine_ = new java.util.ArrayList<java.lang.Integer>(conditionsByLine_);
-          bitField0_ |= 0x00000002;
-         }
-      }
+      private int conditions_ ;
       /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+       * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+       * Number of conditions to cover (never 0)
        * </pre>
        */
-      public java.util.List<java.lang.Integer>
-          getConditionsByLineList() {
-        return java.util.Collections.unmodifiableList(conditionsByLine_);
+      public boolean hasConditions() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+       * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+       * Number of conditions to cover (never 0)
        * </pre>
        */
-      public int getConditionsByLineCount() {
-        return conditionsByLine_.size();
+      public int getConditions() {
+        return conditions_;
       }
       /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+       * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+       * Number of conditions to cover (never 0)
        * </pre>
        */
-      public int getConditionsByLine(int index) {
-        return conditionsByLine_.get(index);
-      }
-      /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
-       * </pre>
-       */
-      public Builder setConditionsByLine(
-          int index, int value) {
-        ensureConditionsByLineIsMutable();
-        conditionsByLine_.set(index, value);
+      public Builder setConditions(int value) {
+        bitField0_ |= 0x00000002;
+        conditions_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
+       * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
+       * Number of conditions to cover (never 0)
        * </pre>
        */
-      public Builder addConditionsByLine(int value) {
-        ensureConditionsByLineIsMutable();
-        conditionsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
-       * </pre>
-       */
-      public Builder addAllConditionsByLine(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureConditionsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, conditionsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 conditions_by_line = 2 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions by line : 0 =&gt; not to cover, 1+ =&gt; number of conditions to cover
-       * </pre>
-       */
-      public Builder clearConditionsByLine() {
-        conditionsByLine_ = java.util.Collections.emptyList();
+      public Builder clearConditions() {
         bitField0_ = (bitField0_ & ~0x00000002);
+        conditions_ = 0;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Boolean> utHitsByLine_ = java.util.Collections.emptyList();
-      private void ensureUtHitsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          utHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>(utHitsByLine_);
-          bitField0_ |= 0x00000004;
-         }
+      private boolean utHits_ ;
+      /**
+       * <code>optional bool ut_hits = 3;</code>
+       */
+      public boolean hasUtHits() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
+       * <code>optional bool ut_hits = 3;</code>
        */
-      public java.util.List<java.lang.Boolean>
-          getUtHitsByLineList() {
-        return java.util.Collections.unmodifiableList(utHitsByLine_);
+      public boolean getUtHits() {
+        return utHits_;
       }
       /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
+       * <code>optional bool ut_hits = 3;</code>
        */
-      public int getUtHitsByLineCount() {
-        return utHitsByLine_.size();
-      }
-      /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
-       */
-      public boolean getUtHitsByLine(int index) {
-        return utHitsByLine_.get(index);
-      }
-      /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
-       */
-      public Builder setUtHitsByLine(
-          int index, boolean value) {
-        ensureUtHitsByLineIsMutable();
-        utHitsByLine_.set(index, value);
+      public Builder setUtHits(boolean value) {
+        bitField0_ |= 0x00000004;
+        utHits_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
+       * <code>optional bool ut_hits = 3;</code>
        */
-      public Builder addUtHitsByLine(boolean value) {
-        ensureUtHitsByLineIsMutable();
-        utHitsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
-       */
-      public Builder addAllUtHitsByLine(
-          java.lang.Iterable<? extends java.lang.Boolean> values) {
-        ensureUtHitsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, utHitsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated bool ut_hits_by_line = 3 [packed = true];</code>
-       *
-       * <pre>
-       * List of unit test hits by line
-       * </pre>
-       */
-      public Builder clearUtHitsByLine() {
-        utHitsByLine_ = java.util.Collections.emptyList();
+      public Builder clearUtHits() {
         bitField0_ = (bitField0_ & ~0x00000004);
+        utHits_ = false;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Boolean> itHitsByLine_ = java.util.Collections.emptyList();
-      private void ensureItHitsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          itHitsByLine_ = new java.util.ArrayList<java.lang.Boolean>(itHitsByLine_);
-          bitField0_ |= 0x00000008;
-         }
+      private boolean itHits_ ;
+      /**
+       * <code>optional bool it_hits = 4;</code>
+       */
+      public boolean hasItHits() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
+       * <code>optional bool it_hits = 4;</code>
        */
-      public java.util.List<java.lang.Boolean>
-          getItHitsByLineList() {
-        return java.util.Collections.unmodifiableList(itHitsByLine_);
+      public boolean getItHits() {
+        return itHits_;
       }
       /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
+       * <code>optional bool it_hits = 4;</code>
        */
-      public int getItHitsByLineCount() {
-        return itHitsByLine_.size();
-      }
-      /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
-       */
-      public boolean getItHitsByLine(int index) {
-        return itHitsByLine_.get(index);
-      }
-      /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
-       */
-      public Builder setItHitsByLine(
-          int index, boolean value) {
-        ensureItHitsByLineIsMutable();
-        itHitsByLine_.set(index, value);
+      public Builder setItHits(boolean value) {
+        bitField0_ |= 0x00000008;
+        itHits_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
+       * <code>optional bool it_hits = 4;</code>
        */
-      public Builder addItHitsByLine(boolean value) {
-        ensureItHitsByLineIsMutable();
-        itHitsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
-       */
-      public Builder addAllItHitsByLine(
-          java.lang.Iterable<? extends java.lang.Boolean> values) {
-        ensureItHitsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, itHitsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated bool it_hits_by_line = 4 [packed = true];</code>
-       *
-       * <pre>
-       * List of integration test hits by line
-       * </pre>
-       */
-      public Builder clearItHitsByLine() {
-        itHitsByLine_ = java.util.Collections.emptyList();
+      public Builder clearItHits() {
         bitField0_ = (bitField0_ & ~0x00000008);
+        itHits_ = false;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Integer> utCoveredConditionsByLine_ = java.util.Collections.emptyList();
-      private void ensureUtCoveredConditionsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-          utCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>(utCoveredConditionsByLine_);
-          bitField0_ |= 0x00000010;
-         }
+      private int utCoveredConditions_ ;
+      /**
+       * <code>optional int32 ut_covered_conditions = 5;</code>
+       */
+      public boolean hasUtCoveredConditions() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
+       * <code>optional int32 ut_covered_conditions = 5;</code>
        */
-      public java.util.List<java.lang.Integer>
-          getUtCoveredConditionsByLineList() {
-        return java.util.Collections.unmodifiableList(utCoveredConditionsByLine_);
+      public int getUtCoveredConditions() {
+        return utCoveredConditions_;
       }
       /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
+       * <code>optional int32 ut_covered_conditions = 5;</code>
        */
-      public int getUtCoveredConditionsByLineCount() {
-        return utCoveredConditionsByLine_.size();
-      }
-      /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
-       */
-      public int getUtCoveredConditionsByLine(int index) {
-        return utCoveredConditionsByLine_.get(index);
-      }
-      /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
-       */
-      public Builder setUtCoveredConditionsByLine(
-          int index, int value) {
-        ensureUtCoveredConditionsByLineIsMutable();
-        utCoveredConditionsByLine_.set(index, value);
+      public Builder setUtCoveredConditions(int value) {
+        bitField0_ |= 0x00000010;
+        utCoveredConditions_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
+       * <code>optional int32 ut_covered_conditions = 5;</code>
        */
-      public Builder addUtCoveredConditionsByLine(int value) {
-        ensureUtCoveredConditionsByLineIsMutable();
-        utCoveredConditionsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
-       */
-      public Builder addAllUtCoveredConditionsByLine(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureUtCoveredConditionsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, utCoveredConditionsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 ut_covered_conditions_by_line = 5 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by unit test by line
-       * </pre>
-       */
-      public Builder clearUtCoveredConditionsByLine() {
-        utCoveredConditionsByLine_ = java.util.Collections.emptyList();
+      public Builder clearUtCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000010);
+        utCoveredConditions_ = 0;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Integer> itCoveredConditionsByLine_ = java.util.Collections.emptyList();
-      private void ensureItCoveredConditionsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
-          itCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>(itCoveredConditionsByLine_);
-          bitField0_ |= 0x00000020;
-         }
+      private int itCoveredConditions_ ;
+      /**
+       * <code>optional int32 it_covered_conditions = 6;</code>
+       */
+      public boolean hasItCoveredConditions() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
+       * <code>optional int32 it_covered_conditions = 6;</code>
        */
-      public java.util.List<java.lang.Integer>
-          getItCoveredConditionsByLineList() {
-        return java.util.Collections.unmodifiableList(itCoveredConditionsByLine_);
+      public int getItCoveredConditions() {
+        return itCoveredConditions_;
       }
       /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
+       * <code>optional int32 it_covered_conditions = 6;</code>
        */
-      public int getItCoveredConditionsByLineCount() {
-        return itCoveredConditionsByLine_.size();
-      }
-      /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
-       */
-      public int getItCoveredConditionsByLine(int index) {
-        return itCoveredConditionsByLine_.get(index);
-      }
-      /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
-       */
-      public Builder setItCoveredConditionsByLine(
-          int index, int value) {
-        ensureItCoveredConditionsByLineIsMutable();
-        itCoveredConditionsByLine_.set(index, value);
+      public Builder setItCoveredConditions(int value) {
+        bitField0_ |= 0x00000020;
+        itCoveredConditions_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
+       * <code>optional int32 it_covered_conditions = 6;</code>
        */
-      public Builder addItCoveredConditionsByLine(int value) {
-        ensureItCoveredConditionsByLineIsMutable();
-        itCoveredConditionsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
-       */
-      public Builder addAllItCoveredConditionsByLine(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureItCoveredConditionsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, itCoveredConditionsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 it_covered_conditions_by_line = 6 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by integration test by line
-       * </pre>
-       */
-      public Builder clearItCoveredConditionsByLine() {
-        itCoveredConditionsByLine_ = java.util.Collections.emptyList();
+      public Builder clearItCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000020);
+        itCoveredConditions_ = 0;
         onChanged();
         return this;
       }
 
-      private java.util.List<java.lang.Integer> overallCoveredConditionsByLine_ = java.util.Collections.emptyList();
-      private void ensureOverallCoveredConditionsByLineIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
-          overallCoveredConditionsByLine_ = new java.util.ArrayList<java.lang.Integer>(overallCoveredConditionsByLine_);
-          bitField0_ |= 0x00000040;
-         }
+      private int overallCoveredConditions_ ;
+      /**
+       * <code>optional int32 overall_covered_conditions = 7;</code>
+       */
+      public boolean hasOverallCoveredConditions() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
+       * <code>optional int32 overall_covered_conditions = 7;</code>
        */
-      public java.util.List<java.lang.Integer>
-          getOverallCoveredConditionsByLineList() {
-        return java.util.Collections.unmodifiableList(overallCoveredConditionsByLine_);
+      public int getOverallCoveredConditions() {
+        return overallCoveredConditions_;
       }
       /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
+       * <code>optional int32 overall_covered_conditions = 7;</code>
        */
-      public int getOverallCoveredConditionsByLineCount() {
-        return overallCoveredConditionsByLine_.size();
-      }
-      /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
-       */
-      public int getOverallCoveredConditionsByLine(int index) {
-        return overallCoveredConditionsByLine_.get(index);
-      }
-      /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
-       */
-      public Builder setOverallCoveredConditionsByLine(
-          int index, int value) {
-        ensureOverallCoveredConditionsByLineIsMutable();
-        overallCoveredConditionsByLine_.set(index, value);
+      public Builder setOverallCoveredConditions(int value) {
+        bitField0_ |= 0x00000040;
+        overallCoveredConditions_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
+       * <code>optional int32 overall_covered_conditions = 7;</code>
        */
-      public Builder addOverallCoveredConditionsByLine(int value) {
-        ensureOverallCoveredConditionsByLineIsMutable();
-        overallCoveredConditionsByLine_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
-       */
-      public Builder addAllOverallCoveredConditionsByLine(
-          java.lang.Iterable<? extends java.lang.Integer> values) {
-        ensureOverallCoveredConditionsByLineIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, overallCoveredConditionsByLine_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated int32 overall_covered_conditions_by_line = 7 [packed = true];</code>
-       *
-       * <pre>
-       * List of number of conditions covered by overall test by line
-       * </pre>
-       */
-      public Builder clearOverallCoveredConditionsByLine() {
-        overallCoveredConditionsByLine_ = java.util.Collections.emptyList();
+      public Builder clearOverallCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000040);
+        overallCoveredConditions_ = 0;
         onChanged();
         return this;
       }
@@ -22812,19 +21992,17 @@ public final class BatchReport {
       " \001(\005\022\022\n\nend_offset\030\004 \001(\005\"~\n\007Symbols\022\020\n\010f" +
       "ile_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbols." +
       "Symbol\032@\n\006Symbol\022\033\n\013declaration\030\001 \001(\0132\006.",
-      "Range\022\031\n\treference\030\002 \003(\0132\006.Range\"\374\001\n\010Cov" +
-      "erage\022\020\n\010file_ref\030\001 \001(\005\022\036\n\022conditions_by" +
-      "_line\030\002 \003(\005B\002\020\001\022\033\n\017ut_hits_by_line\030\003 \003(\010" +
-      "B\002\020\001\022\033\n\017it_hits_by_line\030\004 \003(\010B\002\020\001\022)\n\035ut_" +
-      "covered_conditions_by_line\030\005 \003(\005B\002\020\001\022)\n\035" +
-      "it_covered_conditions_by_line\030\006 \003(\005B\002\020\001\022" +
-      ".\n\"overall_covered_conditions_by_line\030\007 " +
-      "\003(\005B\002\020\001\"\263\001\n\022SyntaxHighlighting\022\020\n\010file_r" +
-      "ef\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132$.Sy" +
-      "ntaxHighlighting.HighlightingRule\032J\n\020Hig",
-      "hlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004" +
-      "type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org.son" +
-      "ar.batch.protocol.outputH\001"
+      "Range\022\031\n\treference\030\002 \003(\0132\006.Range\"\260\001\n\010Cov" +
+      "erage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022" +
+      "\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_" +
+      "covered_conditions\030\005 \001(\005\022\035\n\025it_covered_c" +
+      "onditions\030\006 \001(\005\022\"\n\032overall_covered_condi" +
+      "tions\030\007 \001(\005\"\263\001\n\022SyntaxHighlighting\022\020\n\010fi" +
+      "le_ref\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132" +
+      "$.SyntaxHighlighting.HighlightingRule\032J\n" +
+      "\020HighlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range" +
+      "\022\037\n\004type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org",
+      ".sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -22940,7 +22118,7 @@ public final class BatchReport {
     internal_static_Coverage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Coverage_descriptor,
-        new java.lang.String[] { "FileRef", "ConditionsByLine", "UtHitsByLine", "ItHitsByLine", "UtCoveredConditionsByLine", "ItCoveredConditionsByLine", "OverallCoveredConditionsByLine", });
+        new java.lang.String[] { "Line", "Conditions", "UtHits", "ItHits", "UtCoveredConditions", "ItCoveredConditions", "OverallCoveredConditions", });
     internal_static_SyntaxHighlighting_descriptor =
       getDescriptor().getMessageTypes().get(15);
     internal_static_SyntaxHighlighting_fieldAccessorTable = new

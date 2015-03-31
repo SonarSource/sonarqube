@@ -19,17 +19,13 @@
  */
 package org.sonar.batch.protocol;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ProtobufUtil {
   private ProtobufUtil() {
@@ -44,6 +40,55 @@ public class ProtobufUtil {
     }
   }
 
+  public static <M extends Message> Iterable<M> readFileMessages(final File file, final Parser<M> parser) {
+    return new Iterable<M>() {
+      @Override
+      public Iterator<M> iterator() {
+        try {
+          return new Iterator<M>() {
+            final InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+
+            private M currentMessage;
+
+            @Override
+            public boolean hasNext() {
+              if (currentMessage == null) {
+                try {
+                  currentMessage = parser.parseDelimitedFrom(inputStream);
+                  if (currentMessage == null) {
+                    inputStream.close();
+                  }
+                } catch (InvalidProtocolBufferException e) {
+                  throw new IllegalStateException("Failed to read input stream", e);
+                } catch (IOException e) {
+                  throw new IllegalStateException("Failed to close input stream", e);
+                }
+              }
+              return currentMessage != null;
+            }
+
+            @Override
+            public M next() {
+              if (!hasNext()) {
+                throw new NoSuchElementException();
+              }
+              M messageToReturn = currentMessage;
+              currentMessage = null;
+              return messageToReturn;
+            }
+
+            @Override
+            public void remove() {
+              throw new UnsupportedOperationException();
+            }
+          };
+        } catch (FileNotFoundException e) {
+          throw new IllegalStateException("Unable to find file " + file, e);
+        }
+      }
+    };
+  }
+
   public static void writeToFile(Message message, File toFile) {
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(toFile, false))) {
       message.writeTo(out);
@@ -51,4 +96,15 @@ public class ProtobufUtil {
       throw new IllegalStateException("Unable to write protocol buffer data to file " + toFile, e);
     }
   }
+
+  public static <MESSAGE extends Message> void writeMessagesToFile(Iterable<MESSAGE> messages, File file) {
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+      for (MESSAGE message : messages) {
+        message.writeDelimitedTo(out);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read file: " + file, e);
+    }
+  }
+
 }
