@@ -1,0 +1,123 @@
+[
+  {
+    "key": "blocker_violations",
+    "name": "Blocker issues",
+    "description": "Blocker issues",
+    "domain": "Issues",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "new_overall_coverage",
+    "name": "Overall coverage on new code",
+    "description": "Overall coverage of new/changed code",
+    "domain": "Tests (Overall)",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": 1,
+    "val_type": "PERCENT",
+    "hidden": false
+  },
+  {
+    "key": "overall_coverage",
+    "name": "Overall coverage",
+    "description": "Overall test coverage",
+    "domain": "Tests (Overall)",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": 1,
+    "val_type": "PERCENT",
+    "hidden": false
+  },
+  {
+    "key": "open_issues",
+    "name": "Open issues",
+    "description": "Open issues",
+    "domain": "Issues",
+    "qualitative": false,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "sqale_debt_ratio",
+    "name": "Technical Debt Ratio",
+    "description": "Ratio of the actual technical debt compared to the estimated cost to develop the whole source code from scratch.",
+    "domain": "Technical Debt",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "PERCENT",
+    "hidden": false
+  },
+  {
+    "key": "new_coverage",
+    "name": "Coverage on new code",
+    "description": "Coverage of new/changed code",
+    "domain": "Tests",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": 1,
+    "val_type": "PERCENT",
+    "hidden": false
+  },
+  {
+    "key": "reopened_issues",
+    "name": "Reopened issues",
+    "description": "Reopened issues",
+    "domain": "Issues",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "skipped_tests",
+    "name": "Skipped unit tests",
+    "description": "Number of skipped unit tests",
+    "domain": "Tests",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "critical_violations",
+    "name": "Critical issues",
+    "description": "Critical issues",
+    "domain": "Issues",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "test_errors",
+    "name": "Unit tests errors",
+    "description": "Number of unit test errors",
+    "domain": "Tests",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  },
+  {
+    "key": "test_failures",
+    "name": "Unit tests failures",
+    "description": "Number of unit test failures",
+    "domain": "Tests",
+    "qualitative": true,
+    "user_managed": false,
+    "direction": -1,
+    "val_type": "INT",
+    "hidden": false
+  }
+]

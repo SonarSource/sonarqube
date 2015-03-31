@@ -55,7 +55,7 @@
 
               xScale = d3.time.scale()
                   .domain(d3.extent(data, function (d) {
-                    return new Date(d.val);
+                    return moment(d.val).toDate();
                   })),
 
               yScale = d3.scale.linear()
@@ -65,7 +65,7 @@
 
               line = d3.svg.line()
                   .x(function (d) {
-                    return xScale(new Date(d.val));
+                    return xScale(moment(d.val).toDate());
                   })
                   .y(function (d) {
                     return yScale(d.count);

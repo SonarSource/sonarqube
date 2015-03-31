@@ -60,10 +60,9 @@ define([
 
     serializeData: function () {
       var href = window.location.href,
-          search = window.location.search,
           isMoreActive = _.some(OVERVIEW_URLS, function (url) {
             return href.indexOf(url) !== -1;
-          });
+          }),
           isSettingsActive = _.some(SETTINGS_URLS, function (url) {
             return href.indexOf(url) !== -1;
           });

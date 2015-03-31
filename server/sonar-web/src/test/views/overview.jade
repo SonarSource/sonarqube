@@ -1,0 +1,17 @@
+extends layouts/main
+
+block body
+  #content
+    .overview
+  script.
+    window.overviewConf = {
+      period1Name: 'since previous analysis',
+      period1Date: '2015-03-30T18:41:20+0200',
+      period2Name: 'over 365 days',
+      period2Date: '2014-04-07T23:34:01+0200',
+      period3Name: 'since previous version',
+      period3Date: '2015-03-10T12:05:17+0100',
+      componentKey: 'org.codehaus.sonar:sonar',
+      componentUuid: '69e57151-be0d-4157-adff-c06741d88879'
+    };
+    require(['overview/app']);
