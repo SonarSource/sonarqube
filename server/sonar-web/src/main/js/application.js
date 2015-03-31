@@ -423,6 +423,15 @@ function fileFromPath (path) {
   };
 
   /**
+   * Format a rating measure
+   * @param value
+   */
+  var ratingFormatter = function (value) {
+    var intValue = +value;
+    return String.fromCharCode(97 + intValue - 1).toUpperCase();
+  };
+
+  /**
    * Format a measure according to its type
    * @param measure
    * @param {string} type
@@ -440,7 +449,8 @@ function fileFromPath (path) {
           'PERCENT': function (value) {
             return numeral(+value / 100).format('0,0.0%');
           },
-          'WORK_DUR': durationFormatter
+          'WORK_DUR': durationFormatter,
+          'RATING': ratingFormatter
         };
     if (measure != null && type != null) {
       formatted = formatters[type] != null ? formatters[type](measure) : measure;

@@ -26,7 +26,7 @@ lib.changeWorkingDirectory('overview');
 lib.configureCasper();
 
 
-casper.test.begin(testName(), 33, function (test) {
+casper.test.begin(testName(), 34, function (test) {
   casper
       .start(lib.buildUrl('overview'), function () {
         lib.setDefaultViewport();
@@ -67,6 +67,7 @@ casper.test.begin(testName(), 33, function (test) {
         test.assertSelectorContains('#overview-issues', '1,605');
         test.assertExists('#overview-issues-trend path');
 
+        test.assertSelectorContains('#overview-debt', 'A');
         test.assertSelectorContains('#overview-debt', '66');
         test.assertSelectorContains('#overview-debt', '-2');
         test.assertSelectorContains('#overview-debt', '-49');

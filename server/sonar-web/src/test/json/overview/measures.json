@@ -60,6 +60,20 @@
         "fvar3": "-64d"
       },
       {
+        "key": "sqale_rating",
+        "val": 1,
+        "frmt_val": "A",
+        "data": "A",
+        "trend": 0,
+        "var": 0,
+        "var1": 0,
+        "fvar1": "0",
+        "var2": 0,
+        "fvar2": "0",
+        "var3": 0,
+        "fvar3": "0"
+      },
+      {
         "key": "overall_coverage",
         "val": 83.9,
         "frmt_val": "83.9%",

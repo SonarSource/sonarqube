@@ -24,6 +24,7 @@ define(function () {
       SIZE_METRIC = 'ncloc',
       ISSUES_METRIC = 'violations',
       DEBT_METRIC = 'sqale_index',
+      SQALE_RATING_METRIC = 'sqale_rating',
       COVERAGE_METRIC = 'overall_coverage',
       NEW_COVERAGE_METRIC = 'new_overall_coverage',
       DUPLICATIONS_METRIC = 'duplicated_lines_density';
@@ -67,6 +68,7 @@ define(function () {
               GATE_METRIC,
               SIZE_METRIC,
               DEBT_METRIC,
+              SQALE_RATING_METRIC,
               COVERAGE_METRIC,
               NEW_COVERAGE_METRIC,
               DUPLICATIONS_METRIC
@@ -153,7 +155,8 @@ define(function () {
     },
 
     parseDebt: function (msr) {
-      var debtMeasure = _.findWhere(msr, { key: DEBT_METRIC });
+      var debtMeasure = _.findWhere(msr, { key: DEBT_METRIC }),
+          sqaleRatingMeasure = _.findWhere(msr, { key: SQALE_RATING_METRIC });
       if (debtMeasure != null) {
         this.set({
           debt: debtMeasure.val,
@@ -161,6 +164,9 @@ define(function () {
           debt2: debtMeasure.var2,
           debt3: debtMeasure.var3
         });
+      }
+      if (sqaleRatingMeasure != null) {
+        this.set({ sqaleRating: sqaleRatingMeasure.val });
       }
     },
 

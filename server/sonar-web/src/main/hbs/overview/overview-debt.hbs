@@ -4,6 +4,9 @@
   <tr>
     <td class="width-55">
       <div class="overview-main-measure">
+        {{#notNull sqaleRating}}
+          <a href="{{urlForDrilldown componentKey 'sqale_rating'}}"><span class="rating rating-{{formatMeasure sqaleRating 'RATING'}}">{{formatMeasure sqaleRating 'RATING'}}</span></a>
+        {{/notNull}}
         <a href="{{urlForDrilldown componentKey 'sqale_index'}}">{{formatMeasure debt 'WORK_DUR'}}</a>
       </div>
       <div class="overview-trend">
