@@ -109,7 +109,6 @@ casper.test.begin(testName('In Removed Component'), 2, function (test) {
       })
 
       .then(function () {
-        lib.capture();
         test.assertExists('.bubble-popup .alert');
       })
 

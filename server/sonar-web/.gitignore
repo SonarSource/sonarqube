@@ -10,3 +10,6 @@ src/main/webapp/js/
 src/main/webapp/css/
 src/main/webapp/WEB-INF/lib/*.jar
 !src/main/webapp/WEB-INF/lib/eastwood-1.1.0.jar
+
+# tests
+src/test/json/*.png
