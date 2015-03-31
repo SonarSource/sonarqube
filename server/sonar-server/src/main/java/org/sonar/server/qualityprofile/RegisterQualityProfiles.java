@@ -87,17 +87,7 @@ public class RegisterQualityProfiles implements ServerComponent {
       for (String language : profilesByLanguage.keySet()) {
         List<RulesProfile> defs = profilesByLanguage.get(language);
         if (verifyLanguage(language, defs)) {
-          for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
-            String name = entry.getKey();
-            QProfileName profileName = new QProfileName(language, name);
-            if (shouldRegister(profileName, session)) {
-              register(profileName, entry.getValue(), session);
-              session.commit();
-            }
-            builtInProfiles.put(language, name);
-          }
-          setDefault(language, defs, session);
-          session.commit();
+          registerProfilesForLanguage(session, language, defs);
         }
       }
       profiler.stopDebug();
@@ -121,6 +111,20 @@ public class RegisterQualityProfiles implements ServerComponent {
       throw new IllegalStateException(String.format("Several Quality profiles are flagged as default for the language %s: %s", language, defaultProfileNames));
     }
     return true;
+  }
+
+  private void registerProfilesForLanguage(DbSession session, String language, List<RulesProfile> defs) {
+    for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
+      String name = entry.getKey();
+      QProfileName profileName = new QProfileName(language, name);
+      if (shouldRegister(profileName, session)) {
+        register(profileName, entry.getValue(), session);
+        session.commit();
+      }
+      builtInProfiles.put(language, name);
+    }
+    setDefault(language, defs, session);
+    session.commit();
   }
 
   private void register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
@@ -155,7 +159,12 @@ public class RegisterQualityProfiles implements ServerComponent {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().getByNameAndLanguage(defaultProfileName, language, session);
-      dbClient.qualityProfileDao().update(session, newDefaultProfile.setDefault(true));
+      if (newDefaultProfile == null) {
+        // Must not happen, we just registered it
+        throw new IllegalStateException("Could not find declared default profile '%s' for language '%s'");
+      } else {
+        dbClient.qualityProfileDao().update(session, newDefaultProfile.setDefault(true));
+      }
     }
   }
 
