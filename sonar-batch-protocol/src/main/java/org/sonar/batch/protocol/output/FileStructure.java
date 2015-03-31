@@ -47,7 +47,7 @@ public class FileStructure {
 
   private final File dir;
 
-  FileStructure(File dir) {
+  public FileStructure(File dir) {
     if (!dir.exists() || !dir.isDirectory()) {
       throw new IllegalArgumentException("Directory of analysis report does not exist: " + dir);
     }
