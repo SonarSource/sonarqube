@@ -78,4 +78,10 @@ public interface QualityProfileMapper {
   void deleteProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 
   void deleteAllProjectProfileAssociation(@Param("profileKey") String profileKey);
+
+  List<ProjectQprofileAssociationDto> selectSelectedProjects(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
+
+  List<ProjectQprofileAssociationDto> selectDeselectedProjects(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
+
+  List<ProjectQprofileAssociationDto> selectProjectAssociations(@Param("profileKey") String profileKey, @Param("nameQuery") String nameQuery);
 }

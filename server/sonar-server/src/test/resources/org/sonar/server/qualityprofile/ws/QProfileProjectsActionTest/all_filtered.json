@@ -1,0 +1,17 @@
+{
+  "results":
+  [
+    {
+      "key": "CDEF",
+      "name": "Project Three",
+      "selected": false
+    },
+    {
+      "key": "BCDE",
+      "name": "Project Two",
+      "selected": true
+    }
+  ],
+
+  "more": false
+}

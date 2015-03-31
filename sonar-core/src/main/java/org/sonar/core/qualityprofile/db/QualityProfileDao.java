@@ -30,6 +30,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -333,5 +334,24 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
     session.getMapper(QualityProfileMapper.class).deleteAllProjectProfileAssociation(profileKey);
+  }
+
+  public List<ProjectQprofileAssociationDto> selectSelectedProjects(String profileKey, @Nullable String query, DbSession session) {
+    String nameQuery = sqlQueryString(query);
+    return session.getMapper(QualityProfileMapper.class).selectSelectedProjects(profileKey, nameQuery);
+  }
+
+  public List<ProjectQprofileAssociationDto> selectDeselectedProjects(String profileKey, @Nullable String query, DbSession session) {
+    String nameQuery = sqlQueryString(query);
+    return session.getMapper(QualityProfileMapper.class).selectDeselectedProjects(profileKey, nameQuery);
+  }
+
+  public List<ProjectQprofileAssociationDto> selectProjectAssociations(String profileKey, @Nullable String query, DbSession session) {
+    String nameQuery = sqlQueryString(query);
+    return session.getMapper(QualityProfileMapper.class).selectProjectAssociations(profileKey, nameQuery);
+  }
+
+  private String sqlQueryString(String query) {
+    return query == null ? "%" : "%" + query.toUpperCase() + "%";
   }
 }
