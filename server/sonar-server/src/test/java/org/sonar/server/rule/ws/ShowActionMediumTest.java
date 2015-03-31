@@ -95,7 +95,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule.json", false);
+    request.execute().assertJson(getClass(), "show_rule.json");
   }
 
   @Test
@@ -133,7 +133,7 @@ public class ShowActionMediumTest {
       .setParam("key", ruleDto.getKey().toString());
     WsTester.Result response = request.execute();
 
-    response.assertJson(getClass(), "show_rule_with_default_debt_infos.json", false);
+    response.assertJson(getClass(), "show_rule_with_default_debt_infos.json");
   }
 
   @Test
@@ -169,7 +169,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_overridden_debt_infos.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_overridden_debt_infos.json");
   }
 
   @Test
@@ -210,7 +210,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_default_and_overridden_debt_infos.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_default_and_overridden_debt_infos.json");
   }
 
   @Test
@@ -242,7 +242,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_no_default_and_no_overridden_debt.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_no_default_and_no_overridden_debt.json");
   }
 
   @Test
@@ -273,7 +273,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_overridden_disable_debt.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_overridden_disable_debt.json");
   }
 
   @Test
@@ -297,7 +297,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", customRuleKey.toString());
-    request.execute().assertJson(getClass(), "encode_html_description_of_custom_rule.json", false);
+    request.execute().assertJson(getClass(), "encode_html_description_of_custom_rule.json");
   }
 
   @Test
@@ -316,7 +316,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", customRuleKey.toString());
-    request.execute().assertJson(getClass(), "encode_html_description_of_manual_rule.json", false);
+    request.execute().assertJson(getClass(), "encode_html_description_of_manual_rule.json");
   }
 
 }

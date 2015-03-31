@@ -23,7 +23,7 @@ class Event < ActiveRecord::Base
   validates_length_of      :name, :within => 1..400
   validates_length_of      :category, :within => 1..50
 
-  belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
+  belongs_to :resource, :class_name => 'Project', :foreign_key => 'component_uuid', :primary_key => 'uuid'
   belongs_to :snapshot
 
   before_save :populate_snapshot

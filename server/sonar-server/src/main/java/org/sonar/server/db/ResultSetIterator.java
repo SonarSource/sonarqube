@@ -21,8 +21,6 @@ package org.sonar.server.db;
 
 import org.apache.commons.dbutils.DbUtils;
 
-import javax.annotation.CheckForNull;
-
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -76,7 +74,6 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   }
 
   @Override
-  @CheckForNull
   public E next() {
     if (!hasNext()) {
       close();

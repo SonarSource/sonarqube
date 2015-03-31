@@ -30,17 +30,9 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.ExtensionInstaller;
-import org.sonar.batch.bootstrap.ExtensionMatcher;
-import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.*;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.debt.DebtDecorator;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.NewDebtDecorator;
-import org.sonar.batch.debt.SqaleRatingDecorator;
-import org.sonar.batch.debt.SqaleRatingSettings;
+import org.sonar.batch.debt.*;
 import org.sonar.batch.deprecated.DeprecatedSensorContext;
 import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
@@ -60,41 +52,12 @@ import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
 import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.phases.DatabaseLessPhaseExecutor;
-import org.sonar.batch.phases.DatabaseModePhaseExecutor;
-import org.sonar.batch.phases.DecoratorsExecutor;
-import org.sonar.batch.phases.InitializersExecutor;
-import org.sonar.batch.phases.PhaseExecutor;
-import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.phases.PostJobsExecutor;
-import org.sonar.batch.phases.ProjectInitializer;
-import org.sonar.batch.phases.SensorsExecutor;
+import org.sonar.batch.phases.*;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.report.ComponentsPublisher;
-import org.sonar.batch.report.IssuesPublisher;
-import org.sonar.batch.report.PublishReportJob;
-import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.QProfileDecorator;
-import org.sonar.batch.rule.QProfileEventsDecorator;
-import org.sonar.batch.rule.QProfileSensor;
-import org.sonar.batch.rule.QProfileVerifier;
-import org.sonar.batch.rule.RuleFinderCompatibility;
-import org.sonar.batch.rule.RulesProfileProvider;
-import org.sonar.batch.scan.filesystem.ComponentIndexer;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
-import org.sonar.batch.scan.filesystem.ExclusionFilters;
-import org.sonar.batch.scan.filesystem.FileIndexer;
-import org.sonar.batch.scan.filesystem.FileMetadata;
-import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
-import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
-import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
-import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
-import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
+import org.sonar.batch.report.*;
+import org.sonar.batch.rule.*;
+import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.report.IssuesReports;
 import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
@@ -151,6 +114,8 @@ public class ModuleScanContainer extends ComponentContainer {
       PublishReportJob.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
+      MeasuresPublisher.class,
+      DuplicationsPublisher.class,
       moduleDefinition.getContainerExtensions(),
 
       // file system
@@ -213,8 +178,7 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(DecoratorsExecutor.class,
 
-      // quality gates
-      new QualityGateProvider(),
+      // Quality Gate
       QualityGateVerifier.class,
       GenerateQualityGateEvents.class,
 

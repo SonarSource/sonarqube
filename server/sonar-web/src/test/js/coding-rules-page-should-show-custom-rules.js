@@ -31,13 +31,19 @@ casper.test.begin('coding-rules-page-should-show-custom-rules', 3, function (tes
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-custom-rules.json',
             { data: { template_key: 'squid:ArchitecturalConstraint' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequest('/api/issues/search', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
       })
 
       .then(function () {

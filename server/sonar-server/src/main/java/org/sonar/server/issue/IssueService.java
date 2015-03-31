@@ -21,8 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
@@ -40,13 +38,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -77,7 +73,6 @@ public class IssueService implements ServerComponent {
   private final NotificationManager notificationService;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
-  private final IssueDao deprecatedIssueDao;
   private final UserFinder userFinder;
   private final UserIndex userIndex;
   private final SourceLineIndex sourceLineIndex;
@@ -89,7 +84,6 @@ public class IssueService implements ServerComponent {
     NotificationManager notificationService,
     ActionPlanService actionPlanService,
     RuleFinder ruleFinder,
-    IssueDao deprecatedIssueDao,
     UserFinder userFinder,
     UserIndex userIndex, SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
@@ -100,7 +94,6 @@ public class IssueService implements ServerComponent {
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
     this.notificationService = notificationService;
-    this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
     this.userIndex = userIndex;
     this.sourceLineIndex = sourceLineIndex;
@@ -277,24 +270,6 @@ public class IssueService implements ServerComponent {
     } finally {
       session.close();
     }
-  }
-
-  // TODO result should be replaced by an aggregation object in IssueIndex
-  public RulesAggregation findRulesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
-    RulesAggregation rulesAggregation = new RulesAggregation();
-    for (RuleDto ruleDto : deprecatedIssueDao.findRulesByComponent(componentKey, periodDate, session)) {
-      rulesAggregation.add(ruleDto);
-    }
-    return rulesAggregation;
-  }
-
-  // TODO result should be replaced by an aggregation object in IssueIndex
-  public Multiset<String> findSeveritiesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
-    Multiset<String> aggregation = HashMultiset.create();
-    for (String severity : deprecatedIssueDao.findSeveritiesByComponent(componentKey, periodDate, session)) {
-      aggregation.add(severity);
-    }
-    return aggregation;
   }
 
   public Issue getByKey(String key) {

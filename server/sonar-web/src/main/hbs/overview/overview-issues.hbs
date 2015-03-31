@@ -1,0 +1,40 @@
+<h6 class="note">{{t 'overview.issues'}}</h6>
+
+<table class="width100">
+  <tr>
+    <td class="width-55">
+      <div class="overview-main-measure">
+        <a href="{{urlForIssuesOverview componentKey}}">{{formatMeasure issues 'INT'}}</a>
+      </div>
+      <div class="overview-trend">
+        <div id="overview-issues-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
+    </td>
+    <td class="width-15">
+      <a href="{{urlForIssuesOverview componentKey period1Date}}"
+         class="overview-measure {{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}">
+        {{formatMeasureVariation issues1 'INT'}}
+      </a>
+      <span class="note">new</span>
+      <p class="note">{{period1Name}}</p>
+    </td>
+    <td class="width-15">
+      <div style="display: inline-block; vertical-align: middle;">
+        <a href="{{urlForIssuesOverview componentKey period2Date}}"
+           class="overview-measure {{#gt issues2 0}}text-danger{{else}}text-success{{/gt}}">
+          {{formatMeasureVariation issues2 'INT'}}
+        </a>
+        <span class="note">new</span>
+        <p class="note">{{period2Name}}</p>
+      </div>
+    </td>
+    <td class="width-15">
+      <a href="{{urlForIssuesOverview componentKey period3Date}}"
+         class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">
+        {{formatMeasureVariation issues3 'INT'}}
+      </a>
+      <span class="note">new</span>
+      <p class="note">{{period3Name}}</p>
+    </td>
+  </tr>
+</table>

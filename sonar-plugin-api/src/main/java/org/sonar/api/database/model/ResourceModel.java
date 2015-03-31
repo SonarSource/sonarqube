@@ -23,32 +23,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.hibernate.annotations.BatchSize;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.Nullable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Class to map resource with hibernate model
  */
 @Entity
 @Table(name = "projects")
-public class ResourceModel extends BaseIdentifiable implements Cloneable {
+public class ResourceModel extends BaseIdentifiable implements Cloneable, Serializable {
 
   public static final String SCOPE_PROJECT = "PRJ";
   public static final String QUALIFIER_PROJECT_TRUNK = "TRK";
@@ -101,10 +91,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
-  @OneToMany(mappedBy = "resource", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
-  @BatchSize(size = 8)
-  private List<ProjectLink> projectLinks = new ArrayList<ProjectLink>();
-
   @Column(name = "uuid", updatable = false, nullable = true, length = 50)
   private String uuid;
 
@@ -147,29 +133,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     this.path = path;
     this.name = name;
     this.qualifier = qualifier;
-  }
-
-  /**
-   * Only available at project level.
-   */
-  public List<ProjectLink> getProjectLinks() {
-    return projectLinks;
-  }
-
-  public void setProjectLinks(List<ProjectLink> projectLinks) {
-    this.projectLinks = projectLinks;
-  }
-
-  /**
-   * @return a project link given its key if exists, null otherwise
-   */
-  public ProjectLink getProjectLink(String key) {
-    for (ProjectLink projectLink : projectLinks) {
-      if (key.equals(projectLink.getKey())) {
-        return projectLink;
-      }
-    }
-    return null;
   }
 
   /**
@@ -411,7 +374,6 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     clone.setDescription(getDescription());
     clone.setDeprecatedKey(getDeprecatedKey());
     clone.setEnabled(getEnabled());
-    clone.setProjectLinks(getProjectLinks());
     clone.setLanguageKey(getLanguageKey());
     clone.setCopyResourceId(getCopyResourceId());
     clone.setLongName(getLongName());

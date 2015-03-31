@@ -101,7 +101,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void ignore_null_values() throws Exception {
+  public void ignore_null_values_by_default() throws Exception {
     writer.beginObject()
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
@@ -111,6 +111,20 @@ public class JsonWriterTest {
       .name("nullDateTime").valueDate(null)
       .endObject().close();
     expect("{}");
+  }
+
+  @Test
+  public void serialize_null_values() throws Exception {
+    writer.setSerializeNulls(true);
+    writer.beginObject()
+      .prop("nullNumber", (Number) null)
+      .prop("nullString", (String) null)
+      .name("nullNumber").value((Number) null)
+      .name("nullString").value((String) null)
+      .name("nullDate").valueDate(null)
+      .name("nullDateTime").valueDate(null)
+      .endObject().close();
+    expect("{\"nullNumber\":null,\"nullString\":null,\"nullNumber\":null,\"nullString\":null,\"nullDate\":null,\"nullDateTime\":null}");
   }
 
   @Test

@@ -28,13 +28,14 @@ import java.util.List;
 
 public interface MeasureMapper {
 
-  MeasureDto selectByKey(@Param("key") MeasureKey key);
+  MeasureDto selectByKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
   List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
 
   @CheckForNull
   MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
-  long countByKey(@Param("key") MeasureKey key);
+  long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
+  void insert(MeasureDto measureDto);
 }

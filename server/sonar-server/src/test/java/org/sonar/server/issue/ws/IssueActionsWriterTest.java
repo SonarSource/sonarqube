@@ -20,13 +20,11 @@
 
 package org.sonar.server.issue.ws;
 
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -37,6 +35,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.test.JsonAssert;
 
 import java.io.StringWriter;
 
@@ -181,22 +180,22 @@ public class IssueActionsWriterTest {
       "{\"transitions\": []}");
   }
 
-  private void testActions(Issue issue, String expected) throws JSONException {
+  private void testActions(Issue issue, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
     writer.writeActions(issue, jsonWriter);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(output.toString(), expected, true);
+    JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 
-  private void testTransitions(Issue issue, String expected) throws JSONException {
+  private void testTransitions(Issue issue, String expected) {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
     writer.writeTransitions(issue, jsonWriter);
     jsonWriter.endObject();
-    JSONAssert.assertEquals(output.toString(), expected, true);
+    JsonAssert.assertJson(output.toString()).isSimilarTo(expected);
   }
 
 }

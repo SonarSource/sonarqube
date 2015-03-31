@@ -86,6 +86,7 @@ import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
+import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.computation.ComputationThreadLauncher;
@@ -112,6 +113,7 @@ import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
@@ -239,13 +241,6 @@ class ServerComponents {
       System2.INSTANCE,
 
       // DB
-      MeasureDao.class,
-      MetricDao.class,
-      ComponentDao.class,
-      SnapshotDao.class,
-      MeasureFilterDao.class,
-      AnalysisReportDao.class,
-      ComponentIndexDao.class,
       DbClient.class,
 
       // Elasticsearch
@@ -277,7 +272,20 @@ class ServerComponents {
       IssueIndex.class,
       IssueDao.class,
 
-      ActivityDao.class
+      // measures
+      MeasureDao.class,
+      MetricDao.class,
+      MeasureFilterDao.class,
+
+      // components
+      ComponentDao.class,
+      ComponentIndexDao.class,
+      ComponentLinkDao.class,
+      SnapshotDao.class,
+
+      EventDao.class,
+      ActivityDao.class,
+      AnalysisReportDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
@@ -371,10 +379,12 @@ class ServerComponents {
     pico.addSingleton(QProfileProjectLookup.class);
     pico.addSingleton(BuiltInProfiles.class);
     pico.addSingleton(QProfileRestoreBuiltInAction.class);
+    pico.addSingleton(QProfileSearchAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
     pico.addSingleton(BulkRuleActivationActions.class);
+    pico.addSingleton(ProjectAssociationActions.class);
     pico.addSingleton(RuleActivator.class);
     pico.addSingleton(QProfileLoader.class);
     pico.addSingleton(QProfileExporters.class);
@@ -555,7 +565,6 @@ class ServerComponents {
     pico.addSingleton(IssueFilterSerializer.class);
     pico.addSingleton(IssueFilterWs.class);
     pico.addSingleton(IssueFilterWriter.class);
-    pico.addSingleton(RegisterIssueFilters.class);
     pico.addSingleton(org.sonar.server.issue.filter.AppAction.class);
     pico.addSingleton(org.sonar.server.issue.filter.ShowAction.class);
     pico.addSingleton(org.sonar.server.issue.filter.FavoritesAction.class);
@@ -590,10 +599,8 @@ class ServerComponents {
     pico.addSingleton(ShowAction.class);
     pico.addSingleton(LinesAction.class);
     pico.addSingleton(HashAction.class);
-    pico.addSingleton(ScmWriter.class);
     pico.addSingleton(RawAction.class);
     pico.addSingleton(IndexAction.class);
-    pico.addSingleton(ScmAction.class);
     pico.addSingleton(SourceLineIndexDefinition.class);
     pico.addSingleton(SourceLineIndex.class);
     pico.addSingleton(SourceLineIndexer.class);
@@ -701,6 +708,8 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
     startupContainer.addSingleton(ReportQueueCleaner.class);
+    startupContainer.addSingleton(RegisterIssueFilters.class);
+    startupContainer.addSingleton(RenameIssueWidgets.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override

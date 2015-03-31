@@ -78,6 +78,12 @@ module DashboardHelper
     end
   end
 
+  def short_period_label(snapshot, index)
+    if snapshot.project_snapshot
+      Api::Utils.java_facade.getPeriodLabel(index)
+    end
+  end
+
   def violation_period_select_options(snapshot, index)
     return nil if snapshot.nil? || snapshot.project_snapshot.nil?
     mode=snapshot.project_snapshot.send "period#{index}_mode"

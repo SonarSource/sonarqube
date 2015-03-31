@@ -1,0 +1,371 @@
+{
+  "total": 413,
+  "p": 1,
+  "ps": 25,
+  "rules": [
+    {
+      "key": "squid:S2077",
+      "name": "Values passed to SQL commands should be sanitized",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "cwe",
+        "owasp-top10",
+        "security",
+        "sql"
+      ],
+      "tags": [
+        "custom-tag"
+      ]
+    },
+    {
+      "key": "php:S107",
+      "name": "Functions should not have too many parameters",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "brain-overload"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1192",
+      "name": "String literals should not be duplicated",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [],
+      "tags": []
+    },
+    {
+      "key": "php:S1145",
+      "name": "\"if\" statement conditions should not always evaluate to \"true\" or to \"false\"",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "bug",
+        "cwe",
+        "security"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S108",
+      "name": "Nested blocks of code should not be left empty",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [],
+      "tags": []
+    },
+    {
+      "key": "php:S1301",
+      "name": "\"switch\" statements should have at least 3 \"case\" clauses",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [],
+      "tags": []
+    },
+    {
+      "key": "php:S103",
+      "name": "Lines should not be too long",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1144",
+      "name": "Unused private method should be removed",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "unused"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S105",
+      "name": "Tabulation characters should not be used",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention",
+        "psr2"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1481",
+      "name": "Unused local variables should be removed",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "unused"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1142",
+      "name": "Functions should not contain too many return statements",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "brain-overload"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S104",
+      "name": "Files should not have too many lines",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "brain-overload"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1605",
+      "name": "PHP 4 style calls to parent constructors should not be used in PHP5 \"__construct\" functions",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1448",
+      "name": "Classes should not have too many methods",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "brain-overload"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1603",
+      "name": "PHP 4 constructor declarations should not be used",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "pitfail"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1779",
+      "name": "Only LF character (Unix-like) should be used to end lines",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention",
+        "psr2"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1185",
+      "name": "Overriding methods should do more than simply call the same method in the super class",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [],
+      "tags": []
+    },
+    {
+      "key": "php:S1600",
+      "name": "Deprecated predefined variables should not be used",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "pitfail"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1109",
+      "name": "A close curly brace should be located at the beginning of a line",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S2001",
+      "name": "Functions deprecated in PHP 5 should not be used",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "obsolete"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S2002",
+      "name": "Errors should not be silenced",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "pitfail"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S2000",
+      "name": "Files should not contain characters before \"<?php\"",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "user-experience"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1105",
+      "name": "An open curly brace should be located at the end of a line",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1200",
+      "name": "Classes should not be coupled to too many other classes (Single Responsibility Principle)",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "brain-overload"
+      ],
+      "tags": []
+    },
+    {
+      "key": "php:S1106",
+      "name": "An open curly brace should be located at the beginning of a line",
+      "lang": "php",
+      "langName": "PHP",
+      "sysTags": [
+        "convention"
+      ],
+      "tags": []
+    }
+  ],
+  "facets": [
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "convention",
+          "count": 67
+        },
+        {
+          "val": "brain-overload",
+          "count": 36
+        },
+        {
+          "val": "bug",
+          "count": 36
+        },
+        {
+          "val": "cwe",
+          "count": 17
+        },
+        {
+          "val": "unused",
+          "count": 16
+        },
+        {
+          "val": "security",
+          "count": 14
+        },
+        {
+          "val": "pitfall",
+          "count": 12
+        },
+        {
+          "val": "psr2",
+          "count": 12
+        },
+        {
+          "val": "error-handling",
+          "count": 11
+        },
+        {
+          "val": "pitfail",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 212
+        },
+        {
+          "val": "py",
+          "count": 212
+        },
+        {
+          "val": "php",
+          "count": 103
+        },
+        {
+          "val": "js",
+          "count": 77
+        }
+      ]
+    },
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "squid",
+          "count": 206
+        },
+        {
+          "val": "Pylint",
+          "count": 180
+        },
+        {
+          "val": "php",
+          "count": 97
+        },
+        {
+          "val": "javascript",
+          "count": 73
+        },
+        {
+          "val": "python",
+          "count": 28
+        },
+        {
+          "val": "common-java",
+          "count": 6
+        },
+        {
+          "val": "common-php",
+          "count": 6
+        },
+        {
+          "val": "manual",
+          "count": 5
+        },
+        {
+          "val": "common-js",
+          "count": 4
+        },
+        {
+          "val": "common-py",
+          "count": 4
+        }
+      ]
+    }
+  ]
+}

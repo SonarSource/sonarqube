@@ -36,11 +36,10 @@ public class SourcesWsTest {
 
   ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
-  ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), mock(ComponentService.class));
   HashAction hashAction = new HashAction(mock(DbClient.class));
   IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction, hashAction, indexAction));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, indexAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -48,7 +47,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(5);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -65,14 +64,6 @@ public class SourcesWsTest {
     assertThat(raw.isInternal()).isFalse();
     assertThat(raw.responseExampleAsString()).isNotEmpty();
     assertThat(raw.params()).hasSize(1);
-
-    WebService.Action scm = controller.action("scm");
-    assertThat(scm).isNotNull();
-    assertThat(scm.handler()).isSameAs(scmAction);
-    assertThat(scm.since()).isEqualTo("4.4");
-    assertThat(scm.isInternal()).isFalse();
-    assertThat(scm.responseExampleAsString()).isNotEmpty();
-    assertThat(scm.params()).hasSize(4);
 
     WebService.Action lines = controller.action("lines");
     assertThat(lines).isNotNull();

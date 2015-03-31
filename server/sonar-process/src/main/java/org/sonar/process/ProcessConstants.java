@@ -48,6 +48,7 @@ public interface ProcessConstants {
   String PATH_TEMP = "sonar.path.temp";
   String PATH_WEB = "sonar.path.web";
 
+  String SEARCH_HOST = "sonar.search.host";
   String SEARCH_PORT = "sonar.search.port";
   String SEARCH_JAVA_OPTS = "sonar.search.javaOpts";
   String SEARCH_JAVA_ADDITIONAL_OPTS = "sonar.search.javaAdditionalOpts";

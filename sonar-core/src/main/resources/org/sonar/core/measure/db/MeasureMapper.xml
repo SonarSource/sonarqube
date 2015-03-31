@@ -8,7 +8,7 @@
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
-    pm.measure_data as data,
+    pm.measure_data as dataValue,
     pm.variation_value_1 as variation1,
     pm.variation_value_2 as variation2,
     pm.variation_value_3 as variation3,
@@ -17,38 +17,6 @@
     p.kee as componentKey,
     metric.name as metricKey
   </sql>
-
-  <select id="selectByKey" parameterType="map" resultType="Measure">
-    SELECT
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
-    <where>
-      AND p.kee = #{key.componentKey}
-      AND metric.name = #{key.metricKey}
-      AND pm.rule_id IS NULL
-      AND pm.characteristic_id IS NULL
-      AND pm.person_id IS NULL
-    </where>
-  </select>
-
-  <select id="selectByComponentAndMetrics" parameterType="map" resultType="Measure">
-    SELECT metric.name as metric_name,
-    <include refid="measureColumns"/>
-    FROM project_measures pm
-    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
-    INNER JOIN metrics metric ON metric.id=pm.metric_id
-    <where>
-      AND p.kee = #{componentKey}
-      AND <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">metric.name=#{metricKey}</foreach>
-      AND pm.rule_id IS NULL
-      AND pm.characteristic_id IS NULL
-      AND pm.person_id IS NULL
-    </where>
-  </select>
 
   <select id="selectByComponentAndMetric" parameterType="map" resultType="Measure">
     SELECT metric.name as metric_name,
@@ -66,19 +34,53 @@
     </where>
   </select>
 
-  <select id="countByKey" parameterType="map" resultType="long">
+  <select id="selectByComponentAndMetrics" parameterType="map" resultType="Measure">
+    SELECT metric.name as metric_name,
+    <include refid="measureColumns"/>
+    FROM project_measures pm
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
+    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN metrics metric ON metric.id=pm.metric_id
+    <where>
+      AND p.kee = #{componentKey}
+      AND
+      <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">
+        metric.name=#{metricKey}
+      </foreach>
+      AND pm.rule_id IS NULL
+      AND pm.characteristic_id IS NULL
+      AND pm.person_id IS NULL
+    </where>
+  </select>
+
+  <select id="countByComponentAndMetric" parameterType="map" resultType="long">
     SELECT count(pm.id)
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
     INNER JOIN metrics metric ON metric.id=pm.metric_id
     INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
     <where>
-      AND p.kee = #{key.componentKey}
-      AND metric.name = #{key.metricKey}
+      AND p.kee = #{componentKey}
+      AND metric.name = #{metricKey}
       AND pm.rule_id IS NULL
       AND pm.characteristic_id IS NULL
       AND pm.person_id IS NULL
     </where>
   </select>
+
+  <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
+    INSERT INTO project_measures (
+    value, metric_id, snapshot_id, rule_id, text_value, tendency, project_id, alert_status, alert_text, description,
+    rule_priority, characteristic_id, person_id, variation_value_1, variation_value_2, variation_value_3, variation_value_4,
+    variation_value_5, measure_data)
+    VALUES (
+    #{value, jdbcType=DOUBLE}, #{metricId, jdbcType=INTEGER}, #{snapshotId, jdbcType=INTEGER},
+    #{ruleId, jdbcType=INTEGER}, #{textValue, jdbcType=VARCHAR}, #{tendency, jdbcType=INTEGER},
+    #{projectId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
+    #{description, jdbcType=VARCHAR}, #{severityIndex, jdbcType=INTEGER}, #{characteristicId, jdbcType=INTEGER},
+    #{personId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE}, #{variation3, jdbcType=DOUBLE},
+    #{variation4, jdbcType=DOUBLE}, #{variation5, jdbcType=DOUBLE}, #{dataValue, jdbcType=BINARY}
+    )
+  </insert>
 
 </mapper>

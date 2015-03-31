@@ -22,10 +22,12 @@ define [
   'components/navigator/controller'
 
   'issues/component-viewer/main'
+  'issues/workspace-home-view'
 ], (
   Controller
 
   ComponentViewer
+  HomeView
 ) ->
 
   $ = jQuery
@@ -61,6 +63,7 @@ define [
     fetchList: (firstPage = true) ->
       if firstPage
         @options.app.state.set { selectedIndex: 0, page: 1 }, { silent: true }
+        @hideHomePage()
         @closeComponentViewer()
 
       data = @_issuesParameters()
@@ -198,6 +201,25 @@ define [
       @options.app.state.unset 'component'
       @options.app.layout.workspaceComponentViewerRegion.reset()
       @options.app.layout.hideComponentViewer()
+      @options.app.issuesView.bindScrollEvents()
+      @options.app.issuesView.scrollTo()
+
+
+    showHomePage: ->
+      @fetchList()
+      @options.app.layout.workspaceComponentViewerRegion.reset()
+      key.setScope 'home'
+      @options.app.issuesView.unbindScrollEvents()
+      @options.app.homeView = new HomeView app: @options.app
+      @options.app.layout.workspaceHomeRegion.show @options.app.homeView
+      @options.app.layout.showHomePage()
+
+
+    hideHomePage: ->
+      @options.app.layout.workspaceComponentViewerRegion.reset()
+      @options.app.layout.workspaceHomeRegion.reset()
+      key.setScope 'list'
+      @options.app.layout.hideHomePage()
       @options.app.issuesView.bindScrollEvents()
       @options.app.issuesView.scrollTo()
 

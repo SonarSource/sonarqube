@@ -178,20 +178,20 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   public void select_module_properties_tree() throws Exception {
     setupData("select_module_properties_tree");
 
-    List<PropertyDto> properties = dao.selectModulePropertiesTree("ABCD", session);
+    List<PropertyDto> properties = dao.selectEnabledDescendantModuleProperties("ABCD", session);
     assertThat(properties.size(), is(4));
     assertThat(properties).extracting("key").containsOnly("struts.one", "core.one", "core.two", "data.one");
     assertThat(properties).extracting("value").containsOnly("one", "two");
 
-    properties = dao.selectModulePropertiesTree("EFGH", session);
+    properties = dao.selectEnabledDescendantModuleProperties("EFGH", session);
     assertThat(properties.size(), is(3));
     assertThat(properties).extracting("key").containsOnly("core.one", "core.two", "data.one");
 
-    properties = dao.selectModulePropertiesTree("FGHI", session);
+    properties = dao.selectEnabledDescendantModuleProperties("FGHI", session);
     assertThat(properties.size(), is(1));
     assertThat(properties).extracting("key").containsOnly("data.one");
 
-    assertThat(dao.selectModulePropertiesTree("unknown", session).size(), is(0));
+    assertThat(dao.selectEnabledDescendantModuleProperties("unknown", session).size(), is(0));
   }
 
   @Test

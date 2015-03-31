@@ -1,0 +1,35 @@
+<h6 class="note">{{t 'overview.debt'}}</h6>
+
+<table class="width100">
+  <tr>
+    <td class="width-55">
+      <div class="overview-main-measure">
+        <a href="{{urlForDrilldown componentKey 'sqale_index'}}">{{formatMeasure debt 'WORK_DUR'}}</a>
+      </div>
+      <div class="overview-trend">
+        <div id="overview-debt-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
+    </td>
+    <td class="width-15">
+      <a href="{{urlForDrilldown componentKey 'sqale_index' 1}}"
+         class="overview-measure {{#gt deb1 0}}text-danger{{/gt}}{{#lt debt1 0}}text-success{{/lt}}">
+        {{formatMeasureVariation debt1 'WORK_DUR'}}
+      </a>
+      <p class="note">{{period1Name}}</p>
+    </td>
+    <td class="width-15">
+      <a href="{{urlForDrilldown componentKey 'sqale_index' 2}}"
+         class="overview-measure {{#gt debt2 0}}text-danger{{/gt}}{{#lt debt2 0}}text-success{{/lt}}">
+        {{formatMeasureVariation debt2 'WORK_DUR'}}
+      </a>
+      <p class="note">{{period2Name}}</p>
+    </td>
+    <td class="width-15">
+      <a href="{{urlForDrilldown componentKey 'sqale_index' 3}}"
+         class="overview-measure {{#gt debt3 0}}text-danger{{/gt}}{{#lt debt3 0}}text-success{{/lt}}">
+        {{formatMeasureVariation debt3 'WORK_DUR'}}
+      </a>
+      <p class="note">{{period3Name}}</p>
+    </td>
+  </tr>
+</table>

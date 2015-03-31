@@ -72,18 +72,17 @@ public class LinesActionTest {
       new SourcesWs(
         mock(ShowAction.class),
         mock(RawAction.class),
-        mock(ScmAction.class),
         new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService),
         mock(HashAction.class),
         mock(IndexAction.class)
       )
-    );
+      );
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).thenAnswer(new Answer<String>() {
       @Override
       public String answer(InvocationOnMock invocation) throws Throwable {
         return "<span class=\"" + invocation.getArguments()[1] + " sym-" + invocation.getArguments()[2] + "\">" +
           StringEscapeUtils.escapeHtml((String) invocation.getArguments()[0]) +
-            "</span>";
+          "</span>";
       }
     });
   }
@@ -155,7 +154,7 @@ public class LinesActionTest {
       line1,
       line2,
       line3
-    ));
+      ));
 
     String componentKey = "componentKey";
     when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
@@ -163,7 +162,7 @@ public class LinesActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
     // Using non-strict match b/c of dates
-    request.execute().assertJson(getClass(), "show_source.json", false);
+    request.execute().assertJson(getClass(), "show_source.json");
   }
 
   @Test
@@ -213,7 +212,7 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-    ));
+      ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "lines")
       .setParam("uuid", fileUuid)

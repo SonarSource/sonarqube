@@ -1,7 +1,7 @@
 <dataset>
 
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            root_id="[null]"
+            root_id="[null]" uuid="ABCD"
             description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
@@ -30,13 +30,13 @@
              scope="PRJ" qualifier="TRK" created_at="1226235480000" build_date="1226235480000" version="1.2-SNAPSHOT" path=""
              status="U" islast="true" depth="0" />
   
-  <events id="2" name="Foo" resource_id="1" snapshot_id="1000" category="Other" event_date="1225717080000" created_at="1225717080000" description=""
+  <events id="2" name="Foo" component_uuid="ABCD" snapshot_id="1000" category="Other" event_date="1225717080000" created_at="1225717080000" description=""
           event_data="[null]"/>
-  <events id="4" name="Bar" resource_id="1" snapshot_id="1001" category="Other" event_date="1225889880000" created_at="1225889880000" description=""
+  <events id="4" name="Bar" component_uuid="ABCD" snapshot_id="1001" category="Other" event_date="1225889880000" created_at="1225889880000" description=""
           event_data="[null]"/>
-  <events id="5" name="Uhh" resource_id="1" snapshot_id="1002" category="Other" event_date="1226062680000" created_at="1226062680000" description=""
+  <events id="5" name="Uhh" component_uuid="ABCD" snapshot_id="1002" category="Other" event_date="1226062680000" created_at="1226062680000" description=""
           event_data="[null]"/>
-  <events id="6" name="1.2-SNAPSHOT" resource_id="1" snapshot_id="1003" category="Version" event_date="1226235480000" created_at="1226235480000" description=""
+  <events id="6" name="1.2-SNAPSHOT" component_uuid="ABCD" snapshot_id="1003" category="Version" event_date="1226235480000" created_at="1226235480000" description=""
           event_data="[null]"/>
 
 </dataset>

@@ -77,7 +77,7 @@ public class HistoryWsActionMediumTest {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest("api/computation", "history");
-    request.execute().assertJson(getClass(), "list_history_reports.json", false);
+    request.execute().assertJson(getClass(), "list_history_reports.json");
   }
 
   @Test(expected = ForbiddenException.class)

@@ -80,7 +80,7 @@ define [
 
 
     applyFacet: ->
-      obj = {}
+      obj = createdAt: null, createdInLast: null
       @$('input').each ->
         property = $(@).prop 'name'
         value = $(@).val()

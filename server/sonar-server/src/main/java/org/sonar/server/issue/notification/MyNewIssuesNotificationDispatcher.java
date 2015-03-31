@@ -30,7 +30,7 @@ import java.util.Collection;
  */
 public class MyNewIssuesNotificationDispatcher extends NotificationDispatcher {
 
-  public static final String KEY = "MyNewIssues";
+  public static final String KEY = "SQ-MyNewIssues";
   private final NotificationManager manager;
 
   public MyNewIssuesNotificationDispatcher(NotificationManager manager) {

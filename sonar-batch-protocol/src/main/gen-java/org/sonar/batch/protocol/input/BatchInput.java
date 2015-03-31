@@ -8,10 +8,10 @@ public final class BatchInput {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
-  public interface ServerIssueOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
+  public interface ServerIssueOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:ServerIssue)
+      com.google.protobuf.MessageOrBuilder {
 
-    // optional string key = 1;
     /**
      * <code>optional string key = 1;</code>
      */
@@ -26,7 +26,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getKeyBytes();
 
-    // optional string module_key = 2;
     /**
      * <code>optional string module_key = 2;</code>
      */
@@ -41,7 +40,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getModuleKeyBytes();
 
-    // optional string path = 3;
     /**
      * <code>optional string path = 3;</code>
      */
@@ -56,7 +54,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getPathBytes();
 
-    // optional string rule_repository = 4;
     /**
      * <code>optional string rule_repository = 4;</code>
      */
@@ -71,7 +68,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getRuleRepositoryBytes();
 
-    // optional string rule_key = 5;
     /**
      * <code>optional string rule_key = 5;</code>
      */
@@ -86,7 +82,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getRuleKeyBytes();
 
-    // optional int32 line = 6;
     /**
      * <code>optional int32 line = 6;</code>
      */
@@ -96,7 +91,6 @@ public final class BatchInput {
      */
     int getLine();
 
-    // optional string msg = 7;
     /**
      * <code>optional string msg = 7;</code>
      */
@@ -111,7 +105,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getMsgBytes();
 
-    // optional .Severity severity = 8;
     /**
      * <code>optional .Severity severity = 8;</code>
      */
@@ -121,7 +114,6 @@ public final class BatchInput {
      */
     org.sonar.batch.protocol.Constants.Severity getSeverity();
 
-    // optional bool manual_severity = 9;
     /**
      * <code>optional bool manual_severity = 9;</code>
      */
@@ -131,7 +123,6 @@ public final class BatchInput {
      */
     boolean getManualSeverity();
 
-    // optional string resolution = 10;
     /**
      * <code>optional string resolution = 10;</code>
      */
@@ -146,7 +137,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getResolutionBytes();
 
-    // optional string status = 11;
     /**
      * <code>optional string status = 11;</code>
      */
@@ -161,7 +151,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getStatusBytes();
 
-    // optional string checksum = 12;
     /**
      * <code>optional string checksum = 12;</code>
      */
@@ -176,7 +165,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getChecksumBytes();
 
-    // optional string assignee_login = 13;
     /**
      * <code>optional string assignee_login = 13;</code>
      */
@@ -191,7 +179,6 @@ public final class BatchInput {
     com.google.protobuf.ByteString
         getAssigneeLoginBytes();
 
-    // optional int64 creation_date = 14;
     /**
      * <code>optional int64 creation_date = 14;</code>
      */
@@ -205,8 +192,9 @@ public final class BatchInput {
    * Protobuf type {@code ServerIssue}
    */
   public static final class ServerIssue extends
-      com.google.protobuf.GeneratedMessage
-      implements ServerIssueOrBuilder {
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:ServerIssue)
+      ServerIssueOrBuilder {
     // Use ServerIssue.newBuilder() to construct.
     private ServerIssue(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -253,28 +241,33 @@ public final class BatchInput {
               break;
             }
             case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              key_ = input.readBytes();
+              key_ = bs;
               break;
             }
             case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000002;
-              moduleKey_ = input.readBytes();
+              moduleKey_ = bs;
               break;
             }
             case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
-              path_ = input.readBytes();
+              path_ = bs;
               break;
             }
             case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              ruleRepository_ = input.readBytes();
+              ruleRepository_ = bs;
               break;
             }
             case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              ruleKey_ = input.readBytes();
+              ruleKey_ = bs;
               break;
             }
             case 48: {
@@ -283,8 +276,9 @@ public final class BatchInput {
               break;
             }
             case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
-              msg_ = input.readBytes();
+              msg_ = bs;
               break;
             }
             case 64: {
@@ -304,23 +298,27 @@ public final class BatchInput {
               break;
             }
             case 82: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
-              resolution_ = input.readBytes();
+              resolution_ = bs;
               break;
             }
             case 90: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000400;
-              status_ = input.readBytes();
+              status_ = bs;
               break;
             }
             case 98: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000800;
-              checksum_ = input.readBytes();
+              checksum_ = bs;
               break;
             }
             case 106: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00001000;
-              assigneeLogin_ = input.readBytes();
+              assigneeLogin_ = bs;
               break;
             }
             case 112: {
@@ -368,7 +366,6 @@ public final class BatchInput {
     }
 
     private int bitField0_;
-    // optional string key = 1;
     public static final int KEY_FIELD_NUMBER = 1;
     private java.lang.Object key_;
     /**
@@ -411,7 +408,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string module_key = 2;
     public static final int MODULE_KEY_FIELD_NUMBER = 2;
     private java.lang.Object moduleKey_;
     /**
@@ -454,7 +450,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string path = 3;
     public static final int PATH_FIELD_NUMBER = 3;
     private java.lang.Object path_;
     /**
@@ -497,7 +492,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string rule_repository = 4;
     public static final int RULE_REPOSITORY_FIELD_NUMBER = 4;
     private java.lang.Object ruleRepository_;
     /**
@@ -540,7 +534,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string rule_key = 5;
     public static final int RULE_KEY_FIELD_NUMBER = 5;
     private java.lang.Object ruleKey_;
     /**
@@ -583,7 +576,6 @@ public final class BatchInput {
       }
     }
 
-    // optional int32 line = 6;
     public static final int LINE_FIELD_NUMBER = 6;
     private int line_;
     /**
@@ -599,7 +591,6 @@ public final class BatchInput {
       return line_;
     }
 
-    // optional string msg = 7;
     public static final int MSG_FIELD_NUMBER = 7;
     private java.lang.Object msg_;
     /**
@@ -642,7 +633,6 @@ public final class BatchInput {
       }
     }
 
-    // optional .Severity severity = 8;
     public static final int SEVERITY_FIELD_NUMBER = 8;
     private org.sonar.batch.protocol.Constants.Severity severity_;
     /**
@@ -658,7 +648,6 @@ public final class BatchInput {
       return severity_;
     }
 
-    // optional bool manual_severity = 9;
     public static final int MANUAL_SEVERITY_FIELD_NUMBER = 9;
     private boolean manualSeverity_;
     /**
@@ -674,7 +663,6 @@ public final class BatchInput {
       return manualSeverity_;
     }
 
-    // optional string resolution = 10;
     public static final int RESOLUTION_FIELD_NUMBER = 10;
     private java.lang.Object resolution_;
     /**
@@ -717,7 +705,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string status = 11;
     public static final int STATUS_FIELD_NUMBER = 11;
     private java.lang.Object status_;
     /**
@@ -760,7 +747,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string checksum = 12;
     public static final int CHECKSUM_FIELD_NUMBER = 12;
     private java.lang.Object checksum_;
     /**
@@ -803,7 +789,6 @@ public final class BatchInput {
       }
     }
 
-    // optional string assignee_login = 13;
     public static final int ASSIGNEE_LOGIN_FIELD_NUMBER = 13;
     private java.lang.Object assigneeLogin_;
     /**
@@ -846,7 +831,6 @@ public final class BatchInput {
       }
     }
 
-    // optional int64 creation_date = 14;
     public static final int CREATION_DATE_FIELD_NUMBER = 14;
     private long creationDate_;
     /**
@@ -881,7 +865,8 @@ public final class BatchInput {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -1079,8 +1064,9 @@ public final class BatchInput {
      * Protobuf type {@code ServerIssue}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.sonar.batch.protocol.input.BatchInput.ServerIssueOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:ServerIssue)
+        org.sonar.batch.protocol.input.BatchInput.ServerIssueOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_descriptor;
@@ -1330,7 +1316,6 @@ public final class BatchInput {
       }
       private int bitField0_;
 
-      // optional string key = 1;
       private java.lang.Object key_ = "";
       /**
        * <code>optional string key = 1;</code>
@@ -1344,9 +1329,12 @@ public final class BatchInput {
       public java.lang.String getKey() {
         java.lang.Object ref = key_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          key_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1404,7 +1392,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string module_key = 2;
       private java.lang.Object moduleKey_ = "";
       /**
        * <code>optional string module_key = 2;</code>
@@ -1418,9 +1405,12 @@ public final class BatchInput {
       public java.lang.String getModuleKey() {
         java.lang.Object ref = moduleKey_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          moduleKey_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            moduleKey_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1478,7 +1468,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string path = 3;
       private java.lang.Object path_ = "";
       /**
        * <code>optional string path = 3;</code>
@@ -1492,9 +1481,12 @@ public final class BatchInput {
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          path_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            path_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1552,7 +1544,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string rule_repository = 4;
       private java.lang.Object ruleRepository_ = "";
       /**
        * <code>optional string rule_repository = 4;</code>
@@ -1566,9 +1557,12 @@ public final class BatchInput {
       public java.lang.String getRuleRepository() {
         java.lang.Object ref = ruleRepository_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          ruleRepository_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ruleRepository_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1626,7 +1620,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string rule_key = 5;
       private java.lang.Object ruleKey_ = "";
       /**
        * <code>optional string rule_key = 5;</code>
@@ -1640,9 +1633,12 @@ public final class BatchInput {
       public java.lang.String getRuleKey() {
         java.lang.Object ref = ruleKey_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          ruleKey_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            ruleKey_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1700,7 +1696,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional int32 line = 6;
       private int line_ ;
       /**
        * <code>optional int32 line = 6;</code>
@@ -1733,7 +1728,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string msg = 7;
       private java.lang.Object msg_ = "";
       /**
        * <code>optional string msg = 7;</code>
@@ -1747,9 +1741,12 @@ public final class BatchInput {
       public java.lang.String getMsg() {
         java.lang.Object ref = msg_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          msg_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            msg_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1807,7 +1804,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional .Severity severity = 8;
       private org.sonar.batch.protocol.Constants.Severity severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
       /**
        * <code>optional .Severity severity = 8;</code>
@@ -1843,7 +1839,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional bool manual_severity = 9;
       private boolean manualSeverity_ ;
       /**
        * <code>optional bool manual_severity = 9;</code>
@@ -1876,7 +1871,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string resolution = 10;
       private java.lang.Object resolution_ = "";
       /**
        * <code>optional string resolution = 10;</code>
@@ -1890,9 +1884,12 @@ public final class BatchInput {
       public java.lang.String getResolution() {
         java.lang.Object ref = resolution_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          resolution_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            resolution_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1950,7 +1947,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string status = 11;
       private java.lang.Object status_ = "";
       /**
        * <code>optional string status = 11;</code>
@@ -1964,9 +1960,12 @@ public final class BatchInput {
       public java.lang.String getStatus() {
         java.lang.Object ref = status_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          status_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            status_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2024,7 +2023,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string checksum = 12;
       private java.lang.Object checksum_ = "";
       /**
        * <code>optional string checksum = 12;</code>
@@ -2038,9 +2036,12 @@ public final class BatchInput {
       public java.lang.String getChecksum() {
         java.lang.Object ref = checksum_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          checksum_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            checksum_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2098,7 +2099,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional string assignee_login = 13;
       private java.lang.Object assigneeLogin_ = "";
       /**
        * <code>optional string assignee_login = 13;</code>
@@ -2112,9 +2112,12 @@ public final class BatchInput {
       public java.lang.String getAssigneeLogin() {
         java.lang.Object ref = assigneeLogin_;
         if (!(ref instanceof java.lang.String)) {
-          java.lang.String s = ((com.google.protobuf.ByteString) ref)
-              .toStringUtf8();
-          assigneeLogin_ = s;
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            assigneeLogin_ = s;
+          }
           return s;
         } else {
           return (java.lang.String) ref;
@@ -2172,7 +2175,6 @@ public final class BatchInput {
         return this;
       }
 
-      // optional int64 creation_date = 14;
       private long creationDate_ ;
       /**
        * <code>optional int64 creation_date = 14;</code>
@@ -2216,7 +2218,7 @@ public final class BatchInput {
     // @@protoc_insertion_point(class_scope:ServerIssue)
   }
 
-  private static com.google.protobuf.Descriptors.Descriptor
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ServerIssue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -2241,24 +2243,25 @@ public final class BatchInput {
       " \001(\003B\"\n\036org.sonar.batch.protocol.inputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_ServerIssue_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_ServerIssue_fieldAccessorTable = new
-            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_ServerIssue_descriptor,
-              new java.lang.String[] { "Key", "ModuleKey", "Path", "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "ManualSeverity", "Resolution", "Status", "Checksum", "AssigneeLogin", "CreationDate", });
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           org.sonar.batch.protocol.Constants.getDescriptor(),
         }, assigner);
+    internal_static_ServerIssue_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_ServerIssue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_ServerIssue_descriptor,
+        new java.lang.String[] { "Key", "ModuleKey", "Path", "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "ManualSeverity", "Resolution", "Status", "Checksum", "AssigneeLogin", "CreationDate", });
+    org.sonar.batch.protocol.Constants.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

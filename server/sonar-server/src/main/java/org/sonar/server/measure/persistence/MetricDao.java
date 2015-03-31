@@ -20,34 +20,28 @@
 
 package org.sonar.server.measure.persistence;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.utils.System2;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.measure.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
+
+import javax.annotation.CheckForNull;
 
 import java.util.List;
 
-public class MetricDao extends BaseDao<MetricMapper, MetricDto, String> implements ServerComponent, DaoComponent {
+public class MetricDao implements ServerComponent, DaoComponent {
 
-  public MetricDao() {
-    this(System2.INSTANCE);
+  @CheckForNull
+  public MetricDto selectByKey(DbSession session, String key) {
+    return session.getMapper(MetricMapper.class).selectByKey(key);
   }
 
-  @VisibleForTesting
-  public MetricDao(System2 system) {
-    super(MetricMapper.class, system);
+  public List<MetricDto> selectEnabled(DbSession session) {
+    return session.getMapper(MetricMapper.class).selectAllEnabled();
   }
 
-  @Override
-  protected MetricDto doGetNullableByKey(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
-  }
-
-  public List<MetricDto> findEnabled(DbSession session) {
-    return mapper(session).selectAllEnabled();
+  public void insert(DbSession session, MetricDto dto){
+    session.getMapper(MetricMapper.class).insert(dto);
   }
 }

@@ -7,8 +7,6 @@
     "severity": "MINOR",
     "status": "BETA",
     "isTemplate": false,
-    "debtChar": "NONE",
-    "debtSubChar": "NONE",
     "debtOverloaded": true,
     "lang": "xoo"
   }

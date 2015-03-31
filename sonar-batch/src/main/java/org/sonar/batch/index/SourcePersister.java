@@ -87,9 +87,9 @@ public class SourcePersister implements ScanPersister {
   }
 
   private void persist(DbSession session, FileSourceMapper mapper, DefaultInputFile inputFile, Map<String, FileSourceDto> previousDtosByUuid) {
-    String fileUuid = resourceCache.get(inputFile.key()).resource().getUuid();
+    String fileUuid = resourceCache.get(inputFile).resource().getUuid();
 
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile.moduleKey(), inputFile.relativePath());
+    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile);
     byte[] data = computeData(inputFile, metadata);
     String dataHash = DigestUtils.md5Hex(data);
     FileSourceDto previousDto = previousDtosByUuid.get(fileUuid);
@@ -102,18 +102,23 @@ public class SourcePersister implements ScanPersister {
         .setSrcHash(metadata.hash())
         .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(system2.now())
-        .setUpdatedAt(system2.now());
+        .setUpdatedAt(0L);
       mapper.insert(dto);
       session.commit();
     } else {
       // Update only if data_hash has changed or if src_hash is missing (progressive migration)
-      if (!dataHash.equals(previousDto.getDataHash()) || !metadata.hash().equals(previousDto.getSrcHash())) {
+      boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
+      boolean srcHashUpdated = !metadata.hash().equals(previousDto.getSrcHash());
+      if (binaryDataUpdated || srcHashUpdated) {
         previousDto
           .setBinaryData(data)
           .setDataHash(dataHash)
           .setSrcHash(metadata.hash())
-          .setLineHashes(lineHashesAsMd5Hex(inputFile))
-          .setUpdatedAt(system2.now());
+          .setLineHashes(lineHashesAsMd5Hex(inputFile));
+        // Optimization only change updated at when updating binary data to avoid unecessary indexation by E/S
+        if (binaryDataUpdated) {
+          previousDto.setUpdatedAt(0L);
+        }
         mapper.update(previousDto);
         session.commit();
       }

@@ -549,7 +549,7 @@
 				var request = $.extend({}, requestSettings);
 
 				if (typeof console.log === 'function') {
-					console.log(message, request);
+					console.log(message, JSON.stringify(request.data));
 				} else {
 					try {
 						console.log( message + ' ' + JSON.stringify(request) );

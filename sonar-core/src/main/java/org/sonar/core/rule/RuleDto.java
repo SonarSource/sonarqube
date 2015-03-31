@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 import java.util.*;
 
-public final class RuleDto extends Dto<RuleKey> {
+public class RuleDto extends Dto<RuleKey> {
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 

@@ -20,12 +20,25 @@
 define(function () {
 
   return Backbone.Model.extend({
-    idAttribute: 'uuid',
 
     validate: function () {
-      if (!this.has('uuid')) {
+      if (!this.has('type')) {
+        return 'type is missing';
+      }
+      if (this.get('type') === 'component' && !this.has('uuid')) {
         return 'uuid is missing';
       }
+      if (this.get('type') === 'rule' && !this.has('key')) {
+        return 'key is missing';
+      }
+    },
+
+    isComponent: function () {
+      return this.get('type') === 'component';
+    },
+
+    isRule: function () {
+      return this.get('type') === 'rule';
     },
 
     destroy: function (options) {

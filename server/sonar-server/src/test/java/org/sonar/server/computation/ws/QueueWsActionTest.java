@@ -60,7 +60,7 @@ public class QueueWsActionTest {
     when(queue.all()).thenReturn(reports);
 
     WsTester.TestRequest request = tester.newGetRequest(ComputationWebService.API_ENDPOINT, "queue");
-    request.execute().assertJson(getClass(), "list_queue_reports.json", false);
+    request.execute().assertJson(getClass(), "list_queue_reports.json");
   }
 
   @Test

@@ -8,11 +8,11 @@
   </div>
 
   <div class="modal-body modal-body-select2">
-    <div class="modal-error"></div>
+    <div class="alert alert-danger"></div>
 
     {{#empty qualityProfiles}}
       {{#unless change}}
-        <div class="message-notice">{{t 'coding_rules.active_in_all_profiles'}}</div>
+        <div class="alert alert-info">{{t 'coding_rules.active_in_all_profiles'}}</div>
       {{/unless}}
     {{/empty}}
 

@@ -24,7 +24,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -32,7 +31,6 @@ import org.sonar.server.exceptions.Verifications;
 import org.sonar.server.util.Slug;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -41,8 +39,6 @@ import java.util.List;
  * Create, delete, rename and set as default profile.
  */
 public class QProfileFactory implements ServerComponent {
-
-  private static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";
 
   private final DbClient db;
 
@@ -108,10 +104,9 @@ public class QProfileFactory implements ServerComponent {
     QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(session, key);
     List<QualityProfileDto> descendants = db.qualityProfileDao().findDescendants(session, key);
     if (!force) {
-      QualityProfileDto defaultProfile = getDefault(session, profile.getLanguage());
-      checkNotDefault(defaultProfile, profile);
+      checkNotDefault(profile);
       for (QualityProfileDto descendant : descendants) {
-        checkNotDefault(defaultProfile, descendant);
+        checkNotDefault(descendant);
       }
     }
     // delete bottom-up
@@ -124,7 +119,6 @@ public class QProfileFactory implements ServerComponent {
   private void doDelete(DbSession session, QualityProfileDto profile) {
     db.activeRuleDao().deleteByProfileKey(session, profile.getKey());
     db.qualityProfileDao().delete(session, profile);
-    db.propertiesDao().deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
   }
 
   // ------------- DEFAULT PROFILE
@@ -161,10 +155,11 @@ public class QProfileFactory implements ServerComponent {
   }
 
   private void setDefault(DbSession session, QualityProfileDto profile) {
-    PropertyDto property = new PropertyDto()
-      .setKey(PROFILE_PROPERTY_PREFIX + profile.getLanguage())
-      .setValue(profile.getName());
-    db.propertiesDao().setProperty(property, session);
+    QualityProfileDto previousDefault = db.qualityProfileDao().getDefaultProfile(profile.getLanguage(), session);
+    if (previousDefault != null) {
+      db.qualityProfileDao().update(session, previousDefault.setDefault(false));
+    }
+    db.qualityProfileDao().update(session, profile.setDefault(true));
   }
 
   QualityProfileDto getByProjectAndLanguage(String projectKey, String language) {
@@ -178,7 +173,7 @@ public class QProfileFactory implements ServerComponent {
 
   @CheckForNull
   public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, PROFILE_PROPERTY_PREFIX + language, session);
+    return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, session);
   }
 
   QualityProfileDto getByNameAndLanguage(String name, String language) {
@@ -195,8 +190,8 @@ public class QProfileFactory implements ServerComponent {
     return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
   }
 
-  private void checkNotDefault(@Nullable QualityProfileDto defaultProfile, QualityProfileDto p) {
-    if (defaultProfile != null && defaultProfile.getKey().equals(p.getKey())) {
+  private void checkNotDefault(QualityProfileDto p) {
+    if (p.isDefault()) {
       throw new BadRequestException("The profile marked as default can not be deleted: " + p.getKey());
     }
   }
@@ -213,10 +208,8 @@ public class QProfileFactory implements ServerComponent {
         if (db.qualityProfileDao().getByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
           throw new BadRequestException("Quality profile already exists: " + newName);
         }
-        String previousName = profile.getName();
         profile.setName(newName);
         db.qualityProfileDao().update(dbSession, profile);
-        db.propertiesDao().updateProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), previousName, newName, dbSession);
         dbSession.commit();
         return true;
       }

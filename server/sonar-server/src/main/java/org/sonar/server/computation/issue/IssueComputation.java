@@ -61,8 +61,8 @@ public class IssueComputation {
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
-  public void processComponentIssues(ComputationContext context, String componentUuid, Iterable<BatchReport.Issue> issues) {
-    linesCache.init(componentUuid);
+  public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef) {
+    linesCache.init(componentUuid, componentReportRef, context.getReportReader());
     computeDefaultAssignee(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
     for (BatchReport.Issue reportIssue : issues) {
       DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue);
@@ -95,7 +95,7 @@ public class IssueComputation {
       target.setCurrentChange(fieldDiffs);
     }
     target.setStatus(issue.getStatus());
-    target.setTags(issue.getTagsList());
+    target.setTags(issue.getTagList());
     target.setResolution(issue.hasResolution() ? issue.getResolution() : null);
     target.setReporter(issue.hasReporter() ? issue.getReporter() : null);
     target.setAssignee(issue.hasAssignee() ? issue.getAssignee() : null);

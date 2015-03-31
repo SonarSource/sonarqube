@@ -73,14 +73,14 @@ public class IssueTagsActionTest {
 
   @Test
   public void should_return_empty_list() throws Exception {
-    tester.newGetRequest("api/issues", "tags").execute().assertJson("{tags:[]}");
+    tester.newGetRequest("api/issues", "tags").execute().assertJson("{\"tags\":[]}");
   }
 
   @Test
   public void should_return_tag_list() throws Exception {
     when(service.listTags("polop", 5)).thenReturn(Lists.newArrayList("tag1", "tag2", "tag3", "tag4", "tag5"));
     tester.newGetRequest("api/issues", "tags").setParam("q", "polop").setParam("ps", "5").execute()
-      .assertJson("{tags:[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
+      .assertJson("{\"tags\":[\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"]}");
     verify(service).listTags("polop", 5);
   }
 }

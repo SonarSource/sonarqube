@@ -27,7 +27,6 @@ define([
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
       'source-viewer/popups/line-actions-popup',
-      'workspace/main',
       'templates/source-viewer'
     ],
     function (Source,
@@ -38,8 +37,7 @@ define([
               SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
-              LineActionsPopupView,
-              Workspace) {
+              LineActionsPopupView) {
 
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
@@ -124,14 +122,16 @@ define([
           this.bindScrollEvents();
         },
 
-        open: function (id) {
+        open: function (id, options) {
           var that = this,
+              opts = typeof options === 'object' ? options : {},
               finalize = function () {
                 that.requestIssues().done(function () {
                   that.render();
                   that.trigger('loaded');
                 });
               };
+          _.extend(this.options, _.defaults(opts, { workspace: false }));
           this.model
               .clear()
               .set(_.result(this.model, 'defaults'))
@@ -142,7 +142,7 @@ define([
                 .fail(function () {
                   that.model.set({
                     source: [
-                      {line: 0}
+                      { line: 0 }
                     ]
                   });
                   finalize();
@@ -157,7 +157,7 @@ define([
               options = { uuid: this.model.id };
           return $.get(url, options).done(function (data) {
             that.model.set(data);
-            that.model.set({isUnitTest: data.q === 'UTS'});
+            that.model.set({ isUnitTest: data.q === 'UTS' });
           });
         },
 
@@ -199,11 +199,11 @@ define([
         requestSource: function () {
           var that = this,
               url = baseUrl + '/api/sources/lines',
-              options = _.extend({uuid: this.model.id}, this.linesLimit());
+              options = _.extend({ uuid: this.model.id }, this.linesLimit());
           return $.get(url, options).done(function (data) {
             var source = (data.sources || []).slice(0);
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
-              source.unshift({line: 0});
+              source.unshift({ line: 0 });
             }
             source = source.map(function (row) {
               return _.extend(row, {
@@ -236,7 +236,7 @@ define([
         requestDuplications: function () {
           var that = this,
               url = baseUrl + '/api/duplications/show',
-              options = { uuid  : this.model.id };
+              options = { uuid: this.model.id };
           return $.get(url, options, function (data) {
             var hasDuplications = (data != null) && (data.duplications != null),
                 duplications = [];
@@ -378,7 +378,7 @@ define([
           e.stopPropagation();
           $('body').click();
           var line = +$(e.currentTarget).data('line-number'),
-              row = _.findWhere(this.model.get('source'), {line: line}),
+              row = _.findWhere(this.model.get('source'), { line: line }),
               popup = new SCMPopupView({
                 triggerEl: $(e.currentTarget),
                 model: new Backbone.Model(row)
@@ -431,14 +431,24 @@ define([
           this.clearTooltips();
           var index = $(e.currentTarget).data('index'),
               line = $(e.currentTarget).data('line-number'),
-              blocks = this.model.get('duplications')[index - 1].blocks;
+              blocks = this.model.get('duplications')[index - 1].blocks,
+              inRemovedComponent = _.some(blocks, function (b) {
+                return b._ref == null;
+              }),
+              foundOne = false;
           blocks = _.filter(blocks, function (b) {
-            var outOfBounds = b.from > line || b.from + b.size < line;
-            return (b._ref !== '1') || (b._ref === '1' && outOfBounds);
+            var outOfBounds = b.from > line || b.from + b.size < line,
+                currentFile = b._ref === '1',
+                isOk = (b._ref != null) && (!currentFile || (currentFile && (outOfBounds || foundOne)));
+            if (b._ref === '1' && !outOfBounds) {
+              foundOne = true;
+            }
+            return isOk;
           });
           var popup = new DuplicationPopupView({
             triggerEl: $(e.currentTarget),
             model: this.model,
+            inRemovedComponent: inRemovedComponent,
             collection: new Backbone.Collection(blocks)
           });
           popup.render();
@@ -583,7 +593,7 @@ define([
               that.model.set({ hasSourceAfter: true });
             }
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
-              source.unshift({line: 0});
+              source.unshift({ line: 0 });
             }
             source = source.map(function (row) {
               return _.extend(row, {

@@ -87,7 +87,7 @@ public class CreateActionMediumTest {
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
-    request.execute().assertJson(getClass(), "create_custom_rule.json", false);
+    request.execute().assertJson(getClass(), "create_custom_rule.json");
   }
 
   @Test
@@ -101,7 +101,7 @@ public class CreateActionMediumTest {
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR");
-    request.execute().assertJson(getClass(), "create_manual_rule.json", false);
+    request.execute().assertJson(getClass(), "create_manual_rule.json");
   }
 
   @Test
@@ -114,7 +114,7 @@ public class CreateActionMediumTest {
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description");
-    request.execute().assertJson(getClass(), "create_manual_rule_without_severity.json", false);
+    request.execute().assertJson(getClass(), "create_manual_rule_without_severity.json");
   }
 
   @Test
@@ -161,7 +161,7 @@ public class CreateActionMediumTest {
       .setParam("severity", "MAJOR")
       .setParam("prevent_reactivation", "true");
     request.execute()
-      .assertJson(getClass(), "create_rule_with_prevent_reactivation_param_to_true.json", false)
+      .assertJson(getClass(), "create_rule_with_prevent_reactivation_param_to_true.json")
       .assertStatus(409);
   }
 

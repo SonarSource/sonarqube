@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentKeysTest {
 
   @Test
-  public void shouldCreateUID() {
+  public void create_effective_key() {
     Project project = new Project("my_project");
     assertThat(ComponentKeys.createEffectiveKey(project, project)).isEqualTo("my_project");
 
@@ -43,6 +43,13 @@ public class ComponentKeysTest {
 
     InputFile file = new DefaultInputFile("foo", "foo/Bar.php");
     assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");
+  }
+
+  @Test
+  public void create_key_from_module_key_path_and_branch() {
+    assertThat(ComponentKeys.createKey("module_key", "file", "origin/master")).isEqualTo("module_key:file:origin/master");
+    assertThat(ComponentKeys.createKey("module_key", "file", null)).isEqualTo("module_key:file");
+    assertThat(ComponentKeys.createKey("module_key", null, null)).isEqualTo("module_key");
   }
 
   @Test

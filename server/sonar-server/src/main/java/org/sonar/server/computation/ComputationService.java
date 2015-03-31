@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -42,11 +43,13 @@ import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.properties.ProjectSettingsFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.*;
 
 public class ComputationService implements ServerComponent {
 
@@ -73,10 +76,15 @@ public class ComputationService implements ServerComponent {
     Profiler profiler = Profiler.create(LOG).startDebug(String.format(
       "Analysis of project %s (report %d)", item.dto.getProjectKey(), item.dto.getId()));
 
-    ComponentDto project = loadProject(item);
+    ComponentDto project = null;
+
     try {
+      project = loadProject(item);
       File reportDir = extractReportInDir(item);
       BatchReportReader reader = new BatchReportReader(reportDir);
+      if (isSnapshotMissing(item, reader.readMetadata().getSnapshotId())) {
+        return;
+      }
       ComputationContext context = new ComputationContext(reader, project);
       context.setProjectSettings(projectSettingsFactory.newProjectSettings(project.getId()));
       for (ComputationStep step : steps.orderedSteps()) {
@@ -86,12 +94,10 @@ public class ComputationService implements ServerComponent {
           stepProfiler.stopDebug();
         }
       }
-      item.dto.succeed();
-
-    } catch (Exception e) {
-      item.dto.fail();
+      item.dto.setStatus(SUCCESS);
+    } catch (Throwable e) {
+      item.dto.setStatus(FAILED);
       throw Throwables.propagate(e);
-
     } finally {
       item.dto.setFinishedAt(system.now());
       saveActivity(item.dto, project);
@@ -115,28 +121,47 @@ public class ComputationService implements ServerComponent {
     }
   }
 
-  private ComponentDto loadProject(ReportQueue.Item queueItem) {
+  private ComponentDto loadProject(ReportQueue.Item item) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getByKey(session, queueItem.dto.getProjectKey());
+      return dbClient.componentDao().getByKey(session, item.dto.getProjectKey());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void saveActivity(AnalysisReportDto report, ComponentDto project) {
+  private boolean isSnapshotMissing(ReportQueue.Item item, long snapshotId) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      SnapshotDto snapshot = dbClient.snapshotDao().getNullableByKey(session, snapshotId);
+      if (snapshot == null) {
+        item.dto.setStatus(CANCELLED);
+        LOG.info("Processing of report #{} is canceled because it was submitted while another report of the same project was already being processed.", item.dto.getId());
+        LOG.debug("The snapshot ID #{} provided by the report #{} does not exist anymore.", snapshotId, item.dto.getId());
+      }
+      return snapshot==null;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+
+  }
+
+  private void saveActivity(AnalysisReportDto report, @Nullable ComponentDto project) {
     Activity activity = new Activity();
     activity.setType(Activity.Type.ANALYSIS_REPORT);
     activity.setAction("LOG_ANALYSIS_REPORT");
     activity
       .setData("key", String.valueOf(report.getId()))
-      .setData("projectKey", project.key())
-      .setData("projectName", project.name())
-      .setData("projectUuid", project.uuid())
+      .setData("projectKey", report.getProjectKey())
       .setData("status", String.valueOf(report.getStatus()))
       .setData("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
       .setData("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
       .setData("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())));
+    if (project != null) {
+      activity
+        .setData("projectName", project.name())
+        .setData("projectUuid", project.uuid());
+    }
     activityService.save(activity);
   }
 }

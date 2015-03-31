@@ -8,7 +8,7 @@
   </div>
 
   <div class="modal-body">
-    <div class="modal-warning">{{t 'coding_rules.reactivate.help'}}</div>
+    <div class="alert alert-warning hidden">{{t 'coding_rules.reactivate.help'}}</div>
     <div class="js-modal-messages"></div>
 
     <table>
@@ -45,6 +45,7 @@
     <button id="coding-rules-manual-rule-creation-create">
       {{#if change}}{{t 'save'}}{{else}}{{t 'create'}}{{/if}}
     </button>
+    <button id="coding-rules-manual-rule-creation-reactivate">{{t 'coding_rules.reactivate'}}</button>
     <a id="coding-rules-manual-rule-creation-cancel" class="js-modal-close">{{t 'cancel'}}</a>
   </div>
 </form>

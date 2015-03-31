@@ -42,7 +42,7 @@ public class SearchServer implements Monitored {
   public void start() {
     LoggerFactory.getLogger(SearchServer.class).info("Starting Elasticsearch[{}] on port {}", settings.clusterName(), settings.tcpPort());
 
-    node = new InternalNode(settings.build(), true);
+    node = new InternalNode(settings.build(), false);
     node.start();
   }
 

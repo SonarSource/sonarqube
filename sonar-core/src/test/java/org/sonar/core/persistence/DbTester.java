@@ -37,7 +37,9 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.CompositeDataSet;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
@@ -50,24 +52,24 @@ import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.Dialect;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -230,7 +232,13 @@ public class DbTester extends ExternalResource {
       for (int i = 1; i <= colCount; i++) {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {
-          value = IOUtils.toString(((Clob)value).getAsciiStream());
+          value = IOUtils.toString(((Clob) value).getAsciiStream());
+        } else if (value instanceof BigDecimal) {
+          // In Oracle, INTEGER types are mapped as BigDecimal
+          value = ((BigDecimal) value).longValue();
+        } else if (value instanceof Integer) {
+          // To be consistent, all INTEGER types are mapped as Long
+          value = ((Integer) value).longValue();
         }
         columns.put(metaData.getColumnLabel(i), value);
       }
@@ -282,17 +290,27 @@ public class DbTester extends ExternalResource {
   }
 
   public void assertDbUnit(Class testClass, String filename, String... tables) {
+    assertDbUnit(testClass, filename, new String[0], tables);
+  }
+
+  public void assertDbUnit(Class testClass, String filename, String[] excludedColumnNames, String... tables) {
     IDatabaseConnection connection = null;
     try {
       connection = dbUnitConnection();
 
       IDataSet dataSet = connection.createDataSet();
       String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
-      IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
+      InputStream inputStream = testClass.getResourceAsStream(path);
+      if (inputStream == null) {
+        throw new IllegalStateException(String.format("File '%s' does not exist", path));
+      }
+      IDataSet expectedDataSet = dbUnitDataSet(inputStream);
       for (String table : tables) {
         DiffCollectingFailureHandler diffHandler = new DiffCollectingFailureHandler();
 
-        Assertion.assertEquals(expectedDataSet.getTable(table), dataSet.getTable(table), diffHandler);
+        ITable filteredTable = DefaultColumnFilter.excludedColumnsTable(dataSet.getTable(table), excludedColumnNames);
+        ITable filteredExpectedTable = DefaultColumnFilter.excludedColumnsTable(expectedDataSet.getTable(table), excludedColumnNames);
+        Assertion.assertEquals(filteredExpectedTable, filteredTable, diffHandler);
         // Evaluate the differences and ignore some column values
         List diffList = diffHandler.getDiffList();
         for (Object o : diffList) {
@@ -308,6 +326,42 @@ public class DbTester extends ExternalResource {
       throw translateException("Error while checking results", e);
     } finally {
       closeQuietly(connection);
+    }
+  }
+
+  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
+    try (Connection connection = openConnection();
+      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+      ResultSet res = stmt.executeQuery()) {
+      Integer columnIndex = getColumnIndex(res, column);
+      if (columnIndex == null) {
+        fail("The column '" + column + "' does not exist");
+      }
+
+      assertThat(res.getMetaData().getColumnType(columnIndex)).isEqualTo(expectedType);
+      if (expectedSize != null) {
+        assertThat(res.getMetaData().getColumnDisplaySize(columnIndex)).isEqualTo(expectedSize);
+      }
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to check column");
+    }
+  }
+
+  @CheckForNull
+  private Integer getColumnIndex(ResultSet res, String column) {
+    try {
+      ResultSetMetaData meta = res.getMetaData();
+      int numCol = meta.getColumnCount();
+      for (int i = 1; i < numCol + 1; i++) {
+        if (meta.getColumnLabel(i).toLowerCase().equals(column.toLowerCase())) {
+          return i;
+        }
+      }
+      return null;
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to get column idnex");
     }
   }
 

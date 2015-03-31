@@ -112,10 +112,10 @@ public class IssueIndexBenchmarkTest {
     long period = System.currentTimeMillis() - start;
     long throughputPerSecond = 1000 * issues.count.get() / period;
     LOGGER.info(String.format("%d issues indexed in %d ms (%d docs/second)", issues.count.get(), period, throughputPerSecond));
-    benchmark.expectAround("Throughput to index issues", throughputPerSecond, 3400, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
+    benchmark.expectAround("Throughput to index issues", throughputPerSecond, 5116, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
 
     // be sure that physical files do not evolve during estimation of size
-    tester.get(EsClient.class).prepareOptimize("issues").get();
+    tester.get(EsClient.class).prepareOptimize("issues").setWaitForMerge(true).get();
     long dirSize = FileUtils.sizeOfDirectory(tester.getEsServerHolder().getHomeDir());
     LOGGER.info(String.format("ES dir: " + FileUtils.byteCountToDisplaySize(dirSize)));
     benchmark.expectBetween("ES dir size (b)", dirSize, 200L * FileUtils.ONE_MB, 420L * FileUtils.ONE_MB);

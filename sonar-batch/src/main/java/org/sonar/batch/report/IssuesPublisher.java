@@ -30,8 +30,8 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import javax.annotation.Nullable;
 
@@ -58,9 +58,11 @@ public class IssuesPublisher implements ReportPublisher {
       String componentKey = resource.resource().getEffectiveKey();
       Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey);
       writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
+        private BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
+
         @Override
         public BatchReport.Issue apply(DefaultIssue input) {
-          return toReportIssue(input);
+          return toReportIssue(builder, input);
         }
       }));
       deletedComponentKeys.remove(componentKey);
@@ -94,9 +96,11 @@ public class IssuesPublisher implements ReportPublisher {
       if (iterator.hasNext()) {
         String componentUuid = iterator.next().componentUuid();
         writer.writeDeletedComponentIssues(deletedComponentCount, componentUuid, Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
+          private BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
+
           @Override
           public BatchReport.Issue apply(DefaultIssue input) {
-            return toReportIssue(input);
+            return toReportIssue(builder, input);
           }
         }));
       }
@@ -104,9 +108,8 @@ public class IssuesPublisher implements ReportPublisher {
     return deletedComponentCount;
   }
 
-  private BatchReport.Issue toReportIssue(DefaultIssue issue) {
-    BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
-
+  private BatchReport.Issue toReportIssue(BatchReport.Issue.Builder builder, DefaultIssue issue) {
+    builder.clear();
     // non-null fields
     builder.setUuid(issue.key());
     builder.setIsNew(issue.isNew());
@@ -114,7 +117,7 @@ public class IssuesPublisher implements ReportPublisher {
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setAttributes(KeyValueFormat.format(issue.attributes()));
-    builder.addAllTags(issue.tags());
+    builder.addAllTag(issue.tags());
     builder.setMustSendNotification(issue.mustSendNotifications());
     builder.setIsChanged(issue.isChanged());
 

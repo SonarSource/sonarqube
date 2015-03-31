@@ -20,7 +20,6 @@
 package org.sonar.core.component;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,10 +32,9 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Map;
 
-public class ScanPerspectives implements ResourcePerspectives, BatchComponent {
+public class ScanPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final SonarIndex resourceIndex;

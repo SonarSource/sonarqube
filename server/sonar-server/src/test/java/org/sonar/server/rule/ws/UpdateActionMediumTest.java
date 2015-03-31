@@ -98,7 +98,7 @@ public class UpdateActionMediumTest {
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
-    request.execute().assertJson(getClass(), "update_custom_rule.json", false);
+    request.execute().assertJson(getClass(), "update_custom_rule.json");
   }
 
   @Test

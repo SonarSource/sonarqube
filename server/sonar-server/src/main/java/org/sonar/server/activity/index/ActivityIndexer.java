@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity.index;
 
-import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
@@ -27,7 +26,6 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
-import java.util.Iterator;
 
 /**
  * Add to Elasticsearch index {@link org.sonar.server.activity.index.ActivityIndexDefinition} the rows of
@@ -51,38 +49,18 @@ public class ActivityIndexer extends BaseIndexer {
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     try {
-      ActivityResultSetIterator rowIt = ActivityResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
-      long maxUpdatedAt = doIndex(bulk, rowIt);
-      rowIt.close();
-      return maxUpdatedAt;
+      ActivityResultSetIterator it = ActivityResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      bulk.start();
+      while (it.hasNext()) {
+        bulk.add(it.next());
+      }
+      bulk.stop();
+      it.close();
+      return it.getMaxRowDate();
 
     } finally {
       dbSession.close();
     }
   }
 
-  public long index(Iterator<ActivityDoc> activities) {
-    BulkIndexer bulk = new BulkIndexer(esClient, ActivityIndexDefinition.INDEX);
-    return doIndex(bulk, activities);
-  }
-
-  private long doIndex(BulkIndexer bulk, Iterator<ActivityDoc> activities) {
-    long maxUpdatedAt = 0L;
-    bulk.start();
-    while (activities.hasNext()) {
-      ActivityDoc activity = activities.next();
-      bulk.add(newUpsertRequest(activity));
-
-      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxUpdatedAt = Math.max(maxUpdatedAt, activity.getCreatedAt().getTime());
-    }
-    bulk.stop();
-    return maxUpdatedAt;
-  }
-
-  private UpdateRequest newUpsertRequest(ActivityDoc doc) {
-    return new UpdateRequest(ActivityIndexDefinition.INDEX, ActivityIndexDefinition.TYPE, doc.getKey())
-      .doc(doc.getFields())
-      .upsert(doc.getFields());
-  }
 }

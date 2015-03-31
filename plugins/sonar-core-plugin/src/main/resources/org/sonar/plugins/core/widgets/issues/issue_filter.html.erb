@@ -3,10 +3,12 @@
    filter_id = widget_properties['filter']
    filter = Internal.issues.findIssueFilterById(filter_id.to_i)
    distribution_axis = widget_properties['distributionAxis']
+   is_enough_permissions = filter.shared || (current_user && filter.userLogin == current_user.login)
 %>
 
 <% if filter %>
-  <% if Internal.issues.isUserAuthorized(filter) %>
+
+  <% if is_enough_permissions %>
 
     <% @widget_title = "<a href=\"#{url_for({:controller => 'issues', :action => 'index'})}#id=#{filter.id}\">#{h(filter.name)}</a>" %>
     <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
@@ -15,24 +17,36 @@
 
     <div id="<%= container_id -%>"></div>
     <script>
-      require(['widgets/issue-filter'], function (IssueFilter) {
-        window.requestMessages().done(function () {
-          new IssueFilter({
-            el: '#<%= container_id -%>',
-            query: '<%= filter.data -%>',
-            distributionAxis: '<%= distribution_axis -%>'
+      (function () {
+        var query = '<%= filter.data -%>';
+
+        // do not show widget if the filter contains "my" criterion,
+        // and a user is not authenticated
+        if (query && query.indexOf('__me__') !== -1 && !window.SS.user) {
+          jQuery('#<%= container_id -%>').closest('.block').addClass('hidden');
+          return;
+        }
+
+        require(['widgets/issue-filter'], function (IssueFilter) {
+          window.requestMessages().done(function () {
+            new IssueFilter({
+              el: '#<%= container_id -%>',
+              query: query,
+              distributionAxis: '<%= distribution_axis -%>'
+            });
           });
         });
-      });
+      })();
     </script>
 
   <% else %>
 
-    <p class="message-alert"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
+    <p class="alert alert-warning"><%= message 'widget.issue_filter.insufficient_privileges_warning' -%></p>
 
   <% end %>
+
 <% else %>
 
-  <p class="message-alert"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
+  <p class="alert alert-warning"><%= message 'widget.issue_filter.unknown_filter_warning' -%></p>
 
 <% end %>

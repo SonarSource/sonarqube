@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -151,11 +150,11 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dto.setChecksum("123456789");
     dto.setMessage("the message");
 
-    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
-    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
-    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(1400000000000L);
-    dto.setUpdatedAt(1450000000000L);
+    dto.setIssueCreationTime(1_500_000_000_000L);
+    dto.setIssueUpdateTime(1_500_000_000_001L);
+    dto.setIssueCloseTime(1_500_000_000_002L);
+    dto.setCreatedAt(1_400_000_000_000L);
+    dto.setUpdatedAt(1_450_000_000_000L);
 
     sut.insert(session, dto);
     session.commit();

@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Proxy over {@link java.lang.System}. It aims to improve testability of classes
@@ -122,8 +123,20 @@ public class System2 implements BatchComponent, ServerComponent {
     System.out.print(obj);
   }
 
+  /**
+   * @deprecated in 5.2. Please use {@link #now()}
+   */
+  @Deprecated
   public Date newDate() {
     return new Date();
+  }
+
+  /**
+   * @since 5.1
+   * @return the JVM's default time zone
+   */
+  public TimeZone getDefaultTimeZone() {
+    return TimeZone.getDefault();
   }
 
   /**

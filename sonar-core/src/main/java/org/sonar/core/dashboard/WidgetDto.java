@@ -20,12 +20,12 @@
 package org.sonar.core.dashboard;
 
 import com.google.common.collect.Lists;
-import org.sonar.core.persistence.Dto;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
-public class WidgetDto extends Dto<Long> {
+public class WidgetDto {
   private Long id;
   private Long dashboardId;
   private String widgetKey;
@@ -35,6 +35,8 @@ public class WidgetDto extends Dto<Long> {
   private Integer rowIndex;
   private boolean configured;
   private Integer resourceId;
+  private Date createdAt;
+  private Date updatedAt;
   private List<WidgetPropertyDto> widgetPropertyDtos = Lists.newArrayList();
 
   /**
@@ -183,8 +185,22 @@ public class WidgetDto extends Dto<Long> {
     return this;
   }
 
-  @Override
-  public Long getKey() {
-    return id;
+  public WidgetDto setCreatedAt(Date datetime) {
+    this.createdAt = datetime;
+    return this;
   }
+
+  public WidgetDto setUpdatedAt(Date datetime) {
+    this.updatedAt = datetime;
+    return this;
+  }
+
+  public final Date getCreatedAt() {
+    return this.createdAt;
+  }
+
+  public final Date getUpdatedAt() {
+    return this.updatedAt;
+  }
+
 }

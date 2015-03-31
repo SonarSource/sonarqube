@@ -28,13 +28,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.output.BatchReport.Component;
+import org.sonar.batch.protocol.output.BatchReport.Scm;
+import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class ScmMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .addFileData("com.foo.project", "src/sample2.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), false, "1=;2=", "1=;2=", "1=;2="))
+    .addFileData("com.foo.project", "src/sample2.xoo", new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), false))
     .build();
 
   @Before
@@ -86,17 +87,35 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures()).hasSize(5);
+    Scm fileScm = getScm(baseDir, 0);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(5));
+    assertThat(fileScm.getChangesetIndexByLineList()).hasSize(5);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    Changeset changesetLine1 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(0));
+    assertThat(changesetLine1.hasAuthor()).isFalse();
+
+    Changeset changesetLine2 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(1));
+    assertThat(changesetLine2.getAuthor()).isEqualTo("julien");
+
+    Changeset changesetLine3 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(2));
+    assertThat(changesetLine3.getAuthor()).isEqualTo("julien");
+
+    Changeset changesetLine4 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(3));
+    assertThat(changesetLine4.getAuthor()).isEqualTo("julien");
+
+    Changeset changesetLine5 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(4));
+    assertThat(changesetLine5.getAuthor()).isEqualTo("simon");
+  }
+
+  private Scm getScm(File baseDir, int fileId) {
+    File reportDir = new File(baseDir, ".sonar/batch-report");
+    BatchReportReader reader = new BatchReportReader(reportDir);
+
+    Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
+    Component dir = reader.readComponent(project.getChildRef(0));
+    Component file = reader.readComponent(dir.getChildRef(fileId));
+    Scm fileScm = reader.readComponentScm(file.getRef());
+    return fileScm;
   }
 
   @Test
@@ -120,17 +139,14 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    // lines + qprofile
-    assertThat(result.measures()).hasSize(2);
+    Scm fileScm = getScm(baseDir, 0);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(1));
+    assertThat(fileScm).isNull();
+
   }
 
   @Test
-  public void dontFailIfMissingFile() throws IOException {
+  public void sample2_dont_need_blame() throws IOException {
 
     File baseDir = prepareProject();
     File xooFile = new File(baseDir, "src/sample2.xoo");
@@ -148,14 +164,26 @@ public class ScmMediumTest {
         .put("sonar.scm.provider", "xoo")
         .build())
       .start();
+
+    Scm file1Scm = getScm(baseDir, 0);
+    assertThat(file1Scm).isNotNull();
+
+    Scm file2Scm = getScm(baseDir, 1);
+    assertThat(file2Scm).isNull();
   }
 
   @Test
-  public void copyPreviousMeasuresOrForceReload() throws IOException {
+  public void forceReload() throws IOException {
 
     File baseDir = prepareProject();
     File xooFileNoScm = new File(baseDir, "src/sample2.xoo");
     FileUtils.write(xooFileNoScm, SAMPLE_XOO_CONTENT);
+    File xooScmFile = new File(baseDir, "src/sample2.xoo.scm");
+    FileUtils.write(xooScmFile,
+      // revision,author,dateTime
+      "1,foo,2013-01-04\n" +
+        "1,bar,2013-01-04\n"
+      );
 
     TaskBuilder taskBuilder = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -167,38 +195,17 @@ public class ScmMediumTest {
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
         .put("sonar.scm.provider", "xoo")
+        // Force reload
+        .put("sonar.scm.forceReloadAll", "true")
         .build());
 
-    TaskResult result = taskBuilder.start();
+    taskBuilder.start();
 
-    assertThat(result.measures()).hasSize(1 + 2 * 4);
+    Scm file1Scm = getScm(baseDir, 0);
+    assertThat(file1Scm).isNotNull();
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
-      .withValue(2));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
-      .withValue("1=;2="));
-
-    // Force reload
-    File xooScmFile = new File(baseDir, "src/sample2.xoo.scm");
-    FileUtils.write(xooScmFile,
-      // revision,author,dateTime
-      "1,foo,2013-01-04\n" +
-        "1,bar,2013-01-04\n"
-      );
-
-    result = taskBuilder
-      .property("sonar.scm.forceReloadAll", "true")
-      .start();
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample2.xoo"))
-      .withValue("1=foo;2=bar"));
+    Scm file2Scm = getScm(baseDir, 1);
+    assertThat(file2Scm).isNotNull();
   }
 
   @Test
@@ -206,7 +213,7 @@ public class ScmMediumTest {
 
     File baseDir = prepareProject();
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -219,17 +226,8 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures()).hasSize(5);
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(5));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    Scm file1Scm = getScm(baseDir, 0);
+    assertThat(file1Scm).isNotNull();
   }
 
   @Test
@@ -238,7 +236,7 @@ public class ScmMediumTest {
     File baseDir = prepareProject();
     new File(baseDir, ".xoo").createNewFile();
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -250,17 +248,8 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures()).hasSize(5);
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(5));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+    Scm file1Scm = getScm(baseDir, 0);
+    assertThat(file1Scm).isNotNull();
   }
 
   private File prepareProject() throws IOException {
@@ -274,10 +263,10 @@ public class ScmMediumTest {
     FileUtils.write(xooScmFile1,
       // revision,author,dateTime
       "1,,2013-01-04\n" +
-        "1,julien,2013-01-04\n" +
-        "2,julien,2013-02-03\n" +
-        "2,julien,2013-02-03\n" +
-        "3,simon,2013-03-04\n"
+        "2,julien,2013-01-04\n" +
+        "3,julien,2013-02-03\n" +
+        "3,julien,2013-02-03\n" +
+        "4,simon,2013-03-04\n"
       );
 
     return baseDir;

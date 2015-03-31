@@ -46,12 +46,14 @@ class SearchSettings {
   private final Props props;
   private final Set<String> masterHosts = new LinkedHashSet<String>();
   private final String clusterName;
+  private final String hostName;
   private final int tcpPort;
 
   SearchSettings(Props props) {
     this.props = props;
     masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOST, ""), ",")));
     clusterName = props.value(ProcessConstants.CLUSTER_NAME);
+    hostName = props.value(ProcessConstants.SEARCH_HOST);
     Integer port = props.valueAsInt(ProcessConstants.SEARCH_PORT);
     if (port == null) {
       throw new MessageException("Property is not set: " + ProcessConstants.SEARCH_PORT);
@@ -73,6 +75,10 @@ class SearchSettings {
 
   int tcpPort() {
     return tcpPort;
+  }
+  
+  String hostName() {
+    return hostName;
   }
 
   Settings build() {
@@ -130,6 +136,9 @@ class SearchSettings {
     // disable multicast
     builder.put("discovery.zen.ping.multicast.enabled", "false");
     builder.put("transport.tcp.port", tcpPort);
+    if (hostName != null) {
+      builder.put("transport.host", hostName);
+    }
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", true);
 
@@ -143,7 +152,11 @@ class SearchSettings {
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
       builder.put("http.cors.enabled", true);
       builder.put("http.enabled", true);
-      builder.put("http.host", "127.0.0.1");
+      if (hostName != null) {
+        builder.put("http.host", hostName);
+      } else {
+        builder.put("http.host", "127.0.0.1");
+      }
       builder.put("http.port", httpPort);
     }
   }
@@ -151,8 +164,7 @@ class SearchSettings {
   private void configureStorage(ImmutableSettings.Builder builder) {
     builder
       .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s")
-      .put("indices.store.throttle.type", "none");
+      .put("index.refresh_interval", "30s");
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {

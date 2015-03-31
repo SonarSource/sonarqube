@@ -42,10 +42,6 @@ public class AnalysisReportDto {
     return report;
   }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
   public String getProjectKey() {
     return projectKey;
   }
@@ -64,14 +60,6 @@ public class AnalysisReportDto {
     return this;
   }
 
-  public void fail() {
-    this.status = Status.FAILED;
-  }
-
-  public void succeed() {
-    this.status = Status.SUCCESS;
-  }
-
   public String getUuid() {
     return uuid;
   }
@@ -83,6 +71,10 @@ public class AnalysisReportDto {
 
   public Long getId() {
     return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 
   @Override
@@ -137,10 +129,6 @@ public class AnalysisReportDto {
   }
 
   public static enum Status {
-    PENDING, WORKING, SUCCESS, FAILED;
-
-    public boolean isInFinalState() {
-      return SUCCESS.equals(this) || FAILED.equals(this);
-    }
+    PENDING, WORKING, SUCCESS, FAILED, CANCELLED
   }
 }

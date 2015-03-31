@@ -81,6 +81,15 @@
       <artifactId>sonar-core</artifactId>
     </dependency>
     <dependency>
+      <!--
+      This dependency of sonar-core must be repeated, even if it's not directly
+      used by sonar-server. For an unknown reason it conflicts with sonar-testing-harness
+      and is removed from distribution.
+      -->
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch-protocol</artifactId>
     </dependency>
@@ -176,10 +185,6 @@
       <artifactId>jfreechart</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>
@@ -217,11 +222,6 @@
     <dependency>
       <groupId>com.github.tlrx</groupId>
       <artifactId>elasticsearch-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.skyscreamer</groupId>
-      <artifactId>jsonassert</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

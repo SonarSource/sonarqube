@@ -169,7 +169,6 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setVariation3(model.getVariationValue3());
     measure.setVariation4(model.getVariationValue4());
     measure.setVariation5(model.getVariationValue5());
-    measure.setUrl(model.getUrl());
     measure.setCharacteristic(characteristic);
     measure.setPersonId(model.getPersonId());
     return measure;

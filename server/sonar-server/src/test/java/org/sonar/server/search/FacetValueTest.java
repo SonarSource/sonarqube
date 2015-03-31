@@ -50,7 +50,7 @@ public class FacetValueTest {
   }
 
   @Test
-  public void should_define_toString() {
-    assertThat(new FacetValue("polop", 42).toString()).isEqualTo("FacetValue{key='polop', value=42}");
+  public void test_toString() {
+    assertThat(new FacetValue("polop", 42).toString()).isEqualTo("{polop=42}");
   }
 }

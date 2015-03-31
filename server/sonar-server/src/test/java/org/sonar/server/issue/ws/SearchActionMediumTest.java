@@ -97,7 +97,7 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
-    result.assertJson(this.getClass(), "empty_result.json", false);
+    result.assertJson(this.getClass(), "empty_result.json");
   }
 
   @Test
@@ -117,15 +117,14 @@ public class SearchActionMediumTest {
       .setAssignee("simon")
       .setReporter("fabrice")
       .setActionPlanKey("AP-ABCD")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
-    result.assertJson(this.getClass(), "issue.json", false);
+    result.assertJson(this.getClass(), "issue.json");
   }
 
   @Test
@@ -159,7 +158,7 @@ public class SearchActionMediumTest {
 
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issue_with_comment.json", false);
+    result.assertJson(this.getClass(), "issue_with_comment.json");
   }
 
   @Test
@@ -193,7 +192,7 @@ public class SearchActionMediumTest {
 
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_COMMENTS, "true").execute();
-    result.assertJson(this.getClass(), "issue_with_comment_hidden.json", false);
+    result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.outputAsString()).doesNotContain("fabrice");
   }
 
@@ -209,9 +208,9 @@ public class SearchActionMediumTest {
       .setStatus("OPEN")
       .setProjectId(project.getId())
       .setUserLogin("simon")
-      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0100"))
-      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
-      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")));
+      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0000"))
+      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0000"))
+      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0000")));
 
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -221,7 +220,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issue_with_action_plan.json", false);
+    result.assertJson(this.getClass(), "issue_with_action_plan.json");
   }
 
   @Test
@@ -237,7 +236,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issue_with_attributes.json", false);
+    result.assertJson(this.getClass(), "issue_with_attributes.json");
   }
 
   @Test
@@ -268,7 +267,7 @@ public class SearchActionMediumTest {
     MockUserSession.set().setLogin("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
-    result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
+    result.assertJson(this.getClass(), "issue_with_extra_fields.json");
   }
 
   @Test
@@ -285,14 +284,14 @@ public class SearchActionMediumTest {
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "issue_linked_on_removed_file.json", false);
+    result.assertJson(this.getClass(), "issue_linked_on_removed_file.json");
   }
 
   @Test
@@ -326,7 +325,7 @@ public class SearchActionMediumTest {
       .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
       .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
       .execute();
-    result.assertJson(this.getClass(), "ignore_paging_with_one_component.json", false);
+    result.assertJson(this.getClass(), "ignore_paging_with_one_component.json");
   }
 
   @Test
@@ -348,7 +347,7 @@ public class SearchActionMediumTest {
       .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
       .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
       .execute();
-    result.assertJson(this.getClass(), "apply_paging_with_multiple_components.json", false);
+    result.assertJson(this.getClass(), "apply_paging_with_multiple_components.json");
   }
 
   @Test
@@ -365,7 +364,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
-    result.assertJson(this.getClass(), "apply_paging_with_one_component.json", false);
+    result.assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
   @Test
@@ -380,7 +379,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
-    result.assertJson(this.getClass(), "components_contains_sub_projects.json", false);
+    result.assertJson(this.getClass(), "components_contains_sub_projects.json");
   }
 
   @Test
@@ -404,7 +403,7 @@ public class SearchActionMediumTest {
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
-    result.assertJson(this.getClass(), "display_facets.json", false);
+    result.assertJson(this.getClass(), "display_facets.json");
   }
 
   @Test
@@ -430,7 +429,7 @@ public class SearchActionMediumTest {
       .setParam("languages", "xoo,polop,palap")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
       .execute();
-    result.assertJson(this.getClass(), "display_zero_facets.json", false);
+    result.assertJson(this.getClass(), "display_zero_facets.json");
   }
 
   @Test
@@ -472,7 +471,7 @@ public class SearchActionMediumTest {
       .setParam("assignees", "__me__")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
       .execute()
-      .assertJson(this.getClass(), "filter_by_assigned_to_me.json", false);
+      .assertJson(this.getClass(), "filter_by_assigned_to_me.json");
   }
 
   @Test
@@ -502,7 +501,7 @@ public class SearchActionMediumTest {
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
       .execute()
-      .assertJson(this.getClass(), "empty_result.json", false);
+      .assertJson(this.getClass(), "empty_result.json");
   }
 
   @Test
@@ -544,7 +543,7 @@ public class SearchActionMediumTest {
       .setParam("assignees", "alice")
       .setParam(WebService.Param.FACETS, "assignees,assigned_to_me")
       .execute()
-      .assertJson(this.getClass(), "assigned_to_me_facet_sticky.json", false);
+      .assertJson(this.getClass(), "assigned_to_me_facet_sticky.json");
   }
 
   @Test
@@ -564,7 +563,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_RULES, "true").execute();
-    result.assertJson(this.getClass(), "hide_rules.json", false);
+    result.assertJson(this.getClass(), "hide_rules.json");
   }
 
   @Test
@@ -573,9 +572,15 @@ public class SearchActionMediumTest {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1").setIssueUpdateDate(DateUtils.parseDate("2014-11-02")));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2").setIssueUpdateDate(DateUtils.parseDate("2014-11-01")));
-    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3").setIssueUpdateDate(DateUtils.parseDate("2014-11-03")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-02T00:00:00+0100")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-01T00:00:00+0100")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
@@ -583,7 +588,7 @@ public class SearchActionMediumTest {
       .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
       .setParam("asc", "false")
       .execute();
-    result.assertJson(this.getClass(), "sort_by_updated_at.json", false);
+    result.assertJson(this.getClass(), "sort_by_updated_at.json");
   }
 
   @Test
@@ -604,7 +609,7 @@ public class SearchActionMediumTest {
     request.setParam(WebService.Param.PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging.json", false);
+    result.assertJson(this.getClass(), "paging.json");
   }
 
   @Test
@@ -625,7 +630,7 @@ public class SearchActionMediumTest {
     request.setParam(WebService.Param.PAGE_SIZE, "-1");
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json", false);
+    result.assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json");
   }
 
   @Test
@@ -646,7 +651,7 @@ public class SearchActionMediumTest {
     request.setParam(IssueFilterParameters.PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "deprecated_paging.json", false);
+    result.assertJson(this.getClass(), "deprecated_paging.json");
   }
 
   @Test
@@ -654,7 +659,7 @@ public class SearchActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "default_page_size_is_100.json", false);
+    result.assertJson(this.getClass(), "default_page_size_is_100.json");
   }
 
   private RuleDto newRule() {

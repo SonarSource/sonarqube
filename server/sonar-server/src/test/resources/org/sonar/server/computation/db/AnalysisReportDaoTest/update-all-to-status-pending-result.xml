@@ -7,7 +7,7 @@
       uuid="UUID_1"
       report_status="PENDING"
       created_at="1411509600000"
-      updated_at="1411682400000"
+      updated_at="1500000000000"
       started_at="[null]"
       finished_at="[null]"
       />
@@ -18,7 +18,7 @@
       uuid="UUID_2"
       report_status="PENDING"
       created_at="1411596000000"
-      updated_at="1411682400000"
+      updated_at="1500000000000"
       started_at="[null]"
       finished_at="[null]"
       />
@@ -29,7 +29,7 @@
       uuid="UUID_3"
       report_status="PENDING"
       created_at="1411682400000"
-      updated_at="1411682400000"
+      updated_at="1500000000000"
       started_at="[null]"
       finished_at="[null]"
       />

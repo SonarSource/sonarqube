@@ -35,6 +35,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.index.UserIndex;
 
 import java.util.Date;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -104,11 +105,11 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_debt() throws Exception {
-    when(durations.encode(any(Duration.class))).thenReturn("55min");
+    when(durations.format(any(Locale.class), any(Duration.class))).thenReturn("55 min");
 
     sut.setDebt(Duration.create(55));
 
-    assertThat(sut.getFieldValue(DEBT + ".count")).isEqualTo("55min");
+    assertThat(sut.getFieldValue(DEBT + ".count")).isEqualTo("55 min");
   }
 
   private void addIssueNTimes(DefaultIssue issue, int times) {

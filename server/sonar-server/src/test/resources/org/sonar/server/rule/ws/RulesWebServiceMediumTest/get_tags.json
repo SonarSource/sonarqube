@@ -1,1 +1,8 @@
-{"tags": ["hello", "sys1", "java", "world"]}
+{
+  "tags": [
+    "sys1",
+    "java",
+    "world",
+    "hello"
+  ]
+}

@@ -7,6 +7,7 @@ module.exports = (grunt) ->
 
   pkg = grunt.file.readJSON('package.json')
   expressPort = '<%= grunt.option("port") || 3000 %>'
+  isWindows = process.platform == 'win32'
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -107,6 +108,7 @@ module.exports = (grunt) ->
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/treemap.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/pie-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/sparkline.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/barchart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/sortable.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/common/inputs.js'
@@ -144,6 +146,7 @@ module.exports = (grunt) ->
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/widget.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/bubble-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/timeline.js'
+            '<%= grunt.option("assetsDir") || pkg.assets %>js/graphics/sparkline.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/stack-area.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/pie-chart.js'
             '<%= grunt.option("assetsDir") || pkg.assets %>js/widgets/histogram.js'
@@ -249,6 +252,10 @@ module.exports = (grunt) ->
         name: 'widgets/issue-filter'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/widgets/issue-filter.js'
 
+      overview: options:
+        name: 'overview/app'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/overview/app.js'
+
 
     handlebars:
       options:
@@ -308,6 +315,9 @@ module.exports = (grunt) ->
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/workspace.js': [
             '<%= pkg.sources %>hbs/workspace/**/*.hbs'
           ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/overview.js': [
+            '<%= pkg.sources %>hbs/overview/**/*.hbs'
+          ]
 
 
     clean:
@@ -349,15 +359,15 @@ module.exports = (grunt) ->
           'no-colors': true
           'fail-fast': true
           concise: true
-          parallel: true
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverage:
         options:
           test: true
           'no-colors': true
-          'fail-fast': true
           concise: true
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverageLight:
@@ -365,6 +375,7 @@ module.exports = (grunt) ->
           test: true
           'fail-fast': true
           verbose: true
+          parallel: !isWindows
           port: expressPort
         src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
       single:
@@ -414,10 +425,10 @@ module.exports = (grunt) ->
       lcov:
         src: 'target/js-coverage/lcov.info'
         dest: 'target/js-coverage/lcov.info'
-        replacements: [{
-          from: '/webapp'
-          to: ''
-        }]
+        replacements: [
+          { from: '/webapp', to: '' }
+          { from: '\webapp', to: '' }
+        ]
 
 
     jshint:

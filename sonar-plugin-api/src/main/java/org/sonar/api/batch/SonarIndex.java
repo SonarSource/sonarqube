@@ -24,17 +24,13 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.graph.DirectedGraphAccessor;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -147,16 +143,6 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract Dependency addDependency(Dependency dependency);
 
   public abstract Set<Dependency> getDependencies();
-
-  public abstract void addLink(ProjectLink link);
-
-  public abstract void deleteLink(String key);
-
-  public abstract List<Event> getEvents(Resource resource);
-
-  public abstract void deleteEvent(Event event);
-
-  public abstract Event addEvent(Resource resource, String name, String description, String category, @Nullable Date date);
 
   public final Collection<Dependency> getOutgoingDependencies(Resource from) {
     return getOutgoingEdges(from);

@@ -42,11 +42,16 @@ public class ComputationStepsTest {
       mock(SwitchSnapshotStep.class),
       mock(PurgeDatastoresStep.class),
       mock(SendIssueNotificationsStep.class),
-      mock(IndexComponentsStep.class));
+      mock(IndexComponentsStep.class),
+      mock(PersistComponentLinksStep.class),
+      mock(PersistMeasuresStep.class),
+      mock(PersistEventsStep.class),
+      mock(PersistDuplicationMeasuresStep.class)
+      );
 
-    assertThat(registry.orderedSteps()).hasSize(11);
+    assertThat(registry.orderedSteps()).hasSize(15);
     assertThat(registry.orderedSteps().get(0)).isInstanceOf(ParseReportStep.class);
-    assertThat(registry.orderedSteps().get(10)).isInstanceOf(SendIssueNotificationsStep.class);
+    assertThat(registry.orderedSteps().get(14)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test

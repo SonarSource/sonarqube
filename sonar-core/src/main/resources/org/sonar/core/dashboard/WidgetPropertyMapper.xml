@@ -3,4 +3,10 @@
 
 <mapper namespace="org.sonar.core.dashboard.WidgetPropertyMapper">
 
+  <delete id="deleteByWidgetIds" parameterType="map">
+  DELETE FROM widget_properties
+  WHERE widget_id IN
+    <foreach collection="list" open="(" close=")" item="wid" separator=",">#{wid}</foreach>
+  </delete>
+
 </mapper>

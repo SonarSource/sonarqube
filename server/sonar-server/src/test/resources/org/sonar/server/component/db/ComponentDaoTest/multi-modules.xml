@@ -87,4 +87,24 @@
              depth="[null]" scope="FIL" qualifier="CLA" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path="1.2.3.4."/>
 
+  <!-- removed sub module -->
+  <projects id="10" root_id="1" kee="org.struts:struts-data" name="Struts Data"
+            uuid="IHGF" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH.IHGF."
+            scope="PRJ" qualifier="BRC" long_name="Struts Data"
+            description="[null]" enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]" />
+
+  <!-- removed directory -->
+  <projects long_name="org.struts" id="11" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
+            uuid="JIHG" project_uuid="ABCD" module_uuid="FGHI" module_uuid_path=".ABCD.EFGH.IHGF."
+            name="src/org/struts" root_id="10"
+            description="[null]"
+            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" authorization_updated_at="[null]" />
+
+  <!-- removed file -->
+  <projects long_name="org.struts.RequestContext" id="12" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            uuid="KJIH" project_uuid="ABCD" module_uuid="FGHI" module_uuid_path=".ABCD.EFGH.IHGF."
+            name="RequestContext.java" root_id="10"
+            description="[null]"
+            enabled="[false]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]" />
+
 </dataset>

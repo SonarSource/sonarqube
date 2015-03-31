@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
-
-import org.sonar.batch.components.PastSnapshot;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
@@ -31,6 +28,8 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.index.ResourceCache;
 
 import java.util.List;
@@ -59,7 +58,7 @@ public final class TimeMachineConfigurationPersister implements Decorator {
 
   void persistConfiguration(Resource module) {
     List<PastSnapshot> pastSnapshots = timeMachineConfiguration.getProjectPastSnapshots();
-    Snapshot projectSnapshot = resourceCache.get(module.getEffectiveKey()).snapshot();
+    Snapshot projectSnapshot = resourceCache.get(module).snapshot();
     for (PastSnapshot pastSnapshot : pastSnapshots) {
       Snapshot snapshot = session.reattach(Snapshot.class, projectSnapshot.getId());
       updatePeriodParams(snapshot, pastSnapshot);

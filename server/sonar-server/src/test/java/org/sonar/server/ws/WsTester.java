@@ -22,13 +22,13 @@ package org.sonar.server.ws;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
+import org.sonar.test.JsonAssert;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -185,12 +185,8 @@ public class WsTester {
     }
 
     public Result assertJson(String expectedJson) throws Exception {
-      return assertJson(expectedJson, true);
-    }
-
-    public Result assertJson(String expectedJson, boolean strict) throws Exception {
       String json = outputAsString();
-      JSONAssert.assertEquals(expectedJson, json, strict);
+      JsonAssert.assertJson(json).isSimilarTo(expectedJson);
       return this;
     }
 
@@ -203,17 +199,13 @@ public class WsTester {
      * @param expectedJsonFilename name of the file containing the expected JSON
      */
     public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
-      return assertJson(clazz, expectedJsonFilename, true);
-    }
-
-    public Result assertJson(Class clazz, String expectedJsonFilename, boolean strict) throws Exception {
       String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
       URL url = clazz.getResource(path);
       if (url == null) {
         throw new IllegalStateException("Cannot find " + path);
       }
       String json = outputAsString();
-      JSONAssert.assertEquals(IOUtils.toString(url), json, strict);
+      JsonAssert.assertJson(json).isSimilarTo(url);
       return this;
     }
 

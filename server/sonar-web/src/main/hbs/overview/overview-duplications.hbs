@@ -1,0 +1,34 @@
+<h6 class="note">{{t 'overview.duplications'}}</h6>
+
+<table class="width100">
+  <tr>
+    <td class="width-55">
+      <div class="overview-main-measure">
+        <a href="{{urlForDrilldown componentKey 'duplicated_lines_density'}}">
+          {{formatMeasure duplications 'PERCENT'}}
+        </a>
+      </div>
+      <div class="overview-trend">
+        <div id="overview-duplications-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
+      </div>
+    </td>
+    <td class="width-15">
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 1}}">
+        {{formatMeasureVariation duplications1 'PERCENT'}}
+      </a>
+      <p class="note">{{period1Name}}</p>
+    </td>
+    <td class="width-15">
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 2}}">
+        {{formatMeasureVariation duplications2 'PERCENT'}}
+      </a>
+      <p class="note">{{period2Name}}</p>
+    </td>
+    <td class="width-15">
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'duplicated_lines_density' 3}}">
+        {{formatMeasureVariation duplications3 'PERCENT'}}
+      </a>
+      <p class="note">{{period3Name}}</p>
+    </td>
+  </tr>
+</table>

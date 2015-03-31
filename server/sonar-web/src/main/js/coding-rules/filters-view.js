@@ -22,15 +22,7 @@ define([
 ], function () {
 
   return Marionette.ItemView.extend({
-    template: Templates['coding-rules-filters'],
-
-    events: {
-      'click .js-new-search': 'newSearch'
-    },
-
-    newSearch: function () {
-      this.options.app.controller.newSearch();
-    }
+    template: Templates['coding-rules-filters']
   });
 
 });

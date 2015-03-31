@@ -21,6 +21,9 @@
 @import (reference) "../mixins";
 @import (reference) "../components/ui";
 
+
+// Top Level
+
 html, body {
   color: @baseFontColor;
 }
@@ -31,94 +34,76 @@ body {
   line-height: @baseLineHeight;
 }
 
-h1, .h1 {
+
+// Headers
+
+.header(@h) {
   line-height: @formControlHeight;
-  color: @baseFontColor;
-  font-size: @bigFontSize;
-  font-weight: 300;
+  color: ~"@{@{h}-font-color}";
+  font-size: ~"@{@{h}-font-size}";
+  font-weight: ~"@{@{h}-font-weight}";
+
+  img { vertical-align: middle; }
 }
 
-h2, .h2 {
-  line-height: @formControlHeight;
-  color: @baseFontColor;
-  font-size: @bigFontSize;
-  font-weight: 300;
-}
+h1, .h1 { .header(h1); }
+h2, .h2 { .header(h2); }
+h3, .h3 { .header(h3); }
+h4, .h4 { .header(h4); }
+h5, .h5 { .header(h5); }
+h6, .h6 { .header(h6); }
 
-h3, .h3 {
-  line-height: @formControlHeight;
-  color: @baseFontColor;
-  font-size: @baseFontSize;
-  font-weight: 500;
-}
 
-h4, .h4, h5, .h5 {
-  line-height: @formControlHeight;
-  color: @secondFontColor;
-  font-size: @smallFontSize;
-  font-weight: 400;
-}
+// Superset & Subset
 
-h6 {
-  line-height: inherit;
-  color: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-}
+sup { vertical-align: text-top; }
+sub { vertical-align: text-bottom; }
 
-h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
-  vertical-align: middle;
-}
 
-sup {
-  vertical-align: text-top;
-}
+// Emphasising
 
-sub {
-  vertical-align: text-bottom;
-}
+em     { font-style: italic; }
+strong { font-weight: bold; }
 
-em {
-  font-style: italic;
-}
 
-strong {
-  font-weight: bold;
-}
+// Quotes
 
 blockquote {
-  border-left: 3px solid #E5E5E5;
+  border-left: 3px solid @barBorderColor;
   padding: 0 8px;
-  line-height: 16px;
+  line-height: 1.5;
 }
 
 blockquote cite {
-  line-height: 16px;
-  padding-left: 20px;
-  background: url('../images/reviews/comment.png') no-repeat left center;
-  font-size: 12px;
-  color: #888;
+  line-height: 1.5;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
 }
+
+
+// Size
 
 small,
-.small {
-  font-size: (100% * (@smallFontSize / @baseFontSize));
-}
+.small { font-size: (100% * (@smallFontSize / @baseFontSize)); }
 
-.big {
-  font-size: (100% * (@bigFontSize / @baseFontSize));
-}
+.big   { font-size: (100% * (@bigFontSize / @baseFontSize)); }
 
 .zero-font-size { font-size: 0 !important; }
+
+
+// Alignment
 
 .text-left    { text-align: left; }
 .text-center  { text-align: center; }
 .text-right   { text-align: right; }
 .text-justify { text-align: justify; }
 
-.text-top    { vertical-align: top; }
-.text-middle { vertical-align: middle; }
-.text-bottom { vertical-align: bottom; }
+.text-top     { vertical-align: top; }
+.text-middle  { vertical-align: middle; }
+.text-bottom  { vertical-align: bottom; }
+
+
+// Overflow
 
 .text-ellipsis {
   overflow: hidden;
@@ -126,6 +111,19 @@ small,
   white-space: nowrap;
 }
 
+
+// Transformation
+
+.text-uppercase    { text-transform: uppercase; }
+.text-lowercase    { text-transform: lowercase; }
 .text-no-transform { text-transform: none; }
 
-.text-danger { color: @red; }
+
+// Color
+
+.text-emphasis-variant(@color) { color: @color; }
+.text-muted   { .text-emphasis-variant(@secondFontColor); }
+.text-danger  { .text-emphasis-variant(@red); }
+.text-warning { .text-emphasis-variant(@orange); }
+.text-info    { .text-emphasis-variant(@blue); }
+.text-success { .text-emphasis-variant(@green); }

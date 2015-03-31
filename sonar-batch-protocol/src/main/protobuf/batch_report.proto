@@ -36,16 +36,32 @@ Notes
 import "constants.proto";
 
 option java_package = "org.sonar.batch.protocol.output";
+
 option optimize_for = SPEED;
 
 message Metadata {
   optional int64 analysis_date = 1;
   optional string project_key = 2;
+  optional string branch = 6;
   optional int32 root_component_ref = 3;
 
   // temporary fields used during development of computation stack
   optional int64 snapshot_id = 4;
   optional int32 deleted_components_count = 5;
+}
+
+message ComponentLink {
+  optional ComponentLinkType type = 1;
+  optional string href = 2;
+}
+
+// temporary message during development of computation stack
+message Event {
+  optional int32 component_ref = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional EventCategory category = 4;
+  optional string event_data = 5;
 }
 
 message Component {
@@ -55,48 +71,171 @@ message Component {
   optional ComponentType type = 4;
   optional bool is_test = 5;
   optional string language = 6;
-  repeated int32 child_refs = 7 [packed=true];
+  repeated int32 child_ref = 7 [packed = true];
+  repeated ComponentLink link = 10;
+  // Only available on PROJECT and MODULE type
+  optional string version = 12;
+  // Only available on PROJECT and MODULE type
+  optional string key = 14;
 
   // temporary fields during development of computation stack
-  optional int32 snapshot_id = 8;
+  optional int64 id = 13;
+  optional int64 snapshot_id = 8;
   optional string uuid = 9;
+  repeated Event event = 11;
+}
+
+message Measure {
+  optional MeasureValueType value_type = 1;
+  // all values may be unset for "new_xxx" measures (only variations are populated)
+  optional bool boolean_value = 2;
+  optional int32 int_value = 3;
+  optional int64 long_value = 4;
+  optional double double_value = 5;
+  optional string string_value = 6;
+  optional string metric_key = 7;
+
+  // temporary fields during development of computation stack
+  optional string description = 9;
+  optional string rule_key = 10;
+  optional Severity severity = 11;
+  optional string alert_status = 12;
+  optional string alert_text = 13;
+  optional double variation_value_1 = 14;
+  optional double variation_value_2 = 15;
+  optional double variation_value_3 = 16;
+  optional double variation_value_4 = 17;
+  optional double variation_value_5 = 18;
+  optional int32 tendency = 19;
+  optional int32 characteric_id = 20;
+  optional int32 person_id = 21;
+}
+
+message Measures {
+  optional int32 component_ref = 1;
+  repeated Measure measure = 2;
 }
 
 message Issue {
-    optional string rule_repository = 1;
-    optional string rule_key = 2;
-    optional int32 line = 3;
-    optional string msg = 4;
-    optional Severity severity = 5;
-    repeated string tags = 6;
+  optional string rule_repository = 1;
+  optional string rule_key = 2;
+  optional int32 line = 3;
+  optional string msg = 4;
+  optional Severity severity = 5;
+  repeated string tag = 6;
 
-    // temporary fields during development of computation stack
-    optional double effort_to_fix = 7;
-    optional bool is_new = 8;
-    optional string uuid = 9;
-    optional int64 debt_in_minutes = 10;
-    optional string resolution = 11;
-    optional string status = 12;
-    optional string checksum = 13;
-    optional bool manual_severity = 14;
-    optional string reporter = 15;
-    optional string assignee = 16;
-    optional string action_plan_key = 17;
-    optional string attributes = 18;
-    optional string author_login = 19;
-    optional int64 creation_date = 20;
-    optional int64 close_date = 21;
-    optional int64 update_date = 22;
-    optional int64 selected_at = 23;
-    optional string diff_fields = 24;
-    optional bool is_changed = 25;
-    optional bool must_send_notification = 26;
+  // temporary fields during development of computation stack
+  optional double effort_to_fix = 7;
+  optional bool is_new = 8;
+  optional string uuid = 9;
+  optional int64 debt_in_minutes = 10;
+  optional string resolution = 11;
+  optional string status = 12;
+  optional string checksum = 13;
+  optional bool manual_severity = 14;
+  optional string reporter = 15;
+  optional string assignee = 16;
+  optional string action_plan_key = 17;
+  optional string attributes = 18;
+  optional string author_login = 19;
+  optional int64 creation_date = 20;
+  optional int64 close_date = 21;
+  optional int64 update_date = 22;
+  optional int64 selected_at = 23;
+  optional string diff_fields = 24;
+  optional bool is_changed = 25;
+  optional bool must_send_notification = 26;
 }
 
 message Issues {
-    optional int32 component_ref = 1;
-    repeated Issue list = 2;
-    
-    // Temporary field for issues on deleted components
-    optional string component_uuid = 3;
+  optional int32 component_ref = 1;
+  repeated Issue issue = 2;
+
+  // Temporary field for issues on deleted components
+  optional string component_uuid = 3;
 }
+
+message Scm {
+  optional int32 component_ref = 1;
+  repeated Changeset changeset = 2;
+  // if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+  repeated int32 changesetIndexByLine = 3 [packed=true];
+
+  message Changeset {
+    optional string revision = 1;
+    optional string author = 2;
+    optional int64 date = 3;
+  }
+}
+
+message Duplicate {
+  // Will be null when duplicate is in the same file
+  optional int32 other_file_ref = 1;
+  optional Range range = 2;
+
+  // temporary field during development of computation stack for cross project duplications
+  optional string other_file_key = 3;
+}
+
+message Duplication {
+  // Origin position in current file
+  optional Range origin_position = 1;
+  repeated Duplicate duplicate = 2;
+}
+
+message Duplications {
+  optional int32 component_ref = 1;
+  repeated Duplication duplication = 2;
+}
+
+// Lines start at 1 and line offsets start at 0
+message Range {
+  // Should never be null
+  optional int32 start_line = 1;
+  // End line (inclusive). Null means it is same as start line
+  optional int32 end_line = 2;
+  // If null it means range starts at the first offset of start line
+  optional int32 start_offset = 3;
+  // If null it means range ends at the last offset of end line
+  optional int32 end_offset = 4;
+}
+
+message Symbols {
+  optional int32 file_ref = 1;
+  repeated Symbol symbol = 2;
+
+  message Symbol {
+    optional Range declaration = 1;
+    repeated Range reference = 2;
+  }
+}
+
+message Coverage {
+  // Only FILE component has coverage information
+  optional int32 file_ref = 1;
+
+  // List of number of conditions by line : 0 => not to cover, 1+ => number of conditions to cover
+  repeated int32 conditions_by_line = 2 [packed = true];
+  // List of unit test hits by line
+  repeated bool ut_hits_by_line = 3 [packed = true];
+  // List of integration test hits by line
+  repeated bool it_hits_by_line = 4 [packed = true];
+  // List of number of conditions covered by unit test by line
+  repeated int32 ut_covered_conditions_by_line = 5 [packed = true];
+  // List of number of conditions covered by integration test by line
+  repeated int32 it_covered_conditions_by_line = 6 [packed = true];
+  // List of number of conditions covered by overall test by line
+  repeated int32 overall_covered_conditions_by_line = 7 [packed = true];
+}
+
+message SyntaxHighlighting {
+  optional int32 file_ref = 1;
+  // Rule must be sorted by line and start offset
+  repeated HighlightingRule highlighting_rule = 2;
+
+  message HighlightingRule {
+    optional Range range = 1;
+    optional HighlightingType type = 2;
+  }
+}
+

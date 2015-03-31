@@ -31,6 +31,9 @@ import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigrati
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.*;
 import org.sonar.server.db.migrations.v51.*;
+import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
+import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
+import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 
 import java.util.List;
 
@@ -89,10 +92,16 @@ public interface DatabaseMigrations {
     FeedIssuesLongDates.class,
     FeedFileSourcesBinaryData.class,
     FeedSemaphoresLongDates.class,
-    FeedProjectMeasuresLongDates.class,
     FeedManualMeasuresLongDates.class,
     FeedEventsLongDates.class,
     AddNewCharacteristics.class,
-    RemovePermissionsOnModulesMigration.class
+    RemovePermissionsOnModulesMigration.class,
+    AddIssuesColumns.class,
+    DropIssuesColumns.class,
+
+    // 5.2
+    FeedProjectLinksComponentUuid.class,
+    FeedEventsComponentUuid.class,
+    MoveProjectProfileAssociation.class
     );
 }

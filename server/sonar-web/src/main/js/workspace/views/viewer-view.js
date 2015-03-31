@@ -27,6 +27,10 @@ define([
     className: 'workspace-viewer',
     template: Templates['workspace-viewer'],
 
+    modelEvents: {
+      'destroy': 'close'
+    },
+
     regions: {
       headerRegion: '.workspace-viewer-header',
       viewerRegion: '.workspace-viewer-container'
@@ -35,10 +39,21 @@ define([
     onRender: function () {
       this.showHeader();
       this.showViewer();
+      this.$('.workspace-viewer-container').isolatedScroll();
+    },
+
+    onViewerMinimize: function () {
+      this.trigger('viewerMinimize');
+    },
+
+    onViewerClose: function () {
+      this.trigger('viewerClose', this.model);
     },
 
     showHeader: function () {
       var headerView = new HeaderView({ model: this.model });
+      this.listenTo(headerView, 'viewerMinimize', this.onViewerMinimize);
+      this.listenTo(headerView, 'viewerClose', this.onViewerClose);
       this.headerRegion.show(headerView);
     },
 
@@ -49,9 +64,12 @@ define([
       var that = this,
           viewer = new SourceViewer(),
           options = this.model.toJSON();
-      viewer.open(this.model.id);
+      viewer.open(this.model.get('uuid'), { workspace: true });
       viewer.on('loaded', function () {
-        that.model.set(viewer.model.toJSON());
+        that.model.set({
+          name: viewer.model.get('name'),
+          q: viewer.model.get('q')
+        });
         if (options.line != null) {
           viewer.highlightLine(options.line);
           viewer.scrollToLine(options.line);

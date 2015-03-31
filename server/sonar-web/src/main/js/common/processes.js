@@ -45,11 +45,17 @@
         },
 
         fail: function (message) {
-          var that = this;
+          var that = this,
+              msg = message || t('process.fail');
+          if (msg === 'process.fail') {
+            // no translation
+            msg = 'An error happened, some parts of the page might not render correctly. ' +
+                  'Please contact the administrator if you keep on experiencing this error.';
+          }
           clearInterval(this.get('timer'));
           this.set({
             state: 'failed',
-            message: message || t('process.fail')
+            message: msg
           });
           this.set('state', 'failed');
           setTimeout(function () {
@@ -62,43 +68,37 @@
         model: Process
       }),
 
-      ProcessView = Marionette.ItemView.extend({
-        tagName: 'li',
-        className: 'process-spinner',
+      ProcessesView = Marionette.ItemView.extend({
+        tagName: 'ul',
+        className: 'processes-container',
 
-        modelEvents: {
-          'change': 'render'
+        collectionEvents: {
+          'all': 'render'
         },
 
         render: function () {
-          var that = this;
-          switch (this.model.get('state')) {
-            case 'timeout':
-              this.$el.html(this.model.get('message')).addClass('shown');
-              break;
-            case 'failed':
-              this.$el.html(this.model.get('message')).addClass('process-spinner-failed shown');
-              var close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
-              close.appendTo(this.$el);
-              close.on('click', function () {
-                var a = { force: true };
-                that.model.finish(a);
-              });
-              break;
-            case 'finished':
-              this.$el.addClass('hidden');
-              break;
-            default:
-              break;
+          var failed = this.collection.findWhere({ state: 'failed' }),
+              timeout = this.collection.findWhere({ state: 'timeout' }),
+              el;
+          this.$el.empty();
+          if (failed != null) {
+            el = $('<li></li>')
+                .html(failed.get('message'))
+                .addClass('process-spinner process-spinner-failed shown');
+            var close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
+            close.appendTo(el);
+            close.on('click', function () {
+              failed.finish({ force: true });
+            });
+            el.appendTo(this.$el);
+          } else if (timeout != null) {
+            el = $('<li></li>')
+                .html(timeout.get('message'))
+                .addClass('process-spinner shown');
+            el.appendTo(this.$el);
           }
           return this;
         }
-      }),
-
-      ProcessesView = Marionette.CollectionView.extend({
-        tagName: 'ul',
-        className: 'processes-container',
-        itemView: ProcessView
       });
 
 

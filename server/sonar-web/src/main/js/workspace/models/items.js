@@ -41,6 +41,12 @@ define(['workspace/models/item'], function (Item) {
           this.reset(parsed);
         } catch (err) { }
       }
+    },
+
+    has: function (model) {
+      var forComponent = model.isComponent() && this.findWhere({ uuid: model.get('uuid') }) != null,
+          forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
+      return forComponent || forRule;
     }
   });
 

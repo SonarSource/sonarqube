@@ -271,11 +271,11 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
       .setPeriodParam(3, "32")
       .setPeriodParam(4, "33")
       .setPeriodParam(5, "34")
-      .setPeriodDate(1, DateUtils.parseDate("2011-09-24").getTime())
-      .setPeriodDate(2, DateUtils.parseDate("2011-09-25").getTime())
-      .setPeriodDate(3, DateUtils.parseDate("2011-09-26").getTime())
-      .setPeriodDate(4, DateUtils.parseDate("2011-09-27").getTime())
-      .setPeriodDate(5, DateUtils.parseDate("2011-09-28").getTime())
-      .setBuildDate(DateUtils.parseDate("2011-09-29").getTime());
+      .setPeriodDate(1, 1_500_000_000_001L)
+      .setPeriodDate(2, 1_500_000_000_002L)
+      .setPeriodDate(3, 1_500_000_000_003L)
+      .setPeriodDate(4, 1_500_000_000_004L)
+      .setPeriodDate(5, 1_500_000_000_005L)
+      .setBuildDate(1_500_000_000_006L);
   }
 }

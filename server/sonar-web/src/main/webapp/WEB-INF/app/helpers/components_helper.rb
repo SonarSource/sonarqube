@@ -37,7 +37,7 @@ module ComponentsHelper
       content = snapshot.version || ''
 
     elsif column.links_column?
-      links = links_by_project_id[project.id]
+      links = links_by_project_uuid[project.uuid]
       if links
         links.each do |link|
           content << link_to("<i class='icon-#{link.link_type}' alt='#{link.name}'></i>", link.href, :popup => true) unless link.custom?
@@ -73,15 +73,15 @@ module ComponentsHelper
     nil
   end
 
-  def links_by_project_id
-    @links_by_project_id ||= {}
-    if @links_by_project_id.empty?
+  def links_by_project_uuid
+    @links_by_project_uuid ||= {}
+    if @links_by_project_uuid.empty?
       ProjectLink.find(:all, :order => 'link_type').each do |link|
-        @links_by_project_id[link.project_id] ||= []
-        @links_by_project_id[link.project_id]<<link
+        @links_by_project_uuid[link.component_uuid] ||= []
+        @links_by_project_uuid[link.component_uuid]<<link
       end
     end
-    @links_by_project_id
+    @links_by_project_uuid
   end
 
 end

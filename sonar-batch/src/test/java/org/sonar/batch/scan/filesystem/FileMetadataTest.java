@@ -20,12 +20,17 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -198,10 +203,26 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, " foo\nb ar\r\nbaz \t", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(3);
-    assertThat(metadata.nonBlankLines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(md5Hex(" foo\nb ar\nbaz \t"));
+    DefaultInputFile f = new DefaultInputFile("foo", tempFile.getName());
+    f.setModuleBaseDir(tempFile.getParentFile().toPath());
+    f.setCharset(Charsets.UTF_8);
+    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
+
+      @Override
+      public void consume(int lineIdx, @Nullable byte[] hash) {
+        switch (lineIdx) {
+          case 1:
+            assertThat(Hex.encodeHexString(hash)).isEqualTo(md5Hex("foo"));
+            break;
+          case 2:
+            assertThat(Hex.encodeHexString(hash)).isEqualTo(md5Hex("bar"));
+            break;
+          case 3:
+            assertThat(Hex.encodeHexString(hash)).isEqualTo(md5Hex("baz"));
+            break;
+        }
+      }
+    });
   }
 
   @Test

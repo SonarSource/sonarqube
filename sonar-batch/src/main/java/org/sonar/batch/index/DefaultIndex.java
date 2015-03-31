@@ -28,7 +28,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.measure.Metric;
@@ -71,11 +70,7 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.FILE_FEEDBACK_EDGES,
     CoreMetrics.FILE_TANGLE_INDEX,
     CoreMetrics.FILE_TANGLES,
-    // Computed by ScmSensor
-    CoreMetrics.SCM_AUTHORS_BY_LINE,
-    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-    CoreMetrics.SCM_REVISIONS_BY_LINE,
-    // Computed by core duplication plugin
+    // Computed by CpdSensor
     CoreMetrics.DUPLICATIONS_DATA,
     CoreMetrics.DUPLICATION_LINES_DATA,
     CoreMetrics.DUPLICATED_FILES,
@@ -90,8 +85,6 @@ public class DefaultIndex extends SonarIndex {
   private final MeasureCache measureCache;
   private final ResourceKeyMigration migration;
   private final DependencyPersister dependencyPersister;
-  private final LinkPersister linkPersister;
-  private final EventPersister eventPersister;
   // caches
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
@@ -102,12 +95,10 @@ public class DefaultIndex extends SonarIndex {
   private ModuleIssues moduleIssues;
 
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
-    LinkPersister linkPersister, EventPersister eventPersister, ProjectTree projectTree, MetricFinder metricFinder,
+    ProjectTree projectTree, MetricFinder metricFinder,
     ResourceKeyMigration migration, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
-    this.linkPersister = linkPersister;
-    this.eventPersister = eventPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.migration = migration;
@@ -117,8 +108,6 @@ public class DefaultIndex extends SonarIndex {
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, ProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
-    this.linkPersister = null;
-    this.eventPersister = null;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.migration = null;
@@ -408,69 +397,6 @@ public class DefaultIndex extends SonarIndex {
 
     violation.setResource(bucket.getResource());
     moduleIssues.initAndAddViolation(violation);
-  }
-
-  //
-  //
-  //
-  // LINKS
-  //
-  //
-  //
-
-  @Override
-  public void addLink(ProjectLink link) {
-    if (linkPersister != null) {
-      linkPersister.saveLink(currentProject, link);
-    }
-  }
-
-  @Override
-  public void deleteLink(String key) {
-    if (linkPersister != null) {
-      linkPersister.deleteLink(currentProject, key);
-    }
-  }
-
-  //
-  //
-  //
-  // EVENTS
-  //
-  //
-  //
-
-  @Override
-  public List<Event> getEvents(Resource resource) {
-    // currently events are not cached in memory
-    Resource reload = getResource(resource);
-    if (reload == null) {
-      return Collections.emptyList();
-    }
-    if (eventPersister == null) {
-      throw new UnsupportedOperationException("Event are not available in preview mode");
-    }
-    return eventPersister.getEvents(reload);
-  }
-
-  @Override
-  public void deleteEvent(Event event) {
-    if (eventPersister != null) {
-      eventPersister.deleteEvent(event);
-    }
-  }
-
-  @Override
-  public Event addEvent(Resource resource, String name, String description, String category, @Nullable Date date) {
-    Event event = new Event(name, description, category);
-    if (date != null) {
-      event.setDate(date);
-    }
-
-    if (eventPersister != null) {
-      eventPersister.saveEvent(resource, event);
-    }
-    return null;
   }
 
   @Override

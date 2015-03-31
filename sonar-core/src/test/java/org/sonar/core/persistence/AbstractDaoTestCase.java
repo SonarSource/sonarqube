@@ -19,7 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -31,11 +30,7 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.CompositeDataSet;
-import org.dbunit.dataset.DataSetException;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
+import org.dbunit.dataset.*;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
@@ -103,12 +98,6 @@ public abstract class AbstractDaoTestCase {
     }
   }
 
-  @Before
-  public void startDbUnit() throws Exception {
-    databaseCommands.truncateDatabase(database.getDataSource());
-    databaseTester = new DataSourceDatabaseTester(database.getDataSource(), databaseCommands.useLoginAsSchema() ? login : null);
-  }
-
   /**
    * Orchestrator is the name of a SonarSource close-source library for database and integration testing.
    */
@@ -140,6 +129,18 @@ public abstract class AbstractDaoTestCase {
     } finally {
       IOUtils.closeQuietly(input);
     }
+  }
+
+  private static RuntimeException translateException(String msg, Exception cause) {
+    RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
+    runtimeException.setStackTrace(cause.getStackTrace());
+    return runtimeException;
+  }
+
+  @Before
+  public void startDbUnit() throws Exception {
+    databaseCommands.truncateDatabase(database.getDataSource());
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource(), databaseCommands.useLoginAsSchema() ? login : null);
   }
 
   protected MyBatis getMyBatis() {
@@ -292,12 +293,6 @@ public abstract class AbstractDaoTestCase {
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);
     }
-  }
-
-  private static RuntimeException translateException(String msg, Exception cause) {
-    RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
-    runtimeException.setStackTrace(cause.getStackTrace());
-    return runtimeException;
   }
 
   protected Connection getConnection() throws SQLException {

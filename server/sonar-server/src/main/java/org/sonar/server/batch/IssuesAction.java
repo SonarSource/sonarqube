@@ -135,7 +135,7 @@ public class IssuesAction implements RequestHandler {
   private Map<String, String> keysByUUid(DbSession session, ComponentDto component) {
     Map<String, String> keysByUUid = newHashMap();
     if (Scopes.PROJECT.equals(component.scope())) {
-      List<ComponentDto> modulesTree = dbClient.componentDao().selectModulesTree(session, component.uuid());
+      List<ComponentDto> modulesTree = dbClient.componentDao().selectDescendantModules(session, component.uuid());
       for (ComponentDto componentDto : modulesTree) {
         keysByUUid.put(componentDto.uuid(), componentDto.key());
       }

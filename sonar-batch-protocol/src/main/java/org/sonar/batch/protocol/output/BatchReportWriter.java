@@ -58,9 +58,22 @@ public class BatchReportWriter {
   public void writeComponentIssues(int componentRef, Iterable<BatchReport.Issue> issues) {
     BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
     issuesBuilder.setComponentRef(componentRef);
-    issuesBuilder.addAllList(issues);
+    issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
+  }
+
+  public void writeComponentMeasures(int componentRef, Iterable<BatchReport.Measure> measures) {
+    BatchReport.Measures.Builder measuresBuilder = BatchReport.Measures.newBuilder();
+    measuresBuilder.setComponentRef(componentRef);
+    measuresBuilder.addAllMeasure(measures);
+    File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
+    ProtobufUtil.writeToFile(measuresBuilder.build(), file);
+  }
+
+  public void writeComponentScm(BatchReport.Scm scm) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SCM, scm.getComponentRef());
+    ProtobufUtil.writeToFile(scm, file);
   }
 
   /**
@@ -71,9 +84,38 @@ public class BatchReportWriter {
     BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
     issuesBuilder.setComponentRef(componentRef);
     issuesBuilder.setComponentUuid(componentUuid);
-    issuesBuilder.addAllList(issues);
+    issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, componentRef);
     ProtobufUtil.writeToFile(issuesBuilder.build(), file);
+  }
+
+  public void writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
+    BatchReport.Duplications.Builder builder = BatchReport.Duplications.newBuilder();
+    builder.setComponentRef(componentRef);
+    builder.addAllDuplication(duplications);
+    File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
+  public void writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbols.Symbol> symbols) {
+    BatchReport.Symbols.Builder builder = BatchReport.Symbols.newBuilder();
+    builder.setFileRef(componentRef);
+    builder.addAllSymbol(symbols);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
+  public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
+    BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
+    builder.setFileRef(componentRef);
+    builder.addAllHighlightingRule(highlightingRules);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
+  public void writeFileCoverage(BatchReport.Coverage coverage) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, coverage.getFileRef());
+    ProtobufUtil.writeToFile(coverage, file);
   }
 
 }

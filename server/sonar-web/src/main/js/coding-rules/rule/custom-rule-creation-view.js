@@ -66,8 +66,6 @@ define([
 
     flagKey: function () {
       this.keyModifiedByUser = true;
-      // Cannot use @ui.customRuleCreationReactivate.hide() directly since it was not there at initial render
-      jQuery(this.ui.customRuleCreationReactivate.selector).hide();
     },
 
     onRender: function () {
@@ -153,11 +151,18 @@ define([
     },
 
     sendRequest: function (action, options) {
-      this.$('.modal-error').hide();
-      this.$('.modal-warning').hide();
+      this.$('.alert').addClass('hidden');
       var that = this,
           url = baseUrl + '/api/rules/' + action;
-      return $.post(url, options).done(function () {
+      return $.ajax({
+        url: url,
+        type: 'POST',
+        data: options,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      }).done(function () {
         if (that.options.templateRule) {
           that.options.app.controller.showDetails(that.options.templateRule);
         } else {
@@ -167,8 +172,9 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.$('.modal-warning').show();
-          that.ui.modalFoot.html(Templates['coding-rules-custom-rule-reactivation']());
+          that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+          that.ui.customRuleCreationCreate.addClass('hidden');
+          that.ui.customRuleCreationReactivate.removeClass('hidden');
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }

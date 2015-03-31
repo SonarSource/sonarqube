@@ -33,9 +33,15 @@ casper.test.begin(testName('Base'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -91,9 +97,15 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -133,11 +145,17 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-with-tags.json');
         lib.mockRequestFromFile('/api/issues/tags', 'tags.json');
         lib.mockRequestFromFile('/api/issues/set_tags', 'tags-modified.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -178,11 +196,17 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
         lib.mockRequestFromFile('/api/issues/show*', 'show.json');
         lib.mockRequest('/api/issues/do_transition', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -218,11 +242,17 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'file-level/search.json');
         lib.mockRequestFromFile('/api/components/app', 'file-level/components-app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'file-level/lines.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -252,10 +282,16 @@ casper.test.begin(testName('Severity Facet'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search-reopened.json', { data: { severities: 'BLOCKER' } });
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
       })
 
       .then(function () {
@@ -285,23 +321,83 @@ casper.test.begin(testName('Bulk Change'), function (test) {
       .start(lib.buildUrl('issues'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
         lib.mockRequestFromFile('/api/issues/search', 'search.json');
-        lib.mockRequest('/issues/bulk_change_form?resolved=false',
+        lib.mockRequest('/issues/bulk_change_form*',
             '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
       })
 
       .then(function () {
-        casper.waitForSelector('.issue', function () {
-          casper.waitForSelector('#issues-bulk-change');
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
         });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#issues-bulk-change');
       })
 
       .then(function () {
         casper.click('#issues-bulk-change');
         casper.waitForSelector('#bulk-change-form', function () {
           test.assertSelectorContains('#bulk-change-form', 'bulk change form');
+        });
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Filter Similar Issues'), 12, function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search-filter-similar-issues-severities.json',
+            { data: { severities: 'MAJOR' } });
+        lib.mockRequestFromFile('/api/issues/search', 'search-filter-similar-issues.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected');
+      })
+
+      .then(function () {
+        casper.click('.issue.selected .js-issue-filter');
+        casper.waitForSelector('.bubble-popup');
+      })
+
+      .then(function () {
+        test.assertExists('.bubble-popup [data-property="severities"][data-value="MAJOR"]');
+        test.assertExists('.bubble-popup [data-property="statuses"][data-value="CONFIRMED"]');
+        test.assertExists('.bubble-popup [data-property="resolved"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="rules"][data-value="squid:S1214"]');
+        test.assertExists('.bubble-popup [data-property="assigned"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="planned"][data-value="false"]');
+        test.assertExists('.bubble-popup [data-property="tags"][data-value="bad-practice"]');
+        test.assertExists('.bubble-popup [data-property="tags"][data-value="brain-overload"]');
+        test.assertExists('.bubble-popup [data-property="projectUuids"][data-value="69e57151-be0d-4157-adff-c06741d88879"]');
+        test.assertExists('.bubble-popup [data-property="moduleUuids"][data-value="7feef7c3-11b9-4175-b5a7-527ca3c75cb7"]');
+        test.assertExists('.bubble-popup [data-property="fileUuids"][data-value="b0517331-0aaf-4091-b5cf-8e305dd0337a"]');
+
+        casper.click('.bubble-popup [data-property="severities"]');
+        casper.waitForSelectorTextChange('#issues-total', function () {
+          test.assertSelectorContains('#issues-total', '17');
         });
       })
 

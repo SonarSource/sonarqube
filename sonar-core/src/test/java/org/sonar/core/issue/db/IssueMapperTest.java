@@ -66,11 +66,11 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setChecksum("123456789");
     dto.setMessage("the message");
 
-    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
-    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
-    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(1400000000000L);
-    dto.setUpdatedAt(1500000000000L);
+    dto.setIssueCreationTime(1_401_000_000_000L);
+    dto.setIssueUpdateTime(1_402_000_000_000L);
+    dto.setIssueCloseTime(1_403_000_000_000L);
+    dto.setCreatedAt(1_400_000_000_000L);
+    dto.setUpdatedAt(1_500_000_000_000L);
 
     mapper.insert(dto);
     session.commit();
@@ -101,11 +101,11 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setChecksum("123456789");
     dto.setMessage("the message");
 
-    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
-    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
-    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(1400000000000L);
-    dto.setUpdatedAt(1500000000000L);
+    dto.setIssueCreationTime(1_401_000_000_000L);
+    dto.setIssueUpdateTime(1_402_000_000_000L);
+    dto.setIssueCloseTime(1_403_000_000_000L);
+    dto.setCreatedAt(1_400_000_000_000L);
+    dto.setUpdatedAt(1_500_000_000_000L);
 
     mapper.update(dto);
     session.commit();
@@ -135,11 +135,11 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
-    dto.setIssueCreationDate(DateUtils.parseDate("2013-05-18"));
-    dto.setIssueUpdateDate(DateUtils.parseDate("2013-05-19"));
-    dto.setIssueCloseDate(DateUtils.parseDate("2013-05-20"));
-    dto.setCreatedAt(1400000000000L);
-    dto.setUpdatedAt(1500000000000L);
+    dto.setIssueCreationTime(1_401_000_000_000L);
+    dto.setIssueUpdateTime(1_402_000_000_000L);
+    dto.setIssueCloseTime(1_403_000_000_000L);
+    dto.setCreatedAt(1_400_000_000_000L);
+    dto.setUpdatedAt(1_500_000_000_000L);
 
     // selected after last update -> ok
     dto.setSelectedAt(1500000000000L);

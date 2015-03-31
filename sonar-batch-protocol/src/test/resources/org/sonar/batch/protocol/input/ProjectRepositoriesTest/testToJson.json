@@ -1,0 +1,43 @@
+{
+  "timestamp": 10,
+  "qprofilesByLanguage": {
+    "java": {
+      "key": "squid-java",
+      "name": "Java",
+      "language": "java",
+      "rulesUpdatedAt": "2013-01-01T12:00:00+0100"
+    }
+  },
+  "activeRules": [
+    {
+      "repositoryKey": "repo",
+      "ruleKey": "rule",
+      "templateRuleKey": "templateRule",
+      "name": "Rule",
+      "severity": "MAJOR",
+      "internalKey": "rule",
+      "language": "java",
+      "params": {"param1": "value1"}
+    }
+  ],
+  "settingsByModule": {
+    "foo": {
+      "prop1": "value1",
+      "prop2": "value2",
+      "prop": "value"
+    }
+  },
+  "fileDataByModuleAndPath": {
+    "foo": {
+      "src/main/java/Foo.java": {
+        "hash": "xyz",
+        "needBlame": true,
+      },
+      "src/main/java/Foo2.java": {
+        "hash": "xyz",
+        "needBlame": false,
+      }
+    }
+  },
+  "lastAnalysisDate": "2014-05-18T15:50:45+0100"
+}

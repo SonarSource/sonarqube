@@ -212,32 +212,5 @@
     </where>
   </select>
 
-  <select id="findRulesByComponent" parameterType="String" resultType="Rule">
-    SELECT
-    <include refid="org.sonar.core.rule.RuleMapper.selectColumns"/>
-    FROM issues i
-    INNER JOIN projects p on p.uuid=i.component_uuid
-    INNER JOIN rules r on r.id=i.rule_id
-    WHERE
-    p.kee=#{componentKey}
-    AND i.resolution IS NULL
-    <if test="createdAt != null">
-      AND i.issue_creation_date &gt;= #{createdAt}
-    </if>
-  </select>
-
-  <select id="findSeveritiesByComponent" parameterType="String" resultType="String">
-    SELECT i.severity
-    FROM issues i
-    INNER JOIN projects on projects.uuid=i.component_uuid
-    INNER JOIN rules on rules.id=i.rule_id
-    WHERE
-    projects.kee=#{componentKey}
-    AND i.resolution IS NULL
-    <if test="createdAt != null">
-      AND i.issue_creation_date &gt;= #{createdAt}
-    </if>
-  </select>
-
 </mapper>
 

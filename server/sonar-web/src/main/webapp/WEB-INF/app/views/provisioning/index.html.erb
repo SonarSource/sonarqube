@@ -18,7 +18,7 @@
         <th><%= message('key') -%></th>
         <th><%= message('name') -%></span></th>
         <th><%= message('created') -%></th>
-        <th class="operations"><%= message('operations') -%></th>
+        <th class="text-right"><%= message('operations') -%></th>
       </tr>
       </thead>
       <tbody>
@@ -31,7 +31,7 @@
           </td>
           <td><%= h resource.name -%></td>
           <td><%= format_datetime(resource.created_at) -%></td>
-          <td class="operations">
+          <td class="text-right">
             <%= link_to message('delete'), {:action => :delete_form, :id => resource.id},
                         {:id => "delete-#{resource.key.parameterize}", :class => 'open-modal link-action link-red'} -%>
           </td>

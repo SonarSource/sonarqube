@@ -453,7 +453,7 @@ public class ProjectRepositoryLoaderMediumTest {
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way").setResourceId(project.getId()), dbSession);
+    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto.getKee(), dbSession);
 
     dbSession.commit();
 
@@ -475,9 +475,8 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(ruleUpdatedAt));
+      DateUtils.formatDateTime(ruleUpdatedAt)).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
@@ -499,9 +498,8 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(ruleUpdatedAt));
+      DateUtils.formatDateTime(ruleUpdatedAt)).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
@@ -520,9 +518,8 @@ public class ProjectRepositoryLoaderMediumTest {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(ruleUpdatedAt));
+      DateUtils.formatDateTime(ruleUpdatedAt)).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     dbSession.commit();
 
@@ -547,7 +544,7 @@ public class ProjectRepositoryLoaderMediumTest {
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
       DateUtils.formatDateTime(ruleUpdatedAt));
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way").setResourceId(project.getId()), dbSession);
+    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto.getKee(), dbSession);
 
     dbSession.commit();
 
@@ -582,9 +579,8 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100")));
+      DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100"))).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     RuleDto rule = RuleTesting.newDto(ruleKey).setName("Avoid Cycle").setConfigKey("squid-1").setLanguage(ServerTester.Xoo.KEY);
@@ -629,7 +625,7 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
 
     // The first profile is the profile used but the project
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setResourceId(project.getId()).setValue(profileDto1.getName()), dbSession);
+    tester.get(DbClient.class).qualityProfileDao().insertProjectProfileAssociation(project.uuid(), profileDto1.getKee(), dbSession);
 
     tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey1).setSeverity(Severity.MINOR), profileDto1.getKey());
 
@@ -656,9 +652,8 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd")
-      .setRulesUpdatedAt(DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100")));
+      .setRulesUpdatedAt(DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100"))).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     for (int i = 0; i<20; i++) {
       RuleKey ruleKey = RuleKey.of("squid", "Rule" + i);
@@ -681,9 +676,8 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(ruleUpdatedAt));
+      DateUtils.formatDateTime(ruleUpdatedAt)).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
 
     RuleKey ruleKey = RuleKey.of("squid", "ArchitecturalConstraint");
     RuleDto templateRule = RuleTesting.newTemplateRule(ruleKey).setName("Architectural Constraint").setLanguage(ServerTester.Xoo.KEY);
@@ -835,9 +829,8 @@ public class ProjectRepositoryLoaderMediumTest {
 
   private void addDefaultProfile() {
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
-      DateUtils.formatDateTime(new Date()));
+      DateUtils.formatDateTime(new Date())).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
-    tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("SonarQube way"), dbSession);
   }
 
   private FileSourceDto newFileSourceDto(ComponentDto file) {

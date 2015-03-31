@@ -42,11 +42,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -56,7 +53,6 @@ public class RegisterQualityProfiles implements ServerComponent {
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
-  private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
   private final BuiltInProfiles builtInProfiles;
   private final DbClient dbClient;
@@ -75,7 +71,6 @@ public class RegisterQualityProfiles implements ServerComponent {
   public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
     DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
     List<ProfileDefinition> definitions, Languages languages) {
-    this.settings = settings;
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
@@ -154,21 +149,13 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
-    String propertyKey = "sonar.profile." + language;
-    boolean upToDate = false;
-    String currentDefault = settings.getString(propertyKey);
-    if (currentDefault != null) {
-      // check validity
-      QualityProfileDto profile = dbClient.qualityProfileDao().getByNameAndLanguage(currentDefault, language, session);
-      if (profile != null) {
-        upToDate = true;
-      }
-    }
+    QualityProfileDto currentDefault = dbClient.qualityProfileDao().getDefaultProfile(language, session);
 
-    if (!upToDate) {
+    if (currentDefault == null) {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
-      settings.saveProperty(propertyKey, defaultProfileName);
+      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().getByNameAndLanguage(defaultProfileName, language, session);
+      dbClient.qualityProfileDao().update(session, newDefaultProfile.setDefault(true));
     }
   }
 

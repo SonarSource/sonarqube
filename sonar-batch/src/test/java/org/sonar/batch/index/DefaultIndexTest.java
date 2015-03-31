@@ -29,13 +29,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.ProjectTree;
@@ -71,7 +65,7 @@ public class DefaultIndexTest {
 
     ProjectTree projectTree = mock(ProjectTree.class);
     ResourceCache resourceCache = new ResourceCache();
-    index = new DefaultIndex(resourceCache, null, null, null, projectTree, metricFinder,
+    index = new DefaultIndex(resourceCache, null, projectTree, metricFinder,
       mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 

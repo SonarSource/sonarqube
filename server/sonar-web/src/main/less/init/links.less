@@ -20,6 +20,9 @@
 @import (reference) "../variables";
 @import (reference) "../mixins";
 
+
+// Base
+
 .link-variant(@baseColor, @hoverColor, @borderColor) {
   border-bottom: 1px solid @borderColor;
   color: @baseColor;
@@ -42,12 +45,23 @@ a {
   &:active, &:focus { border-bottom-color: @lightBlue; }
 }
 
+
+// Misc
+
 .link-no-underline { border-bottom: none; }
 
-a.active-link {
-  border-bottom: none;
+a.active-link,
+.link-active {
+  .link-no-underline;
   font-weight: 500;
 }
 
-a.text-danger,
-.link-red /* deprecated */ { .link-variant(@red, @red, @lightRed); }
+
+// Color
+
+.link-red, /* deprecated */
+a.text-danger  { .link-variant(@red,             darken(@red, 10%),             lighten(@red, 40%)); }
+a.text-muted   { .link-variant(@secondFontColor, darken(@secondFontColor, 10%), lighten(@secondFontColor, 40%)); }
+a.text-warning { .link-variant(@orange,          lighten(@orange, 10%),         lighten(@orange, 40%)); }
+a.text-info    { }
+a.text-success { .link-variant(@green,           darken(@green, 10%),           lighten(@green, 40%)); }

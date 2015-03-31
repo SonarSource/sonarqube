@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.index;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -30,6 +29,8 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class SourceLineIndex extends BaseIndex {
 
@@ -43,15 +44,15 @@ public class SourceLineIndex extends BaseIndex {
    * Get lines of code for file with UUID <code>fileUuid</code> with line numbers
    * between <code>from</code> and <code>to</code> (both inclusive). Line numbers
    * start at 1.
-   * The max number of returned lines will be 500000.
+   * The max number of returned lines will be 500_000.
    *
    * @param fileUuid the UUID of the file for which to get source code
    * @param from starting line; must be strictly positive
    * @param to ending line; must be greater than or equal to <code>to</code>
    */
   public List<SourceLineDoc> getLines(String fileUuid, int from, int to) {
-    Preconditions.checkArgument(from > 0, "Minimum value for 'from' is 1");
-    Preconditions.checkArgument(to >= from, "'to' must be larger than or equal to 'from'");
+    checkArgument(from > 0, "Minimum value for 'from' is 1");
+    checkArgument(to >= from, "'to' must be larger than or equal to 'from'");
     List<SourceLineDoc> lines = Lists.newArrayList();
     int size = 1 + to - from;
     if (size > MAX_RESULT) {
@@ -75,8 +76,26 @@ public class SourceLineIndex extends BaseIndex {
     return lines;
   }
 
+  /**
+   * Get lines of code for file with UUID <code>fileUuid</code>.
+   */
+  public List<SourceLineDoc> getLines(String fileUuid) {
+    List<SourceLineDoc> lines = Lists.newArrayList();
+
+    for (SearchHit hit : getClient().prepareSearch(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid)))
+      .addSort(SourceLineIndexDefinition.FIELD_LINE, SortOrder.ASC)
+      .get().getHits().getHits()) {
+      lines.add(new SourceLineDoc(hit.sourceAsMap()));
+    }
+
+    return lines;
+  }
+
   public SourceLineDoc getLine(String fileUuid, int line) {
-    Preconditions.checkArgument(line > 0, "Line should be greater than 0");
+    checkArgument(line > 0, "Line should be greater than 0");
     SearchRequestBuilder request = getClient().prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(1)

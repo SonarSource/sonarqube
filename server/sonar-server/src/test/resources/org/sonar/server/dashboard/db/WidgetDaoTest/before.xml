@@ -1,0 +1,18 @@
+<dataset>
+
+  <widgets id="1" dashboard_id="1" widget_key="polop" name="Polop" description="Palap"
+     column_index="1" row_index="1" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+  <widgets id="2" dashboard_id="1" widget_key="false_positive_reviews" name="Polop" description="Palap"
+     column_index="1" row_index="2" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+  <widgets id="3" dashboard_id="1" widget_key="my_reviews" name="Polop" description="Palap"
+     column_index="1" row_index="3" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+  <widgets id="4" dashboard_id="1" widget_key="reviews_per_developer" name="Polop" description="Palap"
+     column_index="1" row_index="4" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+  <widgets id="5" dashboard_id="1" widget_key="unresolved_issues_statuses" name="Polop" description="Palap"
+     column_index="1" row_index="5" configured="[true]" created_at="[null]" updated_at="[null]" resource_id="[null]"/>
+
+</dataset>

@@ -1,0 +1,30 @@
+{
+  "duplications": [
+    {
+      "blocks": [
+        {
+          "from": 11,
+          "size": 5,
+          "_ref": "1"
+        },
+        {
+          "from": 12,
+          "size": 5
+        }
+      ]
+    }
+  ],
+  "files": {
+    "1": {
+      "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaaa",
+      "key": "sample:sample",
+      "name": "Sample",
+      "longName": "Sample",
+      "q": "FIL",
+      "subProject": "sample:subproject",
+      "subProjectName": "Sample Sub-Project",
+      "project": "sample:project",
+      "projectName": "Sample Project"
+    }
+  }
+}

@@ -23,11 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -42,11 +38,7 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class QualityGateVerifier implements Decorator {
 
@@ -169,7 +161,7 @@ public class QualityGateVerifier implements Decorator {
       .append(alertValue(condition, level));
 
     if (alertPeriod != null) {
-      Snapshot snapshot = resourceCache.get(project.getEffectiveKey()).snapshot();
+      Snapshot snapshot = resourceCache.get(project).snapshot();
       stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
     }
 

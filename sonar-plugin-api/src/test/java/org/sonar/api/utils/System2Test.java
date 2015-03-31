@@ -26,6 +26,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -118,5 +119,11 @@ public class System2Test {
     } catch (IllegalStateException e) {
       assertThat(e.getCause().getMessage()).isEqualTo("expected");
     }
+  }
+
+  @Test
+  public void getDefaultTimezone() throws Exception {
+    assertThat(System2.INSTANCE.getDefaultTimeZone().getID()).isEqualTo(TimeZone.getDefault().getID());
+
   }
 }

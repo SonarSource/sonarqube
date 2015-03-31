@@ -1,0 +1,156 @@
+{
+  "total": 621,
+  "p": 1,
+  "ps": 1,
+  "rules": [
+    {
+      "key": "manual:My_Manual_Rule",
+      "repo": "manual",
+      "name": "My Manual Rule",
+      "createdAt": "2015-03-17T17:26:47+0100",
+      "status": "READY",
+      "isTemplate": false,
+      "tags": [],
+      "sysTags": [],
+      "htmlDesc": "My Description",
+      "mdDesc": "My Description",
+      "debtOverloaded": false,
+      "params": []
+    }
+  ],
+  "facets": [
+    {
+      "property": "debt_characteristics",
+      "values": [
+        {
+          "val": "MAINTAINABILITY",
+          "count": 172
+        },
+        {
+          "val": "RELIABILITY",
+          "count": 143
+        },
+        {
+          "val": "CHANGEABILITY",
+          "count": 24
+        },
+        {
+          "val": "TESTABILITY",
+          "count": 23
+        },
+        {
+          "val": "PORTABILITY",
+          "count": 21
+        },
+        {
+          "val": "SECURITY",
+          "count": 21
+        },
+        {
+          "val": "EFFICIENCY",
+          "count": 9
+        },
+        {
+          "val": "READABILITY",
+          "count": 102
+        },
+        {
+          "val": "UNDERSTANDABILITY",
+          "count": 70
+        },
+        {
+          "val": "INSTRUCTION_RELIABILITY",
+          "count": 42
+        },
+        {
+          "val": "LOGIC_RELIABILITY",
+          "count": 39
+        },
+        {
+          "val": "UNIT_TESTABILITY",
+          "count": 23
+        },
+        {
+          "val": "ARCHITECTURE_RELIABILITY",
+          "count": 22
+        },
+        {
+          "val": "DATA_RELIABILITY",
+          "count": 16
+        },
+        {
+          "val": "ARCHITECTURE_CHANGEABILITY",
+          "count": 12
+        },
+        {
+          "val": "SECURITY_FEATURES",
+          "count": 10
+        },
+        {
+          "val": "EXCEPTION_HANDLING",
+          "count": 9
+        },
+        {
+          "val": "LOGIC_CHANGEABILITY",
+          "count": 9
+        },
+        {
+          "val": "COMPILER_RELATED_PORTABILITY",
+          "count": 8
+        },
+        {
+          "val": "INPUT_VALIDATION_AND_REPRESENTATION",
+          "count": 7
+        },
+        {
+          "val": "SYNCHRONIZATION_RELIABILITY",
+          "count": 7
+        },
+        {
+          "val": "UNIT_TESTS",
+          "count": 7
+        },
+        {
+          "val": "CPU_EFFICIENCY",
+          "count": 6
+        },
+        {
+          "val": "LANGUAGE_RELATED_PORTABILITY",
+          "count": 6
+        },
+        {
+          "val": "SOFTWARE_RELATED_PORTABILITY",
+          "count": 6
+        },
+        {
+          "val": "DATA_CHANGEABILITY",
+          "count": 3
+        },
+        {
+          "val": "ERRORS",
+          "count": 3
+        },
+        {
+          "val": "MEMORY_EFFICIENCY",
+          "count": 3
+        },
+        {
+          "val": "API_ABUSE",
+          "count": 1
+        },
+        {
+          "val": "FAULT_TOLERANCE",
+          "count": 1
+        },
+        {
+          "val": "OS_RELATED_PORTABILITY",
+          "count": 1
+        },
+        {
+          "val": "NONE",
+          "count": 208
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,8 @@ define([
   'templates/workspace'
 ], function () {
 
+  var $ = jQuery;
+
   return Marionette.ItemView.extend({
     template: Templates['workspace-viewer-header'],
 
@@ -35,9 +37,18 @@ define([
       'click .js-close': 'onCloseClick'
     },
 
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    },
+
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+      $('.tooltip').remove();
+    },
+
     onMinimizeClick: function (e) {
       e.preventDefault();
-      this.model.trigger('minimize');
+      this.trigger('viewerMinimize');
     },
 
     onFullScreenClick: function (e) {
@@ -52,9 +63,8 @@ define([
 
     onCloseClick: function (e) {
       e.preventDefault();
-      this.model.trigger('close');
+      this.trigger('viewerClose');
     },
-
 
     toFullScreen: function () {
       this.$el.closest('.workspace-viewer').addClass('workspace-viewer-full-screen');

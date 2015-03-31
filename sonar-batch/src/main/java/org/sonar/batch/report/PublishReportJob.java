@@ -22,13 +22,16 @@ package org.sonar.batch.report;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.StoppingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
@@ -40,33 +43,55 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class PublishReportJob implements BatchComponent {
+public class PublishReportJob implements BatchComponent, Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(PublishReportJob.class);
+  public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
 
   private final ServerClient serverClient;
   private final Server server;
   private final Settings settings;
-  private final Project project;
+  private final ProjectReactor projectReactor;
   private final DefaultAnalysisMode analysisMode;
   private final TempFolder temp;
 
   private ReportPublisher[] publishers;
 
+  private File reportDir;
+  private BatchReportWriter writer;
+
   public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisher[] publishers) {
+    ProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisher[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
-    this.project = project;
+    this.projectReactor = projectReactor;
     this.settings = settings;
     this.analysisMode = analysisMode;
     this.temp = temp;
     this.publishers = publishers;
   }
 
-  public PublishReportJob(Settings settings, ServerClient serverClient, Server server,
-    Project project, DefaultAnalysisMode analysisMode, TempFolder temp) {
-    this(settings, serverClient, server, project, analysisMode, temp, new ReportPublisher[0]);
+  @Override
+  public void start() throws StartingException {
+    reportDir = new File(projectReactor.getRoot().getWorkDir(), "batch-report");
+    writer = new BatchReportWriter(reportDir);
+  }
+
+  @Override
+  public void stop() throws StoppingException {
+    if (!settings.getBoolean(KEEP_REPORT_PROP_KEY)) {
+      FileUtils.deleteQuietly(reportDir);
+    } else {
+      LOG.info("Batch report generated in " + reportDir);
+    }
+  }
+
+  public File getReportDir() {
+    return reportDir;
+  }
+
+  public BatchReportWriter getWriter() {
+    return writer;
   }
 
   public void execute() {
@@ -83,8 +108,6 @@ public class PublishReportJob implements BatchComponent {
   private File prepareReport() {
     try {
       long startTime = System.currentTimeMillis();
-      File reportDir = temp.newDir("batch-report");
-      BatchReportWriter writer = new BatchReportWriter(reportDir);
       for (ReportPublisher publisher : publishers) {
         publisher.publish(writer);
       }
@@ -94,7 +117,6 @@ public class PublishReportJob implements BatchComponent {
       startTime = System.currentTimeMillis();
       File reportZip = temp.newFile("batch-report", ".zip");
       ZipUtils.zipDir(reportDir, reportZip);
-      FileUtils.deleteDirectory(reportDir);
       stopTime = System.currentTimeMillis();
       LOG.info("Analysis reports compressed in " + (stopTime - startTime) + "ms, zip size=" + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(reportZip)));
       return reportZip;
@@ -109,7 +131,8 @@ public class PublishReportJob implements BatchComponent {
     long startTime = System.currentTimeMillis();
     URL url;
     try {
-      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + project.getEffectiveKey());
+      String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
+      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + effectiveKey);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL", e);
     }
@@ -148,7 +171,8 @@ public class PublishReportJob implements BatchComponent {
       if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
-      String url = baseUrl + "dashboard/index/" + project.getKey();
+      String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
+      String url = baseUrl + "dashboard/index/" + effectiveKey;
       logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
       logger.info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
     }

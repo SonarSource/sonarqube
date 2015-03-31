@@ -28,6 +28,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
 import org.sonar.server.user.index.UserDoc;
@@ -35,15 +36,15 @@ import org.sonar.server.user.index.UserIndex;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.*;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEVERITY;
 
 public class NewIssuesNotification extends Notification {
 
-  private static final long serialVersionUID = -6305871981920103093L;
-
   public static final String TYPE = "new-issues";
+  private static final long serialVersionUID = -6305871981920103093L;
   private static final String COUNT = ".count";
   private static final String LABEL = ".label";
 
@@ -88,13 +89,16 @@ public class NewIssuesNotification extends Notification {
   protected void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
     METRIC metric = METRIC.COMPONENT;
     List<Multiset.Entry<String>> componentStats = stats.statsForMetric(metric);
-    try (DbSession dbSession = dbClient.openSession(false)) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
       for (int i = 0; i < 5 && i < componentStats.size(); i++) {
         String uuid = componentStats.get(i).getElement();
         String componentName = dbClient.componentDao().getByUuid(dbSession, uuid).name();
         setFieldValue(metric + "." + (i + 1) + LABEL, componentName);
         setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
       }
+    } finally {
+      MyBatis.closeQuietly(dbSession);
     }
   }
 
@@ -120,7 +124,7 @@ public class NewIssuesNotification extends Notification {
   }
 
   public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(METRIC.DEBT + COUNT, durations.encode(debt));
+    setFieldValue(METRIC.DEBT + COUNT, durations.format(Locale.ENGLISH, debt));
     return this;
   }
 
@@ -129,5 +133,15 @@ public class NewIssuesNotification extends Notification {
     for (String severity : Severity.ALL) {
       setFieldValue(SEVERITY + "." + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
     }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

@@ -66,6 +66,7 @@ define([
           if (this.model.get('isTemplate')) {
             this.fetchCustomRules();
           }
+          this.listenTo(this.options.app.state, 'change:selectedIndex', this.select);
         },
 
         onRender: function () {
@@ -129,12 +130,10 @@ define([
           var that = this;
           key('up', 'details', function () {
             that.options.app.controller.selectPrev();
-            that.options.app.controller.showDetailsForSelected();
             return false;
           });
           key('down', 'details', function () {
             that.options.app.controller.selectNext();
-            that.options.app.controller.showDetailsForSelected();
             return false;
           });
           key('left, backspace', 'details', function () {
@@ -175,6 +174,12 @@ define([
               });
             }
           });
+        },
+
+        select: function () {
+          var selected = this.options.app.state.get('selectedIndex'),
+              selectedRule = this.options.app.list.at(selected);
+          this.options.app.controller.showDetails(selectedRule);
         },
 
         serializeData: function () {

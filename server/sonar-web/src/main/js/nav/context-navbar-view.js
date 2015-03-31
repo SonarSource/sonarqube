@@ -21,7 +21,15 @@ define([
   'templates/nav'
 ], function () {
 
-  var $ = jQuery;
+  var $ = jQuery,
+      OVERVIEW_URLS = [
+          '/design', '/libraries', '/dashboards', '/dashboard'
+      ],
+      SETTINGS_URLS = [
+        '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
+        '/action_plans/index', '/project/links', '/project_roles/index', '/project/history', '/project/key',
+        '/project/deletion'
+      ];
 
   return Marionette.ItemView.extend({
     template: Templates['nav-context-navbar'],
@@ -51,9 +59,21 @@ define([
     },
 
     serializeData: function () {
+      var href = window.location.href,
+          search = window.location.search,
+          isMoreActive = _.some(OVERVIEW_URLS, function (url) {
+            return href.indexOf(url) !== -1;
+          });
+          isSettingsActive = _.some(SETTINGS_URLS, function (url) {
+            return href.indexOf(url) !== -1;
+          });
+
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
-        canManageContextDashboards: window.SS.user != null,
-        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey'))
+        canManageContextDashboards: !!window.SS.user,
+        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey')),
+
+        isSettingsActive: isSettingsActive,
+        isMoreActive: isMoreActive
       });
     }
   });

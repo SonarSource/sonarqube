@@ -298,11 +298,40 @@ public class IssuesActionTest {
     assertThat(previousIssue.getAssigneeLogin()).isEqualTo("john");
   }
 
+  @Test
+  public void project_issues_attached_file_on_removed_module() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    // File and module are removed
+    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setEnabled(false);
+    ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
+    componentDao.insert(session, project, module, file);
+    session.commit();
+
+    indexIssues(IssueTesting.newDoc("EFGH", file)
+      .setRuleKey("squid:AvoidCycle")
+      .setSeverity("BLOCKER")
+      .setStatus("RESOLVED")
+      .setResolution("FALSE-POSITIVE")
+      .setManualSeverity(false)
+      .setMessage("Do not use this method")
+      .setLine(200)
+      .setChecksum("123456")
+      .setAssignee("john"));
+
+    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
+    ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
+    assertThat(serverIssue.getKey()).isEqualTo("EFGH");
+    // Module key of removed file should be returned
+    assertThat(serverIssue.getModuleKey()).isEqualTo(MODULE_KEY);
+  }
+
   @Test(expected = ForbiddenException.class)
   public void fail_without_preview_permission() throws Exception {
     MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
+    WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
     request.execute();
   }
 

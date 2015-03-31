@@ -128,7 +128,6 @@ define([
           measures: measures,
           measuresToDisplay: that.prepareMetrics(metrics)
         });
-        console.log(that.model.get('measuresToDisplay'));
       });
     },
 

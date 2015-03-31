@@ -26,7 +26,8 @@
   var defaults = {
     height: 140,
     color: '#1f77b4',
-    interpolate: 'basis'
+    interpolate: 'basis',
+    type: 'UNKNOWN'
   };
 
   /*
@@ -36,82 +37,100 @@
    * ]
    */
 
-  $.fn.timeline = function (data) {
+  $.fn.timeline = function (data, opts) {
     $(this).each(function () {
-      var options = _.defaults($(this).data(), defaults);
-      _.extend(options, { width: $(this).width() });
+          var options = _.defaults(opts || {}, $(this).data(), defaults);
+          _.extend(options, { width: $(this).width() });
 
-      var container = d3.select(this),
-          svg = container.append('svg')
-              .attr('width', options.width + 2)
-              .attr('height', options.height + 2)
-              .classed('sonar-d3', true),
+          var container = d3.select(this),
+              svg = container.append('svg')
+                  .attr('width', options.width + 12)
+                  .attr('height', options.height + 12)
+                  .classed('sonar-d3', true),
 
-          plot = svg.append('g')
-              .classed('plot', true),
+              extra = svg.append('g'),
 
-          xScale = d3.time.scale()
-              .domain(d3.extent(data, function (d) {
-                return new Date(d.val);
-              })),
+              plot = svg.append('g')
+                  .classed('plot', true),
 
-          yScale = d3.scale.linear()
-              .domain([
-                0, d3.max(data, function (d) {
-                  return d.count;
-                })
-              ]),
+              xScale = d3.time.scale()
+                  .domain(d3.extent(data, function (d) {
+                    return new Date(d.val);
+                  })),
 
-          line = d3.svg.line()
-              .x(function (d) {
-                return xScale(new Date(d.val));
-              })
-              .y(function (d) {
-                return yScale(d.count);
-              })
-              .interpolate(options.interpolate),
+              yScale = d3.scale.linear()
+                  .domain(d3.extent(data, function (d) {
+                    return d.count;
+                  })),
 
-          minDate = xScale.domain()[0],
-          minDateTick = svg.append('text')
-              .classed('subtitle', true)
-              .text(moment(minDate).format('LL')),
+              line = d3.svg.line()
+                  .x(function (d) {
+                    return xScale(new Date(d.val));
+                  })
+                  .y(function (d) {
+                    return yScale(d.count);
+                  })
+                  .interpolate(options.interpolate);
 
-          maxDate = xScale.domain()[1],
-          maxDateTick = svg.append('text')
-              .classed('subtitle', true)
-              .text(moment(maxDate).format('LL'))
-              .style('text-anchor', 'end');
+          // Medians
+          var medianValue = getNiceMedian(0.5, data, function (d) {
+                return d.count;
+              }),
+              medianLabel = extra.append('text')
+                  .text(window.formatMeasure(medianValue, options.type))
+                  .style('text-anchor', 'end')
+                  .style('font-size', '10px')
+                  .style('fill', '#ccc')
+                  .attr('dy', '0.32em'),
+              medianLabelWidth = medianLabel.node().getBBox().width;
 
-      _.extend(options, {
-        marginLeft: 1,
-        marginRight: 1,
-        marginTop: 1,
-        marginBottom: 1 + maxDateTick.node().getBBox().height
-      });
+          _.extend(options, {
+            marginLeft: 1,
+            marginRight: 1 + medianLabelWidth + 4,
+            marginTop: 6,
+            marginBottom: 6
+          });
 
-      _.extend(options, {
-        availableWidth: options.width - options.marginLeft - options.marginRight,
-        availableHeight: options.height - options.marginTop - options.marginBottom
-      });
+          _.extend(options, {
+            availableWidth: options.width - options.marginLeft - options.marginRight,
+            availableHeight: options.height - options.marginTop - options.marginBottom
+          });
 
-      plot.attr('transform', trans(options.marginLeft, options.marginTop));
-      xScale.range([0, options.availableWidth]);
-      yScale.range([0, options.availableHeight]);
+          plot.attr('transform', trans(options.marginLeft, options.marginTop));
+          xScale.range([0, options.availableWidth]);
+          yScale.range([options.availableHeight, 0]);
 
-      minDateTick
-          .attr('x', options.marginLeft)
-          .attr('y', options.height);
-      maxDateTick
-          .attr('x', options.width - options.marginRight)
-          .attr('y', options.height);
+          plot.append('path')
+              .datum(data)
+              .attr('d', line)
+              .classed('line', true)
+              .style('stroke', options.color);
 
-      plot.append('path')
-          .datum(data)
-          .attr('d', line)
-          .attr('class', 'line')
-          .style('stroke', options.color);
-
-    });
+          medianLabel
+              .attr('x', options.width - 1)
+              .attr('y', options.marginTop + yScale(medianValue));
+          extra.append('line')
+              .attr('x1', options.marginLeft)
+              .attr('y1', options.marginTop + yScale(medianValue))
+              .attr('x2', options.availableWidth + options.marginLeft)
+              .attr('y2', options.marginTop + yScale(medianValue))
+              .style('stroke', '#eee')
+              .style('shape-rendering', 'crispedges');
+        }
+    )
+    ;
   };
 
-})(window.jQuery);
+  function getNiceMedian (p, array, accessor) {
+    var min = d3.min(array, accessor),
+        max = d3.max(array, accessor),
+        median = d3.median(array, accessor),
+        threshold = (max - min) / 2,
+        threshold10 = Math.pow(10, Math.floor(Math.log(threshold) / Math.LN10) - 1);
+    return (p - 0.5) > 0.0001 ?
+        Math.floor(median / threshold10) * threshold10 :
+        Math.ceil(median / threshold10) * threshold10;
+  }
+
+})
+(window.jQuery);

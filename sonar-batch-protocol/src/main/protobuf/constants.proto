@@ -37,3 +37,37 @@ enum ComponentType {
   VIEW = 4;
   SUBVIEW = 5;
 }
+
+enum MeasureValueType {
+  INT = 0;
+  LONG = 1;
+  DOUBLE = 2;
+  BOOLEAN = 3;
+  STRING = 4;
+}
+
+// temporary enum during development of computation stack
+enum EventCategory {
+  ALERT = 0;
+  PROFILE = 1;
+}
+
+enum ComponentLinkType {
+  HOME = 0;
+  SCM = 1;
+  SCM_DEV = 2;
+  ISSUE = 3;
+  CI = 4;
+}
+
+enum HighlightingType {
+  ANNOTATION = 0;
+  CONSTANT = 1;
+  COMMENT = 2;
+  CPP_DOC = 3;
+  STRUCTURED_COMMENT = 4;
+  KEYWORD = 5;
+  HIGHLIGHTING_STRING = 6;
+  KEYWORD_LIGHT = 7;
+  PREPROCESS_DIRECTIVE = 8;
+}

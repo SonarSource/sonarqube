@@ -1,0 +1,6 @@
+<dataset>
+
+  <events id="1" name="1.0" category="Version" description="Version 1.0" event_data="some data" event_date="1225630680000"
+          component_uuid="ABCD" snapshot_id="1000" created_at="1225630680000" />
+
+</dataset>

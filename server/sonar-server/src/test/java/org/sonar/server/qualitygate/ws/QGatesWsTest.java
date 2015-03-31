@@ -189,7 +189,7 @@ public class QGatesWsTest {
     String name = "New QG";
     when(qGates.create(name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newGetRequest("api/qualitygates", "create").setParam("name", name).execute()
-      .assertJson("{'id':42,'name':'New QG'}");
+      .assertJson("{\"id\":42,\"name\":\"New QG\"}");
   }
 
   @Test
@@ -197,7 +197,7 @@ public class QGatesWsTest {
     String name = "Copied QG";
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newGetRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
-      .assertJson("{'id':42,'name':'Copied QG'}");
+      .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -218,7 +218,7 @@ public class QGatesWsTest {
     String name = "New QG";
     when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
     tester.newPostRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
-      .assertJson("{'id':42,'name':'New QG'}");
+      .assertJson("{\"id\":42,\"name\":\"New QG\"}");
     ;
   }
 
@@ -263,7 +263,7 @@ public class QGatesWsTest {
       ));
     when(qGates.currentUserHasWritePermission()).thenReturn(false);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}]}");
+      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}]}");
   }
 
   @Test
@@ -276,7 +276,7 @@ public class QGatesWsTest {
       ));
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
+      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}],\"default\":42}");
   }
 
   @Test
@@ -284,7 +284,7 @@ public class QGatesWsTest {
     long gateId = 12345L;
     when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
     tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{'id':12345,'name':'Golden'}");
+      "{\"id\":12345,\"name\":\"Golden\"}");
   }
 
   @Test
@@ -296,9 +296,9 @@ public class QGatesWsTest {
       new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
       ));
     tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{'id':12345,'name':'Golden','conditions':["
-        + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
-        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
+      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
+        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
+        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
         + "]}"
       );
   }
@@ -313,9 +313,9 @@ public class QGatesWsTest {
       new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
       ));
     tester.newGetRequest("api/qualitygates", "show").setParam("name", gateName).execute().assertJson(
-      "{'id':12345,'name':'Golden','conditions':["
-        + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
-        + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
+      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
+        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
+        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
         + "]}"
       );
   }
@@ -347,7 +347,7 @@ public class QGatesWsTest {
       .setParam("warning", warningThreshold)
       .setParam("error", errorThreshold)
       .execute()
-      .assertJson("{'id':12345,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
+      .assertJson("{\"id\":12345,\"metric\":\"coverage\",\"op\":\"LT\",\"warning\":\"80\",\"error\":\"75\"}");
   }
 
   @Test
@@ -367,7 +367,7 @@ public class QGatesWsTest {
       .setParam("warning", warningThreshold)
       .setParam("error", errorThreshold)
       .execute()
-      .assertJson("{'id':12345,'metric':'coverage','op':'LT','warning':'80','error':'75'}");
+      .assertJson("{\"id\":12345,\"metric\":\"coverage\",\"op\":\"LT\",\"warning\":\"80\",\"error\":\"75\"}");
   }
 
   @Test
@@ -395,9 +395,9 @@ public class QGatesWsTest {
       .setParam("gateId", Long.toString(gateId))
       .setParam("query", "Project")
       .execute()
-      .assertJson("{'more':true,'results':["
-        + "{'id':42,'name':'Project One','selected':false},"
-        + "{'id':24,'name':'Project Two','selected':true}"
+      .assertJson("{\"more\":true,\"results\":["
+        + "{\"id\":42,\"name\":\"Project One\",\"selected\":false},"
+        + "{\"id\":24,\"name\":\"Project Two\",\"selected\":true}"
         + "]}");
     ArgumentCaptor<ProjectQgateAssociationQuery> queryCaptor = ArgumentCaptor.forClass(ProjectQgateAssociationQuery.class);
     verify(projectFinder).find(queryCaptor.capture());
@@ -419,8 +419,8 @@ public class QGatesWsTest {
     tester.newGetRequest("api/qualitygates", "search")
       .setParam("gateId", Long.toString(gateId))
       .execute()
-      .assertJson("{'more':true,'results':["
-        + "{'id':24,'name':'Project Two','selected':true}"
+      .assertJson("{\"more\":true,\"results\":["
+        + "{\"id\":24,\"name\":\"Project Two\",\"selected\":true}"
         + "]}");
     ArgumentCaptor<ProjectQgateAssociationQuery> queryCaptor = ArgumentCaptor.forClass(ProjectQgateAssociationQuery.class);
     verify(projectFinder).find(queryCaptor.capture());

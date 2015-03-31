@@ -17,27 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-function showMessage(div_id, message) {
+function showMessage (div_id, message) {
   $j('#' + div_id + 'msg').html(message);
   $j('#' + div_id).show();
 }
-function error(message) {
+function error (message) {
   showMessage('error', message);
 }
-function warning(message) {
+function warning (message) {
   showMessage('warning', message);
 }
-function info(message) {
+function info (message) {
   showMessage('info', message);
 }
-function toggleFav(resourceId, elt) {
-  $j.ajax({type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
+function toggleFav (resourceId, elt) {
+  $j.ajax({
+    type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
       var star = $j(elt);
       star.removeClass('icon-favorite icon-not-favorite');
       star.addClass(data.css);
       star.attr('title', data.title);
-    }});
+    }
+  });
 }
 
 function dashboardParameters (urlHasSomething) {
@@ -68,7 +70,7 @@ function dashboardParameters (urlHasSomething) {
 
 var treemaps = {};
 
-function treemapById(id) {
+function treemapById (id) {
   return treemaps[id];
 }
 var TreemapContext = function (rid, label) {
@@ -163,7 +165,7 @@ Treemap.prototype.initNodes = function () {
   });
 };
 
-function openModalWindow(url, options) {
+function openModalWindow (url, options) {
   var width = (options && options.width) || 540;
   var $dialog = $j('#modal');
   if (!$dialog.length) {
@@ -199,7 +201,7 @@ function openModalWindow(url, options) {
       return this.each(function () {
         var obj = $j(this);
         var url = obj.attr('modal-url') || obj.attr('href');
-        return openModalWindow(url, {'width': obj.attr('modal-width')});
+        return openModalWindow(url, { 'width': obj.attr('modal-width') });
       });
     },
     modal: function () {
@@ -247,12 +249,12 @@ function openModalWindow(url, options) {
   });
 })(jQuery);
 
-function closeModalWindow() {
+function closeModalWindow () {
   $j('#modal').dialog('close');
   return false;
 }
 
-function supportsHTML5Storage() {
+function supportsHTML5Storage () {
   try {
     return 'localStorage' in window && window.localStorage !== null;
   } catch (e) {
@@ -262,7 +264,7 @@ function supportsHTML5Storage() {
 
 //******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
 
-function openAccordionItem(url) {
+function openAccordionItem (url) {
   return $j.ajax({
     url: url
   }).fail(function (jqXHR, textStatus) {
@@ -305,11 +307,11 @@ var clickOnDropdownMenuLink = function (event) {
   }
 };
 
-function showDropdownMenu(menuId) {
+function showDropdownMenu (menuId) {
   showDropdownMenuOnElement($j('#' + menuId));
 }
 
-function showDropdownMenuOnElement(elt) {
+function showDropdownMenuOnElement (elt) {
   var dropdownElt = $j(elt);
 
   if (dropdownElt === currentlyDisplayedDropdownMenu) {
@@ -327,7 +329,7 @@ function showDropdownMenuOnElement(elt) {
 
 //******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
 
-function openPopup(url, popupId) {
+function openPopup (url, popupId) {
   window.open(url, popupId, 'height=800,width=900,scrollbars=1,resizable=1');
   return false;
 }
@@ -365,6 +367,113 @@ function fileFromPath (path) {
   }
 }
 
+
+/*
+ * Measures
+ */
+
+(function () {
+
+  /**
+   * Format a work duration measure
+   * @param {number} value
+   * @returns {string}
+   */
+  var durationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var hoursInDay = window.SS.hoursInDay || 8,
+        isNegative = value < 0,
+        absValue = Math.abs(value);
+    var days = Math.floor(absValue / hoursInDay / 60);
+    var remainingValue = absValue - days * hoursInDay * 60;
+    var hours = Math.floor(remainingValue / 60);
+    remainingValue -= hours * 60;
+    var minutes = remainingValue;
+    var formatted = '';
+    if (days > 0) {
+      formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
+    }
+    if (hours > 0 && days < 10) {
+      if (formatted.length > 0) {
+        formatted += ' ';
+      }
+      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+    }
+    if (minutes > 0 && hours < 10 && days === 0) {
+      if (formatted.length > 0) {
+        formatted += ' ';
+      }
+      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+    }
+    return formatted;
+  };
+
+  /**
+   * Format a work duration variation
+   * @param value
+   */
+  var durationVariationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var formatted = durationFormatter(value);
+    return formatted[0] !== '-' ? '+' + formatted : formatted;
+  };
+
+  /**
+   * Format a measure according to its type
+   * @param measure
+   * @param {string} type
+   * @returns {string|null}
+   */
+  window.formatMeasure = function (measure, type) {
+    var formatted = null,
+        formatters = {
+          'INT': function (value) {
+            return numeral(value).format('0,0');
+          },
+          'FLOAT': function (value) {
+            return numeral(value).format('0,0.0');
+          },
+          'PERCENT': function (value) {
+            return numeral(+value / 100).format('0,0.0%');
+          },
+          'WORK_DUR': durationFormatter
+        };
+    if (measure != null && type != null) {
+      formatted = formatters[type] != null ? formatters[type](measure) : measure;
+    }
+    return formatted;
+  };
+
+  /**
+   * Format a measure variation according to its type
+   * @param measure
+   * @param {string} type
+   * @returns {string|null}
+   */
+  window.formatMeasureVariation = function (measure, type) {
+    var formatted = null,
+        formatters = {
+          'INT': function (value) {
+            return value === 0 ? '0' : numeral(value).format('+0,0');
+          },
+          'FLOAT': function (value) {
+            return value === 0 ? '0' : numeral(value).format('+0,0.0');
+          },
+          'PERCENT': function (value) {
+            return value === 0 ? '0%' : numeral(+value / 100).format('+0,0.0%');
+          },
+          'WORK_DUR': durationVariationFormatter
+        };
+    if (measure != null && type != null) {
+      formatted = formatters[type] != null ? formatters[type](measure) : measure;
+    }
+    return formatted;
+  };
+})();
 
 jQuery(function () {
 

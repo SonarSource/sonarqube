@@ -37,21 +37,22 @@ define([
       var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
           profileName = profileBase != null ? profileBase.name : profile,
           message = tp('coding_rules.bulk_change.success', profileName, succeeded);
-      this.ui.messagesContainer.append('<div class="message-notice">' + message + '</div>');
+      this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
     },
 
     showWarnMessage: function (profile, succeeded, failed) {
       var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
           profileName = profileBase != null ? profileBase.name : profile,
           message = tp('coding_rules.bulk_change.warning', profileName, succeeded, failed);
-      this.ui.messagesContainer.append('<div class="message-alert">' + message + '</div>');
+      this.ui.messagesContainer.append('<div class="alert alert-warning">' + message + '</div>');
     },
 
     onRender: function () {
       ModalFormView.prototype.onRender.apply(this, arguments);
       this.$('#coding-rules-bulk-change-profile').select2({
         width: '250px',
-        minimumResultsForSearch: 1
+        minimumResultsForSearch: 1,
+        openOnEnter: false
       });
     },
 

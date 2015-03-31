@@ -19,7 +19,9 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -56,9 +58,9 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.index.SourceFileResultSetIterator;
 import org.sonar.server.source.index.SourceLineIndexer;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.NewUser;
@@ -72,7 +74,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
-import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
 
 public class IssueServiceMediumTest {
 
@@ -455,36 +456,6 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void find_rules_by_component() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    // 2 issues on the same rule
-    saveIssue(IssueTesting.newDto(rule, file, project));
-    saveIssue(IssueTesting.newDto(rule, file, project));
-
-    RulesAggregation result = service.findRulesByComponent(file.key(), null, session);
-    assertThat(result.rules()).hasSize(1);
-  }
-
-  @Test
-  public void find_rules_by_severity() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
-    saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO));
-
-    Multiset<String> result = service.findSeveritiesByComponent(file.key(), null, session);
-    assertThat(result.count("MAJOR")).isEqualTo(2);
-    assertThat(result.count("INFO")).isEqualTo(1);
-    assertThat(result.count("UNKNOWN")).isEqualTo(0);
-  }
-
-  @Test
   public void search_issues() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
@@ -621,16 +592,13 @@ public class IssueServiceMediumTest {
   }
 
   private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
-      .put(FIELD_PROJECT_UUID, file.projectUuid())
-      .put(FIELD_FILE_UUID, file.uuid())
-      .put(FIELD_LINE, line)
-      .put(FIELD_UPDATED_AT, new Date())
-      .put(FIELD_SCM_AUTHOR, scmAuthor)
-      .build());
-    SourceLineResultSetIterator.SourceFile sourceFile = new SourceLineResultSetIterator.SourceFile(file.uuid(), System.currentTimeMillis());
-    sourceFile.addLine(line1);
-    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(sourceFile));
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    dataBuilder.addLinesBuilder()
+      .setLine(line)
+      .setScmAuthor(scmAuthor)
+      .build();
+    SourceFileResultSetIterator.Row row = SourceFileResultSetIterator.toRow(file.projectUuid(), file.uuid(), new Date(), dataBuilder.build());
+    tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(row));
   }
 
   private void newUser(String login) {

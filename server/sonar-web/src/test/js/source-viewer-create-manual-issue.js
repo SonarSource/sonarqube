@@ -32,13 +32,19 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
         lib.mockRequestFromFile('/api/issues/create', 'create-issue.json');
         lib.mockRequestFromFile('/api/issues/show', 'create-issue.json');
         lib.mockRequestFromFile('/api/rules/search*', 'api-rules-search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/source-viewer/app.js']);
+        });
       })
 
       .then(function () {
@@ -56,10 +62,11 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
       })
 
       .then(function () {
-        casper.fill('.js-manual-issue-form', {
-          rule: 'manual:api',
-          message: 'An issue message'
-        }, true);
+        casper.evaluate(function () {
+		  jQuery('.js-manual-issue-form [name="rule"]').val('manual:api');
+		  jQuery('.js-manual-issue-form [name="message"]').val('An issue message');
+		  jQuery('.js-manual-issue-form input[type="submit"]').click();
+		});
       })
 
       .then(function () {

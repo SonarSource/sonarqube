@@ -1,0 +1,22 @@
+{
+  "total": 4,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "common-java:FailedUnitTests",
+      "tags": [],
+      "status": "READY",
+      "langName": "Java",
+      "name": "Failed unit tests",
+      "severity": "MAJOR",
+      "isTemplate": false,
+      "params": [],
+      "lang": "java",
+      "sysTags": []
+    }
+  ],
+  "actives": {},
+  "qProfiles": {},
+  "facets": []
+}

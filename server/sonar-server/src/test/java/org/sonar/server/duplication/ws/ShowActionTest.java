@@ -31,7 +31,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -86,10 +85,9 @@ public class ShowActionTest {
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     String data = "{duplications}";
-    MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(
-      MeasureDto.createFor(measureKey).setTextValue("{duplications}")
-    );
+    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
+      new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
+      );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
     when(parser.parse(componentDto, data, session)).thenReturn(blocks);
@@ -112,9 +110,8 @@ public class ShowActionTest {
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     String data = "{duplications}";
-    MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(
-      MeasureDto.createFor(measureKey).setTextValue("{duplications}")
+    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
+      new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
       );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
@@ -134,8 +131,7 @@ public class ShowActionTest {
     ComponentDto componentDto = new ComponentDto().setId(10L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
 
-    MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();

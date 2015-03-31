@@ -23,7 +23,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 
@@ -50,10 +49,9 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setIssueKey("ABCDE");
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData("severity=INFO|BLOCKER");
-    long d = DateUtils.parseDate("2013-05-18").getTime();
-    dto.setCreatedAt(d);
-    dto.setUpdatedAt(d);
-    dto.setIssueChangeCreationDate(d);
+    dto.setCreatedAt(1_500_000_000_000L);
+    dto.setUpdatedAt(1_500_000_000_000L);
+    dto.setIssueChangeCreationDate(1_500_000_000_000L);
     mapper.insert(dto);
     session.commit();
 
@@ -68,9 +66,8 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setIssueKey("ABCDE");
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData("the comment");
-    long d = DateUtils.parseDate("2013-05-18").getTime();
-    dto.setCreatedAt(d);
-    dto.setUpdatedAt(d);
+    dto.setCreatedAt(1_500_000_000_000L);
+    dto.setUpdatedAt(1_500_000_000_000L);
     mapper.insert(dto);
     session.commit();
 

@@ -102,11 +102,11 @@ public class ProjectRepositoryLoader implements ServerComponent {
           projectKey = project.key();
         }
 
-        List<ComponentDto> modulesTree = dbClient.componentDao().selectModulesTree(session, module.uuid());
+        List<ComponentDto> modulesTree = dbClient.componentDao().selectEnabledDescendantModules(session, module.uuid());
         Map<String, String> moduleUuidsByKey = moduleUuidsByKey(module, modulesTree);
         Map<String, Long> moduleIdsByKey = moduleIdsByKey(module, modulesTree);
 
-        List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectModulePropertiesTree(module.uuid(), session);
+        List<PropertyDto> modulesTreeSettings = dbClient.propertiesDao().selectEnabledDescendantModuleProperties(module.uuid(), session);
         TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings, module);
 
         addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
@@ -288,8 +288,9 @@ public class ProjectRepositoryLoader implements ServerComponent {
       moduleKeysByUuid.put(module.uuid(), module.key());
     }
 
-    for (FilePathWithHashDto file : dbClient.componentDao().selectModuleFilesTree(session, moduleKey)) {
-      FileData fileData = new FileData(file.getSrcHash(), false, null, null, null);
+    for (FilePathWithHashDto file : dbClient.componentDao().selectEnabledDescendantFiles(session, moduleKey)) {
+      // TODO should query E/S to know if blame is missing on this file
+      FileData fileData = new FileData(file.getSrcHash(), true);
       ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);
     }
   }

@@ -5,10 +5,7 @@
       <h2><%= message('project_deletion.page', :params => resource_qualifier) -%></h2>
     </div>
     <div class="modal-body">
-      <div class="info">
-        <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
-        <%= message('project_deletion.delete_resource_confirmation', :params => resource_qualifier) %>
-      </div>
+      <%= message('project_deletion.delete_resource_confirmation', :params => resource_qualifier) %>
     </div>
     <div class="modal-foot">
       <span id="delete-project-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>

@@ -1,0 +1,24 @@
+{
+  "uuid": "12345",
+  "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+  "path": "src/main/java/org/sonar/batch/index/Cache.java",
+  "name": "Cache.java",
+  "longName": "src/main/java/org/sonar/batch/index/Cache.java",
+  "q": "FIL",
+  "subProject": "org.codehaus.sonar:sonar-batch",
+  "subProjectName": "SonarQube :: Batch",
+  "project": "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": false,
+  "canMarkAsFavourite": false,
+  "canCreateManualIssue": false,
+  "measures": {
+    "lines": "378",
+    "coverage": "74.3%",
+    "duplicationDensity": "5.8%",
+    "debt": "2h 10min",
+    "sqaleRating": "A",
+    "debtRatio": "1.1%",
+    "issues": "6"
+  }
+}

@@ -20,11 +20,13 @@
 define(function () {
 
   return Backbone.Model.extend({
-    defaults: {
-      page: 1,
-      maxResultsReached: false,
-      query: {},
-      facets: []
+    defaults: function () {
+      return {
+        page: 1,
+        maxResultsReached: false,
+        query: {},
+        facets: []
+      };
     },
 
     nextPage: function () {

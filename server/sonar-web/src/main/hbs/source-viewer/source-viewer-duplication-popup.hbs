@@ -1,42 +1,45 @@
 <div class="bubble-popup-container">
-  <div class="bubble-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
-  {{#each duplications}}
-    <div class="bubble-popup-section">
-      <div class="component-name">
-        {{#notEqComponents file ../component}}
-          <div class="component-name-parent">
-            <i class="icon-qualifier-trk"></i>&nbsp;<a href="{{dashboardUrl file.project}}">{{file.projectName}}</a>
-          </div>
-          {{#if file.subProjectName}}
+  {{#if inRemovedComponent}}
+    <div class="alert alert-warning spacer-bottom">{{t 'duplications.dups_found_on_deleted_resource'}}</div>
+  {{/if}}
+  {{#notEmpty duplications}}
+    <div class="bubble-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
+    {{#each duplications}}
+      <div class="bubble-popup-section">
+        <div class="component-name">
+          {{#notEqComponents file ../component}}
             <div class="component-name-parent">
-              <i class="icon-qualifier-trk"></i>&nbsp;<a
-                href="{{dashboardUrl file.subProject}}">{{file.subProjectName}}</a>
+              <i class="icon-qualifier-trk"></i>&nbsp;<a href="{{dashboardUrl file.project}}">{{file.projectName}}</a>
             </div>
-          {{/if}}
-        {{/notEqComponents}}
+            {{#if file.subProjectName}}
+              <div class="component-name-parent">
+                <i class="icon-qualifier-trk"></i>&nbsp;<a
+                  href="{{dashboardUrl file.subProject}}">{{file.subProjectName}}</a>
+              </div>
+            {{/if}}
+          {{/notEqComponents}}
 
-        {{#notEq file.key ../component.key}}
+          {{#notEq file.key ../component.key}}
+            <div class="component-name-path">
+              <a class="link-action" data-uuid="{{file.uuid}}" title="{{file.name}}">
+                <span>{{collapsedDirFromPath file.name}}</span><span
+                  class="component-name-file">{{fileFromPath file.name}}</span>
+              </a>
+            </div>
+          {{/notEq}}
+
           <div class="component-name-path">
-            <a data-uuid="{{file.uuid}}" title="{{file.name}}">
-              <span>{{collapsedDirFromPath file.name}}</span><span
-                class="component-name-file">{{fileFromPath file.name}}</span>
-            </a>
+            Lines:
+            {{#joinEach blocks ','}}
+              <a class="link-action" data-uuid="{{../file.uuid}}" data-line="{{from}}">
+                {{from}} – {{sum from size -1}}
+              </a>
+            {{/joinEach}}
           </div>
-        {{/notEq}}
-
-        <div class="component-name-path">
-          Lines:
-          {{#joinEach blocks ','}}
-            <a class="link-action" data-uuid="{{../file.uuid}}" data-line="{{from}}">
-              {{from}} – {{sum from size -1}}
-            </a>
-          {{/joinEach}}
         </div>
       </div>
-    </div>
-  {{else}}
-    {{t 'duplications.block_was_duplicated_by_a_deleted_resource'}}
-  {{/each}}
+    {{/each}}
+  {{/notEmpty}}
 </div>
 
 <div class="bubble-popup-arrow"></div>

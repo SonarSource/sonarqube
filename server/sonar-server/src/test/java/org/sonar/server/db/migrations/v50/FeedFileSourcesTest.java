@@ -25,14 +25,15 @@ import org.apache.commons.io.Charsets;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +41,8 @@ public class FeedFileSourcesTest {
 
   @ClassRule
   public static DbTester db = new DbTester().schema(FeedFileSourcesTest.class, "schema.sql");
+
+  private static final long NOW = 1414770242000L;
 
   FeedFileSources migration;
 
@@ -55,8 +58,7 @@ public class FeedFileSourcesTest {
     db.executeUpdateSql("truncate table file_sources");
 
     system = mock(System2.class);
-    Date now = DateUtils.parseDateTime("2014-11-17T16:27:00+0100");
-    when(system.now()).thenReturn(now.getTime());
+    when(system.now()).thenReturn(NOW);
     migration = new FeedFileSources(db.database(), system);
   }
 
@@ -81,7 +83,25 @@ public class FeedFileSourcesTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "after.xml", "file_sources");
+    List<Map<String, Object>> results = db.select("select project_uuid as \"projectUuid\", file_uuid as \"fileUuid\", created_at as \"createdAt\", " +
+      "updated_at as \"updatedAt\", data as \"data\", data as \"data\", line_hashes as \"lineHashes\", data_hash as \"dataHash\"  from file_sources");
+    assertThat(results).hasSize(2);
+
+    assertThat(results.get(0).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(0).get("fileUuid")).isEqualTo("uuid-Migrated.xoo");
+    assertThat(results.get(0).get("data")).isEqualTo("");
+    assertThat(results.get(0).get("lineHashes")).isEqualTo("");
+    assertThat(results.get(0).get("dataHash")).isEqualTo("");
+    assertThat(results.get(0).get("updatedAt")).isEqualTo(NOW);
+    assertThat(results.get(0).get("createdAt")).isEqualTo(1416238020000L);
+
+    assertThat(results.get(1).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(1).get("fileUuid")).isEqualTo("uuid-MyFile.xoo");
+    assertThat(results.get(1).get("data")).isEqualTo(",,,,,,,,,,,,,,,class Foo {\r\n,,,,,,,,,,,,,,,  // Empty\r\n,,,,,,,,,,,,,,,}\r\n,,,,,,,,,,,,,,,\r\n");
+    assertThat(results.get(1).get("lineHashes")).isEqualTo("6a19ce786467960a3a9b0d26383a464a\naab2dbc5fdeaa80b050b1d049ede357c\ncbb184dd8e05c9709e5dcaedaa0495cf\n\n");
+    assertThat(results.get(1).get("dataHash")).isEqualTo("");
+    assertThat(results.get(1).get("updatedAt")).isEqualTo(1414766642000L);
+    assertThat(results.get(1).get("createdAt")).isEqualTo(NOW);
   }
 
   @Test
@@ -212,7 +232,27 @@ public class FeedFileSourcesTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "after-with-scm.xml", "file_sources");
+    List<Map<String, Object>> results = db.select("select project_uuid as \"projectUuid\", file_uuid as \"fileUuid\", created_at as \"createdAt\", " +
+      "updated_at as \"updatedAt\", data as \"data\", data as \"data\", line_hashes as \"lineHashes\", data_hash as \"dataHash\"  from file_sources");
+    assertThat(results).hasSize(2);
+
+    assertThat(results.get(0).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(0).get("fileUuid")).isEqualTo("uuid-Migrated.xoo");
+    assertThat(results.get(0).get("data")).isEqualTo("");
+    assertThat(results.get(0).get("lineHashes")).isEqualTo("");
+    assertThat(results.get(0).get("dataHash")).isEqualTo("");
+    assertThat(results.get(0).get("updatedAt")).isEqualTo(NOW);
+    assertThat(results.get(0).get("createdAt")).isEqualTo(1416238020000L);
+
+    assertThat(results.get(1).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(1).get("fileUuid")).isEqualTo("uuid-MyFile.xoo");
+    assertThat(results.get(1).get("data")).isEqualTo(
+      "aef12a,alice,2014-04-25T12:34:56+0100,1,4,2,2,5,3,3,6,4,,,1,class Foo {\r\nabe465,bob,2014-07-25T12:34:56+0100,,,,,,,,,,,,2,  " +
+      "// Empty\r\nafb789,carol,2014-03-23T12:34:56+0100,0,,,0,,,0,,,,,,}\r\nafb789,carol,2014-03-23T12:34:56+0100,,,,,,,,,,,,,\r\n");
+    assertThat(results.get(1).get("lineHashes")).isEqualTo("6a19ce786467960a3a9b0d26383a464a\naab2dbc5fdeaa80b050b1d049ede357c\ncbb184dd8e05c9709e5dcaedaa0495cf\n\n");
+    assertThat(results.get(1).get("dataHash")).isEqualTo("");
+    assertThat(results.get(1).get("updatedAt")).isEqualTo(1414766642000L);
+    assertThat(results.get(1).get("createdAt")).isEqualTo(NOW);
   }
 
   @Test
@@ -250,6 +290,26 @@ public class FeedFileSourcesTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "after-with-invalid-duplication.xml", "file_sources");
+//    db.assertDbUnit(getClass(), "after-with-invalid-duplication.xml", "file_sources");
+
+    List<Map<String, Object>> results = db.select("select project_uuid as \"projectUuid\", file_uuid as \"fileUuid\", created_at as \"createdAt\", " +
+      "updated_at as \"updatedAt\", data as \"data\", data as \"data\", line_hashes as \"lineHashes\", data_hash as \"dataHash\"  from file_sources");
+    assertThat(results).hasSize(2);
+
+    assertThat(results.get(0).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(0).get("fileUuid")).isEqualTo("uuid-Migrated.xoo");
+    assertThat(results.get(0).get("data")).isEqualTo("");
+    assertThat(results.get(0).get("lineHashes")).isEqualTo("");
+    assertThat(results.get(0).get("dataHash")).isEqualTo("");
+    assertThat(results.get(0).get("updatedAt")).isEqualTo(NOW);
+    assertThat(results.get(0).get("createdAt")).isEqualTo(1416238020000L);
+
+    assertThat(results.get(1).get("projectUuid")).isEqualTo("uuid-MyProject");
+    assertThat(results.get(1).get("fileUuid")).isEqualTo("uuid-MyFile.xoo");
+    assertThat(results.get(1).get("data")).isEqualTo(",,,,,,,,,,,,,,,class Foo {\r\n,,,,,,,,,,,,,,,  // Empty\r\n,,,,,,,,,,,,,,,}\r\n,,,,,,,,,,,,,,,\r\n");
+    assertThat(results.get(1).get("lineHashes")).isEqualTo("6a19ce786467960a3a9b0d26383a464a\naab2dbc5fdeaa80b050b1d049ede357c\ncbb184dd8e05c9709e5dcaedaa0495cf\n\n");
+    assertThat(results.get(1).get("dataHash")).isEqualTo("");
+    assertThat(results.get(1).get("updatedAt")).isEqualTo(1414766642000L);
+    assertThat(results.get(1).get("createdAt")).isEqualTo(NOW);
   }
 }

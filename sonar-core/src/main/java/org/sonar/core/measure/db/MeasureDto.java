@@ -21,32 +21,38 @@
 package org.sonar.core.measure.db;
 
 import com.google.common.base.Charsets;
-import org.sonar.core.persistence.Dto;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class MeasureDto extends Dto<MeasureKey>{
+import static com.google.common.base.Preconditions.checkArgument;
 
+public class MeasureDto {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
+  private static final int MAX_TEXT_VALUE_LENGTH = 4000;
 
   private Long id;
-
-  private String metricKey;
-
-  private String componentKey;
-
   private Double value;
-
   private String textValue;
+  private byte[] dataValue;
+  private Integer tendency;
+  private Double variation1, variation2, variation3, variation4, variation5;
+  private String alertStatus;
+  private String alertText;
+  private String description;
+  private Integer severityIndex;
 
-  private byte[] data;
+  private Long projectId;
+  private Long snapshotId;
+  private Integer metricId;
+  private Integer ruleId;
+  private Integer characteristicId;
+  private Integer personId;
 
-  protected Double variation1, variation2, variation3, variation4, variation5;
-
-  private MeasureDto(){
-    // Nothing here
-  }
+  // TODO to delete – not in db
+  private String metricKey;
+  private String componentKey;
 
   public Long getId() {
     return id;
@@ -54,16 +60,6 @@ public class MeasureDto extends Dto<MeasureKey>{
 
   public MeasureDto setId(Long id) {
     this.id = id;
-    return this;
-  }
-
-  private MeasureDto setMetricKey(String metricKey) {
-    this.metricKey = metricKey;
-    return this;
-  }
-
-  private MeasureDto setComponentKey(String componentKey) {
-    this.componentKey = componentKey;
     return this;
   }
 
@@ -77,25 +73,30 @@ public class MeasureDto extends Dto<MeasureKey>{
     return this;
   }
 
-  public MeasureDto setTextValue(String textValue) {
-    this.textValue = textValue;
-    return this;
-  }
-
-  @CheckForNull
-  public MeasureDto setData(@Nullable byte[] data) {
-    this.data = data;
-    return this;
-  }
-
   @CheckForNull
   public String getData() {
-    if (data != null) {
-      return new String(data, Charsets.UTF_8);
+    if (dataValue != null) {
+      return new String(dataValue, Charsets.UTF_8);
     }
     return textValue;
   }
 
+  public MeasureDto setData(@Nullable String data) {
+    if (data == null) {
+      this.textValue = null;
+      this.dataValue = null;
+    } else if (data.length() > MAX_TEXT_VALUE_LENGTH) {
+      this.textValue = null;
+      this.dataValue = data.getBytes(Charsets.UTF_8);
+    } else {
+      this.textValue = data;
+      this.dataValue = null;
+    }
+
+    return this;
+  }
+
+  @CheckForNull
   public Double getVariation(int index) {
     switch (index) {
       case 1:
@@ -113,7 +114,7 @@ public class MeasureDto extends Dto<MeasureKey>{
     }
   }
 
-  public MeasureDto setVariation(int index, Double d) {
+  public MeasureDto setVariation(int index, @Nullable Double d) {
     switch (index) {
       case 1:
         variation1 = d;
@@ -136,14 +137,137 @@ public class MeasureDto extends Dto<MeasureKey>{
     return this;
   }
 
-  @Override
-  public MeasureKey getKey() {
-    return MeasureKey.of(componentKey, metricKey);
+  @CheckForNull
+  public Integer getTendency() {
+    return tendency;
   }
 
-  public static MeasureDto createFor(MeasureKey key){
-    return new MeasureDto()
-      .setComponentKey(key.componentKey())
-      .setMetricKey(key.metricKey());
+  public MeasureDto setTendency(@Nullable Integer tendency) {
+    this.tendency = tendency;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlertStatus() {
+    return alertStatus;
+  }
+
+  public MeasureDto setAlertStatus(@Nullable String alertStatus) {
+    this.alertStatus = alertStatus;
+    return this;
+  }
+
+  @CheckForNull
+  public String getAlertText() {
+    return alertText;
+  }
+
+  public MeasureDto setAlertText(@Nullable String alertText) {
+    this.alertText = alertText;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDescription() {
+    return description;
+  }
+
+  public MeasureDto setDescription(@Nullable String description) {
+    this.description = description;
+    return this;
+  }
+
+  public Long getComponentId() {
+    return projectId;
+  }
+
+  public MeasureDto setComponentId(Long componentId) {
+    this.projectId = componentId;
+    return this;
+  }
+
+  public Integer getMetricId() {
+    return metricId;
+  }
+
+  public MeasureDto setMetricId(Integer metricId) {
+    this.metricId = metricId;
+    return this;
+  }
+
+  public Long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public MeasureDto setSnapshotId(Long snapshotId) {
+    this.snapshotId = snapshotId;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getRuleId() {
+    return ruleId;
+  }
+
+  public MeasureDto setRuleId(@Nullable Integer ruleId) {
+    this.ruleId = ruleId;
+    return this;
+  }
+
+  public Integer getCharacteristicId() {
+    return characteristicId;
+  }
+
+  public MeasureDto setCharacteristicId(@Nullable Integer characteristicId) {
+    this.characteristicId = characteristicId;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getPersonId() {
+    return personId;
+  }
+
+  public MeasureDto setPersonId(@Nullable Integer personId) {
+    this.personId = personId;
+    return this;
+  }
+
+  public String getMetricKey() {
+    return metricKey;
+  }
+
+  public MeasureDto setMetricKey(String metricKey) {
+    this.metricKey = metricKey;
+    return this;
+  }
+
+  public String getComponentKey() {
+    return componentKey;
+  }
+
+  public MeasureDto setComponentKey(String componentKey) {
+    this.componentKey = componentKey;
+    return this;
+  }
+
+  @CheckForNull
+  public String getSeverity() {
+    if (severityIndex == null) {
+      return null;
+    }
+
+    return Severity.ALL.get(severityIndex);
+  }
+
+  public MeasureDto setSeverity(@Nullable String severity) {
+    if (severity == null) {
+      return this;
+    }
+
+    checkArgument(Severity.ALL.contains(severity), "Severity must be included in the org.sonar.api.rule.Severity values");
+
+    this.severityIndex = Severity.ALL.indexOf(severity);
+    return this;
   }
 }

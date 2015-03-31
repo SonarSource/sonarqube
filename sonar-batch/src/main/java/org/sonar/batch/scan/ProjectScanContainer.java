@@ -50,8 +50,9 @@ import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.qualitygate.QualityGateProvider;
+import org.sonar.batch.report.*;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
-import org.sonar.batch.repository.ProjectScmRepositoryLoader;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
@@ -177,22 +178,28 @@ public class ProjectScanContainer extends ComponentContainer {
       DependencyPersister.class,
       DependencyCache.class,
 
+      // Quality Gate
+      new QualityGateProvider(),
+
+      // Events
+      EventCache.class,
+
       ProjectSettings.class,
+
+      // Report
+      PublishReportJob.class,
+      ComponentsPublisher.class,
+      IssuesPublisher.class,
+      MeasuresPublisher.class,
 
       ScanTaskObservers.class);
   }
 
   private void addDataBaseComponents() {
     add(
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      DuplicationPersister.class,
       ResourcePersister.class,
       SourcePersister.class,
       ResourceKeyMigration.class,
-
-      ProjectScmRepositoryLoader.class,
 
       // Users
       DefaultUserFinder.class,

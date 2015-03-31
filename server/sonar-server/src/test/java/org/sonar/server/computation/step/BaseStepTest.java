@@ -36,6 +36,7 @@ public abstract class BaseStepTest {
   @Test
   public void test_metadata() throws Exception {
     assertThat(step().toString()).isNotEmpty();
+    assertThat(step().getDescription()).isNotEmpty();
     assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
 
   }

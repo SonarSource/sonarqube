@@ -21,24 +21,12 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.sonar.batch.cpd.CpdComponents;
-import org.sonar.batch.design.DirectoryDsmDecorator;
-import org.sonar.batch.design.DirectoryTangleIndexDecorator;
-import org.sonar.batch.design.FileTangleIndexDecorator;
-import org.sonar.batch.design.MavenDependenciesSensor;
-import org.sonar.batch.design.ProjectDsmDecorator;
-import org.sonar.batch.design.SubProjectDsmDecorator;
+import org.sonar.batch.design.*;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
-import org.sonar.batch.scan.report.ConsoleReport;
-import org.sonar.batch.scan.report.HtmlReport;
-import org.sonar.batch.scan.report.IssuesReportBuilder;
-import org.sonar.batch.scan.report.JSONReport;
-import org.sonar.batch.scan.report.RuleNameProvider;
-import org.sonar.batch.scan.report.SourceProvider;
-import org.sonar.batch.scan.sensor.ProjectLinksSensor;
-import org.sonar.batch.scan.sensor.VersionEventsSensor;
+import org.sonar.batch.scan.report.*;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.LinesSensor;
@@ -71,8 +59,6 @@ public class BatchComponents {
       ScmSensor.class,
 
       LinesSensor.class,
-      ProjectLinksSensor.class,
-      VersionEventsSensor.class,
 
       // Issues tracking
       IssueTracking.class,

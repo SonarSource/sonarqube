@@ -28,6 +28,9 @@ import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +57,9 @@ public class FeedQProfileDatesMigrationTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "feed_created_at_and_updated_at_result.xml", "rules_profiles");
+    Map<String, Object> columns = db.selectFirst("select created_at as \"createdAt\", updated_at as \"updatedAt\" from rules_profiles where id=10");
+    assertThat(columns.get("createdAt").toString()).startsWith("2011-12-2");
+    assertThat(columns.get("updatedAt").toString()).startsWith("2014-01-2");
   }
 
   @Test
@@ -63,7 +68,9 @@ public class FeedQProfileDatesMigrationTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "use_default_dates_when_no_changes_result.xml", "rules_profiles");
+    Map<String, Object> columns = db.selectFirst("select created_at as \"createdAt\", updated_at as \"updatedAt\" from rules_profiles where id=10");
+    assertThat(columns.get("createdAt").toString()).startsWith("2014-07-0");
+    assertThat(columns.get("updatedAt").toString()).startsWith("2014-07-0");
   }
 
 }

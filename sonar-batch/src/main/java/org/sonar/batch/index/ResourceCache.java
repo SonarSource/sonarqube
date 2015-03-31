@@ -23,6 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Resource;
 
@@ -45,13 +47,16 @@ public class ResourceCache implements BatchComponent {
     return resources.get(componentKey);
   }
 
-  @CheckForNull
   public BatchResource get(Resource resource) {
     if (!(resource instanceof Library)) {
       return resources.get(resource.getEffectiveKey());
     } else {
       return libraries.get(resource);
     }
+  }
+
+  public BatchResource get(InputFile inputFile) {
+    return resources.get(((DefaultInputFile) inputFile).key());
   }
 
   public BatchResource add(Resource resource, @Nullable Resource parentResource) {

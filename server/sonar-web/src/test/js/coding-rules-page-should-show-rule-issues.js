@@ -31,11 +31,17 @@ casper.test.begin('coding-rules-page-should-show-rule-issues', 5, function (test
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-        lib.mockRequest('/api/l10n/index', '{}');
+
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/show', 'show.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues-search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
       })
 
       .then(function () {

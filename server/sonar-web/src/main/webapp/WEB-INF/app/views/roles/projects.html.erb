@@ -38,14 +38,16 @@
     <% end %>
   </div>
 
-  <div id="project-roles-operations" style="float: right;">
-    <div class="operations button-group">
-      <%= link_to message('projects_role.bulk_change'), {:action => :apply_template_form, :names => @components_names,
-                                                         :keys => @components_keys, :qualifiers => @components_qualifiers,
-                                                         :results_count => @query_result.paging.total},
-                  :id => 'apply-template-modal', :class => 'open-modal link-action button' %>
+  <header class="page-header">
+    <div class="page-actions" id="project-roles-operations">
+      <div class="button-group">
+        <%= link_to message('projects_role.bulk_change'), {:action => :apply_template_form, :names => @components_names,
+                                                           :keys => @components_keys, :qualifiers => @components_qualifiers,
+                                                           :results_count => @query_result.paging.total},
+                    :id => 'apply-template-modal', :class => 'open-modal link-action button' %>
+      </div>
     </div>
-  </div>
+  </header>
 
   <table class="data width100" id="projects">
     <thead>

@@ -3,7 +3,7 @@
     <td>
       <a href="{{issueFilterTotalLink parsedQuery}}"><strong>{{t 'total'}}</strong></a>
     </td>
-    <td class="text-right"><strong>{{#notNull periodDate}}+{{/notNull}}{{total}}</strong></td>
+    <td class="text-right"><strong>{{#notNull periodDate}}+{{/notNull}}{{numberShort total}}</strong></td>
   </tr>
   {{#each items}}
     <tr>

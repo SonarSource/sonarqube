@@ -29,9 +29,17 @@ class ManualMeasure < ActiveRecord::Base
   def created_at
     long_to_date(:created_at)
   end
+
+  def created_at=(date)
+    write_attribute(:created_at, date.to_i*1000)
+  end
   
   def updated_at
     long_to_date(:updated_at)
+  end
+
+  def updated_at=(date)
+    write_attribute(:updated_at, date.to_i*1000)
   end
   
   def long_to_date(attribute)
@@ -155,4 +163,11 @@ class ManualMeasure < ActiveRecord::Base
     end
   end
 
+  def before_save
+    self.updated_at=DateTime.now
+  end
+
+  def before_create
+    self.created_at=DateTime.now
+  end
 end

@@ -282,7 +282,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.initGrid = function () {
-    var widget = this;
     this.gxGridLines = this.gxGrid.selectAll('line').data(this.x.ticks()).enter()
         .append('line');
 

@@ -56,7 +56,7 @@ public class ComputationThread implements Runnable {
     if (item != null) {
       try {
         container.execute(item);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         LOG.error(String.format(
           "Failed to process analysis report %d of project %s", item.dto.getId(), item.dto.getProjectKey()), e);
       } finally {

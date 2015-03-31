@@ -1,0 +1,5 @@
+<dataset>
+  <rules id="987" tags="[null]" system_tags="[null]" name="[null]" plugin_rule_key="AvoidCycles" plugin_config_key="[null]" plugin_name="[null]"/>
+  <metrics id="654" delete_historical_data="[null]" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]"  domain="[null]" short_name=""
+           enabled="true" worst_value="0" optimized_best_value="true" best_value="100" direction="1" hidden="false"/>
+</dataset>

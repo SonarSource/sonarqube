@@ -19,26 +19,59 @@
  */
 package org.sonar.server.dashboard.db;
 
-import org.sonar.api.utils.System2;
 import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetMapper;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
+import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 
-public class WidgetDao extends BaseDao<WidgetMapper, WidgetDto, Long> {
+public class WidgetDao implements DaoComponent {
 
-  public WidgetDao(System2 system2) {
-    super(WidgetMapper.class, system2);
+  private MyBatis myBatis;
+
+  public WidgetDao(MyBatis myBatis) {
+    this.myBatis = myBatis;
   }
 
-  @Override
-  protected WidgetDto doGetNullableByKey(DbSession session, Long widgetId) {
+  public WidgetDto getNullableByKey(Long widgetId) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return getNullableByKey(session, widgetId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public WidgetDto getNullableByKey(DbSession session, Long widgetId) {
     return mapper(session).selectById(widgetId);
+  }
+
+  public WidgetDto update(WidgetDto item) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return update(session, item);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public WidgetDto update(DbSession session, WidgetDto item) {
+    mapper(session).update(item);
+    return item;
   }
 
   public Collection<WidgetDto> findByDashboard(DbSession session, long dashboardKey) {
     return mapper(session).selectByDashboard(dashboardKey);
   }
+
+  public Collection<WidgetDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
+  private WidgetMapper mapper(DbSession session) {
+    return session.getMapper(WidgetMapper.class);
+  }
+
 }

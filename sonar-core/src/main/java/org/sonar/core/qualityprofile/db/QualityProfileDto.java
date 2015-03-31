@@ -25,6 +25,7 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class QualityProfileDto extends Dto<String> {
@@ -35,6 +36,7 @@ public class QualityProfileDto extends Dto<String> {
   private String language;
   private String parentKee;
   private String rulesUpdatedAt;
+  private boolean isDefault;
 
   /**
    * @deprecated use {@link #createFor(String)}
@@ -110,6 +112,15 @@ public class QualityProfileDto extends Dto<String> {
 
   public QualityProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
+    return this;
+  }
+
+  public boolean isDefault() {
+    return isDefault;
+  }
+
+  public QualityProfileDto setDefault(boolean isDefault) {
+    this.isDefault = isDefault;
     return this;
   }
 

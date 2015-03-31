@@ -101,7 +101,7 @@
            from_date = first_date if !from_date || from_date > first_date
          end
        end
-       Event.find(:all, :conditions => ["resource_id=? AND event_date>=?", @resource.id, from_date.to_i*1000], :order => 'event_date').each() do |event|
+       Event.find(:all, :conditions => ["component_uuid=? AND event_date>=?", @resource.uuid, from_date.to_i*1000], :order => 'event_date').each() do |event|
          if events[event.event_date]
            events[event.event_date] << event
          else

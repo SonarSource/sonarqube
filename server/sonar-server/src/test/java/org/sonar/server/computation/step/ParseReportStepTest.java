@@ -23,14 +23,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.ZipUtils;
-import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -72,10 +68,10 @@ public class ParseReportStepTest extends BaseStepTest {
     assertThat(context.getReportMetadata().getDeletedComponentsCount()).isEqualTo(1);
 
     // verify that all components are processed (currently only for issues)
-    verify(issueComputation).processComponentIssues(context, "PROJECT_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE1_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "FILE2_UUID", Collections.<BatchReport.Issue>emptyList());
-    verify(issueComputation).processComponentIssues(context, "DELETED_UUID", ISSUES_ON_DELETED_COMPONENT);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2);
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3);
+    verify(issueComputation).processComponentIssues(context, ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null);
     verify(issueComputation).afterReportProcessing();
   }
 
@@ -94,8 +90,8 @@ public class ParseReportStepTest extends BaseStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setUuid("PROJECT_UUID")
-      .addChildRefs(2)
-      .addChildRefs(3)
+      .addChildRef(2)
+      .addChildRef(3)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)

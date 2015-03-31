@@ -22,7 +22,6 @@ package org.sonar.batch.qualitygate;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.Event;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,21 +31,18 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.test.ProjectTestBuilder;
+import org.sonar.batch.protocol.Constants.EventCategory;
+import org.sonar.batch.report.EventCache;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class GenerateQualityGateEventsTest {
   private GenerateQualityGateEvents decorator;
@@ -55,6 +51,7 @@ public class GenerateQualityGateEventsTest {
   private TimeMachine timeMachine;
   private NotificationManager notificationManager;
   private Project project;
+  private EventCache eventCache;
 
   @Before
   public void setup() {
@@ -62,8 +59,10 @@ public class GenerateQualityGateEventsTest {
     timeMachine = mock(TimeMachine.class);
     qualityGate = mock(QualityGate.class);
     notificationManager = mock(NotificationManager.class);
-    decorator = new GenerateQualityGateEvents(qualityGate, timeMachine, notificationManager);
+    eventCache = mock(EventCache.class);
+    decorator = new GenerateQualityGateEvents(qualityGate, timeMachine, notificationManager, eventCache);
     project = new ProjectTestBuilder().build();
+    when(context.getResource()).thenReturn(project);
   }
 
   @Test
@@ -85,7 +84,7 @@ public class GenerateQualityGateEventsTest {
   @Test
   public void shouldNotDecorateIfNotRootProject() {
     decorator.decorate(File.create("Foo"), context);
-    verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
   }
 
   @Test
@@ -94,7 +93,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent(Metric.Level.ERROR.getColorName(), "desc", Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, Metric.Level.ERROR.getColorName(), "desc", EventCategory.ALERT, null);
     verifyNotificationSent("Red", "desc", "ERROR", "true");
   }
 
@@ -104,7 +103,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent(Metric.Level.WARN.getColorName(), "desc", Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, Metric.Level.WARN.getColorName(), "desc", EventCategory.ALERT, null);
     verifyNotificationSent("Orange", "desc", "WARN", "true");
   }
 
@@ -115,7 +114,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent("Red (was Orange)", "desc", Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, "Red (was Orange)", "desc", EventCategory.ALERT, null);
     verifyNotificationSent("Red (was Orange)", "desc", "ERROR", "false");
   }
 
@@ -126,7 +125,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent("Green (was Red)", null, Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, "Green (was Red)", null, EventCategory.ALERT, null);
     verifyNotificationSent("Green (was Red)", null, "OK", "false");
   }
 
@@ -137,7 +136,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent("Red (was Green)", "desc", Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, "Red (was Green)", "desc", EventCategory.ALERT, null);
     verifyNotificationSent("Red (was Green)", "desc", "ERROR", "true");
   }
 
@@ -148,7 +147,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context).createEvent("Orange (was Red)", "desc", Event.CATEGORY_ALERT, null);
+    verify(eventCache).createEvent(project, "Orange (was Red)", "desc", EventCategory.ALERT, null);
     verifyNotificationSent("Orange (was Red)", "desc", "WARN", "false");
   }
 
@@ -156,7 +155,7 @@ public class GenerateQualityGateEventsTest {
   public void shouldNotCreateEventWhenNoAlertStatus() {
     decorator.decorate(project, context);
 
-    verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
     verify(notificationManager, never()).scheduleForSending(any(Notification.class));
   }
 
@@ -167,7 +166,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
     verify(notificationManager, never()).scheduleForSending(any(Notification.class));
   }
 
@@ -178,7 +177,7 @@ public class GenerateQualityGateEventsTest {
 
     decorator.decorate(project, context);
 
-    verify(context, never()).createEvent(anyString(), anyString(), anyString(), (Date) isNull());
+    verify(eventCache, never()).createEvent(any(Resource.class), anyString(), anyString(), any(EventCategory.class), anyString());
     verify(notificationManager, never()).scheduleForSending(any(Notification.class));
   }
 

@@ -53,19 +53,20 @@ exports.changeWorkingDirectory = function (dir) {
   // Since Casper has control, the invoked script is deep in the argument stack
   // commandLineArgs = casper/bin/bootstrap.js,--casper-path=.../casperjs,--cli,--test,[file(s) under test],[options]
   var currentFile = commandLineArgs[4];
-  var curFilePath = fs.absolute(currentFile).split(fs.separator);
+  var curFilePath = currentFile.split(fs.separator);
   if (curFilePath.length > 1) {
     curFilePath.pop(); // test name
     curFilePath.pop(); // "js" dir
     curFilePath.push('json');
     curFilePath.push(dir);
+    casper.log('changing working dir to: ' + curFilePath.join(fs.separator));
     fs.changeWorkingDirectory(curFilePath.join(fs.separator));
   }
 };
 
 
 exports.configureCasper = function () {
-  casper.options.waitTimeout = 30000;
+  casper.options.waitTimeout = 20000;
 };
 
 
@@ -147,6 +148,16 @@ exports.waitForElementCount = function (selector, count, callback) {
   }, callback);
 };
 
+
+exports.waitWhileElementCount = function (selector, count, callback) {
+  return casper.waitFor(function () {
+    return casper.evaluate(function (selector, count) {
+      return document.querySelectorAll(selector).length !== count;
+    }, selector, count);
+  }, callback);
+};
+
+
 exports.assertLinkHref = function assertElementCount(selector, href, message) {
   var linkHref = this.casper.evaluate(function(selector) {
       return document.querySelector(selector);
@@ -173,7 +184,9 @@ exports.sendCoverage = function () {
       url: '/coverage/client',
       data: JSON.stringify(window.__coverage__),
       processData: false,
-      contentType: 'application/json; charset=UTF-8'
+      contentType: 'application/json; charset=UTF-8',
+      async: false
     });
   });
+  casper.wait(500);
 };

@@ -24,7 +24,7 @@
       <th class="name"><%= message('name') -%></th>
       <th class="owner"><%= message('shared_by') -%></th>
       <th class="global"><%= message('global') -%></th>
-      <th class="operations"><%= message('operations') -%></th>
+      <th class="text-right"><%= message('operations') -%></th>
     </tr>
     </thead>
     <tbody>
@@ -45,7 +45,7 @@
           <td class="global">
             <%= boolean_icon(dashboard.global) -%>
           </td>
-          <td class="thin nowrap operations">
+          <td class="thin nowrap text-right">
             <%= link_to 'Add to defaults', {:action => 'add', :id => dashboard.id}, {:method => :post, :id => "add-#{u dashboard.name}", :class => 'link-action'} %>
           </td>
         </tr>

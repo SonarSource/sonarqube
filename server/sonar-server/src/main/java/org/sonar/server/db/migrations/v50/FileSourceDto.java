@@ -37,11 +37,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Charsets.UTF_8;
 
@@ -110,7 +106,7 @@ class FileSourceDto {
 
   public static String lineChecksum(String line) {
     String reducedLine = StringUtils.replaceChars(line, SPACE_CHARS, "");
-    if (line.isEmpty()) {
+    if (reducedLine.isEmpty()) {
       return "";
     }
     return DigestUtils.md5Hex(reducedLine);

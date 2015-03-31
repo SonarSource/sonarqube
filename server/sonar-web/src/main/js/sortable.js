@@ -39,7 +39,7 @@
     }).get();
 
     Array.prototype.sort.call(sortArray, function(a, b) {
-      if (isNaN(a.value) || isNaN(a.value)) {
+      if (isNaN(a.value) || isNaN(b.value)) {
         return order * (a.value > b.value ? 1 : -1);
       } else {
         return order * (a.value - b.value);

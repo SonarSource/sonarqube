@@ -118,7 +118,7 @@ public class NewIssuesStatistics {
     }
 
     public boolean hasIssues() {
-      return distributions.get(SEVERITY) != null;
+      return !distributionFor(SEVERITY).isEmpty();
     }
 
     public List<Multiset.Entry<String>> statsForMetric(METRIC metric) {

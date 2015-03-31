@@ -12,12 +12,9 @@
       "status": "OPEN",
       "project": "MyProject",
       "userLogin": "simon",
-      "deadLine": "2014-01-24T19:10:03+0100",
-      "fDeadLine": "Jan 24, 2014 7:10 PM",
-      "createdAt": "2014-01-22T19:10:03+0100",
-      "fCreatedAt": "Jan 22, 2014 7:10 PM",
-      "updatedAt": "2014-01-23T19:10:03+0100",
-      "fUpdatedAt": "Jan 23, 2014 7:10 PM"
+      "deadLine": "2014-01-24T19:10:03+0000",
+      "createdAt": "2014-01-22T19:10:03+0000",
+      "updatedAt": "2014-01-23T19:10:03+0000"
     }
   ]
 }

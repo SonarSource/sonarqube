@@ -22,6 +22,7 @@ package org.sonar.server.db;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueFilterDao;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
@@ -37,11 +38,13 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
+import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
+import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
@@ -80,6 +83,7 @@ public class DbClient implements ServerComponent {
   private final UserDao userDao;
   private final GroupDao groupDao;
   private final IssueDao issueDao;
+  private final IssueFilterDao issueFilterDao;
   private final IssueChangeDao issueChangeDao;
   private final ActionPlanDao actionPlanDao;
   private final AnalysisReportDao analysisReportDao;
@@ -89,6 +93,8 @@ public class DbClient implements ServerComponent {
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
   private final ComponentIndexDao componentIndexDao;
+  private final ComponentLinkDao componentLinkDao;
+  private final EventDao eventDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -114,6 +120,7 @@ public class DbClient implements ServerComponent {
     userDao = getDao(map, UserDao.class);
     groupDao = getDao(map, GroupDao.class);
     issueDao = getDao(map, IssueDao.class);
+    issueFilterDao = getDao(map, IssueFilterDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     analysisReportDao = getDao(map, AnalysisReportDao.class);
@@ -123,6 +130,8 @@ public class DbClient implements ServerComponent {
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
     componentIndexDao = getDao(map, ComponentIndexDao.class);
+    componentLinkDao = getDao(map, ComponentLinkDao.class);
+    eventDao = getDao(map, EventDao.class);
   }
 
   public Database database() {
@@ -143,6 +152,10 @@ public class DbClient implements ServerComponent {
 
   public IssueDao issueDao() {
     return issueDao;
+  }
+
+  public IssueFilterDao issueFilterDao() {
+    return issueFilterDao;
   }
 
   public IssueChangeDao issueChangeDao() {
@@ -231,6 +244,14 @@ public class DbClient implements ServerComponent {
 
   public ComponentIndexDao componentIndexDao() {
     return componentIndexDao;
+  }
+
+  public ComponentLinkDao componentLinkDao() {
+    return componentLinkDao;
+  }
+
+  public EventDao eventDao() {
+    return eventDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

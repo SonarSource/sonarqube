@@ -20,9 +20,9 @@
 package org.sonar.server.issue.index;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -89,14 +89,17 @@ public class IssueIndexer extends BaseIndexer {
   }
 
   public void deleteProject(String uuid, boolean refresh) {
-    QueryBuilder query = QueryBuilders.filteredQuery(
-      QueryBuilders.matchAllQuery(),
-      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
-      );
-    esClient.prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(query).get();
-    if (refresh) {
-      esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
-    }
+    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+    bulk.setDisableRefresh(!refresh);
+    bulk.start();
+    SearchRequestBuilder search = esClient.prepareSearch(IssueIndexDefinition.INDEX)
+      .setRouting(uuid)
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
+      ));
+    bulk.addDeletion(search);
+    bulk.stop();
   }
 
   BulkIndexer createBulkIndexer(boolean large) {

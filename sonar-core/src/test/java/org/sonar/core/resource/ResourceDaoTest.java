@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
@@ -36,7 +35,6 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -56,7 +54,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void createDao() {
     session = getMyBatis().openSession(false);
     system2 = mock(System2.class);
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    when(system2.now()).thenReturn(1_500_000_000_000L);
     dao = new ResourceDao(getMyBatis(), system2);
   }
 
@@ -284,7 +282,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", new String[] {"authorization_updated_at"}, "projects");
+    checkTables("insert", new String[] {"authorization_updated_at", "created_at"}, "projects");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
@@ -430,11 +428,11 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("days");
     assertThat(snapshotDto.getPeriodModeParameter(2)).isEqualTo("30");
-    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-24").getTime());
+    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(1_316_815_200_000L);
 
     assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("days");
     assertThat(snapshotDto.getPeriodModeParameter(3)).isEqualTo("90");
-    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-07-26").getTime());
+    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(1_311_631_200_000L);
 
     assertThat(snapshotDto.getPeriodMode(4)).isEqualTo("previous_analysis");
     assertThat(snapshotDto.getPeriodModeParameter(4)).isNull();

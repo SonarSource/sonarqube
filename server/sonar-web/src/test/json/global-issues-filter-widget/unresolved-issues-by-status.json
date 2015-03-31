@@ -1,0 +1,32 @@
+{
+  "total": 71571,
+  "p": 1,
+  "ps": 1,
+  "facets": [
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CLOSED",
+          "count": 0
+        },
+        {
+          "val": "CONFIRMED",
+          "count": 6609
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        },
+        {
+          "val": "OPEN",
+          "count": 238
+        },
+        {
+          "val": "REOPENED",
+          "count": 4
+        }
+      ]
+    }
+  ]
+}

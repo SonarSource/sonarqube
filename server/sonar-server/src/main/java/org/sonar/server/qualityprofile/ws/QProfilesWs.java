@@ -25,16 +25,20 @@ public class QProfilesWs implements WebService {
 
   public static final String API_ENDPOINT = "api/qualityprofiles";
 
-  private final QProfileRestoreBuiltInAction resetAction;
   private final RuleActivationActions ruleActivationActions;
   private final BulkRuleActivationActions bulkRuleActivationActions;
+  private final ProjectAssociationActions projectAssociationActions;
+  private final BaseQProfileWsAction[] actions;
 
-  public QProfilesWs(QProfileRestoreBuiltInAction resetAction,
-                     RuleActivationActions ruleActivationActions,
-                     BulkRuleActivationActions bulkRuleActivationActions) {
-    this.resetAction = resetAction;
+
+  public QProfilesWs(RuleActivationActions ruleActivationActions,
+                     BulkRuleActivationActions bulkRuleActivationActions,
+                     ProjectAssociationActions projectAssociationActions,
+                     BaseQProfileWsAction... actions) {
     this.ruleActivationActions = ruleActivationActions;
     this.bulkRuleActivationActions = bulkRuleActivationActions;
+    this.projectAssociationActions = projectAssociationActions;
+    this.actions = actions;
   }
 
   @Override
@@ -43,9 +47,12 @@ public class QProfilesWs implements WebService {
       .setDescription("Quality Profiles")
       .setSince("4.4");
 
-    resetAction.define(controller);
     ruleActivationActions.define(controller);
     bulkRuleActivationActions.define(controller);
+    projectAssociationActions.define(controller);
+    for(BaseQProfileWsAction action: actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

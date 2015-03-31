@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
 class DashboardController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
@@ -25,20 +26,25 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
-      if !@resource || @resource.display_dashboard?
+    if @resource && !params[:did] && !params[:name]
+      url = url_for :controller => 'overview', :action => 'index'
+      url = url + '?id=' + @resource.key.to_s.gsub(/[^a-zA-Z0-9_\-.]/n){ sprintf("%%%02X", $&.unpack("C")[0]) }
+      return redirect_to url
+    end
+    if !@resource || @resource.display_dashboard?
+      redirect_if_bad_component()
+      load_dashboard()
+      load_authorized_widget_definitions()
+    else
+      if !@resource || !@snapshot
         redirect_if_bad_component()
-        load_dashboard()
-        load_authorized_widget_definitions()
       else
-        if !@resource || !@snapshot
-          redirect_if_bad_component()
-        else
-          # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
-          @hide_sidebar = true
-          @file = @resource
-          @project = @snapshot.parent.project
-          @metric=params[:metric]
-          render :action => 'no_dashboard'
+        # display the layout of the parent without the sidebar, usually the directory, but display the file viewers
+        @hide_sidebar = true
+        @file = @resource
+        @project = @snapshot.parent.project
+        @metric=params[:metric]
+        render :action => 'no_dashboard'
       end
     end
   end

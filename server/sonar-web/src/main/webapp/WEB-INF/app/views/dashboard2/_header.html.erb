@@ -2,7 +2,7 @@
 <div class="line-block">
 
   <% if logged_in? %>
-    <div class="operations noprint button-group">
+    <div class="noprint button-group">
       <% if back %>
         <%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index), :class => 'button' -%>
       <% else %>

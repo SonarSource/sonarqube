@@ -21,11 +21,10 @@ package org.sonar.core.dashboard;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.sonar.core.persistence.Dto;
 
 import java.util.Collection;
 
-public class WidgetPropertyDto extends Dto<Long> {
+public class WidgetPropertyDto {
   private Long id;
   private Long widgetId;
   private String propertyKey;
@@ -65,11 +64,6 @@ public class WidgetPropertyDto extends Dto<Long> {
   public WidgetPropertyDto setTextValue(String s) {
     this.textValue = s;
     return this;
-  }
-
-  @Override
-  public Long getKey() {
-    return id;
   }
 
   public static ListMultimap<Long, WidgetPropertyDto> groupByWidgetId(Collection<WidgetPropertyDto> properties) {

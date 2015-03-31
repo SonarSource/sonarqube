@@ -235,6 +235,455 @@ public final class Constants {
     // @@protoc_insertion_point(enum_scope:ComponentType)
   }
 
+  /**
+   * Protobuf enum {@code MeasureValueType}
+   */
+  public enum MeasureValueType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>INT = 0;</code>
+     */
+    INT(0, 0),
+    /**
+     * <code>LONG = 1;</code>
+     */
+    LONG(1, 1),
+    /**
+     * <code>DOUBLE = 2;</code>
+     */
+    DOUBLE(2, 2),
+    /**
+     * <code>BOOLEAN = 3;</code>
+     */
+    BOOLEAN(3, 3),
+    /**
+     * <code>STRING = 4;</code>
+     */
+    STRING(4, 4),
+    ;
+
+    /**
+     * <code>INT = 0;</code>
+     */
+    public static final int INT_VALUE = 0;
+    /**
+     * <code>LONG = 1;</code>
+     */
+    public static final int LONG_VALUE = 1;
+    /**
+     * <code>DOUBLE = 2;</code>
+     */
+    public static final int DOUBLE_VALUE = 2;
+    /**
+     * <code>BOOLEAN = 3;</code>
+     */
+    public static final int BOOLEAN_VALUE = 3;
+    /**
+     * <code>STRING = 4;</code>
+     */
+    public static final int STRING_VALUE = 4;
+
+
+    public final int getNumber() { return value; }
+
+    public static MeasureValueType valueOf(int value) {
+      switch (value) {
+        case 0: return INT;
+        case 1: return LONG;
+        case 2: return DOUBLE;
+        case 3: return BOOLEAN;
+        case 4: return STRING;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<MeasureValueType>() {
+            public MeasureValueType findValueByNumber(int number) {
+              return MeasureValueType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(2);
+    }
+
+    private static final MeasureValueType[] VALUES = values();
+
+    public static MeasureValueType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private MeasureValueType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:MeasureValueType)
+  }
+
+  /**
+   * Protobuf enum {@code EventCategory}
+   *
+   * <pre>
+   * temporary enum during development of computation stack
+   * </pre>
+   */
+  public enum EventCategory
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>ALERT = 0;</code>
+     */
+    ALERT(0, 0),
+    /**
+     * <code>PROFILE = 1;</code>
+     */
+    PROFILE(1, 1),
+    ;
+
+    /**
+     * <code>ALERT = 0;</code>
+     */
+    public static final int ALERT_VALUE = 0;
+    /**
+     * <code>PROFILE = 1;</code>
+     */
+    public static final int PROFILE_VALUE = 1;
+
+
+    public final int getNumber() { return value; }
+
+    public static EventCategory valueOf(int value) {
+      switch (value) {
+        case 0: return ALERT;
+        case 1: return PROFILE;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<EventCategory>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<EventCategory>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<EventCategory>() {
+            public EventCategory findValueByNumber(int number) {
+              return EventCategory.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(3);
+    }
+
+    private static final EventCategory[] VALUES = values();
+
+    public static EventCategory valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private EventCategory(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:EventCategory)
+  }
+
+  /**
+   * Protobuf enum {@code ComponentLinkType}
+   */
+  public enum ComponentLinkType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>HOME = 0;</code>
+     */
+    HOME(0, 0),
+    /**
+     * <code>SCM = 1;</code>
+     */
+    SCM(1, 1),
+    /**
+     * <code>SCM_DEV = 2;</code>
+     */
+    SCM_DEV(2, 2),
+    /**
+     * <code>ISSUE = 3;</code>
+     */
+    ISSUE(3, 3),
+    /**
+     * <code>CI = 4;</code>
+     */
+    CI(4, 4),
+    ;
+
+    /**
+     * <code>HOME = 0;</code>
+     */
+    public static final int HOME_VALUE = 0;
+    /**
+     * <code>SCM = 1;</code>
+     */
+    public static final int SCM_VALUE = 1;
+    /**
+     * <code>SCM_DEV = 2;</code>
+     */
+    public static final int SCM_DEV_VALUE = 2;
+    /**
+     * <code>ISSUE = 3;</code>
+     */
+    public static final int ISSUE_VALUE = 3;
+    /**
+     * <code>CI = 4;</code>
+     */
+    public static final int CI_VALUE = 4;
+
+
+    public final int getNumber() { return value; }
+
+    public static ComponentLinkType valueOf(int value) {
+      switch (value) {
+        case 0: return HOME;
+        case 1: return SCM;
+        case 2: return SCM_DEV;
+        case 3: return ISSUE;
+        case 4: return CI;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<ComponentLinkType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<ComponentLinkType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ComponentLinkType>() {
+            public ComponentLinkType findValueByNumber(int number) {
+              return ComponentLinkType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(4);
+    }
+
+    private static final ComponentLinkType[] VALUES = values();
+
+    public static ComponentLinkType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private ComponentLinkType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:ComponentLinkType)
+  }
+
+  /**
+   * Protobuf enum {@code HighlightingType}
+   */
+  public enum HighlightingType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>ANNOTATION = 0;</code>
+     */
+    ANNOTATION(0, 0),
+    /**
+     * <code>CONSTANT = 1;</code>
+     */
+    CONSTANT(1, 1),
+    /**
+     * <code>COMMENT = 2;</code>
+     */
+    COMMENT(2, 2),
+    /**
+     * <code>CPP_DOC = 3;</code>
+     */
+    CPP_DOC(3, 3),
+    /**
+     * <code>STRUCTURED_COMMENT = 4;</code>
+     */
+    STRUCTURED_COMMENT(4, 4),
+    /**
+     * <code>KEYWORD = 5;</code>
+     */
+    KEYWORD(5, 5),
+    /**
+     * <code>HIGHLIGHTING_STRING = 6;</code>
+     */
+    HIGHLIGHTING_STRING(6, 6),
+    /**
+     * <code>KEYWORD_LIGHT = 7;</code>
+     */
+    KEYWORD_LIGHT(7, 7),
+    /**
+     * <code>PREPROCESS_DIRECTIVE = 8;</code>
+     */
+    PREPROCESS_DIRECTIVE(8, 8),
+    ;
+
+    /**
+     * <code>ANNOTATION = 0;</code>
+     */
+    public static final int ANNOTATION_VALUE = 0;
+    /**
+     * <code>CONSTANT = 1;</code>
+     */
+    public static final int CONSTANT_VALUE = 1;
+    /**
+     * <code>COMMENT = 2;</code>
+     */
+    public static final int COMMENT_VALUE = 2;
+    /**
+     * <code>CPP_DOC = 3;</code>
+     */
+    public static final int CPP_DOC_VALUE = 3;
+    /**
+     * <code>STRUCTURED_COMMENT = 4;</code>
+     */
+    public static final int STRUCTURED_COMMENT_VALUE = 4;
+    /**
+     * <code>KEYWORD = 5;</code>
+     */
+    public static final int KEYWORD_VALUE = 5;
+    /**
+     * <code>HIGHLIGHTING_STRING = 6;</code>
+     */
+    public static final int HIGHLIGHTING_STRING_VALUE = 6;
+    /**
+     * <code>KEYWORD_LIGHT = 7;</code>
+     */
+    public static final int KEYWORD_LIGHT_VALUE = 7;
+    /**
+     * <code>PREPROCESS_DIRECTIVE = 8;</code>
+     */
+    public static final int PREPROCESS_DIRECTIVE_VALUE = 8;
+
+
+    public final int getNumber() { return value; }
+
+    public static HighlightingType valueOf(int value) {
+      switch (value) {
+        case 0: return ANNOTATION;
+        case 1: return CONSTANT;
+        case 2: return COMMENT;
+        case 3: return CPP_DOC;
+        case 4: return STRUCTURED_COMMENT;
+        case 5: return KEYWORD;
+        case 6: return HIGHLIGHTING_STRING;
+        case 7: return KEYWORD_LIGHT;
+        case 8: return PREPROCESS_DIRECTIVE;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<HighlightingType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<HighlightingType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<HighlightingType>() {
+            public HighlightingType findValueByNumber(int number) {
+              return HighlightingType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(5);
+    }
+
+    private static final HighlightingType[] VALUES = values();
+
+    public static HighlightingType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private HighlightingType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:HighlightingType)
+  }
+
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -248,17 +697,26 @@ public final class Constants {
       "\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007B" +
       "LOCKER\020\004*X\n\rComponentType\022\013\n\007PROJECT\020\000\022\n" +
       "\n\006MODULE\020\001\022\r\n\tDIRECTORY\020\002\022\010\n\004FILE\020\003\022\010\n\004V" +
-      "IEW\020\004\022\013\n\007SUBVIEW\020\005B\034\n\030org.sonar.batch.pr" +
-      "otocolH\001"
+      "IEW\020\004\022\013\n\007SUBVIEW\020\005*J\n\020MeasureValueType\022\007" +
+      "\n\003INT\020\000\022\010\n\004LONG\020\001\022\n\n\006DOUBLE\020\002\022\013\n\007BOOLEAN" +
+      "\020\003\022\n\n\006STRING\020\004*\'\n\rEventCategory\022\t\n\005ALERT" +
+      "\020\000\022\013\n\007PROFILE\020\001*F\n\021ComponentLinkType\022\010\n\004" +
+      "HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_DEV\020\002\022\t\n\005ISSUE\020\003\022" +
+      "\006\n\002CI\020\004*\265\001\n\020HighlightingType\022\016\n\nANNOTATI",
+      "ON\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007COMMENT\020\002\022\013\n\007CPP_D" +
+      "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
+      "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
+      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010B\034\n\030org.s" +
+      "onar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public com.google.protobuf.ExtensionRegistry assignDescriptors(
-            com.google.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          return null;
-        }
-      };
+        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public com.google.protobuf.ExtensionRegistry assignDescriptors(
+              com.google.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {

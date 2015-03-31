@@ -31,7 +31,7 @@ import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
+import org.sonar.server.source.index.SourceFileResultSetIterator;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -73,10 +73,10 @@ public class SourceDbBenchmarkTest {
 
     try {
       long start = System.currentTimeMillis();
-      SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbClient, connection, 0L);
+      SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L);
       while (it.hasNext()) {
-        SourceLineResultSetIterator.SourceFile row = it.next();
-        assertThat(row.getLines().size()).isEqualTo(NUMBER_OF_LINES);
+        SourceFileResultSetIterator.Row row = it.next();
+        assertThat(row.getLineUpdateRequests().size()).isEqualTo(NUMBER_OF_LINES);
         assertThat(row.getFileUuid()).isNotEmpty();
         counter.incrementAndGet();
       }
@@ -84,7 +84,7 @@ public class SourceDbBenchmarkTest {
       long period = end - start;
       long throughputPerSecond = 1000L * counter.get() / period;
       LOGGER.info(String.format("%d FILE_SOURCES rows scrolled in %d ms (%d rows/second)", counter.get(), period, throughputPerSecond));
-      benchmark.expectAround("Throughput to scroll FILE_SOURCES", throughputPerSecond, 120, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
+      benchmark.expectBetween("Throughput to scroll FILE_SOURCES", throughputPerSecond, 9, 13);
 
     } finally {
       DbUtils.closeQuietly(connection);
@@ -116,25 +116,27 @@ public class SourceDbBenchmarkTest {
 
   private byte[] generateData() throws IOException {
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Line.newBuilder();
     for (int i = 1; i <= NUMBER_OF_LINES; i++) {
-      dataBuilder.addLinesBuilder()
+      lineBuilder.clear();
+      dataBuilder.addLines(lineBuilder
         .setLine(i)
         .setScmRevision("REVISION_" + i)
         .setScmAuthor("a_guy")
         .setSource("this is not java code " + i)
         .setUtLineHits(i)
-        .setUtConditions(i+1)
+        .setUtConditions(i + 1)
         .setUtCoveredConditions(i)
         .setItLineHits(i)
-        .setItConditions(i+1)
+        .setItConditions(i + 1)
         .setItCoveredConditions(i)
         .setOverallLineHits(i)
-        .setOverallConditions(i+1)
+        .setOverallConditions(i + 1)
         .setOverallCoveredConditions(i)
-        .setScmDate(150000000L)
+        .setScmDate(1_500_000_000_000L)
         .setHighlighting("2,9,k;9,18,k")
-        .addAllDuplications(Arrays.asList(19,33,141))
-        .build();
+        .addAllDuplication(Arrays.asList(19, 33, 141))
+        .build());
     }
     return FileSourceDto.encodeData(dataBuilder.build());
   }

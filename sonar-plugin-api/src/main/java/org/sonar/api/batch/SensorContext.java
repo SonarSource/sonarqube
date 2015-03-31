@@ -25,17 +25,13 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -226,44 +222,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    */
   @Deprecated
   void saveSource(Resource reference, String source);
-
-  // ----------- LINKS --------------
-
-  /**
-   * add a link to an external page like project homepage, sources (subversion, ...), continuous integration server... Example :
-   * context.addLink(new ProjectLink("maven_site, "Maven site", "http://my.maven.com)
-   */
-  void saveLink(ProjectLink link);
-
-  /**
-   * remove a link. It does not fail if key is unknown.
-   */
-  void deleteLink(String key);
-
-  // ----------- EVENTS --------------
-
-  /**
-   * @param resource set null for project events
-   */
-  List<Event> getEvents(Resource resource);
-
-  /**
-   * Creates an event for a given date
-   *
-   * @param name        the event name
-   * @param description the event description
-   * @param category    the event category
-   * @param date        the event date
-   * @return the created event
-   */
-  Event createEvent(Resource resource, String name, @Nullable String description, String category, @Nullable Date date);
-
-  /**
-   * Deletes an event
-   *
-   * @param event the event to delete
-   */
-  void deleteEvent(Event event);
 
   /**
    * Save measure on {@link InputFile}

@@ -25,6 +25,7 @@ import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -123,10 +124,6 @@ public class SourceLineDoc extends BaseDoc {
   public SourceLineDoc setUpdateDate(@Nullable Date updatedAt) {
     setField(SourceLineIndexDefinition.FIELD_UPDATED_AT, updatedAt);
     return this;
-  }
-
-  public String key() {
-    return String.format("%s_%d", fileUuid(), line());
   }
 
   @CheckForNull

@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
@@ -37,23 +36,14 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
@@ -237,31 +227,6 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public void saveSource(Resource reference, String source) {
     // useless since 4.2.
-  }
-
-  @Override
-  public void saveLink(ProjectLink link) {
-    index.addLink(link);
-  }
-
-  @Override
-  public void deleteLink(String key) {
-    index.deleteLink(key);
-  }
-
-  @Override
-  public List<Event> getEvents(Resource resource) {
-    return index.getEvents(resource);
-  }
-
-  @Override
-  public Event createEvent(Resource resource, String name, String description, String category, @Nullable Date date) {
-    return index.addEvent(resource, name, description, category, date);
-  }
-
-  @Override
-  public void deleteEvent(Event event) {
-    index.deleteEvent(event);
   }
 
   private Resource resourceOrProject(Resource resource) {

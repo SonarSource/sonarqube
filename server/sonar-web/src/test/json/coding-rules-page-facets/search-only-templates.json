@@ -1,0 +1,23 @@
+{
+  "total": 8,
+  "p": 1,
+  "ps": 25,
+  "rules": [
+    {
+      "key": "squid:S2077",
+      "name": "Values passed to SQL commands should be sanitized",
+      "lang": "java",
+      "langName": "Java",
+      "sysTags": [
+        "cwe",
+        "owasp-top10",
+        "security",
+        "sql"
+      ],
+      "tags": [
+        "custom-tag"
+      ]
+    }
+  ],
+  "facets": []
+}

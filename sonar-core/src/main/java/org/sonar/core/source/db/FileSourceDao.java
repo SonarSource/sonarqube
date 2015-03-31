@@ -121,4 +121,8 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
     }
   }
 
+  public void updateDateWhenUpdatedDateIsZero(DbSession session, String projectUuid, long updateDate) {
+    session.getMapper(FileSourceMapper.class).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
+  }
+
 }

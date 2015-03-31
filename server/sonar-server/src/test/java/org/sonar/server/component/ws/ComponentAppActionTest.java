@@ -34,7 +34,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -99,7 +98,7 @@ public class ComponentAppActionTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
 
-    when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
+    when(measureDao.findByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
 
     tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, durations, i18n), mock(SearchAction.class)));
   }
@@ -139,13 +138,13 @@ public class ComponentAppActionTest {
     addMeasure(CoreMetrics.SQALE_RATING_KEY, "C");
     addMeasure(CoreMetrics.SQALE_DEBT_RATIO_KEY, 35d);
 
-    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).setValue(182.0));
+    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(CoreMetrics.TECHNICAL_DEBT_KEY).setValue(182.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
 
-    verify(measureDao).findByComponentKeyAndMetricKeys(eq(COMPONENT_KEY), measureKeysCaptor.capture(), eq(session));
+    verify(measureDao).findByComponentKeyAndMetricKeys(eq(session), eq(COMPONENT_KEY), measureKeysCaptor.capture());
     assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.LINES_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
       CoreMetrics.TECHNICAL_DEBT_KEY);
   }
@@ -229,17 +228,17 @@ public class ComponentAppActionTest {
   }
 
   private void addMeasure(String metricKey, Integer value) {
-    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value.doubleValue()));
+    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setValue(value.doubleValue()));
     when(i18n.formatInteger(any(Locale.class), eq(value.intValue()))).thenReturn(Integer.toString(value));
   }
 
   private void addMeasure(String metricKey, Double value) {
-    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value));
+    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setValue(value));
     when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
   }
 
   private void addMeasure(String metricKey, String value) {
-    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setTextValue(value));
+    measures.add(new MeasureDto().setComponentKey(COMPONENT_KEY).setMetricKey(metricKey).setData(value));
   }
 
 }

@@ -60,6 +60,7 @@ define([
     onRender: function () {
       ModalFormView.prototype.onRender.apply(this, arguments);
       this.keyModifiedByUser = false;
+      this.ui.manualRuleCreationReactivate.addClass('hidden');
     },
 
     generateKey: function () {
@@ -71,8 +72,6 @@ define([
 
     flagKey: function () {
       this.keyModifiedByUser = true;
-      // Cannot use @ui.manualRuleCreationReactivate.hide() directly since it was not there at initial render
-      $(this.ui.manualRuleCreationReactivate.selector).hide();
     },
 
     create: function () {
@@ -101,11 +100,17 @@ define([
     },
 
     sendRequest: function (action, options) {
-      this.$('.modal-error').hide();
-      this.$('.modal-warning').hide();
       var that = this,
           url = baseUrl + '/api/rules/' + action;
-      return $.post(url, options).done(function (r) {
+      return $.ajax({
+        url: url,
+        type: 'POST',
+        data: options,
+        statusCode: {
+          // do not show global error
+          400: null
+        }
+      }).done(function (r) {
         if (typeof r === 'string') {
           r = JSON.parse(r);
         }
@@ -114,7 +119,9 @@ define([
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;
-          that.$('.modal-warning').show();
+          that.showErrors([], [{ msg: t('coding_rules.reactivate.help') }]);
+          that.ui.manualRuleCreationCreate.addClass('hidden');
+          that.ui.manualRuleCreationReactivate.removeClass('hidden');
         } else {
           that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         }
