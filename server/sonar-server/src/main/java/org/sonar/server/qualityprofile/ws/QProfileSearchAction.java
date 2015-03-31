@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -30,7 +31,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 
 import javax.annotation.CheckForNull;
@@ -43,10 +46,14 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
   private static final String FIELD_KEY = "key";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_LANGUAGE = "language";
+  private static final String FIELD_LANGUAGE_NAME = "languageName";
   private static final String FIELD_IS_INHERITED = "isInherited";
   private static final String FIELD_IS_DEFAULT = "isDefault";
   private static final String FIELD_PARENT_KEY = "parentKey";
-  private static final Set<String> ALL_FIELDS = ImmutableSet.of(FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_IS_DEFAULT);
+  private static final String FIELD_PARENT_NAME = "parentName";
+  private static final String FIELD_ACTIVE_RULE_COUNT = "activeRuleCount";
+  private static final Set<String> ALL_FIELDS = ImmutableSet.of(
+    FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_PARENT_NAME, FIELD_IS_DEFAULT, FIELD_ACTIVE_RULE_COUNT);
 
   private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
   private static final String PARAM_FIELDS = "f";
@@ -56,9 +63,12 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
 
   private final QProfileLookup profileLookup;
 
-  public QProfileSearchAction(Languages languages, QProfileLookup profileLookup) {
+  private final QProfileLoader profileLoader;
+
+  public QProfileSearchAction(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader) {
     this.languages = languages;
     this.profileLookup = profileLookup;
+    this.profileLoader = profileLoader;
   }
 
   @Override
@@ -86,19 +96,34 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     writeProfiles(json, profiles, fields);
-    writeLanguages(json);
     json.endObject().close();
   }
 
   private void writeProfiles(JsonWriter json, List<QProfile> profiles, List<String> fields) {
+    Map<String, QProfile> profilesByKey = Maps.uniqueIndex(profiles, new NonNullInputFunction<QProfile, String>() {
+      @Override
+      protected String doApply(QProfile input) {
+        return input.key();
+      }
+    });
+    Map<String, Long> activeRuleCountByKey = profileLoader.countAllActiveRules();
+
+
     json.name("profiles")
       .beginArray();
     for (QProfile profile : profiles) {
+      if (languages.get(profile.language()) == null) {
+        // Hide profiles on an unsupported language
+        continue;
+      }
+
+      String key = profile.key();
       json.beginObject()
-        .prop(FIELD_KEY, nullUnlessNeeded(FIELD_KEY, profile.key(), fields))
+        .prop(FIELD_KEY, nullUnlessNeeded(FIELD_KEY, key, fields))
         .prop(FIELD_NAME, nullUnlessNeeded(FIELD_NAME, profile.name(), fields))
-        .prop(FIELD_LANGUAGE, nullUnlessNeeded(FIELD_LANGUAGE, profile.language(), fields))
-        .prop(FIELD_PARENT_KEY, nullUnlessNeeded(FIELD_PARENT_KEY, profile.parent(), fields));
+        .prop(FIELD_ACTIVE_RULE_COUNT, activeRuleCountByKey.get(key));
+      writeLanguageFields(json, profile, fields);
+      writeParentFields(json, profile, fields, profilesByKey);
       // Special case for booleans
       if (fieldIsNeeded(FIELD_IS_INHERITED, fields)) {
         json.prop(FIELD_IS_INHERITED, profile.isInherited());
@@ -111,6 +136,19 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
     json.endArray();
   }
 
+  private void writeLanguageFields(JsonWriter json, QProfile profile, List<String> fields) {
+    String languageKey = profile.language();
+    json.prop(FIELD_LANGUAGE, nullUnlessNeeded(FIELD_LANGUAGE, languageKey, fields))
+      .prop(FIELD_LANGUAGE_NAME, nullUnlessNeeded(FIELD_LANGUAGE_NAME, languages.get(languageKey).getName(), fields));
+  }
+
+  private void writeParentFields(JsonWriter json, QProfile profile, List<String> fields, Map<String, QProfile> profilesByKey) {
+    String parentKey = profile.parent();
+    QProfile parent = parentKey == null ? null : profilesByKey.get(parentKey);
+    json.prop(FIELD_PARENT_KEY, nullUnlessNeeded(FIELD_PARENT_KEY, parentKey, fields))
+      .prop(FIELD_PARENT_NAME, nullUnlessNeeded(FIELD_PARENT_NAME, parent == null ? parentKey : parent.name(), fields));
+  }
+
   @CheckForNull
   private <T> T nullUnlessNeeded(String field, T value, @Nullable List<String> fields) {
     return fieldIsNeeded(field, fields) ? value : null;
@@ -120,28 +158,16 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
     return fields == null || fields.contains(field);
   }
 
-  private void writeLanguages(JsonWriter json) {
-    json.name("languages")
-      .beginArray();
-    for (Language language : languages.all()) {
-      json.beginObject()
-        .prop(FIELD_KEY, language.getKey())
-        .prop(FIELD_NAME, language.getName())
-        .endObject();
-    }
-    json.endArray();
-  }
-
   @Override
   public void define(WebService.NewController controller) {
     NewAction search = controller.createAction("search")
       .setSince("5.2")
-      .setDescription("")
+      .setDescription("List quality profiles.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"));
 
     search.createParam(PARAM_LANGUAGE)
-      .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned")
+      .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
       .setExampleValue("js")
       .setPossibleValues(Collections2.transform(Arrays.asList(languages.all()), new Function<Language, String>() {
         @Override
@@ -151,7 +177,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       }));
 
     search.createParam(PARAM_FIELDS)
-      .setDescription("Use to restrict returned fields")
+      .setDescription("Use to restrict returned fields.")
       .setExampleValue("key,language")
       .setPossibleValues(ALL_FIELDS);
   }

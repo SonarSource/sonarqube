@@ -4,25 +4,28 @@
       "key": "sonar-way-xoo1-12345",
       "name": "Sonar way",
       "language": "xoo1",
+      "languageName": "Xoo1",
       "isInherited": false,
-      "isDefault": true
+      "isDefault": true,
+      "activeRuleCount": 11
     },
     {
       "key": "my-sonar-way-xoo2-34567",
       "name": "My Sonar way",
       "language": "xoo2",
+      "languageName": "Xoo2",
       "isInherited": true,
-      "parentKey": "sonar-way-xoo2-23456"
+      "parentKey": "sonar-way-xoo2-23456",
+      "parentName": "Sonar way",
+      "activeRuleCount": 33
     },
     {
       "key": "sonar-way-xoo2-23456",
       "name": "Sonar way",
       "language": "xoo2",
+      "languageName": "Xoo2",
       "isInherited": false,
+      "activeRuleCount": 22
     }
-  ],
-  "languages": [
-    {"key": "xoo1", "name": "Xoo1"},
-    {"key": "xoo2", "name": "Xoo2"}
   ]
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -33,10 +34,12 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class QProfileSearchActionTest {
 
@@ -53,6 +56,7 @@ public class QProfileSearchActionTest {
 
   private DbSession session;
 
+  private QProfileLoader profileLoader;
 
   @Before
   public void setUp() throws Exception {
@@ -61,6 +65,9 @@ public class QProfileSearchActionTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao);
     session = dbClient.openSession(false);
 
+    // TODO Replace with actual implementation after removal of DaoV2...
+    profileLoader = mock(QProfileLoader.class);
+
     xoo1 = createLanguage("xoo1");
     xoo2 = createLanguage("xoo2");
 
@@ -68,7 +75,7 @@ public class QProfileSearchActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileSearchAction(new Languages(xoo1, xoo2), new QProfileLookup(dbClient))));
+      new QProfileSearchAction(new Languages(xoo1, xoo2), new QProfileLookup(dbClient), profileLoader)));
   }
 
   @After
@@ -78,10 +85,17 @@ public class QProfileSearchActionTest {
 
   @Test
   public void search_nominal() throws Exception {
+    when(profileLoader.countAllActiveRules()).thenReturn(ImmutableMap.of(
+      "sonar-way-xoo1-12345", 11L,
+      "sonar-way-xoo2-23456", 22L,
+      "my-sonar-way-xoo2-34567", 33L
+      ));
+
     qualityProfileDao.insert(session,
       QualityProfileDto.createFor("sonar-way-xoo1-12345").setLanguage(xoo1.getKey()).setName("Sonar way").setDefault(true),
       QualityProfileDto.createFor("sonar-way-xoo2-23456").setLanguage(xoo2.getKey()).setName("Sonar way"),
-      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456")
+      QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456"),
+      QualityProfileDto.createFor("sonar-way-other-666").setLanguage("other").setName("Sonar way").setDefault(true)
       );
     session.commit();
 

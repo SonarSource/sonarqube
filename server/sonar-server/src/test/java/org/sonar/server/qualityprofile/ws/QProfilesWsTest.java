@@ -70,7 +70,7 @@ public class QProfilesWsTest {
       new ProjectAssociationActions(null, null, null, languages),
       new QProfileRestoreBuiltInAction(
         mock(QProfileService.class)),
-      new QProfileSearchAction(new Languages(xoo1, xoo2), null)
+      new QProfileSearchAction(new Languages(xoo1, xoo2), null, null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -97,7 +97,8 @@ public class QProfilesWsTest {
     assertThat(search.isPost()).isFalse();
     assertThat(search.params()).hasSize(2);
     assertThat(search.param("language").possibleValues()).containsOnly("xoo1", "xoo2");
-    assertThat(search.param("f").possibleValues()).containsOnly("key", "name", "language", "isInherited", "parentKey", "isDefault");
+    assertThat(search.param("f").possibleValues())
+      .containsOnly("key", "name", "language", "languageName", "isInherited", "parentKey", "parentName", "isDefault", "activeRuleCount");
   }
 
   @Test
