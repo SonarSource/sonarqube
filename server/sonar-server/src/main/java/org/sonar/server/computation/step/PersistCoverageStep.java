@@ -28,8 +28,6 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.source.db.FileSourceDb;
 
-import javax.annotation.Nullable;
-
 /**
  * Nothing is persist for the moment. Only Coverage are read and not persist for the moment
  */
@@ -53,8 +51,8 @@ public class PersistCoverageStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component.getType().equals(Constants.ComponentType.FILE)) {
-      BatchReport.Coverage coverage = reportReader.readFileCoverage(componentRef);
-      processCoverage(component, coverage);
+      Iterable<BatchReport.Coverage> coverageList = reportReader.readFileCoverage(componentRef);
+      processCoverage(component, coverageList);
     }
 
     for (Integer childRef : component.getChildRefList()) {
@@ -62,39 +60,37 @@ public class PersistCoverageStep implements ComputationStep {
     }
   }
 
-  private void processCoverage(BatchReport.Component component, @Nullable BatchReport.Coverage coverage) {
+  private void processCoverage(BatchReport.Component component, Iterable<BatchReport.Coverage> coverageList) {
     fileSourceData = null;
-    if (coverage != null) {
       FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
-      for (int line = 0; line < coverage.getConditionsByLineCount(); line ++) {
-        FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder().setLine(line);
-        processLineCoverage(line, lineBuilder, coverage);
+      for (BatchReport.Coverage coverage : coverageList) {
+        FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder().setLine(coverage.getLine());
+        processLineCoverage(coverage.getLine(), lineBuilder, coverage);
       }
       fileSourceData = dataBuilder.build();
-    }
   }
 
   private void processLineCoverage(int line, FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage coverage){
     // Unit test
-    if (coverage.getUtHitsByLine(line)) {
+    if (coverage.getUtHits()) {
       lineBuilder.setUtLineHits(1);
     }
-    lineBuilder.setUtConditions(coverage.getConditionsByLine(line));
-    lineBuilder.setUtCoveredConditions(coverage.getUtCoveredConditionsByLine(line));
+    lineBuilder.setUtConditions(coverage.getConditions());
+    lineBuilder.setUtCoveredConditions(coverage.getUtCoveredConditions());
 
     // Integration test
-    if (coverage.getItHitsByLine(line)) {
+    if (coverage.getItHits()) {
       lineBuilder.setItLineHits(1);
     }
-    lineBuilder.setItConditions(coverage.getConditionsByLine(line));
-    lineBuilder.setItCoveredConditions(coverage.getItCoveredConditionsByLine(line));
+    lineBuilder.setItConditions(coverage.getConditions());
+    lineBuilder.setItCoveredConditions(coverage.getItCoveredConditions());
 
     // Overall test
-    if (coverage.getUtHitsByLine(line) || coverage.getItHitsByLine(line)) {
+    if (coverage.getUtHits() || coverage.getItHits()) {
       lineBuilder.setOverallLineHits(1);
     }
-    lineBuilder.setOverallConditions(coverage.getConditionsByLine(line));
-    lineBuilder.setOverallCoveredConditions(coverage.getOverallCoveredConditionsByLine(line));
+    lineBuilder.setOverallConditions(coverage.getConditions());
+    lineBuilder.setOverallCoveredConditions(coverage.getOverallCoveredConditions());
   }
 
   @VisibleForTesting

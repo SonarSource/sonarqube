@@ -21,7 +21,7 @@ package org.sonar.batch.protocol.output;
 
 import org.sonar.batch.protocol.ProtobufUtil;
 
-import java.io.File;
+import java.io.*;
 
 public class BatchReportWriter {
 
@@ -113,9 +113,18 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(builder.build(), file);
   }
 
-  public void writeFileCoverage(BatchReport.Coverage coverage) {
-    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, coverage.getFileRef());
-    ProtobufUtil.writeToFile(coverage, file);
+  public void writeFileCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, componentRef);
+    ProtobufUtil.writeMessagesToFile(coverageList, file);
+  }
+
+  public OutputStream openCoverageOutputStream(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, componentRef);
+    try {
+      return new BufferedOutputStream(new FileOutputStream(file, true));
+    } catch (FileNotFoundException e) {
+      throw new IllegalStateException("Unable to find file " + file, e);
+    }
   }
 
 }

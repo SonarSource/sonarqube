@@ -23,6 +23,7 @@ import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -119,13 +120,12 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
-  @CheckForNull
-  public BatchReport.Coverage readFileCoverage(int fileRef) {
+  public Iterable<BatchReport.Coverage> readFileCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, fileRef);
     if (doesFileExists(file)) {
-      return ProtobufUtil.readFile(file, BatchReport.Coverage.PARSER);
+      return ProtobufUtil.readFileMessages(file, BatchReport.Coverage.PARSER);
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private boolean doesFileExists(File file) {
