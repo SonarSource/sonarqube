@@ -216,9 +216,10 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void updateDebtRemediationFunction(RuleUpdate update, Context context) {
+    Integer subChar = context.rule.getSubCharacteristicId();
     boolean noChar =
-      (context.rule.getDefaultSubCharacteristicId() == null && context.rule.getSubCharacteristicId() == null) ||
-        (context.rule.getSubCharacteristicId() != null && context.rule.getSubCharacteristicId().intValue() == RuleDto.DISABLED_CHARACTERISTIC_ID);
+      (context.rule.getDefaultSubCharacteristicId() == null && subChar == null) ||
+        (subChar != null && subChar.intValue() == RuleDto.DISABLED_CHARACTERISTIC_ID);
 
     DebtRemediationFunction function = update.getDebtRemediationFunction();
     if (noChar || function == null) {
