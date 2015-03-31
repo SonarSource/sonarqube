@@ -24,8 +24,6 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class ProtobufUtil {
   private ProtobufUtil() {
@@ -40,53 +38,20 @@ public class ProtobufUtil {
     }
   }
 
-  public static <M extends Message> Iterable<M> readFileMessages(final File file, final Parser<M> parser) {
-    return new Iterable<M>() {
-      @Override
-      public Iterator<M> iterator() {
-        try {
-          return new Iterator<M>() {
-            final InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+  static <T extends Message> T readInputStream(InputStream inputStream, Parser<T> parser) {
+    try {
+      return parser.parseDelimitedFrom(inputStream);
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException("Failed to read input stream", e);
+    }
+  }
 
-            private M currentMessage;
-
-            @Override
-            public boolean hasNext() {
-              if (currentMessage == null) {
-                try {
-                  currentMessage = parser.parseDelimitedFrom(inputStream);
-                  if (currentMessage == null) {
-                    inputStream.close();
-                  }
-                } catch (InvalidProtocolBufferException e) {
-                  throw new IllegalStateException("Failed to read input stream", e);
-                } catch (IOException e) {
-                  throw new IllegalStateException("Failed to close input stream", e);
-                }
-              }
-              return currentMessage != null;
-            }
-
-            @Override
-            public M next() {
-              if (!hasNext()) {
-                throw new NoSuchElementException();
-              }
-              M messageToReturn = currentMessage;
-              currentMessage = null;
-              return messageToReturn;
-            }
-
-            @Override
-            public void remove() {
-              throw new UnsupportedOperationException();
-            }
-          };
-        } catch (FileNotFoundException e) {
-          throw new IllegalStateException("Unable to find file " + file, e);
-        }
-      }
-    };
+  static InputStream createInputStream(File file) {
+    try {
+      return new BufferedInputStream(new FileInputStream(file));
+    } catch (FileNotFoundException e) {
+      throw new IllegalStateException("Unable to find file " + file, e);
+    }
   }
 
   public static void writeToFile(Message message, File toFile) {

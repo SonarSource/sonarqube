@@ -79,8 +79,8 @@ public class BatchReportReaderTest {
   }
 
   @Test
-  public void empty_list_if_no_coverage_found() throws Exception {
-    assertThat(sut.readFileCoverage(123)).isEmpty();
+  public void return_null_if_no_coverage_found() throws Exception {
+    assertThat(sut.readFileCoverage(123)).isNull();
   }
 
   /**

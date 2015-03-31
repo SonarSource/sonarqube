@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.output;
 
 import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.batch.protocol.ReportStream;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 import javax.annotation.CheckForNull;
@@ -120,12 +121,13 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
-  public Iterable<BatchReport.Coverage> readFileCoverage(int fileRef) {
+  @CheckForNull
+  public ReportStream<BatchReport.Coverage> readFileCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, fileRef);
     if (doesFileExists(file)) {
-      return ProtobufUtil.readFileMessages(file, BatchReport.Coverage.PARSER);
+      return new ReportStream<>(file, BatchReport.Coverage.PARSER);
     }
-    return Collections.emptyList();
+    return null;
   }
 
   private boolean doesFileExists(File file) {

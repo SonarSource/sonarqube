@@ -70,7 +70,7 @@ public class PersistCoverageStepTest extends BaseStepTest {
 
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
 
-    assertThat(step.getFileSourceData().getLinesList()).isEmpty();
+    assertThat(step.getFileSourceData()).isNull();
   }
 
   @Test

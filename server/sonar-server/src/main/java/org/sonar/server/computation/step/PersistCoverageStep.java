@@ -52,7 +52,9 @@ public class PersistCoverageStep implements ComputationStep {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component.getType().equals(Constants.ComponentType.FILE)) {
       Iterable<BatchReport.Coverage> coverageList = reportReader.readFileCoverage(componentRef);
-      processCoverage(component, coverageList);
+      if (coverageList != null) {
+        processCoverage(component, coverageList);
+      }
     }
 
     for (Integer childRef : component.getChildRefList()) {
