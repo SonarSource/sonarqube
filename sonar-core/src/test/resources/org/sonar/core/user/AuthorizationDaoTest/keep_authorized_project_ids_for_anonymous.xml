@@ -1,0 +1,10 @@
+<dataset>
+
+  <groups_users user_id="100" group_id="200"/>
+  <group_roles id="1" group_id="[null]" resource_id="300" role="user"/>
+  <group_roles id="2" group_id="200" resource_id="400" role="codeviewer"/>
+
+  <projects id="300" kee="pj-w-snapshot" uuid="DEFG" module_uuid="[null]" enabled="[true]"/>
+  <projects id="400" kee="pj-wo-snapshot" uuid="EFGH" module_uuid="[null]" enabled="[true]"/>
+
+</dataset>
