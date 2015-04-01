@@ -18,77 +18,84 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-/**
- * Show a global message
- * @param {string} id
- * @param {string} message
+/*
+ * Global Messages
  */
-function showMessage (id, message) {
-  $j('#' + id + 'msg').html(message);
-  $j('#' + id).removeClass('hidden');
-  $j('#messages-panel').removeClass('hidden');
-}
 
-/**
- * Hide a global message
- * @param {string} id
- * @returns {boolean} always false
- */
-function hideMessage (id) {
-  $j('#' + id).addClass('hidden');
-  var messagePanel = $j('#messages-panel'),
-      isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
-  messagePanel.toggleClass('hidden', isEmpty);
-  return false;
-}
+(function () {
+  /**
+   * Show a global message
+   * @param {string} id
+   * @param {string} message
+   */
+  window.showMessage = function (id, message) {
+    $j('#' + id + 'msg').html(message);
+    $j('#' + id).removeClass('hidden');
+    $j('#messages-panel').removeClass('hidden');
+  };
 
-/**
- * Show a global error message
- * @param {string} message
- */
-function error (message) {
-  showMessage('error', message);
-}
+  /**
+   * Hide a global message
+   * @param {string} id
+   * @returns {boolean} always false
+   */
+  window.hideMessage = function (id) {
+    $j('#' + id).addClass('hidden');
+    var messagePanel = $j('#messages-panel'),
+        isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
+    messagePanel.toggleClass('hidden', isEmpty);
+    return false;
+  };
 
-/**
- * Show a global warning message
- * @param {string} message
- */
-function warning (message) {
-  showMessage('warning', message);
-}
+  /**
+   * Show a global error message
+   * @param {string} message
+   */
+  window.error = function (message) {
+    showMessage('error', message);
+  };
 
-/**
- * Show a global info message
- * @param {string} message
- */
-function info (message) {
-  showMessage('info', message);
-}
+  /**
+   * Show a global warning message
+   * @param {string} message
+   */
+  window.warning = function (message) {
+    showMessage('warning', message);
+  };
 
-/**
- * Hide a global error message
- * @returns {boolean} always false
- */
-function hideError () {
-  return hideMessage('error');
-}
+  /**
+   * Show a global info message
+   * @param {string} message
+   */
+  window.info = function (message) {
+    showMessage('info', message);
+  };
 
-/**
- * Hide a global warning message
- * @returns {boolean} always false
- */
-function hideWarning () {
-  return hideMessage('warning');
-}
+  /**
+   * Hide a global error message
+   * @returns {boolean} always false
+   */
+  window.hideError = function () {
+    return hideMessage('error');
+  };
 
-/**
- * Hide a global info message
- * @returns {boolean} always false
- */
-function hideInfo () {
-  return hideMessage('info');
-}
+  /**
+   * Hide a global warning message
+   * @returns {boolean} always false
+   */
+  window.hideWarning = function () {
+    return hideMessage('warning');
+  };
+
+  /**
+   * Hide a global info message
+   * @returns {boolean} always false
+   */
+  window.hideInfo = function () {
+    return hideMessage('info');
+  };
+})();
+
 
 
 function toggleFav (resourceId, elt) {
@@ -127,104 +134,6 @@ function dashboardParameters (urlHasSomething) {
   }
   return query;
 }
-
-
-var treemaps = {};
-
-function treemapById (id) {
-  return treemaps[id];
-}
-var TreemapContext = function (rid, label) {
-  this.rid = rid;
-  this.label = label;
-};
-
-/**
- * HTML elements :
- * tm-#{id} : required treemap container
- * tm-bc-#{id} : required breadcrumb
- * tm-loading-#{id} : optional loading icon
- */
-var Treemap = function (id, sizeMetric, colorMetric, heightPercents) {
-  this.id = id;
-  this.sizeMetric = sizeMetric;
-  this.colorMetric = colorMetric;
-  this.breadcrumb = [];
-  treemaps[id] = this;
-  this.rootNode().height(this.rootNode().width() * heightPercents / 100);
-  this.initNodes();
-
-};
-Treemap.prototype.currentContext = function () {
-  if (this.breadcrumb.length > 0) {
-    return this.breadcrumb[this.breadcrumb.length - 1];
-  }
-  return null;
-};
-Treemap.prototype.load = function () {
-  var context = this.currentContext();
-  var output = '';
-  this.breadcrumb.forEach(function (ctx) {
-    output += ctx.label + '&nbsp;/&nbsp;';
-  });
-  $j('#tm-bc-' + this.id).html(output);
-  $j('#tm-loading-' + this.id).show();
-  var self = this;
-  $j.ajax({
-    type: 'GET',
-    url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric +
-    '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
-    dataType: 'html',
-    success: function (data) {
-      if (data.length > 1) {
-        self.rootNode().html(data);
-        self.initNodes();
-      } else {
-        // SONAR-3524
-        // When data is empty, do not display it, revert breadcrumb state and display a message to user
-        self.breadcrumb.pop();
-        $j('#tm-bottom-level-reached-msg-' + self.id).show();
-      }
-      $j('#tm-loading-' + self.id).hide();
-    }
-  });
-};
-Treemap.prototype.rootNode = function () {
-  return $j('#tm-' + this.id);
-};
-
-Treemap.prototype.initNodes = function () {
-  var self = this;
-  $j('#tm-' + this.id).find('a').each(function () {
-    $j(this).on('click', function (event) {
-      event.stopPropagation();
-    });
-  });
-  $j('#tm-' + this.id).find('[rid]').each(function () {
-    $j(this).on('contextmenu', function (event) {
-      event.stopPropagation();
-      event.preventDefault();
-      $j('#tm-bottom-level-reached-msg-' + self.id).hide();
-      // right click
-      if (self.breadcrumb.length > 1) {
-        self.breadcrumb.pop();
-        self.load();
-      } else if (self.breadcrumb.length === 1) {
-        $j('#tm-loading-' + self.id).show();
-        location.reload();
-      }
-      return false;
-    });
-    $j(this).on('click', function () {
-          var source = $j(this);
-          var rid = source.attr('rid');
-          var context = new TreemapContext(rid, source.text());
-          self.breadcrumb.push(context);
-          self.load();
-        }
-    );
-  });
-};
 
 function openModalWindow (url, options) {
   var width = (options && options.width) || 540;
@@ -315,118 +224,62 @@ function closeModalWindow () {
   return false;
 }
 
-function supportsHTML5Storage () {
-  try {
-    return 'localStorage' in window && window.localStorage !== null;
-  } catch (e) {
-    return false;
-  }
-}
-
-//******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
-
-function openAccordionItem (url) {
-  return $j.ajax({
-    url: url
-  }).fail(function (jqXHR, textStatus) {
-    var error = 'Server error. Please contact your administrator. The status of the error is : ' +
-        jqXHR.status + ', textStatus is : ' + textStatus;
-    $j('#accordion-panel').append($j('<div class="error">').append(error));
-  }).done(function (html) {
-    var panel = $j('#accordion-panel');
-    panel.html(html);
-    panel.scrollIntoView(false);
-  });
-}
 
 
-//******************* HANDLING OF ACCORDION NAVIGATION [END] ******************* //
+/*
+ * File Path
+ */
 
-
-//******************* HANDLING OF DROPDOWN MENUS [BEGIN] ******************* //
-
-var currentlyDisplayedDropdownMenu;
-
-var hideCurrentDropdownMenu = function () {
-  if (currentlyDisplayedDropdownMenu) {
-    currentlyDisplayedDropdownMenu.hide();
-  }
-  $j(document).unbind('mouseup', hideCurrentDropdownMenu);
-};
-
-var clickOnDropdownMenuLink = function (event) {
-  var link = $j(event.target).children('a');
-  if (link) {
-    var href = link.attr('href');
-    if (href && href.length > 1) {
-      // there's a real link, not a href="#"
-      window.location = href;
-    } else {
-      // otherwise, this means that the link is handled with an onclick event (for Ajax calls)
-      link.click();
-    }
-  }
-};
-
-function showDropdownMenu (menuId) {
-  showDropdownMenuOnElement($j('#' + menuId));
-}
-
-function showDropdownMenuOnElement (elt) {
-  var dropdownElt = $j(elt);
-
-  if (dropdownElt === currentlyDisplayedDropdownMenu) {
-    currentlyDisplayedDropdownMenu = '';
-  } else {
-    currentlyDisplayedDropdownMenu = dropdownElt;
-    $j(document).mouseup(hideCurrentDropdownMenu);
-
-    var dropdownChildren = dropdownElt.find('li');
-    dropdownChildren.unbind('click');
-    dropdownChildren.click(clickOnDropdownMenuLink);
-    dropdownElt.show();
-  }
-}
-
-//******************* HANDLING OF DROPDOWN MENUS [END] ******************* //
-
-function openPopup (url, popupId) {
-  window.open(url, popupId, 'height=800,width=900,scrollbars=1,resizable=1');
-  return false;
-}
-
-
-function collapsedDirFromPath (path) {
-  var limit = 30;
-  if (typeof path === 'string') {
-    var tokens = _.initial(path.split('/'));
-    if (tokens.length > 2) {
-      var head = _.first(tokens),
-          tail = _.last(tokens),
-          middle = _.initial(_.rest(tokens)),
-          cut = false;
-      while (middle.join().length > limit && middle.length > 0) {
-        middle.shift();
-        cut = true;
+(function () {
+  /**
+   * Return a collapsed path without a file name
+   * @example
+   * // returns 'src/.../js/components/navigator/app/models/'
+   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+   * @param {string} path
+   * @returns {string|null}
+   */
+  window.collapsedDirFromPath = function (path) {
+    var limit = 30;
+    if (typeof path === 'string') {
+      var tokens = _.initial(path.split('/'));
+      if (tokens.length > 2) {
+        var head = _.first(tokens),
+            tail = _.last(tokens),
+            middle = _.initial(_.rest(tokens)),
+            cut = false;
+        while (middle.join().length > limit && middle.length > 0) {
+          middle.shift();
+          cut = true;
+        }
+        var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+        return body.join('/') + '/';
+      } else {
+        return tokens.join('/') + '/';
       }
-      var body = [].concat(head, cut ? ['...'] : [], middle, tail);
-      return body.join('/') + '/';
     } else {
-      return tokens.join('/') + '/';
+      return null;
     }
-  } else {
-    return null;
-  }
-}
+  };
 
-function fileFromPath (path) {
-  if (typeof path === 'string') {
-    var tokens = path.split('/');
-    return _.last(tokens);
-  } else {
-    return null;
-  }
-}
+  /**
+   * Return a file name for a given file path
+   * * @example
+   * // returns 'state.js'
+   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+   * @param {string} path
+   * @returns {string|null}
+   */
+  window.fileFromPath = function (path) {
+    if (typeof path === 'string') {
+      var tokens = path.split('/');
+      return _.last(tokens);
+    } else {
+      return null;
+    }
+  };
+})();
+
 
 
 /*
@@ -591,23 +444,31 @@ function fileFromPath (path) {
   };
 })();
 
-jQuery(function () {
 
-  // Process login link in order to add the anchor
-  jQuery('#login-link').on('click', function (e) {
-    e.preventDefault();
-    var href = jQuery(this).prop('href'),
-        hash = window.location.hash;
-    if (hash.length > 0) {
-      href += decodeURIComponent(hash);
-    }
-    window.location = href;
+
+/*
+ * Misc
+ */
+
+(function () {
+  jQuery(function () {
+
+    // Process login link in order to add the anchor
+    jQuery('#login-link').on('click', function (e) {
+      e.preventDefault();
+      var href = jQuery(this).prop('href'),
+          hash = window.location.hash;
+      if (hash.length > 0) {
+        href += decodeURIComponent(hash);
+      }
+      window.location = href;
+    });
+
+
+    // Define global shortcuts
+    key('s', function () {
+      jQuery('.js-search-dropdown-toggle').dropdown('toggle');
+      return false;
+    });
   });
-
-
-  // Define global shortcuts
-  key('s', function () {
-    jQuery('.js-search-dropdown-toggle').dropdown('toggle');
-    return false;
-  });
-});
+})();
