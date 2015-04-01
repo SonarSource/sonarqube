@@ -216,7 +216,7 @@ class DashboardController < ApplicationController
   end
 
   def redirect_if_overview
-    if @resource && !params[:did] && !params[:name]
+    if @resource && @snapshot && !params[:did] && !params[:name]
       redirect_to :controller => 'overview', :action => 'index', :id => @resource.key
     end
   end

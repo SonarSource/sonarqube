@@ -1,34 +1,40 @@
-<div class="overview"></div>
+<% if @snapshot %>
+  <div class="overview"></div>
 
-<%
-   period1Name = short_period_label(@snapshot, 1)
-   period2Name = short_period_label(@snapshot, 2)
-   period3Name = short_period_label(@snapshot, 3)
+  <%
+     period1Name = short_period_label(@snapshot, 1)
+     period2Name = short_period_label(@snapshot, 2)
+     period3Name = short_period_label(@snapshot, 3)
 
-   period1Date = @snapshot.period_datetime(1)
-   period2Date = @snapshot.period_datetime(2)
-   period3Date = @snapshot.period_datetime(3)
-%>
+     period1Date = @snapshot.period_datetime(1)
+     period2Date = @snapshot.period_datetime(2)
+     period3Date = @snapshot.period_datetime(3)
+  %>
 
-<script>
-  window.overviewConf = {
-    <% if period1Date %>
-    period1Name: '<%= period1Name -%>',
-    period1Date: '<%= period1Date.strftime('%FT%T%z') -%>',
-    <% end %>
+  <script>
+    window.overviewConf = {
+      <% if period1Date %>
+      period1Name: '<%= period1Name -%>',
+      period1Date: '<%= period1Date.strftime('%FT%T%z') -%>',
+      <% end %>
 
-    <% if period2Date %>
-    period2Name: '<%= period2Name -%>',
-    period2Date: '<%= period2Date.strftime('%FT%T%z') -%>',
-    <% end %>
+      <% if period2Date %>
+      period2Name: '<%= period2Name -%>',
+      period2Date: '<%= period2Date.strftime('%FT%T%z') -%>',
+      <% end %>
 
-    <% if period3Date %>
-    period3Name: '<%= period3Name -%>',
-    period3Date: '<%= period3Date.strftime('%FT%T%z') -%>',
-    <% end %>
+      <% if period3Date %>
+      period3Name: '<%= period3Name -%>',
+      period3Date: '<%= period3Date.strftime('%FT%T%z') -%>',
+      <% end %>
 
-    componentKey: '<%= @resource.key -%>',
-    componentUuid: '<%= @resource.uuid -%>'
-  };
-  require(['overview/app']);
-</script>
+      componentKey: '<%= @resource.key -%>',
+      componentUuid: '<%= @resource.uuid -%>'
+    };
+    require(['overview/app']);
+  </script>
+<% else %>
+  <div class="page">
+    <p class="alert alert-warning"><%= message('provisioning.no_analysis') -%></p>
+  </div>
+<% end %>
