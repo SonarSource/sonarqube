@@ -34,14 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
   private static final int USER = 100;
-  private static final Long PROJECT_ID = 300L, EMPTY_PROJECT_ID = 400L;
+  private static final Long PROJECT_ID = 300L, PROJECT_ID_WITHOUT_SNAPSHOT = 400L;
   private static final String PROJECT = "pj-w-snapshot";
+  private static final String PROJECT_WIHOUT_SNAPSHOT = "pj-wo-snapshot";
 
   DbSession session;
+
+  AuthorizationDao authorization;
 
   @Before
   public void setUp() throws Exception {
     session = getMyBatis().openSession(false);
+    authorization = new AuthorizationDao(getMyBatis());
   }
 
   @After
@@ -54,12 +58,11 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     // but user is not in an authorized group
     setupData("user_should_be_authorized");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
+      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT_ID, EMPTY_PROJECT_ID);
+    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // user does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(session,
@@ -73,13 +76,61 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void is_authorized_component_key_for_user() {
-    // but user is not in an authorized group
-    setupData("user_should_be_authorized");
+  public void keep_authorized_project_ids_for_user() {
+    setupData("keep_authorized_project_ids_for_user");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+
+    // user does not have the role "admin"
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+
+    // Empty list
+    assertThat(authorization.keepAuthorizedProjectIds(session, Collections.<Long>emptySet(), USER, "admin")).isEmpty();
+  }
+
+  @Test
+  public void keep_authorized_project_ids_for_group() {
+    setupData("keep_authorized_project_ids_for_group");
+
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+
+    // user does not have the role "admin"
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+
+    // Empty list
+    assertThat(authorization.keepAuthorizedProjectIds(session, Collections.<Long>emptySet(), USER, "admin")).isEmpty();
+  }
+
+  @Test
+  public void keep_authorized_project_ids_for_anonymous() {
+    setupData("keep_authorized_project_ids_for_anonymous");
+
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), null, "user")).containsOnly(PROJECT_ID);
+
+    // user does not have the role "admin"
+    assertThat(authorization.keepAuthorizedProjectIds(session, Sets.newHashSet(PROJECT_ID), null, "admin")).isEmpty();
+
+    // Empty list
+    assertThat(authorization.keepAuthorizedProjectIds(session, Collections.<Long>emptySet(), null, "admin")).isEmpty();
+  }
+
+  @Test
+  public void is_authorized_component_key_for_user() {
+    setupData("keep_authorized_project_ids_for_user");
 
     assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "user")).isTrue();
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, USER, "user")).isFalse();
+
+    // user does not have the role "admin"
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
+  }
+
+  @Test
+  public void is_authorized_component_key_for_group() {
+    setupData("keep_authorized_project_ids_for_group");
+
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "user")).isTrue();
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, USER, "user")).isFalse();
 
     // user does not have the role "admin"
     assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
@@ -87,11 +138,10 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void is_authorized_component_key_for_anonymous() {
-    setupData("anonymous_should_be_authorized");
-
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    setupData("keep_authorized_project_ids_for_anonymous");
 
     assertThat(authorization.isAuthorizedComponentKey(PROJECT, null, "user")).isTrue();
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT_WIHOUT_SNAPSHOT, null, "user")).isFalse();
     assertThat(authorization.isAuthorizedComponentKey(PROJECT, null, "admin")).isFalse();
   }
 
@@ -100,35 +150,15 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     // user is in an authorized group
     setupData("group_should_be_authorized");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
+      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT_ID, EMPTY_PROJECT_ID);
+    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
-      USER, "admin");
-    assertThat(componentIds).isEmpty();
-  }
-
-  @Test
-  public void group_should_have_global_authorization() {
-    // user is in a group that has authorized access to all projects
-    setupData("group_should_have_global_authorization");
-
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
-      USER, "user");
-
-    assertThat(componentIds).containsOnly(PROJECT_ID, EMPTY_PROJECT_ID);
-
-    // group does not have the role "admin"
-    componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
+      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -137,12 +167,11 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void anonymous_should_be_authorized() {
     setupData("anonymous_should_be_authorized");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(session,
-      Sets.newHashSet(PROJECT_ID, EMPTY_PROJECT_ID),
+      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       null, "user");
 
-    assertThat(componentIds).containsOnly(PROJECT_ID, EMPTY_PROJECT_ID);
+    assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(session,
@@ -155,7 +184,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_root_project_keys_for_user() {
     setupData("should_return_root_project_keys_for_user");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
@@ -170,7 +198,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     // but user is not in an authorized group
     setupData("should_return_root_project_keys_for_group");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(USER, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
@@ -184,7 +211,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_root_project_keys_for_anonymous() {
     setupData("should_return_root_project_keys_for_anonymous");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectIds = authorization.selectAuthorizedRootProjectsKeys(null, "user");
 
     assertThat(rootProjectIds).containsOnly(PROJECT);
@@ -198,7 +224,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_root_project_uuids_for_user() {
     setupData("should_return_root_project_keys_for_user");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
@@ -213,7 +238,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     // but user is not in an authorized group
     setupData("should_return_root_project_keys_for_group");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
@@ -227,7 +251,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_root_project_uuids_for_anonymous() {
     setupData("should_return_root_project_keys_for_anonymous");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(null, "user");
 
     assertThat(rootProjectUuids).containsOnly("ABCD");
@@ -241,7 +264,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_user_global_permissions() {
     setupData("should_return_user_global_permissions");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions("john")).containsOnly("user", "admin");
     assertThat(authorization.selectGlobalPermissions("arthur")).containsOnly("user");
     assertThat(authorization.selectGlobalPermissions("none")).isEmpty();
@@ -251,7 +273,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_group_global_permissions() {
     setupData("should_return_group_global_permissions");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions("john")).containsOnly("user", "admin");
     assertThat(authorization.selectGlobalPermissions("arthur")).containsOnly("user");
     assertThat(authorization.selectGlobalPermissions("none")).isEmpty();
@@ -261,7 +282,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_global_permissions_for_anonymous() {
     setupData("should_return_global_permissions_for_anonymous");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions(null)).containsOnly("user", "admin");
   }
 
@@ -269,7 +289,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   public void should_return_global_permissions_for_group_anyone() throws Exception {
     setupData("should_return_global_permissions_for_group_anyone");
 
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions("anyone_user")).containsOnly("user", "profileadmin");
   }
 
