@@ -222,10 +222,6 @@ module.exports = (grunt) ->
         name: 'drilldown/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/drilldown/app.js'
 
-      dashboard: options:
-        name: 'dashboard/app'
-        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/dashboard/app.js'
-
       sourceViewer: options:
         name: 'source-viewer/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/source-viewer/app.js'
@@ -297,9 +293,6 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/libraries.js': [
             '<%= pkg.sources %>hbs/libraries/**/*.hbs'
-          ]
-          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/dashboard.js': [
-            '<%= pkg.sources %>hbs/dashboard/**/*.hbs'
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/analysis-reports.js': [
             '<%= pkg.sources %>hbs/analysis-reports/**/*.hbs'
