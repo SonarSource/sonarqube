@@ -17,19 +17,80 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-function showMessage (div_id, message) {
-  $j('#' + div_id + 'msg').html(message);
-  $j('#' + div_id).show();
+
+/**
+ * Show a global message
+ * @param {string} id
+ * @param {string} message
+ */
+function showMessage (id, message) {
+  $j('#' + id + 'msg').html(message);
+  $j('#' + id).removeClass('hidden');
+  $j('#messages-panel').removeClass('hidden');
 }
+
+/**
+ * Hide a global message
+ * @param {string} id
+ * @returns {boolean} always false
+ */
+function hideMessage (id) {
+  $j('#' + id).addClass('hidden');
+  var messagePanel = $j('#messages-panel'),
+      isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
+  messagePanel.toggleClass('hidden', isEmpty);
+  return false;
+}
+
+/**
+ * Show a global error message
+ * @param {string} message
+ */
 function error (message) {
   showMessage('error', message);
 }
+
+/**
+ * Show a global warning message
+ * @param {string} message
+ */
 function warning (message) {
   showMessage('warning', message);
 }
+
+/**
+ * Show a global info message
+ * @param {string} message
+ */
 function info (message) {
   showMessage('info', message);
 }
+
+/**
+ * Hide a global error message
+ * @returns {boolean} always false
+ */
+function hideError () {
+  return hideMessage('error');
+}
+
+/**
+ * Hide a global warning message
+ * @returns {boolean} always false
+ */
+function hideWarning () {
+  return hideMessage('warning');
+}
+
+/**
+ * Hide a global info message
+ * @returns {boolean} always false
+ */
+function hideInfo () {
+  return hideMessage('info');
+}
+
+
 function toggleFav (resourceId, elt) {
   $j.ajax({
     type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,

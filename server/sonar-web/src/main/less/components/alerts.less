@@ -25,12 +25,9 @@
 
 .alert {
   display: block;
+  margin-bottom: 8px;
   padding: 5px 8px;
-  border: 2px solid @secondFontColor;
-}
-
-.alert + .alert:not(.hidden):not(:empty) {
-  margin-top: 5px;
+  border: 1px solid @secondFontColor;
 }
 
 .alert:empty { display: none; }
@@ -38,14 +35,14 @@
 
 // Color
 
-.alert-emphasis-variant(@color) {
-  background-color: @white;
-  border-color: @color;
+.alert-emphasis-variant(@color, @background-color, @border-color) {
+  border-color: @border-color;
+  background-color: @background-color;
   color: @color;
 }
-.alert-danger  { .alert-emphasis-variant(@red); }
-.alert-warning { .alert-emphasis-variant(@orange); }
-.alert-info    { .alert-emphasis-variant(@blue); }
-.alert-success { .alert-emphasis-variant(@green); }
+.alert-danger  { .alert-emphasis-variant(#a94442, #f2dede, #ebccd1); }
+.alert-warning { .alert-emphasis-variant(#8a6d3b, #fcf8e3, #faebcc); }
+.alert-info    { .alert-emphasis-variant(#31708f, #d9edf7, #bce8f1); }
+.alert-success { .alert-emphasis-variant(#3c763d, #dff0d8, #d6e9c6); }
 
 
