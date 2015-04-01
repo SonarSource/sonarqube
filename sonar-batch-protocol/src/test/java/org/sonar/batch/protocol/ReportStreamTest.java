@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Lists.newArrayList;
 
 public class ReportStreamTest {
 
@@ -68,17 +69,20 @@ public class ReportStreamTest {
   @Test
   public void read_report() throws Exception {
     sut = new ReportStream<>(file, BatchReport.Coverage.PARSER);
-    assertThat(sut).hasSize(1);
-    sut.close();
+    assertThat(newArrayList(sut)).hasSize(1);
+
+    assertThat(sut.iterator().next()).isNotNull();
+    // Shoudl not be null as it should return the first element
+    assertThat(sut.iterator().next()).isNotNull();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_to_get_iterator_twice() throws Exception {
+  @Test
+  public void next_should_be_reentrant() throws Exception {
     sut = new ReportStream<>(file, BatchReport.Coverage.PARSER);
-    sut.iterator();
+    assertThat(sut).hasSize(1);
 
-    // Fail !
-    sut.iterator();
+    assertThat(sut.iterator().next()).isNotNull();
+    assertThat(sut.iterator().next()).isNotNull();
   }
 
   @Test(expected = NoSuchElementException.class)
@@ -99,6 +103,12 @@ public class ReportStreamTest {
 
     // Fail !
     iterator.remove();
+  }
+
+  @Test
+  public void not_fail_when_close_without_calling_iterator() throws Exception {
+    sut = new ReportStream<>(file, BatchReport.Coverage.PARSER);
+    sut.close();
   }
 
 }
