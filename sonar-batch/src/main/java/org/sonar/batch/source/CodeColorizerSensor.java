@@ -26,12 +26,9 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.colorizer.CodeColorizer;
-
-import java.util.List;
 
 /**
  * Execute deprecated {@link CodeColorizer} if necessary.
@@ -61,9 +58,8 @@ public final class CodeColorizerSensor implements Sensor {
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
       BatchReportReader reader = new BatchReportReader(reportPublisher.getReportDir());
       int batchId = resourceCache.get(f).batchId();
-      List<HighlightingRule> highlightingRules = reader.readComponentSyntaxHighlighting(batchId);
       String language = f.language();
-      if (!highlightingRules.isEmpty() || language == null) {
+      if (reader.hasSyntaxHighlighting(batchId) || language == null) {
         continue;
       }
       codeColorizers.toSyntaxHighlighting(f.file(), fs.encoding(), language, context.newHighlighting().onFile(f));

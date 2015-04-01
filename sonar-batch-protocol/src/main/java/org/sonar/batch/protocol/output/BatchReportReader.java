@@ -112,6 +112,11 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
+  public boolean hasSyntaxHighlighting(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    return file.exists();
+  }
+
   public List<BatchReport.SyntaxHighlighting.HighlightingRule> readComponentSyntaxHighlighting(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
     if (file.exists() && file.isFile()) {
