@@ -20,7 +20,6 @@
 package org.sonar.api.batch.sensor.highlighting.internal;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
@@ -30,14 +29,12 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import javax.annotation.Nullable;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
   private DefaultInputFile inputFile;
-  private Set<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
+  private List<SyntaxHighlightingRule> syntaxHighlightingRules;
 
   public DefaultHighlighting() {
     this(null);
@@ -45,25 +42,16 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
 
   public DefaultHighlighting(@Nullable SensorStorage storage) {
     super(storage);
-    syntaxHighlightingRuleSet = Sets.newTreeSet(new Comparator<SyntaxHighlightingRule>() {
-      @Override
-      public int compare(SyntaxHighlightingRule left, SyntaxHighlightingRule right) {
-        int result = left.range().start().compareTo(right.range().start());
-        if (result == 0) {
-          result = right.range().end().compareTo(left.range().end());
-        }
-        return result;
-      }
-    });
+    syntaxHighlightingRules = new ArrayList<>();
   }
 
-  public Set<SyntaxHighlightingRule> getSyntaxHighlightingRuleSet() {
-    return syntaxHighlightingRuleSet;
+  public List<SyntaxHighlightingRule> getSyntaxHighlightingRuleSet() {
+    return syntaxHighlightingRules;
   }
 
   private void checkOverlappingBoudaries() {
-    if (syntaxHighlightingRuleSet.size() > 1) {
-      Iterator<SyntaxHighlightingRule> it = syntaxHighlightingRuleSet.iterator();
+    if (syntaxHighlightingRules.size() > 1) {
+      Iterator<SyntaxHighlightingRule> it = syntaxHighlightingRules.iterator();
       SyntaxHighlightingRule previous = it.next();
       while (it.hasNext()) {
         SyntaxHighlightingRule current = it.next();
@@ -92,13 +80,24 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
     Preconditions.checkState(inputFile != null, "Call onFile() first");
     SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(inputFile.newRange(startOffset, endOffset), typeOfText);
-    this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);
+    this.syntaxHighlightingRules.add(syntaxHighlightingRule);
     return this;
   }
 
   @Override
   protected void doSave() {
     Preconditions.checkState(inputFile != null, "Call onFile() first");
+    // Sort rules to avoid variation during consecutive runs
+    Collections.sort(syntaxHighlightingRules, new Comparator<SyntaxHighlightingRule>() {
+      @Override
+      public int compare(SyntaxHighlightingRule left, SyntaxHighlightingRule right) {
+        int result = left.range().start().compareTo(right.range().start());
+        if (result == 0) {
+          result = right.range().end().compareTo(left.range().end());
+        }
+        return result;
+      }
+    });
     checkOverlappingBoudaries();
     storage.store(this);
   }

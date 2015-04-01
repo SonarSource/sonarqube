@@ -52,7 +52,7 @@ public class DefaultHighlightingTest {
   @Before
   public void setUpSampleRules() {
 
-    DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting()
+    DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(0, 10, COMMENT)
       .highlight(10, 12, KEYWORD)
@@ -60,6 +60,8 @@ public class DefaultHighlightingTest {
       .highlight(42, 50, KEYWORD)
       .highlight(24, 65, CPP_DOC)
       .highlight(12, 20, COMMENT);
+
+    highlightingDataBuilder.save();
 
     highlightingRules = highlightingDataBuilder.getSyntaxHighlightingRuleSet();
   }

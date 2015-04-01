@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.mediumtest.highlighting;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -101,16 +101,20 @@ public class HighlightingMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
-    int chunkSize = 100000;
-    FileUtils.write(xooFile, Strings.repeat("a", chunkSize));
-    StringBuilder sb = new StringBuilder(16 * chunkSize);
-    for (int i = 0; i < chunkSize; i++) {
-      sb.append(i).append(":").append(i + 1).append(":s\n");
+    int nbFiles = 10;
+    int ruleCount = 100000;
+    int nblines = 1000;
+    int linesize = ruleCount / nblines;
+    for (int nb = 1; nb <= nbFiles; nb++) {
+      File xooFile = new File(srcDir, "sample" + nb + ".xoo");
+      File xoohighlightingFile = new File(srcDir, "sample" + nb + ".xoo.highlighting");
+      FileUtils.write(xooFile, StringUtils.repeat(StringUtils.repeat("a", linesize) + "\n", nblines));
+      StringBuilder sb = new StringBuilder(16 * ruleCount);
+      for (int i = 0; i < ruleCount; i++) {
+        sb.append(i).append(":").append(i + 1).append(":s\n");
+      }
+      FileUtils.write(xoohighlightingFile, sb.toString());
     }
-    FileUtils.write(xoohighlightingFile, sb.toString());
-
     long start = System.currentTimeMillis();
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -124,9 +128,6 @@ public class HighlightingMediumTest {
         .build())
       .start();
     System.out.println("Duration: " + (System.currentTimeMillis() - start));
-
-    InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.highlightingTypeFor(file, 1, 0)).containsExactly(TypeOfText.STRING);
 
   }
 
