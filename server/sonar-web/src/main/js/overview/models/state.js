@@ -117,8 +117,6 @@ define(function () {
       if (nclocMeasure != null) {
         this.set({
           ncloc: nclocMeasure.val,
-          ncloc1: nclocMeasure.var1,
-          ncloc2: nclocMeasure.var2,
           ncloc3: nclocMeasure.var3
         });
       }
@@ -143,12 +141,6 @@ define(function () {
       }
 
       fetchIssuesByPeriod('issues', null);
-      if (this.hasPeriod(1)) {
-        fetchIssuesByPeriod('issues1', this.get('period1Date'));
-      }
-      if (this.hasPeriod(2)) {
-        fetchIssuesByPeriod('issues2', this.get('period2Date'));
-      }
       if (this.hasPeriod(3)) {
         fetchIssuesByPeriod('issues3', this.get('period3Date'));
       }
@@ -158,12 +150,7 @@ define(function () {
       var debtMeasure = _.findWhere(msr, { key: DEBT_METRIC }),
           sqaleRatingMeasure = _.findWhere(msr, { key: SQALE_RATING_METRIC });
       if (debtMeasure != null) {
-        this.set({
-          debt: debtMeasure.val,
-          debt1: debtMeasure.var1,
-          debt2: debtMeasure.var2,
-          debt3: debtMeasure.var3
-        });
+        this.set({ debt: debtMeasure.val });
       }
       if (sqaleRatingMeasure != null) {
         this.set({ sqaleRating: sqaleRatingMeasure.val });
@@ -176,15 +163,11 @@ define(function () {
       if (coverageMeasure != null) {
         this.set({
           coverage: coverageMeasure.val,
-          coverage1: coverageMeasure.var1,
-          coverage2: coverageMeasure.var2,
           coverage3: coverageMeasure.var3
         });
       }
       if (newCoverageMeasure != null) {
         this.set({
-          newCoverage1: newCoverageMeasure.var1,
-          newCoverage2: newCoverageMeasure.var2,
           newCoverage3: newCoverageMeasure.var3
         });
       }
@@ -195,8 +178,6 @@ define(function () {
       if (duplicationsMeasure != null) {
         this.set({
           duplications: duplicationsMeasure.val,
-          duplications1: duplicationsMeasure.var1,
-          duplications2: duplicationsMeasure.var2,
           duplications3: duplicationsMeasure.var3
         });
       }
@@ -210,7 +191,6 @@ define(function () {
             metrics: [
               SIZE_METRIC,
               ISSUES_METRIC,
-              DEBT_METRIC,
               COVERAGE_METRIC,
               DUPLICATIONS_METRIC
             ].join(',')
@@ -219,7 +199,6 @@ define(function () {
         if (_.isArray(r)) {
           that.parseSizeTrend(r[0]);
           that.parseIssuesTrend(r[0]);
-          that.parseDebtTrend(r[0]);
           that.parseCoverageTrend(r[0]);
           that.parseDuplicationsTrend(r[0]);
         }
@@ -231,12 +210,9 @@ define(function () {
           index = _.pluck(r.cols, 'metric').indexOf(metric);
       if (index !== -1) {
         var trend = r.cells.map(function (cell) {
-              return { val: cell.d, count: cell.v[index] };
-            }),
-            filteredTrend = trend.filter(function (t) {
-              return t.val != null && t.count != null;
-            });
-        that.set(property, filteredTrend);
+          return { val: cell.d, count: cell.v[index] || 0 };
+        });
+        that.set(property, trend);
       }
     },
 
@@ -246,10 +222,6 @@ define(function () {
 
     parseIssuesTrend: function (r) {
       this.parseTrend(r, 'issuesTrend', ISSUES_METRIC);
-    },
-
-    parseDebtTrend: function (r) {
-      this.parseTrend(r, 'debtTrend', DEBT_METRIC);
     },
 
     parseCoverageTrend: function (r) {

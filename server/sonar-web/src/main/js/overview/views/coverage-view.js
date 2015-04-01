@@ -29,8 +29,7 @@ define([
     },
 
     onRender: function () {
-      this.$('.js-pie-chart').pieChart();
-      if (this.model.has('coverageTrend')) {
+      if (this.model.has('coverageTrend') && this.model.get('coverage') != null) {
         this.$('#overview-coverage-trend').sparkline(this.model.get('coverageTrend'));
       }
     }

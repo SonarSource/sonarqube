@@ -27,7 +27,8 @@
     height: 30,
     color: '#1f77b4',
     interpolate: 'bundle',
-    tension: 1
+    tension: 1,
+    type: 'INT'
   };
 
   /*
@@ -46,8 +47,8 @@
 
           var container = d3.select(this),
               svg = container.append('svg')
-                  .attr('width', options.width + 1)
-                  .attr('height', options.height + 1)
+                  .attr('width', options.width)
+                  .attr('height', options.height)
                   .classed('sonar-d3', true),
 
               plot = svg.append('g')
@@ -63,6 +64,9 @@
                     return d.count;
                   })),
 
+              minValue = yScale.domain()[0],
+              maxValue = yScale.domain()[1],
+
               line = d3.svg.line()
                   .x(function (d) {
                     return xScale(moment(d.val).toDate());
@@ -71,11 +75,29 @@
                     return yScale(d.count);
                   })
                   .interpolate(options.interpolate)
-                  .tension(options.tension);
+                  .tension(options.tension),
+
+              minLabel = plot.append('text')
+                  .text(window.formatMeasure(minValue, options.type))
+                  .attr('dy', '3px')
+                  .style('text-anchor', 'end')
+                  .style('font-size', '10px')
+                  .style('font-weight', '300')
+                  .style('fill', '#aaa'),
+
+              maxLabel = plot.append('text')
+                  .text(window.formatMeasure(maxValue, options.type))
+                  .attr('dy', '5px')
+                  .style('text-anchor', 'end')
+                  .style('font-size', '10px')
+                  .style('font-weight', '300')
+                  .style('fill', '#aaa'),
+
+              maxLabelWidth = Math.max(minLabel.node().getBBox().width, maxLabel.node().getBBox().width) + 3;
 
           _.extend(options, {
             marginLeft: 1,
-            marginRight: 1,
+            marginRight: 1 + maxLabelWidth,
             marginTop: 6,
             marginBottom: 6
           });
@@ -94,6 +116,13 @@
               .attr('d', line)
               .classed('line', true)
               .style('stroke', options.color);
+
+          minLabel
+              .attr('x', options.availableWidth + maxLabelWidth)
+              .attr('y', yScale(minValue));
+          maxLabel
+              .attr('x', options.availableWidth + maxLabelWidth)
+              .attr('y', yScale(maxValue));
         }
     );
   };

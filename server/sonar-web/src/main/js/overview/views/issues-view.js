@@ -29,14 +29,9 @@ define([
     },
 
     onRender: function () {
-      if (this.model.has('issuesTrend')) {
+      if (this.model.has('issuesTrend') && this.model.get('issues') != null) {
         this.$('#overview-issues-trend').sparkline(this.model.get('issuesTrend'));
       }
-      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
-    },
-
-    onClose: function () {
-      this.$('[data-toggle="tooltip"]').tooltip('destroy');
     }
   });
 

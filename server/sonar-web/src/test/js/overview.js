@@ -26,7 +26,7 @@ lib.changeWorkingDirectory('overview');
 lib.configureCasper();
 
 
-casper.test.begin(testName(), 34, function (test) {
+casper.test.begin(testName(), 23, function (test) {
   casper
       .start(lib.buildUrl('overview'), function () {
         lib.setDefaultViewport();
@@ -59,32 +59,20 @@ casper.test.begin(testName(), 34, function (test) {
         test.assertElementCount('#overview-gate .overview-status-OK', 5);
 
         test.assertSelectorContains('#overview-size', '165,077');
-        test.assertSelectorContains('#overview-size', '+14');
-        test.assertSelectorContains('#overview-size', '+62,886');
         test.assertSelectorContains('#overview-size', '+3,916');
         test.assertExists('#overview-size-trend path');
 
         test.assertSelectorContains('#overview-issues', '1,605');
+        test.assertSelectorContains('#overview-issues', 'A');
+        test.assertSelectorContains('#overview-issues', '66');
         test.assertExists('#overview-issues-trend path');
 
-        test.assertSelectorContains('#overview-debt', 'A');
-        test.assertSelectorContains('#overview-debt', '66');
-        test.assertSelectorContains('#overview-debt', '-2');
-        test.assertSelectorContains('#overview-debt', '-49');
-        test.assertSelectorContains('#overview-debt', '-64');
-        test.assertExists('#overview-debt-trend path');
-
         test.assertSelectorContains('#overview-coverage', '83.9%');
-        test.assertSelectorContains('#overview-coverage', '0%');
         test.assertSelectorContains('#overview-coverage', '+0.6%');
-        test.assertSelectorContains('#overview-coverage', '88.2%');
-        test.assertSelectorContains('#overview-coverage', '87.9%');
         test.assertSelectorContains('#overview-coverage', '90.0%');
         test.assertExists('#overview-coverage-trend path');
 
         test.assertSelectorContains('#overview-duplications', '1.0%');
-        test.assertSelectorContains('#overview-duplications', '0%');
-        test.assertSelectorContains('#overview-duplications', '-0.1%');
         test.assertSelectorContains('#overview-duplications', '+0.1%');
         test.assertExists('#overview-duplications-trend path');
       })

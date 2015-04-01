@@ -28,7 +28,6 @@ define([
       gateRegion: '#overview-gate',
       sizeRegion: '#overview-size',
       issuesRegion: '#overview-issues',
-      debtRegion: '#overview-debt',
       coverageRegion: '#overview-coverage',
       duplicationsRegion: '#overview-duplications'
     },
@@ -39,10 +38,8 @@ define([
 
     toggleRegions: function () {
       var conditions = this.model.get('gateConditions'),
-          hasGate = _.isArray(conditions) && conditions.length > 0,
-          hasCoverage = !!this.model.get('coverage');
+          hasGate = _.isArray(conditions) && conditions.length > 0;
       this.$(this.gateRegion.el).toggle(hasGate);
-      this.$(this.coverageRegion.el).toggle(hasCoverage);
     }
   });
 

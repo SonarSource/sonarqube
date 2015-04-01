@@ -29,8 +29,7 @@ define([
     },
 
     onRender: function () {
-      this.$('.js-pie-chart').pieChart();
-      if (this.model.has('duplicationsTrend')) {
+      if (this.model.has('duplicationsTrend') && this.model.get('duplications') != null) {
         this.$('#overview-duplications-trend').sparkline(this.model.get('duplicationsTrend'));
       }
     }

@@ -1,68 +1,26 @@
-<h6 class="note">{{t 'overview.coverage'}}</h6>
+<div class="overview-highlight">
+  <h6 class="note">{{t 'overview.coverage'}}</h6>
+  <div class="overview-main-measure">
+    {{#notNull coverage}}
+      <a href="{{urlForDrilldown componentKey 'overall_coverage'}}">{{formatMeasure coverage 'PERCENT'}}</a>
+    {{else}}
+      –
+    {{/notNull}}
+  </div>
+  {{#notNull coverage3}}
+    <div class="spacer-top">
+      <span class="overview-measure {{#gt coverage3 0}}text-success{{/gt}}{{#lt coverage3 0}}text-danger{{/lt}}">{{formatMeasureVariation coverage3 'PERCENT'}}</span>
+      <span class="note">{{period3Name}}</span>
+    </div>
+  {{/notNull}}
+  {{#notNull newCoverage3}}
+    <div class="spacer-top">
+      <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 3}}">{{formatMeasure newCoverage3 'PERCENT'}}</a>
+      <span class="note">on new code</span>
+    </div>
+  {{/notNull}}
+</div>
 
-<table class="width100">
-  <tr>
-    <td class="width-55">
-      <div class="overview-main-measure">
-        <a href="{{urlForDrilldown componentKey 'overall_coverage'}}">{{formatMeasure coverage 'PERCENT'}}</a>
-      </div>
-      <div class="overview-trend">
-        <div id="overview-coverage-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
-      </div>
-    </td>
-    <td class="width-15">
-      {{#notNull coverage1}}
-        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 1}}">
-          {{formatMeasureVariation coverage1 'PERCENT'}}
-        </a>
-        <p class="note">{{period1Name}}</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull coverage2}}
-        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 2}}">
-          {{formatMeasureVariation coverage2 'PERCENT'}}
-        </a>
-        <p class="note">{{period2Name}}</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull coverage3}}
-        <a class="overview-measure" href="{{urlForDrilldown componentKey 'overall_coverage' 3}}">
-          {{formatMeasureVariation coverage3 'PERCENT'}}
-        </a>
-        <p class="note">{{period3Name}}</p>
-      {{/notNull}}
-    </td>
-  </tr>
-  <tr>
-    <td class="width-55"></td>
-    <td class="width-15">
-      {{#notNull newCoverage1}}
-        <div class="spacer-top"></div>
-        <a class="overview-measure" href="{{urlForDrilldown componentKey 'new_overall_coverage' 1}}">
-          {{formatMeasure newCoverage1 'PERCENT'}}
-        </a>
-        <p class="note">on new code</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull newCoverage2}}
-        <div class="spacer-top"></div>
-        <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 2}}">
-          {{formatMeasure newCoverage2 'PERCENT'}}
-        </a>
-        <p class="note">on new code</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull newCoverage3}}
-        <div class="spacer-top"></div>
-        <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 3}}">
-          {{formatMeasure newCoverage3 'PERCENT'}}
-        </a>
-        <p class="note">on new code</p>
-      {{/notNull}}
-    </td>
-  </tr>
-</table>
+<div class="overview-trend">
+  <div class="overview-sparkline" id="overview-coverage-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="PERCENT"></div>
+</div>

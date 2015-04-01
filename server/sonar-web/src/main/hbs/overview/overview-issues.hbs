@@ -1,44 +1,24 @@
-<h6 class="note">{{t 'overview.issues'}}</h6>
+<div class="overview-highlight">
+  <h6 class="note">{{t 'overview.issues'}}</h6>
+  <div class="overview-main-measure">
+    <a href="{{urlForIssuesOverview componentKey}}">{{formatMeasure issues 'INT'}}</a>
+  </div>
+  <div class="spacer-top">
+    {{#notNull sqaleRating}}
+      <a class="overview-measure" href="{{urlForDrilldown componentKey 'sqale_rating'}}"><span class="rating rating-{{formatMeasure sqaleRating 'RATING'}}">{{formatMeasure sqaleRating 'RATING'}}</span></a>
+    {{/notNull}}
+    &nbsp;&nbsp;
+    <a class="overview-measure" href="{{urlForDrilldown componentKey 'sqale_index'}}">{{formatMeasure debt 'WORK_DUR'}}</a>
+  </div>
+  {{#notNull issues3}}
+    <div class="spacer-top">
+      <a href="{{urlForIssuesOverview componentKey period3Date}}"
+         class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">{{formatMeasureVariation issues3 'INT'}}</a>
+      <span class="note">new {{period3Name}}</span>
+    </div>
+  {{/notNull}}
+</div>
 
-<table class="width100">
-  <tr>
-    <td class="width-55">
-      <div class="overview-main-measure">
-        <a href="{{urlForIssuesOverview componentKey}}">{{formatMeasure issues 'INT'}}</a>
-      </div>
-      <div class="overview-trend">
-        <div id="overview-issues-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
-      </div>
-    </td>
-    <td class="width-15">
-      {{#notNull issues1}}
-        <a href="{{urlForIssuesOverview componentKey period1Date}}"
-           class="overview-measure {{#gt issues1 0}}text-danger{{else}}text-success{{/gt}}">
-          {{formatMeasureVariation issues1 'INT'}}
-        </a>
-        <span class="note">new</span>
-        <p class="note">{{period1Name}}</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull issues2}}
-        <a href="{{urlForIssuesOverview componentKey period2Date}}"
-           class="overview-measure {{#gt issues2 0}}text-danger{{else}}text-success{{/gt}}">
-          {{formatMeasureVariation issues2 'INT'}}
-        </a>
-        <span class="note">new</span>
-        <p class="note">{{period2Name}}</p>
-      {{/notNull}}
-    </td>
-    <td class="width-15">
-      {{#notNull issues3}}
-        <a href="{{urlForIssuesOverview componentKey period3Date}}"
-           class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">
-          {{formatMeasureVariation issues3 'INT'}}
-        </a>
-        <span class="note">new</span>
-        <p class="note">{{period3Name}}</p>
-      {{/notNull}}
-    </td>
-  </tr>
-</table>
+<div class="overview-trend">
+  <div class="overview-sparkline" id="overview-issues-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="INT"></div>
+</div>

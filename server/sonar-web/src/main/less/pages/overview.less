@@ -28,13 +28,13 @@
 }
 
 .overview-card {
-  padding: 10px;
+  padding-top: 5px;
   background: @white;
   border: 1px solid @barBorderColor;
 }
 
-.overview-card + .overview-card {
-  margin-top: 10px;
+.overview-gate {
+  padding: 10px;
 }
 
 .overview-gate-ok { border: 2px solid @green; }
@@ -42,6 +42,11 @@
 .overview-gate-warn { border: 2px solid @orange; }
 
 .overview-gate-error { border: 2px solid @red; }
+
+.overview-container {
+  margin-top: 20px;
+  text-align: center;
+}
 
 .overview-card-header {
   padding-bottom: 5px;
@@ -68,23 +73,32 @@
 .overview-status-WARN { background-color: @orange; }
 .overview-status-ERROR { background-color: @red; }
 
+.overview-highlight {
+  height: 145px;
+}
+
 .overview-main-measure {
-  display: inline-block;
-  vertical-align: middle;
+  line-height: 1.3;
   font-size: 36px;
   font-weight: 300;
 }
 
 .overview-trend {
+  height: 50px;
+  margin-top: 15px;
+  padding: 5px 10px;
+  border-top: 1px solid @barBorderColor;
+  background-color: #fdfdfd;
+
+  .note { font-size: 10px; }
+}
+
+.overview-sparkline {
   display: inline-block;
   vertical-align: middle;
-  margin-left: 15px;
 }
 
 .overview-measure {
   font-size: 16px;
-}
-
-.overview-measure ~ .note:last-child {
-  padding-top: 3px;
+  font-weight: 300;
 }

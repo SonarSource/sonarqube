@@ -1,28 +1,16 @@
-<h6 class="note">{{t 'overview.lines_of_code'}}</h6>
-
-<table class="width100">
-  <tr>
-    <td class="width-55">
-      <div>
-        <div class="overview-main-measure">
-          <a href="{{urlForDrilldown componentKey 'ncloc'}}">{{formatMeasure ncloc 'INT'}}</a>
-        </div>
-        <div class="overview-trend">
-          <div id="overview-size-trend" data-width="100" data-height="30" data-color="#4b9fd5"></div>
-        </div>
-      </div>
-    </td>
-    <td class="width-15">
-      <span class="overview-measure">{{formatMeasureVariation ncloc1 'INT'}}</span>
-      <p class="note">{{period1Name}}</p>
-    </td>
-    <td class="width-15">
-      <span class="overview-measure">{{formatMeasureVariation ncloc2 'INT'}}</span>
-      <p class="note">{{period2Name}}</p>
-    </td>
-    <td class="width-15">
+<div class="overview-highlight">
+  <h6 class="note">{{t 'overview.lines_of_code'}}</h6>
+  <div class="overview-main-measure">
+    <a href="{{urlForDrilldown componentKey 'ncloc'}}">{{formatMeasure ncloc 'INT'}}</a>
+  </div>
+  {{#notNull ncloc3}}
+    <div class="spacer-top">
       <span class="overview-measure">{{formatMeasureVariation ncloc3 'INT'}}</span>
-      <p class="note">{{period3Name}}</p>
-    </td>
-  </tr>
-</table>
+      <span class="note">{{period3Name}}</span>
+    </div>
+  {{/notNull}}
+</div>
+
+<div class="overview-trend">
+  <div class="overview-sparkline" id="overview-size-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="INT"></div>
+</div>
