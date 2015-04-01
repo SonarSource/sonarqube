@@ -436,6 +436,45 @@ function fileFromPath (path) {
 (function () {
 
   /**
+   * Check if days should be displayed for a work duration
+   * @param {number} days
+   * @returns {boolean}
+   */
+  function shouldDisplayDays (days) {
+    return days > 0;
+  }
+
+  /**
+   * Check if hours should be displayed for a work duration
+   * @param {number} days
+   * @param {number} hours
+   * @returns {boolean}
+   */
+  function shouldDisplayHours (days, hours) {
+    return hours > 0 && days < 10;
+  }
+
+  /**
+   * Check if minutes should be displayed for a work duration
+   * @param {number} days
+   * @param {number} hours
+   * @param {number} minutes
+   * @returns {boolean}
+   */
+  function shouldDisplayMinutes (days, hours, minutes) {
+    return minutes > 0 && hours < 10 && days === 0;
+  }
+
+  /**
+   * Add a space between units if needed
+   * @param {string} value
+   * @returns {string}
+   */
+  function addSpaceIfNeeded (value) {
+    return value.length > 0 ? value : value + ' ';
+  }
+
+  /**
    * Format a work duration based on parameters
    * @param {bool} isNegative
    * @param {number} days
@@ -443,25 +482,21 @@ function fileFromPath (path) {
    * @param {number} minutes
    * @returns {string}
    */
-  var formatDuration = function (isNegative, days, hours, minutes) {
+  function formatDuration (isNegative, days, hours, minutes) {
     var formatted = '';
-    if (days > 0) {
+    if (shouldDisplayDays(days)) {
       formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
     }
-    if (hours > 0 && days < 10) {
-      if (formatted.length > 0) {
-        formatted += ' ';
-      }
+    if (shouldDisplayHours(days, hours)) {
+      formatted = addSpaceIfNeeded(formatted);
       formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
     }
-    if (minutes > 0 && hours < 10 && days === 0) {
-      if (formatted.length > 0) {
-        formatted += ' ';
-      }
+    if (shouldDisplayMinutes(days, hours, minutes)) {
+      formatted = addSpaceIfNeeded(formatted);
       formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     return formatted;
-  };
+  }
 
   /**
    * Format a work duration measure
