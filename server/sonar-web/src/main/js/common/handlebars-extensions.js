@@ -239,6 +239,11 @@
     return array.join(separator);
   });
 
+  Handlebars.registerHelper('ifLength', function (array, len, options) {
+    var cond = _.isArray(array) && array.length === +len;
+    return cond ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('eachReverse', function (array, options) {
     var ret = '';
 

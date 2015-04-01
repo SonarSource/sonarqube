@@ -25,7 +25,9 @@
       {{else}}
         <select id="coding-rules-bulk-change-profile" multiple>
           {{#each availableQualityProfiles}}
-            <option value="{{key}}">{{name}} - {{language}}</option>
+            <option value="{{key}}" {{#ifLength ../availableQualityProfiles 1}}selected{{/ifLength}}>
+              {{name}} - {{language}}
+            </option>
           {{/each}}
         </select>
       {{/if}}
