@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
@@ -55,12 +56,7 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class to help testing {@link Sensor}.
@@ -179,14 +175,15 @@ public class SensorContextTester implements SensorContext {
     return new DefaultHighlighting(sensorStorage);
   }
 
-  public List<TypeOfText> highlightingTypeFor(String componentKey, int charIndex) {
+  public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
     DefaultHighlighting syntaxHighlightingData = sensorStorage.highlightingByComponent.get(componentKey);
     if (syntaxHighlightingData == null) {
       return Collections.emptyList();
     }
     List<TypeOfText> result = new ArrayList<TypeOfText>();
+    DefaultTextPointer location = new DefaultTextPointer(line, lineOffset);
     for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.getSyntaxHighlightingRuleSet()) {
-      if (sortedRule.getStartPosition() <= charIndex && sortedRule.getEndPosition() > charIndex) {
+      if (sortedRule.range().start().compareTo(location) <= 0 && sortedRule.range().end().compareTo(location) > 0) {
         result.add(sortedRule.getTextType());
       }
     }

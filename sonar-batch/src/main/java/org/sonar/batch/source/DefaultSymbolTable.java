@@ -20,25 +20,22 @@
 
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
-  private Map<Symbol, Set<Integer>> referencesBySymbol;
+  private Map<Symbol, Set<TextRange>> referencesBySymbol;
 
-  private DefaultSymbolTable(Map<Symbol, Set<Integer>> referencesBySymbol) {
+  private DefaultSymbolTable(Map<Symbol, Set<TextRange>> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public Map<Symbol, Set<Integer>> getReferencesBySymbol() {
+  public Map<Symbol, Set<TextRange>> getReferencesBySymbol() {
     return referencesBySymbol;
   }
 
@@ -53,22 +50,28 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   @Override
   public List<Integer> references(Symbol symbol) {
-    return new ArrayList<Integer>(referencesBySymbol.get(symbol));
+    throw new UnsupportedOperationException("references");
   }
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private final Map<Symbol, Set<Integer>> referencesBySymbol = new LinkedHashMap<Symbol, Set<Integer>>();
-    private final String componentKey;
+    private final Map<Symbol, Set<TextRange>> referencesBySymbol = new LinkedHashMap<Symbol, Set<TextRange>>();
+    private final DefaultInputFile inputFile;
 
-    public Builder(String componentKey) {
-      this.componentKey = componentKey;
+    public Builder(DefaultInputFile inputFile) {
+      this.inputFile = inputFile;
     }
 
     @Override
     public Symbol newSymbol(int fromOffset, int toOffset) {
-      Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
-      referencesBySymbol.put(symbol, new TreeSet<Integer>());
+      TextRange declarationRange = inputFile.newRange(fromOffset, toOffset);
+      DefaultSymbol symbol = new DefaultSymbol(declarationRange, toOffset - fromOffset);
+      referencesBySymbol.put(symbol, new TreeSet<TextRange>(new Comparator<TextRange>() {
+        @Override
+        public int compare(TextRange o1, TextRange o2) {
+          return o1.start().compareTo(o2.start());
+        }
+      }));
       return symbol;
     }
 
@@ -77,10 +80,12 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
       if (!referencesBySymbol.containsKey(symbol)) {
         throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
       }
-      if (fromOffset >= symbol.getDeclarationStartOffset() && fromOffset < symbol.getDeclarationEndOffset()) {
-        throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol + " in " + componentKey);
+      TextRange referenceRange = inputFile.newRange(fromOffset, fromOffset + ((DefaultSymbol) symbol).getLength());
+
+      if (referenceRange.overlap(((DefaultSymbol) symbol).range())) {
+        throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol + " in " + inputFile.key());
       }
-      referencesBySymbol.get(symbol).add(fromOffset);
+      referencesBySymbol.get(symbol).add(referenceRange);
     }
 
     @Override

@@ -23,7 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import java.util.Collection;
@@ -36,6 +39,11 @@ import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
 public class DefaultHighlightingTest {
 
+  private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("foo", "src/Foo.java")
+    .setLines(2)
+    .setOriginalLineOffsets(new int[] {0, 50})
+    .setLastValidOffset(100);
+
   private Collection<SyntaxHighlightingRule> highlightingRules;
 
   @Rule
@@ -45,7 +53,7 @@ public class DefaultHighlightingTest {
   public void setUpSampleRules() {
 
     DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
+      .onFile(INPUT_FILE)
       .highlight(0, 10, COMMENT)
       .highlight(10, 12, KEYWORD)
       .highlight(24, 38, KEYWORD)
@@ -61,17 +69,25 @@ public class DefaultHighlightingTest {
     assertThat(highlightingRules).hasSize(6);
   }
 
+  private static TextRange rangeOf(int startLine, int startOffset, int endLine, int endOffset) {
+    return new DefaultTextRange(new DefaultTextPointer(startLine, startOffset), new DefaultTextPointer(endLine, endOffset));
+  }
+
   @Test
   public void should_order_by_start_then_end_offset() throws Exception {
-    assertThat(highlightingRules).extracting("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
-    assertThat(highlightingRules).extracting("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
+    assertThat(highlightingRules).extracting("range", TextRange.class).containsExactly(rangeOf(1, 0, 1, 10),
+      rangeOf(1, 10, 1, 12),
+      rangeOf(1, 12, 1, 20),
+      rangeOf(1, 24, 2, 15),
+      rangeOf(1, 24, 1, 38),
+      rangeOf(1, 42, 2, 0));
     assertThat(highlightingRules).extracting("textType").containsOnly(COMMENT, KEYWORD, COMMENT, KEYWORD, CPP_DOC, KEYWORD);
   }
 
   @Test
   public void should_suport_overlapping() throws Exception {
     new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
+      .onFile(INPUT_FILE)
       .highlight(0, 15, KEYWORD)
       .highlight(8, 12, CPP_DOC)
       .save();
@@ -80,48 +96,13 @@ public class DefaultHighlightingTest {
   @Test
   public void should_prevent_boudaries_overlapping() throws Exception {
     throwable.expect(IllegalStateException.class);
-    throwable.expectMessage("Cannot register highlighting rule for characters from 8 to 15 as it overlaps at least one existing rule");
+    throwable
+      .expectMessage("Cannot register highlighting rule for characters at Range[from [line=1, lineOffset=8] to [line=1, lineOffset=15]] as it overlaps at least one existing rule");
 
     new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
+      .onFile(INPUT_FILE)
       .highlight(0, 10, KEYWORD)
       .highlight(8, 15, KEYWORD)
-      .save();
-  }
-
-  @Test
-  public void should_prevent_invalid_offset() throws Exception {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Invalid endOffset 15. Should be >= 0 and <= 10 for file [moduleKey=foo, relative=src/Foo.java, basedir=null]");
-
-    new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(10))
-      .highlight(0, 10, KEYWORD)
-      .highlight(8, 15, KEYWORD)
-      .save();
-  }
-
-  @Test
-  public void positive_offset() throws Exception {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("Invalid startOffset -8. Should be >= 0 and <= 10 for file [moduleKey=foo, relative=src/Foo.java, basedir=null]");
-
-    new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(10))
-      .highlight(0, 10, KEYWORD)
-      .highlight(-8, 15, KEYWORD)
-      .save();
-  }
-
-  @Test
-  public void should_prevent_invalid_offset_order() throws Exception {
-    throwable.expect(IllegalArgumentException.class);
-    throwable.expectMessage("startOffset (18) should be < endOffset (15) for file [moduleKey=foo, relative=src/Foo.java, basedir=null].");
-
-    new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(20))
-      .highlight(0, 10, KEYWORD)
-      .highlight(18, 15, KEYWORD)
       .save();
   }
 

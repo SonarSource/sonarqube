@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Charsets;
 import org.apache.commons.codec.binary.Hex;
@@ -26,11 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
 
 import javax.annotation.Nullable;
 
@@ -39,7 +37,6 @@ import java.nio.charset.Charset;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class FileMetadataTest {
 
@@ -49,8 +46,6 @@ public class FileMetadataTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private AnalysisMode mode = mock(AnalysisMode.class);
-
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -59,7 +54,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.touch(tempFile);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(1);
     assertThat(metadata.nonBlankLines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
@@ -73,7 +68,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
@@ -87,7 +82,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "marker´s\n", Charset.forName("cp1252"));
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(2);
     assertThat(metadata.hash).isEqualTo(md5Hex("marker\ufffds\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 9);
@@ -98,7 +93,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
@@ -110,7 +105,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_16, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_16);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_16);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
@@ -122,7 +117,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
@@ -135,7 +130,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\nbaz\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
@@ -148,7 +143,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\r\nbaz\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
@@ -160,7 +155,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\n\n\nbar", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(2);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\n\n\nbar"));
@@ -172,7 +167,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
@@ -184,7 +179,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "\nfoo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("\nfoo\nbar\nbaz"));
@@ -196,7 +191,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "\uFEFFfoo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.nonBlankLines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
@@ -238,7 +233,7 @@ public class FileMetadataTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Fail to read file '" + file.getAbsolutePath() + "' with encoding 'UTF-8'");
 
-    new FileMetadata(mode).read(file, Charsets.UTF_8);
+    new FileMetadata().readMetadata(file, Charsets.UTF_8);
   }
 
   @Test
@@ -253,9 +248,9 @@ public class FileMetadataTest {
     File file2 = temp.newFile();
     FileUtils.write(file2, "foo\nbar", Charsets.UTF_8, true);
 
-    String hash1 = new FileMetadata(mode).read(file1, Charsets.UTF_8).hash;
-    String hash1a = new FileMetadata(mode).read(file1a, Charsets.UTF_8).hash;
-    String hash2 = new FileMetadata(mode).read(file2, Charsets.UTF_8).hash;
+    String hash1 = new FileMetadata().readMetadata(file1, Charsets.UTF_8).hash;
+    String hash1a = new FileMetadata().readMetadata(file1a, Charsets.UTF_8).hash;
+    String hash2 = new FileMetadata().readMetadata(file2, Charsets.UTF_8).hash;
     assertThat(hash1).isEqualTo(hash1a);
     assertThat(hash1).isNotEqualTo(hash2);
   }
@@ -264,7 +259,7 @@ public class FileMetadataTest {
   public void binary_file_with_unmappable_character() throws Exception {
     File woff = new File(this.getClass().getResource("glyphicons-halflings-regular.woff").toURI());
 
-    FileMetadata.Metadata metadata = new FileMetadata(mode).read(woff, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().readMetadata(woff, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(135);
     assertThat(metadata.nonBlankLines).isEqualTo(134);
     assertThat(metadata.hash).isNotEmpty();

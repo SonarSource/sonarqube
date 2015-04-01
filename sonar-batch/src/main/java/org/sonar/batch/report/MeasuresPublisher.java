@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
-public class MeasuresPublisher implements ReportPublisher {
+public class MeasuresPublisher implements ReportPublisherStep {
 
   private final ResourceCache resourceCache;
   private final MeasureCache measureCache;

@@ -33,8 +33,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.report.PublishReportJob;
-import org.sonar.batch.scan.filesystem.InputFileMetadata;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import java.util.LinkedList;
@@ -48,18 +47,16 @@ public final class ScmSensor implements Sensor {
   private final ScmConfiguration configuration;
   private final FileSystem fs;
   private final ProjectRepositories projectReferentials;
-  private final InputPathCache inputPathCache;
   private final ResourceCache resourceCache;
-  private final PublishReportJob publishReportJob;
+  private final ReportPublisher publishReportJob;
 
   public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
     ProjectRepositories projectReferentials, FileSystem fs, InputPathCache inputPathCache, ResourceCache resourceCache,
-    PublishReportJob publishReportJob) {
+    ReportPublisher publishReportJob) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectReferentials = projectReferentials;
     this.fs = fs;
-    this.inputPathCache = inputPathCache;
     this.resourceCache = resourceCache;
     this.publishReportJob = publishReportJob;
   }
@@ -96,7 +93,7 @@ public final class ScmSensor implements Sensor {
       LOG.warn("Forced reloading of SCM data for all files.");
     }
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
-    for (InputFile f : inputPathCache.allFiles()) {
+    for (InputFile f : fs.inputFiles(fs.predicates().all())) {
       if (configuration.forceReloadAll()) {
         addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
       } else {
@@ -110,8 +107,7 @@ public final class ScmSensor implements Sensor {
   }
 
   private void addIfNotEmpty(List<InputFile> filesToBlame, DefaultInputFile f) {
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(f);
-    if (!metadata.isEmpty()) {
+    if (!f.isEmpty()) {
       filesToBlame.add(f);
     }
   }

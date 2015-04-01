@@ -36,7 +36,7 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.protocol.input.*;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.report.PublishReportJob;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
@@ -62,7 +62,7 @@ public class BatchMediumTester {
   public static BatchMediumTesterBuilder builder() {
     BatchMediumTesterBuilder builder = new BatchMediumTesterBuilder().registerCoreMetrics();
     builder.bootstrapProperties.put(MEDIUM_TEST_ENABLED, "true");
-    builder.bootstrapProperties.put(PublishReportJob.KEEP_REPORT_PROP_KEY, "true");
+    builder.bootstrapProperties.put(ReportPublisher.KEEP_REPORT_PROP_KEY, "true");
     builder.bootstrapProperties.put(CoreProperties.WORKING_DIRECTORY, Files.createTempDir().getAbsolutePath());
     return builder;
   }

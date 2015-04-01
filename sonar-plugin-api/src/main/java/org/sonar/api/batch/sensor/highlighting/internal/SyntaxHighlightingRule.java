@@ -19,32 +19,27 @@
  */
 package org.sonar.api.batch.sensor.highlighting.internal;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
-import java.io.Serializable;
+public class SyntaxHighlightingRule {
 
-public class SyntaxHighlightingRule implements Serializable {
-
-  private final int startPosition;
-  private final int endPosition;
+  private final TextRange range;
   private final TypeOfText textType;
 
-  private SyntaxHighlightingRule(int startPosition, int endPosition, TypeOfText textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
+  private SyntaxHighlightingRule(TextRange range, TypeOfText textType) {
+    this.range = range;
     this.textType = textType;
   }
 
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, TypeOfText textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
+  public static SyntaxHighlightingRule create(TextRange range, TypeOfText textType) {
+    return new SyntaxHighlightingRule(range, textType);
   }
 
-  public int getStartPosition() {
-    return startPosition;
-  }
-
-  public int getEndPosition() {
-    return endPosition;
+  public TextRange range() {
+    return range;
   }
 
   public TypeOfText getTextType() {
@@ -53,6 +48,6 @@ public class SyntaxHighlightingRule implements Serializable {
 
   @Override
   public String toString() {
-    return "" + startPosition + "," + endPosition + "," + textType.cssClass();
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.SIMPLE_STYLE);
   }
 }

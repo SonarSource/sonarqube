@@ -31,7 +31,7 @@ import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 
-public class DuplicationsPublisher implements ReportPublisher {
+public class DuplicationsPublisher implements ReportPublisherStep {
 
   private final ResourceCache resourceCache;
   private final DuplicationCache duplicationCache;

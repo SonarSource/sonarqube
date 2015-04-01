@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -65,6 +66,7 @@ public class SymbolMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
     FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
+    // Highlight xoo symbol
     FileUtils.write(xooSymbolFile, "7,10,27");
 
     TaskResult result = tester.newTask()
@@ -80,7 +82,7 @@ public class SymbolMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.symbolReferencesFor(file, 7, 10)).containsOnly(27);
+    assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(Range.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(3).setEndOffset(11).build());
   }
 
 }

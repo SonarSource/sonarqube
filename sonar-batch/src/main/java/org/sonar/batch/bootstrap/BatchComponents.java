@@ -29,6 +29,7 @@ import org.sonar.batch.maven.MavenProjectConverter;
 import org.sonar.batch.scan.report.*;
 import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
+import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
@@ -59,6 +60,7 @@ public class BatchComponents {
       ScmSensor.class,
 
       LinesSensor.class,
+      CodeColorizerSensor.class,
 
       // Issues tracking
       IssueTracking.class,

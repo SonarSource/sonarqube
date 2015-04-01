@@ -71,7 +71,7 @@ public class HighlightingMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent plop");
     FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
 
     TaskResult result = tester.newTask()
@@ -87,10 +87,10 @@ public class HighlightingMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(TypeOfText.STRING);
-    assertThat(result.highlightingTypeFor(file, 9)).containsExactly(TypeOfText.STRING);
-    assertThat(result.highlightingTypeFor(file, 10)).isEmpty();
-    assertThat(result.highlightingTypeFor(file, 11)).containsExactly(TypeOfText.KEYWORD);
+    assertThat(result.highlightingTypeFor(file, 1, 0)).containsExactly(TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 1, 9)).containsExactly(TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 2, 0)).containsExactly(TypeOfText.KEYWORD);
+    assertThat(result.highlightingTypeFor(file, 2, 8)).isEmpty();
 
   }
 
@@ -126,7 +126,7 @@ public class HighlightingMediumTest {
     System.out.println("Duration: " + (System.currentTimeMillis() - start));
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 1, 0)).containsExactly(TypeOfText.STRING);
 
   }
 

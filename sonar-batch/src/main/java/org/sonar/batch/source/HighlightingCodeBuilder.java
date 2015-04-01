@@ -21,9 +21,8 @@ package org.sonar.batch.source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
-import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.colorizer.HtmlCodeBuilder;
 
 import java.util.regex.Matcher;
@@ -33,12 +32,16 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(HighlightingCodeBuilder.class);
 
-  private SyntaxHighlightingDataBuilder highlightingBuilder = new SyntaxHighlightingDataBuilder();
   private int currentOffset = 0;
   private static final Pattern START_TAG_PATTERN = Pattern.compile("<span class=\"(.+)\">");
   private static final Pattern END_TAG_PATTERN = Pattern.compile("</span>");
   private int startOffset = -1;
   private String cssClass;
+  private final NewHighlighting highlighting;
+
+  public HighlightingCodeBuilder(NewHighlighting highlighting) {
+    this.highlighting = highlighting;
+  }
 
   @Override
   public Appendable append(CharSequence csq) {
@@ -67,7 +70,7 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
     } else {
       Matcher endMatcher = END_TAG_PATTERN.matcher(htmlTag);
       if (endMatcher.matches()) {
-        highlightingBuilder.registerHighlightingRule(startOffset, currentOffset, TypeOfText.forCssClass(cssClass));
+        highlighting.highlight(startOffset, currentOffset, TypeOfText.forCssClass(cssClass));
         startOffset = -1;
       } else {
         LOG.warn("Expected to match highlighting end html tag but was: " + htmlTag);
@@ -83,10 +86,6 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
   @Override
   public StringBuilder getColorizedCode() {
     throw new UnsupportedOperationException();
-  }
-
-  public SyntaxHighlightingData getHighlightingData() {
-    return highlightingBuilder.build();
   }
 
 }

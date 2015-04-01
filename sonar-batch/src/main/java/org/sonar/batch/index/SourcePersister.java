@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
@@ -27,9 +30,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.scan.filesystem.FileMetadata;
-import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
-import org.sonar.batch.scan.filesystem.InputFileMetadata;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -89,8 +89,7 @@ public class SourcePersister implements ScanPersister {
   private void persist(DbSession session, FileSourceMapper mapper, DefaultInputFile inputFile, Map<String, FileSourceDto> previousDtosByUuid) {
     String fileUuid = resourceCache.get(inputFile).resource().getUuid();
 
-    InputFileMetadata metadata = inputPathCache.getFileMetadata(inputFile);
-    byte[] data = computeData(inputFile, metadata);
+    byte[] data = computeData(inputFile);
     String dataHash = DigestUtils.md5Hex(data);
     FileSourceDto previousDto = previousDtosByUuid.get(fileUuid);
     if (previousDto == null) {
@@ -99,7 +98,7 @@ public class SourcePersister implements ScanPersister {
         .setFileUuid(fileUuid)
         .setBinaryData(data)
         .setDataHash(dataHash)
-        .setSrcHash(metadata.hash())
+        .setSrcHash(inputFile.hash())
         .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(system2.now())
         .setUpdatedAt(0L);
@@ -108,12 +107,12 @@ public class SourcePersister implements ScanPersister {
     } else {
       // Update only if data_hash has changed or if src_hash is missing (progressive migration)
       boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
-      boolean srcHashUpdated = !metadata.hash().equals(previousDto.getSrcHash());
+      boolean srcHashUpdated = !inputFile.hash().equals(previousDto.getSrcHash());
       if (binaryDataUpdated || srcHashUpdated) {
         previousDto
           .setBinaryData(data)
           .setDataHash(dataHash)
-          .setSrcHash(metadata.hash())
+          .setSrcHash(inputFile.hash())
           .setLineHashes(lineHashesAsMd5Hex(inputFile));
         // Optimization only change updated at when updating binary data to avoid unecessary indexation by E/S
         if (binaryDataUpdated) {
@@ -147,9 +146,9 @@ public class SourcePersister implements ScanPersister {
     return result.toString();
   }
 
-  private byte[] computeData(DefaultInputFile inputFile, InputFileMetadata metadata) {
+  private byte[] computeData(DefaultInputFile inputFile) {
     try {
-      return dataFactory.consolidateData(inputFile, metadata);
+      return dataFactory.consolidateData(inputFile);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to read file " + inputFile, e);
     }

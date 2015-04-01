@@ -30,7 +30,7 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
   protected final GraphPerspectiveLoader<T> perspectiveLoader;
 
   protected GraphPerspectiveBuilder(ScanGraph graph, Class<T> perspectiveClass, EdgePath path,
-                                    GraphPerspectiveLoader<T> perspectiveLoader) {
+    GraphPerspectiveLoader<T> perspectiveLoader) {
     super(perspectiveClass);
     this.graph = graph;
     this.path = path;
@@ -39,7 +39,7 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
 
   public T create(ComponentVertex component) {
     return (T) component.beanGraph().createAdjacentVertex(component, perspectiveLoader.getBeanClass(),
-            perspectiveLoader.getPerspectiveKey());
+      perspectiveLoader.getPerspectiveKey());
   }
 
   public EdgePath path() {
@@ -51,7 +51,7 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
   }
 
   @Override
-  protected T loadPerspective(Class<T> perspectiveClass, Component component) {
+  public T loadPerspective(Class<T> perspectiveClass, Component component) {
     ComponentVertex vertex;
     if (component instanceof ComponentVertex) {
       vertex = (ComponentVertex) component;

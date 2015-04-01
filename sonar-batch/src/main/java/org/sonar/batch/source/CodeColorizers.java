@@ -25,18 +25,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.colorizer.CodeColorizer;
 import org.sonar.colorizer.Tokenizer;
 
 import javax.annotation.CheckForNull;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +64,7 @@ public class CodeColorizers implements BatchComponent {
   }
 
   @CheckForNull
-  public SyntaxHighlightingData toSyntaxHighlighting(File file, Charset charset, String language) {
+  public void toSyntaxHighlighting(File file, Charset charset, String language, NewHighlighting highlighting) {
     CodeColorizerFormat format = byLang.get(language);
     List<Tokenizer> tokenizers;
     if (format == null) {
@@ -77,13 +73,13 @@ public class CodeColorizers implements BatchComponent {
       if ("java".equals(language)) {
         tokenizers = CodeColorizer.Format.JAVA.getTokenizers();
       } else {
-        return null;
+        return;
       }
     } else {
       tokenizers = format.getTokenizers();
     }
     try (Reader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(file)), charset))) {
-      return new HighlightingRenderer().render(reader, tokenizers);
+      new HighlightingRenderer().render(reader, tokenizers, highlighting);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read source file for colorization", e);
     }

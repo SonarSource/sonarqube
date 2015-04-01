@@ -37,17 +37,8 @@ import org.sonar.batch.util.ProgressReport;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Index input files into {@link InputPathCache}.
@@ -63,15 +54,13 @@ public class FileIndexer implements BatchComponent {
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
-  private final InputPathCache inputPathCache;
 
   private ProgressReport progressReport;
   private ExecutorService executorService;
   private List<Future<Void>> tasks;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    ProjectDefinition def, InputPathCache inputPathCache) {
-    this.inputPathCache = inputPathCache;
+    ProjectDefinition def) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
@@ -154,12 +143,11 @@ public class FileIndexer implements BatchComponent {
     tasks.add(executorService.submit(new Callable<Void>() {
       @Override
       public Void call() {
-        InputFileMetadata metadata = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
-        if (metadata != null && accept(inputFile)) {
-          fs.add(inputFile);
-          status.markAsIndexed(inputFile);
-          inputPathCache.put(inputFile.moduleKey(), inputFile.relativePath(), metadata);
-          File parentDir = inputFile.file().getParentFile();
+        DeprecatedDefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
+        if (completedInputFile != null && accept(completedInputFile)) {
+          fs.add(completedInputFile);
+          status.markAsIndexed(completedInputFile);
+          File parentDir = completedInputFile.file().getParentFile();
           String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
           if (relativePath != null) {
             DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);

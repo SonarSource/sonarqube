@@ -22,6 +22,10 @@ package org.sonar.api.component;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
+/**
+ * @deprecated since 5.2 unused
+ */
+@Deprecated
 public interface Perspectives extends BatchComponent, ServerComponent {
 
   <P extends Perspective> P as(Class<P> perspectiveClass, Component component);

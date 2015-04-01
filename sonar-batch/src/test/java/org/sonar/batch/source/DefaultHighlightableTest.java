@@ -23,16 +23,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.component.Component;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
+
+import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DefaultHighlightableTest {
 
@@ -41,27 +41,15 @@ public class DefaultHighlightableTest {
 
   @Test
   public void should_store_highlighting_rules() throws Exception {
-    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(mock(Component.class), null);
-    highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
+    SensorStorage sensorStorage = mock(SensorStorage.class);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
+      .initMetadata(new FileMetadata().readMetadata(new StringReader("azerty\nbla bla")));
+    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(inputFile, sensorStorage);
+    highlightablePerspective.newHighlighting().highlight(0, 6, "k").highlight(7, 10, "cppd").done();
 
-    assertThat(highlightablePerspective.getHighlightingRules().getSyntaxHighlightingRuleSet()).hasSize(2);
+    ArgumentCaptor<DefaultHighlighting> argCaptor = ArgumentCaptor.forClass(DefaultHighlighting.class);
+    verify(sensorStorage).store(argCaptor.capture());
+    assertThat(argCaptor.getValue().getSyntaxHighlightingRuleSet()).hasSize(2);
   }
 
-  @Test
-  public void should_apply_registered_highlighting() throws Exception {
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("myComponent");
-
-    ComponentDataCache cache = mock(ComponentDataCache.class);
-
-    DefaultHighlightable highlightable = new DefaultHighlightable(component, cache);
-    highlightable.newHighlighting()
-      .highlight(0, 10, "k")
-      .highlight(20, 30, "cppd")
-      .done();
-
-    ArgumentCaptor<SyntaxHighlightingData> argCaptor = ArgumentCaptor.forClass(SyntaxHighlightingData.class);
-    verify(cache).setData(eq("myComponent"), eq(SnapshotDataTypes.SYNTAX_HIGHLIGHTING), argCaptor.capture());
-    assertThat(argCaptor.getValue().writeString()).isEqualTo("0,10,k;20,30,cppd");
-  }
 }

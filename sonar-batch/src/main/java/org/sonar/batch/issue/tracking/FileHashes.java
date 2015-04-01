@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
+
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.batch.scan.filesystem.FileMetadata;
-import org.sonar.batch.scan.filesystem.FileMetadata.LineHashConsumer;
 
 import javax.annotation.Nullable;
 

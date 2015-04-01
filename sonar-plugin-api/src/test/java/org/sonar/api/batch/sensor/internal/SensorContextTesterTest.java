@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -34,6 +35,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 
 import java.io.File;
+import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -142,15 +144,15 @@ public class SensorContextTesterTest {
 
   @Test
   public void testHighlighting() {
-    assertThat(tester.highlightingTypeFor("foo:src/Foo.java", 3)).isEmpty();
+    assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).isEmpty();
     tester.newHighlighting()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLastValidOffset(100))
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
       .highlight(0, 4, TypeOfText.ANNOTATION)
       .highlight(8, 10, TypeOfText.CONSTANT)
       .highlight(9, 10, TypeOfText.COMMENT)
       .save();
-    assertThat(tester.highlightingTypeFor("foo:src/Foo.java", 3)).containsExactly(TypeOfText.ANNOTATION);
-    assertThat(tester.highlightingTypeFor("foo:src/Foo.java", 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);
+    assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).containsExactly(TypeOfText.ANNOTATION);
+    assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);
   }
 
   @Test

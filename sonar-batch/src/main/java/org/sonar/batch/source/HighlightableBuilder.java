@@ -20,10 +20,14 @@
 package org.sonar.batch.source;
 
 import com.google.common.collect.ImmutableSet;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.source.Highlightable;
-import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.component.ResourceComponent;
 
@@ -31,27 +35,30 @@ import javax.annotation.CheckForNull;
 
 import java.util.Set;
 
-/**
- * @since 3.6
- * @deprecated since 4.5 no more used in batch 2.0
- */
-@Deprecated
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  private final ComponentDataCache cache;
+  private final ResourceCache cache;
+  private final SensorStorage sensorStorage;
 
-  public HighlightableBuilder(ComponentDataCache cache) {
+  public HighlightableBuilder(ResourceCache cache, SensorStorage sensorStorage) {
     super(Highlightable.class);
     this.cache = cache;
+    this.sensorStorage = sensorStorage;
   }
 
   @CheckForNull
   @Override
-  protected Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
+  public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
     boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
     if (supported && component instanceof ResourceComponent) {
-      return new DefaultHighlightable(component, cache);
+      BatchResource batchComponent = cache.get(component.key());
+      if (batchComponent != null) {
+        InputFile path = (InputFile) batchComponent.inputPath();
+        if (path != null) {
+          return new DefaultHighlightable((DefaultInputFile) path, sensorStorage);
+        }
+      }
     }
     return null;
   }

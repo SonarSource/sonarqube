@@ -79,20 +79,4 @@ public class InputPathCacheTest {
     assertThat(cache.allFiles()).hasSize(1);
   }
 
-  @Test
-  public void should_add_input_file_metadata() throws Exception {
-    InputPathCache cache = new InputPathCache();
-    cache.put("struts-core", "src/main/java/Bar.java", new InputFileMetadata()
-      .setHash("xyz")
-      .setNonBlankLines(2)
-      .setEmpty(true)
-      .setOriginalLineOffsets(new int[] {0, 4}));
-
-    InputFileMetadata loadedFileMetadata = cache.getFileMetadata("struts-core", "src/main/java/Bar.java");
-    assertThat(loadedFileMetadata.originalLineOffsets()).containsOnly(0, 4);
-    assertThat(loadedFileMetadata.hash()).isEqualTo("xyz");
-    assertThat(loadedFileMetadata.nonBlankLines()).isEqualTo(2);
-    assertThat(loadedFileMetadata.isEmpty()).isTrue();
-
-  }
 }

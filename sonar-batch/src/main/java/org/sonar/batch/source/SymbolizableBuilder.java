@@ -20,22 +20,47 @@
 
 package org.sonar.batch.source;
 
+import com.google.common.collect.ImmutableSet;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.ResourceComponent;
+
+import javax.annotation.CheckForNull;
+
+import java.util.Set;
 
 public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
 
-  private final ComponentDataCache cache;
+  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
+  private final ResourceCache cache;
+  private final DefaultSensorStorage sensorStorage;
 
-  public SymbolizableBuilder(ComponentDataCache cache) {
+  public SymbolizableBuilder(ResourceCache cache, DefaultSensorStorage sensorStorage) {
     super(Symbolizable.class);
     this.cache = cache;
+    this.sensorStorage = sensorStorage;
   }
 
+  @CheckForNull
   @Override
-  protected Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, Component component) {
-    return new DefaultSymbolizable(cache, component);
+  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, Component component) {
+    boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
+    if (supported && component instanceof ResourceComponent) {
+      BatchResource batchComponent = cache.get(component.key());
+      if (batchComponent != null) {
+        InputFile path = (InputFile) batchComponent.inputPath();
+        if (path != null) {
+          return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
+        }
+      }
+    }
+    return null;
   }
 }

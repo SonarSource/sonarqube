@@ -30,7 +30,7 @@ public class PerspectiveBuilderTest {
   public void testGetPerspectiveClass() throws Exception {
     PerspectiveBuilder<FakePerspective> builder = new PerspectiveBuilder<FakePerspective>(FakePerspective.class) {
       @Override
-      protected FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, Component component) {
+      public FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, Component component) {
         return null;
       }
     };

@@ -20,31 +20,33 @@
 
 package org.sonar.batch.source;
 
+import com.google.common.base.Strings;
 import org.junit.Test;
-import org.sonar.api.component.Component;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.symbol.SymbolData;
-import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.batch.sensor.DefaultSensorStorage;
 
-import static org.mockito.Matchers.any;
+import java.io.StringReader;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DefaultSymbolizableTest {
 
   @Test
   public void should_update_cache_when_done() throws Exception {
 
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("myComponent");
+    DefaultSensorStorage sensorStorage = mock(DefaultSensorStorage.class);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
+      .initMetadata(new FileMetadata().readMetadata(new StringReader(Strings.repeat("azerty\n", 20))));
 
-    ComponentDataCache cache = mock(ComponentDataCache.class);
-
-    DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(cache, component);
+    DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(inputFile, sensorStorage);
     Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolPerspective.newSymbolTableBuilder();
     Symbol firstSymbol = symbolTableBuilder.newSymbol(4, 8);
     symbolTableBuilder.newReference(firstSymbol, 12);
@@ -57,6 +59,9 @@ public class DefaultSymbolizableTest {
 
     symbolPerspective.setSymbolTable(symbolTable);
 
-    verify(cache).setData(eq("myComponent"), eq(SnapshotDataTypes.SYMBOL_HIGHLIGHTING), any(SymbolData.class));
+    ArgumentCaptor<Map> argCaptor = ArgumentCaptor.forClass(Map.class);
+    verify(sensorStorage).store(eq(inputFile), argCaptor.capture());
+    // Map<Symbol, Set<TextRange>>
+    assertThat(argCaptor.getValue().keySet()).hasSize(2);
   }
 }

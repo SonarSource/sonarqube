@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Ints;
@@ -27,8 +27,6 @@ import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -51,11 +49,6 @@ public class FileMetadata implements BatchComponent {
 
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
-  private final AnalysisMode analysisMode;
-
-  public FileMetadata(AnalysisMode analysisMode) {
-    this.analysisMode = analysisMode;
-  }
 
   private abstract static class CharHandler {
 
@@ -90,8 +83,8 @@ public class FileMetadata implements BatchComponent {
     void handleAll(char c) {
       this.empty = false;
       if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
-        LOG.warn("Invalid character encountered in file " + file + " at line " + lines
-          + " for encoding " + encoding + ". Please fix file content or configure the encoding to be used using property '" + CoreProperties.ENCODING_PROPERTY + "'.");
+        LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", file,
+          lines, encoding, CoreProperties.ENCODING_PROPERTY);
         alreadyLoggedInvalidCharacter = true;
       }
     }
@@ -230,66 +223,82 @@ public class FileMetadata implements BatchComponent {
    * Compute hash of a file ignoring line ends differences.
    * Maximum performance is needed.
    */
-  Metadata read(File file, Charset encoding) {
+  public Metadata readMetadata(File file, Charset encoding) {
     LineCounter lineCounter = new LineCounter(file, encoding);
     FileHashComputer fileHashComputer = new FileHashComputer();
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
-    if (!analysisMode.isPreview()) {
-      scanFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
-    } else {
-      // No need to compute line offsets in preview mode since there is no syntax highlighting
-      scanFile(file, encoding, lineCounter, fileHashComputer);
+    readFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
+    return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
+      lineOffsetCounter.getLastValidOffset(),
+      lineCounter.isEmpty());
+  }
+
+  /**
+   * For testing purpose
+   */
+  public Metadata readMetadata(Reader reader) {
+    LineCounter lineCounter = new LineCounter(new File("fromString"), Charsets.UTF_16);
+    FileHashComputer fileHashComputer = new FileHashComputer();
+    LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
+    try {
+      read(reader, lineCounter, fileHashComputer, lineOffsetCounter);
+    } catch (IOException e) {
+      throw new IllegalStateException("Should never occurs", e);
     }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
       lineOffsetCounter.getLastValidOffset(),
       lineCounter.isEmpty());
   }
 
-  private static void scanFile(File file, Charset encoding, CharHandler... handlers) {
-    char c = (char) 0;
+  private static void readFile(File file, Charset encoding, CharHandler... handlers) {
     try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
       Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
-      int i = reader.read();
-      boolean afterCR = false;
-      while (i != -1) {
-        c = (char) i;
-        if (afterCR) {
-          for (CharHandler handler : handlers) {
-            if (c != CARRIAGE_RETURN && c != LINE_FEED) {
-              handler.handleIgnoreEoL(c);
-            }
-            handler.handleAll(c);
-            handler.newLine();
-          }
-          afterCR = c == CARRIAGE_RETURN;
-        } else if (c == LINE_FEED) {
-          for (CharHandler handler : handlers) {
-            handler.handleAll(c);
-            handler.newLine();
-          }
-        } else if (c == CARRIAGE_RETURN) {
-          afterCR = true;
-          for (CharHandler handler : handlers) {
-            handler.handleAll(c);
-          }
-        } else {
-          for (CharHandler handler : handlers) {
-            handler.handleIgnoreEoL(c);
-            handler.handleAll(c);
-          }
-        }
-        i = reader.read();
-      }
-      for (CharHandler handler : handlers) {
-        handler.eof();
-      }
+      read(reader, handlers);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
     }
   }
 
-  static class Metadata {
+  private static void read(Reader reader, CharHandler... handlers) throws IOException {
+    char c = (char) 0;
+    int i = reader.read();
+    boolean afterCR = false;
+    while (i != -1) {
+      c = (char) i;
+      if (afterCR) {
+        for (CharHandler handler : handlers) {
+          if (c != CARRIAGE_RETURN && c != LINE_FEED) {
+            handler.handleIgnoreEoL(c);
+          }
+          handler.handleAll(c);
+          handler.newLine();
+        }
+        afterCR = c == CARRIAGE_RETURN;
+      } else if (c == LINE_FEED) {
+        for (CharHandler handler : handlers) {
+          handler.handleAll(c);
+          handler.newLine();
+        }
+      } else if (c == CARRIAGE_RETURN) {
+        afterCR = true;
+        for (CharHandler handler : handlers) {
+          handler.handleAll(c);
+        }
+      } else {
+        for (CharHandler handler : handlers) {
+          handler.handleIgnoreEoL(c);
+          handler.handleAll(c);
+        }
+      }
+      i = reader.read();
+    }
+    for (CharHandler handler : handlers) {
+      handler.eof();
+    }
+  }
+
+  public static class Metadata {
     final int lines;
     final int nonBlankLines;
     final String hash;
@@ -317,6 +326,6 @@ public class FileMetadata implements BatchComponent {
    * Compute a MD5 hash of each line of the file after removing of all blank chars
    */
   public static void computeLineHashesForIssueTracking(DefaultInputFile f, LineHashConsumer consumer) {
-    scanFile(f.file(), f.charset(), new LineHashComputer(consumer));
+    readFile(f.file(), f.charset(), new LineHashComputer(consumer));
   }
 }

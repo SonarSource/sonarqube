@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.fs;
 
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+
 import javax.annotation.CheckForNull;
 
 import java.io.File;
@@ -26,6 +28,14 @@ import java.nio.file.Path;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
+ * For unit testing purpose you can create some {@link DefaultInputFile} and initialize
+ * all fields using 
+ * 
+ * <pre>
+ *   new DefaultInputFile("moduleKey", "relative/path/from/module/baseDir.java")
+ *     .setModuleBaseDir(path)
+ *     .initMetadata(new FileMetadata().readMetadata(someReader));
+ * </pre>
  *
  * @since 4.2
  */
@@ -99,5 +109,21 @@ public interface InputFile extends InputPath {
    * zero if the file is empty.
    */
   int lines();
+
+  /**
+   * Return a {@link TextPointer} in the given file.
+   * @param line Line of the pointer. Start at 1.
+   * @param lineOffset Offset in the line. Start at 0.
+   * @throw {@link IllegalArgumentException} if line or offset is not valid for the given file.
+   */
+  TextPointer newPointer(int line, int lineOffset);
+
+  /**
+   * Return a {@link TextRange} in the given file.
+   * @param start
+   * @param end
+   * @throw {@link IllegalArgumentException} if start or stop pointers are not valid for the given file.
+   */
+  TextRange newRange(TextPointer start, TextPointer end);
 
 }

@@ -31,7 +31,7 @@ import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
-import org.sonar.batch.report.PublishReportJob;
+import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
@@ -49,7 +49,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
-  private final PublishReportJob publishReportJob;
+  private final ReportPublisher publishReportJob;
   private final SensorContext sensorContext;
   private final DefaultIndex index;
   private final ProjectInitializer pi;
@@ -66,7 +66,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   public DatabaseModePhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, PublishReportJob publishReportJob, ProjectInitializer pi,
+    EventBus eventBus, ReportPublisher publishReportJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;

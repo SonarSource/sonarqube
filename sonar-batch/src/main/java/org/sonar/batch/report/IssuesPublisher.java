@@ -39,7 +39,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-public class IssuesPublisher implements ReportPublisher {
+public class IssuesPublisher implements ReportPublisherStep {
 
   private final ResourceCache resourceCache;
   private final IssueCache issueCache;

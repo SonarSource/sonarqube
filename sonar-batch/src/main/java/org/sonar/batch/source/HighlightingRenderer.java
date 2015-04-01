@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.source;
 
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
 import org.sonar.colorizer.HtmlCodeBuilder;
@@ -31,14 +31,13 @@ import java.util.List;
 
 public class HighlightingRenderer {
 
-  public SyntaxHighlightingData render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers) {
+  public void render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers, NewHighlighting highlighting) {
     List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<Channel<HtmlCodeBuilder>>();
-    HighlightingCodeBuilder codeBuilder = new HighlightingCodeBuilder();
+    HighlightingCodeBuilder codeBuilder = new HighlightingCodeBuilder(highlighting);
 
     allTokenizers.addAll(tokenizers);
 
     new TokenizerDispatcher(allTokenizers).colorize(new CodeReader(code), codeBuilder);
-
-    return codeBuilder.getHighlightingData();
+    highlighting.save();
   }
 }
