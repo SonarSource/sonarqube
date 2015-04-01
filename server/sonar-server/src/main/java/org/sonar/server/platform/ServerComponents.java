@@ -145,6 +145,8 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWs;
 import org.sonar.server.platform.monitoring.*;
+import org.sonar.server.ruby.PlatformRackBridge;
+import org.sonar.server.ruby.PlatformRubyBridge;
 import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
 import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
@@ -249,6 +251,9 @@ class ServerComponents {
       new TempFolderProvider(),
       System2.INSTANCE,
 
+      // rack bridges
+      PlatformRackBridge.class,
+
       // DB
       DbClient.class,
 
@@ -321,6 +326,9 @@ class ServerComponents {
     return Lists.<Object>newArrayList(
       DefaultServerUpgradeStatus.class,
       DatabaseMigrator.class,
+
+      // depends on Ruby
+      PlatformRubyBridge.class,
 
       // plugins
       ServerPluginJarsInstaller.class,
