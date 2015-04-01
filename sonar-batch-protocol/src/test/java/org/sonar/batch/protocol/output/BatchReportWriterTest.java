@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.protocol.output;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.FileStream;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.ReportStream;
 import org.sonar.batch.protocol.output.BatchReport.Range;
@@ -328,7 +330,7 @@ public class BatchReportWriterTest {
         .setItCoveredConditions(5)
         .setOverallCoveredConditions(5)
         .build()
-      ));
+    ));
 
     assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
 
@@ -359,4 +361,22 @@ public class BatchReportWriterTest {
      IOUtils.closeQuietly(coverageReportStream);
     }
   }
+
+  @Test
+  public void read_source_lines() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 1);
+    assertThat(file.exists());
+    FileUtils.writeLines(file, Lists.newArrayList("line1", "line2"));
+
+    FileStream fileStream = null;
+    try {
+      fileStream = new BatchReportReader(dir).readSourceLines(1);
+      assertThat(fileStream).hasSize(2);
+    } finally {
+      fileStream.close();
+    }
+  }
+
 }

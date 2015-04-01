@@ -34,6 +34,9 @@ import java.util.NoSuchElementException;
  * An object to iterate over protobuf messages in a file.
  * A ReportStream is opened upon creation and is closed by invoking the close method.
  *
+ * Warning, while it extends Iterable, it is not a general-purpose Iterable as it supports only a single Iterator;
+ * invoking the iterator method to obtain a second or subsequent iterator throws IllegalStateException.
+ *
  * Inspired by {@link java.nio.file.DirectoryStream}
  */
 public class ReportStream<R extends Message> implements Closeable, Iterable<R> {
@@ -49,18 +52,26 @@ public class ReportStream<R extends Message> implements Closeable, Iterable<R> {
 
   @Override
   public Iterator<R> iterator() {
-    this.inputStream = ProtobufUtil.createInputStream(file);
-    return new ReportIterator<>(inputStream, parser);
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (inputStream != null) {
-      inputStream.close();
+    if (this.inputStream != null) {
+      throw new IllegalStateException("Iterator already obtained");
+    } else {
+      this.inputStream = ProtobufUtil.createInputStream(file);
+      return new ReportIterator<>(inputStream, parser);
     }
   }
 
-  public static class ReportIterator<R extends Message> implements Iterator<R> {
+  @Override
+  public void close() {
+    if (inputStream != null) {
+      try {
+        inputStream.close();
+      } catch (IOException e) {
+        throw new IllegalStateException("Failed to close input stream of file " + file, e);
+      }
+    }
+  }
+
+  private static class ReportIterator<R extends Message> implements Iterator<R> {
 
     private final Parser<R> parser;
     private InputStream inputStream;

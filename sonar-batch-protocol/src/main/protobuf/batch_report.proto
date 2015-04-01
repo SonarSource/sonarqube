@@ -73,10 +73,12 @@ message Component {
   optional string language = 6;
   repeated int32 child_ref = 7 [packed = true];
   repeated ComponentLink link = 10;
-  // Only available on PROJECT and MODULE type
+  // Only available on PROJECT and MODULE types
   optional string version = 12;
-  // Only available on PROJECT and MODULE type
+  // Only available on PROJECT and MODULE types
   optional string key = 14;
+  // Only available on FILE type
+  optional int32 lines = 15;
 
   // temporary fields during development of computation stack
   optional int64 id = 13;

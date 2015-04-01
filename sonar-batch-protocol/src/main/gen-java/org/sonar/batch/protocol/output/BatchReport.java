@@ -2625,7 +2625,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     boolean hasVersion();
@@ -2633,7 +2633,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     java.lang.String getVersion();
@@ -2641,7 +2641,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -2651,7 +2651,7 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     boolean hasKey();
@@ -2659,7 +2659,7 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     java.lang.String getKey();
@@ -2667,11 +2667,28 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     com.google.protobuf.ByteString
         getKeyBytes();
+
+    /**
+     * <code>optional int32 lines = 15;</code>
+     *
+     * <pre>
+     * Only available on FILE type
+     * </pre>
+     */
+    boolean hasLines();
+    /**
+     * <code>optional int32 lines = 15;</code>
+     *
+     * <pre>
+     * Only available on FILE type
+     * </pre>
+     */
+    int getLines();
 
     /**
      * <code>optional int64 id = 13;</code>
@@ -2850,13 +2867,13 @@ public final class BatchReport {
               break;
             }
             case 64: {
-              bitField0_ |= 0x00000200;
+              bitField0_ |= 0x00000400;
               snapshotId_ = input.readInt64();
               break;
             }
             case 74: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000400;
+              bitField0_ |= 0x00000800;
               uuid_ = bs;
               break;
             }
@@ -2869,9 +2886,9 @@ public final class BatchReport {
               break;
             }
             case 90: {
-              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
                 event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>();
-                mutable_bitField0_ |= 0x00002000;
+                mutable_bitField0_ |= 0x00004000;
               }
               event_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Event.PARSER, extensionRegistry));
               break;
@@ -2883,7 +2900,7 @@ public final class BatchReport {
               break;
             }
             case 104: {
-              bitField0_ |= 0x00000100;
+              bitField0_ |= 0x00000200;
               id_ = input.readInt64();
               break;
             }
@@ -2891,6 +2908,11 @@ public final class BatchReport {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
               key_ = bs;
+              break;
+            }
+            case 120: {
+              bitField0_ |= 0x00000100;
+              lines_ = input.readInt32();
               break;
             }
           }
@@ -2907,7 +2929,7 @@ public final class BatchReport {
         if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           link_ = java.util.Collections.unmodifiableList(link_);
         }
-        if (((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
+        if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
           event_ = java.util.Collections.unmodifiableList(event_);
         }
         this.unknownFields = unknownFields.build();
@@ -3177,7 +3199,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public boolean hasVersion() {
@@ -3187,7 +3209,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public java.lang.String getVersion() {
@@ -3208,7 +3230,7 @@ public final class BatchReport {
      * <code>optional string version = 12;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -3231,7 +3253,7 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public boolean hasKey() {
@@ -3241,7 +3263,7 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public java.lang.String getKey() {
@@ -3262,7 +3284,7 @@ public final class BatchReport {
      * <code>optional string key = 14;</code>
      *
      * <pre>
-     * Only available on PROJECT and MODULE type
+     * Only available on PROJECT and MODULE types
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -3279,6 +3301,29 @@ public final class BatchReport {
       }
     }
 
+    public static final int LINES_FIELD_NUMBER = 15;
+    private int lines_;
+    /**
+     * <code>optional int32 lines = 15;</code>
+     *
+     * <pre>
+     * Only available on FILE type
+     * </pre>
+     */
+    public boolean hasLines() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional int32 lines = 15;</code>
+     *
+     * <pre>
+     * Only available on FILE type
+     * </pre>
+     */
+    public int getLines() {
+      return lines_;
+    }
+
     public static final int ID_FIELD_NUMBER = 13;
     private long id_;
     /**
@@ -3289,7 +3334,7 @@ public final class BatchReport {
      * </pre>
      */
     public boolean hasId() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional int64 id = 13;</code>
@@ -3308,7 +3353,7 @@ public final class BatchReport {
      * <code>optional int64 snapshot_id = 8;</code>
      */
     public boolean hasSnapshotId() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional int64 snapshot_id = 8;</code>
@@ -3323,7 +3368,7 @@ public final class BatchReport {
      * <code>optional string uuid = 9;</code>
      */
     public boolean hasUuid() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
      * <code>optional string uuid = 9;</code>
@@ -3405,6 +3450,7 @@ public final class BatchReport {
       link_ = java.util.Collections.emptyList();
       version_ = "";
       key_ = "";
+      lines_ = 0;
       id_ = 0L;
       snapshotId_ = 0L;
       uuid_ = "";
@@ -3448,10 +3494,10 @@ public final class BatchReport {
       for (int i = 0; i < childRef_.size(); i++) {
         output.writeInt32NoTag(childRef_.get(i));
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         output.writeInt64(8, snapshotId_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeBytes(9, getUuidBytes());
       }
       for (int i = 0; i < link_.size(); i++) {
@@ -3463,11 +3509,14 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(12, getVersionBytes());
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeInt64(13, id_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         output.writeBytes(14, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        output.writeInt32(15, lines_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3516,11 +3565,11 @@ public final class BatchReport {
         }
         childRefMemoizedSerializedSize = dataSize;
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(8, snapshotId_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(9, getUuidBytes());
       }
@@ -3536,13 +3585,17 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(12, getVersionBytes());
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(13, id_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(14, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(15, lines_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -3687,15 +3740,17 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000100);
         key_ = "";
         bitField0_ = (bitField0_ & ~0x00000200);
-        id_ = 0L;
+        lines_ = 0;
         bitField0_ = (bitField0_ & ~0x00000400);
-        snapshotId_ = 0L;
+        id_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000800);
-        uuid_ = "";
+        snapshotId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00001000);
+        uuid_ = "";
+        bitField0_ = (bitField0_ & ~0x00002000);
         if (eventBuilder_ == null) {
           event_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00002000);
+          bitField0_ = (bitField0_ & ~0x00004000);
         } else {
           eventBuilder_.clear();
         }
@@ -3776,19 +3831,23 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.id_ = id_;
+        result.lines_ = lines_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.snapshotId_ = snapshotId_;
+        result.id_ = id_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00000400;
         }
+        result.snapshotId_ = snapshotId_;
+        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+          to_bitField0_ |= 0x00000800;
+        }
         result.uuid_ = uuid_;
         if (eventBuilder_ == null) {
-          if (((bitField0_ & 0x00002000) == 0x00002000)) {
+          if (((bitField0_ & 0x00004000) == 0x00004000)) {
             event_ = java.util.Collections.unmodifiableList(event_);
-            bitField0_ = (bitField0_ & ~0x00002000);
+            bitField0_ = (bitField0_ & ~0x00004000);
           }
           result.event_ = event_;
         } else {
@@ -3880,6 +3939,9 @@ public final class BatchReport {
           key_ = other.key_;
           onChanged();
         }
+        if (other.hasLines()) {
+          setLines(other.getLines());
+        }
         if (other.hasId()) {
           setId(other.getId());
         }
@@ -3887,7 +3949,7 @@ public final class BatchReport {
           setSnapshotId(other.getSnapshotId());
         }
         if (other.hasUuid()) {
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00002000;
           uuid_ = other.uuid_;
           onChanged();
         }
@@ -3895,7 +3957,7 @@ public final class BatchReport {
           if (!other.event_.isEmpty()) {
             if (event_.isEmpty()) {
               event_ = other.event_;
-              bitField0_ = (bitField0_ & ~0x00002000);
+              bitField0_ = (bitField0_ & ~0x00004000);
             } else {
               ensureEventIsMutable();
               event_.addAll(other.event_);
@@ -3908,7 +3970,7 @@ public final class BatchReport {
               eventBuilder_.dispose();
               eventBuilder_ = null;
               event_ = other.event_;
-              bitField0_ = (bitField0_ & ~0x00002000);
+              bitField0_ = (bitField0_ & ~0x00004000);
               eventBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getEventFieldBuilder() : null;
@@ -4582,7 +4644,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public boolean hasVersion() {
@@ -4592,7 +4654,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public java.lang.String getVersion() {
@@ -4613,7 +4675,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -4633,7 +4695,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder setVersion(
@@ -4650,7 +4712,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder clearVersion() {
@@ -4663,7 +4725,7 @@ public final class BatchReport {
        * <code>optional string version = 12;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder setVersionBytes(
@@ -4682,7 +4744,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public boolean hasKey() {
@@ -4692,7 +4754,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public java.lang.String getKey() {
@@ -4713,7 +4775,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -4733,7 +4795,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder setKey(
@@ -4750,7 +4812,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder clearKey() {
@@ -4763,7 +4825,7 @@ public final class BatchReport {
        * <code>optional string key = 14;</code>
        *
        * <pre>
-       * Only available on PROJECT and MODULE type
+       * Only available on PROJECT and MODULE types
        * </pre>
        */
       public Builder setKeyBytes(
@@ -4777,6 +4839,54 @@ public final class BatchReport {
         return this;
       }
 
+      private int lines_ ;
+      /**
+       * <code>optional int32 lines = 15;</code>
+       *
+       * <pre>
+       * Only available on FILE type
+       * </pre>
+       */
+      public boolean hasLines() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional int32 lines = 15;</code>
+       *
+       * <pre>
+       * Only available on FILE type
+       * </pre>
+       */
+      public int getLines() {
+        return lines_;
+      }
+      /**
+       * <code>optional int32 lines = 15;</code>
+       *
+       * <pre>
+       * Only available on FILE type
+       * </pre>
+       */
+      public Builder setLines(int value) {
+        bitField0_ |= 0x00000400;
+        lines_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 lines = 15;</code>
+       *
+       * <pre>
+       * Only available on FILE type
+       * </pre>
+       */
+      public Builder clearLines() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        lines_ = 0;
+        onChanged();
+        return this;
+      }
+
       private long id_ ;
       /**
        * <code>optional int64 id = 13;</code>
@@ -4786,7 +4896,7 @@ public final class BatchReport {
        * </pre>
        */
       public boolean hasId() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional int64 id = 13;</code>
@@ -4806,7 +4916,7 @@ public final class BatchReport {
        * </pre>
        */
       public Builder setId(long value) {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00000800;
         id_ = value;
         onChanged();
         return this;
@@ -4819,7 +4929,7 @@ public final class BatchReport {
        * </pre>
        */
       public Builder clearId() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000800);
         id_ = 0L;
         onChanged();
         return this;
@@ -4830,7 +4940,7 @@ public final class BatchReport {
        * <code>optional int64 snapshot_id = 8;</code>
        */
       public boolean hasSnapshotId() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
        * <code>optional int64 snapshot_id = 8;</code>
@@ -4842,7 +4952,7 @@ public final class BatchReport {
        * <code>optional int64 snapshot_id = 8;</code>
        */
       public Builder setSnapshotId(long value) {
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00001000;
         snapshotId_ = value;
         onChanged();
         return this;
@@ -4851,7 +4961,7 @@ public final class BatchReport {
        * <code>optional int64 snapshot_id = 8;</code>
        */
       public Builder clearSnapshotId() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00001000);
         snapshotId_ = 0L;
         onChanged();
         return this;
@@ -4862,7 +4972,7 @@ public final class BatchReport {
        * <code>optional string uuid = 9;</code>
        */
       public boolean hasUuid() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
        * <code>optional string uuid = 9;</code>
@@ -4905,7 +5015,7 @@ public final class BatchReport {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00002000;
         uuid_ = value;
         onChanged();
         return this;
@@ -4914,7 +5024,7 @@ public final class BatchReport {
        * <code>optional string uuid = 9;</code>
        */
       public Builder clearUuid() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         uuid_ = getDefaultInstance().getUuid();
         onChanged();
         return this;
@@ -4927,7 +5037,7 @@ public final class BatchReport {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00002000;
         uuid_ = value;
         onChanged();
         return this;
@@ -4936,9 +5046,9 @@ public final class BatchReport {
       private java.util.List<org.sonar.batch.protocol.output.BatchReport.Event> event_ =
         java.util.Collections.emptyList();
       private void ensureEventIsMutable() {
-        if (!((bitField0_ & 0x00002000) == 0x00002000)) {
+        if (!((bitField0_ & 0x00004000) == 0x00004000)) {
           event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>(event_);
-          bitField0_ |= 0x00002000;
+          bitField0_ |= 0x00004000;
          }
       }
 
@@ -5088,7 +5198,7 @@ public final class BatchReport {
       public Builder clearEvent() {
         if (eventBuilder_ == null) {
           event_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00002000);
+          bitField0_ = (bitField0_ & ~0x00004000);
           onChanged();
         } else {
           eventBuilder_.clear();
@@ -5165,7 +5275,7 @@ public final class BatchReport {
           eventBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder>(
                   event_,
-                  ((bitField0_ & 0x00002000) == 0x00002000),
+                  ((bitField0_ & 0x00004000) == 0x00004000),
                   getParentForChildren(),
                   isClean());
           event_ = null;
@@ -21941,68 +22051,69 @@ public final class BatchReport {
       "Type\022\014\n\004href\030\002 \001(\t\"w\n\005Event\022\025\n\rcomponent" +
       "_ref\030\001 \001(\005\022\014\n\004name\030\002 \001(\t\022\023\n\013description\030" +
       "\003 \001(\t\022 \n\010category\030\004 \001(\0162\016.EventCategory\022" +
-      "\022\n\nevent_data\030\005 \001(\t\"\216\002\n\tComponent\022\013\n\003ref",
+      "\022\n\nevent_data\030\005 \001(\t\"\235\002\n\tComponent\022\013\n\003ref",
       "\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004ty" +
       "pe\030\004 \001(\0162\016.ComponentType\022\017\n\007is_test\030\005 \001(" +
       "\010\022\020\n\010language\030\006 \001(\t\022\025\n\tchild_ref\030\007 \003(\005B\002" +
       "\020\001\022\034\n\004link\030\n \003(\0132\016.ComponentLink\022\017\n\007vers" +
-      "ion\030\014 \001(\t\022\013\n\003key\030\016 \001(\t\022\n\n\002id\030\r \001(\003\022\023\n\013sn" +
-      "apshot_id\030\010 \001(\003\022\014\n\004uuid\030\t \001(\t\022\025\n\005event\030\013" +
-      " \003(\0132\006.Event\"\340\003\n\007Measure\022%\n\nvalue_type\030\001" +
-      " \001(\0162\021.MeasureValueType\022\025\n\rboolean_value" +
-      "\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022\022\n\nlong_value\030" +
-      "\004 \001(\003\022\024\n\014double_value\030\005 \001(\001\022\024\n\014string_va",
-      "lue\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\022\023\n\013descrip" +
-      "tion\030\t \001(\t\022\020\n\010rule_key\030\n \001(\t\022\033\n\010severity" +
-      "\030\013 \001(\0162\t.Severity\022\024\n\014alert_status\030\014 \001(\t\022" +
-      "\022\n\nalert_text\030\r \001(\t\022\031\n\021variation_value_1" +
-      "\030\016 \001(\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031\n\021var" +
-      "iation_value_3\030\020 \001(\001\022\031\n\021variation_value_" +
-      "4\030\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022\020\n\010te" +
-      "ndency\030\023 \001(\005\022\026\n\016characteric_id\030\024 \001(\005\022\021\n\t" +
-      "person_id\030\025 \001(\005\"<\n\010Measures\022\025\n\rcomponent" +
-      "_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Measure\"\231\004",
-      "\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule" +
-      "_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n" +
-      "\010severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003(\t\022" +
-      "\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006is_new\030\010 \001(\010\022\014" +
-      "\n\004uuid\030\t \001(\t\022\027\n\017debt_in_minutes\030\n \001(\003\022\022\n" +
-      "\nresolution\030\013 \001(\t\022\016\n\006status\030\014 \001(\t\022\020\n\010che" +
-      "cksum\030\r \001(\t\022\027\n\017manual_severity\030\016 \001(\010\022\020\n\010" +
-      "reporter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t\022\027\n\017acti" +
-      "on_plan_key\030\021 \001(\t\022\022\n\nattributes\030\022 \001(\t\022\024\n" +
-      "\014author_login\030\023 \001(\t\022\025\n\rcreation_date\030\024 \001",
-      "(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013update_date\030\026 " +
-      "\001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff_fields\030" +
-      "\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_send_n" +
-      "otification\030\032 \001(\010\"N\n\006Issues\022\025\n\rcomponent" +
-      "_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\022\026\n\016com" +
-      "ponent_uuid\030\003 \001(\t\"\236\001\n\003Scm\022\025\n\rcomponent_r" +
-      "ef\030\001 \001(\005\022!\n\tchangeset\030\002 \003(\0132\016.Scm.Change" +
-      "set\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n" +
-      "\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002" +
-      " \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other",
-      "_file_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026" +
-      "\n\016other_file_key\030\003 \001(\t\"M\n\013Duplication\022\037\n" +
-      "\017origin_position\030\001 \001(\0132\006.Range\022\035\n\tduplic" +
-      "ate\030\002 \003(\0132\n.Duplicate\"H\n\014Duplications\022\025\n" +
-      "\rcomponent_ref\030\001 \001(\005\022!\n\013duplication\030\002 \003(" +
-      "\0132\014.Duplication\"W\n\005Range\022\022\n\nstart_line\030\001" +
-      " \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offset\030\003" +
-      " \001(\005\022\022\n\nend_offset\030\004 \001(\005\"~\n\007Symbols\022\020\n\010f" +
-      "ile_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbols." +
-      "Symbol\032@\n\006Symbol\022\033\n\013declaration\030\001 \001(\0132\006.",
-      "Range\022\031\n\treference\030\002 \003(\0132\006.Range\"\260\001\n\010Cov" +
-      "erage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022" +
-      "\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_" +
-      "covered_conditions\030\005 \001(\005\022\035\n\025it_covered_c" +
-      "onditions\030\006 \001(\005\022\"\n\032overall_covered_condi" +
-      "tions\030\007 \001(\005\"\263\001\n\022SyntaxHighlighting\022\020\n\010fi" +
-      "le_ref\030\001 \001(\005\022?\n\021highlighting_rule\030\002 \003(\0132" +
-      "$.SyntaxHighlighting.HighlightingRule\032J\n" +
-      "\020HighlightingRule\022\025\n\005range\030\001 \001(\0132\006.Range" +
-      "\022\037\n\004type\030\002 \001(\0162\021.HighlightingTypeB#\n\037org",
-      ".sonar.batch.protocol.outputH\001"
+      "ion\030\014 \001(\t\022\013\n\003key\030\016 \001(\t\022\r\n\005lines\030\017 \001(\005\022\n\n" +
+      "\002id\030\r \001(\003\022\023\n\013snapshot_id\030\010 \001(\003\022\014\n\004uuid\030\t" +
+      " \001(\t\022\025\n\005event\030\013 \003(\0132\006.Event\"\340\003\n\007Measure\022" +
+      "%\n\nvalue_type\030\001 \001(\0162\021.MeasureValueType\022\025" +
+      "\n\rboolean_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005" +
+      "\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001",
+      "(\001\022\024\n\014string_value\030\006 \001(\t\022\022\n\nmetric_key\030\007" +
+      " \001(\t\022\023\n\013description\030\t \001(\t\022\020\n\010rule_key\030\n " +
+      "\001(\t\022\033\n\010severity\030\013 \001(\0162\t.Severity\022\024\n\014aler" +
+      "t_status\030\014 \001(\t\022\022\n\nalert_text\030\r \001(\t\022\031\n\021va" +
+      "riation_value_1\030\016 \001(\001\022\031\n\021variation_value" +
+      "_2\030\017 \001(\001\022\031\n\021variation_value_3\030\020 \001(\001\022\031\n\021v" +
+      "ariation_value_4\030\021 \001(\001\022\031\n\021variation_valu" +
+      "e_5\030\022 \001(\001\022\020\n\010tendency\030\023 \001(\005\022\026\n\016character" +
+      "ic_id\030\024 \001(\005\022\021\n\tperson_id\030\025 \001(\005\"<\n\010Measur" +
+      "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003",
+      "(\0132\010.Measure\"\231\004\n\005Issue\022\027\n\017rule_repositor" +
+      "y\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022" +
+      "\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severit" +
+      "y\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n" +
+      "\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_m" +
+      "inutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006stat" +
+      "us\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_sev" +
+      "erity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assigne" +
+      "e\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nattr" +
+      "ibutes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcr",
+      "eation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n" +
+      "\013update_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022" +
+      "\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010" +
+      "\022\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Issu" +
+      "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\013" +
+      "2\006.Issue\022\026\n\016component_uuid\030\003 \001(\t\"\236\001\n\003Scm" +
+      "\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\tchangeset\030\002 \003" +
+      "(\0132\016.Scm.Changeset\022 \n\024changesetIndexByLi" +
+      "ne\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 " +
+      "\001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDup",
+      "licate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005range\030" +
+      "\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003 \001(\t\"M\n" +
+      "\013Duplication\022\037\n\017origin_position\030\001 \001(\0132\006." +
+      "Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"H\n\014" +
+      "Duplications\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013d" +
+      "uplication\030\002 \003(\0132\014.Duplication\"W\n\005Range\022" +
+      "\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n" +
+      "\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"" +
+      "~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006symbol\030\002" +
+      " \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013decla",
+      "ration\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132" +
+      "\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nco" +
+      "nditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hi" +
+      "ts\030\004 \001(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022" +
+      "\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n\032overal" +
+      "l_covered_conditions\030\007 \001(\005\"\263\001\n\022SyntaxHig" +
+      "hlighting\022\020\n\010file_ref\030\001 \001(\005\022?\n\021highlight" +
+      "ing_rule\030\002 \003(\0132$.SyntaxHighlighting.High" +
+      "lightingRule\032J\n\020HighlightingRule\022\025\n\005rang" +
+      "e\030\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(\0162\021.Highligh",
+      "tingTypeB#\n\037org.sonar.batch.protocol.out" +
+      "putH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -22040,7 +22151,7 @@ public final class BatchReport {
     internal_static_Component_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Component_descriptor,
-        new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "Key", "Id", "SnapshotId", "Uuid", "Event", });
+        new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "Key", "Lines", "Id", "SnapshotId", "Uuid", "Event", });
     internal_static_Measure_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_Measure_fieldAccessorTable = new
