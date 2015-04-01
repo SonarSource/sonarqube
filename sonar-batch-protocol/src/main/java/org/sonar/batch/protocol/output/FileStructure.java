@@ -26,7 +26,7 @@ import java.io.File;
  */
 public class FileStructure {
 
-  public static enum Domain {
+  public enum Domain {
     ISSUES("issues-"),
     ISSUES_ON_DELETED("issues-deleted-"),
     COMPONENT("component-"),
@@ -35,7 +35,8 @@ public class FileStructure {
     SYNTAX_HIGHLIGHTING("syntax-highlighting-"),
     SCM("scm-"),
     SYMBOLS("symbol-"),
-    COVERAGE("coverage-")
+    COVERAGE("coverage-"),
+    SOURCE("source-")
     ;
     
     private final String filePrefix;

@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchReportReaderTest {
@@ -31,11 +33,14 @@ public class BatchReportReaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  File dir;
+
   BatchReportReader sut;
 
   @Before
   public void setUp() throws Exception {
-    sut = new BatchReportReader(temp.newFolder());
+    dir = temp.newFolder();
+    sut = new BatchReportReader(dir);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -81,6 +86,11 @@ public class BatchReportReaderTest {
   @Test
   public void return_null_if_no_coverage_found() throws Exception {
     assertThat(sut.readFileCoverage(123)).isNull();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_no_source_found() throws Exception {
+    assertThat(sut.readSourceLines(123)).isNull();
   }
 
   /**
