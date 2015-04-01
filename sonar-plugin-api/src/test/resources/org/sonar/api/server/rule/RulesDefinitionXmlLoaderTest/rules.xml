@@ -10,6 +10,9 @@
     <severity>BLOCKER</severity>
     <cardinality>MULTIPLE</cardinality>
     <status>BETA</status>
+    <debtSubCharacteristic>INTEGRATION_TESTABILITY</debtSubCharacteristic>
+    <debtRemediationFunctionCoefficient>2d 2h 2min</debtRemediationFunctionCoefficient>
+    <debtRemediationFunctionOffset>1d 1h 1min</debtRemediationFunctionOffset>
     <tag>style</tag>
     <tag>security</tag>
     <param>
