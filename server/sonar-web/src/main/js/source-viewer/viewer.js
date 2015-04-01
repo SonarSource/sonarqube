@@ -439,7 +439,9 @@ define([
           blocks = _.filter(blocks, function (b) {
             var outOfBounds = b.from > line || b.from + b.size < line,
                 currentFile = b._ref === '1',
-                isOk = (b._ref != null) && (!currentFile || (currentFile && (outOfBounds || foundOne)));
+                shouldDisplayForCurrentFile = outOfBounds || foundOne,
+                shouldDisplay = !currentFile || (currentFile && shouldDisplayForCurrentFile),
+                isOk = (b._ref != null) && shouldDisplay;
             if (b._ref === '1' && !outOfBounds) {
               foundOne = true;
             }
