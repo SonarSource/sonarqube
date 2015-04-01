@@ -186,6 +186,8 @@ public class ProjectScanContainer extends ComponentContainer {
       ComponentsPublisher.class,
       IssuesPublisher.class,
       MeasuresPublisher.class,
+      DuplicationsPublisher.class,
+      CoveragePublisher.class,
 
       ScanTaskObservers.class);
   }

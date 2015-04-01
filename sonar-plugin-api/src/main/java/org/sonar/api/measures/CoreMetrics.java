@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
@@ -485,7 +486,15 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  /**
+   * @deprecated since 5.2 use {@link MutableTestPlan}
+   */
+  @Deprecated
   public static final String TEST_DATA_KEY = "test_data";
+  /**
+   * @deprecated since 5.2 use {@link MutableTestPlan}
+   */
+  @Deprecated
   public static final Metric<String> TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit tests details", Metric.ValueType.DATA)
     .setDescription("Unit tests details")
     .setDirection(Metric.DIRECTION_WORST)
@@ -580,12 +589,19 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * 
+   * @deprecated since 5.2 soon to be removed
+   */
+  @Deprecated
   public static final String COVERAGE_LINE_HITS_DATA_KEY = "coverage_line_hits_data";
 
   /**
    * Key-value pairs, where key - is a number of line, and value - is a number of hits for this line.
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_TESTS)
     .setDeleteHistoricalData(true)
@@ -656,25 +672,37 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * @deprecated since 5.2 soon to be removed
+   */
+  @Deprecated
   public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
 
   /**
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
    *
    * @since 2.7
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, "Conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_TESTS)
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * @deprecated since 5.2 soon to be removed
+   */
+  @Deprecated
   public static final String COVERED_CONDITIONS_BY_LINE_KEY = "covered_conditions_by_line";
 
   /**
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
    *
    * @since 2.7
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, "Covered conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_TESTS)
     .setDeleteHistoricalData(true)
@@ -823,12 +851,16 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String IT_COVERAGE_LINE_HITS_DATA_KEY = "it_coverage_line_hits_data";
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> IT_COVERAGE_LINE_HITS_DATA = new Metric.Builder(IT_COVERAGE_LINE_HITS_DATA_KEY, "IT coverage hits data", Metric.ValueType.DATA)
     .setDescription("Integration Tests Code coverage line hits data")
     .setDirection(Metric.DIRECTION_NONE)
@@ -940,12 +972,16 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String IT_CONDITIONS_BY_LINE_KEY = "it_conditions_by_line";
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setDeleteHistoricalData(true)
@@ -953,12 +989,16 @@ public final class CoreMetrics {
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String IT_COVERED_CONDITIONS_BY_LINE_KEY = "it_covered_conditions_by_line";
 
   /**
    * @since 2.12
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT covered conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setDeleteHistoricalData(true)
@@ -1107,12 +1147,16 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String OVERALL_COVERAGE_LINE_HITS_DATA_KEY = "overall_coverage_line_hits_data";
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> OVERALL_COVERAGE_LINE_HITS_DATA = new Metric.Builder(OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "Overall coverage hits by line",
     Metric.ValueType.DATA)
     .setDescription("Coverage hits by all tests and by line")
@@ -1227,12 +1271,16 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String OVERALL_CONDITIONS_BY_LINE_KEY = "overall_conditions_by_line";
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall conditions by line", Metric.ValueType.DATA)
     .setDescription("Overall conditions by all tests and by line")
     .setDomain(DOMAIN_OVERALL_TESTS)
@@ -1241,12 +1289,16 @@ public final class CoreMetrics {
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final String OVERALL_COVERED_CONDITIONS_BY_LINE_KEY = "overall_covered_conditions_by_line";
 
   /**
    * @since 3.3
+   * @deprecated since 5.2 soon to be removed
    */
+  @Deprecated
   public static final Metric<String> OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line",
     Metric.ValueType.DATA)
     .setDescription("Overall covered branches by all tests and by line")

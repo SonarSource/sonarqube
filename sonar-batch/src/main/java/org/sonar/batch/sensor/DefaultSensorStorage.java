@@ -22,8 +22,10 @@ package org.sonar.batch.sensor;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.fs.*;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -43,7 +45,10 @@ import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.SumChildDistributionFormula;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -151,18 +156,14 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Issue issue) {
-    Resource r;
+    String componentKey;
     InputPath inputPath = issue.inputPath();
     if (inputPath != null) {
-      if (inputPath instanceof InputDir) {
-        r = Directory.create(inputPath.relativePath());
-      } else {
-        r = File.create(inputPath.relativePath());
-      }
+      componentKey = ComponentKeys.createEffectiveKey(project.getKey(), inputPath);
     } else {
-      r = project;
+      componentKey = project.getKey();
     }
-    moduleIssues.initAndAddIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
+    moduleIssues.initAndAddIssue(toDefaultIssue(project.getKey(), componentKey, issue));
   }
 
   public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
@@ -178,33 +179,12 @@ public class DefaultSensorStorage implements SensorStorage {
       .build();
   }
 
-  private File getTestResource(InputFile testFile) {
-    File testRes = File.create(testFile.relativePath());
-    testRes.setQualifier(Qualifiers.UNIT_TEST_FILE);
-    // Reload
-    testRes = sonarIndex.getResource(testRes);
-    if (testRes == null) {
-      throw new IllegalArgumentException("Provided input file is not indexed or not a test file: " + testFile);
-    }
-    return testRes;
-  }
-
-  private File getMainResource(InputFile mainFile) {
-    File mainRes = File.create(mainFile.relativePath());
-    // Reload
-    mainRes = sonarIndex.getResource(mainRes);
-    if (mainRes == null) {
-      throw new IllegalArgumentException("Provided input file is not indexed or not a main file: " + mainRes);
-    }
-    return mainRes;
-  }
-
   private File getFile(InputFile file) {
-    if (file.type() == InputFile.Type.MAIN) {
-      return getMainResource(file);
-    } else {
-      return getTestResource(file);
+    BatchResource r = resourceCache.get(file);
+    if (r == null) {
+      throw new IllegalStateException("Provided input file is not indexed");
     }
+    return (File) r.resource();
   }
 
   @Override
