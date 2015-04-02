@@ -19,12 +19,13 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.server.ws.Definable;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
-interface BaseIssuesWsAction extends RequestHandler {
+interface BaseIssuesWsAction extends RequestHandler, Definable<WebService.NewController> {
 
-  void define(WebService.NewController controller);
+  // Marker interface
 
 }
 

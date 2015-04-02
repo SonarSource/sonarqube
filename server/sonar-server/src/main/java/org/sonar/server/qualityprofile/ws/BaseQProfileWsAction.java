@@ -19,13 +19,14 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.server.ws.Definable;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
 /**
  * Marker interface for quality profile related web service end points
  */
-public interface BaseQProfileWsAction extends RequestHandler {
+public interface BaseQProfileWsAction extends RequestHandler, Definable<WebService.NewController> {
 
-  void define(WebService.NewController controller);
+  // Marker interface
 }
