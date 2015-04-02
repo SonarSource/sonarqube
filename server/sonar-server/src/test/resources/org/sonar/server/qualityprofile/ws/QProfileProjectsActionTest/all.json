@@ -1,0 +1,27 @@
+{
+  "results":
+  [
+    {
+      "key": "DEFA",
+      "name": "Project Four",
+      "selected": false
+    },
+    {
+      "key": "ABCD",
+      "name": "Project One",
+      "selected": true
+    },
+    {
+      "key": "CDEF",
+      "name": "Project Three",
+      "selected": false
+    },
+    {
+      "key": "BCDE",
+      "name": "Project Two",
+      "selected": true
+    }
+  ],
+
+  "more": false
+}

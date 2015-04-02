@@ -381,6 +381,7 @@ class ServerComponents {
     pico.addSingleton(QProfileRestoreBuiltInAction.class);
     pico.addSingleton(QProfileSearchAction.class);
     pico.addSingleton(QProfileSetDefaultAction.class);
+    pico.addSingleton(QProfileProjectsAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);

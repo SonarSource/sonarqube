@@ -168,10 +168,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       .setExampleValue("js")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
-    search.createParam(PARAM_FIELDS)
-      .setDescription("Use to restrict returned fields.")
-      .setExampleValue("key,language")
-      .setPossibleValues(ALL_FIELDS);
+    search.addFieldsParam(ALL_FIELDS);
   }
 
 }
