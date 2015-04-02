@@ -232,7 +232,9 @@ public class DbTester extends ExternalResource {
       for (int i = 1; i <= colCount; i++) {
         Object value = resultSet.getObject(i);
         if (value instanceof Clob) {
-          value = IOUtils.toString(((Clob) value).getAsciiStream());
+          Clob clob = (Clob) value;
+          value = IOUtils.toString((clob.getAsciiStream()));
+          clob.free();
         } else if (value instanceof BigDecimal) {
           // In Oracle, INTEGER types are mapped as BigDecimal
           value = ((BigDecimal) value).longValue();
