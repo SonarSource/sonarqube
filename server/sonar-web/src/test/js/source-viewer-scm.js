@@ -55,8 +55,8 @@ casper.test.begin(testName('SCM'), 4, function (test) {
       })
 
       .then(function () {
+        test.assertElementCount('.bubble-popup-section', 3);
         test.assertSelectorContains('.bubble-popup', 'sample-author');
-        test.assertSelectorContains('.bubble-popup', 'January 1 2015 1:00 AM');
         test.assertSelectorContains('.bubble-popup', 'samplerevision');
       })
 
