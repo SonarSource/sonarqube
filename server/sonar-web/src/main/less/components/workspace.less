@@ -56,22 +56,9 @@
   box-shadow: 0 -6px 12px rgba(0, 0, 0, .175);
 }
 
-.workspace-viewer-full-screen {
-  .workspace-viewer-container {
-    height: ~"calc(100vh - 30px - @{navbarGlobalHeight} - 10px)";
-  }
-
-  .workspace-for-full-screen {
-    display: inline;
-  }
-
-  .workspace-for-normal-size {
-    display: none;
-  }
-}
-
 .workspace-viewer-header {
   @topPadding: (30px - @formControlHeight) / 2;
+  position: relative;
   height: 30px;
   padding: @topPadding 10px;
   .box-sizing(border-box);
@@ -87,6 +74,16 @@
   font-weight: 300;
 }
 
+.workspace-viewer-resize {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  .size(30px, 5px);
+  margin-left: -15px;
+  background: no-repeat 0 0 url('data:image/svg+xml;utf8,<svg width="30px" height="5px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;"><g><g id="Layer1"><g transform="matrix(1,0,0,1,0,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,4,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,8,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,12,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,16,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,20,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,24,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,28,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,0,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,4,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,8,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,12,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,16,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,20,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,24,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,28,3)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,0,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,4,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,8,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,12,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,16,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,20,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,24,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g><g transform="matrix(1,0,0,1,28,0)"><rect x="0" y="0" width="2" height="2" style="fill:#777;fill-opacity:0.5;"/></g></g></g></svg>');
+  cursor: ns-resize;
+}
+
 .workspace-viewer-actions {
   float: right;
   line-height: @formControlHeight;
@@ -96,14 +93,12 @@
 
 .workspace-viewer-container {
   height: ~"calc(40vh - 30px)";
+  min-height: 100px;
+  max-height: ~"calc(95vh - 30px)";
   padding: 5px 10px;
   overflow-y: scroll;
   overflow-x: auto;
   .box-sizing(border-box);
-}
-
-.workspace-for-full-screen {
-  display: none;
 }
 
 

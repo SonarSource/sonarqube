@@ -233,7 +233,7 @@ casper.test.begin(testName('Minimize'), 2, function (test) {
 });
 
 
-casper.test.begin(testName('Full Screen'), 8, function (test) {
+casper.test.begin(testName('Full Screen'), 6, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
@@ -270,12 +270,10 @@ casper.test.begin(testName('Full Screen'), 8, function (test) {
         test.assertNotVisible('.workspace-viewer .js-normal-size');
 
         casper.click('.workspace-viewer .js-full-screen');
-        test.assertExists('.workspace-viewer.workspace-viewer-full-screen');
         test.assertNotVisible('.workspace-viewer .js-full-screen');
         test.assertVisible('.workspace-viewer .js-normal-size');
 
         casper.click('.workspace-viewer .js-normal-size');
-        test.assertDoesntExist('.workspace-viewer.workspace-viewer-full-screen');
         test.assertVisible('.workspace-viewer .js-full-screen');
         test.assertNotVisible('.workspace-viewer .js-normal-size');
       })
