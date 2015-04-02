@@ -4,31 +4,34 @@
       "key": "sonar-way-cs-12345",
       "name": "Sonar way",
       "language": "cs",
-      "isInherited": false
+      "languageName": "C#",
+      "isInherited": false,
+      "activeRuleCount": 37
     },
     {
       "key": "my-bu-profile-java-34567",
       "name": "My BU Profile",
       "language": "java",
+      "languageName": "Java",
       "isInherited": true,
-      "parentKey": "my-company-profile-java-23456"
+      "parentKey": "my-company-profile-java-23456",
+      "parentName": "My Company Profile",
+      "activeRuleCount": 72
     },
     {
       "key": "my-company-profile-java-23456",
       "name": "My Company Profile",
       "language": "java",
-      "isInherited": false
+      "isInherited": false,
+      "isDefault": true,
+      "activeRuleCount": 42
     },
     {
       "key": "sonar-way-python-01234",
       "name": "Sonar way",
       "language": "py",
-      "isInherited": false
+      "isInherited": false,
+      "activeRuleCount": 125
     }
-  ],
-  "languages": [
-    {"key": "cs", "name": "C#"},
-    {"key": "java", "name": "Java"},
-    {"key": "py", "name": "Python"}
   ]
 }
