@@ -51,7 +51,6 @@ public class CoveragePublisherTest {
 
   private MeasureCache measureCache;
   private CoveragePublisher publisher;
-  private org.sonar.api.resources.File aFile = org.sonar.api.resources.File.create("org/foo/Bar.java");
 
   private org.sonar.api.resources.Resource sampleFile;
 
