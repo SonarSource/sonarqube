@@ -29,7 +29,9 @@ define([
     },
 
     onRender: function () {
-      if (this.model.has('issuesTrend') && this.model.get('issues') != null) {
+      var trend = this.model.get('issuesTrend'),
+          hasIssues = this.model.get('issues') != null;
+      if (_.size(trend) > 1 && hasIssues) {
         this.$('#overview-issues-trend').sparkline(this.model.get('issuesTrend'));
       }
     }

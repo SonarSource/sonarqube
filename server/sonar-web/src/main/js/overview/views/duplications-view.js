@@ -29,7 +29,9 @@ define([
     },
 
     onRender: function () {
-      if (this.model.has('duplicationsTrend') && this.model.get('duplications') != null) {
+      var trend = this.model.get('duplicationsTrend'),
+          hasDuplications = this.model.get('duplications') != null;
+      if (_.size(trend) > 1 && hasDuplications) {
         this.$('#overview-duplications-trend').sparkline(this.model.get('duplicationsTrend'));
       }
     }

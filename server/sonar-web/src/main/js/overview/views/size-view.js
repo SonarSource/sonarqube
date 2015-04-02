@@ -29,7 +29,9 @@ define([
     },
 
     onRender: function () {
-      if (this.model.has('sizeTrend') && this.model.get('ncloc') != null) {
+      var trend = this.model.get('sizeTrend'),
+          hasSize = this.model.get('ncloc') != null;
+      if (_.size(trend) > 1 && hasSize) {
         this.$('#overview-size-trend').sparkline(this.model.get('sizeTrend'));
       }
     }

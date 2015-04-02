@@ -29,7 +29,9 @@ define([
     },
 
     onRender: function () {
-      if (this.model.has('coverageTrend') && this.model.get('coverage') != null) {
+      var trend = this.model.get('coverageTrend'),
+          hasCoverage = this.model.get('coverage') != null;
+      if (_.size(trend) > 1 && hasCoverage) {
         this.$('#overview-coverage-trend').sparkline(this.model.get('coverageTrend'));
       }
     }
