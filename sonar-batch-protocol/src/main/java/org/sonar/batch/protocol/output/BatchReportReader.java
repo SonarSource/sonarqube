@@ -19,9 +19,7 @@
  */
 package org.sonar.batch.protocol.output;
 
-import org.sonar.batch.protocol.FileStream;
 import org.sonar.batch.protocol.ProtobufUtil;
-import org.sonar.batch.protocol.ReportStream;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 import javax.annotation.CheckForNull;
@@ -128,20 +126,20 @@ public class BatchReportReader {
   }
 
   @CheckForNull
-  public ReportStream<BatchReport.Coverage> readFileCoverage(int fileRef) {
+  public File readFileCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, fileRef);
     if (doesFileExists(file)) {
-      return new ReportStream<>(file, BatchReport.Coverage.PARSER);
+      return file;
     }
     return null;
   }
 
-  public FileStream readSourceLines(int fileRef) {
+  public File readFileSource(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SOURCE, fileRef);
     if (!doesFileExists(file)) {
       throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
     }
-    return new FileStream(file);
+    return file;
   }
 
   private boolean doesFileExists(File file) {

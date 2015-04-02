@@ -34,7 +34,7 @@ public class BatchReportWriter {
     this.fileStructure = new FileStructure(dir);
   }
 
-  FileStructure getFileStructure() {
+  public FileStructure getFileStructure() {
     return fileStructure;
   }
 

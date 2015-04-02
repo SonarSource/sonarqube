@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.protocol.output;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,10 +28,9 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchReportReaderTest {
@@ -194,26 +195,40 @@ public class BatchReportReaderTest {
         .build()));
 
     sut = new BatchReportReader(dir);
-    List<BatchReport.Coverage> coverageList = newArrayList(sut.readFileCoverage(1));
-    assertThat(coverageList).hasSize(2);
 
-    BatchReport.Coverage coverage = coverageList.get(0);
-    assertThat(coverage.getLine()).isEqualTo(1);
-    assertThat(coverage.getConditions()).isEqualTo(1);
-    assertThat(coverage.getUtHits()).isTrue();
-    assertThat(coverage.getItHits()).isFalse();
-    assertThat(coverage.getUtCoveredConditions()).isEqualTo(1);
-    assertThat(coverage.getItCoveredConditions()).isEqualTo(1);
-    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(1);
+    InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readFileCoverage(1));
+    try {
+      BatchReport.Coverage coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(coverage.getLine()).isEqualTo(1);
+      assertThat(coverage.getConditions()).isEqualTo(1);
+      assertThat(coverage.getUtHits()).isTrue();
+      assertThat(coverage.getItHits()).isFalse();
+      assertThat(coverage.getUtCoveredConditions()).isEqualTo(1);
+      assertThat(coverage.getItCoveredConditions()).isEqualTo(1);
+      assertThat(coverage.getOverallCoveredConditions()).isEqualTo(1);
 
-    coverage = coverageList.get(1);
-    assertThat(coverage.getLine()).isEqualTo(2);
-    assertThat(coverage.getConditions()).isEqualTo(5);
-    assertThat(coverage.getUtHits()).isFalse();
-    assertThat(coverage.getItHits()).isFalse();
-    assertThat(coverage.getUtCoveredConditions()).isEqualTo(4);
-    assertThat(coverage.getItCoveredConditions()).isEqualTo(5);
-    assertThat(coverage.getOverallCoveredConditions()).isEqualTo(5);
+      coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(coverage.getLine()).isEqualTo(2);
+      assertThat(coverage.getConditions()).isEqualTo(5);
+      assertThat(coverage.getUtHits()).isFalse();
+      assertThat(coverage.getItHits()).isFalse();
+      assertThat(coverage.getUtCoveredConditions()).isEqualTo(4);
+      assertThat(coverage.getItCoveredConditions()).isEqualTo(5);
+      assertThat(coverage.getOverallCoveredConditions()).isEqualTo(5);
+    } finally {
+      inputStream.close();
+    }
+  }
+
+  @Test
+  public void read_source_lines() throws Exception {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 1);
+    FileUtils.writeLines(file, Lists.newArrayList("line1", "line2"));
+
+    File sourceFile = new BatchReportReader(dir).readFileSource(1);
+    assertThat(sourceFile).isEqualTo(file);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -261,9 +276,9 @@ public class BatchReportReaderTest {
     assertThat(sut.readFileCoverage(123)).isNull();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_no_source_found() throws Exception {
-    assertThat(sut.readSourceLines(123)).isNull();
+  @Test
+  public void return_null_if_no_source_found() throws Exception {
+    assertThat(sut.readFileCoverage(123)).isNull();
   }
 
   /**

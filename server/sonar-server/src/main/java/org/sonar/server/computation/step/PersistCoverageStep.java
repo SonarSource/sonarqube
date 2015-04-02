@@ -26,7 +26,10 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.source.db.FileSourceDb;
+
+import java.io.File;
 
 /**
  * Nothing is persist for the moment. Only Coverage are read and not persist for the moment
@@ -51,9 +54,10 @@ public class PersistCoverageStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component.getType().equals(Constants.ComponentType.FILE)) {
-      Iterable<BatchReport.Coverage> coverageList = reportReader.readFileCoverage(componentRef);
-      if (coverageList != null) {
-        processCoverage(component, coverageList);
+      File coverageFile = reportReader.readFileCoverage(componentRef);
+      if (coverageFile != null) {
+        ReportIterator<BatchReport.Coverage> coverageReport = new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER);
+        processCoverage(component, coverageReport);
       }
     }
 
@@ -62,10 +66,11 @@ public class PersistCoverageStep implements ComputationStep {
     }
   }
 
-  private void processCoverage(BatchReport.Component component, Iterable<BatchReport.Coverage> coverageList) {
+  private void processCoverage(BatchReport.Component component, ReportIterator<BatchReport.Coverage> coverageReport) {
     fileSourceData = null;
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
-    for (BatchReport.Coverage coverage : coverageList) {
+    while (coverageReport.hasNext()) {
+      BatchReport.Coverage coverage = coverageReport.next();
       FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder().setLine(coverage.getLine());
       processLineCoverage(coverage.getLine(), lineBuilder, coverage);
     }

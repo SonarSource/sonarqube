@@ -18,27 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.protocol;
+package org.sonar.server.computation.source;
 
-import com.google.common.io.Resources;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.protocol.output.FileStructure;
 
 import java.io.File;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FileStreamTest {
+public class ReportIteratorTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   File file;
 
-  FileStream sut;
+  ReportIterator<BatchReport.Coverage> sut;
 
   @Before
   public void setUp() throws Exception {
-    file = new File(Resources.getResource(getClass(), "FileStreamTest/file.txt").getFile());
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+
+    writer.writeFileCoverage(1, newArrayList(
+      BatchReport.Coverage.newBuilder()
+        .setLine(1)
+        .build()
+      ));
+
+    file = new FileStructure(dir).fileFor(FileStructure.Domain.COVERAGE, 1);
   }
 
   @After
@@ -49,27 +66,18 @@ public class FileStreamTest {
   }
 
   @Test
-  public void read_lines() throws Exception {
-    sut = new FileStream(file);
-
-    Iterator<String> lines = sut.iterator();
-    assertThat(lines.next()).isEqualTo("line1");
-    assertThat(lines.next()).isEqualTo("line2");
-    assertThat(lines.next()).isEqualTo("line3");
+  public void read_report() throws Exception {
+    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    assertThat(sut.next().getLine()).isEqualTo(1);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_to_get_iterator_twice() throws Exception {
-    sut = new FileStream(file);
-    sut.iterator();
+  @Test(expected = NoSuchElementException.class)
+  public void test_error() throws Exception {
+    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    sut.next();
 
-    // Fail !
-    sut.iterator();
+    // fail !
+    sut.next();
   }
 
-  @Test
-  public void not_fail_when_close_without_calling_iterator() throws Exception {
-    sut = new FileStream(file);
-    sut.close();
-  }
 }

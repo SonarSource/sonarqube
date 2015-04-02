@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.protocol;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
@@ -35,22 +34,6 @@ public class ProtobufUtil {
       return parser.parseFrom(input);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read file: " + file, e);
-    }
-  }
-
-  static <T extends Message> T readInputStream(InputStream inputStream, Parser<T> parser) {
-    try {
-      return parser.parseDelimitedFrom(inputStream);
-    } catch (InvalidProtocolBufferException e) {
-      throw new IllegalStateException("Failed to read input stream", e);
-    }
-  }
-
-  static InputStream createInputStream(File file) {
-    try {
-      return new BufferedInputStream(new FileInputStream(file));
-    } catch (FileNotFoundException e) {
-      throw new IllegalStateException("Unable to find file " + file, e);
     }
   }
 
