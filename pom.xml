@@ -414,6 +414,30 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.gmaven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>randomize-environment</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                <![CDATA[
+                String[] timezones = ["UTC", "EST", "ECT", "CST", "NZ", "GMT-9", "GMT+9"];
+                String testTimezone = timezones[new Random().nextInt(timezones.length)];
+                project.properties['testTimezone'] = testTimezone;
+                log.info('Timezone used for tests: ' + testTimezone);
+                ]]>
+              </source>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
@@ -535,7 +559,7 @@
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
             <!-- temporary workaround. Waiting for tests to not be coupled with env timezone. -->
-            <user.timezone>GMT+1</user.timezone>
+            <user.timezone>${testTimezone}</user.timezone>
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>

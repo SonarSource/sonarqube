@@ -434,7 +434,7 @@ public class MeasureFilterExecutorTest {
   @Test
   public void filter_by_min_date() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setFromDate(DateUtils.parseDate("2012-12-13"));
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setFromDate(DateUtils.parseDateTime("2012-12-13T00:00:00+0000"));
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     // php has been analyzed in 2012-12-13, whereas java project has been analyzed in 2008

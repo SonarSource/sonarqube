@@ -60,7 +60,7 @@ public class RenameIssueWidgetsTest {
     // First widget is not updated
     assertThat(results.get(0).get("updatedAt")).isNull();
     for (int i = 1; i < results.size(); i++) {
-      assertThat(results.get(i).get("updatedAt").toString()).startsWith("2003-03-23");
+      assertThat(results.get(i).get("updatedAt").toString()).startsWith("2003-03-2");
     }
   }
 

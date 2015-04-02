@@ -79,7 +79,8 @@ public class IntervalTest {
       DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-04-13")
       );
 
-    List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
+    List<Interval> intervals = Interval.group(snapshots,
+      DateUtils.parseDateTime("2010-01-01T00:00:00+0100"), DateUtils.parseDateTime("2011-12-31T00:00:00+0100"), Calendar.MONTH);
     assertThat(intervals.size(), is(2));
 
     assertThat(intervals.get(0).count(), is(1));
@@ -94,12 +95,14 @@ public class IntervalTest {
   @Test
   public void shouldIgnoreTimeWhenGroupingByIntervals() {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDateTime(1L, "2011-05-25T16:16:48+0100"),
-      DbCleanerTestUtils.createSnapshotWithDateTime(2L, "2012-01-26T16:16:48+0100"),
-      DbCleanerTestUtils.createSnapshotWithDateTime(3L, "2012-01-27T16:16:48+0100")
+      DbCleanerTestUtils.createSnapshotWithDateTime(1L, "2011-05-25T00:16:48+0100"),
+      DbCleanerTestUtils.createSnapshotWithDateTime(2L, "2012-01-26T00:16:48+0100"),
+      DbCleanerTestUtils.createSnapshotWithDateTime(3L, "2012-01-27T00:16:48+0100")
       );
 
-    List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2011-05-25"), DateUtils.parseDate("2012-01-26"), Calendar.MONTH);
+    List<Interval> intervals = Interval.group(snapshots,
+      DateUtils.parseDateTime("2011-05-25T00:00:00+0100"),
+      DateUtils.parseDateTime("2012-01-26T00:00:00+0100"), Calendar.MONTH);
     assertThat(intervals.size(), is(1));
     assertThat(intervals.get(0).count(), is(1));
     assertThat(intervals.get(0).get().get(0).getSnapshotId(), is(2L));

@@ -130,7 +130,7 @@ public class SettingsTest {
     settings.setProperty("aDateTime", date, true);
 
     assertThat(settings.getString("aDate")).isEqualTo("2010-05-18");
-    assertThat(settings.getString("aDateTime")).startsWith("2010-05-18T1");
+    assertThat(settings.getString("aDateTime")).startsWith("2010-05-18T");
   }
 
   @Test

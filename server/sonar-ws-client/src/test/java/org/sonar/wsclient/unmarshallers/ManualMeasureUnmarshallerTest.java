@@ -24,32 +24,31 @@ import org.sonar.wsclient.services.ManualMeasure;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class ManualMeasureUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
   public void testSingleMeasure() {
     ManualMeasure measure = new ManualMeasureUnmarshaller().toModel("[]");
-    assertThat(measure, nullValue());
+    assertThat(measure).isNull();
 
     measure = new ManualMeasureUnmarshaller().toModel(loadFile("/manual_measures/single_measure.json"));
-    assertThat(measure.getId(), is(1L));
-    assertThat(measure.getMetricKey(), is("burned_budget"));
-    assertThat(measure.getResourceKey(), is("org.apache.struts:struts-parent"));
-    assertThat(measure.getValue(), is(302.5));
-    assertThat(measure.getUserLogin(), is("admin"));
-    assertThat(measure.getUsername(), is("Administrator"));
-    assertThat(measure.getCreatedAt().getDate(), is(27));
-    assertThat(measure.getUpdatedAt().getDate(), is(3));
+    assertThat(measure.getId()).isEqualTo(1L);
+    assertThat(measure.getMetricKey()).isEqualTo("burned_budget");
+    assertThat(measure.getResourceKey()).isEqualTo("org.apache.struts:struts-parent");
+    assertThat(measure.getValue()).isEqualTo(302.5);
+    assertThat(measure.getUserLogin()).isEqualTo("admin");
+    assertThat(measure.getUsername()).isEqualTo("Administrator");
+    assertThat(measure.getCreatedAt()).isNotNull();
+    assertThat(measure.getUpdatedAt()).isNotNull();
   }
 
 
   @Test
   public void testAllMeasures() {
     List<ManualMeasure> measures = new ManualMeasureUnmarshaller().toModels(loadFile("/manual_measures/all_measures.json"));
-    assertThat(measures.size(), is(2));
+    assertThat(measures).hasSize(2);
   }
 }

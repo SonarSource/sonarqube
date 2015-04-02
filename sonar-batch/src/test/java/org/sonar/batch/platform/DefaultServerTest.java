@@ -44,7 +44,7 @@ public class DefaultServerTest {
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");
-    assertThat(metadata.getStartedAt().getDate()).isEqualTo(18);
+    assertThat(metadata.getStartedAt()).isNotNull();
     assertThat(metadata.getURL()).isEqualTo("http://foo.com");
     assertThat(metadata.getPermanentServerId()).isEqualTo("abcde");
   }

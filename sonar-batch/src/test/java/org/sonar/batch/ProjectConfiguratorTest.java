@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -70,7 +71,9 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Project project = new Project("key");
     new ProjectConfigurator(getSession(), settings, system2).configure(project);
 
-    assertThat(new SimpleDateFormat("ddMMyyyy-mmss").format(project.getAnalysisDate())).isEqualTo("30012005-4510");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy-mmss");
+    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    assertThat(dateFormat.format(project.getAnalysisDate())).isEqualTo("30012005-4510");
   }
 
   @Test(expected = RuntimeException.class)

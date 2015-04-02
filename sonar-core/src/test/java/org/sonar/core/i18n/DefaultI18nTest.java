@@ -34,6 +34,7 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -169,13 +170,18 @@ public class DefaultI18nTest {
 
   @Test
   public void format_date_time() {
-    // JVM timezone is set to UTC in this test (see method before())
+    TimeZone initialTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
     assertThat(manager.formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).startsWith("Jan 22, 2014");
+    TimeZone.setDefault(initialTz);
   }
 
   @Test
   public void format_date() {
+    TimeZone initialTz = TimeZone.getDefault();
+    TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
     assertThat(manager.formatDate(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).isEqualTo("Jan 22, 2014");
+    TimeZone.setDefault(initialTz);
   }
 
   @Test
