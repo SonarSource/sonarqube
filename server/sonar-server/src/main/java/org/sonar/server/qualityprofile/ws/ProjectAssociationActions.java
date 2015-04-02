@@ -80,16 +80,21 @@ public class ProjectAssociationActions implements ServerComponent {
   private void setCommonAttributes(NewAction action) {
     action.setPost(true);
     action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("A project UUID. Either this parameter, or projectKey must be set.");
+      .setDescription("A project UUID. Either this parameter, or projectKey must be set.")
+      .setExampleValue("69e57151-be0d-4157-adff-c06741d88879");
     action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("A project key. Either this parameter, or projectUuid must be set.");
+      .setDescription("A project key. Either this parameter, or projectUuid must be set.")
+      .setExampleValue("org.codehaus.sonar:sonar");
     action.createParam(PARAM_PROFILE_KEY)
-      .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.");
+      .setDescription("A quality profile key. Either this parameter, or a combination of profileName + language must be set.")
+      .setExampleValue("sonar-way-java-12345");
     action.createParam(PARAM_PROFILE_NAME)
-      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.");
+      .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
+      .setExampleValue("Soanr way");
     action.createParam(PARAM_LANGUAGE)
       .setDescription("A quality profile language. If this parameter is set, profileKey must not be set and profileName must be set to disambiguate.")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
+      .setExampleValue("js");
   }
 
   private abstract static class AssociationHandler implements RequestHandler {

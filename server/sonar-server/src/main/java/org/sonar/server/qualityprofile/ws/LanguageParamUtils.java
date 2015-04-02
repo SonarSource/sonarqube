@@ -29,6 +29,10 @@ import java.util.Collection;
 
 class LanguageParamUtils {
 
+  private LanguageParamUtils() {
+    // Utility class
+  }
+
   static Collection<String> getLanguageKeys(Languages languages) {
     return Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
       @Override

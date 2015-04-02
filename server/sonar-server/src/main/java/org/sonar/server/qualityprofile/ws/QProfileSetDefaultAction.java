@@ -53,6 +53,28 @@ public class QProfileSetDefaultAction implements BaseQProfileWsAction {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    NewAction setDefault = controller.createAction("set_default")
+      .setSince("5.2")
+      .setDescription("Select the default profile for a given language.")
+      .setPost(true)
+      .setHandler(this);
+
+    setDefault.createParam(PARAM_LANGUAGE)
+      .setDescription("The key of a language supported by the platform. If specified, profileName must be set to select the default profile for the selected language.")
+      .setExampleValue("js")
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+
+    setDefault.createParam(PARAM_PROFILE_NAME)
+      .setDescription("The name of a quality profile. If specified, language must be set. The matching profile will be used as default for the selected language.")
+      .setExampleValue("Sonar way");
+
+    setDefault.createParam(PARAM_PROFILE_KEY)
+      .setDescription("The key of a quality profile. If specified, language and profileName must not be set. The matching profile will be used as default for its language.")
+      .setExampleValue("sonar-way-js-12345");
+  }
+
+  @Override
   public void handle(Request request, Response response) throws Exception {
     UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
@@ -79,28 +101,4 @@ public class QProfileSetDefaultAction implements BaseQProfileWsAction {
     }
     return profile.key();
   }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    NewAction setDefault = controller.createAction("set_default")
-      .setSince("5.2")
-      .setDescription("Select the default profile for a given language.")
-      .setPost(true)
-      .setHandler(this)
-      .setResponseExample(getClass().getResource("example-search.json"));
-
-    setDefault.createParam(PARAM_LANGUAGE)
-      .setDescription("The key of a language supported by the platform. If specified, profileName must be set to select the default profile for the selected language.")
-      .setExampleValue("js")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
-
-    setDefault.createParam(PARAM_PROFILE_NAME)
-      .setDescription("The name of a quality profile. If specified, language must be set. The matching profile will be used as default for the selected language.")
-      .setExampleValue("sonar-way-js-12345");
-
-    setDefault.createParam(PARAM_PROFILE_KEY)
-      .setDescription("The key of a quality profile. If specified, language and profileName must not be set. The matching profile will be used as default for its language.")
-      .setExampleValue("sonar-way-js-12345");
-  }
-
 }

@@ -69,6 +69,25 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    NewAction search = controller.createAction("search")
+      .setSince("5.2")
+      .setDescription("List quality profiles.")
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("example-search.json"));
+
+    search.createParam(PARAM_LANGUAGE)
+      .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
+      .setExampleValue("js")
+      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
+
+    search.createParam(PARAM_FIELDS)
+      .setDescription("Use to restrict returned fields.")
+      .setExampleValue("key,language")
+      .setPossibleValues(ALL_FIELDS);
+  }
+
+  @Override
   public void handle(Request request, Response response) throws Exception {
     List<String> fields = request.paramAsStrings(PARAM_FIELDS);
 
@@ -154,24 +173,4 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
   private boolean fieldIsNeeded(String field, @Nullable List<String> fields) {
     return fields == null || fields.contains(field);
   }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    NewAction search = controller.createAction("search")
-      .setSince("5.2")
-      .setDescription("List quality profiles.")
-      .setHandler(this)
-      .setResponseExample(getClass().getResource("example-search.json"));
-
-    search.createParam(PARAM_LANGUAGE)
-      .setDescription("The key of a language supported by the platform. If specified, only profiles for the given language are returned.")
-      .setExampleValue("js")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
-
-    search.createParam(PARAM_FIELDS)
-      .setDescription("Use to restrict returned fields.")
-      .setExampleValue("key,language")
-      .setPossibleValues(ALL_FIELDS);
-  }
-
 }
