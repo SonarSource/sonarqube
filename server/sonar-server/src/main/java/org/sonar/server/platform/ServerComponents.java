@@ -382,6 +382,7 @@ class ServerComponents {
     pico.addSingleton(QProfileSearchAction.class);
     pico.addSingleton(QProfileSetDefaultAction.class);
     pico.addSingleton(QProfileProjectsAction.class);
+    pico.addSingleton(QProfileDeleteAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
