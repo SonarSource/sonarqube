@@ -17,6 +17,9 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+require "erb"
+include ERB::Util
+
 class RulesController < ApplicationController
 
   SECTION=Navigation::SECTION_CONFIGURATION
@@ -24,25 +27,14 @@ class RulesController < ApplicationController
   # GET /rules/show/<key>
   # This URL is used by the Eclipse plugin
   #
-  # ==== Optional parameters
-  # 'layout' is false to remove sidebar and headers
-  #
   # Example: GET /rules/show/squid:AvoidCycles
   #
   def show
     require_parameters :id
 
-    @key=params[:id]
-    if @key.to_i==0
-      parts=@key.split(':')
-      @rule=Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', parts[0], parts[1]])
-    else
-      @rule=Rule.find(@key)
-    end
-    @page_title=@rule.name if @rule
-
-    if params[:modal] == 'true'
-      render :partial => 'show_modal'
-    end
+    # the redirect is needed for the backward compatibility with eclipse plugin
+    url = url_for :controller => 'coding_rules', :action => 'index'
+    url = url + '#rule_key=' + url_encode(params[:id])
+    redirect_to url
   end
 end
