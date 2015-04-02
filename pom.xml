@@ -417,8 +417,9 @@
       Choosing a random timezone when executing tests allows to detect
       early the tests that are heavily coupled with local environment.
 
-      Temporary disabled as gmaven-plugin 1.5 does not support maven parallel builds.
-      See http://jira.codehaus.org/browse/GMAVEN-87
+      Temporary disabled as both gmaven-plugin 1.5 and groovy-maven-plugin 2.0
+      do not support maven parallel builds.
+      See http://jira.codehaus.org/browse/GMAVEN-87 and https://jira.codehaus.org/browse/GMAVEN-114
       -->
       <!--
       <plugin>
@@ -435,7 +436,7 @@
             <configuration>
               <source>
                 <![CDATA[
-                String[] timezones = ["GMT-9"];
+                String[] timezones = ["GMT-9", "UTC", "GMT+9"];
                 String testTimezone = timezones[new Random().nextInt(timezones.length)];
                 project.properties['testTimezone'] = testTimezone;
                 log.info('Timezone used for tests: ' + testTimezone);
