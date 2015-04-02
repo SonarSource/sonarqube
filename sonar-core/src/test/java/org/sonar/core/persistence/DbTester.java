@@ -234,7 +234,7 @@ public class DbTester extends ExternalResource {
         if (value instanceof Clob) {
           Clob clob = (Clob) value;
           value = IOUtils.toString((clob.getAsciiStream()));
-          clob.free();
+          doClobFree(clob);
         } else if (value instanceof BigDecimal) {
           // In Oracle, INTEGER types are mapped as BigDecimal
           value = ((BigDecimal) value).longValue();
@@ -433,6 +433,14 @@ public class DbTester extends ExternalResource {
       }
     } finally {
       IOUtils.closeQuietly(input);
+    }
+  }
+
+  private static void doClobFree(Clob clob) throws SQLException {
+    try {
+      clob.free();
+    } catch (AbstractMethodError e){
+      // JTS driver do not implement free() as it's using JDBC 3.0
     }
   }
 }
