@@ -413,6 +413,14 @@
           </execution>
         </executions>
       </plugin>
+      <!--
+      Choosing a random timezone when executing tests allows to detect
+      early the tests that are heavily coupled with local environment.
+
+      Temporary disabled as gmaven-plugin 1.5 does not support maven parallel builds.
+      See http://jira.codehaus.org/browse/GMAVEN-87
+      -->
+      <!--
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
         <artifactId>gmaven-plugin</artifactId>
@@ -427,7 +435,7 @@
             <configuration>
               <source>
                 <![CDATA[
-                String[] timezones = ["UTC", "EST", "ECT", "CST", "NZ", "GMT-9", "GMT+9"];
+                String[] timezones = ["GMT-9"];
                 String testTimezone = timezones[new Random().nextInt(timezones.length)];
                 project.properties['testTimezone'] = testTimezone;
                 log.info('Timezone used for tests: ' + testTimezone);
@@ -437,6 +445,7 @@
           </execution>
         </executions>
       </plugin>
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -558,8 +567,12 @@
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
-            <!-- temporary workaround. Waiting for tests to not be coupled with env timezone. -->
-            <user.timezone>${testTimezone}</user.timezone>
+            <!--
+            random timezone is temporarily disabled. Waiting for gmaven-plugin to support parallel builds.
+            See profile 'randomize-environment'
+            -->
+            <!--<user.timezone>${testTimezone}</user.timezone>-->
+            <user.timezone>GMT-9</user.timezone>
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>
