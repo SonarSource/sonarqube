@@ -58,7 +58,6 @@ public class CoveragePublisher implements ReportPublisherStep {
         @Override
         public void apply(String value, Coverage.Builder builder) {
           builder.setUtHits(Integer.parseInt(value) > 0);
-          builder.setConditions(1);
         }
       });
       applyLineMeasure(resource.key(), ((InputFile) resource.inputPath()).lines(), CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine, new MeasureOperation() {
@@ -88,7 +87,7 @@ public class CoveragePublisher implements ReportPublisherStep {
       applyLineMeasure(resource.key(), ((InputFile) resource.inputPath()).lines(), CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine, new MeasureOperation() {
         @Override
         public void apply(String value, Coverage.Builder builder) {
-          builder.setItCoveredConditions(Integer.parseInt(value));
+          builder.setOverallCoveredConditions(Integer.parseInt(value));
         }
       });
 
