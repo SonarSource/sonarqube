@@ -35,11 +35,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -100,7 +96,7 @@ import java.util.Set;
  *
  * @since 4.2
  */
-public interface WebService extends ServerExtension {
+public interface WebService extends ServerExtension, Definable<WebService.Context> {
 
   class Context {
     private final Map<String, Controller> controllers = Maps.newHashMap();
