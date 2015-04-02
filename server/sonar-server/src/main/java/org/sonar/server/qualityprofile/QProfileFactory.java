@@ -100,7 +100,7 @@ public class QProfileFactory implements ServerComponent {
    * Session is NOT committed. Profiles marked as "default" for a language can't be deleted,
    * except if the parameter <code>force</code> is true.
    */
-  void delete(DbSession session, String key, boolean force) {
+  public void delete(DbSession session, String key, boolean force) {
     QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(session, key);
     List<QualityProfileDto> descendants = db.qualityProfileDao().findDescendants(session, key);
     if (!force) {
@@ -117,6 +117,7 @@ public class QProfileFactory implements ServerComponent {
   }
 
   private void doDelete(DbSession session, QualityProfileDto profile) {
+    db.qualityProfileDao().deleteAllProjectProfileAssociation(profile.getKey(), session);
     db.activeRuleDao().deleteByProfileKey(session, profile.getKey());
     db.qualityProfileDao().delete(session, profile);
   }
