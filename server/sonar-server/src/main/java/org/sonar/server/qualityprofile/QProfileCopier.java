@@ -29,12 +29,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 
 public class QProfileCopier implements ServerComponent {
 
@@ -50,7 +45,7 @@ public class QProfileCopier implements ServerComponent {
     this.temp = temp;
   }
 
-  void copyToName(String fromProfileKey, String toName) {
+  public void copyToName(String fromProfileKey, String toName) {
     QProfileName to = prepareTarget(fromProfileKey, toName);
     File backupFile = temp.newFile();
     backup(fromProfileKey, backupFile);
