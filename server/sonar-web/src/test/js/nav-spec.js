@@ -355,7 +355,7 @@ casper.test.begin(testName('Context'), function (test) {
       .then(function () {
         test.assertSelectorContains('.navbar-context .nav-crumbs', 'SonarQube Java');
         test.assertSelectorContains('.navbar-context .navbar-context-meta', '2.9-SNAPSHOT');
-        test.assertSelectorContains('.navbar-context .navbar-context-meta', 'March 3 2015 9:43 AM');
+        test.assertSelectorContains('.navbar-context .navbar-context-meta', 'March 3 2015');
       })
 
       .then(function () {
