@@ -249,7 +249,7 @@ public class FileMetadata implements BatchComponent {
   private static void readFile(File file, Charset encoding, CharHandler... handlers) {
     try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
-      Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
+         Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {
       read(reader, handlers);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
