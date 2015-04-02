@@ -3,7 +3,7 @@ language: java
 jdk:
   - oraclejdk8
 
-script: mvn clean install -e -B
+script: mvn clean install -e -B -T0.5C -DforkCount=0.5C
 
 install: true
 
