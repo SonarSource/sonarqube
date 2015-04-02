@@ -22,6 +22,7 @@
       "key": "my-company-profile-java-23456",
       "name": "My Company Profile",
       "language": "java",
+      "languageName": "Java",
       "isInherited": false,
       "isDefault": true,
       "activeRuleCount": 42
@@ -30,6 +31,7 @@
       "key": "sonar-way-python-01234",
       "name": "Sonar way",
       "language": "py",
+      "languageName": "Python",
       "isInherited": false,
       "activeRuleCount": 125
     }
