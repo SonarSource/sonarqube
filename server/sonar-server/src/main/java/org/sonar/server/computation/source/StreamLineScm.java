@@ -20,10 +20,30 @@
 
 package org.sonar.server.computation.source;
 
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.source.db.FileSourceDb;
 
-public interface StreamLine {
+public class StreamLineScm implements StreamLine {
 
-  void readLine(int line, FileSourceDb.Line.Builder lineBuilder);
+  private final BatchReport.Scm scmReport;
+
+  public StreamLineScm(BatchReport.Scm scmReport) {
+    this.scmReport = scmReport;
+  }
+
+  @Override
+  public void readLine(int line, FileSourceDb.Line.Builder lineBuilder) {
+    int changeSetIndex = scmReport.getChangesetIndexByLine(line);
+    BatchReport.Scm.Changeset changeset = scmReport.getChangeset(changeSetIndex);
+    if (changeset.hasAuthor()) {
+      lineBuilder.setScmAuthor(changeset.getAuthor());
+    }
+    if (changeset.hasRevision()) {
+      lineBuilder.setScmRevision(changeset.getRevision());
+    }
+    if (changeset.hasDate()) {
+      lineBuilder.setScmDate(changeset.getDate());
+    }
+  }
 
 }

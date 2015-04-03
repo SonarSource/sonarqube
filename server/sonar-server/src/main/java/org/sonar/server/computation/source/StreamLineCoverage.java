@@ -38,8 +38,8 @@ public class StreamLineCoverage implements StreamLine {
   }
 
   @Override
-  public void readLine(int currentLine, FileSourceDb.Line.Builder lineBuilder) {
-    BatchReport.Coverage reportCoverage = getNextReport(currentLine);
+  public void readLine(int line, FileSourceDb.Line.Builder lineBuilder) {
+    BatchReport.Coverage reportCoverage = getNextReport(line);
     if (reportCoverage != null) {
       // Unit test
       if (reportCoverage.getUtHits()) {

@@ -38,6 +38,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.computation.source.StreamLine;
 import org.sonar.server.computation.source.StreamLineCoverage;
+import org.sonar.server.computation.source.StreamLineScm;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 
@@ -81,7 +82,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     if (component.getType().equals(Constants.ComponentType.FILE)) {
       LineIterator linesIterator = linesIterator(reportReader.readFileSource(componentRef));
       try {
-        processFileSources(session, linesIterator, component, context.getProject().uuid(), loadComputeLines(reportReader, componentRef));
+        processFileSources(session, linesIterator, component, context.getProject().uuid(), loadStreamLines(reportReader, componentRef));
       } finally {
         linesIterator.close();
       }
@@ -92,11 +93,15 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
   }
 
-  private List<StreamLine> loadComputeLines(BatchReportReader reportReader, int componentRef) {
+  private List<StreamLine> loadStreamLines(BatchReportReader reportReader, int componentRef) {
     List<StreamLine> streamLines = newArrayList();
     File coverageFile = reportReader.readFileCoverage(componentRef);
     if (coverageFile != null) {
       streamLines.add(new StreamLineCoverage(new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER)));
+    }
+    BatchReport.Scm scmReport = reportReader.readComponentScm(componentRef);
+    if (scmReport != null) {
+      streamLines.add(new StreamLineScm(scmReport));
     }
     return streamLines;
   }
