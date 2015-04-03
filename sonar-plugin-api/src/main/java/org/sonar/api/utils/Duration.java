@@ -176,11 +176,8 @@ public class Duration implements Serializable {
     }
 
     Duration that = (Duration) o;
-    if (durationInMinutes != that.durationInMinutes) {
-      return false;
-    }
+    return durationInMinutes == that.durationInMinutes;
 
-    return true;
   }
 
   @Override

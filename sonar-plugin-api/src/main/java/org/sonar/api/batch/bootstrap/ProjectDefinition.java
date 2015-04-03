@@ -620,11 +620,8 @@ public class ProjectDefinition {
     }
     ProjectDefinition that = (ProjectDefinition) o;
     String key = getKey();
-    if (key != null ? !key.equals(that.getKey()) : that.getKey() != null) {
-      return false;
-    }
+    return !(key != null ? !key.equals(that.getKey()) : that.getKey() != null);
 
-    return true;
   }
 
   @Override

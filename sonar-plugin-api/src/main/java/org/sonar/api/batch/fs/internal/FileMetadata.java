@@ -316,7 +316,7 @@ public class FileMetadata implements BatchComponent {
     }
   }
 
-  public static interface LineHashConsumer {
+  public interface LineHashConsumer {
 
     void consume(int lineIdx, @Nullable byte[] hash);
 

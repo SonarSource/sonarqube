@@ -94,10 +94,7 @@ public abstract class ProfileExporter implements BatchExtension, ServerExtension
       return false;
     }
     ProfileExporter that = (ProfileExporter) o;
-    if (key != null ? !key.equals(that.key) : that.key != null) {
-      return false;
-    }
-    return true;
+    return !(key != null ? !key.equals(that.key) : that.key != null);
   }
 
   @Override

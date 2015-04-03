@@ -75,10 +75,7 @@ public class TaskDefinition implements TaskExtension, Comparable<TaskDefinition>
     }
 
     TaskDefinition that = (TaskDefinition) o;
-    if (!key.equals(that.key)) {
-      return false;
-    }
-    return true;
+    return key.equals(that.key);
   }
 
   @Override

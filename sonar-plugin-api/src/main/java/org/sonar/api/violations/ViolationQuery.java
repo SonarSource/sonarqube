@@ -30,7 +30,7 @@ import org.sonar.api.resources.Resource;
 @Deprecated
 public final class ViolationQuery {
 
-  public static enum SwitchMode {
+  public enum SwitchMode {
     OFF, ON, BOTH
   }
 

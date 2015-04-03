@@ -90,10 +90,7 @@ public class RuleKey implements Serializable {
     if (!repository.equals(ruleKey.repository)) {
       return false;
     }
-    if (!rule.equals(ruleKey.rule)) {
-      return false;
-    }
-    return true;
+    return rule.equals(ruleKey.rule);
   }
 
   @Override

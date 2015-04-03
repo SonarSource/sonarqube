@@ -34,12 +34,12 @@ import javax.annotation.CheckForNull;
 @Beta
 public interface Issue {
 
-  public enum Severity {
+  enum Severity {
     INFO,
     MINOR,
     MAJOR,
     CRITICAL,
-    BLOCKER;
+    BLOCKER
   }
 
   /**

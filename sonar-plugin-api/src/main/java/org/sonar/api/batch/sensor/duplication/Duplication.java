@@ -39,7 +39,7 @@ import java.util.List;
 @Beta
 public interface Duplication {
 
-  public static class Block {
+  class Block {
     private final String resourceKey;
     private final int startLine;
     private final int length;

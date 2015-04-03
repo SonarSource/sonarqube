@@ -44,7 +44,7 @@ public abstract class BlameCommand implements BatchComponent {
   /**
    * Callback for the provider to report results of blame per file.
    */
-  public static interface BlameInput {
+  public interface BlameInput {
 
     /**
      * Filesystem of the current (sub )project.
@@ -61,7 +61,7 @@ public abstract class BlameCommand implements BatchComponent {
   /**
    * Callback for the provider to report results of blame per file.
    */
-  public static interface BlameOutput {
+  public interface BlameOutput {
 
     /**
      * Add result of the blame command for a single file. Number of lines should

@@ -40,7 +40,7 @@ public interface FileSystemFilter extends BatchExtension {
   /**
    * Plugins must not implement this interface. It is provided at runtime.
    */
-  public interface Context {
+  interface Context {
     ModuleFileSystem fileSystem();
 
     FileType type();

@@ -72,7 +72,7 @@ public class DefaultDependency extends DefaultStorable implements Dependency, Ne
     Preconditions.checkState(!this.fromKey.equals(this.toKey), "From and To can't be the same inputFile");
     Preconditions.checkNotNull(this.fromKey, "From inputFile can't be null");
     Preconditions.checkNotNull(this.toKey, "To inputFile can't be null");
-    storage.store((Dependency) this);
+    storage.store(this);
   }
 
   @Override

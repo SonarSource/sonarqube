@@ -153,7 +153,7 @@ public interface FileSystem extends BatchComponent {
   /**
    * Interface of the underlying file index.
    */
-  public static interface Index {
+  interface Index {
     Iterable<InputFile> inputFiles();
 
     @CheckForNull

@@ -736,10 +736,7 @@ public class Measure<G extends Serializable> implements Serializable {
     if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
       return false;
     }
-    if (personId != null ? !personId.equals(measure.personId) : measure.personId != null) {
-      return false;
-    }
-    return true;
+    return !(personId != null ? !personId.equals(measure.personId) : measure.personId != null);
   }
 
   @Override

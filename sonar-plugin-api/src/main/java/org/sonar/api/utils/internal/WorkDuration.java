@@ -37,7 +37,7 @@ public class WorkDuration implements Serializable {
   static final int HOUR_POSITION_IN_LONG = 100;
   static final int MINUTE_POSITION_IN_LONG = 1;
 
-  public static enum UNIT {
+  public enum UNIT {
     DAYS, HOURS, MINUTES
   }
 
@@ -181,11 +181,8 @@ public class WorkDuration implements Serializable {
     }
 
     WorkDuration that = (WorkDuration) o;
-    if (durationInMinutes != that.durationInMinutes) {
-      return false;
-    }
+    return durationInMinutes == that.durationInMinutes;
 
-    return true;
   }
 
   @Override

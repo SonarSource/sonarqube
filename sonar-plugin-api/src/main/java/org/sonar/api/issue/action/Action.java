@@ -87,10 +87,7 @@ public class Action {
       return false;
     }
     Action that = (Action) o;
-    if (!key.equals(that.key)) {
-      return false;
-    }
-    return true;
+    return key.equals(that.key);
   }
 
   @Override

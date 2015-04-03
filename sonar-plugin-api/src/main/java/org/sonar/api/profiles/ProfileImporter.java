@@ -81,10 +81,7 @@ public abstract class ProfileImporter implements ServerExtension {
       return false;
     }
     ProfileImporter that = (ProfileImporter) o;
-    if (importerKey != null ? !importerKey.equals(that.importerKey) : that.importerKey != null) {
-      return false;
-    }
-    return true;
+    return !(importerKey != null ? !importerKey.equals(that.importerKey) : that.importerKey != null);
   }
 
   @Override

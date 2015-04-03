@@ -331,11 +331,8 @@ public class DefaultCharacteristic implements Characteristic {
     if (key != null ? !key.equals(that.key) : that.key != null) {
       return false;
     }
-    if (ruleKey != null ? !ruleKey.equals(that.ruleKey) : that.ruleKey != null) {
-      return false;
-    }
+    return !(ruleKey != null ? !ruleKey.equals(that.ruleKey) : that.ruleKey != null);
 
-    return true;
   }
 
   @Override

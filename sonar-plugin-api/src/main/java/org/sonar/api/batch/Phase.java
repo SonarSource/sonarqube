@@ -33,7 +33,7 @@ public @interface Phase {
 
   Name name();
 
-  public enum Name {
+  enum Name {
     PRE, DEFAULT, POST
   }
 }

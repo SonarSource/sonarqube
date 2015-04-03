@@ -42,7 +42,7 @@ import javax.annotation.CheckForNull;
  */
 public interface DebtRemediationFunction {
 
-  static enum Type {
+  enum Type {
     LINEAR, LINEAR_OFFSET, CONSTANT_ISSUE
   }
 

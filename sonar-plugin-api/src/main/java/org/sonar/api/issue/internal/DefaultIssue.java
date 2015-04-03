@@ -559,10 +559,7 @@ public class DefaultIssue implements Issue {
       return false;
     }
     DefaultIssue that = (DefaultIssue) o;
-    if (key != null ? !key.equals(that.key) : that.key != null) {
-      return false;
-    }
-    return true;
+    return !(key != null ? !key.equals(that.key) : that.key != null);
   }
 
   @Override

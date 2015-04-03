@@ -88,11 +88,8 @@ public final class WorkUnit implements Serializable {
     if (Double.compare(workUnit.value, value) != 0) {
       return false;
     }
-    if (!unit.equals(workUnit.unit)) {
-      return false;
-    }
+    return unit.equals(workUnit.unit);
 
-    return true;
   }
 
   @Override

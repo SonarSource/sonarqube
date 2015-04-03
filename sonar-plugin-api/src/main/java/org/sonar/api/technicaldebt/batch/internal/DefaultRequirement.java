@@ -248,11 +248,8 @@ public class DefaultRequirement implements Requirement {
     if (!characteristic.equals(that.characteristic)) {
       return false;
     }
-    if (!ruleKey.equals(that.ruleKey)) {
-      return false;
-    }
+    return ruleKey.equals(that.ruleKey);
 
-    return true;
   }
 
   @Override

@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  */
 public class DebtRemediationFunction {
 
-  public static enum Type {
+  public enum Type {
     LINEAR, LINEAR_OFFSET, CONSTANT_ISSUE
   }
 

@@ -51,7 +51,7 @@ class AbsolutePathPredicate extends AbstractFilePredicate {
   public Iterable<InputFile> get(Index index) {
     String relative = PathUtils.sanitize(new PathResolver().relativePath(baseDir.toFile(), new File(path)));
     if (relative == null) {
-      return Collections.<InputFile>emptyList();
+      return Collections.emptyList();
     }
     InputFile f = index.inputFile(relative);
     return f != null ? Arrays.asList(f) : Collections.<InputFile>emptyList();
