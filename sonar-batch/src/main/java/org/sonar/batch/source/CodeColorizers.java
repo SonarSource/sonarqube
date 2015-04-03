@@ -70,6 +70,7 @@ public class CodeColorizers implements BatchComponent {
     if (format == null) {
       // Workaround for Java test code since Java plugin only provides highlighting for main source and no colorizer
       // TODO can be dropped when Java plugin embed its own CodeColorizerFormat of (better) provides highlighting for tests
+      // See SONARJAVA-830
       if ("java".equals(language)) {
         tokenizers = CodeColorizer.Format.JAVA.getTokenizers();
       } else {
@@ -81,7 +82,7 @@ public class CodeColorizers implements BatchComponent {
     try (Reader reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(file)), charset))) {
       new HighlightingRenderer().render(reader, tokenizers, highlighting);
     } catch (Exception e) {
-      throw new IllegalStateException("Unable to read source file for colorization", e);
+      LOG.warn("Unable to perform colorization of file " + file, e);
     }
   }
 }
