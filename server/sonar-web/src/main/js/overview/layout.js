@@ -25,21 +25,7 @@ define([
     template: Templates['overview-layout'],
 
     regions: {
-      gateRegion: '#overview-gate',
-      sizeRegion: '#overview-size',
-      issuesRegion: '#overview-issues',
-      coverageRegion: '#overview-coverage',
-      duplicationsRegion: '#overview-duplications'
-    },
-
-    modelEvents: {
-      'change': 'toggleRegions'
-    },
-
-    toggleRegions: function () {
-      var conditions = this.model.get('gateConditions'),
-          hasGate = _.isArray(conditions) && conditions.length > 0;
-      this.$(this.gateRegion.el).toggle(hasGate);
+      mainRegion: '.js-region'
     }
   });
 

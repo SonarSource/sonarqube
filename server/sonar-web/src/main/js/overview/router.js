@@ -17,41 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-requirejs([
-  'overview/layout',
-  'overview/controller',
-  'overview/router',
-  'overview/models/state'
-], function (Layout,
-             Controller,
-             Router,
-             State) {
+define(function () {
 
-  var $ = jQuery,
-      App = new Marionette.Application();
+  return Backbone.Router.extend({
 
-  App.addInitializer(function () {
-    $('body').addClass('dashboard-page');
+    routes: {
+      '': 'main'
+    },
 
-    // add state model
-    this.state = new State(window.overviewConf);
+    initialize: function (options) {
+      this.controller = options.controller;
+    },
 
-    // create and render layout
-    this.layout = new Layout({
-      el: '.overview',
-      model: this.state
-    }).render();
-
-    // create controller
-    this.controller = new Controller({ state: this.state, layout: this.layout });
-
-    // start router
-    this.router = new Router({ controller: this.controller });
-    Backbone.history.start();
-  });
-
-  window.requestMessages().done(function () {
-    App.start();
+    main: function () {
+      this.controller.main();
+    }
   });
 
 });

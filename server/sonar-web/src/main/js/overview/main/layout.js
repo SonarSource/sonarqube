@@ -17,41 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-requirejs([
-  'overview/layout',
-  'overview/controller',
-  'overview/router',
-  'overview/models/state'
-], function (Layout,
-             Controller,
-             Router,
-             State) {
+define([
+  'templates/overview'
+], function () {
 
-  var $ = jQuery,
-      App = new Marionette.Application();
+  return Marionette.Layout.extend({
+    template: Templates['overview-main-layout'],
 
-  App.addInitializer(function () {
-    $('body').addClass('dashboard-page');
+    regions: {
+      gateRegion: '#overview-gate',
+      sizeRegion: '#overview-size',
+      issuesRegion: '#overview-issues',
+      coverageRegion: '#overview-coverage',
+      duplicationsRegion: '#overview-duplications'
+    },
 
-    // add state model
-    this.state = new State(window.overviewConf);
+    modelEvents: {
+      'change': 'toggleRegions'
+    },
 
-    // create and render layout
-    this.layout = new Layout({
-      el: '.overview',
-      model: this.state
-    }).render();
-
-    // create controller
-    this.controller = new Controller({ state: this.state, layout: this.layout });
-
-    // start router
-    this.router = new Router({ controller: this.controller });
-    Backbone.history.start();
-  });
-
-  window.requestMessages().done(function () {
-    App.start();
+    toggleRegions: function () {
+      var conditions = this.model.get('gateConditions'),
+          hasGate = _.isArray(conditions) && conditions.length > 0;
+      this.$(this.gateRegion.el).toggle(hasGate);
+    }
   });
 
 });
