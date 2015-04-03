@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'
@@ -6,13 +6,15 @@ else
   OS='linux-x86-64'
 fi
 
-if ! ls sonar-application/target/sonarqube-*.zip &> /dev/null; then
+ls sonar-application/target/sonarqube-*.zip 1> /dev/null 2>&1
+if [ "$?" != "0" ]; then
   echo 'Sources are not built'
   ./build.sh
 fi
 
 cd sonar-application/target/
-if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
+ls sonarqube-*/bin/$OS/sonar.sh 1> /dev/null 2>&1
+if [ "$?" != "0" ]; then
   unzip sonarqube-*.zip
 fi
 cd sonarqube-*

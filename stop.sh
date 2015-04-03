@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Shortcut to stop server. It must be already built.
 
