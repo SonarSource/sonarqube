@@ -192,7 +192,7 @@ public class QProfileProjectsActionTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_on_unexisting_profile() throws Exception {
+  public void should_fail_on_nonexistent_profile() throws Exception {
     newRequest().setParam("key", "unknown").setParam("selected", "all").execute();
   }
 
@@ -207,7 +207,7 @@ public class QProfileProjectsActionTest {
   }
 
   private ComponentDto newProject(String uuid, String name) {
-    return ComponentTesting.newProjectDto().setUuid(uuid).setName(name);
+    return ComponentTesting.newProjectDto(uuid).setName(name);
   }
 
   private void addBrowsePermissionToAnyone(DbSession session, ComponentDto... projects) {

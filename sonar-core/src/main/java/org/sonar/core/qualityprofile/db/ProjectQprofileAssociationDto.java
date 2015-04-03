@@ -19,11 +19,9 @@
  */
 package org.sonar.core.qualityprofile.db;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-
 import javax.annotation.CheckForNull;
 
-public class ProjectQprofileAssociationDto implements Comparable<ProjectQprofileAssociationDto> {
+public class ProjectQprofileAssociationDto {
 
   private Long projectId;
   private String projectUuid;
@@ -49,10 +47,5 @@ public class ProjectQprofileAssociationDto implements Comparable<ProjectQprofile
 
   public boolean isAssociated() {
     return profileKey != null;
-  }
-
-  @Override
-  public int compareTo(ProjectQprofileAssociationDto o) {
-    return new CompareToBuilder().append(projectName, o.projectName).toComparison();
   }
 }

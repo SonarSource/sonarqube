@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -38,6 +39,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class QProfileProjectsAction implements BaseQProfileWsAction {
@@ -94,6 +97,17 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
       int page = request.mandatoryParamAsInt(PARAM_PAGE);
 
       List<ProjectQprofileAssociationDto> projects = loadProjects(profileKey, session, selected, query);
+      Collections.sort(projects, new Comparator<ProjectQprofileAssociationDto>() {
+        @Override
+        public int compare(ProjectQprofileAssociationDto o1, ProjectQprofileAssociationDto o2) {
+          return new CompareToBuilder()
+            // First, sort by name
+            .append(o1.getProjectName(), o2.getProjectName())
+            // Then by UUID to disambiguate
+            .append(o1.getProjectUuid(), o2.getProjectUuid())
+            .toComparison();
+        }
+      });
 
       Collection<Long> projectIds = Collections2.transform(projects, new NonNullInputFunction<ProjectQprofileAssociationDto, Long>() {
         @Override
@@ -126,12 +140,8 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
   }
 
   private void checkProfileExists(String profileKey, DbSession session) {
-    try {
-      dbClient.qualityProfileDao().getNonNullByKey(session, profileKey);
-    } catch (IllegalArgumentException doesNotExist) {
-      NotFoundException notFoundException = new NotFoundException(String.format("Could not find a quality profile with key '%s'", profileKey));
-      notFoundException.initCause(doesNotExist);
-      throw notFoundException;
+    if (dbClient.qualityProfileDao().getByKey(session, profileKey) == null) {
+      throw new NotFoundException(String.format("Could not find a quality profile with key '%s'", profileKey));
     }
   }
 
