@@ -37,7 +37,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.TestUtils;
 
 import javax.annotation.Nullable;
-
+import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -63,6 +63,7 @@ public class ServerTester extends ExternalResource {
   private final File homeDir = TestUtils.newTempDir("tmp-sq-");
   private final List components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
+  private final ServletContext servletContext = new AttributeHolderServletContext();
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -97,7 +98,7 @@ public class ServerTester extends ExternalResource {
         }
       }
       platform = new Platform();
-      platform.init(properties);
+      platform.init(properties, servletContext);
       platform.addComponents(components);
       platform.doStart();
     } catch (Exception e) {

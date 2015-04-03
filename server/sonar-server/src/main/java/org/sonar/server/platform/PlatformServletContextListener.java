@@ -24,7 +24,6 @@ import com.google.common.base.Throwables;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -34,13 +33,13 @@ public final class PlatformServletContextListener implements ServletContextListe
   public void contextInitialized(ServletContextEvent event) {
     try {
       Properties props = new Properties();
-      ServletContext context = event.getServletContext();
-      Enumeration<String> paramKeys = context.getInitParameterNames();
+      ServletContext servletContext = event.getServletContext();
+      Enumeration<String> paramKeys = servletContext.getInitParameterNames();
       while (paramKeys.hasMoreElements()) {
         String key = paramKeys.nextElement();
-        props.put(key, context.getInitParameter(key));
+        props.put(key, servletContext.getInitParameter(key));
       }
-      Platform.getInstance().init(props);
+      Platform.getInstance().init(props, servletContext);
       Platform.getInstance().doStart();
     } catch (Throwable t) {
       // Tomcat 7 "limitations":
@@ -64,4 +63,5 @@ public final class PlatformServletContextListener implements ServletContextListe
   public void contextDestroyed(ServletContextEvent event) {
     Platform.getInstance().doStop();
   }
+
 }

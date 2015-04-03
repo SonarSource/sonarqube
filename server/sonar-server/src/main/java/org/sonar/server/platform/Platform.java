@@ -19,12 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DatabaseVersion;
 
 import javax.annotation.CheckForNull;
+import javax.servlet.ServletContext;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -66,8 +67,8 @@ public class Platform {
     return null;
   }
 
-  public void init(Properties properties) {
-    serverComponents = new ServerComponents(this, properties);
+  public void init(Properties properties, ServletContext servletContext) {
+    serverComponents = new ServerComponents(this, properties, servletContext);
     if (!dbConnected) {
       startLevel1Container();
       startLevel2Container();
