@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor.highlighting.internal;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -79,7 +80,13 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   @Override
   public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
     Preconditions.checkState(inputFile != null, "Call onFile() first");
-    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(inputFile.newRange(startOffset, endOffset), typeOfText);
+    TextRange newRange;
+    try {
+      newRange = inputFile.newRange(startOffset, endOffset);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unable to highlight file " + inputFile + " from offset " + startOffset + " to offset " + endOffset, e);
+    }
+    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(newRange, typeOfText);
     this.syntaxHighlightingRules.add(syntaxHighlightingRule);
     return this;
   }
