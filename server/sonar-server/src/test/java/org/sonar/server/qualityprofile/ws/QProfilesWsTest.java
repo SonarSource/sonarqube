@@ -54,7 +54,9 @@ public class QProfilesWsTest {
       new QProfileRestoreBuiltInAction(null),
       new QProfileSearchAction(languages, null, null),
       new QProfileSetDefaultAction(languages, null, null),
-      new QProfileBackupAction(null)
+      new QProfileProjectsAction(null),
+      new QProfileBackupAction(null),
+      new QProfileRestoreAction(null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -63,7 +65,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(9);
+    assertThat(controller.actions()).hasSize(12);
   }
 
   @Test
@@ -123,6 +125,31 @@ public class QProfilesWsTest {
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.isPost()).isTrue();
     assertThat(setDefault.params()).hasSize(3);
+  }
+
+  @Test
+  public void define_projects_action() throws Exception {
+    WebService.Action projects = controller.action("projects");
+    assertThat(projects).isNotNull();
+    assertThat(projects.isPost()).isFalse();
+    assertThat(projects.params()).hasSize(5);
+    assertThat(projects.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_backup_action() throws Exception {
+    WebService.Action backup = controller.action("backup");
+    assertThat(backup).isNotNull();
+    assertThat(backup.isPost()).isFalse();
+    assertThat(backup.params()).hasSize(1);
+  }
+
+  @Test
+  public void define_restore_action() throws Exception {
+    WebService.Action restore = controller.action("restore");
+    assertThat(restore).isNotNull();
+    assertThat(restore.isPost()).isTrue();
+    assertThat(restore.params()).hasSize(1);
   }
 
   public void define_bulk_activate_rule_action() throws Exception {

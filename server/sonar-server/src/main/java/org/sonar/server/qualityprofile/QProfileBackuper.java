@@ -100,7 +100,7 @@ public class QProfileBackuper implements ServerComponent {
    * @param toProfileName the target profile. If <code>null</code>, then use the
    *                   lang and name declared in the backup
    */
-  BulkChangeResult restore(Reader reader, @Nullable QProfileName toProfileName) {
+  public BulkChangeResult restore(Reader reader, @Nullable QProfileName toProfileName) {
     try {
       String profileLang = null, profileName = null;
       List<RuleActivation> ruleActivations = Lists.newArrayList();

@@ -66,7 +66,8 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
     NewAction projects = controller.createAction("projects")
       .setSince("5.2")
       .setHandler(this)
-      .setDescription("List projects with their association status regarding a quality profile.");
+      .setDescription("List projects with their association status regarding a quality profile.")
+      .setResponseExample(getClass().getResource("example-projects.json"));
     projects.createParam(PARAM_KEY)
       .setDescription("A quality profile key.")
       .setRequired(true)
