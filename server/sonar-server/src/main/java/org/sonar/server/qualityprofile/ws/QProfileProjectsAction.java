@@ -78,9 +78,9 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
     projects.createParam(PARAM_QUERY)
       .setDescription("If specified, return only projects whose name match the query.");
     projects.createParam(PARAM_PAGE_SIZE)
-      .setDescription("Size for the paging to apply").setDefaultValue(100);
+      .setDescription("Size for the paging to apply.").setDefaultValue(100);
     projects.createParam(PARAM_PAGE)
-      .setDescription("Index of the page to display").setDefaultValue(1);
+      .setDescription("Index of the page to display.").setDefaultValue(1);
   }
 
   @Override
@@ -130,7 +130,8 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
       if (pagedAuthorizedProjects.size() <= paging.offset()) {
         pagedAuthorizedProjects = Lists.newArrayList();
       } else if (pagedAuthorizedProjects.size() > paging.pageSize()) {
-        pagedAuthorizedProjects = pagedAuthorizedProjects.subList(paging.offset(), paging.offset() + pageSize);
+        int endIndex = Math.min(paging.offset() + pageSize, pagedAuthorizedProjects.size());
+        pagedAuthorizedProjects = pagedAuthorizedProjects.subList(paging.offset(), endIndex);
       }
 
       writeProjects(response.newJsonWriter(), pagedAuthorizedProjects, paging);

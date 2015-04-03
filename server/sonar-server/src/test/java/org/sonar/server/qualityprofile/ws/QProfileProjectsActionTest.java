@@ -136,6 +136,13 @@ public class QProfileProjectsActionTest {
       .execute().assertJson(this.getClass(), "empty.json");
     newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "2").setParam("page", "4")
       .execute().assertJson(this.getClass(), "empty.json");
+
+    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "1")
+      .execute().assertJson(this.getClass(), "selected_ps3_page1.json");
+    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "2")
+      .execute().assertJson(this.getClass(), "selected_ps3_page2.json");
+    newRequest().setParam("key", xooP1.getKey()).setParam("selected", "selected").setParam("pageSize", "3").setParam("page", "3")
+      .execute().assertJson(this.getClass(), "empty.json");
   }
 
   @Test
