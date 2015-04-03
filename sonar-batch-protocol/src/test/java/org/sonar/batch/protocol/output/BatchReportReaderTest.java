@@ -196,8 +196,7 @@ public class BatchReportReaderTest {
 
     sut = new BatchReportReader(dir);
 
-    InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readFileCoverage(1));
-    try {
+    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readFileCoverage(1))) {
       BatchReport.Coverage coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
       assertThat(coverage.getLine()).isEqualTo(1);
       assertThat(coverage.getConditions()).isEqualTo(1);
@@ -215,8 +214,6 @@ public class BatchReportReaderTest {
       assertThat(coverage.getUtCoveredConditions()).isEqualTo(4);
       assertThat(coverage.getItCoveredConditions()).isEqualTo(5);
       assertThat(coverage.getOverallCoveredConditions()).isEqualTo(5);
-    } finally {
-      inputStream.close();
     }
   }
 
