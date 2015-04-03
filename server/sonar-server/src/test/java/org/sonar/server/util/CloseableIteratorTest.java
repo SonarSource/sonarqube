@@ -96,6 +96,21 @@ public class CloseableIteratorTest {
     assertThat(it.isRemoved).isTrue();
   }
 
+  @Test
+  public void has_next_should_not_call_do_next_when_already_closed() throws Exception {
+    DoNextShouldNotBeCalledWhenClosedIterator it = new DoNextShouldNotBeCalledWhenClosedIterator();
+
+    it.next();
+    it.next();
+    assertThat(it.hasNext()).isFalse();
+    // this call to hasNext close the stream
+    assertThat(it.hasNext()).isFalse();
+    assertThat(it.isClosed).isTrue();
+
+    // calling hasNext should not fail
+    it.hasNext();
+  }
+
   static class SimpleCloseableIterator extends CloseableIterator {
     int count = 0;
     boolean isClosed = false;
@@ -147,4 +162,17 @@ public class CloseableIteratorTest {
       isClosed = true;
     }
   }
+
+  static class DoNextShouldNotBeCalledWhenClosedIterator extends SimpleCloseableIterator {
+
+    @Override
+    protected Object doNext() {
+      if (!isClosed) {
+        return super.doNext();
+      } else {
+        throw new IllegalStateException("doNext should not be called when already closed");
+      }
+    }
+  }
+
 }

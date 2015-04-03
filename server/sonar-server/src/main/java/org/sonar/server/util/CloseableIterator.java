@@ -28,9 +28,14 @@ import java.util.NoSuchElementException;
 
 public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable {
   private O nextObject = null;
+  boolean isClosed = false;
 
   @Override
   public final boolean hasNext() {
+    // Optimization to not call bufferNext() when already closed
+    if (isClosed) {
+      return false;
+    }
     boolean hasNext = nextObject != null || bufferNext() != null;
     if (!hasNext) {
       close();
@@ -88,6 +93,7 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
   public final void close() {
     try {
       doClose();
+      isClosed = true;
     } catch (Exception e) {
       Throwables.propagate(e);
     }
