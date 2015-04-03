@@ -52,4 +52,9 @@ public class OracleTest {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
     assertThat(dialect.getScrollSingleRowFetchSize()).isEqualTo(1);
   }
+
+  @Test
+  public void oracle_does_supportMigration() throws Exception {
+    assertThat(dialect.supportsMigration()).isTrue();
+  }
 }

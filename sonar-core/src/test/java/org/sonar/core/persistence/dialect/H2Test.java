@@ -51,4 +51,9 @@ public class H2Test {
   public void testFetchSizeForScrolling() throws Exception {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
+
+  @Test
+  public void h2_does_not_supportMigration() throws Exception {
+    assertThat(dialect.supportsMigration()).isFalse();
+  }
 }

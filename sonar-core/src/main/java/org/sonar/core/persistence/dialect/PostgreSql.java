@@ -48,20 +48,26 @@ public class PostgreSql extends AbstractDialect {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:postgresql:");
   }
 
+  @Override
+  public List<String> getConnectionInitStatements() {
+    return INIT_STATEMENTS;
+  }
+
+  @Override
+  public boolean supportsMigration() {
+    return true;
+  }
+
   public static class PostgreSQLWithDecimalDialect extends PostgreSQLDialect {
+
     public PostgreSQLWithDecimalDialect() {
       super();
       registerColumnType(Types.DOUBLE, "numeric($p,$s)");
     }
-
     @Override
     public Class getNativeIdentifierGeneratorClass() {
       return PostgreSQLSequenceGenerator.class;
     }
-  }
 
-  @Override
-  public List<String> getConnectionInitStatements() {
-    return INIT_STATEMENTS;
   }
 }

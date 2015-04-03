@@ -87,4 +87,11 @@ public interface Dialect {
    * @since 5.0
    */
   int getScrollSingleRowFetchSize();
+
+  /**
+   * Indicates whether DB migration can be perform on the DB vendor implementation associated with the current dialect.
+   *
+   * @return a boolean
+   */
+  boolean supportsMigration();
 }

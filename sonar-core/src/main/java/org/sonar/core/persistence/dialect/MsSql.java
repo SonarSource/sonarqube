@@ -44,6 +44,11 @@ public class MsSql extends AbstractDialect {
       || StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:jtds:sqlserver:");
   }
 
+  @Override
+  public boolean supportsMigration() {
+    return true;
+  }
+
   public static class MsSqlDialect extends SQLServerDialect {
     public MsSqlDialect() {
       super();

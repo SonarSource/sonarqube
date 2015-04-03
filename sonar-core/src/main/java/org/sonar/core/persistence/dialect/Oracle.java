@@ -46,6 +46,11 @@ public class Oracle extends AbstractDialect {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:oracle:");
   }
 
+  @Override
+  public boolean supportsMigration() {
+    return true;
+  }
+
   public static class Oracle10gWithDecimalDialect extends Oracle10gDialect {
     public Oracle10gWithDecimalDialect() {
       super();
