@@ -99,7 +99,8 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   @Override
   public File getTempDir() {
-    return new File(homeDir, "temp");
+    // Tomcat is started by app process with correct java.io.tmpdir
+    return FileUtils.getTempDirectory();
   }
 
   public File getDeployDir() {

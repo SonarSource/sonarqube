@@ -38,7 +38,7 @@ public class TempFolderProvider extends ProviderAdapter {
       try {
         FileUtils.forceMkdir(tempDir);
       } catch (IOException e) {
-        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+        throw new IllegalStateException("Unable to create temp directory " + tempDir, e);
       }
       tempFolder = new DefaultTempFolder(tempDir);
     }

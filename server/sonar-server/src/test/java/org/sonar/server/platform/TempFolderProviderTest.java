@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,16 +41,32 @@ public class TempFolderProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  TempFolderProvider sut = new TempFolderProvider();
+
   @Test
-  public void createTempFolder() throws Exception {
+  public void existing_temp_dir() throws Exception {
     ServerFileSystem fs = mock(ServerFileSystem.class);
-    File serverTempFolder = temp.newFolder();
-    when(fs.getTempDir()).thenReturn(serverTempFolder);
-    TempFolderProvider tempFolderProvider = new TempFolderProvider(); 
-    TempFolder tempUtils = tempFolderProvider.provide(fs);
-    tempUtils.newDir();
-    tempUtils.newFile();
-    assertThat(new File(serverTempFolder, "tmp")).exists();
-    assertThat(new File(serverTempFolder, "tmp").list()).hasSize(2);
+    File tmpDir = temp.newFolder();
+    when(fs.getTempDir()).thenReturn(tmpDir);
+
+    TempFolder folder = sut.provide(fs);
+    assertThat(folder).isNotNull();
+    File newDir = folder.newDir();
+    assertThat(newDir).exists().isDirectory();
+    assertThat(newDir.getParentFile().getCanonicalPath()).startsWith(tmpDir.getCanonicalPath());
+  }
+
+  @Test
+  public void create_temp_dir_if_missing() throws Exception {
+    ServerFileSystem fs = mock(ServerFileSystem.class);
+    File tmpDir = temp.newFolder();
+    when(fs.getTempDir()).thenReturn(tmpDir);
+    FileUtils.forceDelete(tmpDir);
+
+    TempFolder folder = sut.provide(fs);
+    assertThat(folder).isNotNull();
+    File newDir = folder.newDir();
+    assertThat(newDir).exists().isDirectory();
+    assertThat(newDir.getParentFile().getCanonicalPath()).startsWith(tmpDir.getCanonicalPath());
   }
 }
