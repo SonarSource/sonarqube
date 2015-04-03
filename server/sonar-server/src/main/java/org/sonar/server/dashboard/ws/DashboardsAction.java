@@ -19,11 +19,9 @@
  */
 package org.sonar.server.dashboard.ws;
 
-import org.sonar.api.server.ws.Definable;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
-public interface DashboardsAction extends RequestHandler, Definable<WebService.NewController> {
+public interface DashboardsAction extends WsAction {
 
   // Marker interface
 

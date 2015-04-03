@@ -17,12 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.ws;
 
-package org.sonar.server.platform.ws;
+import org.sonar.api.server.ws.Definable;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.WebService;
 
-import org.sonar.server.ws.WsAction;
-
-public interface SystemWsAction extends WsAction {
+/**
+ * Since 5.2, this interface is the base for Web Service marker interfaces
+ */
+public interface WsAction extends RequestHandler, Definable<WebService.NewController> {
 
   // Marker interface
 }

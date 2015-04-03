@@ -19,15 +19,13 @@
  */
 package org.sonar.server.rule.ws;
 
-import org.sonar.api.server.ws.Definable;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
 /**
  * Marker interface for coding rule related actions
  *
  */
-interface RulesAction extends RequestHandler, Definable<WebService.NewController> {
+interface RulesAction extends WsAction {
 
   // Marker interface
 }
