@@ -30,13 +30,13 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public class QProfileParamUtils {
+public class QProfileIdentificationParamUtils {
 
   private static final String PARAM_LANGUAGE = "language";
   private static final String PARAM_PROFILE_NAME = "profileName";
   private static final String PARAM_PROFILE_KEY = "profileKey";
 
-  private QProfileParamUtils() {
+  private QProfileIdentificationParamUtils() {
     // Utility class
   }
 
@@ -53,7 +53,7 @@ public class QProfileParamUtils {
       .setExampleValue("js");
   }
 
-  public static String getProfileKey(Request request, QProfileFactory profileFactory, DbSession session) {
+  public static String getProfileKeyFromParameters(Request request, QProfileFactory profileFactory, DbSession session) {
     String language = request.param(PARAM_LANGUAGE);
     String profileName = request.param(PARAM_PROFILE_NAME);
     String profileKey = request.param(PARAM_PROFILE_KEY);

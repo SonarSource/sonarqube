@@ -50,7 +50,7 @@ public class QProfileDeleteAction implements BaseQProfileWsAction {
       .setPost(true)
       .setHandler(this);
 
-    QProfileParamUtils.defineProfileParams(action, languages);
+    QProfileIdentificationParamUtils.defineProfileParams(action, languages);
   }
 
 
@@ -62,7 +62,7 @@ public class QProfileDeleteAction implements BaseQProfileWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      String profileKey = QProfileParamUtils.getProfileKey(request, profileFactory, session);
+      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
       profileFactory.delete(session, profileKey, false);
 
       session.commit();
