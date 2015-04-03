@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.report;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,12 +30,14 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Coverage;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -92,15 +95,13 @@ public class CoveragePublisherTest {
 
     publisher.publish(writer);
 
-    BatchReportReader reader = new BatchReportReader(outputDir);
-
-    assertThat(reader.readFileCoverage(2).iterator()).containsOnly(
-      Coverage.newBuilder()
+    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(outputDir).readFileCoverage(2))) {
+      assertThat(BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream)).isEqualTo(Coverage.newBuilder()
         .setLine(2)
         .setUtHits(true)
         .setItHits(false)
-        .build(),
-      Coverage.newBuilder()
+        .build());
+      assertThat(BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream)).isEqualTo(Coverage.newBuilder()
         .setLine(3)
         .setUtHits(true)
         .setItHits(false)
@@ -108,13 +109,14 @@ public class CoveragePublisherTest {
         .setUtCoveredConditions(2)
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(2)
-        .build(),
-      Coverage.newBuilder()
+        .build());
+      assertThat(BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream)).isEqualTo(Coverage.newBuilder()
         .setLine(5)
         .setUtHits(false)
         .setItHits(true)
         .build());
 
+    }
   }
 
 }
