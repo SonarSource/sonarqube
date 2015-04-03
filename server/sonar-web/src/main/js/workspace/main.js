@@ -95,9 +95,9 @@ define([
           .on('viewerMinimize', function () {
             that.closeComponentViewer();
           })
-          .on('viewerClose', function (model) {
+          .on('viewerClose', function (m) {
             that.closeComponentViewer();
-            model.destroy();
+            m.destroy();
           });
       this.viewerView.render().$el.appendTo(document.body);
     },

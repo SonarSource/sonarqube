@@ -28,6 +28,50 @@
     return METRICS.indexOf(metric) !== -1;
   }
 
+  function buildIssuesUrl (component, metric, periodDate) {
+    var url = baseUrl + '/component_issues/index?id=' + encodeURIComponent(component) + '#';
+    if (periodDate != null) {
+      url += 'createdAfter=' + encodeURIComponent(periodDate) + '|';
+    }
+    switch (metric) {
+      case 'blocker_violations':
+      case 'new_blocker_violations':
+        url += 'resolved=false|severities=BLOCKER';
+        break;
+      case 'critical_violations':
+      case 'new_critical_violations':
+        url += 'resolved=false|severities=CRITICAL';
+        break;
+      case 'major_violations':
+      case 'new_major_violations':
+        url += 'resolved=false|severities=MAJOR';
+        break;
+      case 'minor_violations':
+      case 'new_minor_violations':
+        url += 'resolved=false|severities=MINOR';
+        break;
+      case 'info_violations':
+      case 'new_info_violations':
+        url += 'resolved=false|severities=INFO';
+        break;
+      case 'open_issues':
+        url += 'resolved=false|statuses=OPEN';
+        break;
+      case 'reopened_issues':
+        url += 'resolved=false|statuses=REOPENED';
+        break;
+      case 'confirmed_issues':
+        url += 'resolved=false|statuses=CONFIRMED';
+        break;
+      case 'false_positive_issues':
+        url += 'resolutions=FALSE-POSITIVE';
+        break;
+      default:
+        url += 'resolved=false';
+    }
+    return url;
+  }
+
   Handlebars.registerHelper('log', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     console.log.apply(console, args);
@@ -526,51 +570,6 @@
   });
 
   Handlebars.registerHelper('urlForDrilldown', function (component, metric, period, periodDate) {
-
-    function buildIssuesUrl (component, metric, periodDate) {
-      var url = baseUrl + '/component_issues/index?id=' + encodeURIComponent(component) + '#';
-      if (periodDate != null) {
-        url += 'createdAfter=' + encodeURIComponent(periodDate) + '|';
-      }
-      switch (metric) {
-        case 'blocker_violations':
-        case 'new_blocker_violations':
-          url += 'resolved=false|severities=BLOCKER';
-          break;
-        case 'critical_violations':
-        case 'new_critical_violations':
-          url += 'resolved=false|severities=CRITICAL';
-          break;
-        case 'major_violations':
-        case 'new_major_violations':
-          url += 'resolved=false|severities=MAJOR';
-          break;
-        case 'minor_violations':
-        case 'new_minor_violations':
-          url += 'resolved=false|severities=MINOR';
-          break;
-        case 'info_violations':
-        case 'new_info_violations':
-          url += 'resolved=false|severities=INFO';
-          break;
-        case 'open_issues':
-          url += 'resolved=false|statuses=OPEN';
-          break;
-        case 'reopened_issues':
-          url += 'resolved=false|statuses=REOPENED';
-          break;
-        case 'confirmed_issues':
-          url += 'resolved=false|statuses=CONFIRMED';
-          break;
-        case 'false_positive_issues':
-          url += 'resolutions=FALSE-POSITIVE';
-          break;
-        default:
-          url += 'resolved=false';
-      }
-      return url;
-    }
-
     var url;
     if (isIssuesMetric(metric)) {
       url = buildIssuesUrl(component, metric, periodDate);

@@ -19,7 +19,7 @@
  */
 (function ($) {
 
-  var options = {
+  var defaults = {
     queue: {},
     timeout: 300,
     fadeTimeout: 100
@@ -117,7 +117,7 @@
           id: uid,
           timer: setTimeout(function () {
             process.timeout();
-          }, options.timeout)
+          }, defaults.timeout)
         });
     processes.add(process);
     return uid;
