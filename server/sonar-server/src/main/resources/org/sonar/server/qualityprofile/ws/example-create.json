@@ -1,0 +1,16 @@
+{
+  "profile" : {
+    "isDefault" : false,
+    "isInherited" : false,
+    "language" : "java",
+    "languageName" : "Java",
+    "name" : "My New Profile",
+    "key" : "my-new-profile-07284"
+  },
+  "warnings" : [
+    "Unable to import unknown PMD rule 'rulesets/java/strings.xml'",
+    "Unable to import unknown PMD rule 'rulesets/java/basic.xml/UnnecessaryConversionTemporary'",
+    "Unable to import unknown PMD rule 'rulesets/java/basic.xml/EmptyCatchBlock'",
+    "Unable to import unknown PMD rule 'rulesets/java/braces.xml'"
+  ]
+}

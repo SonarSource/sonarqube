@@ -23,12 +23,18 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
+
+import java.io.Reader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,10 +53,13 @@ public class QProfilesWsTest {
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
 
+    ProfileImporter[] importers = createImporters(languages);
+
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, ruleService, i18n),
       new ProjectAssociationActions(null, null, null, languages),
+      new QProfileCreateAction(null, null, null, languages, importers),
       new QProfileRestoreBuiltInAction(null),
       new QProfileSearchAction(languages, null, null),
       new QProfileSetDefaultAction(languages, null, null),
@@ -60,12 +69,30 @@ public class QProfilesWsTest {
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
+  private ProfileImporter[] createImporters(Languages languages) {
+    class NoopImporter extends ProfileImporter {
+      public NoopImporter(Language language) {
+        super(language.getKey(), language.getName());
+      }
+
+      @Override
+      public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+        return null;
+      }
+    }
+    return new ProfileImporter[] {
+      new NoopImporter(languages.get(xoo1Key)),
+      new NoopImporter(languages.get(xoo2Key))
+    };
+  }
+
   @Test
   public void define_controller() throws Exception {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(12);
+    assertThat(controller.actions()).hasSize(13);
+    assertThat(controller.actions()).hasSize(10);
   }
 
   @Test
@@ -165,5 +192,21 @@ public class QProfilesWsTest {
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(19);
+  }
+
+  @Test
+  public void define_create_action() throws Exception {
+    WebService.Action create = controller.action("create");
+    assertThat(create).isNotNull();
+    assertThat(create.isPost()).isTrue();
+    assertThat(create.params()).hasSize(4);
+    assertThat(create.param("name")).isNotNull();
+    assertThat(create.param("name").isRequired()).isTrue();
+    assertThat(create.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
+    assertThat(create.param("language").isRequired()).isTrue();
+    assertThat(create.param("backup_" + xoo1Key)).isNotNull();
+    assertThat(create.param("backup_" + xoo1Key).isRequired()).isFalse();
+    assertThat(create.param("backup_" + xoo2Key)).isNotNull();
+    assertThat(create.param("backup_" + xoo2Key).isRequired()).isFalse();
   }
 }
