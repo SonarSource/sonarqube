@@ -46,7 +46,7 @@ public class SourcePublisher implements ReportPublisherStep {
       }
 
       DefaultInputFile inputFile = (DefaultInputFile) resource.inputPath();
-      File iofile = writer.getSourceFile(1);
+      File iofile = writer.getSourceFile(resource.batchId());
       int line = 0;
       try (FileOutputStream output = new FileOutputStream(iofile); BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),
         ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
