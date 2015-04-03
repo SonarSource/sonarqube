@@ -65,4 +65,9 @@ public class MySql extends AbstractDialect {
   public int getScrollSingleRowFetchSize() {
     return Integer.MIN_VALUE;
   }
+
+  @Override
+  public boolean supportsMigration() {
+    return true;
+  }
 }

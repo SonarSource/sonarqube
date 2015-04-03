@@ -49,4 +49,9 @@ public class MsSqlTest {
     assertThat(msSql.getDefaultDriverClassName()).isEqualTo("net.sourceforge.jtds.jdbc.Driver");
     assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
   }
+
+  @Test
+  public void msSql_does_supportMigration() throws Exception {
+    assertThat(msSql.supportsMigration()).isTrue();
+  }
 }

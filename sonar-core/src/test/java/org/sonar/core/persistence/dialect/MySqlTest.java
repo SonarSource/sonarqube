@@ -55,4 +55,9 @@ public class MySqlTest {
     assertThat(mySql.getScrollDefaultFetchSize()).isEqualTo(Integer.MIN_VALUE);
     assertThat(mySql.getScrollSingleRowFetchSize()).isEqualTo(Integer.MIN_VALUE);
   }
+
+  @Test
+  public void mysql_does_supportMigration() throws Exception {
+    assertThat(mySql.supportsMigration()).isTrue();
+  }
 }

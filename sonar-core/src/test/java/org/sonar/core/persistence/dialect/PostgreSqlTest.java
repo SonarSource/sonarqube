@@ -57,4 +57,9 @@ public class PostgreSqlTest {
   public void testFetchSizeForScrolling() throws Exception {
     assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
+
+  @Test
+  public void postgres_does_supportMigration() throws Exception {
+    assertThat(dialect.supportsMigration()).isTrue();
+  }
 }

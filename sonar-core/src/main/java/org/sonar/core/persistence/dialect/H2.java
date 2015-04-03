@@ -43,4 +43,9 @@ public class H2 extends AbstractDialect {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
   }
 
+  @Override
+  public boolean supportsMigration() {
+    return false;
+  }
+
 }
