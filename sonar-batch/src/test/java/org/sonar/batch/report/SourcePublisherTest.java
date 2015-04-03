@@ -68,7 +68,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(1);
+    File out = writer.getSourceFile(2);
     assertThat(FileUtils.readFileToString(out, Charsets.UTF_8)).isEqualTo("");
   }
 
@@ -78,7 +78,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(1);
+    File out = writer.getSourceFile(2);
     assertThat(FileUtils.readFileToString(out, Charsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
   }
 
@@ -88,7 +88,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(1);
+    File out = writer.getSourceFile(2);
     assertThat(FileUtils.readFileToString(out, Charsets.UTF_8)).isEqualTo("1\n2\n3\n4\n5");
   }
 
@@ -98,7 +98,7 @@ public class SourcePublisherTest {
 
     publisher.publish(writer);
 
-    File out = writer.getSourceFile(1);
+    File out = writer.getSourceFile(2);
     assertThat(FileUtils.readFileToString(out, Charsets.UTF_8)).isEqualTo("\n2\n3\n4\n5");
   }
 }
