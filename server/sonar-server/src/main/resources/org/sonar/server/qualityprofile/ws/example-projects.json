@@ -1,0 +1,52 @@
+{
+  "results": 
+  [
+    {
+      "key": "5eab015a-1f76-4ba4-bd89-bf547132d673",
+      "name": "JavaScript Plugin",
+      "selected": true
+    },
+    {
+      "key": "f1ab623e-d00d-401b-bf9e-c45e91976bf0",
+      "name": "Jenkins SonarQube Plugin",
+      "selected": false
+    },
+    {
+      "key": "69e57151-be0d-4157-adff-c06741d88879",
+      "name": "SonarQube",
+      "selected": false
+    },
+    {
+      "key": "c355a0fe-9b77-4d39-9837-8364a41ce10d",
+      "name": "SonarQube Android Plugin",
+      "selected": false
+    },
+    {
+      "key": "1ef05695-f234-4125-8fb9-24880c9f0b20",
+      "name": "SonarQube C# Plugin",
+      "selected": false
+    },
+    {
+      "key": "56afe010-f83b-4d97-b256-5443c763ba29",
+      "name": "SonarQube Groovy Plugin",
+      "selected": false
+    },
+    {
+      "key": "dd7c3556-ce3f-42d0-a348-914a582dc944",
+      "name": "SonarQube Java",
+      "selected": true
+    },
+    {
+      "key": "ba422ef1-794e-4a4c-be6d-9ce77b4cd5fa",
+      "name": "SonarQube Maven Plugin",
+      "selected": false
+    },
+    {
+      "key": "6899e06b-4a34-4966-80f1-073a658bee03",
+      "name": "SonarQube Web Plugin",
+      "selected": false
+    }
+  ],
+
+  "more": false
+}
