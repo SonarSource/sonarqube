@@ -2159,6 +2159,18 @@ public final class CoreMetrics {
     .setHidden(true)
     .create();
 
+  /**
+   * @since 5.2 – was computed in the dev cockpit plugin previously
+   */
+  public static final String DAYS_SINCE_LAST_COMMIT_KEY = "days_since_last_commit";
+
+  /**
+   * @since 5.2 – was computed in the dev cockpit plugin previously
+   */
+  public static final Metric DAYS_SINCE_LAST_COMMIT = new Metric.Builder(DAYS_SINCE_LAST_COMMIT_KEY, "Days since last commit", Metric.ValueType.INT)
+    .setDomain(CoreMetrics.DOMAIN_SCM)
+    .create();
+
   private static final List<Metric> METRICS;
 
   static {
