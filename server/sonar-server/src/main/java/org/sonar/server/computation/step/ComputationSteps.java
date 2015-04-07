@@ -41,6 +41,7 @@ public class ComputationSteps {
       ParseReportStep.class,
 
       // Persist data
+      ComputeAndPersistDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,
       PersistIssuesStep.class,
       PersistComponentLinksStep.class,
