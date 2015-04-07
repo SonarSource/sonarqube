@@ -5,7 +5,7 @@ jdk:
 
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install -B -e -V -Panalysis -Dclirr=true
-  - if [[ $TRAVIS_PULL_REQUEST -ne 'false' ]]; then mvn sonar:sonar -B -e -V -Dsonar.host.url=http://nemo.sonarqube.org -Dsonar.analysis.mode=preview; fi
+  - if [[ $TRAVIS_PULL_REQUEST -ne 'false' ]]; then mvn sonar:sonar -B -e -V -Dsonar.host.url=http://nemo.sonarqube.org -Dsonar.analysis.mode=incremental; fi
 
 install: true
 
