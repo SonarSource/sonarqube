@@ -418,39 +418,28 @@
       early the tests that are coupled with local environment.
       -->
       <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.5</version>
+        <groupId>com.github.genthaler</groupId>
+        <artifactId>beanshell-maven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
             <id>randomize-environment</id>
             <phase>validate</phase>
             <goals>
-              <goal>execute</goal>
+              <goal>run</goal>
             </goals>
             <configuration>
-              <scripts>
-                <script>
-                  <![CDATA[
-                String[] timezones = ["GMT-9", "UTC", "GMT+9"];
-                String testTimezone = timezones[new Random().nextInt(timezones.length)];
-                project.properties['testTimezone'] = testTimezone;
-                log.info('Timezone used for tests: ' + testTimezone);
+              <script>
+                <![CDATA[
+                String[] timezones = new String[] {"GMT-9", "UTC", "GMT+9"};
+                String testTimezone = timezones[new java.util.Random().nextInt(timezones.length)];
+                project.getProperties().setProperty("testTimezone", testTimezone);
+                logger.info("Timezone used for tests: " + testTimezone);
                 ]]>
-                </script>
-              </scripts>
+              </script>
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <!-- any version of Groovy \>= 1.5.0 should work here -->
-            <version>2.4.1</version>
-            <scope>runtime</scope>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
