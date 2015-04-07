@@ -22,6 +22,8 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
 
@@ -29,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerWsTest {
 
-  WsTester tester = new WsTester(new ServerWs());
+  WsTester tester = new WsTester(new ServerWs(new ServerWsAction[]{new DummyServerWsAction()}));
 
   @Test
   public void define_controller() throws Exception {
@@ -37,7 +39,7 @@ public class ServerWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
@@ -60,5 +62,17 @@ public class ServerWsTest {
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(1);
+  }
+
+  private static class DummyServerWsAction implements ServerWsAction {
+    @Override
+    public void define(WebService.NewController controller) {
+      controller.createAction("dummy").setHandler(this);
+    }
+
+    @Override
+    public void handle(Request request, Response response) throws Exception {
+      // don't care about implementation
+    }
   }
 }

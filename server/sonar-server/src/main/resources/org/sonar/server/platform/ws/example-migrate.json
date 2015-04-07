@@ -1,0 +1,6 @@
+{
+  "operational": "false",
+  "state": "MIGRATION_RUNNING",
+  "message": "Database migration is running",
+  "createdAt": "2015-02-23T18:54:23+0100"
+}

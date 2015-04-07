@@ -374,6 +374,7 @@ class ServerComponents {
     pico.addSingleton(DefaultResourcePermissions.class);
     pico.addSingleton(Periods.class);
     pico.addSingleton(ServerWs.class);
+    pico.addSingleton(ServerMigrateWsAction.class);
     pico.addSingleton(BackendCleanup.class);
     pico.addSingleton(IndexDefinitions.class);
     pico.addSingleton(IndexCreator.class);

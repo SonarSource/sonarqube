@@ -41,13 +41,13 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
 
   private ExecutorService pool = Executors.newFixedThreadPool(2);
   /**
-   * Implementation of execute runs Runnable synchronously with a delay of 200ms.
+   * Implementation of execute runs Runnable synchronously with a delay of 1s.
    */
   private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       try {
-        Thread.currentThread().sleep(200);
+        Thread.currentThread().sleep(1000);
       } catch (InterruptedException e) {
         Throwables.propagate(e);
       }
@@ -78,7 +78,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
     pool.submit(new CallStartit());
     pool.submit(new CallStartit());
 
-    pool.awaitTermination(3, TimeUnit.SECONDS);
+    pool.awaitTermination(2, TimeUnit.SECONDS);
 
     verify(rubyBridge, times(1)).databaseMigration();
 
