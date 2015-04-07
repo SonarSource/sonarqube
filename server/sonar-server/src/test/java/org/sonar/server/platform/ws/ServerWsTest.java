@@ -61,4 +61,5 @@ public class ServerWsTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(1);
   }
+
 }

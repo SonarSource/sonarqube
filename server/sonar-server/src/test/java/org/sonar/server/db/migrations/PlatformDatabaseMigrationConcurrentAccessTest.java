@@ -20,16 +20,15 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.base.Throwables;
-import org.junit.After;
-import org.junit.Test;
-import org.sonar.server.ruby.RubyBridge;
-import org.sonar.server.ruby.RubyDatabaseMigration;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
+import org.junit.Test;
+import org.sonar.server.ruby.RubyBridge;
+import org.sonar.server.ruby.RubyDatabaseMigration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,7 +64,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
     public void trigger() {
       triggerCount.incrementAndGet();
       try {
-        Thread.currentThread().sleep(200);
+        Thread.currentThread().sleep(1000);
       } catch (InterruptedException e) {
         Throwables.propagate(e);
       }
@@ -86,7 +85,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
     pool.submit(new CallStartit());
     pool.submit(new CallStartit());
 
-    pool.awaitTermination(3, TimeUnit.SECONDS);
+    pool.awaitTermination(2, TimeUnit.SECONDS);
 
     assertThat(triggerCount.get()).isEqualTo(1);
   }

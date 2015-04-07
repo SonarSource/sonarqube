@@ -19,7 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.platform.ComponentContainer;
@@ -206,6 +212,7 @@ import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
 import org.sonar.server.platform.ws.L10nWs;
+import org.sonar.server.platform.ws.MigrateDbSystemWsAction;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemInfoWsAction;
 import org.sonar.server.platform.ws.SystemRestartWsAction;
@@ -390,12 +397,7 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import com.google.common.collect.Lists;
 
 class ServerComponents {
 
@@ -889,6 +891,7 @@ class ServerComponents {
       SystemRestartWsAction.class,
       SystemInfoWsAction.class,
       UpgradesSystemWsAction.class,
+      MigrateDbSystemWsAction.class,
       SystemWs.class,
       SystemMonitor.class,
       SonarQubeMonitor.class,

@@ -19,6 +19,14 @@
  */
 package org.sonar.server.ui;
 
+import java.net.InetAddress;
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -46,22 +54,16 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.net.InetAddress;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
