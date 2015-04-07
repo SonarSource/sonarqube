@@ -20,12 +20,15 @@
 
 package org.sonar.server.computation.step;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -44,9 +47,13 @@ import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class PersistFileSourcesStep implements ComputationStep {
@@ -70,30 +77,39 @@ public class PersistFileSourcesStep implements ComputationStep {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
-      recursivelyProcessComponent(session, context, rootComponentRef);
+      final Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
+      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", context.getProject().uuid(), new ResultHandler() {
+        @Override
+        public void handleResult(ResultContext context) {
+          FileSourceDto dto = (FileSourceDto) context.getResultObject();
+          previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
+        }
+      });
+
+      recursivelyProcessComponent(new FileSourcesContext(session, context, previousFileSourcesByUuid), rootComponentRef);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DbSession session, ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
+  private void recursivelyProcessComponent(FileSourcesContext fileSourcesContext, int componentRef) {
+    BatchReportReader reportReader = fileSourcesContext.context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component.getType().equals(Constants.ComponentType.FILE)) {
       LineIterator linesIterator = linesIterator(reportReader.readFileSource(componentRef));
       try {
-        processFileSources(session, linesIterator, component, context.getProject().uuid(), loadStreamLines(reportReader, componentRef));
+        persistSource(fileSourcesContext, linesIterator, component, createStreamLines(reportReader, componentRef));
       } finally {
         linesIterator.close();
       }
     }
 
     for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(session, context, childRef);
+      recursivelyProcessComponent(fileSourcesContext, childRef);
     }
   }
 
-  private List<StreamLine> loadStreamLines(BatchReportReader reportReader, int componentRef) {
+  private List<StreamLine> createStreamLines(BatchReportReader reportReader, int componentRef) {
     List<StreamLine> streamLines = newArrayList();
     File coverageFile = reportReader.readFileCoverage(componentRef);
     if (coverageFile != null) {
@@ -106,51 +122,77 @@ public class PersistFileSourcesStep implements ComputationStep {
     return streamLines;
   }
 
-  private void processFileSources(DbSession session, Iterator<String> linesIterator, BatchReport.Component component, String projectUuid, List<StreamLine> streamLines) {
-    Object[] dataWithLineHashes = processLines(component.getLines(), linesIterator, streamLines);
-    byte[] data = (byte[]) dataWithLineHashes[0];
-    String dataHash = DigestUtils.md5Hex(data);
-    String lineHashes = (String) dataWithLineHashes[1];
+  private void persistSource(FileSourcesContext fileSourcesContext, Iterator<String> linesIterator, BatchReport.Component component, List<StreamLine> streamLines) {
+    StringBuilder lineHashes = new StringBuilder();
+    MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
+    FileSourceDb.Data fileData = computeData(component.getLines(), linesIterator, streamLines, lineHashes, globalMd5Digest);
 
-    // TODO load previous source (from db or ES ?) in order to not update source each time
-    FileSourceDto dto = new FileSourceDto()
-      .setProjectUuid(projectUuid)
-      .setFileUuid(component.getUuid())
-      .setBinaryData(data)
-      .setDataHash(dataHash)
-      .setLineHashes(lineHashes)
-      .setCreatedAt(system2.now())
-      // TODO set current date here when indexing sources in E/S will be done in this class
-      .setUpdatedAt(0L);
-    dbClient.fileSourceDao().insert(session, dto);
-    session.commit();
+    byte[] data = FileSourceDto.encodeData(fileData);
+    String dataHash = DigestUtils.md5Hex(data);
+    String srcHash = Hex.encodeHexString(globalMd5Digest.digest());
+    FileSourceDto previousDto = fileSourcesContext.previousFileSourcesByUuid.get(component.getUuid());
+
+    if (previousDto == null) {
+      FileSourceDto dto = new FileSourceDto()
+        .setProjectUuid(fileSourcesContext.context.getProject().uuid())
+        .setFileUuid(component.getUuid())
+        .setBinaryData(data)
+        .setSrcHash(srcHash)
+        .setDataHash(dataHash)
+        .setLineHashes(lineHashes.toString())
+        .setCreatedAt(system2.now())
+        // TODO set current date here when indexing sources in E/S will be done in this class
+        .setUpdatedAt(0L);
+      dbClient.fileSourceDao().insert(fileSourcesContext.session, dto);
+      fileSourcesContext.session.commit();
+    } else {
+      // Update only if data_hash has changed or if src_hash is missing (progressive migration)
+      boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
+      boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
+      if (binaryDataUpdated || srcHashUpdated) {
+        previousDto
+          .setBinaryData(data)
+          .setDataHash(dataHash)
+          .setSrcHash(srcHash)
+          .setLineHashes(lineHashes.toString());
+        // Optimization only change updated at when updating binary data to avoid unecessary indexation by E/S
+        if (binaryDataUpdated) {
+          // TODO set current date here when indexing sources in E/S will be done in this class
+          previousDto.setUpdatedAt(0L);
+        }
+        dbClient.fileSourceDao().update(previousDto);
+        fileSourcesContext.session.commit();
+      }
+    }
   }
 
-  private Object[] processLines(int lines, Iterator<String> linesIterator, List<StreamLine> streamLines) {
-    StringBuilder lineHashes = new StringBuilder();
+  private FileSourceDb.Data computeData(int lines, Iterator<String> linesIterator, List<StreamLine> streamLines, StringBuilder lineHashes, MessageDigest globalMd5Digest) {
     FileSourceDb.Data.Builder fileSourceBuilder = FileSourceDb.Data.newBuilder();
     int lineIndex = 0;
     while (linesIterator.hasNext()) {
       lineIndex++;
-      processLine(lineIndex, linesIterator.next(), fileSourceBuilder, lineHashes, streamLines);
+      processLine(lineIndex, linesIterator.next(), fileSourceBuilder, streamLines, lineHashes, globalMd5Digest);
     }
     // Process last line
     if (lineIndex < lines) {
-      processLine(lines, "", fileSourceBuilder, lineHashes, streamLines);
+      processLine(lines, "", fileSourceBuilder, streamLines, lineHashes, globalMd5Digest);
     }
-    return new Object[] {FileSourceDto.encodeData(fileSourceBuilder.build()), lineHashes.toString()};
+    return fileSourceBuilder.build();
   }
 
-  private void processLine(int line, String sourceLine, FileSourceDb.Data.Builder fileSourceBuilder, StringBuilder lineHashes, List<StreamLine> streamLines){
+  private void processLine(int line, String sourceLine, FileSourceDb.Data.Builder fileSourceBuilder, List<StreamLine> streamLines,
+    StringBuilder lineHashes, MessageDigest globalMd5Digest) {
+    lineHashes.append(computeLineChecksum(sourceLine)).append("\n");
+    globalMd5Digest.update((sourceLine + "\n").getBytes(UTF_8));
+
     FileSourceDb.Line.Builder lineBuilder = fileSourceBuilder.addLinesBuilder().setLine(line).setSource(sourceLine);
-    lineHashes.append(lineChecksum(sourceLine)).append("\n");
     for (StreamLine streamLine : streamLines) {
       streamLine.readLine(line, lineBuilder);
     }
   }
 
-  private static String lineChecksum(String line) {
-    String reducedLine = StringUtils.replaceChars(line, "\t\n\r ", "");
+  private static String computeLineChecksum(String line) {
+    String reducedLine = StringUtils.replaceChars(line, "\t ", "");
     if (reducedLine.isEmpty()) {
       return "";
     }
@@ -162,6 +204,18 @@ public class PersistFileSourcesStep implements ComputationStep {
       return IOUtils.lineIterator(FileUtils.openInputStream(file), Charsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
+    }
+  }
+
+  private static class FileSourcesContext {
+    DbSession session;
+    ComputationContext context;
+    Map<String, FileSourceDto> previousFileSourcesByUuid;
+
+    public FileSourcesContext(DbSession session, ComputationContext context, Map<String, FileSourceDto> previousFileSourcesByUuid) {
+      this.context = context;
+      this.previousFileSourcesByUuid = previousFileSourcesByUuid;
+      this.session = session;
     }
   }
 
