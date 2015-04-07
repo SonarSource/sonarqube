@@ -107,7 +107,7 @@ public class PersistFileSourcesStep implements ComputationStep {
   }
 
   private void processFileSources(DbSession session, Iterator<String> linesIterator, BatchReport.Component component, String projectUuid, List<StreamLine> streamLines) {
-    Object[] dataWithLineHashes = consolidateData(linesIterator, streamLines);
+    Object[] dataWithLineHashes = processLines(component.getLines(), linesIterator, streamLines);
     byte[] data = (byte[]) dataWithLineHashes[0];
     String dataHash = DigestUtils.md5Hex(data);
     String lineHashes = (String) dataWithLineHashes[1];
@@ -126,22 +126,27 @@ public class PersistFileSourcesStep implements ComputationStep {
     session.commit();
   }
 
-  private Object[] consolidateData(Iterator<String> linesIterator, List<StreamLine> streamLines) {
+  private Object[] processLines(int lines, Iterator<String> linesIterator, List<StreamLine> streamLines) {
     StringBuilder lineHashes = new StringBuilder();
     FileSourceDb.Data.Builder fileSourceBuilder = FileSourceDb.Data.newBuilder();
-    int lineIndex = 1;
+    int lineIndex = 0;
     while (linesIterator.hasNext()) {
-      String line = linesIterator.next();
-      lineHashes.append(lineChecksum(line)).append("\n");
-      FileSourceDb.Line.Builder lineBuilder = fileSourceBuilder.addLinesBuilder().setLine(lineIndex).setSource(line);
-      for (StreamLine streamLine : streamLines) {
-        streamLine.readLine(lineIndex, lineBuilder);
-      }
       lineIndex++;
+      processLine(lineIndex, linesIterator.next(), fileSourceBuilder, lineHashes, streamLines);
     }
-    // TODO add one more line if BatchReport.Component.lines has one more line
-
+    // Process last line
+    if (lineIndex < lines) {
+      processLine(lines, "", fileSourceBuilder, lineHashes, streamLines);
+    }
     return new Object[] {FileSourceDto.encodeData(fileSourceBuilder.build()), lineHashes.toString()};
+  }
+
+  private void processLine(int line, String sourceLine, FileSourceDb.Data.Builder fileSourceBuilder, StringBuilder lineHashes, List<StreamLine> streamLines){
+    FileSourceDb.Line.Builder lineBuilder = fileSourceBuilder.addLinesBuilder().setLine(line).setSource(sourceLine);
+    lineHashes.append(lineChecksum(sourceLine)).append("\n");
+    for (StreamLine streamLine : streamLines) {
+      streamLine.readLine(line, lineBuilder);
+    }
   }
 
   private static String lineChecksum(String line) {

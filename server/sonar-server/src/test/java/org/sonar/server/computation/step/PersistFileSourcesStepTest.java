@@ -52,6 +52,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
+  private static final int FILE_REF = 3;
+
   private static final String PROJECT_UUID = "PROJECT";
 
   @Rule
@@ -99,13 +101,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_source() throws Exception {
     BatchReportWriter writer = initReport();
     writer.writeComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
+      .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE")
       .setLines(2)
       .build());
 
-    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 3);
+    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF);
     FileUtils.writeLines(sourceFile, Lists.newArrayList("line1", "line2"));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
@@ -124,19 +126,45 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLinesCount()).isEqualTo(2);
     assertThat(data.getLines(0).getLine()).isEqualTo(1);
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
+    assertThat(data.getLines(1).getLine()).isEqualTo(2);
+    assertThat(data.getLines(1).getSource()).isEqualTo("line2");
+  }
+
+  @Test
+  public void persist_last_line() throws Exception {
+    BatchReportWriter writer = initReport();
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(FILE_REF)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE")
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+      .setLines(3)
+      .build());
+
+    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF);
+    FileUtils.writeLines(sourceFile, Lists.newArrayList("line1", "line2"));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select("FILE");
+    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    assertThat(data.getLinesCount()).isEqualTo(3);
+    assertThat(data.getLines(2).getLine()).isEqualTo(3);
+    assertThat(data.getLines(2).getSource()).isEmpty();
   }
 
   @Test
   public void persist_source_line_hashes() throws Exception {
     BatchReportWriter writer = initReport();
     writer.writeComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
+      .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE")
       .setLines(2)
       .build());
 
-    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 3);
+    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF);
     FileUtils.writeLines(sourceFile, Lists.newArrayList("line1", "line2"));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
@@ -150,13 +178,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_coverage() throws Exception {
     BatchReportWriter writer = initReport();
     writer.writeComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
+      .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid("FILE")
       .setLines(1)
       .build());
 
-    writer.writeFileCoverage(3, newArrayList(BatchReport.Coverage.newBuilder()
+    writer.writeFileCoverage(FILE_REF, newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
       .setUtHits(true)
@@ -166,7 +194,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setOverallCoveredConditions(4)
       .build()));
 
-    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 3);
+    File sourceFile = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF);
     FileUtils.writeLines(sourceFile, Lists.newArrayList("line1"));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
@@ -205,7 +233,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setUuid("MODULE")
-      .addChildRef(3)
+      .addChildRef(FILE_REF)
       .build());
 
     return writer;
