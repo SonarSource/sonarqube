@@ -103,6 +103,8 @@ import org.sonar.server.dashboard.ws.DashboardsWebService;
 import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
+import org.sonar.server.db.migrations.PlatformDatabaseMigration;
+import org.sonar.server.db.migrations.PlatformDatabaseMigrationExecutorServiceImpl;
 import org.sonar.server.db.migrations.MigrationSteps;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.debt.*;
@@ -355,7 +357,10 @@ class ServerComponents {
       ServerMetadataPersister.class,
       HttpDownloader.class,
       UriReader.class,
-      ServerIdGenerator.class
+      ServerIdGenerator.class,
+
+      PlatformDatabaseMigrationExecutorServiceImpl.class,
+      PlatformDatabaseMigration.class
       );
   }
 
