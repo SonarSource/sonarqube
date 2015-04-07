@@ -27,22 +27,24 @@ import java.io.File;
 public class FileStructure {
 
   public enum Domain {
-    ISSUES("issues-"),
-    ISSUES_ON_DELETED("issues-deleted-"),
-    COMPONENT("component-"),
-    MEASURES("measures-"),
-    DUPLICATIONS("duplications-"),
-    SYNTAX_HIGHLIGHTING("syntax-highlighting-"),
-    SCM("scm-"),
-    SYMBOLS("symbol-"),
-    COVERAGE("coverage-"),
-    SOURCE("source-")
-    ;
-    
-    private final String filePrefix;
+    ISSUES("issues-", Domain.PB),
+    ISSUES_ON_DELETED("issues-deleted-", Domain.PB),
+    COMPONENT("component-", Domain.PB),
+    MEASURES("measures-", Domain.PB),
+    DUPLICATIONS("duplications-", Domain.PB),
+    SYNTAX_HIGHLIGHTING("syntax-highlighting-", Domain.PB),
+    SCM("scm-", Domain.PB),
+    SYMBOLS("symbol-", Domain.PB),
+    COVERAGE("coverage-", Domain.PB),
+    SOURCE("source-", ".txt");
 
-    Domain(String filePrefix) {
+    private static final String PB = ".pb";
+    private final String filePrefix;
+    private final String fileSuffix;
+
+    Domain(String filePrefix, String fileSuffix) {
       this.filePrefix = filePrefix;
+      this.fileSuffix = fileSuffix;
     }
   }
 
@@ -60,7 +62,7 @@ public class FileStructure {
   }
 
   public File fileFor(Domain domain, int componentRef) {
-    return new File(dir, domain.filePrefix + componentRef + ".pb");
+    return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }
 
 }

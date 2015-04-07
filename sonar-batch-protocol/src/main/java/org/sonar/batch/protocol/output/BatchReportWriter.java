@@ -118,4 +118,8 @@ public class BatchReportWriter {
     ProtobufUtil.writeMessagesToFile(coverageList, file);
   }
 
+  public File getSourceFile(int componentRef) {
+    return fileStructure.fileFor(FileStructure.Domain.SOURCE, componentRef);
+  }
+
 }

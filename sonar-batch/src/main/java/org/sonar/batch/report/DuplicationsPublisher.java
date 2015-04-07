@@ -44,6 +44,9 @@ public class DuplicationsPublisher implements ReportPublisherStep {
   @Override
   public void publish(BatchReportWriter writer) {
     for (final BatchResource resource : resourceCache.all()) {
+      if (!resource.isFile()) {
+        continue;
+      }
       Iterable<DefaultDuplication> dups = duplicationCache.byComponent(resource.resource().getEffectiveKey());
       if (dups.iterator().hasNext()) {
         Iterable<org.sonar.batch.protocol.output.BatchReport.Duplication> reportDuplications = Iterables.transform(dups,
