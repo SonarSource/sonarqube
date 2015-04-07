@@ -33,16 +33,23 @@ public class StreamLineScm implements StreamLine {
 
   @Override
   public void readLine(int line, FileSourceDb.Line.Builder lineBuilder) {
-    int changeSetIndex = scmReport.getChangesetIndexByLine(line);
+    int changeSetIndex = scmReport.getChangesetIndexByLine(line - 1);
     BatchReport.Scm.Changeset changeset = scmReport.getChangeset(changeSetIndex);
-    if (changeset.hasAuthor()) {
+    boolean hasAuthor = changeset.hasAuthor();
+    if (hasAuthor) {
       lineBuilder.setScmAuthor(changeset.getAuthor());
     }
-    if (changeset.hasRevision()) {
+    boolean hasRevision = changeset.hasRevision();
+    if (hasRevision) {
       lineBuilder.setScmRevision(changeset.getRevision());
     }
-    if (changeset.hasDate()) {
+    boolean hasDate = changeset.hasDate();
+    if (hasDate) {
       lineBuilder.setScmDate(changeset.getDate());
+    }
+
+    if (!hasAuthor && !hasRevision && !hasDate) {
+      throw new IllegalArgumentException("A changeset must contains at least one of : author, revision or date");
     }
   }
 
