@@ -68,7 +68,7 @@ public class ServerPluginJarsInstallerTest {
     coreDir = new File(homeDir, "lib/core-plugins");
     FileUtils.forceMkdir(bundledDir);
 
-    fileSystem = new DefaultServerFileSystem(homeDir, server);
+    fileSystem = new DefaultServerFileSystem(homeDir, temp.newFolder(), server);
     jarInstaller = new ServerPluginJarInstaller();
     jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
   }

@@ -46,18 +46,20 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   private static final Logger LOGGER = Loggers.get(DefaultServerFileSystem.class);
 
   private final Server server;
-  private File homeDir;
+  private final File homeDir, tempDir;
 
   public DefaultServerFileSystem(Settings settings, Server server) {
     this.server = server;
     this.homeDir = new File(settings.getString(ProcessProperties.PATH_HOME));
+    this.tempDir = new File(settings.getString(ProcessProperties.PATH_TEMP));
   }
 
   /**
    * for unit tests
    */
-  public DefaultServerFileSystem(File homeDir, Server server) {
+  public DefaultServerFileSystem(File homeDir, File tempDir, Server server) {
     this.homeDir = homeDir;
+    this.tempDir = tempDir;
     this.server = server;
   }
 
@@ -99,8 +101,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   @Override
   public File getTempDir() {
-    // Tomcat is started by app process with correct java.io.tmpdir
-    return FileUtils.getTempDirectory();
+    return tempDir;
   }
 
   public File getDeployDir() {

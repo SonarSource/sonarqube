@@ -39,6 +39,7 @@ import org.sonar.test.TestUtils;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,7 @@ public class ServerTester extends ExternalResource {
       properties.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(ProcessProperties.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
+      properties.setProperty(ProcessProperties.PATH_TEMP, createTemporaryFolderIn().getAbsolutePath());
       properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
       for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
         String key = entry.getKey().toString();
@@ -106,6 +108,13 @@ public class ServerTester extends ExternalResource {
       throw new IllegalStateException("Server not started. You should check that db migrations " +
         "are correctly declared, for example in schema-h2.sql or DatabaseVersion");
     }
+  }
+
+  private File createTemporaryFolderIn() throws IOException {
+    File createdFolder = File.createTempFile("ServerTester", "");
+    createdFolder.delete();
+    createdFolder.mkdir();
+    return createdFolder;
   }
 
   /**
