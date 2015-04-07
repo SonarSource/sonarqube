@@ -57,7 +57,6 @@ import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.*;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.report.*;
 import org.sonar.batch.rule.*;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.report.IssuesReports;
@@ -114,11 +113,6 @@ public class ModuleScanContainer extends ComponentContainer {
       SensorsExecutor.class,
       InitializersExecutor.class,
       ProjectInitializer.class,
-      ReportPublisher.class,
-      ComponentsPublisher.class,
-      IssuesPublisher.class,
-      MeasuresPublisher.class,
-      DuplicationsPublisher.class,
       moduleDefinition.getContainerExtensions(),
 
       // file system

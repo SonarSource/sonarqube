@@ -50,18 +50,18 @@ public class FileMetadata implements BatchComponent {
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
 
-  private abstract static class CharHandler {
+  public abstract static class CharHandler {
 
-    void handleAll(char c) {
+    protected void handleAll(char c) {
     }
 
-    void handleIgnoreEoL(char c) {
+    protected void handleIgnoreEoL(char c) {
     }
 
-    void newLine() {
+    protected void newLine() {
     }
 
-    void eof() {
+    protected void eof() {
     }
   }
 
@@ -79,7 +79,7 @@ public class FileMetadata implements BatchComponent {
     }
 
     @Override
-    void handleAll(char c) {
+    protected void handleAll(char c) {
       if (this.lines == 0) {
         this.lines = 1;
       }
@@ -91,7 +91,7 @@ public class FileMetadata implements BatchComponent {
     }
 
     @Override
-    void newLine() {
+    protected void newLine() {
       lines++;
       if (!blankLine) {
         nonBlankLines++;
@@ -100,14 +100,14 @@ public class FileMetadata implements BatchComponent {
     }
 
     @Override
-    void handleIgnoreEoL(char c) {
+    protected void handleIgnoreEoL(char c) {
       if (!Character.isWhitespace(c)) {
         blankLine = false;
       }
     }
 
     @Override
-    void eof() {
+    protected void eof() {
       if (!blankLine) {
         nonBlankLines++;
       }
@@ -128,19 +128,19 @@ public class FileMetadata implements BatchComponent {
     private StringBuilder sb = new StringBuilder();
 
     @Override
-    void handleIgnoreEoL(char c) {
+    protected void handleIgnoreEoL(char c) {
       sb.append(c);
     }
 
     @Override
-    void newLine() {
+    protected void newLine() {
       sb.append(LINE_FEED);
       globalMd5Digest.update(sb.toString().getBytes(Charsets.UTF_8));
       sb.setLength(0);
     }
 
     @Override
-    void eof() {
+    protected void eof() {
       if (sb.length() > 0) {
         globalMd5Digest.update(sb.toString().getBytes(Charsets.UTF_8));
       }
@@ -163,21 +163,21 @@ public class FileMetadata implements BatchComponent {
     }
 
     @Override
-    void handleIgnoreEoL(char c) {
+    protected void handleIgnoreEoL(char c) {
       if (!Character.isWhitespace(c)) {
         sb.append(c);
       }
     }
 
     @Override
-    void newLine() {
+    protected void newLine() {
       consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
       sb.setLength(0);
       line++;
     }
 
     @Override
-    void eof() {
+    protected void eof() {
       consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
     }
 
@@ -193,17 +193,17 @@ public class FileMetadata implements BatchComponent {
     }
 
     @Override
-    void handleAll(char c) {
+    protected void handleAll(char c) {
       currentOriginalOffset++;
     }
 
     @Override
-    void newLine() {
+    protected void newLine() {
       originalLineOffsets.add(currentOriginalOffset);
     }
 
     @Override
-    void eof() {
+    protected void eof() {
       lastValidOffset = currentOriginalOffset;
     }
 
@@ -246,7 +246,7 @@ public class FileMetadata implements BatchComponent {
       lineOffsetCounter.getLastValidOffset());
   }
 
-  private static void readFile(File file, Charset encoding, CharHandler... handlers) {
+  public static void readFile(File file, Charset encoding, CharHandler... handlers) {
     try (BOMInputStream bomIn = new BOMInputStream(new FileInputStream(file),
       ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
       Reader reader = new BufferedReader(new InputStreamReader(bomIn, encoding))) {

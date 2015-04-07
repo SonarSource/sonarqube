@@ -117,9 +117,9 @@ public class DefaultSensorStorageTest {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    File sonarFile = File.create("src/Foo.php");
+    Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
+    resourceCache.add(sonarFile, null).setInputPath(file);
     when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
-    when(sonarIndex.getResource(sonarFile)).thenReturn(sonarFile);
     sensorStorage.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.NCLOC)
@@ -137,11 +137,10 @@ public class DefaultSensorStorageTest {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    File sonarFile = File.create("src/Foo.php");
+    Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
+    resourceCache.add(sonarFile, null).setInputPath(file);
 
     when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
-
-    when(sonarIndex.getResource(sonarFile)).thenReturn(sonarFile);
 
     sensorStorage.store(new DefaultMeasure()
       .onFile(file)
