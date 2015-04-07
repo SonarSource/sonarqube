@@ -133,16 +133,16 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>2.4</version>
-          <configuration>    
-            <archiverConfig>   
-              <!-- Workaround for http://jira.codehaus.org/browse/MASSEMBLY-422 -->    
-              <!-- 420(dec) = 644(oct) -->   
-              <fileMode>420</fileMode>   
-              <!-- 493(dec) = 755(oct) -->   
-              <directoryMode>493</directoryMode>   
-              <defaultDirectoryMode>493</defaultDirectoryMode>   
-            </archiverConfig>    
-          </configuration>          
+          <configuration>
+            <archiverConfig>
+              <!-- Workaround for http://jira.codehaus.org/browse/MASSEMBLY-422 -->
+              <!-- 420(dec) = 644(oct) -->
+              <fileMode>420</fileMode>
+              <!-- 493(dec) = 755(oct) -->
+              <directoryMode>493</directoryMode>
+              <defaultDirectoryMode>493</defaultDirectoryMode>
+            </archiverConfig>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -415,16 +415,11 @@
       </plugin>
       <!--
       Choosing a random timezone when executing tests allows to detect
-      early the tests that are heavily coupled with local environment.
-
-      Temporary disabled as both gmaven-plugin 1.5 and groovy-maven-plugin 2.0
-      do not support maven parallel builds.
-      See http://jira.codehaus.org/browse/GMAVEN-87 and https://jira.codehaus.org/browse/GMAVEN-114
+      early the tests that are coupled with local environment.
       -->
-      <!--
       <plugin>
-        <groupId>org.codehaus.gmaven</groupId>
-        <artifactId>gmaven-plugin</artifactId>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
         <version>1.5</version>
         <executions>
           <execution>
@@ -434,19 +429,29 @@
               <goal>execute</goal>
             </goals>
             <configuration>
-              <source>
-                <![CDATA[
+              <scripts>
+                <script>
+                  <![CDATA[
                 String[] timezones = ["GMT-9", "UTC", "GMT+9"];
                 String testTimezone = timezones[new Random().nextInt(timezones.length)];
                 project.properties['testTimezone'] = testTimezone;
                 log.info('Timezone used for tests: ' + testTimezone);
                 ]]>
-              </source>
+                </script>
+              </scripts>
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <!-- any version of Groovy \>= 1.5.0 should work here -->
+            <version>2.4.1</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
       </plugin>
-      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -569,11 +574,9 @@
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
             <!--
-            random timezone is temporarily disabled. Waiting for gmaven-plugin to support parallel builds.
             See profile 'randomize-environment'
             -->
-            <!--<user.timezone>${testTimezone}</user.timezone>-->
-            <user.timezone>GMT-9</user.timezone>
+            <user.timezone>${testTimezone}</user.timezone>
           </systemPropertyVariables>
           <groups>${junitGroups}</groups>
           <threadCount>1</threadCount>
@@ -1418,7 +1421,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1431,7 +1434,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1445,7 +1448,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1458,7 +1461,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                   </pluginExecutions>
