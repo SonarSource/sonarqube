@@ -60,6 +60,7 @@ public class QProfilesWsTest {
       new BulkRuleActivationActions(profileService, ruleService, i18n),
       new ProjectAssociationActions(null, null, null, languages),
       new QProfileCreateAction(null, null, null, languages, importers),
+      new QProfileImportersAction(importers),
       new QProfileRestoreBuiltInAction(null),
       new QProfileSearchAction(languages, null, null),
       new QProfileSetDefaultAction(languages, null, null),
@@ -91,8 +92,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(13);
-    assertThat(controller.actions()).hasSize(10);
+    assertThat(controller.actions()).hasSize(14);
   }
 
   @Test
@@ -208,5 +208,15 @@ public class QProfilesWsTest {
     assertThat(create.param("backup_" + xoo1Key).isRequired()).isFalse();
     assertThat(create.param("backup_" + xoo2Key)).isNotNull();
     assertThat(create.param("backup_" + xoo2Key).isRequired()).isFalse();
+  }
+
+  @Test
+  public void define_importers_action() throws Exception {
+    WebService.Action importers = controller.action("importers");
+    assertThat(importers).isNotNull();
+    assertThat(importers.isPost()).isFalse();
+    assertThat(importers.isInternal()).isTrue();
+    assertThat(importers.params()).isEmpty();
+    assertThat(importers.responseExampleAsString()).isNotEmpty();
   }
 }
