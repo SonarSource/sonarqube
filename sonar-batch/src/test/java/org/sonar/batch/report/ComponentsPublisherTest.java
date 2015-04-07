@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Java;
@@ -36,9 +37,7 @@ import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Event;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.protocol.output.FileStructure;
+import org.sonar.batch.protocol.output.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -88,17 +87,17 @@ public class ComponentsPublisherTest {
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
     file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14));
+    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14)).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
 
     org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
     fileWithoutLang.setEffectiveKey("module1:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setSnapshot(new Snapshot().setId(15));
+    resourceCache.add(fileWithoutLang, dir).setSnapshot(new Snapshot().setId(15)).setInputPath(new DefaultInputFile("module1", "src/make").setLines(10));
 
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", Java.INSTANCE, true);
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16));
+    resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16)).setInputPath(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -151,7 +150,7 @@ public class ComponentsPublisherTest {
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
     file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14));
+    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14)).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);

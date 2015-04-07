@@ -55,12 +55,11 @@ public class FileMetadataTest {
     FileUtils.touch(tempFile);
 
     FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(1);
+    assertThat(metadata.lines).isEqualTo(0);
     assertThat(metadata.nonBlankLines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
     assertThat(metadata.lastValidOffset).isEqualTo(0);
-    assertThat(metadata.empty).isTrue();
   }
 
   @Test
@@ -74,7 +73,6 @@ public class FileMetadataTest {
     assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
     assertThat(metadata.lastValidOffset).isEqualTo(13);
-    assertThat(metadata.empty).isFalse();
   }
 
   @Test
@@ -263,7 +261,6 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(135);
     assertThat(metadata.nonBlankLines).isEqualTo(134);
     assertThat(metadata.hash).isNotEmpty();
-    assertThat(metadata.empty).isFalse();
 
     assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains("Invalid character encountered in file");
     assertThat(logTester.logs(LoggerLevel.WARN).get(0)).contains(

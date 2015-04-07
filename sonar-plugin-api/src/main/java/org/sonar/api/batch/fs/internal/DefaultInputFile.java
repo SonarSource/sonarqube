@@ -51,7 +51,6 @@ public class DefaultInputFile implements InputFile {
   private String hash;
   private int nonBlankLines;
   private int[] originalLineOffsets;
-  private boolean empty;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -195,15 +194,6 @@ public class DefaultInputFile implements InputFile {
     return this;
   }
 
-  public boolean isEmpty() {
-    return this.empty;
-  }
-
-  public DefaultInputFile setEmpty(boolean empty) {
-    this.empty = empty;
-    return this;
-  }
-
   @Override
   public TextPointer newPointer(int line, int lineOffset) {
     DefaultTextPointer textPointer = new DefaultTextPointer(line, lineOffset);
@@ -261,7 +251,6 @@ public class DefaultInputFile implements InputFile {
     this.setNonBlankLines(metadata.nonBlankLines);
     this.setHash(metadata.hash);
     this.setOriginalLineOffsets(metadata.originalLineOffsets);
-    this.setEmpty(metadata.empty);
     return this;
   }
 

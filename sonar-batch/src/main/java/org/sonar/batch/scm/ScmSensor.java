@@ -26,7 +26,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -95,19 +94,19 @@ public final class ScmSensor implements Sensor {
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
       if (configuration.forceReloadAll()) {
-        addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
+        addIfNotEmpty(filesToBlame, f);
       } else {
         FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
         if (f.status() != Status.SAME || fileData == null || fileData.needBlame()) {
-          addIfNotEmpty(filesToBlame, (DefaultInputFile) f);
+          addIfNotEmpty(filesToBlame, f);
         }
       }
     }
     return filesToBlame;
   }
 
-  private void addIfNotEmpty(List<InputFile> filesToBlame, DefaultInputFile f) {
-    if (!f.isEmpty()) {
+  private void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
+    if (f.lines() > 0) {
       filesToBlame.add(f);
     }
   }

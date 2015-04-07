@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -83,6 +84,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
     if (ResourceUtils.isFile(r)) {
       builder.setIsTest(ResourceUtils.isUnitTestClass(r));
+      builder.setLines(((InputFile) batchResource.inputPath()).lines());
     }
     String name = getName(r);
     if (name != null) {

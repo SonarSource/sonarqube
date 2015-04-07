@@ -66,8 +66,7 @@ public class FileMetadata implements BatchComponent {
   }
 
   private static class LineCounter extends CharHandler {
-    private boolean empty = true;
-    private int lines = 1;
+    private int lines = 0;
     private int nonBlankLines = 0;
     private boolean blankLine = true;
     boolean alreadyLoggedInvalidCharacter = false;
@@ -81,7 +80,9 @@ public class FileMetadata implements BatchComponent {
 
     @Override
     void handleAll(char c) {
-      this.empty = false;
+      if (this.lines == 0) {
+        this.lines = 1;
+      }
       if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
         LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", file,
           lines, encoding, CoreProperties.ENCODING_PROPERTY);
@@ -120,9 +121,6 @@ public class FileMetadata implements BatchComponent {
       return nonBlankLines;
     }
 
-    public boolean isEmpty() {
-      return empty;
-    }
   }
 
   private static class FileHashComputer extends CharHandler {
@@ -229,8 +227,7 @@ public class FileMetadata implements BatchComponent {
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     readFile(file, encoding, lineCounter, fileHashComputer, lineOffsetCounter);
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
-      lineOffsetCounter.getLastValidOffset(),
-      lineCounter.isEmpty());
+      lineOffsetCounter.getLastValidOffset());
   }
 
   /**
@@ -246,8 +243,7 @@ public class FileMetadata implements BatchComponent {
       throw new IllegalStateException("Should never occurs", e);
     }
     return new Metadata(lineCounter.lines(), lineCounter.nonBlankLines(), fileHashComputer.getHash(), lineOffsetCounter.getOriginalLineOffsets(),
-      lineOffsetCounter.getLastValidOffset(),
-      lineCounter.isEmpty());
+      lineOffsetCounter.getLastValidOffset());
   }
 
   private static void readFile(File file, Charset encoding, CharHandler... handlers) {
@@ -304,13 +300,11 @@ public class FileMetadata implements BatchComponent {
     final String hash;
     final int[] originalLineOffsets;
     final int lastValidOffset;
-    final boolean empty;
 
-    private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, int lastValidOffset, boolean empty) {
+    private Metadata(int lines, int nonBlankLines, String hash, List<Integer> originalLineOffsets, int lastValidOffset) {
       this.lines = lines;
       this.nonBlankLines = nonBlankLines;
       this.hash = hash;
-      this.empty = empty;
       this.originalLineOffsets = Ints.toArray(originalLineOffsets);
       this.lastValidOffset = lastValidOffset;
     }
