@@ -23,8 +23,11 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -108,5 +111,25 @@ public class SourceLineIndexTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("No source found on line 1 for file 'file1'");
     }
+  }
+
+  @Test
+  public void last_commit_of_the_whole_project() throws Exception {
+    Date now = new Date();
+    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+      new SourceLineDoc()
+        .setProjectUuid("project-uuid")
+        .setScmDate(now)
+        .setLine(25)
+        .setFileUuid("file-uuid"),
+      new SourceLineDoc()
+        .setProjectUuid("project-uuid")
+        .setScmDate(DateUtils.addDays(now, -1))
+        .setLine(24)
+        .setFileUuid("file-uuid"));
+
+    Date returnedDate = index.lastCommitedDateOnProject("project-uuid");
+
+    assertThat(returnedDate).isEqualTo(now);
   }
 }
