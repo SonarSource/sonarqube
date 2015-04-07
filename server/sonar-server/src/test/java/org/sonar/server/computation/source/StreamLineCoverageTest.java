@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StreamLineCoverageTest {
 
   @Test
-  public void read_coverage() throws Exception {
+  public void set_coverage() throws Exception {
     StreamLineCoverage computeCoverageLine = new StreamLineCoverage(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
@@ -56,7 +56,7 @@ public class StreamLineCoverageTest {
   }
 
   @Test
-  public void read_coverage_without_line_hits() throws Exception {
+  public void set_coverage_without_line_hits() throws Exception {
     StreamLineCoverage computeCoverageLine = new StreamLineCoverage(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)

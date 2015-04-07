@@ -42,25 +42,33 @@ public class StreamLineCoverage implements StreamLine {
     BatchReport.Coverage reportCoverage = getNextReport(line);
     if (reportCoverage != null) {
       // Unit test
-      if (reportCoverage.getUtHits()) {
+      boolean hasUtLineHits = reportCoverage.hasUtHits() && reportCoverage.getUtHits();
+      if (hasUtLineHits) {
         lineBuilder.setUtLineHits(1);
       }
-      lineBuilder.setUtConditions(reportCoverage.getConditions());
-      lineBuilder.setUtCoveredConditions(reportCoverage.getUtCoveredConditions());
+      if (reportCoverage.hasConditions() && reportCoverage.hasUtCoveredConditions()) {
+        lineBuilder.setUtConditions(reportCoverage.getConditions());
+        lineBuilder.setUtCoveredConditions(reportCoverage.getUtCoveredConditions());
+      }
 
       // Integration test
-      if (reportCoverage.getItHits()) {
+      boolean hasItLineHits = reportCoverage.hasItHits() && reportCoverage.getItHits();
+      if (hasItLineHits) {
         lineBuilder.setItLineHits(1);
       }
-      lineBuilder.setItConditions(reportCoverage.getConditions());
-      lineBuilder.setItCoveredConditions(reportCoverage.getItCoveredConditions());
+      if (reportCoverage.hasConditions() && reportCoverage.hasItCoveredConditions()) {
+        lineBuilder.setItConditions(reportCoverage.getConditions());
+        lineBuilder.setItCoveredConditions(reportCoverage.getItCoveredConditions());
+      }
 
       // Overall test
-      if (reportCoverage.getUtHits() || reportCoverage.getItHits()) {
+      if (hasUtLineHits || hasItLineHits) {
         lineBuilder.setOverallLineHits(1);
       }
-      lineBuilder.setOverallConditions(reportCoverage.getConditions());
-      lineBuilder.setOverallCoveredConditions(reportCoverage.getOverallCoveredConditions());
+      if (reportCoverage.hasConditions() && reportCoverage.hasOverallCoveredConditions()) {
+        lineBuilder.setOverallConditions(reportCoverage.getConditions());
+        lineBuilder.setOverallCoveredConditions(reportCoverage.getOverallCoveredConditions());
+      }
 
       // Reset coverage
       coverage = null;
