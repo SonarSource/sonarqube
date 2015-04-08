@@ -39,7 +39,8 @@ define([
     },
 
     events: {
-      'click .js-favorite': 'onFavoriteClick'
+      'click .js-favorite': 'onFavoriteClick',
+      'show.bs.dropdown .js-meta-dropdown': 'onMetaDropdownShow'
     },
 
     onRender: function () {
@@ -56,6 +57,22 @@ define([
       return $.post(url).fail(function () {
         that.model.set({ isContextFavorite: isContextFavorite });
       });
+    },
+
+    onMetaDropdownShow: function () {
+      var that = this;
+      this.requestMeta().done(function (r) {
+        that.$('.js-meta').html(r);
+      });
+    },
+
+    requestMeta: function () {
+      var url = baseUrl + '/widget/show',
+          options = {
+            id: 'description',
+            resource: this.model.get('contextKey')
+          };
+      return $.get(url, options);
     },
 
     serializeData: function () {
