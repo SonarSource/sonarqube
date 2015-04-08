@@ -76,6 +76,8 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   public boolean isOfficialDistribution() {
+    // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
+    // during release (see sonar-web pom)
     File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
     // no need to check that the file exists. java.io.File#length() returns zero in this case.
     return brandingFile.length() > 0L;
