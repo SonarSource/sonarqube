@@ -21,8 +21,8 @@ package org.sonar.batch.index;
 
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -87,11 +87,11 @@ public class BatchResource {
   }
 
   public boolean isFile() {
-    return ResourceUtils.isFile(r);
+    return Qualifiers.isFile(r);
   }
 
   public boolean isDir() {
-    return ResourceUtils.isDirectory(r);
+    return Qualifiers.isDirectory(r);
   }
 
   public BatchResource setInputPath(InputPath inputPath) {
