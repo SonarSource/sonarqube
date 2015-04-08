@@ -20,13 +20,18 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -42,6 +47,9 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileBackupActionTest {
 
+  @ClassRule
+  public static final DbTester db = new DbTester();
+
   // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
   @Mock
   private QProfileBackuper backuper;
@@ -50,11 +58,13 @@ public class QProfileBackupActionTest {
 
   @Before
   public void setUp() throws Exception {
+    DbClient dbClient = new DbClient(db.database(), db.myBatis());
+
     tester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileBackupAction(backuper)));
+      new QProfileBackupAction(backuper, dbClient, new QProfileFactory(dbClient), LanguageTesting.newLanguages("xoo"))));
   }
 
   @Test
@@ -72,7 +82,7 @@ public class QProfileBackupActionTest {
       }
     }).when(backuper).backup(eq(profileKey), any(Writer.class));
 
-    Result result = tester.newGetRequest("api/qualityprofiles", "backup").setParam("key", profileKey).execute();
+    Result result = tester.newGetRequest("api/qualityprofiles", "backup").setParam("profileKey", profileKey).execute();
     assertThat(result.outputAsString()).isEqualTo(response);
   }
 

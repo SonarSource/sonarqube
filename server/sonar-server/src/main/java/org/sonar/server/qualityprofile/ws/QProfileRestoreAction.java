@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -41,20 +42,11 @@ public class QProfileRestoreAction implements BaseQProfileWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
-    Preconditions.checkArgument(backup != null, "A backup file must be provided");
-
-    backuper.restore(new InputStreamReader(backup, Charsets.UTF_8), null);
-    response.noContent();
-  }
-
-  @Override
   public void define(WebService.NewController controller) {
     controller.createAction("restore")
       .setSince("5.2")
-      .setDescription("Restore a quality profile using an XML file.")
+      .setDescription("Restore a quality profile using an XML file. The restored profile name is taken from the backup file, "
+        + "so if a profile with the same name and language already exists, it will be overwritten.")
       .setPost(true)
       .setHandler(this)
       .createParam(PARAM_BACKUP)
@@ -62,4 +54,17 @@ public class QProfileRestoreAction implements BaseQProfileWsAction {
         "or the former api/profiles/backup.");
   }
 
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
+    try {
+      Preconditions.checkArgument(backup != null, "A backup file must be provided");
+  
+      backuper.restore(new InputStreamReader(backup, Charsets.UTF_8), null);
+      response.noContent();
+    } finally {
+      IOUtils.closeQuietly(backup);
+    }
+  }
 }

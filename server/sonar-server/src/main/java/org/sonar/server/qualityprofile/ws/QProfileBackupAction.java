@@ -20,38 +20,61 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Charsets;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.*;
 import org.sonar.api.server.ws.Response.Stream;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileBackuper;
+import org.sonar.server.qualityprofile.QProfileFactory;
 
 import java.io.OutputStreamWriter;
 
 public class QProfileBackupAction implements BaseQProfileWsAction {
 
   private static final String PARAM_KEY = "key";
+
   private final QProfileBackuper backuper;
 
-  public QProfileBackupAction(QProfileBackuper backuper) {
+  private final DbClient dbClient;
+
+  private QProfileFactory profileFactory;
+
+  private final Languages languages;
+
+  public QProfileBackupAction(QProfileBackuper backuper, DbClient dbClient, QProfileFactory profileFactory, Languages languages) {
     this.backuper = backuper;
+    this.dbClient = dbClient;
+    this.profileFactory = profileFactory;
+    this.languages = languages;
   }
+
+  @Override
+  public void define(WebService.NewController controller) {
+    NewAction backup = controller.createAction("backup")
+      .setSince("5.2")
+      .setDescription("Backup a quality profile in XML form. The exported profile can be restored through api/qualityprofiles/restore.")
+      .setHandler(this);
+
+    QProfileIdentificationParamUtils.defineProfileParams(backup, languages);
+  }
+
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
     stream.setMediaType("text/xml");
-    backuper.backup(request.mandatoryParam(PARAM_KEY), new OutputStreamWriter(stream.output(), Charsets.UTF_8));
-  }
-
-  @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("backup")
-      .setSince("5.2")
-      .setDescription("Backup a quality profile in XML form.")
-      .setHandler(this)
-      .createParam(PARAM_KEY)
-        .setDescription("Key of the profile to backup.");
+    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), Charsets.UTF_8);
+    DbSession session = dbClient.openSession(false);
+    try {
+      String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
+      backuper.backup(profileKey, writer);
+    } finally {
+      session.close();
+      IOUtils.closeQuietly(writer);
+    }
   }
 
 }
