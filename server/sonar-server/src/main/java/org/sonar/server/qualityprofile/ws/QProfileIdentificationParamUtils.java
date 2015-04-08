@@ -32,9 +32,9 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class QProfileIdentificationParamUtils {
 
-  private static final String PARAM_LANGUAGE = "language";
-  private static final String PARAM_PROFILE_NAME = "profileName";
-  private static final String PARAM_PROFILE_KEY = "profileKey";
+  public static final String PARAM_LANGUAGE = "language";
+  public static final String PARAM_PROFILE_NAME = "profileName";
+  public static final String PARAM_PROFILE_KEY = "profileKey";
 
   private QProfileIdentificationParamUtils() {
     // Utility class
@@ -67,7 +67,7 @@ public class QProfileIdentificationParamUtils {
     return profileKey;
   }
 
-  private static String getProfileKeyFromLanguageAndName(String language, String profileName, QProfileFactory profileFactory, DbSession session) {
+  public static String getProfileKeyFromLanguageAndName(String language, String profileName, QProfileFactory profileFactory, DbSession session) {
     QualityProfileDto profile = profileFactory.getByNameAndLanguage(session, profileName, language);
     if (profile == null) {
       throw new NotFoundException(String.format("Unable to find a profile for language '%s' with name '%s'", language, profileName));
