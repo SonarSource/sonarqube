@@ -1,0 +1,18 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 1,
+  "events": [
+    {
+      "action" : "ACTIVATED",
+      "authorLogin" : "david",
+      "authorName" : "David",
+      "ruleKey" : "xoo:x1",
+      "ruleName" : "Rule x1",
+      "params" : {
+        "severity" : "CRITICAL",
+        "max" : "20"
+      }
+    }
+  ]
+}
