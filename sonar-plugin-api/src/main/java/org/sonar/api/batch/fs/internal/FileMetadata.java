@@ -156,10 +156,17 @@ public class FileMetadata implements BatchComponent {
     private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
     private final StringBuilder sb = new StringBuilder();
     private final LineHashConsumer consumer;
-    private int line = 1;
+    private int line = 0;
 
     public LineHashComputer(LineHashConsumer consumer) {
       this.consumer = consumer;
+    }
+
+    @Override
+    protected void handleAll(char c) {
+      if (this.line == 0) {
+        this.line = 1;
+      }
     }
 
     @Override
@@ -178,7 +185,9 @@ public class FileMetadata implements BatchComponent {
 
     @Override
     protected void eof() {
-      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+      if (this.line > 0) {
+        consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+      }
     }
 
   }

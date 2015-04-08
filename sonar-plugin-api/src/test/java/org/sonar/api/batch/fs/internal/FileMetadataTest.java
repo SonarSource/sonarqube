@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class FileMetadataTest {
 
@@ -219,6 +220,23 @@ public class FileMetadataTest {
             assertThat(Hex.encodeHexString(hash)).isEqualTo(md5Hex("baz"));
             break;
         }
+      }
+    });
+  }
+
+  @Test
+  public void dont_fail_on_empty_file() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "", Charsets.UTF_8, true);
+
+    DefaultInputFile f = new DefaultInputFile("foo", tempFile.getName());
+    f.setModuleBaseDir(tempFile.getParentFile().toPath());
+    f.setCharset(Charsets.UTF_8);
+    FileMetadata.computeLineHashesForIssueTracking(f, new LineHashConsumer() {
+
+      @Override
+      public void consume(int lineIdx, @Nullable byte[] hash) {
+        fail("File is empty and should not report any line hash");
       }
     });
   }
