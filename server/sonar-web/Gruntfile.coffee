@@ -246,10 +246,6 @@ module.exports = (grunt) ->
         name: 'widgets/issue-filter'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/widgets/issue-filter.js'
 
-      overview: options:
-        name: 'overview/app'
-        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/overview/app.js'
-
 
     handlebars:
       options:
@@ -305,9 +301,6 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/workspace.js': [
             '<%= pkg.sources %>hbs/workspace/**/*.hbs'
-          ]
-          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/overview.js': [
-            '<%= pkg.sources %>hbs/overview/**/*.hbs'
           ]
 
 

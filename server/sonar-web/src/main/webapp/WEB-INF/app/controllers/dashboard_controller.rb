@@ -29,7 +29,6 @@ class DashboardController < ApplicationController
     if !@resource || @resource.display_dashboard?
       redirect_if_bad_component()
       load_dashboard()
-      redirect_if_overview()
       load_authorized_widget_definitions()
     else
       if !@resource || !@snapshot
@@ -212,12 +211,6 @@ class DashboardController < ApplicationController
       unless @snapshot
         project_not_analyzed
       end
-    end
-  end
-
-  def redirect_if_overview
-    if @resource && @snapshot && !params[:did] && !params[:name]
-      redirect_to :controller => 'overview', :action => 'index', :id => @resource.key
     end
   end
 

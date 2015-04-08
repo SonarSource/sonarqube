@@ -23,7 +23,7 @@ define([
 
   var $ = jQuery,
       OVERVIEW_URLS = [
-          '/design', '/libraries', '/dashboards', '/dashboard'
+          '/design', '/libraries', '/dashboards'
       ],
       SETTINGS_URLS = [
         '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
@@ -39,8 +39,7 @@ define([
     },
 
     events: {
-      'click .js-favorite': 'onFavoriteClick',
-      'show.bs.dropdown .js-meta-dropdown': 'onMetaDropdownShow'
+      'click .js-favorite': 'onFavoriteClick'
     },
 
     onRender: function () {
@@ -59,35 +58,22 @@ define([
       });
     },
 
-    onMetaDropdownShow: function () {
-      var that = this;
-      this.requestMeta().done(function (r) {
-        that.$('.js-meta').html(r);
-      });
-    },
-
-    requestMeta: function () {
-      var url = baseUrl + '/widget/show',
-          options = {
-            id: 'description',
-            resource: this.model.get('contextKey')
-          };
-      return $.get(url, options);
-    },
-
     serializeData: function () {
       var href = window.location.href,
+          search = window.location.search,
           isMoreActive = _.some(OVERVIEW_URLS, function (url) {
             return href.indexOf(url) !== -1;
-          }),
+          }) || (href.indexOf('/dashboard') !== -1 && search.indexOf('did=') !== -1),
           isSettingsActive = _.some(SETTINGS_URLS, function (url) {
             return href.indexOf(url) !== -1;
-          });
+          }),
+          isOverviewActive = !isMoreActive && href.indexOf('/dashboard') !== -1 && search.indexOf('did=') === -1;
 
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
         canManageContextDashboards: !!window.SS.user,
         contextKeyEncoded: encodeURIComponent(this.model.get('contextKey')),
 
+        isOverviewActive: isOverviewActive,
         isSettingsActive: isSettingsActive,
         isMoreActive: isMoreActive
       });

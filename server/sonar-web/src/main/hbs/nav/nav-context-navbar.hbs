@@ -21,8 +21,8 @@
   </div>
 
   <ul class="nav navbar-nav nav-tabs">
-    <li {{#isActiveLink '/overview'}}class="active"{{/isActiveLink}}>
-      <a href="{{link '/overview/index?id=' contextKeyEncoded }}">{{t 'overview.page'}}</a>
+    <li {{#if isOverviewActive}}class="active"{{/if}}>
+      <a href="{{link '/dashboard/index?id=' contextKeyEncoded }}">{{t 'overview.page'}}</a>
     </li>
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
       <a href="{{link '/components/index/' contextId }}">{{t 'components.page'}}</a>
@@ -46,11 +46,11 @@
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
-        {{#each contextDashboards}}
+        {{#withoutFirst contextDashboards}}
           <li>
             <a href="{{link url}}">{{name}}</a>
           </li>
-        {{/each}}
+        {{/withoutFirst}}
         {{#if canManageContextDashboards}}
           <li class="small-divider"></li>
           <li>
@@ -71,12 +71,6 @@
           </li>
         {{/if}}
       </ul>
-    </li>
-    <li class="js-meta-dropdown dropdown pull-right">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'info'}}&nbsp;<i class="icon-dropdown"></i></a>
-      <div class="dropdown-menu dropdown-menu-right panel abs-width-400">
-        <form class="js-meta"></form>
-      </div>
     </li>
   </ul>
 </div>
