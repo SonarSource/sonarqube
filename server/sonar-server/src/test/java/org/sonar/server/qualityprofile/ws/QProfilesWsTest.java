@@ -55,7 +55,7 @@ public class QProfilesWsTest {
       new QProfileSearchAction(languages, null, null),
       new QProfileSetDefaultAction(languages, null, null),
       new QProfileProjectsAction(null),
-      new QProfileBackupAction(null),
+      new QProfileBackupAction(null, null, null, languages),
       new QProfileRestoreAction(null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
@@ -141,7 +141,7 @@ public class QProfilesWsTest {
     WebService.Action backup = controller.action("backup");
     assertThat(backup).isNotNull();
     assertThat(backup.isPost()).isFalse();
-    assertThat(backup.params()).hasSize(1);
+    assertThat(backup.params()).hasSize(3);
   }
 
   @Test
