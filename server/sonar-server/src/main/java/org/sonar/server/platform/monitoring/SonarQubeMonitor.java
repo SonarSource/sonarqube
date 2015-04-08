@@ -27,9 +27,12 @@ import org.sonar.api.security.SecurityRealm;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 
 public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
+
+  static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 
   private final Settings settings;
   private final SecurityRealmFactory securityRealmFactory;
@@ -72,6 +75,12 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     return settings.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY);
   }
 
+  public boolean isOfficialDistribution() {
+    File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
+    // no need to check that the file exists. java.io.File#length() returns zero in this case.
+    return brandingFile.length() > 0L;
+  }
+
   @Override
   public String name() {
     return "SonarQube";
@@ -86,6 +95,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Automatic User Creation", getAutomaticUserCreation());
     attributes.put("Allow Users to Sign Up", getAllowUsersToSignUp());
     attributes.put("Force authentication", getForceAuthentication());
+    attributes.put("Official Distribution", isOfficialDistribution());
     attributes.put("Home Dir", settings.getString(ProcessProperties.PATH_HOME));
     attributes.put("Data Dir", settings.getString(ProcessProperties.PATH_DATA));
     attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
