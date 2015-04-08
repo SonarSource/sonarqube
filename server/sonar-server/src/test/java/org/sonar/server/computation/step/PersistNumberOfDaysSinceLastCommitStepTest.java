@@ -102,13 +102,23 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void persist_number_of_days_since_last_commit_from_index() throws Exception {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
-    when(sourceLineIndex.lastCommitedDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
+    when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
     ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
 
     sut.execute(context);
 
     db.assertDbUnit(getClass(), "insert-from-index-result.xml", new String[] {"id"}, "project_measures");
+  }
+
+  @Test
+  public void no_scm_information_in_report_and_index() throws Exception {
+    initReportWithProjectAndFile();
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
+
+    sut.execute(context);
+
+    db.assertDbUnit(getClass(), "empty.xml");
   }
 
   private BatchReportWriter initReportWithProjectAndFile() throws IOException {

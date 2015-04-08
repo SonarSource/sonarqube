@@ -33,8 +33,12 @@ import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Date;
+
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
@@ -70,11 +74,14 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     int rootComponentRef = context.getReportMetadata().getRootComponentRef();
     recursivelyProcessComponent(context, rootComponentRef);
 
-    if (lastCommitTimestamp == 0L) {
-      lastCommitTimestamp = lastCommitFromIndex(context.getProject().uuid());
+    if (!commitFound()) {
+      Long lastCommitFromIndex = lastCommitFromIndex(context.getProject().uuid());
+      lastCommitTimestamp = firstNonNull(lastCommitFromIndex, lastCommitTimestamp);
     }
 
-    persistNumberOfDaysSinceLastCommit(context);
+    if (commitFound()) {
+      persistNumberOfDaysSinceLastCommit(context);
+    }
   }
 
   private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
@@ -100,12 +107,14 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private long lastCommitFromIndex(String projectUuid) {
-    return sourceLineIndex.lastCommitedDateOnProject(projectUuid).getTime();
+  @CheckForNull
+  private Long lastCommitFromIndex(String projectUuid) {
+    Date lastCommitDate = sourceLineIndex.lastCommitDateOnProject(projectUuid);
+    return lastCommitDate == null ? null : lastCommitDate.getTime();
   }
 
   private void persistNumberOfDaysSinceLastCommit(ComputationContext context) {
-    checkState(lastCommitTimestamp != 0, "The last commit time should exist");
+    checkState(commitFound(), "The last commit time should exist");
 
     long numberOfDaysSinceLastCommit = (system.now() - lastCommitTimestamp) / MILLISECONDS_PER_DAY;
     DbSession dbSession = dbClient.openSession(true);
@@ -118,5 +127,9 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
+  }
+
+  private boolean commitFound() {
+    return lastCommitTimestamp != 0L;
   }
 }

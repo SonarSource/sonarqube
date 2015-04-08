@@ -28,6 +28,7 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 
+import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.List;
 
@@ -114,7 +115,8 @@ public class SourceLineIndex extends BaseIndex {
     throw new NotFoundException(String.format("No source found on line %s for file '%s'", line, fileUuid));
   }
 
-  public Date lastCommitedDateOnProject(String projectUuid) {
+  @CheckForNull
+  public Date lastCommitDateOnProject(String projectUuid) {
     SearchRequestBuilder request = getClient().prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(1)
@@ -128,6 +130,6 @@ public class SourceLineIndex extends BaseIndex {
       return new SourceLineDoc(result[0].sourceAsMap()).scmDate();
     }
 
-    throw new NotFoundException(String.format("No source found on project '%s'", projectUuid));
+    return null;
   }
 }

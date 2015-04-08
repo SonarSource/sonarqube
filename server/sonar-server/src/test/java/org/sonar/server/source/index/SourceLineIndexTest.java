@@ -128,8 +128,15 @@ public class SourceLineIndexTest {
         .setLine(24)
         .setFileUuid("file-uuid"));
 
-    Date returnedDate = index.lastCommitedDateOnProject("project-uuid");
+    Date returnedDate = index.lastCommitDateOnProject("project-uuid");
 
     assertThat(returnedDate).isEqualTo(now);
+  }
+
+  @Test
+  public void last_commit_null_when_not_found() throws Exception {
+    Date date = index.lastCommitDateOnProject("fake-project-uuid");
+
+    assertThat(date).isNull();
   }
 }
