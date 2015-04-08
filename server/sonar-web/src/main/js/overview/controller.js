@@ -22,12 +22,14 @@ define([
   'overview/main/gate-view',
   'overview/main/size-view',
   'overview/main/issues-view',
+  'overview/main/debt-view',
   'overview/main/coverage-view',
   'overview/main/duplications-view'
 ], function (MainLayout,
              GateView,
              SizeView,
              IssuesView,
+             DebtView,
              CoverageView,
              DuplicationsView) {
 
@@ -45,6 +47,7 @@ define([
       mainLayout.gateRegion.show(new GateView(options));
       mainLayout.sizeRegion.show(new SizeView(options));
       mainLayout.issuesRegion.show(new IssuesView(options));
+      mainLayout.debtRegion.show(new DebtView(options));
       mainLayout.coverageRegion.show(new CoverageView(options));
       mainLayout.duplicationsRegion.show(new DuplicationsView(options));
       this.state.fetch();

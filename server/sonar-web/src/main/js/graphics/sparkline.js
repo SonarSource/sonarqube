@@ -26,7 +26,7 @@
   var defaults = {
     height: 30,
     color: '#1f77b4',
-    interpolate: 'bundle',
+    interpolate: 'linear',
     tension: 1,
     type: 'INT'
   };
@@ -57,15 +57,17 @@
               xScale = d3.time.scale()
                   .domain(d3.extent(data, function (d) {
                     return moment(d.val).toDate();
-                  })),
+                  }))
+                  .nice(),
 
               yScale = d3.scale.linear()
                   .domain(d3.extent(data, function (d) {
                     return d.count;
-                  })),
+                  }))
+                  .nice(),
 
-              minValue = yScale.domain()[0],
-              maxValue = yScale.domain()[1],
+              xTicks = xScale.ticks(5),
+              yTicks = yScale.ticks(3),
 
               line = d3.svg.line()
                   .x(function (d) {
@@ -75,31 +77,13 @@
                     return yScale(d.count);
                   })
                   .interpolate(options.interpolate)
-                  .tension(options.tension),
-
-              minLabel = plot.append('text')
-                  .text(window.formatMeasure(minValue, options.type))
-                  .attr('dy', '3px')
-                  .style('text-anchor', 'end')
-                  .style('font-size', '10px')
-                  .style('font-weight', '300')
-                  .style('fill', '#aaa'),
-
-              maxLabel = plot.append('text')
-                  .text(window.formatMeasure(maxValue, options.type))
-                  .attr('dy', '5px')
-                  .style('text-anchor', 'end')
-                  .style('font-size', '10px')
-                  .style('font-weight', '300')
-                  .style('fill', '#aaa'),
-
-              maxLabelWidth = Math.max(minLabel.node().getBBox().width, maxLabel.node().getBBox().width) + 3;
+                  .tension(options.tension);
 
           _.extend(options, {
-            marginLeft: 1,
-            marginRight: 1 + maxLabelWidth,
-            marginTop: 6,
-            marginBottom: 6
+            marginLeft: 20,
+            marginRight: 50,
+            marginTop: 0,
+            marginBottom: 25
           });
 
           _.extend(options, {
@@ -111,18 +95,49 @@
           xScale.range([0, options.availableWidth]);
           yScale.range([options.availableHeight, 0]);
 
+          xTicks.forEach(function (tick) {
+            plot.append('text')
+                .text(xScale.tickFormat()(tick))
+                .attr('x', xScale(tick))
+                .attr('y', options.availableHeight + 20)
+                .attr('dy', '0')
+                .style('text-anchor', 'middle')
+                .style('font-size', '10px')
+                .style('font-weight', '300')
+                .style('fill', '#aaa');
+            plot.append('line')
+                .attr('x1', xScale(tick))
+                .attr('x2', xScale(tick))
+                .attr('y1', 0)
+                .attr('y2', options.availableHeight)
+                .style('stroke', '#eee')
+                .style('shape-rendering', 'crispedges');
+          });
+
+          yTicks.forEach(function (tick) {
+            plot.append('text')
+                .text(window.formatMeasure(tick, options.type))
+                .attr('x', options.availableWidth + 50)
+                .attr('y', yScale(tick))
+                .attr('dy', '5px')
+                .style('text-anchor', 'end')
+                .style('font-size', '10px')
+                .style('font-weight', '300')
+                .style('fill', '#aaa');
+            plot.append('line')
+                .attr('x1', 0)
+                .attr('x2', options.availableWidth)
+                .attr('y1', yScale(tick))
+                .attr('y2', yScale(tick))
+                .style('stroke', '#eee')
+                .style('shape-rendering', 'crispedges');
+          });
+
           plot.append('path')
               .datum(data)
               .attr('d', line)
               .classed('line', true)
               .style('stroke', options.color);
-
-          minLabel
-              .attr('x', options.availableWidth + maxLabelWidth)
-              .attr('y', yScale(minValue));
-          maxLabel
-              .attr('x', options.availableWidth + maxLabelWidth)
-              .attr('y', yScale(maxValue));
         }
     );
   };

@@ -11,7 +11,7 @@
         "metric": "sqale_index"
       },
       {
-        "metric": "overall_coverage"
+        "metric": "coverage"
       },
       {
         "metric": "duplicated_lines_density"

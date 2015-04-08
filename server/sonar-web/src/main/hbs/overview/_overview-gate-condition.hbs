@@ -1,0 +1,15 @@
+<li class="overview-gate-condition spacer-bottom text-ellipsis">
+  <i class="{{alertIconClass level}}"></i>
+  {{#canHaveDrilldownUrl metric period}}
+    <a href="{{urlForDrilldown ../../componentKey metric period periodDate}}"
+       class="overview-status overview-status-{{level}}"
+       title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
+       data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</a>
+  {{else}}
+    <span class="overview-status overview-status-{{level}}"
+          title="{{#notEq level 'OK'}}{{t 'quality_gates.operator' op 'short'}} {{/notEq}}{{#eq level 'ERROR'}}{{formatMeasure error type}}{{/eq}}{{#eq level 'WARN'}}{{formatMeasure warning type}}{{/eq}}"
+          data-toggle="tooltip" data-placement="bottom">{{formatMeasure actual type}}</span>
+  {{/canHaveDrilldownUrl}}
+  <span class="note text-lowercase" style="padding-top: 4px;">{{t 'metric' metric 'name'}}</span>
+  <span class="note text-lowercase">{{default periodName period}}</span>
+</li>

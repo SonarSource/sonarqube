@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'overview/trend-view',
   'templates/overview'
-], function () {
+], function (TrendView) {
 
   return Marionette.Layout.extend({
     template: Templates['overview-duplications'],
@@ -32,7 +33,16 @@ define([
       var trend = this.model.get('duplicationsTrend'),
           hasDuplications = this.model.get('duplications') != null;
       if (_.size(trend) > 1 && hasDuplications) {
-        this.$('#overview-duplications-trend').sparkline(this.model.get('duplicationsTrend'));
+        this.trendView = new TrendView({ data: trend, type: 'PERCENT' });
+        this.trendView.render()
+            .$el.appendTo(this.$('#overview-duplications-trend'));
+        this.trendView.update();
+      }
+    },
+
+    onClose: function () {
+      if (this.trendView != null) {
+        this.trendView.detachEvents().remove();
       }
     }
   });

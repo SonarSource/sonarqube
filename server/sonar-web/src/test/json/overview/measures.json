@@ -74,7 +74,7 @@
         "fvar3": "0"
       },
       {
-        "key": "overall_coverage",
+        "key": "coverage",
         "val": 83.9,
         "frmt_val": "83.9%",
         "trend": 0,
@@ -85,7 +85,7 @@
         "fvar3": "0.6%"
       },
       {
-        "key": "new_overall_coverage",
+        "key": "new_coverage",
         "var1": 88.2352941176471,
         "fvar1": "88.2%",
         "var2": 87.9254132585941,

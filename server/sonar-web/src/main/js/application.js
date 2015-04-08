@@ -288,6 +288,28 @@ function closeModalWindow () {
 
 (function () {
 
+  function shortIntFormatter (value) {
+    var format = '0,0';
+    if (value >= 1000) {
+      format = '0.[0]a';
+    }
+    if (value >= 10000) {
+      format = '0a';
+    }
+    return numeral(value).format(format);
+  }
+
+  function shortIntVariationFormatter (value) {
+    var format = '+0,0';
+    if (value >= 1000) {
+      format = '+0.[0]a';
+    }
+    if (value >= 10000) {
+      format = '+0a';
+    }
+    return numeral(value).format(format);
+  }
+
   /**
    * Check if days should be displayed for a work duration
    * @param {number} days
@@ -324,7 +346,7 @@ function closeModalWindow () {
    * @returns {string}
    */
   function addSpaceIfNeeded (value) {
-    return value.length > 0 ? value : value + ' ';
+    return value.length > 0 ? value + ' ' : value;
   }
 
   /**
@@ -402,6 +424,7 @@ function closeModalWindow () {
           'INT': function (value) {
             return numeral(value).format('0,0');
           },
+          'SHORT_INT': shortIntFormatter,
           'FLOAT': function (value) {
             return numeral(value).format('0,0.0');
           },
@@ -429,6 +452,7 @@ function closeModalWindow () {
           'INT': function (value) {
             return value === 0 ? '0' : numeral(value).format('+0,0');
           },
+          'SHORT_INT': shortIntVariationFormatter,
           'FLOAT': function (value) {
             return value === 0 ? '0' : numeral(value).format('+0,0.0');
           },

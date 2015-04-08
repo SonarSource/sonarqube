@@ -17,42 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-requirejs([
-  'overview/layout',
-  'overview/controller',
-  'overview/router',
-  'overview/models/state'
-], function (Layout,
-             Controller,
-             Router,
-             State) {
+define([
+  'overview/trend-view',
+  'templates/overview'
+], function (TrendView) {
 
-  var $ = jQuery,
-      App = new Marionette.Application();
+  return Marionette.Layout.extend({
+    template: Templates['overview-debt'],
 
-  App.addInitializer(function () {
-    $('body').addClass('dashboard-page');
+    modelEvents: {
+      'change': 'render'
+    },
 
-    // add state model
-    this.state = new State(window.overviewConf);
-    this.state.set('period3Name', 'During Leak Period');
+    onRender: function () {
+      var trend = this.model.get('debtTrend'),
+          hasDebt = this.model.get('debt') != null;
+      if (_.size(trend) > 1 && hasDebt) {
+        this.trendView = new TrendView({ data: trend, type: 'WORK_DUR' });
+        this.trendView.render()
+            .$el.appendTo(this.$('#overview-debt-trend'));
+        this.trendView.update();
+      }
+    },
 
-    // create and render layout
-    this.layout = new Layout({
-      el: '.overview',
-      model: this.state
-    }).render();
-
-    // create controller
-    this.controller = new Controller({ state: this.state, layout: this.layout });
-
-    // start router
-    this.router = new Router({ controller: this.controller });
-    Backbone.history.start();
-  });
-
-  window.requestMessages().done(function () {
-    App.start();
+    onClose: function () {
+      if (this.trendView != null) {
+        this.trendView.detachEvents().remove();
+      }
+    }
   });
 
 });

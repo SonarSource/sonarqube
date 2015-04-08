@@ -24,9 +24,10 @@ define(function () {
       SIZE_METRIC = 'ncloc',
       ISSUES_METRIC = 'violations',
       DEBT_METRIC = 'sqale_index',
+      NEW_DEBT_METRIC = 'new_technical_debt',
       SQALE_RATING_METRIC = 'sqale_rating',
-      COVERAGE_METRIC = 'overall_coverage',
-      NEW_COVERAGE_METRIC = 'new_overall_coverage',
+      COVERAGE_METRIC = 'coverage',
+      NEW_COVERAGE_METRIC = 'new_coverage',
       DUPLICATIONS_METRIC = 'duplicated_lines_density';
 
   return Backbone.Model.extend({
@@ -68,6 +69,7 @@ define(function () {
               GATE_METRIC,
               SIZE_METRIC,
               DEBT_METRIC,
+              NEW_DEBT_METRIC,
               SQALE_RATING_METRIC,
               COVERAGE_METRIC,
               NEW_COVERAGE_METRIC,
@@ -148,9 +150,13 @@ define(function () {
 
     parseDebt: function (msr) {
       var debtMeasure = _.findWhere(msr, { key: DEBT_METRIC }),
+          newDebtMeasure = _.findWhere(msr, { key: NEW_DEBT_METRIC }),
           sqaleRatingMeasure = _.findWhere(msr, { key: SQALE_RATING_METRIC });
       if (debtMeasure != null) {
         this.set({ debt: debtMeasure.val });
+      }
+      if (newDebtMeasure != null) {
+        this.set({ newDebt: newDebtMeasure.var3 });
       }
       if (sqaleRatingMeasure != null) {
         this.set({ sqaleRating: sqaleRatingMeasure.val });
@@ -191,6 +197,7 @@ define(function () {
             metrics: [
               SIZE_METRIC,
               ISSUES_METRIC,
+              DEBT_METRIC,
               COVERAGE_METRIC,
               DUPLICATIONS_METRIC
             ].join(',')
@@ -199,6 +206,7 @@ define(function () {
         if (_.isArray(r)) {
           that.parseSizeTrend(r[0]);
           that.parseIssuesTrend(r[0]);
+          that.parseDebtTrend(r[0]);
           that.parseCoverageTrend(r[0]);
           that.parseDuplicationsTrend(r[0]);
         }
@@ -222,6 +230,10 @@ define(function () {
 
     parseIssuesTrend: function (r) {
       this.parseTrend(r, 'issuesTrend', ISSUES_METRIC);
+    },
+
+    parseDebtTrend: function (r) {
+      this.parseTrend(r, 'debtTrend', DEBT_METRIC);
     },
 
     parseCoverageTrend: function (r) {

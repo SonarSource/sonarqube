@@ -1,24 +1,21 @@
+<header class="overview-card-header page-header">
+  <h2 class="page-title">{{t 'overview.issues'}}</h2>
+</header>
+
 <div class="overview-highlight">
   <h6 class="note">{{t 'overview.issues'}}</h6>
   <div class="overview-main-measure">
-    <a href="{{urlForIssuesOverview componentKey}}">{{formatMeasure issues 'INT'}}</a>
-  </div>
-  <div class="spacer-top">
-    {{#notNull sqaleRating}}
-      <a class="overview-measure" href="{{urlForDrilldown componentKey 'sqale_rating'}}"><span class="rating rating-{{formatMeasure sqaleRating 'RATING'}}">{{formatMeasure sqaleRating 'RATING'}}</span></a>
-    {{/notNull}}
-    &nbsp;&nbsp;
-    <a class="overview-measure" href="{{urlForDrilldown componentKey 'sqale_index'}}">{{formatMeasure debt 'WORK_DUR'}}</a>
+    <a href="{{urlForIssuesOverview componentKey}}">{{formatMeasure issues 'SHORT_INT'}}</a>
   </div>
   {{#notNull issues3}}
-    <div class="spacer-top">
-      <a href="{{urlForIssuesOverview componentKey period3Date}}"
-         class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">{{formatMeasureVariation issues3 'INT'}}</a>
-      <span class="note">new {{period3Name}}</span>
-    </div>
+    <h6 class="note">{{period3Name}}</h6>
+    <a href="{{urlForIssuesOverview componentKey period3Date}}"
+       class="overview-measure {{#gt issues3 0}}text-danger{{else}}text-success{{/gt}}">{{formatMeasure issues3 'INT'}}</a>
+    <span class="note">{{t 'overview.new'}}</span>
   {{/notNull}}
 </div>
 
 <div class="overview-trend">
-  <div class="overview-sparkline" id="overview-issues-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="INT"></div>
+  <div class="overview-sparkline" id="overview-issues-trend" data-height="120" data-color="#f3ca8e"
+       data-type="SHORT_INT"></div>
 </div>

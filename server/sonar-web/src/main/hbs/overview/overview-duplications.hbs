@@ -1,19 +1,22 @@
+<header class="overview-card-header page-header">
+  <h2 class="page-title">{{t 'overview.duplications'}}</h2>
+</header>
+
 <div class="overview-highlight">
-  <h6 class="note">{{t 'overview.duplications'}}</h6>
+  <h6 class="note">{{t 'metric.duplicated_lines_density.short_name'}}</h6>
   <div class="overview-main-measure">
     <a href="{{urlForDrilldown componentKey 'duplicated_lines_density'}}">
       {{formatMeasure duplications 'PERCENT'}}
     </a>
   </div>
   {{#notNull duplications3}}
-    <div class="spacer-top">
-      <a class="overview-measure {{#gt duplications3 0}}text-danger{{/gt}}{{#lt duplications3 0}}text-success{{/lt}}"
-         href="{{urlForDrilldown componentKey 'duplicated_lines_density' 3}}">{{formatMeasureVariation duplications3 'PERCENT'}}</a>
-      <span class="note">{{period3Name}}</span>
-    </div>
+    <h6 class="note">{{period3Name}}</h6>
+    <a class="overview-measure {{#gt duplications3 0}}text-danger{{/gt}}{{#lt duplications3 0}}text-success{{/lt}}"
+       href="{{urlForDrilldown componentKey 'duplicated_lines_density' 3}}">{{formatMeasureVariation duplications3 'PERCENT'}}</a>
   {{/notNull}}
 </div>
 
 <div class="overview-trend">
-  <div class="overview-sparkline" id="overview-duplications-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="PERCENT"></div>
+  <div class="overview-sparkline" id="overview-duplications-trend" data-height="120" data-color="#f3ca8e"
+       data-type="PERCENT"></div>
 </div>

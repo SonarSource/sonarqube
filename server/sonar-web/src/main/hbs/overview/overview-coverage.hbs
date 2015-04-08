@@ -1,26 +1,25 @@
+<header class="overview-card-header page-header">
+  <h2 class="page-title">{{t 'overview.testing'}}</h2>
+</header>
+
 <div class="overview-highlight">
-  <h6 class="note">{{t 'overview.coverage'}}</h6>
+  <h6 class="note">{{t 'metric.coverage.name'}}</h6>
   <div class="overview-main-measure">
     {{#notNull coverage}}
-      <a href="{{urlForDrilldown componentKey 'overall_coverage'}}">{{formatMeasure coverage 'PERCENT'}}</a>
+      <a href="{{urlForDrilldown componentKey 'coverage'}}">{{formatMeasure coverage 'PERCENT'}}</a>
     {{else}}
       –
     {{/notNull}}
   </div>
-  {{#notNull coverage3}}
-    <div class="spacer-top">
-      <span class="overview-measure {{#gt coverage3 0}}text-success{{/gt}}{{#lt coverage3 0}}text-danger{{/lt}}">{{formatMeasureVariation coverage3 'PERCENT'}}</span>
-      <span class="note">{{period3Name}}</span>
-    </div>
-  {{/notNull}}
   {{#notNull newCoverage3}}
-    <div class="spacer-top">
-      <a class="overview-measure spacer-top" href="{{urlForDrilldown componentKey 'new_overall_coverage' 3}}">{{formatMeasure newCoverage3 'PERCENT'}}</a>
-      <span class="note">on new code</span>
-    </div>
+    <h6 class="note">{{period3Name}}</h6>
+    <a class="overview-measure spacer-top"
+       href="{{urlForDrilldown componentKey 'new_coverage' 3}}">{{formatMeasure newCoverage3 'PERCENT'}}</a>
+    <span class="note">{{t 'overview.on_new_code'}}</span>
   {{/notNull}}
 </div>
 
 <div class="overview-trend">
-  <div class="overview-sparkline" id="overview-coverage-trend" data-width="300" data-height="50" data-color="#f3ca8e" data-type="PERCENT"></div>
+  <div class="overview-sparkline" id="overview-coverage-trend" data-height="120" data-color="#f3ca8e"
+       data-type="PERCENT"></div>
 </div>

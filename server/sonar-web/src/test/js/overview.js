@@ -26,7 +26,7 @@ lib.changeWorkingDirectory('overview');
 lib.configureCasper();
 
 
-casper.test.begin(testName(), 23, function (test) {
+casper.test.begin(testName(), 22, function (test) {
   casper
       .start(lib.buildUrl('overview'), function () {
         lib.setDefaultViewport();
@@ -44,7 +44,7 @@ casper.test.begin(testName(), 23, function (test) {
       })
 
       .then(function () {
-        casper.waitForText('165,077');
+        casper.waitForText('165k');
       })
 
       .then(function () {
@@ -58,17 +58,17 @@ casper.test.begin(testName(), 23, function (test) {
         test.assertElementCount('#overview-gate .overview-status-WARN', 1);
         test.assertElementCount('#overview-gate .overview-status-OK', 5);
 
-        test.assertSelectorContains('#overview-size', '165,077');
-        test.assertSelectorContains('#overview-size', '+3,916');
+        test.assertSelectorContains('#overview-size', '165k');
+        test.assertSelectorContains('#overview-size', '+3.9k');
         test.assertExists('#overview-size-trend path');
 
-        test.assertSelectorContains('#overview-issues', '1,605');
-        test.assertSelectorContains('#overview-issues', 'A');
-        test.assertSelectorContains('#overview-issues', '66');
+        test.assertSelectorContains('#overview-issues', '1.6k');
         test.assertExists('#overview-issues-trend path');
 
+        test.assertSelectorContains('#overview-debt', '66');
+        test.assertExists('#overview-debt-trend path');
+
         test.assertSelectorContains('#overview-coverage', '83.9%');
-        test.assertSelectorContains('#overview-coverage', '+0.6%');
         test.assertSelectorContains('#overview-coverage', '90.0%');
         test.assertExists('#overview-coverage-trend path');
 

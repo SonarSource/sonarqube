@@ -370,11 +370,14 @@
   });
 
   Handlebars.registerHelper('numberShort', function (number) {
-    if (number > 9999) {
-      return numeral(number).format('0.[0]a');
-    } else {
-      return numeral(number).format('0,0');
+    var format = '0,0';
+    if (number >= 10000) {
+      format = '0.[0]a';
     }
+    if (number >= 100000) {
+      format = '0a';
+    }
+    return numeral(number).format(format);
   });
 
   Handlebars.registerHelper('pluginActions', function (actions, options) {

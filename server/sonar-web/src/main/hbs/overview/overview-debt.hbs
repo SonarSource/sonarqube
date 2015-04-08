@@ -1,0 +1,21 @@
+<header class="overview-card-header page-header">
+  <h2 class="page-title">{{t 'overview.debt'}}</h2>
+</header>
+
+<div class="overview-highlight">
+  <h6 class="note">{{t 'metric.sqale_index.name'}}</h6>
+  <div class="overview-main-measure">
+    <a href="{{urlForDrilldown componentKey 'sqale_index'}}">{{formatMeasure debt 'WORK_DUR'}}</a>
+  </div>
+  {{#notNull issues3}}
+    <h6 class="note">{{period3Name}}</h6>
+    <a href="{{urlForDrilldown componentKey 'new_technical_debt'}}"
+       class="overview-measure {{#gt newDebt 0}}text-danger{{else}}text-success{{/gt}}">{{formatMeasure newDebt 'WORK_DUR'}}</a>
+    <span class="note">{{t 'overview.new'}}</span>
+  {{/notNull}}
+</div>
+
+<div class="overview-trend">
+  <div class="overview-sparkline" id="overview-debt-trend" data-height="120" data-color="#f3ca8e"
+       data-type="WORK_DUR"></div>
+</div>
