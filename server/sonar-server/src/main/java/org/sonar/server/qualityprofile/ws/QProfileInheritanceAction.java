@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.collect.Multimap;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,9 +32,12 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.search.FacetValue;
 
 import java.util.List;
+import java.util.Map;
 
 public class QProfileInheritanceAction implements BaseQProfileWsAction {
 
@@ -41,13 +45,16 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
 
   private final QProfileLookup profileLookup;
 
+  private final QProfileLoader profileLoader;
+
   private final QProfileFactory profileFactory;
 
   private final Languages languages;
 
-  public QProfileInheritanceAction(DbClient dbClient, QProfileLookup profileLookup, QProfileFactory profileFactory, Languages languages) {
+  public QProfileInheritanceAction(DbClient dbClient, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, Languages languages) {
     this.dbClient = dbClient;
     this.profileLookup = profileLookup;
+    this.profileLoader = profileLoader;
     this.profileFactory = profileFactory;
     this.languages = languages;
   }
@@ -75,40 +82,86 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
 
       List<QProfile> ancestors = profileLookup.ancestors(profile, session);
       List<QualityProfileDto> children = dbClient.qualityProfileDao().findChildren(session, profileKey);
+      Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();
 
-      writeResponse(response.newJsonWriter(), ancestors, children);
+      writeResponse(response.newJsonWriter(), profile, ancestors, children, profileStats);
     } finally {
       session.close();
     }
   }
 
-  private void writeResponse(JsonWriter json, List<QProfile> ancestors, List<QualityProfileDto> children) {
+  private void writeResponse(JsonWriter json, QualityProfileDto profile, List<QProfile> ancestors, List<QualityProfileDto> children,
+    Map<String, Multimap<String, FacetValue>> profileStats) {
     json.beginObject();
-    writeAncestors(json, ancestors);
-    writeChildren(json, children);
+    writeProfile(json, profile, profileStats);
+    writeAncestors(json, ancestors, profileStats);
+    writeChildren(json, children, profileStats);
     json.endObject().close();
   }
 
-  private void writeAncestors(JsonWriter json, List<QProfile> ancestors) {
+  private void writeProfile(JsonWriter json, QualityProfileDto profile, Map<String, Multimap<String, FacetValue>> profileStats) {
+    String profileKey = profile.getKey();
+    json.name("profile").beginObject()
+      .prop("key", profileKey)
+      .prop("name", profile.getName())
+      .prop("parent", profile.getParentKee());
+    writeStats(json, profileKey, profileStats);
+    json.endObject();
+  }
+
+  private void writeAncestors(JsonWriter json, List<QProfile> ancestors, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.name("ancestors").beginArray();
     for (QProfile ancestor : ancestors) {
+      String ancestorKey = ancestor.key();
       json.beginObject()
-        .prop("key", ancestor.key())
+        .prop("key", ancestorKey)
         .prop("name", ancestor.name())
-        .prop("parent", ancestor.parent())
-        .endObject();
+        .prop("parent", ancestor.parent());
+      writeStats(json, ancestorKey, profileStats);
+      json.endObject();
     }
     json.endArray();
   }
 
-  private void writeChildren(JsonWriter json, List<QualityProfileDto> children) {
+  private void writeChildren(JsonWriter json, List<QualityProfileDto> children, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.name("children").beginArray();
     for (QualityProfileDto child : children) {
+      String childKey = child.getKey();
       json.beginObject()
-        .prop("key", child.getKey())
-        .prop("name", child.getName())
-        .endObject();
+        .prop("key", childKey)
+        .prop("name", child.getName());
+      writeStats(json, childKey, profileStats);
+      json.endObject();
     }
     json.endArray();
   }
+
+  private void writeStats(JsonWriter json, String profileKey, Map<String, Multimap<String, FacetValue>> profileStats) {
+    if (profileStats.containsKey(profileKey)) {
+      Multimap<String, FacetValue> ancestorStats = profileStats.get(profileKey);
+      json.prop("activeRuleCount", getActiveRuleCount(ancestorStats));
+      json.prop("overridingRuleCount", getOverridingRuleCount(ancestorStats));
+    }
+  }
+
+  private Long getActiveRuleCount(Multimap<String, FacetValue> profileStats) {
+    Long result = null;
+    if (profileStats.containsKey("countActiveRules")) {
+      result = profileStats.get("countActiveRules").iterator().next().getValue();
+    }
+    return result;
+  }
+
+  private Long getOverridingRuleCount(Multimap<String, FacetValue> profileStats) {
+    Long result = null;
+    if (profileStats.containsKey("inheritance")) {
+      for (FacetValue value : profileStats.get("inheritance")) {
+        if ("OVERRIDES".equals(value.getKey())) {
+          result = value.getValue();
+        }
+      }
+    }
+    return result;
+  }
+
 }
