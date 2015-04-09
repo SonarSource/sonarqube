@@ -194,6 +194,10 @@ module.exports = (grunt) ->
         name: 'quality-gate/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/quality-gate/app.js'
 
+      qualityProfiles: options:
+        name: 'quality-profiles/app'
+        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/quality-profiles/app.js'
+
       codingRules: options:
         name: 'coding-rules/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/coding-rules/app.js'
@@ -270,6 +274,9 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/quality-gates.js': [
             '<%= pkg.sources %>hbs/quality-gates/**/*.hbs'
+          ]
+          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/quality-profiles.js': [
+            '<%= pkg.sources %>hbs/quality-profiles/**/*.hbs'
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/source-viewer.js': [
             '<%= pkg.sources %>hbs/source-viewer/**/*.hbs'
