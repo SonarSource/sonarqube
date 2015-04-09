@@ -104,21 +104,29 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
   public void insert(FileSourceDto dto) {
     DbSession session = mybatis.openSession(false);
     try {
-      session.getMapper(FileSourceMapper.class).insert(dto);
+      insert(session, dto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public void insert(DbSession session, FileSourceDto dto) {
+    session.getMapper(FileSourceMapper.class).insert(dto);
+  }
+
   public void update(FileSourceDto dto) {
     DbSession session = mybatis.openSession(false);
     try {
-      session.getMapper(FileSourceMapper.class).update(dto);
+      update(session, dto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void update(DbSession session, FileSourceDto dto) {
+    session.getMapper(FileSourceMapper.class).update(dto);
   }
 
   public void updateDateWhenUpdatedDateIsZero(DbSession session, String projectUuid, long updateDate) {

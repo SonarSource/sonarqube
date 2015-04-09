@@ -71,6 +71,16 @@ public class ReportIteratorTest {
     assertThat(sut.next().getLine()).isEqualTo(1);
   }
 
+  @Test
+  public void do_not_fail_when_calling_has_next_with_iterator_already_closed() throws Exception {
+    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    assertThat(sut.next().getLine()).isEqualTo(1);
+    assertThat(sut.hasNext()).isFalse();
+
+    sut.close();
+    assertThat(sut.hasNext()).isFalse();
+  }
+
   @Test(expected = NoSuchElementException.class)
   public void test_error() throws Exception {
     sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
