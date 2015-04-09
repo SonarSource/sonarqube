@@ -141,6 +141,8 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
       Multimap<String, FacetValue> ancestorStats = profileStats.get(profileKey);
       json.prop("activeRuleCount", getActiveRuleCount(ancestorStats));
       json.prop("overridingRuleCount", getOverridingRuleCount(ancestorStats));
+    } else {
+      json.prop("activeRuleCount", 0);
     }
   }
 

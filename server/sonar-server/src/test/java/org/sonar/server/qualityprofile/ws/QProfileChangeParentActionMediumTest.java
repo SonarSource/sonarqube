@@ -34,6 +34,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -84,35 +85,35 @@ public class QProfileChangeParentActionMediumTest {
 
     // 1. Set parent 1
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey().toString())
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent1.getKey().toString())
       .execute();
     session.clearCache();
 
-    // 1. Assert ActiveRule in DAO
+    // 1. Check rule 1 enabled
     List<ActiveRuleDto> activeRules1 = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
 
     // 2. Set parent 2
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey().toString())
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent2.getKey().toString())
       .execute();
     session.clearCache();
 
-    // 2. Assert ActiveRule in DAO
+    // 2. Check rule 2 enabled
     List<ActiveRuleDto> activeRules2 = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
 
     // 3. Remove parent
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey().toString())
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
       .execute();
     session.clearCache();
 
-    // 3. Assert ActiveRule in DAO
+    // 3. Check no rule enabled
     List<ActiveRuleDto> activeRules = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
   }
@@ -139,7 +140,7 @@ public class QProfileChangeParentActionMediumTest {
       .execute();
     session.clearCache();
 
-    // 1. Assert ActiveRule in DAO
+    // 1. check rule 1 enabled
     List<ActiveRuleDto> activeRules1 = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
@@ -152,10 +153,49 @@ public class QProfileChangeParentActionMediumTest {
       .execute();
     session.clearCache();
 
-    // 2. Assert ActiveRule in DAO
+    // 2. check rule 2 enabled
     List<ActiveRuleDto> activeRules2 = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
+
+    // 3. Remove parent
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
+      .setParam(QProfileIdentificationParamUtils.PARAM_LANGUAGE, "xoo")
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam("parentName", "")
+      .execute();
+    session.clearCache();
+
+    // 3. check no rule enabled
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().findByProfileKey(session, child.getKey());
+    assertThat(activeRules).isEmpty();
+  }
+
+  @Test
+  public void remove_parent_with_empty_key() throws Exception {
+    QualityProfileDto parent = createProfile("xoo", "Parent 1");
+    QualityProfileDto child = createProfile("xoo", "Child");
+
+    RuleDto rule1 = createRule("xoo", "rule1");
+    createActiveRule(rule1, parent);
+    session.commit();
+
+    assertThat(db.activeRuleDao().findByProfileKey(session, child.getKey())).isEmpty();
+
+    // Set parent
+    tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
+    session.clearCache();
+
+    // Remove parent
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam("parentKey", "")
+      .execute();
+    session.clearCache();
+
+    // Check no rule enabled
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().findByProfileKey(session, child.getKey());
+    assertThat(activeRules).isEmpty();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -170,7 +210,20 @@ public class QProfileChangeParentActionMediumTest {
       .setParam("parentName", "polop")
       .setParam("parentKey", "palap")
       .execute();
-    session.clearCache();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_if_profile_key_and_name_both_set() throws Exception {
+    QualityProfileDto child = createProfile("xoo", "Child");
+    session.commit();
+
+    assertThat(db.activeRuleDao().findByProfileKey(session, child.getKey())).isEmpty();
+
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
+      .setParam("parentKey", "palap")
+      .execute();
   }
 
   private QualityProfileDto createProfile(String lang, String name) {

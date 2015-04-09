@@ -97,6 +97,14 @@ public class QProfileInheritanceActionMediumTest {
     wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee()).execute().assertJson(getClass(), "inheritance-buWide.json");
   }
 
+  @Test
+  public void inheritance_no_family() throws Exception {
+    // Simple profile, no parent, no child
+    QualityProfileDto remi = createProfile("xoo", "Nobodys Boy", "xoo-nobody-s-boy-01234");
+
+    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", remi.getKee()).execute().assertJson(getClass(), "inheritance-simple.json");
+  }
+
   @Test(expected = NotFoundException.class)
   public void fail_if_not_found() throws Exception {
     wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", "polop").execute();
