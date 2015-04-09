@@ -161,7 +161,7 @@ message Scm {
   optional int32 component_ref = 1;
   repeated Changeset changeset = 2;
   // if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
-  repeated int32 changesetIndexByLine = 3 [packed=true];
+  repeated int32 changesetIndexByLine = 3 [packed = true];
 
   message Changeset {
     optional string revision = 1;
@@ -233,3 +233,17 @@ message SyntaxHighlighting {
   optional HighlightingType type = 2;
 }
 
+message TestResult {
+  optional int32 test_file_ref = 1;
+  optional TestType type = 2;
+  optional TestResultStatus status = 3;
+  optional int64 duration_in_ms = 4;
+  optional string stacktrace = 5;
+  optional string msg = 6;
+  repeated CoverageBlock coverage_block = 7;
+
+  message CoverageBlock {
+    optional int32 file_ref = 1;
+    repeated int32 line = 2;
+  }
+}

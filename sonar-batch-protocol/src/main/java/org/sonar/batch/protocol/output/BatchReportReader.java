@@ -23,7 +23,6 @@ import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -139,6 +138,16 @@ public class BatchReportReader {
       throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
     }
     return file;
+  }
+
+  @CheckForNull
+  public File readTestResults(int fileRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.TEST_RESULT, fileRef);
+    if (doesFileExists(file)) {
+      return file;
+    }
+
+    return null;
   }
 
   private boolean doesFileExists(File file) {
