@@ -24,6 +24,6 @@ import org.sonar.server.source.db.FileSourceDb;
 
 public interface LineReader {
 
- void read(FileSourceDb.Line.Builder lineBuilder);
+  void read(FileSourceDb.Line.Builder lineBuilder);
 
 }

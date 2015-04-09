@@ -217,7 +217,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       }
 
     } catch (Exception e) {
-      throw new IllegalStateException("Can't read syntax highlighting for " + file.absolutePath());
+      throw new IllegalStateException("Can't read syntax highlighting for " + file.absolutePath(), e);
     } finally {
       IOUtils.closeQuietly(inputStream);
     }

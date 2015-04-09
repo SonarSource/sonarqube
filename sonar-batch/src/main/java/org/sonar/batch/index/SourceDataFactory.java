@@ -225,7 +225,7 @@ public class SourceDataFactory implements BatchComponent {
       }
 
     } catch (Exception e) {
-      throw new IllegalStateException("Can't read syntax highlighting for " + inputFile.absolutePath());
+      throw new IllegalStateException("Can't read syntax highlighting for " + inputFile.absolutePath(), e);
     } finally {
       IOUtils.closeQuietly(inputStream);
     }
