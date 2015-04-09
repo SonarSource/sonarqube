@@ -78,6 +78,8 @@ casper.test.begin(testName('Activate', 'Success'), function (test) {
       })
 
       .then(function () {
+        test.assertSelectorContains('.modal', 'Default - Maven Conventions');
+        test.assertSelectorContains('.modal', 'Java');
         test.assertSelectorContains('.modal', '225');
       })
 
