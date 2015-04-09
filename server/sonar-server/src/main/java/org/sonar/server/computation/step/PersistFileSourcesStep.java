@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -113,14 +115,16 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private List<LineReader> dataLineReaders(BatchReportReader reportReader, int componentRef) {
     List<LineReader> lineReaders = newArrayList();
+
     File coverageFile = reportReader.readComponentCoverage(componentRef);
-    if (coverageFile != null) {
-      lineReaders.add(new CoverageLineReader(new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER)));
-    }
     BatchReport.Scm scmReport = reportReader.readComponentScm(componentRef);
-    if (scmReport != null) {
-      lineReaders.add(new ScmLineReader(scmReport));
-    }
+    File highlightingFile = reportReader.readComponentSyntaxHighlighting(componentRef);
+
+    lineReaders.add(coverageFile != null ? new CoverageLineReader(new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER)) : null);
+    lineReaders.add(scmReport != null ? new ScmLineReader(scmReport) : null);
+    lineReaders.add(highlightingFile != null ? new HighlightingLineReader(new ReportIterator<>(highlightingFile, BatchReport.SyntaxHighlighting.PARSER)) : null);
+
+    Iterables.removeIf(lineReaders, Predicates.isNull());
     return lineReaders;
   }
 
