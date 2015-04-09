@@ -52,11 +52,12 @@ define(function () {
       return equal;
     },
 
-    updateFilter: function (obj) {
+    updateFilter: function (obj, options) {
       var oldQuery = this.get('query'),
-          query = _.extend({}, oldQuery, obj);
+          query = _.extend({}, oldQuery, obj),
+          opts = _.defaults(options || {}, { force: false });
       query = this.clearQuery(query);
-      if (!this._areQueriesEqual(oldQuery, query)) {
+      if (opts.force || !this._areQueriesEqual(oldQuery, query)) {
         this.setQuery(query);
       }
     },

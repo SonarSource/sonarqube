@@ -49,7 +49,7 @@ define([
       var obj = {},
           property = this.model.get('property');
       obj[property] = this.$('input').val();
-      this.options.app.state.updateFilter(obj);
+      this.options.app.state.updateFilter(obj, { force: true });
     }
   });
 
