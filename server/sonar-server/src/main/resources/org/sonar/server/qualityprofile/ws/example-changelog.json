@@ -1,0 +1,38 @@
+{
+  "total": 3,
+  "ps": 10,
+  "p": 1,
+  "events": [
+    {
+      "date" : "2015-02-23T17:58:39+0100",
+      "action" : "ACTIVATED",
+      "authorLogin" : "anakin.skywalker",
+      "authorName" : "Anakin Skywalker",
+      "ruleKey" : "squid:S2438",
+      "ruleName" : "\"Threads\" should not be used where \"Runnables\" are expected",
+      "params" : {
+        "severity" : "CRITICAL"
+      }
+    },
+    {
+      "date" : "2015-02-23T17:58:18+0100",
+      "action" : "DEACTIVATED",
+      "authorLogin" : "padme.amidala",
+      "authorName" : "Padme Amidala",
+      "ruleKey" : "squid:S2162",
+      "ruleName" : "\"equals\" methods should be symmetric and work for subclasses"
+    },
+    {
+      "action" : "ACTIVATED",
+      "authorLogin" : "obiwan.kenobi",
+      "authorName" : "Obiwan Kenobi",
+      "ruleKey" : "squid:S00101",
+      "ruleName" : "Class names should comply with a naming convention",
+      "date" : "2014-09-12T15:20:46+0200",
+      "params" : {
+        "severity" : "MAJOR",
+        "format" : "^[A-Z][a-zA-Z0-9]*$"
+      }
+    }
+  ]
+}
