@@ -1,0 +1,17 @@
+<div class="modal-head">
+  <h2>{{t 'quality_profiles.restore_profile'}}</h2>
+</div>
+<form id="restore-profile-form" action="{{link '/api/qualityprofiles/restore'}}" enctype="multipart/form-data"
+      method="POST">
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    <div class="modal-field">
+      <label for="restore-profile-backup">{{t 'backup'}}<em class="mandatory">*</em></label>
+      <input type="file" id="restore-profile-backup" name="backup">
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button id="restore-profile-submit">{{t 'restore'}}</button>
+    <a href="#" class="js-modal-close" id="restore-profile-cancel">{{t 'cancel'}}</a>
+  </div>
+</form>

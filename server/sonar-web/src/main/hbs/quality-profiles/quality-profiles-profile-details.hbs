@@ -1,0 +1,36 @@
+<h3>{{t 'coding_rules'}}</h3>
+<p class="spacer-top">Total: <a href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a></p>
+{{#notEmpty rulesSeverities}}
+  <ul class="spacer-top list-inline">
+    {{#each rulesSeverities}}
+      <li>
+        {{severity val}}
+        <a href="{{link ../rulesSearchUrl '|severities=' val}}">{{formatMeasure count 'INT'}}</a>
+      </li>
+    {{/each}}
+  </ul>
+{{/notEmpty}}
+
+<hr class="spacer-top spacer-bottom">
+
+<h3>{{t 'projects'}}</h3>
+{{#if isDefault}}
+  <p class="alert alert-info">{{t 'quality_profiles.projects_for_default.edit'}}</p>
+{{else}}
+  <div id="quality-profile-projects"></div>
+{{/if}}
+
+<hr class="spacer-top spacer-bottom">
+
+<h3>{{t 'permalinks'}}</h3>
+<p class="alert alert-warning">Coming soon...</p>
+
+<hr class="spacer-top spacer-bottom">
+
+<h3>{{t 'quality_profiles.profile_inheritance'}}</h3>
+<p class="alert alert-warning">Coming soon...</p>
+
+<hr class="spacer-top spacer-bottom">
+
+<h3>{{t 'changelog'}}</h3>
+<p class="alert alert-warning">Coming soon...</p>

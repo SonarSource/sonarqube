@@ -1,0 +1,24 @@
+<form id="create-profile-form">
+  <div class="modal-head">
+    <h2>{{t 'quality_profiles.new_profile'}}</h2>
+  </div>
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    <div class="modal-field">
+      <label for="create-profile-name">{{t 'name'}}<em class="mandatory">*</em></label>
+      <input id="create-profile-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus">
+    </div>
+    <div class="modal-field">
+      <label for="create-profile-language">{{t 'language'}}<em class="mandatory">*</em></label>
+      <select id="create-profile-language" name="language">
+        {{#each languages}}
+          <option value="{{key}}">{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button id="create-profile-submit">{{t 'create'}}</button>
+    <a href="#" class="js-modal-close" id="create-profile-cancel">{{t 'cancel'}}</a>
+  </div>
+</form>

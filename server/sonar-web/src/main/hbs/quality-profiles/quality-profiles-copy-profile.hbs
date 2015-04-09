@@ -1,0 +1,16 @@
+<form id="copy-profile-form">
+  <div class="modal-head">
+    <h2>{{tp 'quality_profiles.copy_x_title' name languageName}}</h2>
+  </div>
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    <div class="modal-field">
+      <label for="name">{{t 'quality_profiles.copy_new_name'}}<em class="mandatory">*</em></label>
+      <input id="copy-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus">
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button id="copy-submit">{{t 'copy'}}</button>
+    <a href="#" class="js-modal-close" id="copy-cancel">{{t 'cancel'}}</a>
+  </div>
+</form>

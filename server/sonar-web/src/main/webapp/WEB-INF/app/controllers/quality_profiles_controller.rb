@@ -26,4 +26,8 @@ class QualityProfilesController < ApplicationController
 
   end
 
+  def show
+    render :action => 'index'
+  end
+
 end
