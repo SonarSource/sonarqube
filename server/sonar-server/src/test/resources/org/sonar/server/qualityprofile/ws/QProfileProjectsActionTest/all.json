@@ -2,22 +2,22 @@
   "results":
   [
     {
-      "key": "DEFA",
+      "uuid": "DEFA",
       "name": "Project Four",
       "selected": false
     },
     {
-      "key": "ABCD",
+      "uuid": "ABCD",
       "name": "Project One",
       "selected": true
     },
     {
-      "key": "CDEF",
+      "uuid": "CDEF",
       "name": "Project Three",
       "selected": false
     },
     {
-      "key": "BCDE",
+      "uuid": "BCDE",
       "name": "Project Two",
       "selected": true
     }

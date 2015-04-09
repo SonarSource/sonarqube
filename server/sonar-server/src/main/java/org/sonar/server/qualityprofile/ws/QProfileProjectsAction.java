@@ -164,7 +164,7 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
     json.name("results").beginArray();
     for (ProjectQprofileAssociationDto project : projects) {
       json.beginObject()
-        .prop("key", project.getProjectUuid())
+        .prop("uuid", project.getProjectUuid())
         .prop("name", project.getProjectName())
         .prop("selected", project.isAssociated())
         .endObject();
