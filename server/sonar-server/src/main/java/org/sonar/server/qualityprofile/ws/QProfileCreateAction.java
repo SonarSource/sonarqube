@@ -68,29 +68,27 @@ public class QProfileCreateAction implements BaseQProfileWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    NewAction setDefault = controller.createAction("create")
+    NewAction create = controller.createAction("create")
       .setSince("5.2")
       .setDescription("Create a quality profile.")
       .setPost(true)
       .setResponseExample(getClass().getResource("example-create.json"))
       .setHandler(this);
 
-    setDefault.createParam(PARAM_PROFILE_NAME)
+    create.createParam(PARAM_PROFILE_NAME)
       .setDescription("The name for the new quality profile.")
       .setExampleValue("My Sonar way")
       .setRequired(true);
 
-    setDefault.createParam(PARAM_LANGUAGE)
+    create.createParam(PARAM_LANGUAGE)
       .setDescription("The language for the quality profile.")
       .setExampleValue("js")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
       .setRequired(true);
 
-    if (importers.length > 0) {
-      for (ProfileImporter importer : importers) {
-        setDefault.createParam(getBackupParamName(importer.getKey()))
-          .setDescription("A configuration file for " + importer.getName() + ".");
-      }
+    for (ProfileImporter importer : importers) {
+      create.createParam(getBackupParamName(importer.getKey()))
+        .setDescription(String.format("A configuration file for %s.", importer.getName()));
     }
   }
 
@@ -107,12 +105,10 @@ public class QProfileCreateAction implements BaseQProfileWsAction {
       QProfileResult result = new QProfileResult();
       QualityProfileDto profile = profileFactory.create(dbSession, QProfileName.createFor(language, name));
       result.setProfile(profile);
-      if (importers.length > 0) {
-        for (ProfileImporter importer : importers) {
-          InputStream contentToImport = request.paramAsInputStream(getBackupParamName(importer.getKey()));
-          if (contentToImport != null) {
-            result.add(exporters.importXml(profile, importer.getKey(), contentToImport, dbSession));
-          }
+      for (ProfileImporter importer : importers) {
+        InputStream contentToImport = request.paramAsInputStream(getBackupParamName(importer.getKey()));
+        if (contentToImport != null) {
+          result.add(exporters.importXml(profile, importer.getKey(), contentToImport, dbSession));
         }
       }
       dbSession.commit();

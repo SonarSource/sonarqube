@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -134,7 +135,7 @@ public class QProfileExporters implements ServerComponent {
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
-    return importXml(profileDto, importerKey, new InputStreamReader(xml), dbSession);
+    return importXml(profileDto, importerKey, new InputStreamReader(xml, Charsets.UTF_8), dbSession);
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
