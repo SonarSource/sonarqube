@@ -1,0 +1,15 @@
+{
+  "profile": {
+    "name": "My Other Profile",
+    "language": "xoo",
+    "languageName": "Xoo",
+    "isDefault": false,
+    "isInherited": false
+  },
+  "infos": [
+    "an info"
+  ],
+  "warnings": [
+    "a warning"
+  ]
+}

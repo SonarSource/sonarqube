@@ -35,9 +35,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -132,14 +130,23 @@ public class QProfileExporters implements ServerComponent {
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, String xml, DbSession dbSession) {
+    return importXml(profileDto, importerKey, new StringReader(xml), dbSession);
+  }
+
+  public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
+    return importXml(profileDto, importerKey, new InputStreamReader(xml), dbSession);
+  }
+
+  public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {
     QProfileResult result = new QProfileResult();
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
-    RulesProfile rulesProfile = importer.importProfile(new StringReader(xml), messages);
+    RulesProfile rulesProfile = importer.importProfile(xml, messages);
     importProfile(profileDto, rulesProfile, dbSession);
     processValidationMessages(messages, result);
     return result;
   }
+
 
   private void importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
