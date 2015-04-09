@@ -27,7 +27,6 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -72,6 +71,10 @@ public class NewIndex {
       return new StringFieldBuilder(this, fieldName);
     }
 
+    public NestedObjectBuilder nestedObjectBuilder(String fieldName, NewIndexType nestedMapping) {
+      return new NestedObjectBuilder(this, nestedMapping, fieldName);
+    }
+
     public NewIndexType createBooleanField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "boolean"));
     }
@@ -97,7 +100,7 @@ public class NewIndex {
     }
 
     public NewIndexType createDynamicNestedField(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true"));
+      return setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true", "include_in_parent", "true"));
     }
 
     public NewIndexType createShortField(String fieldName) {
@@ -118,6 +121,33 @@ public class NewIndex {
     @CheckForNull
     public Object getProperty(String key) {
       return properties.get(key);
+    }
+  }
+
+  public static class NestedObjectBuilder {
+    private final NewIndexType indexType;
+    private final NewIndexType nestedType;
+    private final String fieldName;
+    private boolean dynamic = false;
+
+    public NestedObjectBuilder(NewIndexType indexType, NewIndexType nestedType, String fieldName) {
+      this.indexType = indexType;
+      this.nestedType = nestedType;
+      this.fieldName = fieldName;
+    }
+
+    public NestedObjectBuilder dynamic() {
+      this.dynamic = true;
+      return this;
+    }
+
+    public void build() {
+      if (dynamic) {
+        indexType.setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true"));
+      } else {
+        nestedType.setAttribute("type", "nested");
+        indexType.setProperty(fieldName, nestedType.attributes);
+      }
     }
   }
 

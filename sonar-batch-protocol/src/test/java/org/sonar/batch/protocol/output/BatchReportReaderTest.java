@@ -50,11 +50,8 @@ public class BatchReportReaderTest {
 
   @Test
   public void create_dir_if_does_not_exist() throws Exception {
-    File dir = temp.newFolder();
-
     initFiles(dir);
 
-    sut = new BatchReportReader(dir);
     BatchReport.Metadata readMetadata = sut.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(1);
@@ -105,7 +102,6 @@ public class BatchReportReaderTest {
 
   @Test
   public void read_syntax_highlighting() throws Exception {
-    File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
 
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -123,11 +119,9 @@ public class BatchReportReaderTest {
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()
-    ));
+      ));
 
-    sut = new BatchReportReader(dir);
-
-    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readComponentSyntaxHighlighting(1))) {
+    try (InputStream inputStream = FileUtils.openInputStream(sut.readComponentSyntaxHighlighting(1))) {
       BatchReport.SyntaxHighlighting syntaxHighlighting = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
       assertThat(syntaxHighlighting.getRange()).isNotNull();
       assertThat(syntaxHighlighting.getRange().getStartLine()).isEqualTo(1);
@@ -171,7 +165,6 @@ public class BatchReportReaderTest {
 
   @Test
   public void read_coverage() throws Exception {
-    File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
 
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -235,6 +228,36 @@ public class BatchReportReaderTest {
     assertThat(sourceFile).isEqualTo(file);
   }
 
+  @Test
+  public void read_tests() throws Exception {
+    initFiles(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeTestResults(1, Arrays.asList(
+      BatchReport.TestResult.newBuilder()
+        .setTestFileRef(1)
+        .setDurationInMs(60_000)
+        .setStacktrace("stacktrace")
+        .setMsg("message")
+        .setStatus(Constants.TestResultStatus.OK)
+        .setType(Constants.TestType.IT)
+        .addCoverageBlock(BatchReport.TestResult.CoverageBlock.newBuilder()
+          .setFileRef(2)
+          .addAllLine(Arrays.asList(1, 2, 3, 4, 5)))
+        .build()));
+
+    try (InputStream inputStream = FileUtils.openInputStream(sut.readTestResults(1))) {
+      BatchReport.TestResult testResult = BatchReport.TestResult.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(testResult.getTestFileRef()).isEqualTo(1);
+      assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
+      assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
+      assertThat(testResult.getMsg()).isEqualTo("message");
+      assertThat(testResult.getType()).isEqualTo(Constants.TestType.IT);
+      assertThat(testResult.getStatus()).isEqualTo(Constants.TestResultStatus.OK);
+      assertThat(testResult.getCoverageBlockList().get(0).getFileRef()).isEqualTo(2);
+      assertThat(testResult.getCoverageBlockList().get(0).getLineList()).containsOnly(1, 2, 3, 4, 5);
+    }
+  }
+
   @Test(expected = IllegalStateException.class)
   public void fail_if_missing_metadata_file() throws Exception {
     sut.readMetadata();
@@ -285,12 +308,14 @@ public class BatchReportReaderTest {
     assertThat(sut.readComponentCoverage(123)).isNull();
   }
 
-  /**
-   * no file if no issues
-   */
   @Test
   public void empty_list_if_no_issue_found() throws Exception {
     assertThat(sut.readComponentIssues(666)).isEmpty();
+  }
+
+  @Test
+  public void null_if_no_test_found() throws Exception {
+    assertThat(sut.readTestResults(666)).isNull();
   }
 
   private void initFiles(File dir) {

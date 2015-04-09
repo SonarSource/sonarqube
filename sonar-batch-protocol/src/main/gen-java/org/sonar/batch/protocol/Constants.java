@@ -684,6 +684,188 @@ public final class Constants {
     // @@protoc_insertion_point(enum_scope:HighlightingType)
   }
 
+  /**
+   * Protobuf enum {@code TestType}
+   */
+  public enum TestType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>UT = 1;</code>
+     */
+    UT(0, 1),
+    /**
+     * <code>IT = 2;</code>
+     */
+    IT(1, 2),
+    ;
+
+    /**
+     * <code>UT = 1;</code>
+     */
+    public static final int UT_VALUE = 1;
+    /**
+     * <code>IT = 2;</code>
+     */
+    public static final int IT_VALUE = 2;
+
+
+    public final int getNumber() { return value; }
+
+    public static TestType valueOf(int value) {
+      switch (value) {
+        case 1: return UT;
+        case 2: return IT;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<TestType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<TestType>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<TestType>() {
+            public TestType findValueByNumber(int number) {
+              return TestType.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(6);
+    }
+
+    private static final TestType[] VALUES = values();
+
+    public static TestType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private TestType(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:TestType)
+  }
+
+  /**
+   * Protobuf enum {@code TestResultStatus}
+   */
+  public enum TestResultStatus
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>OK = 1;</code>
+     */
+    OK(0, 1),
+    /**
+     * <code>FAILURE = 2;</code>
+     */
+    FAILURE(1, 2),
+    /**
+     * <code>ERROR = 3;</code>
+     */
+    ERROR(2, 3),
+    /**
+     * <code>SKIPPED = 4;</code>
+     */
+    SKIPPED(3, 4),
+    ;
+
+    /**
+     * <code>OK = 1;</code>
+     */
+    public static final int OK_VALUE = 1;
+    /**
+     * <code>FAILURE = 2;</code>
+     */
+    public static final int FAILURE_VALUE = 2;
+    /**
+     * <code>ERROR = 3;</code>
+     */
+    public static final int ERROR_VALUE = 3;
+    /**
+     * <code>SKIPPED = 4;</code>
+     */
+    public static final int SKIPPED_VALUE = 4;
+
+
+    public final int getNumber() { return value; }
+
+    public static TestResultStatus valueOf(int value) {
+      switch (value) {
+        case 1: return OK;
+        case 2: return FAILURE;
+        case 3: return ERROR;
+        case 4: return SKIPPED;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>() {
+            public TestResultStatus findValueByNumber(int number) {
+              return TestResultStatus.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(7);
+    }
+
+    private static final TestResultStatus[] VALUES = values();
+
+    public static TestResultStatus valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private TestResultStatus(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:TestResultStatus)
+  }
+
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -706,8 +888,10 @@ public final class Constants {
       "ON\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007COMMENT\020\002\022\013\n\007CPP_D" +
       "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
       "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
-      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010B\034\n\030org.s" +
-      "onar.batch.protocolH\001"
+      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010*\032\n\010TestT" +
+      "ype\022\006\n\002UT\020\001\022\006\n\002IT\020\002*?\n\020TestResultStatus\022" +
+      "\006\n\002OK\020\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n\007SKIPP" +
+      "ED\020\004B\034\n\030org.sonar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

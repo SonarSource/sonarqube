@@ -20,9 +20,8 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.ImmutableMap;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessProperties;
+import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -53,13 +52,7 @@ public class UserIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    // shards
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
-    if (clusterMode) {
-      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
-      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
-      // else keep defaults (one shard)
-    }
+    EsUtils.setShards(index, settings);
 
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);

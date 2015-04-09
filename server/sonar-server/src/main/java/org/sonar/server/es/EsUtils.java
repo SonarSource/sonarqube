@@ -21,10 +21,13 @@ package org.sonar.server.es;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.CheckForNull;
@@ -78,5 +81,18 @@ public class EsUtils {
       return ISODateTimeFormat.dateTime().print(date.getTime());
     }
     return null;
+  }
+
+  public static void setShards(NewIndex index, Settings settings) {
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
+    if (clusterMode) {
+      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
+      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
+      // else keep defaults (one shard)
+    }
+  }
+
+  public static void refreshHandledByIndexer(NewIndex index) {
+    index.getSettings().put("index.refresh_interval", "-1");
   }
 }

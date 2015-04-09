@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.output;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,28 +37,32 @@ public class BatchReportWriterTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  File dir;
+  BatchReportWriter sut;
+
+  @Before
+  public void setUp() throws Exception {
+    dir = temp.newFolder();
+    sut = new BatchReportWriter(dir);
+  }
 
   @Test
   public void create_dir_if_does_not_exist() throws Exception {
-    File dir = temp.newFolder();
     FileUtils.deleteQuietly(dir);
-
-    new BatchReportWriter(dir);
+    sut = new BatchReportWriter(dir);
 
     assertThat(dir).isDirectory().exists();
   }
 
   @Test
   public void write_metadata() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
       .setRootComponentRef(1);
-    writer.writeMetadata(metadata.build());
+    sut.writeMetadata(metadata.build());
 
-    BatchReport.Metadata read = ProtobufUtil.readFile(writer.getFileStructure().metadataFile(), BatchReport.Metadata.PARSER);
+    BatchReport.Metadata read = ProtobufUtil.readFile(sut.getFileStructure().metadataFile(), BatchReport.Metadata.PARSER);
     assertThat(read.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(read.getProjectKey()).isEqualTo("PROJECT_A");
     assertThat(read.getRootComponentRef()).isEqualTo(1);
@@ -65,11 +70,8 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_component() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
 
     // write data
     BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
@@ -81,10 +83,10 @@ public class BatchReportWriterTest {
       .setIsTest(false)
       .addChildRef(5)
       .addChildRef(42);
-    writer.writeComponent(component.build());
+    sut.writeComponent(component.build());
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.COMPONENT, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.COMPONENT, 1);
     assertThat(file).exists().isFile();
     BatchReport.Component read = ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
     assertThat(read.getRef()).isEqualTo(1);
@@ -96,11 +98,8 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_issues() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
 
     // write data
     BatchReport.Issue issue = BatchReport.Issue.newBuilder()
@@ -109,10 +108,10 @@ public class BatchReportWriterTest {
       .setMsg("the message")
       .build();
 
-    writer.writeComponentIssues(1, Arrays.asList(issue));
+    sut.writeComponentIssues(1, Arrays.asList(issue));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
     assertThat(file).exists().isFile();
     BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
@@ -122,11 +121,8 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_issues_of_deleted_component() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
 
     // write data
     BatchReport.Issue issue = BatchReport.Issue.newBuilder()
@@ -135,10 +131,10 @@ public class BatchReportWriterTest {
       .setMsg("the message")
       .build();
 
-    writer.writeDeletedComponentIssues(1, "componentUuid", Arrays.asList(issue));
+    sut.writeDeletedComponentIssues(1, "componentUuid", Arrays.asList(issue));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.ISSUES_ON_DELETED, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.ISSUES_ON_DELETED, 1);
     assertThat(file).exists().isFile();
     BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
@@ -148,10 +144,7 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_measures() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
-    assertThat(writer.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
       .setStringValue("text-value")
@@ -160,10 +153,10 @@ public class BatchReportWriterTest {
       .setDescription("description")
       .build();
 
-    writer.writeComponentMeasures(1, Arrays.asList(measure));
+    sut.writeComponentMeasures(1, Arrays.asList(measure));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
     assertThat(file).exists().isFile();
     BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
     assertThat(measures.getComponentRef()).isEqualTo(1);
@@ -176,10 +169,7 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_scm() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
-    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
 
     BatchReport.Scm scm = BatchReport.Scm.newBuilder()
       .setComponentRef(1)
@@ -190,10 +180,10 @@ public class BatchReportWriterTest {
         .setDate(123_456_789L))
       .build();
 
-    writer.writeComponentScm(scm);
+    sut.writeComponentScm(scm);
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
     assertThat(file).exists().isFile();
     BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
@@ -204,10 +194,7 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_duplications() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
-    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -223,10 +210,10 @@ public class BatchReportWriterTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(1, Arrays.asList(duplication));
+    sut.writeComponentDuplications(1, Arrays.asList(duplication));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
     assertThat(file).exists().isFile();
     BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
     assertThat(duplications.getComponentRef()).isEqualTo(1);
@@ -237,11 +224,8 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_symbols() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
 
     // write data
     BatchReport.Symbols.Symbol symbol = BatchReport.Symbols.Symbol.newBuilder()
@@ -259,11 +243,11 @@ public class BatchReportWriterTest {
         .build())
       .build();
 
-    writer.writeComponentSymbols(1, Arrays.asList(symbol));
+    sut.writeComponentSymbols(1, Arrays.asList(symbol));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isTrue();
 
-    File file = writer.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
     assertThat(file).exists().isFile();
     BatchReport.Symbols read = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
     assertThat(read.getFileRef()).isEqualTo(1);
@@ -274,13 +258,10 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_syntax_highlighting() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isFalse();
 
-    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(
+    sut.writeComponentSyntaxHighlighting(1, Arrays.asList(
       BatchReport.SyntaxHighlighting.newBuilder()
         .setRange(BatchReport.Range.newBuilder()
           .setStartLine(1)
@@ -288,20 +269,17 @@ public class BatchReportWriterTest {
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()
-    ));
+      ));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isTrue();
   }
 
   @Test
   public void write_coverage() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
     // no data yet
-    assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isFalse();
 
-    writer.writeComponentCoverage(1, Arrays.asList(
+    sut.writeComponentCoverage(1, Arrays.asList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)
         .setConditions(1)
@@ -311,9 +289,22 @@ public class BatchReportWriterTest {
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(1)
         .build()
-    ));
+      ));
 
-    assertThat(writer.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
   }
 
+  @Test
+  public void write_test() throws Exception {
+    assertThat(sut.hasComponentData(FileStructure.Domain.TEST_RESULT, 1)).isFalse();
+
+    sut.writeTestResults(1, Arrays.asList(
+      BatchReport.TestResult.newBuilder()
+        .setTestFileRef(1)
+        .build()
+      ));
+
+    assertThat(sut.hasComponentData(FileStructure.Domain.TEST_RESULT, 1)).isTrue();
+
+  }
 }

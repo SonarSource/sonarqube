@@ -20,9 +20,8 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessProperties;
+import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -93,16 +92,8 @@ public class IssueIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    // refresh is handled by IssueIndexer
-    index.getSettings().put("index.refresh_interval", "-1");
-
-    // shards
-    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
-    if (clusterMode) {
-      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
-      index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
-      // else keep defaults (one shard)
-    }
+    EsUtils.refreshHandledByIndexer(index);
+    EsUtils.setShards(index, settings);
 
     // type "authorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);

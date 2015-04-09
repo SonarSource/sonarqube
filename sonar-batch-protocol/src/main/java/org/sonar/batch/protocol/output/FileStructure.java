@@ -36,6 +36,7 @@ public class FileStructure {
     SCM("scm-", Domain.PB),
     SYMBOLS("symbol-", Domain.PB),
     COVERAGE("coverage-", Domain.PB),
+    TEST_RESULT("test-", Domain.PB),
     SOURCE("source-", ".txt");
 
     private static final String PB = ".pb";
