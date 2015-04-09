@@ -43,7 +43,7 @@ define([
     prepareSearch: function () {
       this.$('.js-custom-value').select2({
         placeholder: t('search_verb'),
-        minimumInputLength: 2,
+        minimumInputLength: 1,
         allowClear: false,
         formatNoMatches: function () {
           return t('select2.noMatches');
@@ -52,7 +52,7 @@ define([
           return t('select2.searching');
         },
         formatInputTooShort: function () {
-          return tp('select2.tooShort', 2);
+          return tp('select2.tooShort', 1);
         },
         width: '100%',
         ajax: this.prepareAjaxSearch()
