@@ -63,7 +63,9 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
     QProfileIdentificationParamUtils.defineProfileParams(inheritance, languages);
 
     inheritance.createParam(PARAM_PARENT_KEY)
-      .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. If left empty, ")
+      .setDescription("The key of the new parent profile. If this parameter is set, parentName must not be set. " +
+        "If both are left empty, the inheritance link with current parent profile (if any) is broken, which deactivates all rules " +
+        "which come from the parent and are not overridden.")
       .setExampleValue("sonar-way-java-12345");
     inheritance.createParam(PARAM_PARENT_NAME)
       .setDescription("A quality profile name. If this parameter is set, profileKey must not be set and language must be set to disambiguate.")
@@ -94,9 +96,15 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
     Preconditions.checkArgument(
       (isEmpty(parentName) || isEmpty(parentKey)), "parentKey and parentName cannot be used simultaneously");
 
-    if (isEmpty(parentKey) && !isEmpty(parentName)) {
-      parentKey = QProfileIdentificationParamUtils.getProfileKeyFromLanguageAndName(language, parentName, profileFactory, session);
+    if (isEmpty(parentKey)) {
+      if (!isEmpty(parentName)) {
+        parentKey = QProfileIdentificationParamUtils.getProfileKeyFromLanguageAndName(language, parentName, profileFactory, session);
+      } else {
+        // Empty parent key is treated as "no more parent"
+        parentKey = null;
+      }
     }
+
     return parentKey;
   }
 }
