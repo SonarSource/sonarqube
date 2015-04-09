@@ -449,7 +449,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  void setParent(String key, @Nullable String parentKey) {
+  public void setParent(String key, @Nullable String parentKey) {
     DbSession dbSession = db.openSession(false);
     try {
       setParent(dbSession, key, parentKey);

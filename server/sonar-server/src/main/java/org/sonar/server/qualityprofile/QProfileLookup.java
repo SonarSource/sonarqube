@@ -116,6 +116,12 @@ public class QProfileLookup implements ServerComponent {
     return toQProfiles(db.qualityProfileDao().findChildren(session, profile.key()));
   }
 
+  public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
+    List<QProfile> ancestors = newArrayList();
+    incrementAncestors(QProfile.from(profile), ancestors, session);
+    return ancestors;
+  }
+
   public List<QProfile> ancestors(QProfile profile) {
     List<QProfile> ancestors = newArrayList();
     DbSession session = db.openSession(false);
