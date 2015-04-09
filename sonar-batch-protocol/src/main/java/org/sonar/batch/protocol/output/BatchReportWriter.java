@@ -105,15 +105,12 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(builder.build(), file);
   }
 
-  public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
-    BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
-    builder.setFileRef(componentRef);
-    builder.addAllHighlightingRule(highlightingRules);
+  public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting> syntaxHighlightingRules) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
-    ProtobufUtil.writeToFile(builder.build(), file);
+    ProtobufUtil.writeMessagesToFile(syntaxHighlightingRules, file);
   }
 
-  public void writeFileCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
+  public void writeComponentCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, componentRef);
     ProtobufUtil.writeMessagesToFile(coverageList, file);
   }

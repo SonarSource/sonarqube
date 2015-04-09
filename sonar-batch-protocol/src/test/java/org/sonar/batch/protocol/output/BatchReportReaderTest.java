@@ -109,24 +109,31 @@ public class BatchReportReaderTest {
     BatchReportWriter writer = new BatchReportWriter(dir);
 
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1).build());
+      .setRootComponentRef(1)
+      .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule = BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
-        .setStartLine(1)
-        .setEndLine(1)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build();
-    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(highlightingRule));
+    writer.writeComponentSyntaxHighlighting(1, Arrays.asList(
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1)
+          .setEndLine(10)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
 
-    BatchReportReader sut = new BatchReportReader(dir);
-    assertThat(sut.readComponentSyntaxHighlighting(1)).hasSize(1);
-    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getRange()).isNotNull();
-    assertThat(sut.readComponentSyntaxHighlighting(1).get(0).getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
+    sut = new BatchReportReader(dir);
+
+    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readComponentSyntaxHighlighting(1))) {
+      BatchReport.SyntaxHighlighting syntaxHighlighting = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(syntaxHighlighting.getRange()).isNotNull();
+      assertThat(syntaxHighlighting.getRange().getStartLine()).isEqualTo(1);
+      assertThat(syntaxHighlighting.getRange().getEndLine()).isEqualTo(10);
+      assertThat(syntaxHighlighting.getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
+    }
   }
 
   @Test
@@ -174,7 +181,7 @@ public class BatchReportReaderTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
-    writer.writeFileCoverage(1, Arrays.asList(
+    writer.writeComponentCoverage(1, Arrays.asList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)
         .setConditions(1)
@@ -196,7 +203,7 @@ public class BatchReportReaderTest {
 
     sut = new BatchReportReader(dir);
 
-    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readFileCoverage(1))) {
+    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(dir).readComponentCoverage(1))) {
       BatchReport.Coverage coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
       assertThat(coverage.getLine()).isEqualTo(1);
       assertThat(coverage.getConditions()).isEqualTo(1);
@@ -264,18 +271,18 @@ public class BatchReportReaderTest {
   }
 
   @Test
-  public void empty_list_if_no_highlighting_found() throws Exception {
-    assertThat(sut.readComponentSyntaxHighlighting(123)).isEmpty();
+  public void return_null_if_no_highlighting_found() throws Exception {
+    assertThat(sut.readComponentSyntaxHighlighting(123)).isNull();
   }
 
   @Test
   public void return_null_if_no_coverage_found() throws Exception {
-    assertThat(sut.readFileCoverage(123)).isNull();
+    assertThat(sut.readComponentCoverage(123)).isNull();
   }
 
   @Test
   public void return_null_if_no_source_found() throws Exception {
-    assertThat(sut.readFileCoverage(123)).isNull();
+    assertThat(sut.readComponentCoverage(123)).isNull();
   }
 
   /**

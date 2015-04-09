@@ -91,7 +91,6 @@ public class HighlightingMediumTest {
     assertThat(result.highlightingTypeFor(file, 1, 9)).containsExactly(TypeOfText.STRING);
     assertThat(result.highlightingTypeFor(file, 2, 0)).containsExactly(TypeOfText.KEYWORD);
     assertThat(result.highlightingTypeFor(file, 2, 8)).isEmpty();
-
   }
 
   @Test

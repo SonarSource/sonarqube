@@ -35,11 +35,12 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.protocol.Constants.HighlightingType;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
-import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
+import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.server.source.db.FileSourceDb;
@@ -315,8 +316,8 @@ public class SourceDataFactoryTest {
     assertThat(data.getLines(2).getHighlighting()).isEqualTo("0,9,c;1,8,k");
   }
 
-  private HighlightingRule newRule(int startLine, int startOffset, int endLine, int endOffset, HighlightingType type) {
-    return BatchReport.SyntaxHighlighting.HighlightingRule.newBuilder()
+  private SyntaxHighlighting newRule(int startLine, int startOffset, int endLine, int endOffset, HighlightingType type) {
+    return BatchReport.SyntaxHighlighting.newBuilder()
       .setRange(Range.newBuilder().setStartLine(startLine).setStartOffset(startOffset).setEndLine(endLine).setEndOffset(endOffset).build())
       .setType(type)
       .build();

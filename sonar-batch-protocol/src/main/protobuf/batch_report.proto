@@ -213,6 +213,7 @@ message Symbols {
 }
 
 // Only FILE component has coverage information
+// TODO rename it LineCoverage ?
 message Coverage {
   optional int32 line = 1;
 
@@ -225,14 +226,10 @@ message Coverage {
   optional int32 overall_covered_conditions = 7;
 }
 
+// Must be sorted by line and start offset
+// TODO rename it SyntaxHighlightingRule ?
 message SyntaxHighlighting {
-  optional int32 file_ref = 1;
-  // Rule must be sorted by line and start offset
-  repeated HighlightingRule highlighting_rule = 2;
-
-  message HighlightingRule {
-    optional Range range = 1;
-    optional HighlightingType type = 2;
-  }
+  optional Range range = 1;
+  optional HighlightingType type = 2;
 }
 

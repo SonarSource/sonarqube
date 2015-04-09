@@ -95,7 +95,7 @@ public class CoveragePublisherTest {
 
     publisher.publish(writer);
 
-    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(outputDir).readFileCoverage(2))) {
+    try (InputStream inputStream = FileUtils.openInputStream(new BatchReportReader(outputDir).readComponentCoverage(2))) {
       assertThat(BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream)).isEqualTo(Coverage.newBuilder()
         .setLine(2)
         .setUtHits(true)

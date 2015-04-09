@@ -91,7 +91,7 @@ public class CoveragePublisher implements ReportPublisherStep {
         }
       });
 
-      writer.writeFileCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), new Function<Coverage.Builder, Coverage>() {
+      writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), new Function<Coverage.Builder, Coverage>() {
         @Override
         public Coverage apply(Builder input) {
           return input.build();

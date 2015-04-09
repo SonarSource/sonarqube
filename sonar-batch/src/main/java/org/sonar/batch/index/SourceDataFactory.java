@@ -21,6 +21,7 @@ package org.sonar.batch.index;
 
 import com.google.common.base.CharMatcher;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -30,12 +31,13 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
 import org.sonar.batch.protocol.output.BatchReport.Symbols;
-import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -43,7 +45,9 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Data.Builder;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -196,20 +200,34 @@ public class SourceDataFactory implements BatchComponent {
 
   void applyHighlighting(DefaultInputFile inputFile, FileSourceDb.Data.Builder to) {
     BatchReportReader reader = new BatchReportReader(reportPublisher.getReportDir());
-    List<HighlightingRule> highlightingRules = reader.readComponentSyntaxHighlighting(resourceCache.get(inputFile).batchId());
-    if (highlightingRules.isEmpty()) {
+    File highlightingFile = reader.readComponentSyntaxHighlighting(resourceCache.get(inputFile).batchId());
+    if (highlightingFile == null) {
       return;
     }
     StringBuilder[] highlightingPerLine = new StringBuilder[inputFile.lines()];
     RuleItemWriter ruleItemWriter = new RuleItemWriter();
     int currentLineIdx = 1;
-    for (HighlightingRule rule : highlightingRules) {
-      while (currentLineIdx < inputFile.lines() && rule.getRange().getStartLine() > currentLineIdx) {
-        // This rule starts on another line so advance
-        currentLineIdx++;
+
+    InputStream inputStream = null;
+    try {
+      inputStream = FileUtils.openInputStream(highlightingFile);
+      BatchReport.SyntaxHighlighting rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
+      while (rule != null) {
+        while (currentLineIdx < inputFile.lines() && rule.getRange().getStartLine() > currentLineIdx) {
+          // This rule starts on another line so advance
+          currentLineIdx++;
+        }
+        // Now we know current rule starts on current line
+        writeDataPerLine(inputFile.originalLineOffsets(), rule, rule.getRange(), highlightingPerLine, ruleItemWriter);
+
+        // Get next element
+        rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
       }
-      // Now we know current rule starts on current line
-      writeDataPerLine(inputFile.originalLineOffsets(), rule, rule.getRange(), highlightingPerLine, ruleItemWriter);
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read syntax highlighting for " + inputFile.absolutePath());
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
     for (int i = 0; i < highlightingPerLine.length; i++) {
       StringBuilder sb = highlightingPerLine[i];
@@ -294,9 +312,9 @@ public class SourceDataFactory implements BatchComponent {
     void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, G item);
   }
 
-  private static class RuleItemWriter implements RangeItemWriter<HighlightingRule> {
+  private static class RuleItemWriter implements RangeItemWriter<SyntaxHighlighting> {
     @Override
-    public void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, HighlightingRule item) {
+    public void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, SyntaxHighlighting item) {
       if (currentLineSb.length() > 0) {
         currentLineSb.append(';');
       }

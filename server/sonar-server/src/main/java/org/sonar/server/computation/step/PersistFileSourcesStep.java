@@ -113,7 +113,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private List<LineReader> dataLineReaders(BatchReportReader reportReader, int componentRef) {
     List<LineReader> lineReaders = newArrayList();
-    File coverageFile = reportReader.readFileCoverage(componentRef);
+    File coverageFile = reportReader.readComponentCoverage(componentRef);
     if (coverageFile != null) {
       lineReaders.add(new CoverageLineReader(new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER)));
     }

@@ -22,14 +22,9 @@ package org.sonar.server.computation.step;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 
-import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Nothing is persist for the moment. Only Syntax Highlighting are read and not persist for the moment
@@ -50,46 +45,46 @@ public class PersistSyntaxHighLightingStep implements ComputationStep {
   @Override
   public void execute(ComputationContext context) {
     int rootComponentRef = context.getReportMetadata().getRootComponentRef();
-    recursivelyProcessComponent(context, rootComponentRef);
+//    recursivelyProcessComponent(context, rootComponentRef);
   }
-
-  private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    List<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules = reportReader.readComponentSyntaxHighlighting(componentRef);
-    processSyntaxHightlighting(component, highlightingRules);
-
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(context, childRef);
-    }
-  }
-
-  private void processSyntaxHightlighting(BatchReport.Component component, List<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
-    syntaxHighlightingByLineForLastProcessedFile = newHashMap();
-    if (!highlightingRules.isEmpty()) {
-      for (BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule : highlightingRules) {
-        processHighlightingRule(highlightingRule);
-      }
-    }
-  }
-
-  private void processHighlightingRule(BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule) {
-    BatchReport.Range range = highlightingRule.getRange();
-    int startLine = range.getStartLine();
-    int endLine = range.getEndLine();
-    if (startLine != endLine) {
-      // TODO support syntax highlighting on multiple lines when source will be in compute, in order to be able to know the end line in this case
-      throw new IllegalStateException("To be implemented : Syntax Highlighting on multiple lines are not supported for the moment");
-    }
-    StringBuilder symbolLine = syntaxHighlightingByLineForLastProcessedFile.get(startLine);
-    if (symbolLine == null) {
-      symbolLine = new StringBuilder();
-      syntaxHighlightingByLineForLastProcessedFile.put(startLine, symbolLine);
-    }
-    symbolLine.append(range.getStartOffset()).append(OFFSET_SEPARATOR);
-    symbolLine.append(range.getEndOffset()).append(OFFSET_SEPARATOR);
-    symbolLine.append(highlightingRule.getType().toString());
-  }
+//
+//  private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
+//    BatchReportReader reportReader = context.getReportReader();
+//    BatchReport.Component component = reportReader.readComponent(componentRef);
+//    List<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules = reportReader.readComponentSyntaxHighlighting(componentRef);
+//    processSyntaxHightlighting(component, highlightingRules);
+//
+//    for (Integer childRef : component.getChildRefList()) {
+//      recursivelyProcessComponent(context, childRef);
+//    }
+//  }
+//
+//  private void processSyntaxHightlighting(BatchReport.Component component, List<BatchReport.SyntaxHighlighting.HighlightingRule> highlightingRules) {
+//    syntaxHighlightingByLineForLastProcessedFile = newHashMap();
+//    if (!highlightingRules.isEmpty()) {
+//      for (BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule : highlightingRules) {
+//        processHighlightingRule(highlightingRule);
+//      }
+//    }
+//  }
+//
+//  private void processHighlightingRule(BatchReport.SyntaxHighlighting.HighlightingRule highlightingRule) {
+//    BatchReport.Range range = highlightingRule.getRange();
+//    int startLine = range.getStartLine();
+//    int endLine = range.getEndLine();
+//    if (startLine != endLine) {
+//      // TODO support syntax highlighting on multiple lines when source will be in compute, in order to be able to know the end line in this case
+//      throw new IllegalStateException("To be implemented : Syntax Highlighting on multiple lines are not supported for the moment");
+//    }
+//    StringBuilder symbolLine = syntaxHighlightingByLineForLastProcessedFile.get(startLine);
+//    if (symbolLine == null) {
+//      symbolLine = new StringBuilder();
+//      syntaxHighlightingByLineForLastProcessedFile.put(startLine, symbolLine);
+//    }
+//    symbolLine.append(range.getStartOffset()).append(OFFSET_SEPARATOR);
+//    symbolLine.append(range.getEndOffset()).append(OFFSET_SEPARATOR);
+//    symbolLine.append(highlightingRule.getType().toString());
+//  }
 
   @VisibleForTesting
   Map<Integer, StringBuilder> getSyntaxHighlightingByLine() {

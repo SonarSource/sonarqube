@@ -186,7 +186,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setLines(1)
       .build());
 
-    writer.writeFileCoverage(FILE_REF, newArrayList(BatchReport.Coverage.newBuilder()
+    writer.writeComponentCoverage(FILE_REF, newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
       .setUtHits(true)

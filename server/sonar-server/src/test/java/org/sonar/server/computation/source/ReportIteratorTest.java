@@ -49,11 +49,11 @@ public class ReportIteratorTest {
     File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
 
-    writer.writeFileCoverage(1, newArrayList(
+    writer.writeComponentCoverage(1, newArrayList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)
         .build()
-      ));
+    ));
 
     file = new FileStructure(dir).fileFor(FileStructure.Domain.COVERAGE, 1);
   }

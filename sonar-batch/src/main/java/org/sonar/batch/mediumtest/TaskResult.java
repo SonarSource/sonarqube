@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +42,12 @@ import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol;
-import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
@@ -55,6 +57,8 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -189,21 +193,33 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   /**
    * Get highlighting types at a given position in an inputfile
-   * @param charIndex 0-based offset in file
+   * @param lineOffset 0-based offset in file
    */
   public List<TypeOfText> highlightingTypeFor(InputFile file, int line, int lineOffset) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    List<HighlightingRule> syntaxHighlightingRules = getReportReader().readComponentSyntaxHighlighting(ref);
-    if (syntaxHighlightingRules.isEmpty()) {
+    File highlightingFile = reader.readComponentSyntaxHighlighting(ref);
+    if (highlightingFile == null) {
       return Collections.emptyList();
     }
     TextPointer pointer = file.newPointer(line, lineOffset);
     List<TypeOfText> result = new ArrayList<TypeOfText>();
-    for (HighlightingRule sortedRule : syntaxHighlightingRules) {
-      TextRange ruleRange = toRange(file, sortedRule.getRange());
-      if (ruleRange.start().compareTo(pointer) <= 0 && ruleRange.end().compareTo(pointer) > 0) {
-        result.add(BatchReportUtils.toBatchType(sortedRule.getType()));
+    InputStream inputStream = null;
+    try {
+      inputStream = FileUtils.openInputStream(highlightingFile);
+      BatchReport.SyntaxHighlighting rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
+      while (rule != null) {
+        TextRange ruleRange = toRange(file, rule.getRange());
+        if (ruleRange.start().compareTo(pointer) <= 0 && ruleRange.end().compareTo(pointer) > 0) {
+          result.add(BatchReportUtils.toBatchType(rule.getType()));
+        }
+        // Get next element
+        rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
       }
+
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read syntax highlighting for " + file.absolutePath());
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
     return result;
   }
@@ -214,8 +230,8 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   /**
    * Get list of all start positions of a symbol in an inputfile
-   * @param symbolStartOffset 0-based start offset for the symbol in file
-   * @param symbolEndOffset 0-based end offset for the symbol in file
+   * @param symbolStartLine 0-based start offset for the symbol in file
+   * @param symbolStartLineOffset 0-based end offset for the symbol in file
    */
   @CheckForNull
   public List<Range> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {

@@ -58,7 +58,6 @@ import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting.HighlightingRule;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
@@ -226,12 +225,12 @@ public class DefaultSensorStorage implements SensorStorage {
     BatchReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
     writer.writeComponentSyntaxHighlighting(resourceCache.get(inputFile).batchId(),
-      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new Function<SyntaxHighlightingRule, HighlightingRule>() {
-        private HighlightingRule.Builder builder = HighlightingRule.newBuilder();
+      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new Function<SyntaxHighlightingRule, BatchReport.SyntaxHighlighting>() {
+        private BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
         private Range.Builder rangeBuilder = Range.newBuilder();
 
         @Override
-        public HighlightingRule apply(SyntaxHighlightingRule input) {
+        public BatchReport.SyntaxHighlighting apply(SyntaxHighlightingRule input) {
           builder.clear();
           rangeBuilder.clear();
           builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
