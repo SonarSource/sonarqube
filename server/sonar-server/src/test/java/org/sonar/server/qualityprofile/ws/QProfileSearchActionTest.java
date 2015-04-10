@@ -86,7 +86,6 @@ public class QProfileSearchActionTest {
   public void search_nominal() throws Exception {
     when(profileLoader.countAllActiveRules()).thenReturn(ImmutableMap.of(
       "sonar-way-xoo1-12345", 11L,
-      "sonar-way-xoo2-23456", 22L,
       "my-sonar-way-xoo2-34567", 33L
       ));
 
