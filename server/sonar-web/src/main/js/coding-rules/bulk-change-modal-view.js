@@ -37,7 +37,6 @@ define([
       var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
           profileName = profileBase != null ? profileBase.name : profile,
           message = tp('coding_rules.bulk_change.success', profileName, profileBase.language, succeeded);
-      console.log(profileBase);
       this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
     },
 
