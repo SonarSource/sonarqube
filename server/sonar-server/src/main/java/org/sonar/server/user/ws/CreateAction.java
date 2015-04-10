@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -31,7 +30,7 @@ import org.sonar.server.user.UserService;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 
-public class CreateAction implements RequestHandler {
+public class CreateAction implements BaseUsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
@@ -48,7 +47,8 @@ public class CreateAction implements RequestHandler {
     this.i18n = i18n;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("create")
       .setDescription("Create a user. Requires Administer System permission")
       .setSince("3.7")

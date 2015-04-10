@@ -63,7 +63,7 @@ public class CreateActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new CreateAction(service, i18n), new UpdateAction(service)));
+    tester = new WsTester(new UsersWs(new CreateAction(service, i18n)));
     controller = tester.controller("api/users");
   }
 

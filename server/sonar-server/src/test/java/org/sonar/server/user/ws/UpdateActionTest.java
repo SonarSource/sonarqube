@@ -27,7 +27,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserService;
@@ -39,7 +38,6 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +56,7 @@ public class UpdateActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new CreateAction(service, mock(I18n.class)), new UpdateAction(service)));
+    tester = new WsTester(new UsersWs(new UpdateAction(service)));
     controller = tester.controller("api/users");
   }
 

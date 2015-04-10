@@ -26,12 +26,10 @@ import org.sonar.api.server.ws.WebService;
 
 public class UsersWs implements WebService {
 
-  private final CreateAction createAction;
-  private final UpdateAction updateAction;
+  private final BaseUsersWsAction[] actions;
 
-  public UsersWs(CreateAction createAction, UpdateAction updateAction) {
-    this.createAction = createAction;
-    this.updateAction = updateAction;
+  public UsersWs(BaseUsersWsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
@@ -41,9 +39,10 @@ public class UsersWs implements WebService {
       .setDescription("Users management");
 
     defineSearchAction(controller);
-    createAction.define(controller);
-    updateAction.define(controller);
     defineDeactivateAction(controller);
+    for (BaseUsersWsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }
