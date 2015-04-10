@@ -1,0 +1,79 @@
+{
+   "left" : {
+      "key" : "xoo-profile-1-01234",
+      "name" : "Profile 1"
+   },
+   "right" : {
+      "key" : "xoo-profile-2-12345",
+      "name" : "Profile 2"
+   },
+   "same" : [
+      {
+         "key" : "blah:rule1",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule1",
+         "severity" : "BLOCKER"
+      }
+   ],
+   "inLeft" : [
+      {
+         "key" : "blah:rule2",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule2",
+         "severity" : "BLOCKER"
+      }
+   ],
+   "inRight" : [
+      {
+         "key" : "blah:rule3",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule3",
+         "severity" : "BLOCKER"
+      }
+   ],
+   "modified" : [
+      {
+         "key" : "blah:rule4",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule4",
+         "left" : {
+            "severity" : "BLOCKER",
+            "params" : {
+               "param_rule4" : "polop"
+            }
+         },
+         "right" : {
+            "severity" : "BLOCKER",
+            "params" : {
+               "param_rule4" : "palap"
+            }
+         }
+      },
+      {
+         "key" : "blah:rule5",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule5",
+         "left" : {
+            "severity" : "MINOR"
+         },
+         "right" : {
+            "severity" : "MAJOR"
+         }
+      }
+   ]
+}
