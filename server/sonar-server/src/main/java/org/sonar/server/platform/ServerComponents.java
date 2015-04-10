@@ -377,6 +377,7 @@ class ServerComponents {
     pico.addSingleton(QProfileLookup.class);
     pico.addSingleton(QProfileProjectOperations.class);
     pico.addSingleton(QProfileProjectLookup.class);
+    pico.addSingleton(QProfileComparator.class);
     pico.addSingleton(BuiltInProfiles.class);
     pico.addSingleton(QProfileRestoreBuiltInAction.class);
     pico.addSingleton(QProfileSearchAction.class);
@@ -391,6 +392,7 @@ class ServerComponents {
     pico.addSingleton(QProfileImportersAction.class);
     pico.addSingleton(QProfileInheritanceAction.class);
     pico.addSingleton(QProfileChangeParentAction.class);
+    pico.addSingleton(QProfileCompareAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
