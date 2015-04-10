@@ -57,7 +57,7 @@ require([
     this.router = new Router({ app: this });
     Backbone.history.start({
       pushState: true,
-      root: baseUrl + '/quality_profiles'
+      root: getRoot()
     });
 
   });
@@ -65,5 +65,12 @@ require([
   window.requestMessages().done(function () {
     App.start();
   });
+
+  function getRoot () {
+    var QUALITY_PROFILES = '/quality_profiles',
+        path = window.location.pathname,
+        pos = path.indexOf(QUALITY_PROFILES);
+    return path.substr(0, pos + QUALITY_PROFILES.length);
+  }
 
 });

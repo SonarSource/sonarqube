@@ -1,0 +1,49 @@
+{
+  "profiles": [
+    {
+      "key": "java-sonar-way-67887",
+      "name": "Sonar way",
+      "activeRuleCount": 161,
+      "language": "java",
+      "languageName": "Java",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "js-sonar-way-71566",
+      "name": "Sonar way",
+      "activeRuleCount": 63,
+      "language": "js",
+      "languageName": "JavaScript",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "php-psr-2-46772",
+      "name": "PSR-2",
+      "activeRuleCount": 19,
+      "language": "php",
+      "languageName": "PHP",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "php-sonar-way-10778",
+      "name": "Sonar way",
+      "activeRuleCount": 59,
+      "language": "php",
+      "languageName": "PHP",
+      "isInherited": false,
+      "isDefault": false
+    },
+    {
+      "key": "py-sonar-way-78627",
+      "name": "Sonar way",
+      "activeRuleCount": 21,
+      "language": "py",
+      "languageName": "Python",
+      "isInherited": false,
+      "isDefault": true
+    }
+  ]
+}

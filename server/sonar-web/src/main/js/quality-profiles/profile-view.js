@@ -36,6 +36,7 @@ define([
 
     onRender: function () {
       this.$el.toggleClass('active', this.options.highlighted);
+      this.$el.attr('data-key', this.model.id);
     },
 
     onClick: function (e) {

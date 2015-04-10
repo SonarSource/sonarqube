@@ -1,0 +1,12 @@
+{
+  "profiles": [
+    {
+      "key": "php-psr-2-46772",
+      "name": "PSR-2",
+      "activeRuleCount": 19,
+      "language": "php",
+      "languageName": "PHP",
+      "isInherited": false
+    }
+  ]
+}

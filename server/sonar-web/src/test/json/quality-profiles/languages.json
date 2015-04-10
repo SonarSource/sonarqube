@@ -1,0 +1,20 @@
+{
+  "languages": [
+    {
+      "key": "java",
+      "name": "Java"
+    },
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "php",
+      "name": "PHP"
+    },
+    {
+      "key": "py",
+      "name": "Python"
+    }
+  ]
+}
