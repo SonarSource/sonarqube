@@ -25,13 +25,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileCopyActionTest {
@@ -48,19 +51,25 @@ public class QProfileCopyActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileCopyAction(qProfileCopier)));
+      new QProfileCopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"))));
   }
 
   @Test
   public void copy_nominal() throws Exception {
     MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    String fromProfileKey = "sonar-way-xoo2-23456";
+    String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
+
+    when(qProfileCopier.copyToName(fromProfileKey, toName)).thenReturn(
+      QualityProfileDto.createFor("xoo-other-sonar-way-12345")
+        .setName(toName)
+        .setLanguage("xoo"));
+
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("fromKey", fromProfileKey)
       .setParam("toName", toName)
-      .execute().assertNoContent();
+      .execute().assertJson(getClass(), "copy_nominal.json");
 
     verify(qProfileCopier).copyToName(fromProfileKey, toName);
   }

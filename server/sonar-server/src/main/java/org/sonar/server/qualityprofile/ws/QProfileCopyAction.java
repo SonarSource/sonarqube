@@ -19,11 +19,14 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
 
@@ -33,9 +36,11 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
   private static final String PARAM_PROFILE_KEY = "fromKey";
 
   private final QProfileCopier profileCopier;
+  private final Languages languages;
 
-  public QProfileCopyAction(QProfileCopier profileCopier) {
+  public QProfileCopyAction(QProfileCopier profileCopier, Languages languages) {
     this.profileCopier = profileCopier;
+    this.languages = languages;
   }
 
   @Override
@@ -64,8 +69,18 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);
 
-    profileCopier.copyToName(profileKey, newName);
+    QualityProfileDto copiedProfile = profileCopier.copyToName(profileKey, newName);
 
-    response.noContent();
+    String languageKey = copiedProfile.getLanguage();
+    Language language = languages.get(copiedProfile.getLanguage());
+    response.newJsonWriter()
+      .beginObject()
+      .prop("key", copiedProfile.getKey())
+      .prop("name", copiedProfile.getName())
+      .prop("language", languageKey)
+      .prop("languageName", language == null ? null : language.getName())
+      .prop("isDefault", copiedProfile.isDefault())
+      .prop("isInherited", copiedProfile.getParentKee() != null)
+      .endObject().close();
   }
 }

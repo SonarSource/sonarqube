@@ -45,15 +45,19 @@ public class QProfileCopier implements ServerComponent {
     this.temp = temp;
   }
 
-  public void copyToName(String fromProfileKey, String toName) {
-    QProfileName to = prepareTarget(fromProfileKey, toName);
+  public QualityProfileDto copyToName(String fromProfileKey, String toName) {
+    QualityProfileDto to = prepareTarget(fromProfileKey, toName);
     File backupFile = temp.newFile();
-    backup(fromProfileKey, backupFile);
-    restore(backupFile, to);
-    FileUtils.deleteQuietly(backupFile);
+    try {
+      backup(fromProfileKey, backupFile);
+      restore(backupFile, QProfileName.createFor(to.getLanguage(), to.getName()));
+      return to;
+    } finally {
+      FileUtils.deleteQuietly(backupFile);
+    }
   }
 
-  private QProfileName prepareTarget(String fromProfileKey, String toName) {
+  private QualityProfileDto prepareTarget(String fromProfileKey, String toName) {
     DbSession dbSession = db.openSession(false);
     try {
       QualityProfileDto fromProfile = db.qualityProfileDao().getNonNullByKey(dbSession, fromProfileKey);
@@ -68,7 +72,7 @@ public class QProfileCopier implements ServerComponent {
         db.qualityProfileDao().update(dbSession, toProfile);
         dbSession.commit();
       }
-      return toProfileName;
+      return toProfile;
 
     } finally {
       dbSession.close();
