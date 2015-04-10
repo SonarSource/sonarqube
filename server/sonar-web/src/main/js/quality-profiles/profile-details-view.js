@@ -47,7 +47,7 @@ define([
             profileKey: key
           },
           selectParameter: 'projectUuid',
-          selectParameterValue: 'key',
+          selectParameterValue: 'uuid',
           labels: {
             selected: t('quality_gates.projects.with'),
             deselected: t('quality_gates.projects.without'),
