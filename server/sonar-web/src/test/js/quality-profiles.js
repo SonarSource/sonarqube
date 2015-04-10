@@ -165,9 +165,9 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
       .start(lib.buildUrl('quality_profiles'), function () {
         lib.setDefaultViewport();
 
-        this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-        lib.mockRequest('/api/qualityprofiles/copy', '{}');
+        lib.mockRequestFromFile('/api/qualityprofiles/copy', 'copy.json');
       })
 
       .then(function () {
@@ -193,9 +193,6 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
       })
 
       .then(function () {
-        lib.clearRequestMock(this.searchMock);
-        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
-
         casper.evaluate(function () {
           jQuery('#copy-name').val('Copied Profile');
         });

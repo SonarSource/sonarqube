@@ -28,7 +28,6 @@ define([
 
     initialize: function () {
       this.listenTo(this.options.app.profiles, 'select', this.onProfileSelect);
-      this.listenTo(this.options.app.profiles, 'copy', this.onProfileCopy);
       this.listenTo(this.options.app.profiles, 'setAsDefault', this.onProfileSetAsDefault);
       this.listenTo(this.options.app.profiles, 'destroy', this.onProfileDestroy);
     },
@@ -59,17 +58,6 @@ define([
 
         var profileDetailsView = new ProfileDetailsView({ model: profile });
         that.options.app.layout.detailsRegion.show(profileDetailsView);
-      });
-    },
-
-    onProfileCopy: function (name, profile) {
-      var that = this,
-          lang = profile.get('language');
-      this.fetchProfiles().done(function () {
-        var newProfile = that.options.app.profiles.findWhere({ language: lang, name: name });
-        if (newProfile != null) {
-          newProfile.trigger('select', newProfile);
-        }
       });
     },
 

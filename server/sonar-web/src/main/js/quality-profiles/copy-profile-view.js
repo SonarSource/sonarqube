@@ -19,8 +19,9 @@
  */
 define([
   'common/modal-form',
+  'quality-profiles/profile',
   'templates/quality-profiles'
-], function (ModalFormView) {
+], function (ModalFormView, Profile) {
 
   var $ = jQuery;
 
@@ -48,13 +49,18 @@ define([
           // do not show global error
           400: null
         }
-      }).done(function () {
-        // TODO open new profile using key from response
-        that.model.trigger('copy', name, that.model);
+      }).done(function (r) {
+        that.addProfile(r);
         that.close();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
+    },
+
+    addProfile: function (profileData) {
+      var profile = new Profile(profileData);
+      this.model.collection.add([profile]);
+      profile.trigger('select', profile);
     }
   });
 
