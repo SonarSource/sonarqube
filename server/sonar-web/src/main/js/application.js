@@ -300,11 +300,14 @@ function closeModalWindow () {
   }
 
   function shortIntVariationFormatter (value) {
+    if (value === 0) {
+      return '0';
+    }
     var format = '+0,0';
-    if (value >= 1000) {
+    if (Math.abs(value) >= 1000) {
       format = '+0.[0]a';
     }
-    if (value >= 10000) {
+    if (Math.abs(value) >= 10000) {
       format = '+0a';
     }
     return numeral(value).format(format);
