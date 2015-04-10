@@ -37,7 +37,10 @@ public class UsersWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new UsersWs(new CreateAction(mock(UserService.class), mock(I18n.class)), new UpdateAction(mock(UserService.class))));
+    WsTester tester = new WsTester(new UsersWs(
+      new CreateAction(mock(UserService.class), mock(I18n.class)),
+      new UpdateAction(mock(UserService.class)),
+      new CurrentUserAction()));
     controller = tester.controller("api/users");
   }
 
@@ -46,7 +49,7 @@ public class UsersWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(4);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test
@@ -82,5 +85,14 @@ public class UsersWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_current_action() throws Exception {
+    WebService.Action action = controller.action("current");
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.params()).isEmpty();
   }
 }
