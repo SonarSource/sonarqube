@@ -70,7 +70,31 @@ public class QProfileChangeParentActionMediumTest {
   }
 
   @Test
-  public void change_parent_with_keys() throws Exception {
+  public void change_parent_with_no_parent_before() throws Exception {
+    QualityProfileDto parent1 = createProfile("xoo", "Parent 1");
+    QualityProfileDto child = createProfile("xoo", "Child");
+
+    RuleDto rule1 = createRule("xoo", "rule1");
+    createActiveRule(rule1, parent1);
+    session.commit();
+
+    assertThat(db.activeRuleDao().findByProfileKey(session, child.getKey())).isEmpty();
+
+    // Set parent
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
+      .setParam("parentKey", parent1.getKey().toString())
+      .execute();
+    session.clearCache();
+
+    // Check rule 1 enabled
+    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().findByProfileKey(session, child.getKey());
+    assertThat(activeRules1).hasSize(1);
+    assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
+  }
+
+  @Test
+  public void replace_existing_parent() throws Exception {
     QualityProfileDto parent1 = createProfile("xoo", "Parent 1");
     QualityProfileDto parent2 = createProfile("xoo", "Parent 2");
     QualityProfileDto child = createProfile("xoo", "Child");
@@ -81,39 +105,43 @@ public class QProfileChangeParentActionMediumTest {
     createActiveRule(rule2, parent2);
     session.commit();
 
-    assertThat(db.activeRuleDao().findByProfileKey(session, child.getKey())).isEmpty();
-
-    // 1. Set parent 1
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
-      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
-      .setParam("parentKey", parent1.getKey().toString())
-      .execute();
+    // Set parent 1
+    tester.get(RuleActivator.class).setParent(child.getKey(), parent1.getKey());
     session.clearCache();
 
-    // 1. Check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().findByProfileKey(session, child.getKey());
-    assertThat(activeRules1).hasSize(1);
-    assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
-
-    // 2. Set parent 2
+    // Set parent 2 through WS
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
       .setParam("parentKey", parent2.getKey().toString())
       .execute();
     session.clearCache();
 
-    // 2. Check rule 2 enabled
+    // Check rule 2 enabled
     List<ActiveRuleDto> activeRules2 = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
+  }
 
-    // 3. Remove parent
+  @Test
+  public void remove_parent() throws Exception {
+    QualityProfileDto parent = createProfile("xoo", "Parent 1");
+    QualityProfileDto child = createProfile("xoo", "Child");
+
+    RuleDto rule1 = createRule("xoo", "rule1");
+    createActiveRule(rule1, parent);
+    session.commit();
+
+    // Set parent
+    tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
+    session.clearCache();
+
+    // Remove parent through WS
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
       .execute();
     session.clearCache();
 
-    // 3. Check no rule enabled
+    // Check no rule enabled
     List<ActiveRuleDto> activeRules = db.activeRuleDao().findByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
   }
