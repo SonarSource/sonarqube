@@ -76,6 +76,7 @@ casper.test.begin(testName('Should Show Details'), 9, function (test) {
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
       })
 
       .then(function () {
@@ -89,7 +90,7 @@ casper.test.begin(testName('Should Show Details'), 9, function (test) {
       })
 
       .then(function () {
-        casper.click('.js-list .list-group-item');
+        casper.click('.js-list .list-group-item[data-key="java-sonar-way-67887"]');
         casper.waitForSelector('.search-navigator-header-component');
       })
 
@@ -116,6 +117,56 @@ casper.test.begin(testName('Should Show Details'), 9, function (test) {
 });
 
 
+casper.test.begin(testName('Should Show Inheritance Details'), 10, function (test) {
+  casper
+      .start(lib.buildUrl('quality_profiles'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-inheritance.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-plus.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        casper.click('.js-list .list-group-item[data-key="java-inherited-profile-85155"]');
+        casper.waitForSelector('.search-navigator-header-component');
+      })
+
+      .then(function () {
+        test.assertElementCount('#quality-profile-ancestors li', 1);
+        test.assertSelectorContains('#quality-profile-ancestors', 'Sonar way');
+        test.assertSelectorContains('#quality-profile-ancestors', '161');
+
+        test.assertElementCount('#quality-profile-inheritance-current', 1);
+        test.assertSelectorContains('#quality-profile-inheritance-current', 'Inherited Profile');
+        test.assertSelectorContains('#quality-profile-inheritance-current', '163');
+        test.assertSelectorContains('#quality-profile-inheritance-current', '7');
+
+        test.assertElementCount('#quality-profile-children li', 1);
+        test.assertSelectorContains('#quality-profile-children', 'Second Level Inherited Profile');
+        test.assertSelectorContains('#quality-profile-children', '165');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) {
   casper
       .start(lib.buildUrl('quality_profiles'), function () {
@@ -124,6 +175,7 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/projects*', 'projects.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
       })
 
       .then(function () {
@@ -167,6 +219,7 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/copy', 'copy.json');
       })
 
@@ -224,6 +277,7 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/rename', '{}');
       })
 
@@ -281,6 +335,7 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/set_default', '{}');
       })
 
@@ -332,6 +387,7 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/delete', '{}');
       })
 
@@ -386,6 +442,7 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/create', 'create.json');
         lib.mockRequestFromFile('/api/languages/list', 'languages.json');
       })
@@ -440,6 +497,7 @@ casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-modified.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/restore_built_in', '{}');
         lib.mockRequestFromFile('/api/languages/list', 'languages.json');
       })
@@ -474,6 +532,65 @@ casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
 
       .then(function () {
         test.assertSelectorContains('.js-list .list-group-item', 'Sonar way');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Change Parent'), 1, function (test) {
+  casper
+      .start(lib.buildUrl('quality_profiles'), function () {
+        lib.setDefaultViewport();
+
+        this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-change-parent.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-change-parent.json');
+        lib.mockRequest('/api/qualityprofiles/change_parent', '{}');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+          jQuery.ajaxSetup({ dataType: 'json' });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        casper.click('.js-list .list-group-item[data-key="java-inherited-profile-85155"]');
+        casper.waitForSelector('#quality-profile-change-parent');
+      })
+
+      .then(function () {
+        casper.click('#quality-profile-change-parent');
+        casper.waitForSelector('.modal');
+      })
+
+      .then(function () {
+        lib.clearRequestMock(this.searchMock);
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-changed-parent.json');
+        lib.clearRequestMock(this.inheritanceMock);
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-changed-parent.json');
+
+        casper.evaluate(function () {
+          jQuery('#change-profile-parent').val('java-another-profile-00609');
+        });
+        casper.click('#change-profile-parent-submit');
+        casper.waitForSelectorTextChange('#quality-profile-ancestors');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('#quality-profile-ancestors', 'Another Profile');
       })
 
       .then(function () {

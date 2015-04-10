@@ -18,15 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'quality-profiles/change-profile-parent-view',
   'common/select-list',
+  'quality-profiles/helpers',
   'templates/quality-profiles'
-], function () {
+], function (ChangeProfileParentView) {
+
+  var $ = jQuery;
 
   return Marionette.ItemView.extend({
     template: Templates['quality-profiles-profile-details'],
 
     modelEvents: {
       'change': 'render'
+    },
+
+    events: {
+      'click .js-profile': 'onProfileClick',
+      'click #quality-profile-change-parent': 'onChangeParentClick'
     },
 
     onRender: function () {
@@ -52,7 +61,7 @@ define([
             selected: t('quality_gates.projects.with'),
             deselected: t('quality_gates.projects.without'),
             all: t('quality_gates.projects.all'),
-            noResults: t('quality_gates.projects.noResults'),
+            noResults: t('quality_gates.projects.noResults')
           },
           tooltips: {
             select: t('quality_gates.projects.select_hint'),
@@ -60,6 +69,26 @@ define([
           }
         });
       }
+    },
+
+    onProfileClick: function (e) {
+      var key = $(e.currentTarget).data('key'),
+          profile = this.model.collection.get(key);
+      if (profile != null) {
+        e.preventDefault();
+        this.model.collection.trigger('select', profile);
+      }
+    },
+
+    onChangeParentClick: function (e) {
+      e.preventDefault();
+      this.changeParent();
+    },
+
+    changeParent: function () {
+      new ChangeProfileParentView({
+        model: this.model
+      }).render();
     },
 
     serializeData: function () {

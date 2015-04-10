@@ -1,0 +1,23 @@
+{
+  "profile": {
+    "key": "java-inherited-profile-85155",
+    "name": "Inherited Profile",
+    "parent": "java-sonar-way-67887",
+    "activeRuleCount": 163,
+    "overridingRuleCount": 7
+  },
+  "ancestors": [
+    {
+      "key": "java-sonar-way-67887",
+      "name": "Sonar way",
+      "activeRuleCount": 161
+    }
+  ],
+  "children": [
+    {
+      "key": "java-second-level-inherited-profile-81377",
+      "name": "Second Level Inherited Profile",
+      "activeRuleCount": 165
+    }
+  ]
+}

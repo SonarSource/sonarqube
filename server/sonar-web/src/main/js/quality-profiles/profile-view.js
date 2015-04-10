@@ -37,6 +37,11 @@ define([
     onRender: function () {
       this.$el.toggleClass('active', this.options.highlighted);
       this.$el.attr('data-key', this.model.id);
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+    },
+
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
     onClick: function (e) {

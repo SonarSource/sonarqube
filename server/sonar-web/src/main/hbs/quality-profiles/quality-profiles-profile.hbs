@@ -1,3 +1,7 @@
+{{#if isInherited}}
+  <i class="icon-inheritance" title="{{tp 'quality_profiles.inherits' parentName}}"
+     data-toggle="tooltip" data-placement="bottom"></i>
+{{/if}}
 {{name}}
 {{#if isDefault}}
   <span class="note pull-right">{{t 'default'}}</span>

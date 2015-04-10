@@ -1,0 +1,76 @@
+{
+  "profiles": [
+    {
+      "key": "java-another-profile-00609",
+      "name": "Another Profile",
+      "activeRuleCount": 0,
+      "language": "java",
+      "languageName": "Java",
+      "isInherited": false
+    },
+    {
+      "key": "java-inherited-profile-85155",
+      "name": "Inherited Profile",
+      "activeRuleCount": 161,
+      "language": "java",
+      "languageName": "Java",
+      "parentKey": "java-sonar-way-67887",
+      "parentName": "Sonar way",
+      "isInherited": true
+    },
+    {
+      "key": "java-second-level-inherited-profile-81377",
+      "name": "Second Level Inherited Profile",
+      "activeRuleCount": 161,
+      "language": "java",
+      "languageName": "Java",
+      "parentKey": "java-inherited-profile-85155",
+      "parentName": "Inherited Profile",
+      "isInherited": true
+    },
+    {
+      "key": "java-sonar-way-67887",
+      "name": "Sonar way",
+      "activeRuleCount": 161,
+      "language": "java",
+      "languageName": "Java",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "js-sonar-way-71566",
+      "name": "Sonar way",
+      "activeRuleCount": 63,
+      "language": "js",
+      "languageName": "JavaScript",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "php-psr-2-46772",
+      "name": "PSR-2",
+      "activeRuleCount": 19,
+      "language": "php",
+      "languageName": "PHP",
+      "isInherited": false,
+      "isDefault": true
+    },
+    {
+      "key": "php-sonar-way-10778",
+      "name": "Sonar way",
+      "activeRuleCount": 59,
+      "language": "php",
+      "languageName": "PHP",
+      "isInherited": false
+    },
+    {
+      "key": "py-sonar-way-78627",
+      "name": "Sonar way",
+      "activeRuleCount": 21,
+      "language": "py",
+      "languageName": "Python",
+      "isInherited": false,
+      "isDefault": true
+    }
+  ]
+}

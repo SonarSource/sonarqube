@@ -25,10 +25,14 @@ define([
   var $ = jQuery;
 
   return ModalFormView.extend({
-    template: Templates['quality-profiles-delete-profile'],
+    template: Templates['quality-profiles-change-profile-parent'],
 
-    modelEvents: {
-      'destroy': 'close'
+    onRender: function () {
+      ModalFormView.prototype.onRender.apply(this, arguments);
+      this.$('select').select2({
+        width: '250px',
+        minimumResultsForSearch: 50
+      });
     },
 
     onFormSubmit: function () {
@@ -38,8 +42,12 @@ define([
 
     sendRequest: function () {
       var that = this,
-          url = baseUrl + '/api/qualityprofiles/delete',
-          options = { profileKey: this.model.get('key') };
+          url = baseUrl + '/api/qualityprofiles/change_parent',
+          parent = this.$('#change-profile-parent').val(),
+          options = {
+            profileKey: this.model.get('key'),
+            parentKey: parent
+          };
       return $.ajax({
         type: 'POST',
         url: url,
@@ -50,9 +58,21 @@ define([
         }
       }).done(function () {
         that.model.collection.fetch();
-        that.model.trigger('destroy', that.model, that.model.collection);
+        that.model.trigger('select', that.model);
+        that.close();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+      });
+    },
+
+    serializeData: function () {
+      var that = this,
+          profilesData = this.model.collection.toJSON(),
+          profiles = _.filter(profilesData, function (profile) {
+            return profile.language === that.model.get('language') && profile.key !== that.model.id;
+          });
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        profiles: profiles
       });
     }
   });

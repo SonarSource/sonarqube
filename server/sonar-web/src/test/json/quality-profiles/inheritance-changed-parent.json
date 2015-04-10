@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "key": "java-inherited-profile-85155",
+    "name": "Inherited Profile",
+    "parent": "java-another-profile-00609",
+    "activeRuleCount": 1
+  },
+  "ancestors": [
+    {
+      "key": "java-another-profile-00609",
+      "name": "Another Profile",
+      "activeRuleCount": 0
+    }
+  ],
+  "children": [
+    {
+      "key": "java-second-level-inherited-profile-81377",
+      "name": "Second Level Inherited Profile",
+      "activeRuleCount": 1
+    }
+  ]
+}

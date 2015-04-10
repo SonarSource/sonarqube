@@ -83,7 +83,10 @@ define([
     },
 
     fetchProfile: function (profile) {
-      return $.when(this.fetchProfileRules(profile));
+      return $.when(
+          this.fetchProfileRules(profile),
+          this.fetchInheritance(profile)
+      );
     },
 
     fetchProfileRules: function (profile) {
@@ -100,6 +103,18 @@ define([
         if (severityFacet != null) {
           profile.set({ rulesSeverities: severityFacet.values });
         }
+      });
+    },
+
+    fetchInheritance: function (profile) {
+      var url = baseUrl + '/api/qualityprofiles/inheritance',
+          options = { profileKey: profile.id };
+      return $.get(url, options).done(function (r) {
+        profile.set({
+          ancestors: r.ancestors,
+          children: r.children
+        });
+        profile.set(r.profile);
       });
     }
 

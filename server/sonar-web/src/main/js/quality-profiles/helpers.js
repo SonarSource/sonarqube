@@ -17,37 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
+(function () {
 
+  Handlebars.registerHelper('profileUrl', function (key) {
+    return baseUrl + '/quality_profiles/show?key=' + encodeURIComponent(key);
+  });
 
-// Base
-
-.alert {
-  display: block;
-  margin-bottom: 8px;
-  padding: 5px 8px;
-  border: 1px solid @secondFontColor;
-}
-
-.alert:empty { display: none; }
-
-.alert-inline {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-
-// Color
-
-.alert-emphasis-variant(@color, @background-color, @border-color) {
-  border-color: @border-color;
-  background-color: @background-color;
-  color: @color;
-}
-.alert-danger  { .alert-emphasis-variant(#a94442, #f2dede, #ebccd1); }
-.alert-warning { .alert-emphasis-variant(#8a6d3b, #fcf8e3, #faebcc); }
-.alert-info    { .alert-emphasis-variant(#31708f, #d9edf7, #bce8f1); }
-.alert-success { .alert-emphasis-variant(#3c763d, #dff0d8, #d6e9c6); }
-
-
+})();
