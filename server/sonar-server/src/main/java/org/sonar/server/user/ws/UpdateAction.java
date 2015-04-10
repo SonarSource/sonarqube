@@ -21,7 +21,6 @@
 package org.sonar.server.user.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -29,7 +28,7 @@ import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserService;
 import org.sonar.server.user.index.UserDoc;
 
-public class UpdateAction implements RequestHandler {
+public class UpdateAction implements BaseUsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
@@ -44,7 +43,8 @@ public class UpdateAction implements RequestHandler {
     this.service = service;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update")
       .setDescription("Update a user. Requires Administer System permission")
       .setSince("3.7")
