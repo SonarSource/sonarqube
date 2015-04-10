@@ -36,13 +36,7 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -160,7 +154,7 @@ public class UserSession {
     return globalPermissions().contains(globalPermission);
   }
 
-  List<String> globalPermissions() {
+  public List<String> globalPermissions() {
     if (globalPermissions == null) {
       List<String> permissionKeys = authorizationDao().selectGlobalPermissions(login);
       globalPermissions = new ArrayList<String>();
