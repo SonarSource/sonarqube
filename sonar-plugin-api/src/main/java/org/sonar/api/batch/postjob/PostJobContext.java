@@ -17,58 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.postjob;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
+import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.postjob.issue.Issue;
+import org.sonar.api.config.Settings;
 
 /**
- * Represents an issue detected by a {@link Sensor}.
- *
- * @since 5.1
+ * See {@link PostJob#execute(PostJobContext)}
+ * @since 5.2
  */
 @Beta
-public interface Issue {
+public interface PostJobContext {
 
   /**
-   * The {@link RuleKey} of this issue.
+   * Get settings of the current project.
    */
-  RuleKey ruleKey();
+  Settings settings();
 
   /**
-   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project.
+   * Get analysis mode.
    */
-  @CheckForNull
-  InputPath inputPath();
+  AnalysisMode analysisMode();
+
+  // ----------- ISSUES --------------
 
   /**
-   * Line of the issue. Null for global issues and issues on directories. Can also be null
-   * for files (issue global to the file).
+   * All the unresolved issues of the project, including the issues reported by end-users.
    */
-  @CheckForNull
-  Integer line();
+  Iterable<Issue> issues();
 
   /**
-   * Effort to fix the issue. Used by technical debt model.
+   * All the issues of this project that have been marked as resolved during this scan
    */
-  @CheckForNull
-  Double effortToFix();
-
-  /**
-   * Message of the issue.
-   */
-  @CheckForNull
-  String message();
-
-  /**
-   * Overriden severity.
-   */
-  @CheckForNull
-  Severity overridenSeverity();
+  Iterable<Issue> resolvedIssues();
 
 }

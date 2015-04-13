@@ -29,16 +29,16 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.config.Settings;
 
-public class AnalyzerOptimizer implements BatchComponent {
+public class SensorOptimizer implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalyzerOptimizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SensorOptimizer.class);
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final Settings settings;
   private final AnalysisMode analysisMode;
 
-  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings, AnalysisMode analysisMode) {
+  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings, AnalysisMode analysisMode) {
     this.fs = fs;
     this.activeRules = activeRules;
     this.settings = settings;
@@ -46,7 +46,7 @@ public class AnalyzerOptimizer implements BatchComponent {
   }
 
   /**
-   * Decide if the given Analyzer should be executed.
+   * Decide if the given Sensor should be executed.
    */
   public boolean shouldExecute(DefaultSensorDescriptor descriptor) {
     if (!fsCondition(descriptor)) {

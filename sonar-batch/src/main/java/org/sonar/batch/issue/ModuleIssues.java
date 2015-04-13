@@ -48,7 +48,7 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
 
-  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, Project project, IssueFilters filters) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.cache = cache;
@@ -56,15 +56,8 @@ public class ModuleIssues {
     this.filters = filters;
   }
 
-  public ModuleIssues(ActiveRules activeRules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, IssueCache cache, Project project, IssueFilters filters) {
     this(activeRules, null, cache, project, filters);
-  }
-
-  /** 
-   * Used by scan2
-   */
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, IssueFilters filters) {
-    this(activeRules, rules, cache, null, filters);
   }
 
   public boolean initAndAddViolation(Violation violation) {

@@ -37,6 +37,7 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private final EventBus eventBus;
   private final Phases phases;
   private final InitializersExecutor initializersExecutor;
+  private final PostJobsExecutor postJobsExecutor;
   private final SensorsExecutor sensorsExecutor;
   private final SensorContext sensorContext;
   private final DefaultIndex index;
@@ -49,12 +50,13 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private final LocalIssueTracking localIssueTracking;
   private final ReportPublisher reportPublisher;
 
-  public DatabaseLessPhaseExecutor(Phases phases, InitializersExecutor initializersExecutor, SensorsExecutor sensorsExecutor,
+  public DatabaseLessPhaseExecutor(Phases phases, InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, ReportPublisher reportPublisher) {
     this.phases = phases;
     this.initializersExecutor = initializersExecutor;
+    this.postJobsExecutor = postJobsExecutor;
     this.sensorsExecutor = sensorsExecutor;
     this.sensorContext = sensorContext;
     this.index = index;
@@ -97,6 +99,9 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
       localIssueTracking();
       issuesReport();
       publishReportJob();
+      if (phases.isEnabled(Phases.Phase.POSTJOB)) {
+        postJobsExecutor.execute(sensorContext);
+      }
     }
 
     cleanMemory();

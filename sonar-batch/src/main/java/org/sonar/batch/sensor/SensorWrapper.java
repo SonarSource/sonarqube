@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
-
-import org.sonar.batch.sensor.AnalyzerOptimizer;
+package org.sonar.batch.sensor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +33,9 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
   private Sensor wrappedSensor;
   private SensorContext adaptor;
   private DefaultSensorDescriptor descriptor;
-  private AnalyzerOptimizer optimizer;
+  private SensorOptimizer optimizer;
 
-  public SensorWrapper(Sensor newSensor, SensorContext adaptor, AnalyzerOptimizer optimizer) {
+  public SensorWrapper(Sensor newSensor, SensorContext adaptor, SensorOptimizer optimizer) {
     this.wrappedSensor = newSensor;
     this.optimizer = optimizer;
     descriptor = new DefaultSensorDescriptor();

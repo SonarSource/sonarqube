@@ -17,23 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.postjob.issue;
 
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 
 /**
- * Represents an issue detected by a {@link Sensor}.
+ * Represents an issue state at the end of the batch analysis. Only available after local issue tracking in preview mode.
  *
- * @since 5.1
+ * @since 5.2
  */
 @Beta
 public interface Issue {
+
+  /**
+   * Key of the issue.
+   */
+  String key();
 
   /**
    * The {@link RuleKey} of this issue.
@@ -41,7 +45,12 @@ public interface Issue {
   RuleKey ruleKey();
 
   /**
-   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project.
+   * Component key like foo:src/Foo.php
+   */
+  String componentKey();
+
+  /**
+   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project or if component was deleted (for resolved issues).
    */
   @CheckForNull
   InputPath inputPath();
@@ -66,9 +75,13 @@ public interface Issue {
   String message();
 
   /**
-   * Overriden severity.
+   * Severity.
    */
-  @CheckForNull
-  Severity overridenSeverity();
+  Severity severity();
+
+  /**
+   * If the issue a new one.
+   */
+  boolean isNew();
 
 }

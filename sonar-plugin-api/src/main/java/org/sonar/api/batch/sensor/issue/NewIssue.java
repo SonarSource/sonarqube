@@ -22,8 +22,8 @@ package org.sonar.api.batch.sensor.issue;
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
