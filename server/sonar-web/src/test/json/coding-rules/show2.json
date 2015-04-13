@@ -1,0 +1,37 @@
+{
+  "rule": {
+    "key": "squid:S1161",
+    "repo": "squid",
+    "name": "\"@Override\" annotation should be used on any method overriding (since Java 5) or implementing (since Java 6) another one",
+    "createdAt": "2015-04-13T13:44:13+0200",
+    "severity": "MAJOR",
+    "status": "READY",
+    "internalKey": "S1161",
+    "isTemplate": false,
+    "tags": [],
+    "sysTags": [],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "",
+    "defaultDebtChar": "MAINTAINABILITY",
+    "defaultDebtSubChar": "UNDERSTANDABILITY",
+    "debtChar": "MAINTAINABILITY",
+    "debtSubChar": "UNDERSTANDABILITY",
+    "debtCharName": "Maintainability",
+    "debtSubCharName": "Understandability",
+    "defaultDebtRemFnType": "LINEAR",
+    "defaultDebtRemFnCoeff": "5min",
+    "debtOverloaded": false,
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "5min",
+    "params": []
+  },
+  "actives": [
+    {
+      "qProfile": "java-sonar-way-68866",
+      "inherit": "NONE",
+      "severity": "MAJOR",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "rule": {
+    "key": "squid:S2204",
+    "repo": "squid",
+    "name": "\".equals()\" should not be used to test the values of \"Atomic\" classes",
+    "createdAt": "2015-04-13T13:44:13+0200",
+    "severity": "BLOCKER",
+    "status": "READY",
+    "internalKey": "S2204",
+    "isTemplate": false,
+    "tags": [],
+    "sysTags": [
+      "bug"
+    ],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "",
+    "defaultDebtChar": "RELIABILITY",
+    "defaultDebtSubChar": "DATA_RELIABILITY",
+    "debtChar": "RELIABILITY",
+    "debtSubChar": "DATA_RELIABILITY",
+    "debtCharName": "Reliability",
+    "debtSubCharName": "Data",
+    "defaultDebtRemFnType": "CONSTANT_ISSUE",
+    "defaultDebtRemFnOffset": "5min",
+    "debtOverloaded": false,
+    "debtRemFnType": "CONSTANT_ISSUE",
+    "debtRemFnOffset": "5min",
+    "params": []
+  },
+  "actives": [
+    {
+      "qProfile": "java-sonar-way-68866",
+      "inherit": "NONE",
+      "severity": "BLOCKER",
+      "params": []
+    }
+  ]
+}
