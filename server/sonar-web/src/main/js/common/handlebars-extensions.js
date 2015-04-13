@@ -488,11 +488,11 @@
   });
 
   Handlebars.registerHelper('collapsedDirFromPath', function (path) {
-    return collapsedDirFromPath(path);
+    return window.collapsedDirFromPath(path);
   });
 
   Handlebars.registerHelper('fileFromPath', function (path) {
-    return fileFromPath(path);
+    return window.fileFromPath(path);
   });
 
   Handlebars.registerHelper('repeat', function (number, options) {
@@ -509,7 +509,7 @@
   });
 
   Handlebars.registerHelper('withSign', function (number) {
-    return number >= 0 ? '+' + number : number;
+    return number >= 0 ? '+' + number : '' + number;
   });
 
   Handlebars.registerHelper('formatMeasure', function (measure, type) {
@@ -518,38 +518,6 @@
 
   Handlebars.registerHelper('formatMeasureVariation', function (measure, type) {
     return window.formatMeasureVariation(measure, type);
-  });
-
-  Handlebars.registerHelper('urlForDrilldown', function (component, metric, period, periodDate) {
-    var url;
-    if (isIssuesMetric(metric)) {
-      url = buildIssuesUrl(component, metric, periodDate);
-    } else {
-      if (metric === 'package_cycles') {
-        url = baseUrl + '/design/index?id=' + encodeURIComponent(component);
-      } else {
-        url = baseUrl + '/drilldown/measures?id=' + encodeURIComponent(component) + '&metric=' + metric;
-        if (period != null && !_.isObject(period)) {
-          url += '&period=' + period;
-        }
-      }
-    }
-    return url;
-  });
-
-  Handlebars.registerHelper('canHaveDrilldownUrl', function (metric, period, options) {
-    var isDifferentialMetric = metric.indexOf('new_') === 0,
-        _isIssuesMetric = isIssuesMetric(metric),
-        r = isDifferentialMetric || period == null || _isIssuesMetric;
-    return r ? options.fn(this) : options.inverse(this);
-  });
-
-  Handlebars.registerHelper('urlForIssuesOverview', function (componentKey, periodDate) {
-    var url = baseUrl + '/component_issues/index?id=' + encodeURIComponent(componentKey) + '#resolved=false';
-    if (typeof periodDate === 'string') {
-      url += '|createdAfter=' + encodeURIComponent(periodDate);
-    }
-    return url;
   });
 
 })();
