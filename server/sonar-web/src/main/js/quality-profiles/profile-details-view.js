@@ -42,7 +42,7 @@ define([
       var key = this.model.get('key');
       if (!this.model.get('isDefault')) {
         new SelectList({
-          el: this.$('#quality-profile-projects'),
+          el: this.$('#quality-profile-projects-list'),
           width: '100%',
           readOnly: false,
           focusSearch: false,

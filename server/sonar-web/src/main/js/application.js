@@ -478,6 +478,38 @@ function closeModalWindow () {
  */
 
 (function () {
+
+  /**
+   * Comparator for _.sortBy()-like functions
+   *
+   * Fit for natural severities order
+   * @param {string} severity
+   * @returns {number}
+   */
+  window.severityComparator = function (severity) {
+    var SEVERITIES_ORDER = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
+    return SEVERITIES_ORDER.indexOf(severity);
+  };
+
+
+  /**
+   * Comparator for _.sortBy()-like functions
+   *
+   * Fit for facet-like display:
+   * BLOCKER   MINOR
+   * CRITICAL  INFO
+   * MAJOR
+   * @param {string} severity
+   * @returns {number}
+   */
+  window.severityColumnsComparator = function (severity) {
+    var SEVERITIES_ORDER = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
+    return SEVERITIES_ORDER.indexOf(severity);
+  };
+
+})();
+
+(function () {
   jQuery(function () {
 
     // Process login link in order to add the anchor

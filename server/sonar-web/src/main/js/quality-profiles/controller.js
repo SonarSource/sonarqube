@@ -94,14 +94,19 @@ define([
           key = profile.get('key'),
           options = {
             ps: 1,
-            facets: 'severities',
+            facets: 'severities,tags',
             qprofile: key,
             activation: 'true'
           };
       return $.get(url, options).done(function (r) {
         var severityFacet = _.findWhere(r.facets, { property: 'severities' });
         if (severityFacet != null) {
-          profile.set({ rulesSeverities: severityFacet.values });
+          var severities = severityFacet.values,
+              severityComparator = function (s) {
+                return window.severityColumnsComparator(s.val);
+              },
+              sortedSeverities = _.sortBy(severities, severityComparator);
+          profile.set({ rulesSeverities: sortedSeverities });
         }
       });
     },
