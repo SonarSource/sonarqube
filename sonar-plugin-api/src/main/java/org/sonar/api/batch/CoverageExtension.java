@@ -22,11 +22,10 @@ package org.sonar.api.batch;
 import org.sonar.api.BatchExtension;
 
 /**
- * Marker for the extensions that execute coverage tools. It's useful for the plugins that
- * need to be executed after coverage analysis, for example import of test results by the Surefire plugin
- *
  * @since 2.6
+ * @deprecated since 5.2 not used anymore
  */
+@Deprecated
 public interface CoverageExtension extends BatchExtension {
 
 }
