@@ -26,6 +26,7 @@ import org.sonar.server.activity.index.ActivityIndexDefinition;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Map;
 
 /**
@@ -33,17 +34,19 @@ import java.util.Map;
  */
 public class QProfileActivity extends ActivityDoc {
 
+  private static final String FIELD_SEVERITY = "severity";
+
   private String ruleName = null;
   private String authorName = null;
 
-  protected QProfileActivity(Map<String, Object> fields) {
+  public QProfileActivity(Map<String, Object> fields) {
     super(fields);
     Map<String, String> details = getField("details");
     for (Map.Entry detail : details.entrySet()) {
       fields.put((String) detail.getKey(), detail.getValue());
     }
-    if (!fields.containsKey("severity")) {
-      fields.put("severity", null);
+    if (!fields.containsKey(FIELD_SEVERITY)) {
+      fields.put(FIELD_SEVERITY, null);
     }
   }
 
@@ -81,7 +84,7 @@ public class QProfileActivity extends ActivityDoc {
 
   @CheckForNull
   public String severity(){
-    return (String) getNullableField("severity");
+    return (String) getNullableField(FIELD_SEVERITY);
   }
 
   public Map<String, String> parameters() {
