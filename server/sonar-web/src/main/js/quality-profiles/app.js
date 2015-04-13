@@ -67,7 +67,7 @@ require([
   });
 
   function getRoot () {
-    var QUALITY_PROFILES = '/quality_profiles',
+    var QUALITY_PROFILES = '/profiles',
         path = window.location.pathname,
         pos = path.indexOf(QUALITY_PROFILES);
     return path.substr(0, pos + QUALITY_PROFILES.length);

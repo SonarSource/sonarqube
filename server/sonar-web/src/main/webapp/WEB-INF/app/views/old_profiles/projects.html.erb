@@ -2,15 +2,15 @@
   <header class="page-header">
     <h1 class="page-title"><%= h @profile.name -%></h1>
     <div class="page-description">
-      <a href="<%= ApplicationController.root_context -%>/profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
+      <a href="<%= ApplicationController.root_context -%>/old_profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
     </div>
   </header>
 
-<%= render :partial => 'profiles/tabs', :locals => {:selected_tab => 'Projects'} %>
+<%= render :partial => 'old_profiles/tabs', :locals => {:selected_tab => 'Projects'} %>
 
 <div class="tabs-panel">
   <% if profiles_administrator? %>
-    <form method="POST" action="<%= ApplicationController.root_context -%>/profiles/add_project" id="add_project_form">
+    <form method="POST" action="<%= ApplicationController.root_context -%>/old_profiles/add_project" id="add_project_form">
       <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 
       Add project: <%= resource_select_tag 'project', {
@@ -37,7 +37,7 @@
           <tr class="<%= cycle('even', 'odd') -%>">
             <td class="thin">
               <%= link_to_action message('quality_profiles.remove_project_action'),
-                                 "#{ApplicationController.root_context}/profiles/remove_project?id=#{@profile.id}&project=#{project.id}",
+                                 "#{ApplicationController.root_context}/old_profiles/remove_project?id=#{@profile.id}&project=#{project.id}",
                                  :class => 'link-action',
                                  :id => "link-remove-#{project.key.parameterize}",
                                  :confirm_title => 'quality_profiles.remove_project_confirm_title',
@@ -54,7 +54,7 @@
         <tr>
           <td colspan="2">
             <%= link_to_action message('quality_profiles.remove_projects_action'),
-                               "#{ApplicationController.root_context}/profiles/remove_projects?id=#{@profile.id}",
+                               "#{ApplicationController.root_context}/old_profiles/remove_projects?id=#{@profile.id}",
                                :class => 'link-action',
                                :id => "link-remove-projects",
                                :confirm_title => 'quality_profiles.remove_projects_confirm_title',

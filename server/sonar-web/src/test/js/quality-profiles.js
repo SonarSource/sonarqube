@@ -29,7 +29,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Should Show List'), 9, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -71,7 +71,7 @@ casper.test.begin(testName('Should Show List'), 9, function (test) {
 
 casper.test.begin(testName('Should Show Details'), 9, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -119,7 +119,7 @@ casper.test.begin(testName('Should Show Details'), 9, function (test) {
 
 casper.test.begin(testName('Should Show Inheritance Details'), 10, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-inheritance.json');
@@ -169,7 +169,7 @@ casper.test.begin(testName('Should Show Inheritance Details'), 10, function (tes
 
 casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -214,7 +214,7 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
 
 casper.test.begin(testName('Copy Profile'), 5, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -272,7 +272,7 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
 
 casper.test.begin(testName('Rename Profile'), 2, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -330,7 +330,7 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
 
 casper.test.begin(testName('Make Profile Default'), 4, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -382,7 +382,7 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
 
 casper.test.begin(testName('Delete Profile'), 2, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
@@ -437,7 +437,7 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
 
 casper.test.begin(testName('Create Profile'), 2, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
@@ -492,7 +492,7 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
 
 casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-modified.json');
@@ -546,7 +546,7 @@ casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
 
 casper.test.begin(testName('Change Parent'), 1, function (test) {
   casper
-      .start(lib.buildUrl('quality_profiles'), function () {
+      .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-change-parent.json');

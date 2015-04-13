@@ -2,7 +2,7 @@
   <header class="page-header">
     <h1 class="page-title"><%= h message('quality_profiles.compare_profiles') -%></h1>
     <div class="page-description">
-      <a href="<%= ApplicationController.root_context -%>/profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
+      <a href="<%= ApplicationController.root_context -%>/old_profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
     </div>
   </header>
 
@@ -52,7 +52,7 @@
             <thead>
             <tr>
               <th><a name="in1"/><%= message('quality_profiles.x_rules_only_in', :params => @in1.size) %>
-                <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile1.kee -%>"><%= h @profile1.name %></a>
+                <a href="<%= url_for :controller => 'old_profiles', :action => 'show', :key => @profile1.kee -%>"><%= h @profile1.name %></a>
               </th>
             </tr>
             </thead>
@@ -79,7 +79,7 @@
             <thead>
             <tr>
               <th><a name="in2"/><%= message('quality_profiles.x_rules_only_in', :params => @in2.size) %>
-                <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile2.kee -%>"><%= h @profile2.name %></a>
+                <a href="<%= url_for :controller => 'old_profiles', :action => 'show', :key => @profile2.kee -%>"><%= h @profile2.name %></a>
               </th>
             </tr>
             </thead>
@@ -103,11 +103,11 @@
             <thead>
             <tr>
               <th width="49%"><a name="modified"/><%= message('quality_profiles.x_rules_have_different_configuration', :params =>@modified.size) -%><br/>
-                <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile1.kee -%>"><%= h @profile1.name %></a>
+                <a href="<%= url_for :controller => 'old_profiles', :action => 'show', :key => @profile1.kee -%>"><%= h @profile1.name %></a>
               </th>
               <th width="2%"></th>
               <th width="49%">
-                <br/><a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile2.kee -%>"><%= h @profile2.name %></a>
+                <br/><a href="<%= url_for :controller => 'old_profiles', :action => 'show', :key => @profile2.kee -%>"><%= h @profile2.name %></a>
               </th>
             </tr>
             </thead>

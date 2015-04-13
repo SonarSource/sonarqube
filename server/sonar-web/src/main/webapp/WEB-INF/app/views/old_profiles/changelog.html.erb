@@ -2,13 +2,13 @@
   <header class="page-header">
     <h1 class="page-title"><%= h @profile.name -%></h1>
     <div class="page-description">
-      <a href="<%= ApplicationController.root_context -%>/profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
+      <a href="<%= ApplicationController.root_context -%>/old_profiles">&larr;&nbsp;<%= h message('quality_profiles.page') -%></a>
     </div>
   </header>
-<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
+<%= render :partial => 'old_profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
 
 <div class="tabs-panel marginbottom10">
-  <form class="marginbottom10" method="get" action="<%= ApplicationController.root_context %>/profiles/changelog">
+  <form class="marginbottom10" method="get" action="<%= ApplicationController.root_context %>/old_profiles/changelog">
     <input name="key" type="hidden" value="<%= @profile.key() %>"/>
     <%= message('quality_profiles.changelog_from') -%>
     <input name="since" type="text" value="<%= params['since'] %>" placeholder="1970-01-31"/>
