@@ -20,8 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
@@ -91,12 +89,14 @@ public class PersistFileSourcesStep implements ComputationStep {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     if (component.getType().equals(Constants.ComponentType.FILE)) {
       LineIterator linesIterator = sourceLinesIterator(reportReader.readFileSource(componentRef));
+      LineReaders lineReaders = new LineReaders(reportReader, componentRef);
       try {
-        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, dataLineReaders(reportReader, componentRef), component.getLines());
+        ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourcesContext, fileSourceData, component);
       } finally {
         linesIterator.close();
+        lineReaders.close();
       }
     }
 
@@ -111,21 +111,6 @@ public class PersistFileSourcesStep implements ComputationStep {
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
     }
-  }
-
-  private List<LineReader> dataLineReaders(BatchReportReader reportReader, int componentRef) {
-    List<LineReader> lineReaders = newArrayList();
-
-    File coverageFile = reportReader.readComponentCoverage(componentRef);
-    BatchReport.Scm scmReport = reportReader.readComponentScm(componentRef);
-    File highlightingFile = reportReader.readComponentSyntaxHighlighting(componentRef);
-
-    lineReaders.add(coverageFile != null ? new CoverageLineReader(new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER)) : null);
-    lineReaders.add(scmReport != null ? new ScmLineReader(scmReport) : null);
-    lineReaders.add(highlightingFile != null ? new HighlightingLineReader(new ReportIterator<>(highlightingFile, BatchReport.SyntaxHighlighting.PARSER)) : null);
-
-    Iterables.removeIf(lineReaders, Predicates.isNull());
-    return lineReaders;
   }
 
   private void persistSource(FileSourcesContext fileSourcesContext, ComputeFileSourceData.Data fileSourceData, BatchReport.Component component) {
@@ -180,6 +165,41 @@ public class PersistFileSourcesStep implements ComputationStep {
       this.context = context;
       this.previousFileSourcesByUuid = previousFileSourcesByUuid;
       this.session = session;
+    }
+  }
+
+  private static class LineReaders {
+    private final List<LineReader> lineReaders = newArrayList();
+    private final List<ReportIterator> reportIterators = newArrayList();
+
+    LineReaders(BatchReportReader reportReader, int componentRef) {
+      File coverageFile = reportReader.readComponentCoverage(componentRef);
+      BatchReport.Scm scmReport = reportReader.readComponentScm(componentRef);
+      File highlightingFile = reportReader.readComponentSyntaxHighlighting(componentRef);
+
+      if (coverageFile != null) {
+        ReportIterator<BatchReport.Coverage> coverageReportIterator = new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER);
+        reportIterators.add(coverageReportIterator);
+        lineReaders.add(new CoverageLineReader(coverageReportIterator));
+      }
+      if (scmReport != null) {
+        lineReaders.add(new ScmLineReader(scmReport));
+      }
+      if (highlightingFile != null) {
+        ReportIterator<BatchReport.SyntaxHighlighting> syntaxHighlightingReportIterator = new ReportIterator<>(highlightingFile, BatchReport.SyntaxHighlighting.PARSER);
+        reportIterators.add(syntaxHighlightingReportIterator);
+        lineReaders.add(new HighlightingLineReader(syntaxHighlightingReportIterator));
+      }
+    }
+
+    List<LineReader> readers(){
+      return lineReaders;
+    }
+
+    void close(){
+      for (ReportIterator reportIterator : reportIterators) {
+        reportIterator.close();
+      }
     }
   }
 
