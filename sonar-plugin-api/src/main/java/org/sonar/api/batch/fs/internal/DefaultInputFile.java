@@ -104,6 +104,11 @@ public class DefaultInputFile implements InputFile {
     return lines;
   }
 
+  @Override
+  public boolean isEmpty() {
+    return lastValidOffset == 0;
+  }
+
   /**
    * Component key.
    */

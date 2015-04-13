@@ -31,13 +31,12 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.*;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Scm;
 import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
 import org.sonar.batch.protocol.output.BatchReport.Symbols;
 import org.sonar.batch.protocol.output.BatchReport.SyntaxHighlighting;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -73,7 +72,9 @@ public class SourceDataFactory implements BatchComponent {
 
   public byte[] consolidateData(DefaultInputFile inputFile) throws IOException {
     FileSourceDb.Data.Builder dataBuilder = createForSource(inputFile);
-    applyLineMeasures(inputFile, dataBuilder);
+    if (!inputFile.isEmpty()) {
+      applyLineMeasures(inputFile, dataBuilder);
+    }
     applyScm(inputFile, dataBuilder);
     applyDuplications(inputFile.key(), dataBuilder);
     applyHighlighting(inputFile, dataBuilder);

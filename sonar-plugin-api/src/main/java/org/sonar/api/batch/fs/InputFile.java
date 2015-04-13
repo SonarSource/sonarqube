@@ -105,10 +105,16 @@ public interface InputFile extends InputPath {
   Status status();
 
   /**
-   * Number of physical lines. This method supports all end-of-line characters. Returns
-   * zero if the file is empty.
+   * Number of physical lines. This method supports all end-of-line characters. Formula is (number of line break + 1). Returns
+   * 1 if the file is empty.</br> Returns 2 for <tt>foo\nbar</tt>. Returns 3 for <tt>foo\nbar\n</tt>.
    */
   int lines();
+
+  /**
+   * Check if the file content is empty (ignore potential BOM).
+   * @since 5.2
+   */
+  boolean isEmpty();
 
   /**
    * Return a {@link TextPointer} in the given file.

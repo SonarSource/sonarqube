@@ -84,7 +84,7 @@ public class EmptyFileTest {
       .property("sonar.xoo.internalKey", "my/internal/key")
       .start();
 
-    assertThat(result.issues()).hasSize(10);
+    assertThat(result.issues()).hasSize(11);
   }
 
 }

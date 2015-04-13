@@ -47,12 +47,12 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final IssuesReports issuesReport;
   private final LocalIssueTracking localIssueTracking;
-  private final ReportPublisher publishReportJob;
+  private final ReportPublisher reportPublisher;
 
   public DatabaseLessPhaseExecutor(Phases phases, InitializersExecutor initializersExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, ReportPublisher publishReportJob) {
+    IssueExclusionsLoader issueExclusionsLoader, LocalIssueTracking localIssueTracking, ReportPublisher reportPublisher) {
     this.phases = phases;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
@@ -66,7 +66,7 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
     this.localIssueTracking = localIssueTracking;
-    this.publishReportJob = publishReportJob;
+    this.reportPublisher = reportPublisher;
   }
 
   /**
@@ -106,7 +106,7 @@ public final class DatabaseLessPhaseExecutor implements PhaseExecutor {
   private void publishReportJob() {
     String stepName = "Publish report";
     eventBus.fireEvent(new BatchStepEvent(stepName, true));
-    this.publishReportJob.execute();
+    this.reportPublisher.execute();
     eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 

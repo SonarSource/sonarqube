@@ -56,7 +56,7 @@ public class FileMetadataTest {
     FileUtils.touch(tempFile);
 
     FileMetadata.Metadata metadata = new FileMetadata().readMetadata(tempFile, Charsets.UTF_8);
-    assertThat(metadata.lines).isEqualTo(0);
+    assertThat(metadata.lines).isEqualTo(1);
     assertThat(metadata.nonBlankLines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
@@ -219,6 +219,8 @@ public class FileMetadataTest {
           case 3:
             assertThat(Hex.encodeHexString(hash)).isEqualTo(md5Hex("baz"));
             break;
+          default:
+            fail("Invalid line");
         }
       }
     });
@@ -236,7 +238,13 @@ public class FileMetadataTest {
 
       @Override
       public void consume(int lineIdx, @Nullable byte[] hash) {
-        fail("File is empty and should not report any line hash");
+        switch (lineIdx) {
+          case 1:
+            assertThat(hash).isNull();
+            break;
+          default:
+            fail("Invalid line");
+        }
       }
     });
   }

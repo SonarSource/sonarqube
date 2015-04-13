@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.batch.fs.internal.FileMetadata;
-import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -126,9 +125,6 @@ public class SourcePersister implements ScanPersister {
 
   @CheckForNull
   private String lineHashesAsMd5Hex(DefaultInputFile f) {
-    if (f.lines() == 0) {
-      return null;
-    }
     // A md5 string is 32 char long + '\n' = 33
     final StringBuilder result = new StringBuilder(f.lines() * (32 + 1));
 

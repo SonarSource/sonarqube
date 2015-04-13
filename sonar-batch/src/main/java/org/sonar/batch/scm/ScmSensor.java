@@ -106,7 +106,7 @@ public final class ScmSensor implements Sensor {
   }
 
   private void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
-    if (f.lines() > 0) {
+    if (!f.isEmpty()) {
       filesToBlame.add(f);
     }
   }

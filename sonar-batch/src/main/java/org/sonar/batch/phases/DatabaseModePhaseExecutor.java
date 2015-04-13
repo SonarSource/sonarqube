@@ -49,7 +49,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
-  private final ReportPublisher publishReportJob;
+  private final ReportPublisher reportPublisher;
   private final SensorContext sensorContext;
   private final DefaultIndex index;
   private final ProjectInitializer pi;
@@ -66,7 +66,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   public DatabaseModePhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ReportPublisher publishReportJob, ProjectInitializer pi,
+    EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, DatabaseSession session, ResourcePersister resourcePersister) {
     this.phases = phases;
@@ -77,7 +77,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
     this.sensorContext = sensorContext;
     this.index = index;
     this.eventBus = eventBus;
-    this.publishReportJob = publishReportJob;
+    this.reportPublisher = reportPublisher;
     this.pi = pi;
     this.persisters = persisters;
     this.fsLogger = fsLogger;
@@ -168,7 +168,7 @@ public final class DatabaseModePhaseExecutor implements PhaseExecutor {
   private void publishReportJob() {
     String stepName = "Publish report";
     eventBus.fireEvent(new BatchStepEvent(stepName, true));
-    this.publishReportJob.execute();
+    this.reportPublisher.execute();
     eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 

@@ -66,7 +66,7 @@ public class FileMetadata implements BatchComponent {
   }
 
   private static class LineCounter extends CharHandler {
-    private int lines = 0;
+    private int lines = 1;
     private int nonBlankLines = 0;
     private boolean blankLine = true;
     boolean alreadyLoggedInvalidCharacter = false;
@@ -80,9 +80,6 @@ public class FileMetadata implements BatchComponent {
 
     @Override
     protected void handleAll(char c) {
-      if (this.lines == 0) {
-        this.lines = 1;
-      }
       if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
         LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", file,
           lines, encoding, CoreProperties.ENCODING_PROPERTY);
@@ -156,17 +153,10 @@ public class FileMetadata implements BatchComponent {
     private final MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
     private final StringBuilder sb = new StringBuilder();
     private final LineHashConsumer consumer;
-    private int line = 0;
+    private int line = 1;
 
     public LineHashComputer(LineHashConsumer consumer) {
       this.consumer = consumer;
-    }
-
-    @Override
-    protected void handleAll(char c) {
-      if (this.line == 0) {
-        this.line = 1;
-      }
     }
 
     @Override
