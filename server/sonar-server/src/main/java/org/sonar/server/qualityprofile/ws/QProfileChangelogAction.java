@@ -76,11 +76,11 @@ public class QProfileChangelogAction implements BaseQProfileWsAction {
 
     changelog.createParam(PARAM_SINCE)
       .setDescription("Start date for the changelog.")
-      .setExampleValue("2011-04-25");
+      .setExampleValue("2011-04-25T01:15:42+0100");
 
     changelog.createParam(PARAM_TO)
       .setDescription("End date for the changelog.")
-      .setExampleValue("2013-07-25");
+      .setExampleValue("2013-07-25T07:35:42+0200");
   }
 
   @Override
@@ -93,11 +93,11 @@ public class QProfileChangelogAction implements BaseQProfileWsAction {
       }
 
       QProfileActivityQuery query = new QProfileActivityQuery().setQprofileKey(profileKey);
-      Date since = request.paramAsDate(PARAM_SINCE);
+      Date since = request.paramAsDateTime(PARAM_SINCE);
       if (since != null) {
         query.setSince(since);
       }
-      Date to = request.paramAsDate(PARAM_TO);
+      Date to = request.paramAsDateTime(PARAM_TO);
       if (to != null) {
         query.setTo(to);
       }

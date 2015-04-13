@@ -126,18 +126,18 @@ public class QProfileChangelogActionTest {
 
     // Tests with "since"
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("since",
-      DateUtils.formatDate(yesterday))
+      DateUtils.formatDateTime(yesterday))
       .execute().assertJson(getClass(), "changelog_nominal.json");
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("since",
-      DateUtils.formatDate(tomorrow))
+      DateUtils.formatDateTime(tomorrow))
       .execute().assertJson(getClass(), "changelog_empty.json");
 
     // Tests with "to"
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("to",
-      DateUtils.formatDate(yesterday))
+      DateUtils.formatDateTime(yesterday))
       .execute().assertJson(getClass(), "changelog_empty.json");
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("to",
-      DateUtils.formatDate(tomorrow))
+      DateUtils.formatDateTime(tomorrow))
       .execute().assertJson(getClass(), "changelog_nominal.json");
   }
 
