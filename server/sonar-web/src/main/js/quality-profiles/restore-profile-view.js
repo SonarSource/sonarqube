@@ -32,11 +32,9 @@ define([
       var that = this;
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
       uploader({ form: $(e.currentTarget) }).done(function (r) {
-        if (typeof r === 'object') {
-          if (_.isArray(r.errors) || _.isArray(r.warning)) {
-            that.showErrors(r.errors, r.warnings);
-            return;
-          }
+        if (typeof r === 'object' && _.isArray(r.errors) || _.isArray(r.warning)) {
+          that.showErrors(r.errors, r.warnings);
+          return;
         }
         that.collection.fetch();
         that.close();
