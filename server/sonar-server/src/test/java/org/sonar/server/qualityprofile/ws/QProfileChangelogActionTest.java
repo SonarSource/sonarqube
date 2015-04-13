@@ -30,7 +30,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -51,7 +50,6 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 
@@ -108,8 +106,13 @@ public class QProfileChangelogActionTest {
   }
 
   @Test
+  public void changelog_empty() throws Exception {
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
+      .execute().assertJson(getClass(), "changelog_empty.json");
+  }
+
+  @Test
   public void changelog_nominal() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin(login);
     createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
@@ -117,11 +120,26 @@ public class QProfileChangelogActionTest {
   }
 
   @Test
+  public void changelog_no_param() throws Exception {
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR);
+
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
+      .execute().assertJson(getClass(), "changelog_no_param.json");
+  }
+
+  @Test
+  public void changelog_system_user() throws Exception {
+    createActivity(null, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR);
+
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
+      .execute().assertJson(getClass(), "changelog_no_login.json");
+  }
+
+  @Test
   public void changelog_with_dates() throws Exception {
     Date yesterday = DateTime.now().minusDays(1).toDate();
     Date tomorrow = DateTime.now().plusDays(1).toDate();
 
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
     createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
 
     // Tests with "since"
@@ -139,11 +157,16 @@ public class QProfileChangelogActionTest {
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("to",
       DateUtils.formatDateTime(tomorrow))
       .execute().assertJson(getClass(), "changelog_nominal.json");
+
+    // Test with both bounds set
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
+      .setParam("since", DateUtils.formatDateTime(yesterday))
+      .setParam("to", DateUtils.formatDateTime(tomorrow))
+      .execute().assertJson(getClass(), "changelog_nominal.json");
   }
 
   @Test
   public void changelog_with_pagination() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
     createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
     createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, "max", "20");
 
