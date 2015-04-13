@@ -83,10 +83,7 @@ define([
     },
 
     fetchProfile: function (profile) {
-      return $.when(
-          this.fetchProfileRules(profile),
-          this.fetchInheritance(profile)
-      );
+      return profile.fetch();
     },
 
     fetchProfileRules: function (profile) {
