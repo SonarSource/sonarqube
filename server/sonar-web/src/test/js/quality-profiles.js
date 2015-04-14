@@ -601,3 +601,46 @@ casper.test.begin(testName('Change Parent'), 1, function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Permalink'), 9, function (test) {
+  casper
+      .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#quality-profile-rename');
+      })
+
+      .then(function () {
+        test.assertElementCount('.js-list .list-group-item.active', 1);
+        test.assertSelectorContains('.js-list .list-group-item.active', 'Sonar way');
+
+        test.assertSelectorContains('.search-navigator-workspace-header', 'Sonar way');
+        test.assertSelectorContains('.search-navigator-workspace-header', 'Java');
+        test.assertExists('#quality-profile-backup');
+        test.assertExists('#quality-profile-rename');
+        test.assertExists('#quality-profile-copy');
+        test.assertDoesntExist('#quality-profile-delete');
+        test.assertDoesntExist('#quality-profile-set-as-default');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

@@ -84,40 +84,6 @@ define([
 
     fetchProfile: function (profile) {
       return profile.fetch();
-    },
-
-    fetchProfileRules: function (profile) {
-      var url = baseUrl + '/api/rules/search',
-          key = profile.get('key'),
-          options = {
-            ps: 1,
-            facets: 'severities,tags',
-            qprofile: key,
-            activation: 'true'
-          };
-      return $.get(url, options).done(function (r) {
-        var severityFacet = _.findWhere(r.facets, { property: 'severities' });
-        if (severityFacet != null) {
-          var severities = severityFacet.values,
-              severityComparator = function (s) {
-                return window.severityColumnsComparator(s.val);
-              },
-              sortedSeverities = _.sortBy(severities, severityComparator);
-          profile.set({ rulesSeverities: sortedSeverities });
-        }
-      });
-    },
-
-    fetchInheritance: function (profile) {
-      var url = baseUrl + '/api/qualityprofiles/inheritance',
-          options = { profileKey: profile.id };
-      return $.get(url, options).done(function (r) {
-        profile.set({
-          ancestors: r.ancestors,
-          children: r.children
-        });
-        profile.set(r.profile);
-      });
     }
 
   });
