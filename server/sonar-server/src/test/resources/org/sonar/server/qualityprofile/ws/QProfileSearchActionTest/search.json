@@ -15,6 +15,7 @@
       "language": "xoo2",
       "languageName": "Xoo2",
       "isInherited": true,
+      "isDefault": false,
       "parentKey": "sonar-way-xoo2-23456",
       "parentName": "Sonar way",
       "activeRuleCount": 33
@@ -25,6 +26,7 @@
       "language": "xoo2",
       "languageName": "Xoo2",
       "isInherited": false,
+      "isDefault": false,
       "activeRuleCount": 0
     }
   ]

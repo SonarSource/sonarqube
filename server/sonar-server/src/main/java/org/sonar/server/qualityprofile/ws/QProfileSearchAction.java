@@ -145,8 +145,8 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       if (fieldIsNeeded(FIELD_IS_INHERITED, fields)) {
         json.prop(FIELD_IS_INHERITED, profile.isInherited());
       }
-      if (fieldIsNeeded(FIELD_IS_DEFAULT, fields) && profile.isDefault()) {
-        json.prop(FIELD_IS_DEFAULT, true);
+      if (fieldIsNeeded(FIELD_IS_DEFAULT, fields)) {
+        json.prop(FIELD_IS_DEFAULT, profile.isDefault());
       }
       json.endObject();
     }
