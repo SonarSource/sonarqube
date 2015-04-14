@@ -141,7 +141,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid(FILE_UUID)
-      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
 
@@ -232,13 +232,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(2).setEndOffset(4)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build()
-      ));
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(2).setEndOffset(4)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -261,10 +261,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build()
+            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+            .build()
         ).build()
-      ));
+    ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -277,6 +277,36 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(0).getSymbols()).isEqualTo("2,4,1");
     assertThat(data.getLines(1).getSymbols()).isEmpty();
     assertThat(data.getLines(2).getSymbols()).isEqualTo("1,3,1");
+  }
+
+  @Test
+  public void persist_duplication() throws Exception {
+    BatchReportWriter writer = initBasicReport(1);
+
+    writer.writeComponentDuplications(FILE_REF, newArrayList(
+      BatchReport.Duplication.newBuilder()
+        .setOriginPosition(BatchReport.Range.newBuilder()
+          .setStartLine(1)
+          .setEndLine(2)
+          .build())
+        .addDuplicate(BatchReport.Duplicate.newBuilder()
+          .setRange(BatchReport.Range.newBuilder()
+            .setStartLine(3)
+            .setEndLine(4)
+            .build())
+          .build())
+        .build()
+      ));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+
+    assertThat(data.getLinesList()).hasSize(1);
+
+    assertThat(data.getLines(0).getDuplicationList()).hasSize(1);
   }
 
   @Test
