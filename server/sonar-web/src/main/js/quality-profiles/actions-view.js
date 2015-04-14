@@ -79,6 +79,12 @@ define([
     requestLanguages: function () {
       var url = baseUrl + '/api/languages/list';
       return $.get(url);
+    },
+
+    serializeData: function () {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        canWrite: this.options.canWrite
+      });
     }
   });
 

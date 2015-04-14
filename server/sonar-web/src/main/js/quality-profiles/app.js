@@ -43,13 +43,15 @@ require([
 
     // Actions View
     this.actionsView = new ActionsView({
-      collection: this.profiles
+      collection: this.profiles,
+      canWrite: this.canWrite
     });
     this.layout.actionsRegion.show(this.actionsView);
 
     // Profiles View
     this.profilesView = new ProfilesView({
-      collection: this.profiles
+      collection: this.profiles,
+      canWrite: this.canWrite
     });
     this.layout.resultsRegion.show(this.profilesView);
 
@@ -62,7 +64,12 @@ require([
 
   });
 
-  window.requestMessages().done(function () {
+
+  var requestUser = $.get(baseUrl + '/api/users/current').done(function (r) {
+    App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
+  });
+
+  $.when(window.requestMessages(), requestUser).done(function () {
     App.start();
   });
 

@@ -1,0 +1,15 @@
+{
+  "isLoggedIn": true,
+  "login": "admin",
+  "name": "Administrator",
+  "permissions": {
+    "global": [
+      "provisioning",
+      "dryRunScan",
+      "shareDashboard",
+      "scan",
+      "profileadmin",
+      "admin"
+    ]
+  }
+}

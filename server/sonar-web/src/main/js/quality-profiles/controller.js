@@ -67,10 +67,16 @@ define([
       }
       this.options.app.profilesView.highlight(key);
       this.fetchProfile(profile).done(function () {
-        var profileHeaderView = new ProfileHeaderView({ model: profile });
+        var profileHeaderView = new ProfileHeaderView({
+          model: profile,
+          canWrite: that.options.app.canWrite
+        });
         that.options.app.layout.headerRegion.show(profileHeaderView);
 
-        var profileDetailsView = new ProfileDetailsView({ model: profile });
+        var profileDetailsView = new ProfileDetailsView({
+          model: profile,
+          canWrite: that.options.app.canWrite
+        });
         that.options.app.layout.detailsRegion.show(profileDetailsView);
       });
     },

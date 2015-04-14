@@ -84,7 +84,8 @@ define([
     serializeData: function () {
       var key = this.model.get('key');
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        encodedKey: encodeURIComponent(key)
+        encodedKey: encodeURIComponent(key),
+        canWrite: this.options.canWrite
       });
     }
   });

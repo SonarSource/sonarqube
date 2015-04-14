@@ -55,7 +55,7 @@ define([
       new window.SelectList({
         el: this.$('#quality-profile-projects-list'),
         width: '100%',
-        readOnly: false,
+        readOnly: !this.options.canWrite,
         focusSearch: false,
         format: function (item) {
           return item.name;
@@ -105,7 +105,8 @@ define([
       var key = this.model.get('key'),
           rulesSearchUrl = '/coding_rules#qprofile=' + encodeURIComponent(key) + '|activation=true';
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        rulesSearchUrl: rulesSearchUrl
+        rulesSearchUrl: rulesSearchUrl,
+        canWrite: this.options.canWrite
       });
     }
   });

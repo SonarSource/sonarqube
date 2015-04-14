@@ -37,7 +37,11 @@
     <h3 class="page-title">{{t 'projects'}}</h3>
   </header>
   {{#if isDefault}}
-    <p class="alert alert-info">{{t 'quality_profiles.projects_for_default.edit'}}</p>
+    {{#if canWrite}}
+      <p class="alert alert-info">{{t 'quality_profiles.projects_for_default.edit'}}</p>
+    {{else}}
+      <p class="alert alert-info">{{t 'quality_profiles.projects_for_default'}}</p>
+    {{/if}}
   {{else}}
     <div id="quality-profile-projects-list"></div>
   {{/if}}
@@ -53,11 +57,13 @@
 <div class="panel panel-vertical" id="quality-profile-inheritance">
   <header class="page-header">
     <h3 class="page-title">{{t 'quality_profiles.profile_inheritance'}}</h3>
-    <div class="page-actions">
-      <div class="button-group">
-        <button id="quality-profile-change-parent">{{t 'quality_profiles.change_parent'}}</button>
+    {{#if canWrite}}
+      <div class="page-actions">
+        <div class="button-group">
+          <button id="quality-profile-change-parent">{{t 'quality_profiles.change_parent'}}</button>
+        </div>
       </div>
-    </div>
+    {{/if}}
   </header>
   <div class="text-center">
     {{#notEmpty ancestors}}
