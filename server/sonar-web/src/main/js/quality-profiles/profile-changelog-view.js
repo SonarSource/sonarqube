@@ -29,19 +29,14 @@ define([
       'click .js-show-more-changelog': 'onShowMoreChangelogClick'
     },
 
-    initialize: function () {
-      this.searchParameters = {};
-    },
-
     onFormSubmit: function (e) {
       e.preventDefault();
-      this.searchParameters = this.getSearchParameters();
-      this.model.fetchChangelog(this.searchParameters);
+      this.model.fetchChangelog(this.getSearchParameters());
     },
 
     onShowMoreChangelogClick: function (e) {
       e.preventDefault();
-      this.model.fetchMoreChangelog(this.searchParameters);
+      this.model.fetchMoreChangelog();
     },
 
     getSearchParameters: function () {

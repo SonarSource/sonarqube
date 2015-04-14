@@ -551,7 +551,8 @@ casper.test.begin(testName('Change Parent'), 1, function (test) {
 
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-change-parent.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-        this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-change-parent.json');
+        this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance',
+            'inheritance-change-parent.json');
         lib.mockRequest('/api/qualityprofiles/change_parent', '{}');
       })
 
@@ -717,39 +718,55 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
 });
 
 
-casper.test.begin(testName('Changelog Permalink'), 1, function (test) {
-    casper
-        .start(lib.buildUrl('profiles#changelog?since=2015-03-25&key=java-sonar-way-67887&to=2015-03-26'), function () {
-            lib.setDefaultViewport();
+casper.test.begin(testName('Changelog Permalink'), 2, function (test) {
+  casper
+      .start(lib.buildUrl('profiles#changelog?since=2015-03-25&key=java-sonar-way-67887&to=2015-03-26'), function () {
+        lib.setDefaultViewport();
 
-            lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
-            lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-            lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-            lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json', { data: {
-                since: '2015-03-25',
-                to: '2015-03-26'
-            }});
-        })
-
-        .then(function () {
-            casper.evaluate(function () {
-                require(['/js/quality-profiles/app.js']);
-            });
-        })
-
-        .then(function () {
-            casper.waitForSelector('.js-show-more-changelog');
-        })
-
-        .then(function () {
-            test.assertElementCount('#quality-profile-changelog tbody tr', 2);
-        })
-
-        .then(function () {
-            lib.sendCoverage();
-        })
-
-        .run(function () {
-            test.done();
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', {
+          data: {
+            p: '2',
+            since: '2015-03-25',
+            to: '2015-03-26'
+          }
         });
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json', {
+          data: {
+            since: '2015-03-25',
+            to: '2015-03-26'
+          }
+        });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-show-more-changelog');
+      })
+
+      .then(function () {
+        test.assertElementCount('#quality-profile-changelog tbody tr', 2);
+
+        casper.click('.js-show-more-changelog');
+        lib.waitForElementCount('#quality-profile-changelog tbody tr', 3);
+      })
+
+      .then(function () {
+        test.assertDoesntExist('.js-show-more-changelog');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
 });

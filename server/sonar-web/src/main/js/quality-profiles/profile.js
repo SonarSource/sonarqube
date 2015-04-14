@@ -88,18 +88,18 @@ define(function () {
       });
     },
 
-    fetchMoreChangelog: function (options) {
+    fetchMoreChangelog: function () {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/changelog',
           page = this.get('eventsPage') || 0,
-          opts = _.extend({}, options, { profileKey: this.id, p: page + 1 });
+          parameters = this.get('eventsParameters') || {},
+          opts = _.extend({}, parameters, { profileKey: this.id, p: page + 1 });
       return $.get(url, opts).done(function (r) {
         var events = that.get('events') || [];
         that.set({
           events: [].concat(events, r.events),
           eventsPage: r.p,
-          totalEvents: r.total,
-          eventsParameters: _.clone(options)
+          totalEvents: r.total
         });
       });
     }
