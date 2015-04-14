@@ -205,15 +205,14 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentScm(BatchReport.Scm.newBuilder()
-        .setComponentRef(FILE_REF)
-        .addChangeset(BatchReport.Scm.Changeset.newBuilder()
-          .setAuthor("john")
-          .setDate(123456789L)
-          .setRevision("rev-1")
-          .build())
-        .addChangesetIndexByLine(0)
-        .build()
-    );
+      .setComponentRef(FILE_REF)
+      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+        .setAuthor("john")
+        .setDate(123456789L)
+        .setRevision("rev-1")
+        .build())
+      .addChangesetIndexByLine(0)
+      .build());
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -233,13 +232,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(2).setEndOffset(4)
         .build())
-    );
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build()
+      ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -250,6 +249,34 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLinesList()).hasSize(1);
 
     assertThat(data.getLines(0).getHighlighting()).isEqualTo("2,4,a");
+  }
+
+  @Test
+  public void persist_symbols() throws Exception {
+    BatchReportWriter writer = initBasicReport(3);
+
+    writer.writeComponentSymbols(FILE_REF, newArrayList(
+      BatchReport.Symbols.Symbol.newBuilder()
+        .setDeclaration(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
+          .build())
+        .addReference(BatchReport.Range.newBuilder()
+          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+          .build()
+        ).build()
+      ));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+
+    assertThat(data.getLinesList()).hasSize(3);
+
+    assertThat(data.getLines(0).getSymbols()).isEqualTo("2,4,1");
+    assertThat(data.getLines(1).getSymbols()).isEmpty();
+    assertThat(data.getLines(2).getSymbols()).isEqualTo("1,3,1");
   }
 
   @Test
@@ -379,7 +406,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build());
 
     List<String> lines = newArrayList();
-    for (int i=1; i<=numberOfLines; i++) {
+    for (int i = 1; i <= numberOfLines; i++) {
       lines.add("line" + i);
     }
     FileUtils.writeLines(writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF), lines);
