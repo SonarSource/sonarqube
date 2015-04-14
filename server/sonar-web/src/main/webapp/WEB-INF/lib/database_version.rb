@@ -71,7 +71,7 @@ class DatabaseVersion
   def self.automatic_setup
     if current_version<=0
       upgrade_and_start()
-    elsif uptodate?
+    else
       load_java_web_services
     end
     uptodate?

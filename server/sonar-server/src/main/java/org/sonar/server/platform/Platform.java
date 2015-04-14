@@ -37,7 +37,7 @@ public class Platform {
   private static final Platform INSTANCE = new Platform();
 
   private ServerComponents serverComponents;
-  private ComponentContainer level1Container, level2Container, level3Container, level4Container;
+  private ComponentContainer level1Container, level2Container, safeModeContainer, level3Container, level4Container;
   private ComponentContainer currentContainer;
   private boolean dbConnected = false;
   private boolean started = false;
@@ -78,8 +78,14 @@ public class Platform {
 
   // Platform is injected in Pico, so do not rename this method "start"
   public void doStart() {
-    if (!started && getDatabaseStatus() == DatabaseVersion.Status.UP_TO_DATE) {
-      startLevel34Containers();
+    if (!started) {
+      if (getDatabaseStatus() == DatabaseVersion.Status.UP_TO_DATE) {
+        startLevel34Containers();
+      }
+      else {
+        Loggers.get(Platform.class).info("DB needs migration, entering safe mode");
+        startSafeModeContainer();
+      }
       started = true;
     }
   }
@@ -125,6 +131,13 @@ public class Platform {
 
   public void executeStartupTasks() {
     serverComponents.executeStartupTasks(level4Container);
+  }
+
+  private void startSafeModeContainer() {
+    safeModeContainer = level2Container.createChild();
+    safeModeContainer.addSingletons(serverComponents.safeModeComponents());
+    safeModeContainer.startComponents();
+    currentContainer = safeModeContainer;
   }
 
   public void restart() {

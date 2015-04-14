@@ -343,6 +343,40 @@ class ServerComponents {
   }
 
   /**
+   * These components allow minimum services to be provided by SonarQube when database is not up-to-date and
+   * level3/4 components can therefore NOT be loaded. They rely on level1 and level2 components.
+   * <p>
+   * Available components:
+   * <ul>
+   *   <li>WS to query status of the server and upgrade the DB and their dependencies</li>
+   *   <li>WS listing Webservice to allow user to list WebServices available in safemode</li>
+   * </ul>
+   * </p>
+   */
+  public Collection<Object> safeModeComponents() {
+    return Lists.<Object>newArrayList(
+
+      // DB access required by DatabaseSessionFilter wired into ROR
+      DefaultDatabaseConnector.class,
+      ThreadLocalDatabaseSessionFactory.class,
+
+      // dependencies to ServerMigrationWsAction
+      PlatformDatabaseMigrationExecutorServiceImpl.class,
+      PlatformDatabaseMigration.class,
+
+      // Server WS
+      ServerMigrateWsAction.class,
+      ServerWs.class,
+
+      // Listing WS
+      ListingWs.class,
+
+      // WS engine
+      WebServiceEngine.class
+      );
+  }
+
+  /**
    * The core components that complete the initialization of database
    * when its schema is up-to-date.
    */
