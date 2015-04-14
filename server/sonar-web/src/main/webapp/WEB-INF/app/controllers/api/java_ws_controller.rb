@@ -23,6 +23,10 @@ class Api::JavaWsController < Api::ApiController
 
   before_filter :check_authentication, :unless => ['skip_authentication_check_for_batch']
 
+  # no need to check if WS can be accessed when DB is not up-to-date, this is dealt with in
+  # Platform and ServerComponents classes
+  skip_before_filter :check_database_version
+
   def index
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request, params.to_java)
     ws_response = Java::OrgSonarServerWs::ServletResponse.new()

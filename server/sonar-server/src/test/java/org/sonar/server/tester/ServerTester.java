@@ -222,6 +222,18 @@ public class ServerTester extends ExternalResource {
     }
   }
 
+  private void checkInSafeMode() {
+    if (platform == null || !platform.isInSafeMode()) {
+      throw new IllegalStateException("Not in safe mode");
+    }
+  }
+
+  private void checkNotInSafeMode() {
+    if (platform != null && platform.isInSafeMode()) {
+      throw new IllegalStateException("Already in safe mode");
+    }
+  }
+
   public static class Xoo implements Language {
 
     public static final String KEY = "xoo";
