@@ -36,7 +36,7 @@ define([
     sendRequest: function () {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/copy',
-          name = this.$('#copy-name').val(),
+          name = this.$('#copy-profile-name').val(),
           options = {
             fromKey: this.model.get('key'),
             toName: name

@@ -247,9 +247,9 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          jQuery('#copy-name').val('Copied Profile');
+          jQuery('#copy-profile-name').val('Copied Profile');
         });
-        casper.click('#copy-submit');
+        casper.click('#copy-profile-submit');
         casper.waitForSelectorTextChange('.search-navigator-header-component');
       })
 
@@ -307,9 +307,9 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-renamed.json');
 
         casper.evaluate(function () {
-          jQuery('#new-name').val('Renamed Profile');
+          jQuery('#rename-profile-name').val('Renamed Profile');
         });
-        casper.click('#rename-submit');
+        casper.click('#rename-profile-submit');
         casper.waitForSelectorTextChange('.search-navigator-header-component');
       })
 
@@ -417,7 +417,7 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
         lib.clearRequestMock(this.searchMock);
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
 
-        casper.click('#delete-submit');
+        casper.click('#delete-profile-submit');
         lib.waitForElementCount('.js-list .list-group-item', 5);
       })
 

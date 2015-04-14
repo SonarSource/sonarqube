@@ -33,10 +33,9 @@ define([
     },
 
     sendRequest: function () {
-      // TODO change name input id
       var that = this,
           url = baseUrl + '/api/qualityprofiles/rename',
-          name = this.$('#new-name').val(),
+          name = this.$('#rename-profile-name').val(),
           options = {
             key: this.model.get('key'),
             name: name
