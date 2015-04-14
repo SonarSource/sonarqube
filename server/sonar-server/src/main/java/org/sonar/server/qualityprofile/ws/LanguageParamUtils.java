@@ -33,6 +33,15 @@ class LanguageParamUtils {
     // Utility class
   }
 
+  static String getExampleValue(Languages languages) {
+    Language[] languageArray = languages.all();
+    if (languageArray.length > 0) {
+      return languageArray[0].getKey();
+    } else {
+      return "";
+    }
+  }
+
   static Collection<String> getLanguageKeys(Languages languages) {
     return Collections2.transform(Arrays.asList(languages.all()), new NonNullInputFunction<Language, String>() {
       @Override

@@ -396,6 +396,7 @@ class ServerComponents {
     pico.addSingleton(QProfileChangeParentAction.class);
     pico.addSingleton(QProfileChangelogAction.class);
     pico.addSingleton(QProfileCompareAction.class);
+    pico.addSingleton(QProfileExportAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
