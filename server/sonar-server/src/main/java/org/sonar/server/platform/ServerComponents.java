@@ -377,7 +377,7 @@ class ServerComponents {
     pico.addSingleton(QProfileLookup.class);
     pico.addSingleton(QProfileProjectOperations.class);
     pico.addSingleton(QProfileProjectLookup.class);
-    pico.addSingleton(QProfileComparator.class);
+    pico.addSingleton(QProfileComparison.class);
     pico.addSingleton(BuiltInProfiles.class);
     pico.addSingleton(QProfileRestoreBuiltInAction.class);
     pico.addSingleton(QProfileSearchAction.class);

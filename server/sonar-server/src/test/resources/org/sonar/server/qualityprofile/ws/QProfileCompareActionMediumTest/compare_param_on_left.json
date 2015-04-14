@@ -1,0 +1,32 @@
+{
+   "left" : {
+      "key" : "xoo-profile-1-01234",
+      "name" : "Profile 1"
+   },
+   "right" : {
+      "key" : "xoo-profile-2-12345",
+      "name" : "Profile 2"
+   },
+   "same" : [],
+   "inLeft" : [],
+   "inRight" : [],
+   "modified" : [
+      {
+         "key" : "blah:rule1",
+         "pluginKey" : "blah",
+         "pluginName" : "Blah",
+         "languageKey": "xoo",
+         "languageName": "Xoo",
+         "name" : "Rule1",
+         "left" : {
+            "severity" : "BLOCKER",
+            "params" : {
+               "param_rule1" : "polop"
+            }
+         },
+         "right" : {
+            "severity" : "BLOCKER"
+         }
+      }
+   ]
+}
