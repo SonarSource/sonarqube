@@ -1,0 +1,65 @@
+{
+   "left" : {
+      "key" : "js-my-profile-19170",
+      "name" : "My Profile"
+   },
+   "right" : {
+      "key" : "js-my-other-profile-12367",
+      "name" : "My Other Profile"
+   },
+   "same" : [
+      {
+         "key" : "javascript:EqEqEq",
+         "pluginKey" : "javascript",
+         "pluginName" : "SonarQube",
+         "languageKey": "js",
+         "languageName": "JavaScript",
+         "name" : "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
+         "severity" : "MAJOR"
+      }
+   ],
+   "inLeft" : [
+      {
+         "key" : "javascript:TrailingWhitespace",
+         "pluginKey" : "javascript",
+         "pluginName" : "SonarQube",
+         "languageKey": "js",
+         "languageName": "JavaScript",
+         "name" : "Avoid trailing whitespaces",
+         "severity" : "MAJOR"
+      }
+   ],
+   "inRight" : [
+      {
+         "key" : "javascript:TabCharacter",
+         "pluginKey" : "javascript",
+         "pluginName" : "SonarQube",
+         "languageKey": "js",
+         "languageName": "JavaScript",
+         "name" : "Avoid use of tabulation character",
+         "severity" : "MINOR"
+      }
+   ],
+   "modified" : [
+      {
+         "key" : "javascript:ExcessiveParameterList",
+         "pluginKey" : "javascript",
+         "pluginName" : "SonarQube",
+         "languageKey": "js",
+         "languageName": "JavaScript",
+         "name" : "Avoid function with too many parameters",
+         "right" : {
+            "severity" : "MAJOR",
+            "params" : {
+               "maximumFunctionParameters" : "7"
+            }
+         },
+         "left" : {
+            "severity" : "MAJOR",
+            "params" : {
+               "maximumFunctionParameters" : "10"
+            }
+         }
+      }
+   ]
+}
