@@ -364,6 +364,46 @@ public class SourceDataFactoryTest {
   }
 
   @Test
+  public void applySymbolReferences2() throws Exception {
+    batchReportWriter.writeComponentSymbols(1, Arrays.asList(
+      newSymbol(2, 0, 2, 2,
+        1, 1, 1, 2,
+        3, 0, 3, 2),
+      newSymbol(3, 1, 3, 2,
+        1, 0, 1, 1,
+        3, 4, 3, 5)
+      ));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+
+    sut.applySymbolReferences(inputFile, output);
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLines(0).getSymbols()).isEqualTo("1,2,1;0,1,2");
+    assertThat(data.getLines(1).getSymbols()).isEqualTo("0,2,1");
+    assertThat(data.getLines(2).getSymbols()).isEqualTo("0,2,1;1,2,2;4,5,2");
+  }
+
+  @Test
+  public void applySymbolReferences3() throws Exception {
+    batchReportWriter.writeComponentSymbols(1, Arrays.asList(
+      newSymbol(2, 0, 2, 2,
+        1, 0, 1, 1,
+        3, 0, 3, 2),
+      newSymbol(3, 1, 3, 2,
+        1, 1, 1, 2,
+        3, 4, 3, 5)
+      ));
+    inputFile.setOriginalLineOffsets(new int[] {0, 4, 7});
+
+    sut.applySymbolReferences(inputFile, output);
+
+    FileSourceDb.Data data = output.build();
+    assertThat(data.getLines(0).getSymbols()).isEqualTo("0,1,1;1,2,2");
+    assertThat(data.getLines(1).getSymbols()).isEqualTo("0,2,1");
+    assertThat(data.getLines(2).getSymbols()).isEqualTo("0,2,1;1,2,2;4,5,2");
+  }
+
+  @Test
   public void applySymbolReferences_declaration_order_is_not_important() throws Exception {
     batchReportWriter.writeComponentSymbols(1, Arrays.asList(
       newSymbol(2, 0, 2, 2,
