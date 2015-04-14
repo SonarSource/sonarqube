@@ -228,7 +228,7 @@
   window.drilldown = {
     metric: null,
     rule: <% if @rule %>'<%= @rule.key -%>'<% else %>null<% end %>,
-    severity: <% if @severity %>'<%= @escape_javascript(severity) -%>'<% else %>null<% end %>,
+    severity: <% if @severity %>'<%= @escape_javascript(@severity) -%>'<% else %>null<% end %>,
     period: <% if @period %><%= @period -%><% else %>null<% end %>
   };
 </script>
