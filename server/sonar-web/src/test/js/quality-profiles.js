@@ -75,8 +75,11 @@ casper.test.begin(testName('Should Show Details'), 9, function (test) {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
-        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json',
+            { data: { qprofile: 'java-sonar-way-67887', activation: 'true' }});
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json', {
+          data: { profileKey: 'java-sonar-way-67887' }
+        });
       })
 
       .then(function () {
@@ -124,7 +127,9 @@ casper.test.begin(testName('Should Show Inheritance Details'), 10, function (tes
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-inheritance.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-plus.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-plus.json', {
+          data: { profileKey: 'java-inherited-profile-85155' }
+        });
       })
 
       .then(function () {
@@ -174,7 +179,7 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
 
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/projects*', 'projects.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/projects?key=php-psr-2-46772', 'projects.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
       })
 
@@ -220,7 +225,9 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/copy', 'copy.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/copy', 'copy.json', {
+          data: { fromKey: 'java-sonar-way-67887', toName: 'Copied Profile' }
+        });
       })
 
       .then(function () {
@@ -278,7 +285,9 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequest('/api/qualityprofiles/rename', '{}');
+        lib.mockRequest('/api/qualityprofiles/rename', '{}', {
+          data: { key: 'java-sonar-way-67887', name: 'Renamed Profile' }
+        });
       })
 
       .then(function () {
@@ -336,7 +345,9 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequest('/api/qualityprofiles/set_default', '{}');
+        lib.mockRequest('/api/qualityprofiles/set_default', '{}', {
+          data: { profileKey: 'php-psr-2-46772' }
+        });
       })
 
       .then(function () {
@@ -388,7 +399,9 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequest('/api/qualityprofiles/delete', '{}');
+        lib.mockRequest('/api/qualityprofiles/delete', '{}', {
+          data: { profileKey: 'java-copied-profile-11711' }
+        });
       })
 
       .then(function () {
@@ -443,7 +456,9 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/create', 'create.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/create', 'create.json', {
+          data: { language: 'java', name: 'Copied Profile' }
+        });
         lib.mockRequestFromFile('/api/languages/list', 'languages.json');
       })
 
@@ -498,7 +513,9 @@ casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-modified.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequest('/api/qualityprofiles/restore_built_in', '{}');
+        lib.mockRequest('/api/qualityprofiles/restore_built_in', '{}', {
+          data: { language: 'java' }
+        });
         lib.mockRequestFromFile('/api/languages/list', 'languages.json');
       })
 
@@ -553,7 +570,9 @@ casper.test.begin(testName('Change Parent'), 1, function (test) {
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance',
             'inheritance-change-parent.json');
-        lib.mockRequest('/api/qualityprofiles/change_parent', '{}');
+        lib.mockRequest('/api/qualityprofiles/change_parent', '{}', {
+          data: { profileKey: 'java-inherited-profile-85155', parentKey: 'java-another-profile-00609' }
+        });
       })
 
       .then(function () {
@@ -655,8 +674,12 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', { data: { p: '2' } });
-        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', {
+          data: { p: '2', profileKey: 'java-sonar-way-67887' }
+        });
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json', {
+          data: { profileKey: 'java-sonar-way-67887' }
+        });
       })
 
       .then(function () {
@@ -730,13 +753,15 @@ casper.test.begin(testName('Changelog Permalink'), 2, function (test) {
           data: {
             p: '2',
             since: '2015-03-25',
-            to: '2015-03-26'
+            to: '2015-03-26',
+            profileKey: 'java-sonar-way-67887'
           }
         });
         lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json', {
           data: {
             since: '2015-03-25',
-            to: '2015-03-26'
+            to: '2015-03-26',
+            profileKey: 'java-sonar-way-67887'
           }
         });
       })

@@ -29,7 +29,7 @@ define([
 
     onFormSubmit: function (e) {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-      this.sendRequest($(e.currentTarget));
+      this.sendRequest();
     },
 
     onRender: function () {
@@ -40,10 +40,12 @@ define([
       });
     },
 
-    sendRequest: function (form) {
+    sendRequest: function () {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/restore_built_in',
-          options = form.serialize();
+          options = {
+            language: this.$('#restore-built-in-profiles-language').val()
+          };
       return $.ajax({
         type: 'POST',
         url: url,

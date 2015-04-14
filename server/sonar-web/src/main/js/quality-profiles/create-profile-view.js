@@ -30,7 +30,7 @@ define([
 
     onFormSubmit: function (e) {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-      this.sendRequest($(e.currentTarget));
+      this.sendRequest();
     },
 
     onRender: function () {
@@ -41,10 +41,13 @@ define([
       });
     },
 
-    sendRequest: function (form) {
+    sendRequest: function () {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/create',
-          options = form.serialize();
+          options = {
+            language: this.$('#create-profile-language').val(),
+            name: this.$('#create-profile-name').val()
+          };
       return $.ajax({
         type: 'POST',
         url: url,
