@@ -23,7 +23,8 @@ define(function () {
     routes: {
       '': 'index',
       'index': 'index',
-      'show?key=:key': 'show'
+      'show?key=:key': 'show',
+      'changelog*': 'changelog'
     },
 
     initialize: function (options) {
@@ -36,6 +37,11 @@ define(function () {
 
     show: function (key) {
       this.app.controller.show(key);
+    },
+
+    changelog: function () {
+      var params = window.getQueryParams();
+      this.app.controller.changelog(params.key, params.since, params.to);
     }
   });
 

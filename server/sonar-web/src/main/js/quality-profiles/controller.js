@@ -41,16 +41,30 @@ define([
       this.fetchProfiles().done(function () {
         var profile = that.options.app.profiles.findWhere({ key: key });
         if (profile != null) {
-          profile.trigger('select', profile);
+          profile.trigger('select', profile, { trigger: false });
         }
       });
     },
 
-    onProfileSelect: function (profile) {
+    changelog: function (key, since, to) {
+      var that = this;
+      this.fetchProfiles().done(function () {
+        var profile = that.options.app.profiles.findWhere({ key: key });
+        if (profile != null) {
+          profile.trigger('select', profile, { trigger: false });
+          profile.fetchChangelog({ since: since, to: to });
+        }
+      });
+    },
+
+    onProfileSelect: function (profile, options) {
       var that = this,
           key = profile.get('key'),
-          route = 'show?key=' + encodeURIComponent(key);
-      this.options.app.router.navigate(route);
+          route = 'show?key=' + encodeURIComponent(key),
+          opts = _.defaults(options || {}, { trigger: true });
+      if (opts.trigger) {
+        this.options.app.router.navigate(route);
+      }
       this.options.app.profilesView.highlight(key);
       this.fetchProfile(profile).done(function () {
         var profileHeaderView = new ProfileHeaderView({ model: profile });

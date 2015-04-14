@@ -28,6 +28,10 @@ class ProfilesController < ApplicationController
     render :action => 'index'
   end
 
+  def changelog
+    render :action => 'index'
+  end
+
   # GET /profiles/export?name=<profile name>&language=<language>&format=<exporter key>
   def export
     language = params[:language]

@@ -507,6 +507,23 @@ function closeModalWindow () {
     return SEVERITIES_ORDER.indexOf(severity);
   };
 
+
+  /**
+   * Return a hash of GET parameters
+   * @returns {object}
+   */
+  window.getQueryParams = function () {
+    var qs = window.location.search.split('+').join(' '),
+        params = {},
+        re = /[?&]?([^=]+)=([^&]*)/g,
+        tokens = re.exec(qs);
+    while (tokens) {
+      params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+      tokens = re.exec(qs);
+    }
+    return params;
+  };
+
 })();
 
 (function () {
