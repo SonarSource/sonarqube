@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
@@ -87,7 +88,7 @@ public class BatchResource {
   }
 
   public boolean isFile() {
-    return Qualifiers.isFile(r);
+    return Qualifiers.isFile(r) || StringUtils.equals(Qualifiers.UNIT_TEST_FILE, r.getQualifier());
   }
 
   public boolean isDir() {

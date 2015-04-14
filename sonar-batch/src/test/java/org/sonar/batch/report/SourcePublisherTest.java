@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
@@ -48,11 +49,14 @@ public class SourcePublisherTest {
 
   private BatchReportWriter writer;
 
+  private org.sonar.api.resources.File sampleFile;
+
   @Before
   public void prepare() throws IOException {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
     ResourceCache resourceCache = new ResourceCache();
-    org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
+    sampleFile = org.sonar.api.resources.File.create("src/Foo.php");
+    sampleFile.setEffectiveKey("foo:src/Foo.php");
     resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
@@ -75,6 +79,17 @@ public class SourcePublisherTest {
   @Test
   public void publishSourceWithLastEmptyLine() throws Exception {
     FileUtils.write(sourceFile, "1\n2\n3\n4\n", Charsets.ISO_8859_1);
+
+    publisher.publish(writer);
+
+    File out = writer.getSourceFile(2);
+    assertThat(FileUtils.readFileToString(out, Charsets.UTF_8)).isEqualTo("1\n2\n3\n4\n");
+  }
+
+  @Test
+  public void publishTestSource() throws Exception {
+    FileUtils.write(sourceFile, "1\n2\n3\n4\n", Charsets.ISO_8859_1);
+    sampleFile.setQualifier(Qualifiers.UNIT_TEST_FILE);
 
     publisher.publish(writer);
 
