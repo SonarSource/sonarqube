@@ -22,10 +22,14 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
 
@@ -36,9 +40,11 @@ public class QProfileRestoreAction implements BaseQProfileWsAction {
 
   private static final String PARAM_BACKUP = "backup";
   private final QProfileBackuper backuper;
+  private final Languages languages;
 
-  public QProfileRestoreAction(QProfileBackuper backuper) {
+  public QProfileRestoreAction(QProfileBackuper backuper, Languages languages) {
     this.backuper = backuper;
+    this.languages = languages;
   }
 
   @Override
@@ -64,11 +70,29 @@ public class QProfileRestoreAction implements BaseQProfileWsAction {
     try {
       Preconditions.checkArgument(backup != null, "A backup file must be provided");
       reader = new InputStreamReader(backup, Charsets.UTF_8);
-      backuper.restore(reader, null);
-      response.noContent();
+      BulkChangeResult result = backuper.restore(reader, null);
+      writeResponse(response.newJsonWriter(), result);
     } finally {
       IOUtils.closeQuietly(reader);
       IOUtils.closeQuietly(backup);
     }
+  }
+
+  private void writeResponse(JsonWriter json, BulkChangeResult result) {
+    QualityProfileDto profile = result.profile();
+    if (profile != null) {
+      String language = profile.getLanguage();
+      json.beginObject().name("profile").beginObject()
+        .prop("key", profile.getKey())
+        .prop("name", profile.getName())
+        .prop("language", language)
+        .prop("languageName", languages.get(profile.getLanguage()).getName())
+        .prop("isDefault", false)
+        .prop("isInherited", false)
+        .endObject();
+    }
+    json.prop("ruleSuccesses", result.countSucceeded());
+    json.prop("ruleFailures", result.countFailed());
+    json.endObject().close();
   }
 }

@@ -25,7 +25,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.user.MockUserSession;
@@ -37,6 +40,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileRestoreActionTest {
@@ -53,14 +57,20 @@ public class QProfileRestoreActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileRestoreAction(backuper)));
+      new QProfileRestoreAction(backuper, LanguageTesting.newLanguages("xoo"))));
   }
 
   @Test
   public void restore_profile() throws Exception {
     MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute();
+    QualityProfileDto profile = QualityProfileDto.createFor("xoo-sonar-way-12345")
+      .setDefault(false).setLanguage("xoo").setName("Sonar way");
+    BulkChangeResult restoreResult = new BulkChangeResult(profile);
+    when(backuper.restore(any(Reader.class), (QProfileName) eq(null))).thenReturn(restoreResult);
+
+    tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute()
+      .assertJson(getClass(), "restore_profile.json");
     verify(backuper).restore(any(Reader.class), (QProfileName) eq(null));
   }
 

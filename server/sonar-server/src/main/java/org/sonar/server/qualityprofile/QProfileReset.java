@@ -125,7 +125,7 @@ public class QProfileReset implements ServerComponent {
    */
   private BulkChangeResult doReset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
     Preconditions.checkNotNull(profile.getId(), "Quality profile must be persisted");
-    BulkChangeResult result = new BulkChangeResult();
+    BulkChangeResult result = new BulkChangeResult(profile);
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
     for (ActiveRuleDto activeRuleDto : db.activeRuleDao().findByProfileKey(dbSession, profile.getKee())) {
