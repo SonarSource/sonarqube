@@ -23,6 +23,7 @@ package org.sonar.server.computation.source;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.source.db.FileSourceDb;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -101,7 +102,7 @@ public class SymbolsLineReader implements LineReader {
     return map;
   }
 
-  private static class SymbolsDuplication implements Comparator<BatchReport.Symbols.Symbol> {
+  private static class SymbolsDuplication implements Comparator<BatchReport.Symbols.Symbol>, Serializable {
     @Override
     public int compare(BatchReport.Symbols.Symbol o1, BatchReport.Symbols.Symbol o2) {
       if (o1.getDeclaration().getStartLine() == o2.getDeclaration().getStartLine()) {
