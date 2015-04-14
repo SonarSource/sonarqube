@@ -20,6 +20,7 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
+import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
 import org.sonar.xoo.lang.*;
 import org.sonar.xoo.rule.*;
@@ -70,6 +71,7 @@ public class XooPlugin extends SonarPlugin {
       CreateIssueByInternalKeySensor.class,
 
       // Other
-      XooProjectBuilder.class);
+      XooProjectBuilder.class,
+      XooPostJob.class);
   }
 }

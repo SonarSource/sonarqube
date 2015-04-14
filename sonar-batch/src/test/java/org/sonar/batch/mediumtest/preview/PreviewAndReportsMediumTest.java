@@ -163,6 +163,18 @@ public class PreviewAndReportsMediumTest {
     assertThat(getReportLog()).contains("+13 issues", "+13 major");
   }
 
+  @Test
+  public void testPostJob() throws Exception {
+    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+
+    tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.xoo.enablePostJob", "true")
+      .start();
+
+    assertThat(logTester.logs()).contains("Resolved issues: 2", "Open issues: 15");
+  }
+
   private String getReportLog() {
     for (String log : logTester.logs()) {
       if (log.contains(ConsoleReport.HEADER)) {

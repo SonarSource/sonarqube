@@ -45,12 +45,12 @@ import java.io.Serializable;
 public interface SensorContext {
 
   /**
-   * Get settings of the current project.
+   * Get settings of the current module.
    */
   Settings settings();
 
   /**
-   * Get filesystem of the current project.
+   * Get filesystem of the current module.
    */
   FileSystem fileSystem();
 

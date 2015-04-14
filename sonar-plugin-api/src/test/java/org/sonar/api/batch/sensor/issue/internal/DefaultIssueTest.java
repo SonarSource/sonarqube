@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;

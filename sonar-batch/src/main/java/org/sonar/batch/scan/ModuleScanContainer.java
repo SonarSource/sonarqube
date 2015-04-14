@@ -55,14 +55,16 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.*;
+import org.sonar.batch.postjob.DefaultPostJobContext;
+import org.sonar.batch.postjob.PostJobOptimizer;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.rule.*;
 import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.report.IssuesReports;
-import org.sonar.batch.sensor.AnalyzerOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
+import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
@@ -134,9 +136,11 @@ public class ModuleScanContainer extends ComponentContainer {
       ProjectFileSystemAdapter.class,
       QProfileVerifier.class,
 
-      AnalyzerOptimizer.class,
+      SensorOptimizer.class,
+      PostJobOptimizer.class,
 
       DefaultSensorContext.class,
+      DefaultPostJobContext.class,
       DefaultSensorStorage.class,
       DeprecatedSensorContext.class,
       BatchExtensionDictionnary.class,

@@ -25,7 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.sensor.issue.Issue.Severity;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;

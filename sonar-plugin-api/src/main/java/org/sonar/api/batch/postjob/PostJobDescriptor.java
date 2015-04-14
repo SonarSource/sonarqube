@@ -17,58 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.postjob;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
 
 /**
- * Represents an issue detected by a {@link Sensor}.
- *
- * @since 5.1
+ * Describe what a {@link PostJob} is doing. Information may be used by the platform
+ * to log interesting information or perform some optimization.
+ * See {@link PostJob#describe(PostJobDescriptor)}
+ * @since 5.2
  */
 @Beta
-public interface Issue {
+public interface PostJobDescriptor {
 
   /**
-   * The {@link RuleKey} of this issue.
+   * Displayable name of the {@link PostJob}. Will be displayed in logs.
    */
-  RuleKey ruleKey();
+  PostJobDescriptor name(String postJobName);
 
   /**
-   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project.
+   * Property this {@link PostJob} depends on. Used by the platform to skip execution of the {@link PostJob} when
+   * property is not set.
    */
-  @CheckForNull
-  InputPath inputPath();
+  PostJobDescriptor requireProperty(String... propertyKey);
 
   /**
-   * Line of the issue. Null for global issues and issues on directories. Can also be null
-   * for files (issue global to the file).
+   * List properties this {@link PostJob} depends on. Used by the platform to skip execution of the {@link PostJob} when
+   * property is not set.
    */
-  @CheckForNull
-  Integer line();
+  PostJobDescriptor requireProperties(String... propertyKeys);
 
   /**
-   * Effort to fix the issue. Used by technical debt model.
+   * Should this PostJob be disabled in preview mode. Default is to run all PostJobs in preview mode.
    */
-  @CheckForNull
-  Double effortToFix();
-
-  /**
-   * Message of the issue.
-   */
-  @CheckForNull
-  String message();
-
-  /**
-   * Overriden severity.
-   */
-  @CheckForNull
-  Severity overridenSeverity();
+  PostJobDescriptor disabledInPreview();
 
 }

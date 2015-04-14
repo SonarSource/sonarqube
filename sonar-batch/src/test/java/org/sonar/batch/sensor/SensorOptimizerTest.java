@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AnalyzerOptimizerTest {
+public class SensorOptimizerTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -47,7 +47,7 @@ public class AnalyzerOptimizerTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultFileSystem fs;
-  private AnalyzerOptimizer optimizer;
+  private SensorOptimizer optimizer;
   private Settings settings;
   private AnalysisMode analysisMode;
 
@@ -56,7 +56,7 @@ public class AnalyzerOptimizerTest {
     fs = new DefaultFileSystem(temp.newFolder().toPath());
     settings = new Settings();
     analysisMode = mock(AnalysisMode.class);
-    optimizer = new AnalyzerOptimizer(fs, new ActiveRulesBuilder().build(), settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, new ActiveRulesBuilder().build(), settings, analysisMode);
   }
 
   @Test
@@ -114,7 +114,7 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("repo1", "foo"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules, settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, activeRules, settings, analysisMode);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -124,7 +124,7 @@ public class AnalyzerOptimizerTest {
       .create(RuleKey.of("squid", "rule"))
       .activate()
       .build();
-    optimizer = new AnalyzerOptimizer(fs, activeRules, settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, activeRules, settings, analysisMode);
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 

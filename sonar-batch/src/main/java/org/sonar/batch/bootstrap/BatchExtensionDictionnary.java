@@ -28,15 +28,19 @@ import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.postjob.PostJob;
+import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
-import org.sonar.batch.scan.SensorWrapper;
-import org.sonar.batch.sensor.AnalyzerOptimizer;
+import org.sonar.batch.postjob.PostJobOptimizer;
+import org.sonar.batch.postjob.PostJobWrapper;
 import org.sonar.batch.sensor.DefaultSensorContext;
+import org.sonar.batch.sensor.SensorOptimizer;
+import org.sonar.batch.sensor.SensorWrapper;
 
 import javax.annotation.Nullable;
 
@@ -55,13 +59,18 @@ import java.util.List;
 public class BatchExtensionDictionnary {
 
   private final ComponentContainer componentContainer;
-  private final SensorContext context;
-  private final AnalyzerOptimizer analyzerOptimizer;
+  private final SensorContext sensorContext;
+  private final SensorOptimizer sensorOptimizer;
+  private final PostJobContext postJobContext;
+  private final PostJobOptimizer postJobOptimizer;
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext context, AnalyzerOptimizer analyzerOptimizer) {
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, DefaultSensorContext sensorContext, SensorOptimizer sensorOptimizer, PostJobContext postJobContext,
+    PostJobOptimizer postJobOptimizer) {
     this.componentContainer = componentContainer;
-    this.context = context;
-    this.analyzerOptimizer = analyzerOptimizer;
+    this.sensorContext = sensorContext;
+    this.sensorOptimizer = sensorOptimizer;
+    this.postJobContext = postJobContext;
+    this.postJobOptimizer = postJobOptimizer;
   }
 
   public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort, @Nullable ExtensionMatcher matcher) {
@@ -90,7 +99,7 @@ public class BatchExtensionDictionnary {
     List<T> result = Lists.newArrayList();
     for (Object extension : getExtensions(type)) {
       if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
-        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
+        extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
       }
       if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);
@@ -99,7 +108,16 @@ public class BatchExtensionDictionnary {
     if (org.sonar.api.batch.Sensor.class.equals(type)) {
       // Retrieve new Sensors and wrap then in SensorWrapper
       for (Object extension : getExtensions(Sensor.class)) {
-        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
+        extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
+        if (shouldKeep(type, extension, project, matcher)) {
+          result.add((T) extension);
+        }
+      }
+    }
+    if (org.sonar.api.batch.PostJob.class.equals(type)) {
+      // Retrieve new PostJob and wrap then in PostJobWrapper
+      for (Object extension : getExtensions(PostJob.class)) {
+        extension = new PostJobWrapper((PostJob) extension, postJobContext, postJobOptimizer);
         if (shouldKeep(type, extension, project, matcher)) {
           result.add((T) extension);
         }

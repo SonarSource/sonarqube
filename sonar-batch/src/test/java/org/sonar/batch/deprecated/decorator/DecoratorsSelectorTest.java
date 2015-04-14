@@ -24,11 +24,7 @@ import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.measures.Formula;
-import org.sonar.api.measures.FormulaContext;
-import org.sonar.api.measures.FormulaData;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.*;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -81,7 +77,7 @@ public class DecoratorsSelectorTest {
     for (Object extension : extensions) {
       ioc.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(ioc, null, null);
+    return new BatchExtensionDictionnary(ioc, null, null, null, null);
   }
 
   class FakeFormula implements Formula {

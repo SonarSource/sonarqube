@@ -19,8 +19,6 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -29,10 +27,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.config.Settings;
 import org.sonar.xoo.Xoo;

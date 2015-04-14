@@ -22,19 +22,13 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.BuildBreaker;
-import org.sonar.api.batch.CheckProject;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.*;
+import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.sensor.AnalyzerOptimizer;
+import org.sonar.batch.postjob.PostJobOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
+import org.sonar.batch.sensor.SensorOptimizer;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +47,8 @@ public class BatchExtensionDictionnaryTest {
     for (BatchExtension extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(AnalyzerOptimizer.class));
+    return new BatchExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+      mock(PostJobOptimizer.class));
   }
 
   @Test
@@ -98,7 +93,8 @@ public class BatchExtensionDictionnaryTest {
     ComponentContainer child = parent.createChild();
     child.addSingleton(c);
 
-    BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(AnalyzerOptimizer.class));
+    BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
+      mock(PostJobOptimizer.class));
     assertThat(dictionnary.select(BatchExtension.class, null, true, null)).containsOnly(a, b, c);
   }
 
