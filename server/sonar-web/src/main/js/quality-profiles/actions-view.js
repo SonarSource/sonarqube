@@ -61,7 +61,9 @@ define([
     },
 
     restore: function () {
-      new RestoreProfileView().render();
+      new RestoreProfileView({
+        collection: this.collection
+      }).render();
     },
 
     restoreBuiltIn: function () {

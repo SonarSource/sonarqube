@@ -32,12 +32,17 @@ define([
       var that = this;
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
       uploader({ form: $(e.currentTarget) }).done(function (r) {
-        if (typeof r === 'object' && _.isArray(r.errors) || _.isArray(r.warning)) {
+        if (_.isArray(r.errors) || _.isArray(r.warnings)) {
           that.showErrors(r.errors, r.warnings);
-          return;
+        } else {
+          that.collection.fetch().done(function () {
+            var profile = that.collection.findWhere({ key: r.profile.key });
+            if (profile != null) {
+              profile.trigger('select', profile);
+            }
+          });
+          that.close();
         }
-        that.collection.fetch();
-        that.close();
       });
     }
   });
