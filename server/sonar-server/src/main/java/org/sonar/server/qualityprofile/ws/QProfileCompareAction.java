@@ -32,9 +32,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileComparator;
-import org.sonar.server.qualityprofile.QProfileComparator.ActiveRuleDiff;
-import org.sonar.server.qualityprofile.QProfileComparator.QProfileComparisonResult;
+import org.sonar.server.qualityprofile.QProfileComparison;
+import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
+import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
@@ -49,12 +49,12 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
   private static final String PARAM_LEFT_KEY = "leftKey";
   private static final String PARAM_RIGHT_KEY = "rightKey";
 
-  private final QProfileComparator comparator;
+  private final QProfileComparison comparator;
   private final RuleService ruleService;
   private final RuleRepositories ruleRepositories;
   private final Languages languages;
 
-  public QProfileCompareAction(QProfileComparator comparator, RuleService ruleService, RuleRepositories ruleRepositories, Languages languages) {
+  public QProfileCompareAction(QProfileComparison comparator, RuleService ruleService, RuleRepositories ruleRepositories, Languages languages) {
     this.comparator = comparator;
     this.ruleService = ruleService;
     this.ruleRepositories = ruleRepositories;

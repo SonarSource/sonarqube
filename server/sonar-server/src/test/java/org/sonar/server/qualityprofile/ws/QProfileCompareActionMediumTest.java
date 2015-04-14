@@ -115,6 +115,42 @@ public class QProfileCompareActionMediumTest {
       .execute().assertJson(this.getClass(), "compare_nominal.json");
   }
 
+  @Test
+  public void compare_param_on_left() throws Exception {
+    RuleDto rule1 = createRuleWithParam("xoo", "rule1");
+
+    QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    createActiveRuleWithParam(rule1, profile1, "polop");
+    session.commit();
+
+    QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    createActiveRule(rule1, profile2);
+    session.commit();
+
+    wsTester.newGetRequest("api/qualityprofiles", "compare")
+      .setParam("leftKey", profile1.getKey())
+      .setParam("rightKey", profile2.getKey())
+      .execute().assertJson(this.getClass(), "compare_param_on_left.json");
+  }
+
+  @Test
+  public void compare_param_on_right() throws Exception {
+    RuleDto rule1 = createRuleWithParam("xoo", "rule1");
+
+    QualityProfileDto profile1 = createProfile("xoo", "Profile 1", "xoo-profile-1-01234");
+    createActiveRule(rule1, profile1);
+    session.commit();
+
+    QualityProfileDto profile2 = createProfile("xoo", "Profile 2", "xoo-profile-2-12345");
+    createActiveRuleWithParam(rule1, profile2, "polop");
+    session.commit();
+
+    wsTester.newGetRequest("api/qualityprofiles", "compare")
+      .setParam("leftKey", profile1.getKey())
+      .setParam("rightKey", profile2.getKey())
+      .execute().assertJson(this.getClass(), "compare_param_on_right.json");
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_left_param() throws Exception {
     wsTester.newGetRequest("api/qualityprofiles", "compare")

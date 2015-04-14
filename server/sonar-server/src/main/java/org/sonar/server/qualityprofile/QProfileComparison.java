@@ -34,13 +34,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class QProfileComparator implements ServerComponent {
+public class QProfileComparison implements ServerComponent {
 
   private final DbClient dbClient;
 
   private final QProfileLoader profileLoader;
 
-  public QProfileComparator(DbClient dbClient, QProfileLoader profileLoader) {
+  public QProfileComparison(DbClient dbClient, QProfileLoader profileLoader) {
     this.dbClient = dbClient;
     this.profileLoader = profileLoader;
   }
@@ -78,18 +78,17 @@ public class QProfileComparator implements ServerComponent {
       } else if (!rightActiveRulesByRuleKey.containsKey(ruleKey)) {
         result.inLeft.put(ruleKey, leftActiveRulesByRuleKey.get(ruleKey));
       } else {
-        compare(leftActiveRulesByRuleKey.get(ruleKey), rightActiveRulesByRuleKey.get(ruleKey), result);
+        compareActivationParams(leftActiveRulesByRuleKey.get(ruleKey), rightActiveRulesByRuleKey.get(ruleKey), result);
       }
     }
   }
 
-  private void compare(ActiveRule leftRule, ActiveRule rightRule, QProfileComparisonResult result) {
+  private void compareActivationParams(ActiveRule leftRule, ActiveRule rightRule, QProfileComparisonResult result) {
     RuleKey key = leftRule.key().ruleKey();
     if (leftRule.params().equals(rightRule.params()) && leftRule.severity().equals(rightRule.severity())) {
       result.same.put(key, leftRule);
     } else {
       ActiveRuleDiff diff = new ActiveRuleDiff();
-      diff.key = key;
 
       if (leftRule.severity().equals(rightRule.severity())) {
         diff.leftSeverity = diff.rightSeverity = leftRule.severity();
@@ -156,14 +155,9 @@ public class QProfileComparator implements ServerComponent {
   }
 
   public static class ActiveRuleDiff {
-    private RuleKey key;
     private String leftSeverity;
     private String rightSeverity;
     private MapDifference<String, String> paramDifference;
-
-    public RuleKey key() {
-      return key;
-    }
 
     public String leftSeverity() {
       return leftSeverity;
