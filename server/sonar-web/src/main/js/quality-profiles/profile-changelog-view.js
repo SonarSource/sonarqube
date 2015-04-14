@@ -25,18 +25,31 @@ define([
     template: Templates['quality-profile-changelog'],
 
     events: {
-      'click .js-show-changelog': 'onShowChangelogClick',
+      'submit #quality-profile-changelog-form': 'onFormSubmit',
       'click .js-show-more-changelog': 'onShowMoreChangelogClick'
     },
 
-    onShowChangelogClick: function (e) {
+    initialize: function () {
+      this.searchParameters = {};
+    },
+
+    onFormSubmit: function (e) {
       e.preventDefault();
-      this.model.fetchChangelog();
+      this.searchParameters = this.getSearchParameters();
+      this.model.fetchChangelog(this.searchParameters);
     },
 
     onShowMoreChangelogClick: function (e) {
       e.preventDefault();
-      this.model.fetchChangelog({ next: true });
+      this.model.fetchMoreChangelog(this.searchParameters);
+    },
+
+    getSearchParameters: function () {
+      var form = this.$('#quality-profile-changelog-form');
+      return {
+        since: form.find('[name="since"]').val(),
+        to: form.find('[name="to"]').val()
+      };
     }
   });
 

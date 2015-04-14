@@ -77,19 +77,29 @@ define(function () {
     fetchChangelog: function (options) {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/changelog',
-          opts = { ps: 100, profileKey: this.id };
-      options = _.defaults(options || {}, { next: false });
-      if (options.next) {
-        var page = this.get('eventsPage') || 0;
-        _.extend(opts, { p: page + 1 });
-      }
+          opts = _.extend({}, options, { profileKey: this.id });
       return $.get(url, opts).done(function (r) {
-        var events = options.next ? that.get('events') : [];
-        events = events.concat(r.events);
         that.set({
-          events: events,
+          events: r.events,
           eventsPage: r.p,
-          totalEvents: r.total
+          totalEvents: r.total,
+          eventsParameters: _.clone(options)
+        });
+      });
+    },
+
+    fetchMoreChangelog: function (options) {
+      var that = this,
+          url = baseUrl + '/api/qualityprofiles/changelog',
+          page = this.get('eventsPage') || 0,
+          opts = _.extend({}, options, { profileKey: this.id, p: page + 1 });
+      return $.get(url, opts).done(function (r) {
+        var events = that.get('events') || [];
+        that.set({
+          events: [].concat(events, r.events),
+          eventsPage: r.p,
+          totalEvents: r.total,
+          eventsParameters: _.clone(options)
         });
       });
     }

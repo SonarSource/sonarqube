@@ -184,6 +184,10 @@
     return value != null ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('isNull', function (value, options) {
+    return value == null ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('notEmpty', function (array, options) {
     var cond = _.isArray(array) && array.length > 0;
     return cond ? options.fn(this) : options.inverse(this);
