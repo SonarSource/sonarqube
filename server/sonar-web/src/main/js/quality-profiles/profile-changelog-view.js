@@ -17,24 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-(function () {
+define([
+    'templates/quality-profiles'
+], function () {
 
-  Handlebars.registerHelper('profileUrl', function (key) {
-    return baseUrl + '/quality_profiles/show?key=' + encodeURIComponent(key);
-  });
+  return Marionette.ItemView.extend({
+    template: Templates['quality-profile-changelog'],
 
-  Handlebars.registerHelper('severityChangelog', function (severity) {
-    var label = '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity),
-        message = tp('quality_profiles.severity_set_to_x', label);
-    return new Handlebars.SafeString(message);
-  });
+    events: {
+      'click .js-show-changelog': 'onShowChangelogClick',
+      'click .js-show-more-changelog': 'onShowMoreChangelogClick'
+    },
 
-  Handlebars.registerHelper('parameterChangelog', function (value, parameter) {
-    if (parameter) {
-      return new Handlebars.SafeString(tp('quality_profiles.parameter_set_to_x', value, parameter));
-    } else {
-      return new Handlebars.SafeString(tp('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter));
+    onShowChangelogClick: function (e) {
+      e.preventDefault();
+      this.model.fetchChangelog();
+    },
+
+    onShowMoreChangelogClick: function (e) {
+      e.preventDefault();
+      this.model.fetchChangelog({ next: true });
     }
   });
 
-})();
+});

@@ -1,0 +1,13 @@
+{
+  "total": 3,
+  "p": 2,
+  "ps": 2,
+  "events": [
+    {
+      "date": "2015-04-13T13:44:23+0200",
+      "action": "DEACTIVATED",
+      "ruleKey": "squid:S2151",
+      "ruleName": "\"runFinalizersOnExit\" should not be called"
+    }
+  ]
+}

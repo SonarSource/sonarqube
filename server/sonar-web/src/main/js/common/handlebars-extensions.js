@@ -30,6 +30,10 @@
     return baseUrl + url;
   });
 
+  Handlebars.registerHelper('rulePermalink', function (ruleKey) {
+    return baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(ruleKey);
+  });
+
   Handlebars.registerHelper('isActiveLink', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
@@ -234,6 +238,11 @@
   Handlebars.registerHelper('ifLength', function (array, len, options) {
     var cond = _.isArray(array) && array.length === +len;
     return cond ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper('unlessLength', function (array, len, options) {
+    var cond = _.isArray(array) && array.length === +len;
+    return cond ? options.inverse(this) : options.fn(this);
   });
 
   Handlebars.registerHelper('eachReverse', function (array, options) {

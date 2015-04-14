@@ -19,15 +19,20 @@
  */
 define([
   'quality-profiles/change-profile-parent-view',
+  'quality-profiles/profile-changelog-view',
   'common/select-list',
   'quality-profiles/helpers',
   'templates/quality-profiles'
-], function (ChangeProfileParentView) {
+], function (ChangeProfileParentView, ProfileChangelogView) {
 
   var $ = jQuery;
 
-  return Marionette.ItemView.extend({
+  return Marionette.Layout.extend({
     template: Templates['quality-profiles-profile-details'],
+
+    regions: {
+      changelogRegion: '#quality-profile-changelog'
+    },
 
     modelEvents: {
       'change': 'render'
@@ -39,36 +44,41 @@ define([
     },
 
     onRender: function () {
-      var key = this.model.get('key');
       if (!this.model.get('isDefault')) {
-        new SelectList({
-          el: this.$('#quality-profile-projects-list'),
-          width: '100%',
-          readOnly: false,
-          focusSearch: false,
-          format: function (item) {
-            return item.name;
-          },
-          searchUrl: baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
-          selectUrl: baseUrl + '/api/qualityprofiles/add_project',
-          deselectUrl: baseUrl + '/api/qualityprofiles/remove_project',
-          extra: {
-            profileKey: key
-          },
-          selectParameter: 'projectUuid',
-          selectParameterValue: 'uuid',
-          labels: {
-            selected: t('quality_gates.projects.with'),
-            deselected: t('quality_gates.projects.without'),
-            all: t('quality_gates.projects.all'),
-            noResults: t('quality_gates.projects.noResults')
-          },
-          tooltips: {
-            select: t('quality_gates.projects.select_hint'),
-            deselect: t('quality_gates.projects.deselect_hint')
-          }
-        });
+        this.initProjectsSelect();
       }
+      this.changelogRegion.show(new ProfileChangelogView({ model: this.model }));
+    },
+
+    initProjectsSelect: function () {
+      var key = this.model.get('key');
+      new window.SelectList({
+        el: this.$('#quality-profile-projects-list'),
+        width: '100%',
+        readOnly: false,
+        focusSearch: false,
+        format: function (item) {
+          return item.name;
+        },
+        searchUrl: baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
+        selectUrl: baseUrl + '/api/qualityprofiles/add_project',
+        deselectUrl: baseUrl + '/api/qualityprofiles/remove_project',
+        extra: {
+          profileKey: key
+        },
+        selectParameter: 'projectUuid',
+        selectParameterValue: 'uuid',
+        labels: {
+          selected: t('quality_gates.projects.with'),
+          deselected: t('quality_gates.projects.without'),
+          all: t('quality_gates.projects.all'),
+          noResults: t('quality_gates.projects.noResults')
+        },
+        tooltips: {
+          select: t('quality_gates.projects.select_hint'),
+          deselect: t('quality_gates.projects.deselect_hint')
+        }
+      });
     },
 
     onProfileClick: function (e) {

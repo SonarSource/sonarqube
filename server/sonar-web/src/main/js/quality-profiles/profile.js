@@ -72,6 +72,26 @@ define(function () {
           children: r.children
         });
       });
+    },
+
+    fetchChangelog: function (options) {
+      var that = this,
+          url = baseUrl + '/api/qualityprofiles/changelog',
+          opts = { ps: 100, profileKey: this.id };
+      options = _.defaults(options || {}, { next: false });
+      if (options.next) {
+        var page = this.get('eventsPage') || 0;
+        _.extend(opts, { p: page + 1 });
+      }
+      return $.get(url, opts).done(function (r) {
+        var events = options.next ? that.get('events') : [];
+        events = events.concat(r.events);
+        that.set({
+          events: events,
+          eventsPage: r.p,
+          totalEvents: r.total
+        });
+      });
     }
   });
 

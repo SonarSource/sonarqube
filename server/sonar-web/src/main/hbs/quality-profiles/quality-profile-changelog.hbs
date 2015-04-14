@@ -1,0 +1,48 @@
+<header class="page-header">
+  <div class="page-title">
+    <span class="h3">{{t 'changelog'}}</span>{{#unless totalEvents}}&nbsp;&nbsp;<a class="js-show-changelog small" href="#">{{t 'show_verb'}}</a>{{/unless}}
+  </div>
+</header>
+
+{{#notEmpty events}}
+  <table class="width-100 data zebra">
+    <thead>
+    <tr>
+      <th>{{t 'date'}}</th>
+      <th>{{t 'user'}}</th>
+      <th>{{t 'action'}}</th>
+      <th>{{t 'rule'}}</th>
+      <th>{{t 'parameters'}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each events}}
+      <tr>
+        <td class="text-top nowrap thin">{{dt date}}</td>
+        <td class="text-top nowrap thin">{{default authorName 'System'}}</td>
+        <td class="text-top nowrap">{{t 'quality_profiles.changelog' action}}</td>
+        <td class="text-top"><a href="{{rulePermalink ruleKey}}">{{ruleName}}</a></td>
+        <td class="text-top thin">
+          <ul>
+            {{#each params}}
+              <li>
+                {{#eq @key 'severity'}}
+                  <span class="nowrap">{{severityChangelog this}}</span>
+                {{else}}
+                  {{parameterChangelog @key this}}
+                {{/eq}}
+              </li>
+            {{/each}}
+          </ul>
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+
+  {{#unlessLength events totalEvents}}
+    <p class="spacer-top text-center">
+      <a class="js-show-more-changelog" href="#">{{t 'show_more'}}</a>
+    </p>
+  {{/unlessLength}}
+{{/notEmpty}}

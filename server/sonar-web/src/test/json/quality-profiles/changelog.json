@@ -1,0 +1,28 @@
+{
+  "total": 3,
+  "p": 1,
+  "ps": 2,
+  "events": [
+    {
+      "date": "2015-04-13T13:44:23+0200",
+      "action": "ACTIVATED",
+      "ruleKey": "squid:S1860",
+      "ruleName": "Synchronisation should not be based on Strings or boxed primitives",
+      "params": {
+        "severity": "BLOCKER"
+      }
+    },
+    {
+      "date": "2015-04-13T13:44:23+0200",
+      "action": "ACTIVATED",
+      "authorLogin" : "anakin.skywalker",
+      "authorName" : "Anakin Skywalker",
+      "ruleKey": "squid:S2127",
+      "ruleName": "\"Double.longBitsToDouble\" should not be used for \"int\"",
+      "params": {
+        "threshold": "3",
+        "emptyParameter": ""
+      }
+    }
+  ]
+}

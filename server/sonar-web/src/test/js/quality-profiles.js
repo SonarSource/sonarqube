@@ -644,3 +644,75 @@ casper.test.begin(testName('Permalink'), 9, function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Changelog'), 22, function (test) {
+  casper
+      .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', { data: { p: '2' } });
+        lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-show-changelog');
+      })
+
+      .then(function () {
+        test.assertDoesntExist('.js-show-more-changelog');
+
+        casper.click('.js-show-changelog');
+        casper.waitForSelector('#quality-profile-changelog table');
+      })
+
+      .then(function () {
+        test.assertDoesntExist('.js-show-changelog');
+        test.assertExists('.js-show-more-changelog');
+        test.assertElementCount('#quality-profile-changelog tbody tr', 2);
+
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'System');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'ACTIVATED');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'Synchronisation should not');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'BLOCKER');
+
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'Anakin Skywalker');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'ACTIVATED');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'Double.longBitsToDouble');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'threshold');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', '3');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'emptyParameter');
+
+        casper.click('.js-show-more-changelog');
+        lib.waitForElementCount('#quality-profile-changelog tbody tr', 3);
+      })
+
+      .then(function () {
+        test.assertDoesntExist('.js-show-changelog');
+        test.assertDoesntExist('.js-show-more-changelog');
+
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'System');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'DEACTIVATED');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'runFinalizersOnExit');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
