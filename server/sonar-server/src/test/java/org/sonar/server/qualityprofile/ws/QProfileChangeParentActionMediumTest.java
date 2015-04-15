@@ -32,6 +32,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -251,6 +252,15 @@ public class QProfileChangeParentActionMediumTest {
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_NAME, child.getName())
       .setParam("parentKey", "palap")
+      .execute();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_if_missing_permission() throws Exception {
+    MockUserSession.set().setLogin("anakin");
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
+      .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, "polop")
+      .setParam("parentKey", "pulup")
       .execute();
   }
 
