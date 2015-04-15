@@ -66,6 +66,7 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
     NewAction compare = context.createAction("compare")
       .setDescription("Compare two quality profiles.")
       .setHandler(this)
+      .setInternal(true)
       .setResponseExample(getClass().getResource("example-compare.json"))
       .setSince("5.2");
 
