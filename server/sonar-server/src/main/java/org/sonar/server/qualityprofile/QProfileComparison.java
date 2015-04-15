@@ -90,12 +90,8 @@ public class QProfileComparison implements ServerComponent {
     } else {
       ActiveRuleDiff diff = new ActiveRuleDiff();
 
-      if (leftRule.severity().equals(rightRule.severity())) {
-        diff.leftSeverity = diff.rightSeverity = leftRule.severity();
-      } else {
-        diff.leftSeverity = leftRule.severity();
-        diff.rightSeverity = rightRule.severity();
-      }
+      diff.leftSeverity = leftRule.severity();
+      diff.rightSeverity = rightRule.severity();
 
       diff.paramDifference = Maps.difference(leftRule.params(), rightRule.params());
       result.modified.put(key, diff);

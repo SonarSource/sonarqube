@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QProfileComparisonMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().addXoo();
 
   DbClient db;
   DbSession dbSession;
