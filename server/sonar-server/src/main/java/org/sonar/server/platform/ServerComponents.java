@@ -147,6 +147,8 @@ import org.sonar.server.permission.ws.PermissionsWs;
 import org.sonar.server.platform.monitoring.*;
 import org.sonar.server.platform.ws.*;
 import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
+import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
@@ -678,6 +680,10 @@ class ServerComponents {
       JvmPropertiesMonitor.class,
       DatabaseMonitor.class
       ));
+
+    // Plugins WS
+    pico.addSingleton(InstalledPluginsWsAction.class);
+    pico.addSingleton(PluginsWs.class);
 
     // Compute engine
     pico.addSingleton(ReportQueue.class);
