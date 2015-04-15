@@ -96,6 +96,7 @@ public class ServerTester extends ExternalResource {
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
 
     properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    properties.setProperty("sonar.path.temp", createTempDir().getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
     for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
       String key = entry.getKey().toString();

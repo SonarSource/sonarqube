@@ -20,7 +20,9 @@
 package org.sonar.server.platform;
 
 import com.google.common.io.Resources;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.ServerFileSystem;
 
 import java.io.File;
@@ -32,21 +34,24 @@ public class DefaultServerFileSystemTest {
 
   private static final String PATH = "org/sonar/server/platform/DefaultServerFileSystemTest/";
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void find_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldFindPlugins").toURI()), null).getUserPlugins();
+    List<File> plugins = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldFindPlugins").toURI()), temp.newFolder(), null).getUserPlugins();
     assertThat(plugins).hasSize(2);
   }
 
   @Test
   public void not_fail_if_no_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldNotFailIfNoPlugins").toURI()), null).getUserPlugins();
+    List<File> plugins = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldNotFailIfNoPlugins").toURI()), temp.newFolder(), null).getUserPlugins();
     assertThat(plugins).isEmpty();
   }
 
   @Test
   public void find_checkstyle_extensions() throws Exception {
-    ServerFileSystem fs = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldFindCheckstyleExtensions").toURI()), null);
+    ServerFileSystem fs = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldFindCheckstyleExtensions").toURI()), temp.newFolder(), null);
 
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
     assertThat(xmls).hasSize(1);
@@ -57,7 +62,7 @@ public class DefaultServerFileSystemTest {
 
   @Test
   public void not_fail_if_no_checkstyle_extensions() throws Exception {
-    ServerFileSystem fs = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions").toURI()), null);
+    ServerFileSystem fs = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions").toURI()), temp.newFolder(), null);
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
     assertThat(xmls).isEmpty();
 

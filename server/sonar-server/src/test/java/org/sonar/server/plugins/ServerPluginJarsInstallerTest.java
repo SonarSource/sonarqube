@@ -30,7 +30,6 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.Database;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -49,7 +48,7 @@ public class ServerPluginJarsInstallerTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultServerFileSystem fileSystem;
-  File homeDir, pluginsDir, downloadsDir, bundledDir, trashDir, coreDir;
+  File homeDir, tempDir, pluginsDir, downloadsDir, bundledDir, trashDir, coreDir;
   ServerPluginJarInstaller jarInstaller;
   ServerPluginJarsInstaller jarsInstaller;
   Server server = mock(Server.class);
@@ -62,6 +61,7 @@ public class ServerPluginJarsInstallerTest {
 
     homeDir = temp.newFolder("home");
     pluginsDir = new File(homeDir, "extensions/plugins");
+    tempDir = temp.newFolder();
     FileUtils.forceMkdir(pluginsDir);
     downloadsDir = new File(homeDir, "extensions/downloads");
     trashDir = new File(homeDir, "extensions/trash");
@@ -69,7 +69,7 @@ public class ServerPluginJarsInstallerTest {
     coreDir = new File(homeDir, "lib/core-plugins");
     FileUtils.forceMkdir(bundledDir);
 
-    fileSystem = new DefaultServerFileSystem(mock(Database.class), homeDir, server);
+    fileSystem = new DefaultServerFileSystem(homeDir, tempDir, server);
     jarInstaller = new ServerPluginJarInstaller();
     jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
   }
