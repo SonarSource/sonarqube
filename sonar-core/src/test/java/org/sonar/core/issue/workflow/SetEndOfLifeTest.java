@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-public class SetEndOfLifeResolutionTest {
+public class SetEndOfLifeTest {
 
   Function.Context context = mock(Function.Context.class);
-  SetEndOfLifeResolution function = new SetEndOfLifeResolution();
+  SetEndOfLife function = new SetEndOfLife();
 
   @Test
   public void should_resolve_as_fixed() throws Exception {
@@ -59,5 +59,13 @@ public class SetEndOfLifeResolutionTest {
       assertThat(e.getMessage()).contains("Issue is still alive");
       verify(context, never()).setResolution(anyString());
     }
+  }
+
+  @Test
+  public void line_number_must_be_unset() throws Exception {
+    Issue issue = new DefaultIssue().setEndOfLife(true).setLine(10);
+    when(context.issue()).thenReturn(issue);
+    function.execute(context);
+    verify(context).setLine(null);
   }
 }

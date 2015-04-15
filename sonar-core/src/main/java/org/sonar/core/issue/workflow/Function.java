@@ -30,6 +30,7 @@ interface Function {
     Context setAssignee(@Nullable User user);
     Context setResolution(@Nullable String s);
     Context setCloseDate(boolean b);
+    Context setLine(@Nullable Integer line);
   }
 
   void execute(Context context);

@@ -22,7 +22,7 @@ package org.sonar.core.issue.workflow;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 
-public class SetEndOfLifeResolution implements Function {
+public class SetEndOfLife implements Function {
   @Override
   public void execute(Context context) {
     DefaultIssue issue = (DefaultIssue) context.issue();
@@ -34,5 +34,10 @@ public class SetEndOfLifeResolution implements Function {
     } else {
       context.setResolution(Issue.RESOLUTION_FIXED);
     }
+
+    // closed issues are not "tracked" -> the line number does not evolve anymore
+    // when code changes. That's misleading for end-users, so line number
+    // is unset.
+    context.setLine(null);
   }
 }
