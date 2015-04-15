@@ -28,6 +28,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
@@ -78,12 +79,22 @@ public class QProfileBackuperMediumTest {
 
   @Test
   public void backup() throws Exception {
-    // create profile P1 with rule x1 activated
+    RuleKey blahRuleKey = RuleKey.of("blah", "my-rule");
+    RuleDto blahRule = RuleTesting.newDto(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
+    db.ruleDao().insert(dbSession, blahRule);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // create profile P1 with rules x2 and x1 activated
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
-    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    activation.setSeverity(Severity.BLOCKER);
-    activation.setParameter("max", "7");
-    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
+    RuleActivation activation1 = new RuleActivation(RuleTesting.XOO_X2).setSeverity("MINOR");
+    RuleActivation activation2 = new RuleActivation(RuleTesting.XOO_X1);
+    RuleActivation activation3 = new RuleActivation(blahRuleKey);
+    activation2.setSeverity(Severity.BLOCKER);
+    activation2.setParameter("max", "7");
+    tester.get(RuleActivator.class).activate(dbSession, activation1, QProfileTesting.XOO_P1_NAME);
+    tester.get(RuleActivator.class).activate(dbSession, activation2, QProfileTesting.XOO_P1_NAME);
+    tester.get(RuleActivator.class).activate(dbSession, activation3, QProfileTesting.XOO_P1_NAME);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -91,6 +102,7 @@ public class QProfileBackuperMediumTest {
     tester.get(QProfileBackuper.class).backup(QProfileTesting.XOO_P1_KEY, output);
 
     XMLUnit.setIgnoreWhitespace(true);
+    XMLUnit.setIgnoreComments(true);
     Diff diff = XMLUnit.compareXML(output.toString(),
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/expected-backup.xml"), Charsets.UTF_8));
 

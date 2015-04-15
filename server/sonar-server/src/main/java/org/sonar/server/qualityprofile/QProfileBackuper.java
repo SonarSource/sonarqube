@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -43,6 +44,8 @@ import javax.xml.stream.XMLStreamException;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +73,9 @@ public class QProfileBackuper implements ServerComponent {
     } finally {
       dbSession.close();
     }
-    Iterator<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile.getKey());
-    writeXml(writer, profile, activeRules);
+    List<ActiveRule> activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile(profile.getKey()));
+    Collections.sort(activeRules, BackupActiveRuleComparator.INSTANCE);
+    writeXml(writer, profile, activeRules.iterator());
   }
 
   private void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRule> activeRules) {
@@ -205,5 +209,17 @@ public class QProfileBackuper implements ServerComponent {
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
     return new SMInputFactory(xmlFactory);
+  }
+
+  private enum BackupActiveRuleComparator implements Comparator<ActiveRule> {
+    INSTANCE;
+
+    @Override
+    public int compare(ActiveRule o1, ActiveRule o2) {
+      return new CompareToBuilder()
+        .append(o1.key().ruleKey().repository(), o2.key().ruleKey().repository())
+        .append(o1.key().ruleKey().rule(), o2.key().ruleKey().rule())
+        .toComparison();
+    }
   }
 }
