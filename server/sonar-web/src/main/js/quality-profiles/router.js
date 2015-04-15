@@ -24,7 +24,8 @@ define(function () {
       '': 'index',
       'index': 'index',
       'show?key=:key': 'show',
-      'changelog*': 'changelog'
+      'changelog*': 'changelog',
+      'compare*': 'compare'
     },
 
     initialize: function (options) {
@@ -42,6 +43,11 @@ define(function () {
     changelog: function () {
       var params = window.getQueryParams();
       this.app.controller.changelog(params.key, params.since, params.to);
+    },
+
+    compare: function () {
+      var params = window.getQueryParams();
+      this.app.controller.compare(params.key, params.withKey);
     }
   });
 

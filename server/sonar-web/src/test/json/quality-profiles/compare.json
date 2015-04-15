@@ -1,0 +1,99 @@
+{
+  "left": {
+    "key": "java-sonar-way-67887",
+    "name": "Sonar way"
+  },
+  "right": {
+    "key": "java-copied-profile-11711",
+    "name": "Copied Profile"
+  },
+  "inLeft": [
+    {
+      "key": "squid:S2204",
+      "name": "\".equals()\" should not be used to test the values of \"Atomic\" classes",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "severity": "BLOCKER"
+    },
+    {
+      "key": "squid:S1161",
+      "name": "\"@Override\" annotation should be used on any method overriding (since Java 5) or implementing (since Java 6) another one",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "severity": "MAJOR"
+    }
+  ],
+  "inRight": [
+    {
+      "key": "squid:S2250",
+      "name": "\"ConcurrentLinkedQueue.size()\" should not be used",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "severity": "CRITICAL"
+    },
+    {
+      "key": "squid:S2200",
+      "name": "\"compareTo\" results should not be checked for specific values",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "severity": "MAJOR"
+    }
+  ],
+  "modified": [
+    {
+      "key": "squid:S134",
+      "name": "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "left": {
+        "severity": "MINOR",
+        "params": {
+          "max": "5"
+        }
+      },
+      "right": {
+        "severity": "MINOR",
+        "params": {
+          "max": "3"
+        }
+      }
+    },
+    {
+      "key": "squid:S2157",
+      "name": "\"Cloneables\" should implement \"clone\"",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "left": {
+        "severity": "CRITICAL",
+        "params": {}
+      },
+      "right": {
+        "severity": "INFO",
+        "params": {}
+      }
+    }
+  ],
+  "same": [
+    {
+      "key": "squid:S2111",
+      "name": "\"BigDecimal(double)\" should not be used",
+      "pluginKey": "squid",
+      "pluginName": "SonarQube",
+      "languageKey": "java",
+      "languageName": "Java",
+      "severity": "CRITICAL"
+    }
+  ]
+}

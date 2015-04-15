@@ -20,10 +20,11 @@
 define([
   'quality-profiles/change-profile-parent-view',
   'quality-profiles/profile-changelog-view',
+  'quality-profiles/profile-comparison-view',
   'common/select-list',
   'quality-profiles/helpers',
   'templates/quality-profiles'
-], function (ChangeProfileParentView, ProfileChangelogView) {
+], function (ChangeProfileParentView, ProfileChangelogView, ProfileComparisonView) {
 
   var $ = jQuery;
 
@@ -31,7 +32,8 @@ define([
     template: Templates['quality-profiles-profile-details'],
 
     regions: {
-      changelogRegion: '#quality-profile-changelog'
+      changelogRegion: '#quality-profile-changelog',
+      comparisonRegion: '#quality-profile-comparison'
     },
 
     modelEvents: {
@@ -48,6 +50,7 @@ define([
         this.initProjectsSelect();
       }
       this.changelogRegion.show(new ProfileChangelogView({ model: this.model }));
+      this.comparisonRegion.show(new ProfileComparisonView({ model: this.model }));
     },
 
     initProjectsSelect: function () {

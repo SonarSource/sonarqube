@@ -863,3 +863,101 @@ casper.test.begin(testName('Changelog Permalink'), 2, function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Comparison'), 12, function (test) {
+  casper
+      .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/compare', 'compare.json', {
+          data: { leftKey: 'java-sonar-way-67887', rightKey: 'java-copied-profile-11711' }
+        });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#quality-profile-comparison-form-submit');
+      })
+
+      .then(function () {
+        test.assertElementCount('#quality-profile-comparison-with-key option', 1);
+        casper.click('#quality-profile-comparison-form-submit');
+        casper.waitForSelector('#quality-profile-comparison table');
+      })
+
+      .then(function () {
+        test.assertElementCount('.js-comparison-in-left', 2);
+        test.assertElementCount('.js-comparison-in-right', 2);
+        test.assertElementCount('.js-comparison-modified', 2);
+
+        test.assertSelectorContains('.js-comparison-in-left', '".equals()" should not be used to test');
+        test.assertSelectorContains('.js-comparison-in-left', '"@Override" annotation should be used on');
+
+        test.assertSelectorContains('.js-comparison-in-right', '"ConcurrentLinkedQueue.size()" should not be used');
+        test.assertSelectorContains('.js-comparison-in-right', '"compareTo" results should not be checked');
+
+        test.assertSelectorContains('.js-comparison-modified', 'Control flow statements');
+        test.assertSelectorContains('.js-comparison-modified', '"Cloneables" should implement "clone"');
+        test.assertSelectorContains('.js-comparison-modified', 'max: 5');
+        test.assertSelectorContains('.js-comparison-modified', 'max: 3');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Comparison Permalink'), 4, function (test) {
+  casper
+      .start(lib.buildUrl('profiles#compare?key=java-sonar-way-67887&withKey=java-copied-profile-11711'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/compare', 'compare.json', {
+          data: { leftKey: 'java-sonar-way-67887', rightKey: 'java-copied-profile-11711' }
+        });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#quality-profile-comparison table');
+      })
+
+      .then(function () {
+        test.assertElementCount('#quality-profile-comparison-with-key option', 1);
+        test.assertElementCount('.js-comparison-in-left', 2);
+        test.assertElementCount('.js-comparison-in-right', 2);
+        test.assertElementCount('.js-comparison-modified', 2);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

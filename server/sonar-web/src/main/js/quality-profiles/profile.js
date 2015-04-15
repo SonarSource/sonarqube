@@ -102,6 +102,23 @@ define(function () {
           totalEvents: r.total
         });
       });
+    },
+
+    compareWith: function (withKey) {
+      var that = this,
+          url = baseUrl + '/api/qualityprofiles/compare',
+          options = { leftKey: this.id, rightKey: withKey };
+      return $.get(url, options).done(function (r) {
+        var comparison = _.extend(r, {
+          inLeftSize: _.size(r.inLeft),
+          inRightSize: _.size(r.inRight),
+          modifiedSize: _.size(r.modified)
+        });
+        that.set({
+          comparison: comparison,
+          comparedWith: withKey
+        });
+      });
     }
   });
 

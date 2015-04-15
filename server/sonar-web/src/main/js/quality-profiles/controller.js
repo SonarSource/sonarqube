@@ -57,6 +57,17 @@ define([
       });
     },
 
+    compare: function (key, withKey) {
+      var that = this;
+      this.fetchProfiles().done(function () {
+        var profile = that.options.app.profiles.findWhere({ key: key });
+        if (profile != null) {
+          profile.trigger('select', profile, { trigger: false });
+          profile.compareWith(withKey);
+        }
+      });
+    },
+
     onProfileSelect: function (profile, options) {
       var that = this,
           key = profile.get('key'),
