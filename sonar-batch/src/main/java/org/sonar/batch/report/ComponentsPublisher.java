@@ -25,7 +25,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchResource;
@@ -83,7 +82,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     if (sid != null) {
       builder.setSnapshotId(sid);
     }
-    if (Qualifiers.isFile(r)) {
+    if (batchResource.isFile()) {
       builder.setIsTest(ResourceUtils.isUnitTestFile(r));
       builder.setLines(((InputFile) batchResource.inputPath()).lines());
     }
