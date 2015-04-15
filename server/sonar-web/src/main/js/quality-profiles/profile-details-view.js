@@ -51,6 +51,12 @@ define([
       }
       this.changelogRegion.show(new ProfileChangelogView({ model: this.model }));
       this.comparisonRegion.show(new ProfileComparisonView({ model: this.model }));
+      if (this.options.anchor === 'changelog') {
+        this.scrollToChangelog();
+      }
+      if (this.options.anchor === 'comparison') {
+        this.scrollToComparison();
+      }
     },
 
     initProjectsSelect: function () {
@@ -102,6 +108,28 @@ define([
       new ChangeProfileParentView({
         model: this.model
       }).render();
+    },
+
+    scrollTo: function (selector) {
+      var el = this.$(selector),
+          parent = el.scrollParent();
+      var elOffset = el.offset(),
+          parentOffset = parent.offset();
+      if (parent.is(document)) {
+        parentOffset = { top: 0 };
+      }
+      if (elOffset != null && parentOffset != null) {
+        var scrollTop = elOffset.top - parentOffset.top - 53;
+        parent.scrollTop(scrollTop);
+      }
+    },
+
+    scrollToChangelog: function () {
+      this.scrollTo('#quality-profile-changelog');
+    },
+
+    scrollToComparison: function () {
+      this.scrollTo('#quality-profile-comparison');
     },
 
     serializeData: function () {

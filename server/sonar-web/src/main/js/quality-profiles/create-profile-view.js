@@ -37,7 +37,6 @@ define([
 
     onFormSubmit: function (e) {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-      this.disableForm();
       this.sendRequest(e);
     },
 
@@ -73,7 +72,6 @@ define([
       uploader({ form: $(e.currentTarget) }).done(function (r) {
         if (_.isArray(r.errors) || _.isArray(r.warnings)) {
           that.showErrors(r.errors, r.warnings);
-          that.enableForm();
         } else {
           that.addProfile(r.profile);
           that.close();

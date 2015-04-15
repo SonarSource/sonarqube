@@ -47,7 +47,9 @@ define(function () {
 
     compare: function () {
       var params = window.getQueryParams();
-      this.app.controller.compare(params.key, params.withKey);
+      if (params.key && params.withKey) {
+        this.app.controller.compare(params.key, params.withKey);
+      }
     }
   });
 

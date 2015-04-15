@@ -48,6 +48,7 @@ define([
 
     changelog: function (key, since, to) {
       var that = this;
+      this.anchor = 'changelog';
       this.fetchProfiles().done(function () {
         var profile = that.options.app.profiles.findWhere({ key: key });
         if (profile != null) {
@@ -59,6 +60,7 @@ define([
 
     compare: function (key, withKey) {
       var that = this;
+      this.anchor = 'comparison';
       this.fetchProfiles().done(function () {
         var profile = that.options.app.profiles.findWhere({ key: key });
         if (profile != null) {
@@ -86,7 +88,8 @@ define([
 
         var profileDetailsView = new ProfileDetailsView({
           model: profile,
-          canWrite: that.options.app.canWrite
+          canWrite: that.options.app.canWrite,
+          anchor: that.anchor
         });
         that.options.app.layout.detailsRegion.show(profileDetailsView);
       });
