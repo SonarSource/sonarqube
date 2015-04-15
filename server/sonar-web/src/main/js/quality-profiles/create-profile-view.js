@@ -19,18 +19,25 @@
  */
 define([
   'common/modal-form',
+  'common/file-upload',
   'quality-profiles/profile',
   'templates/quality-profiles'
-], function (ModalFormView, Profile) {
+], function (ModalFormView, uploader, Profile) {
 
   var $ = jQuery;
 
   return ModalFormView.extend({
     template: Templates['quality-profiles-create-profile'],
 
+    events: function () {
+      return _.extend(ModalFormView.prototype.events.apply(this, arguments), {
+        'change #create-profile-language': 'onLanguageChange'
+      });
+    },
+
     onFormSubmit: function (e) {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-      this.sendRequest();
+      this.sendRequest(e);
     },
 
     onRender: function () {
@@ -39,28 +46,36 @@ define([
         width: '250px',
         minimumResultsForSearch: 50
       });
+      this.onLanguageChange();
     },
 
-    sendRequest: function () {
-      var that = this,
-          url = baseUrl + '/api/qualityprofiles/create',
-          options = {
-            language: this.$('#create-profile-language').val(),
-            name: this.$('#create-profile-name').val()
-          };
-      return $.ajax({
-        type: 'POST',
-        url: url,
-        data: options,
-        statusCode: {
-          // do not show global error
-          400: null
+    onLanguageChange: function () {
+      var that = this;
+      var language = this.$('#create-profile-language').val();
+      var importers = this.getImportersForLanguages(language);
+      this.$('.js-importer').each(function () {
+        that.emptyInput($(this));
+        $(this).addClass('hidden');
+      });
+      importers.forEach(function (importer) {
+        that.$('.js-importer[data-key="' + importer.key + '"]').removeClass('hidden');
+      });
+    },
+
+    emptyInput: function (e) {
+      e.wrap('<form>').closest('form').get(0).reset();
+      e.unwrap();
+    },
+
+    sendRequest: function (e) {
+      var that = this;
+      uploader({ form: $(e.currentTarget) }).done(function (r) {
+        if (_.isArray(r.errors) || _.isArray(r.warnings)) {
+          that.showErrors(r.errors, r.warnings);
+        } else {
+          that.addProfile(r.profile);
+          that.close();
         }
-      }).done(function (r) {
-        that.addProfile(r.profile);
-        that.close();
-      }).fail(function (jqXHR) {
-        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
     },
 
@@ -70,9 +85,20 @@ define([
       profile.trigger('select', profile);
     },
 
+    getImportersForLanguages: function (language) {
+      if (language != null) {
+        return this.options.importers.filter(function (importer) {
+          return importer.languages.indexOf(language) !== -1;
+        });
+      } else {
+        return [];
+      }
+    },
+
     serializeData: function () {
       return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
-        languages: this.options.languages
+        languages: this.options.languages,
+        importers: this.options.importers
       });
     }
   });

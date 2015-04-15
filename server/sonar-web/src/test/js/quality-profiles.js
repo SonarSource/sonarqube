@@ -519,10 +519,8 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
-        lib.mockRequestFromFile('/api/qualityprofiles/create', 'create.json', {
-          data: { language: 'java', name: 'Copied Profile' }
-        });
         lib.mockRequestFromFile('/api/languages/list', 'languages.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/importers', 'importers-empty.json');
       })
 
       .then(function () {
@@ -555,7 +553,69 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
       })
 
       .then(function () {
-        test.assertExists('.js-list .list-group-item.active[data-key="java-copied-profile-11711"]');
+        test.assert(true);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Importers'), 6, function (test) {
+  casper
+      .start(lib.buildUrl('profiles'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/importers', 'importers.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+          jQuery.ajaxSetup({ dataType: 'json' });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        casper.click('#quality-profiles-create');
+        casper.waitForSelector('.modal');
+      })
+
+      .then(function () {
+        test.assertVisible('.js-importer[data-key="pmd"]');
+        test.assertVisible('.js-importer[data-key="random"]');
+
+        casper.evaluate(function () {
+          jQuery('#create-profile-language').val('js').change();
+        });
+      })
+
+      .then(function () {
+        test.assertNotVisible('.js-importer[data-key="pmd"]');
+        test.assertVisible('.js-importer[data-key="random"]');
+
+        casper.evaluate(function () {
+          jQuery('#create-profile-language').val('py').change();
+        });
+      })
+
+      .then(function () {
+        test.assertNotVisible('.js-importer[data-key="pmd"]');
+        test.assertNotVisible('.js-importer[data-key="random"]');
       })
 
       .then(function () {

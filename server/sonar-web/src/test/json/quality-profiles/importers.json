@@ -1,0 +1,19 @@
+{
+  "importers": [
+    {
+      "key": "pmd",
+      "name": "PMD",
+      "languages": [
+        "java"
+      ]
+    },
+    {
+      "key": "random",
+      "name": "Random",
+      "languages": [
+        "java",
+        "js"
+      ]
+    }
+  ]
+}

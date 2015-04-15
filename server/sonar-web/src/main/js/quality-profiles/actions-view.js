@@ -52,10 +52,11 @@ define([
 
     create: function () {
       var that = this;
-      this.requestLanguages().done(function (r) {
+      $.when(this.requestLanguages(), this.requestImporters()).done(function () {
         new CreateProfileView({
           collection: that.collection,
-          languages: r.languages
+          languages: that.languages,
+          importers: that.importers
         }).render();
       });
     },
@@ -77,8 +78,19 @@ define([
     },
 
     requestLanguages: function () {
-      var url = baseUrl + '/api/languages/list';
-      return $.get(url);
+      var that = this,
+          url = baseUrl + '/api/languages/list';
+      return $.get(url).done(function (r) {
+        that.languages = r.languages;
+      });
+    },
+
+    requestImporters: function () {
+      var that = this,
+          url = baseUrl + '/api/qualityprofiles/importers';
+      return $.get(url).done(function (r) {
+        that.importers = r.importers;
+      });
     },
 
     serializeData: function () {
