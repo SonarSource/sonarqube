@@ -31,9 +31,11 @@ define([
     onFormSubmit: function (e) {
       var that = this;
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
+      this.disableForm();
       uploader({ form: $(e.currentTarget) }).done(function (r) {
         if (_.isArray(r.errors) || _.isArray(r.warnings)) {
           that.showErrors(r.errors, r.warnings);
+          that.enableForm();
         } else {
           that.collection.fetch().done(function () {
             var profile = that.collection.findWhere({ key: r.profile.key });

@@ -33,6 +33,7 @@ define([
 
     onFormSubmit: function () {
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
+      this.disableForm();
       this.sendRequest();
     },
 
@@ -53,6 +54,7 @@ define([
         that.model.trigger('destroy', that.model, that.model.collection);
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+        that.enableForm();
       });
     }
   });

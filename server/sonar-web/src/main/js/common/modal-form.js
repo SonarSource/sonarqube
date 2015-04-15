@@ -60,6 +60,18 @@ define(['common/modals'], function (ModalView) {
         });
       }
       this.ui.messagesContainer.scrollParent().scrollTop(0);
+    },
+
+    disableForm: function () {
+      var form = this.$('form');
+      this.disabledFields = form.find(':input:not(:disabled)');
+      this.disabledFields.prop('disabled', true);
+    },
+
+    enableForm: function () {
+      if (this.disabledFields != null) {
+        this.disabledFields.prop('disabled', false);
+      }
     }
   });
 
