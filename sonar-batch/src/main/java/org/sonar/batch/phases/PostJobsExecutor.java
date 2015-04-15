@@ -57,7 +57,7 @@ public class PostJobsExecutor implements BatchComponent {
     logPostJobs(postJobs);
 
     for (PostJob postJob : postJobs) {
-      LOG.info("Executing post-job {}", postJob.getClass());
+      LOG.info("Executing post-job {}", postJob.toString());
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, true));
       postJob.executeOn(project, context);
       eventBus.fireEvent(new PostJobExecutionEvent(postJob, false));
