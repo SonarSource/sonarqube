@@ -457,11 +457,17 @@ define([
         },
 
         onLineIssuesClick: function (e) {
-          var line = $(e.currentTarget).data('line-number');
-          if ($(e.currentTarget).parent().find('.issue-list').is('.hidden')) {
-            this.showIssuesForLine(line);
+          var line = $(e.currentTarget).data('line-number'),
+              issuesList = $(e.currentTarget).parent().find('.issue-list'),
+              areIssuesRendered = issuesList.find('.issue-inner').length > 0;
+          if (issuesList.is('.hidden')) {
+            if (areIssuesRendered) {
+              issuesList.removeClass('hidden');
+            } else {
+              this.showIssuesForLine(line);
+            }
           } else {
-            $(e.currentTarget).parent().find('.issue-list').addClass('hidden');
+            issuesList.addClass('hidden');
           }
         },
 
