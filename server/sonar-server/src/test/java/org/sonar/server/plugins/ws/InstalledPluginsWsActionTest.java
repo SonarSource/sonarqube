@@ -36,7 +36,10 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class InstalledPluginsWsActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
-  private static final String JSON_EMPTY_ARRAY = "[]";
+  private static final String JSON_EMPTY_PLUGIN_LIST =
+    "{" +
+      "  \"plugins\":" + "[]" +
+      "}";
 
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private InstalledPluginsWsAction underTest = new InstalledPluginsWsAction(pluginRepository);
@@ -78,7 +81,7 @@ public class InstalledPluginsWsActionTest {
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
     underTest.handle(request, response);
 
-    assertThat(response.outputAsString()).isEqualTo("[]");
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -87,7 +90,7 @@ public class InstalledPluginsWsActionTest {
 
     underTest.handle(request, response);
 
-    assertThat(response.outputAsString()).isEqualTo(JSON_EMPTY_ARRAY);
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -97,74 +100,85 @@ public class InstalledPluginsWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(
-        "[" +
-            "{" +
-            "  \"key\": \"plugKey\"," +
-            "  \"name\": \"plugName\"," +
-            "  \"version\": \"10\"" +
-            "}" +
-            "]"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"plugKey\"," +
+        "      \"name\": \"plugName\"," +
+        "      \"version\": \"10\"" +
+        "    }" +
+        "  ]" +
+        "}"
+      );
   }
 
   @Test
   public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws Exception {
     when(pluginRepository.getMetadata()).thenReturn(
-        of(
-            plugin("A", "name2"),
-            plugin("B", "name1"),
-            plugin("C", "name0"),
-            plugin("D", "name0")
-        )
-    );
+      of(
+        plugin("A", "name2"),
+        plugin("B", "name1"),
+        plugin("C", "name0"),
+        plugin("D", "name0")
+      )
+      );
 
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
-        "[" +
-            "{\"key\": \"C\"}" + "," +
-            "{\"key\": \"D\"}" + "," +
-            "{\"key\": \"B\"}" + "," +
-            "{\"key\": \"A\"}" +
-            "]"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {\"key\": \"C\"}" + "," +
+        "    {\"key\": \"D\"}" + "," +
+        "    {\"key\": \"B\"}" + "," +
+        "    {\"key\": \"A\"}" +
+        "  ]" +
+        "}"
+      );
   }
 
   @Test
   public void only_one_plugin_can_have_a_specific_name_and_key() throws Exception {
     when(pluginRepository.getMetadata()).thenReturn(
-        of(
-            plugin("A", "name2"),
-            plugin("A", "name2")
-        )
-    );
+      of(
+        plugin("A", "name2"),
+        plugin("A", "name2")
+      )
+      );
 
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
-        "[" +
-            "{\"key\": \"A\"}" +
-            "]"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {\"key\": \"A\"}" +
+        "  ]" +
+        "}"
+      );
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
   }
 
   @Test
   public void dash_is_returned_when_version_is_null() throws Exception {
     when(pluginRepository.getMetadata()).thenReturn(
-        of(
-            (PluginMetadata) DefaultPluginMetadata.create("key").setCore(false).setVersion(null)
-        )
-    );
+      of(
+      (PluginMetadata) DefaultPluginMetadata.create("key").setCore(false).setVersion(null)
+      )
+      );
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString())
-        .isSimilarTo(
-            "[" +
-                "{\"version\": \"-\"}" +
-            "]"
-        );
+    assertJson(response.outputAsString()).isSimilarTo(
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {\"version\": \"-\"}" +
+        "  ]" +
+        "}"
+      );
 
   }
 }

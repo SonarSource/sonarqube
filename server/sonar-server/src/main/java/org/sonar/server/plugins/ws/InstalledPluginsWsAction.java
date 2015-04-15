@@ -45,6 +45,7 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
   private static final String PROPERTY_KEY = "key";
   private static final String PROPERTY_NAME = "name";
   private static final String PROPERTY_VERSION = "version";
+  private static final String ARRAY_PLUGINS = "plugins";
 
   private final PluginRepository pluginRepository;
 
@@ -68,7 +69,14 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Collection<PluginMetadata> pluginMetadatas = retrieveAndSortPluginMetadata();
-    writeMetadataList(response, pluginMetadatas);
+
+    JsonWriter jsonWriter = response.newJsonWriter();
+    jsonWriter.beginObject();
+
+    writeMetadataList(jsonWriter, pluginMetadatas);
+
+    jsonWriter.endObject();
+    jsonWriter.close();
   }
 
   private SortedSet<PluginMetadata> retrieveAndSortPluginMetadata() {
@@ -78,14 +86,13 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
       );
   }
 
-  private void writeMetadataList(Response response, Collection<PluginMetadata> pluginMetadatas) {
-    JsonWriter jsonWriter = response.newJsonWriter();
-    jsonWriter.beginArray();
-    for (PluginMetadata pluginMetadata : pluginMetadatas) {
-      writeMetadata(jsonWriter, pluginMetadata);
-    }
-    jsonWriter.endArray();
-    jsonWriter.close();
+  private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginMetadata> pluginMetadatas) {
+      jsonWriter.name(ARRAY_PLUGINS);
+      jsonWriter.beginArray();
+      for (PluginMetadata pluginMetadata : pluginMetadatas) {
+        writeMetadata(jsonWriter, pluginMetadata);
+      }
+      jsonWriter.endArray();
   }
 
   private void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
