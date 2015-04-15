@@ -30,8 +30,3 @@ define ->
 
     parse: (r) ->
       if r.issue then r.issue else r
-
-
-    getDisplayLine: ->
-      return 0 if @get('status') == 'CLOSED'
-      @get('line') || 0
