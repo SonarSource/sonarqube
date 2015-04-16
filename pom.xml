@@ -65,7 +65,7 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.11</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.13-SNAPSHOT</sonarUpdateCenter.version>
     <sonarJava.version>3.0</sonarJava.version>
     <sonarGit.version>1.0</sonarGit.version>
     <sonarSvn.version>1.0</sonarSvn.version>

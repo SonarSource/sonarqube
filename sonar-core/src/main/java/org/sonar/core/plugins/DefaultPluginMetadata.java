@@ -50,7 +50,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   private String basePlugin;
   private boolean core;
   private String implementationBuild;
-  private String parent;
   private List<String> requiredPlugins;
 
   private DefaultPluginMetadata() {
@@ -186,16 +185,6 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   }
 
   @Override
-  public String getParent() {
-    return parent;
-  }
-
-  public DefaultPluginMetadata setParent(String parent) {
-    this.parent = parent;
-    return this;
-  }
-
-  @Override
   public List<String> getRequiredPlugins() {
     return ImmutableList.copyOf(requiredPlugins);
   }
@@ -281,6 +270,11 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
   public DefaultPluginMetadata setImplementationBuild(String implementationBuild) {
     this.implementationBuild = implementationBuild;
     return this;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
   }
 
   @Override
