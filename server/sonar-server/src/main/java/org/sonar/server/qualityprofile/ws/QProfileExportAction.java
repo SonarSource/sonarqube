@@ -24,10 +24,8 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.*;
 import org.sonar.api.server.ws.Response.Stream;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -89,16 +87,21 @@ public class QProfileExportAction implements BaseQProfileWsAction {
         exporterKeys.add(exporter.getKey());
       }
     }
-    create.createParam(PARAM_FORMAT)
-      .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used.")
-      .setPossibleValues(exporterKeys);
+    if (!exporterKeys.isEmpty()) {
+      create.createParam(PARAM_FORMAT)
+        .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used.")
+        .setPossibleValues(exporterKeys);
+    }
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String name = request.param(PARAM_PROFILE_NAME);
     String language = request.mandatoryParam(PARAM_LANGUAGE);
-    String format = request.param(PARAM_FORMAT);
+    String format = null;
+    if (!exporters.exportersForLanguage(language).isEmpty()) {
+      format = request.param(PARAM_FORMAT);
+    }
 
     DbSession dbSession = dbClient.openSession(false);
     Stream stream = response.stream();

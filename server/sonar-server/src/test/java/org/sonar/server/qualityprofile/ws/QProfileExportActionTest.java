@@ -30,6 +30,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -38,12 +39,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.qualityprofile.QProfileExporters;
-import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.qualityprofile.QProfileTesting;
+import org.sonar.server.qualityprofile.*;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.ws.WsTester;
@@ -66,6 +62,8 @@ public class QProfileExportActionTest {
 
   QualityProfileDao qualityProfileDao;
 
+  DbClient dbClient;
+
   DbSession session;
 
   QProfileBackuper backuper;
@@ -75,7 +73,7 @@ public class QProfileExportActionTest {
   @Before
   public void before() throws Exception {
     qualityProfileDao = new QualityProfileDao(db.myBatis(), mock(System2.class));
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), qualityProfileDao);
+    dbClient = new DbClient(db.database(), db.myBatis(), qualityProfileDao);
     session = dbClient.openSession(false);
     backuper = mock(QProfileBackuper.class);
 
@@ -177,5 +175,24 @@ public class QProfileExportActionTest {
 
     wsTester.newGetRequest("api/qualityprofiles", "export")
       .setParam("language", "xoo").setParam("format", "unknown").execute();
+  }
+
+  @Test
+  public void do_not_fail_when_no_exporters() throws Exception {
+    exporters = new QProfileExporters(null, null, null, new ProfileExporter[0], null);
+    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
+      mock(BulkRuleActivationActions.class),
+      mock(ProjectAssociationActions.class),
+      new QProfileExportAction(dbClient, new QProfileFactory(dbClient), backuper, exporters, LanguageTesting.newLanguages("xoo"))));
+
+    Action export = wsTester.controller("api/qualityprofiles").action("export");
+    assertThat(export.params()).hasSize(2);
+
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    qualityProfileDao.insert(session, profile);
+    session.commit();
+
+    wsTester.newGetRequest("api/qualityprofiles", "export").setParam("language", "xoo").setParam("name", profile.getName()).execute();
+
   }
 }
