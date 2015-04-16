@@ -19,31 +19,77 @@
  */
 /* globals casper: false */
 var lib = require('../lib'),
-    testName = lib.testName('Format Measures');
+    testName = lib.testName('Application');
 
 lib.initMessages();
 lib.configureCasper();
 
 
-function formatMeasure (measure, type) {
-  return casper.evaluate(function (measure, type) {
-    return formatMeasure(measure, type);
-  }, measure, type);
-}
+casper.test.begin(testName('collapsedDirFromPath() & fileFromPath()'), function (test) {
 
-function formatMeasureVariation (measure, type) {
-  return casper.evaluate(function (measure, type) {
-    return formatMeasureVariation(measure, type);
-  }, measure, type);
-}
+  function collapsedDirFromPath (path) {
+    return casper.evaluate(function (path) {
+      return window.collapsedDirFromPath(path);
+    }, path);
+  }
 
-var HOURS_IN_DAY = 8,
-    ONE_MINUTE = 1,
-    ONE_HOUR = ONE_MINUTE * 60,
-    ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+  function fileFromPath (path) {
+    return casper.evaluate(function (path) {
+      return window.fileFromPath(path);
+    }, path);
+  }
+
+  casper
+      .start(lib.buildUrl('ui-global-messages'), function () {
+        lib.setDefaultViewport();
+      })
+
+      .then(function () {
+        test.assert(!collapsedDirFromPath(null));
+        test.assertEqual(collapsedDirFromPath('/'), '/');
+        test.assertEqual(collapsedDirFromPath('src/main/js/components/state.js'), 'src/main/js/components/');
+        test.assertEqual(collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js'),
+            'src/.../js/components/navigator/app/models/');
+        test.assertEqual(collapsedDirFromPath('src/main/another/js/components/navigator/app/models/state.js'),
+            'src/.../js/components/navigator/app/models/');
+      })
+
+      .then(function () {
+        test.assert(!fileFromPath(null));
+        test.assertEqual(fileFromPath('/'), '');
+        test.assertEqual(fileFromPath('state.js'), 'state.js');
+        test.assertEqual(fileFromPath('src/main/js/components/state.js'), 'state.js');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
 
 
-casper.test.begin(testName(), function (test) {
+casper.test.begin(testName('Format Measures'), function (test) {
+
+  function formatMeasure (measure, type) {
+    return casper.evaluate(function (measure, type) {
+      return formatMeasure(measure, type);
+    }, measure, type);
+  }
+
+  function formatMeasureVariation (measure, type) {
+    return casper.evaluate(function (measure, type) {
+      return formatMeasureVariation(measure, type);
+    }, measure, type);
+  }
+
+  var HOURS_IN_DAY = 8,
+      ONE_MINUTE = 1,
+      ONE_HOUR = ONE_MINUTE * 60,
+      ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
+
   casper
       .start(lib.buildUrl('ui-global-messages'), function () {
         lib.setDefaultViewport();
@@ -157,6 +203,51 @@ casper.test.begin(testName(), function (test) {
         test.assertEqual(formatMeasureVariation('random value', 'RANDOM_TYPE'), 'random value');
 
         test.assertEqual(formatMeasureVariation(), '');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Severity Comparators'), function (test) {
+
+  function severityComparator (severity) {
+    return casper.evaluate(function (severity) {
+      return window.severityComparator(severity);
+    }, severity);
+  }
+
+  function severityColumnsComparator (severity) {
+    return casper.evaluate(function (severity) {
+      return window.severityColumnsComparator(severity);
+    }, severity);
+  }
+
+  casper
+      .start(lib.buildUrl('ui-global-messages'), function () {
+        lib.setDefaultViewport();
+      })
+
+      .then(function () {
+        test.assertEqual(severityComparator('BLOCKER'), 0);
+        test.assertEqual(severityComparator('CRITICAL'), 1);
+        test.assertEqual(severityComparator('MAJOR'), 2);
+        test.assertEqual(severityComparator('MINOR'), 3);
+        test.assertEqual(severityComparator('INFO'), 4);
+      })
+
+      .then(function () {
+        test.assertEqual(severityColumnsComparator('BLOCKER'), 0);
+        test.assertEqual(severityColumnsComparator('CRITICAL'), 2);
+        test.assertEqual(severityColumnsComparator('MAJOR'), 4);
+        test.assertEqual(severityColumnsComparator('MINOR'), 1);
+        test.assertEqual(severityColumnsComparator('INFO'), 3);
       })
 
       .then(function () {
