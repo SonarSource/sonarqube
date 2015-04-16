@@ -60,13 +60,6 @@ define [
       setTimeout (=> @$('input').focus()), 100
 
 
-    selectInitialOption: ->
-      assignee = @getAssignee()
-      if assignee
-        @makeActive @getOptions().filter("[data-value=\"#{@getAssignee()}\"]")
-      else super
-
-
     renderTags: ->
       @$('.issue-action-option').remove()
       @getAssignees().forEach @renderAssignee, @
