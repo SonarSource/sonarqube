@@ -19,6 +19,13 @@
  */
 package org.sonar.server.db.migrations.v50;
 
+import static com.google.common.base.Charsets.UTF_8;
+
+import java.sql.SQLException;
+import java.util.Date;
+
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -27,13 +34,6 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
 import org.sonar.server.db.migrations.SqlStatement;
-
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.Date;
-
-import static com.google.common.base.Charsets.UTF_8;
 
 /**
  * Used in the Active Record Migration 714

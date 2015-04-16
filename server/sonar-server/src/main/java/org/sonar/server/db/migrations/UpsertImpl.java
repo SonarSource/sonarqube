@@ -19,11 +19,11 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.sonar.core.persistence.BatchSession;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import org.sonar.core.persistence.BatchSession;
 
 public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
 

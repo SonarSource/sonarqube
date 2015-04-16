@@ -20,6 +20,10 @@
 
 package org.sonar.server.db.migrations.v43;
 
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -27,49 +31,49 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import javax.annotation.CheckForNull;
-
-import java.sql.SQLException;
-
 /**
- * Used in the Active Record Migration 516
+ * Used in the Active Record Migration 513.
+ * WARNING - this migration is not re-entrant.
  *
  * @since 4.3
  */
-public class DevelopmentCostMeasuresMigration extends BaseDataChange {
+public class ConvertIssueDebtToMinutesMigrationStep extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
+  private final System2 system2;
 
-  public DevelopmentCostMeasuresMigration(Database database, PropertiesDao propertiesDao) {
+  public ConvertIssueDebtToMinutesMigrationStep(Database database, PropertiesDao propertiesDao, System2 system2) {
     super(database);
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
+    this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
+    final Date now = new Date(system2.now());
+    MassUpdate massUpdate = context.prepareMassUpdate();
 
-    Long metricId = context.prepareSelect("select id from metrics where name='development_cost'").get(Select.LONG_READER);
-    if (metricId != null) {
-      MassUpdate massUpdate = context.prepareMassUpdate();
-      massUpdate.select("select id, value from project_measures where metric_id=? and value is not null").setLong(1, metricId);
-      massUpdate.update("update project_measures set value=NULL,text_value=? where id=?");
-      massUpdate.execute(new MassUpdate.Handler() {
-        @Override
-        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+    // See https://jira.codehaus.org/browse/SONAR-5394
+    // The SQL request should not set the filter on technical_debt is not null. There's no index
+    // on this column, so filtering is done programmatically.
+    massUpdate.select("select id, technical_debt from issues");
+
+    massUpdate.update("update issues set technical_debt=?, updated_at=? where id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long debt = row.getNullableLong(2);
+        if (debt != null) {
           Long id = row.getNullableLong(1);
-          Double value = row.getNullableDouble(2);
-
-          update.setString(1, convertDebtForDays(value));
-          update.setLong(2, id);
+          update.setLong(1, workDurationConvertor.createFromLong(debt));
+          update.setDate(2, now);
+          update.setLong(3, id);
           return true;
         }
-      });
-    }
+        return false;
+      }
+    });
   }
 
-  @CheckForNull
-  private String convertDebtForDays(Double data) {
-    return Long.toString(workDurationConvertor.createFromDays(data));
-  }
 }

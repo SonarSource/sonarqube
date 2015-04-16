@@ -26,7 +26,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ public class AddNewCharacteristicsTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(AddNewCharacteristicsTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
 
   System2 system = mock(System2.class);
 

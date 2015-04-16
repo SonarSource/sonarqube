@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations.v451;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ public class DeleteUnescapedActivitiesTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(DeleteUnescapedActivitiesTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
 
   @Test
   public void execute() throws Exception {

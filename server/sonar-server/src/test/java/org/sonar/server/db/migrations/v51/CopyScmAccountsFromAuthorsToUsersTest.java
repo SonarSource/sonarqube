@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import java.util.Map;
 
@@ -39,7 +39,7 @@ public class CopyScmAccountsFromAuthorsToUsersTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(CopyScmAccountsFromAuthorsToUsersTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
   System2 system = mock(System2.class);
 
   @Before

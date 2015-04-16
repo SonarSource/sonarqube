@@ -39,7 +39,7 @@ public class FeedQProfileDatesMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(FeedQProfileDatesMigrationTest.class, "schema.sql");
 
-  FeedQProfileDatesMigration migration;
+  FeedQProfileDatesMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
@@ -48,7 +48,7 @@ public class FeedQProfileDatesMigrationTest {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
     System2 system = mock(System2.class);
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-07-03T12:00:00+0000").getTime());
-    migration = new FeedQProfileDatesMigration(dbClient, system);
+    migration = new FeedQProfileDatesMigrationStep(dbClient, system);
   }
 
   @Test

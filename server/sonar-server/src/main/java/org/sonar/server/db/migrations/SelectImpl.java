@@ -19,15 +19,15 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.sonar.core.persistence.Database;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.core.persistence.Database;
 
 class SelectImpl extends BaseSqlStatement<Select> implements Select {
 

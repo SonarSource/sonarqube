@@ -19,15 +19,15 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.apache.commons.dbutils.DbUtils;
-
-import javax.annotation.Nullable;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.dbutils.DbUtils;
 
 class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD> {
   protected PreparedStatement pstmt;

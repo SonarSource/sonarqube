@@ -19,7 +19,10 @@
  */
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.collect.Lists;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -28,9 +31,7 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class RenameComponentRelatedParamsInIssueFilters extends BaseDataChange {
 

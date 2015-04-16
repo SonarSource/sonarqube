@@ -41,13 +41,13 @@ public class DevelopmentCostMeasuresMigrationTest {
   @Mock
   PropertiesDao propertiesDao;
 
-  DevelopmentCostMeasuresMigration migration;
+  DevelopmentCostMeasuresMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
-    migration = new DevelopmentCostMeasuresMigration(db.database(), propertiesDao);
+    migration = new DevelopmentCostMeasuresMigrationStep(db.database(), propertiesDao);
   }
 
   @Test

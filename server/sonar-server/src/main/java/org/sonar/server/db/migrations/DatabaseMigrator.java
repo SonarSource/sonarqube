@@ -19,18 +19,19 @@
  */
 package org.sonar.server.db.migrations;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.sql.Connection;
+
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DdlUtils;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.ServerPluginRepository;
 
-import java.sql.Connection;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Restore schema by executing DDL scripts. Only H2 database is supported.
@@ -41,14 +42,14 @@ import java.sql.Connection;
 public class DatabaseMigrator implements ServerComponent, Startable {
 
   private final DbClient dbClient;
-  private final DatabaseMigration[] migrations;
+  private final MigrationStep[] migrations;
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   /**
    * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
-  public DatabaseMigrator(DbClient dbClient, DatabaseMigration[] migrations, ServerUpgradeStatus serverUpgradeStatus,
-                          ServerPluginRepository serverPluginRepository) {
+  public DatabaseMigrator(DbClient dbClient, MigrationStep[] migrations, ServerUpgradeStatus serverUpgradeStatus,
+    ServerPluginRepository serverPluginRepository) {
     this.dbClient = dbClient;
     this.migrations = migrations;
     this.serverUpgradeStatus = serverUpgradeStatus;
@@ -89,7 +90,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
   }
 
   public void executeMigration(String className) {
-    DatabaseMigration migration = getMigration(className);
+    MigrationStep migration = getMigration(className);
     try {
       migration.execute();
 
@@ -101,8 +102,8 @@ public class DatabaseMigrator implements ServerComponent, Startable {
     }
   }
 
-  private DatabaseMigration getMigration(String className) {
-    for (DatabaseMigration migration : migrations) {
+  private MigrationStep getMigration(String className) {
+    for (MigrationStep migration : migrations) {
       if (migration.getClass().getName().equals(className)) {
         return migration;
       }

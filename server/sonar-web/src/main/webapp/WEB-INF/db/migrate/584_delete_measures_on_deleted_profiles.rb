@@ -24,7 +24,7 @@
 class DeleteMeasuresOnDeletedProfiles < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigration'
+    execute_java_migration 'org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigrationStep'
   end
 
 end

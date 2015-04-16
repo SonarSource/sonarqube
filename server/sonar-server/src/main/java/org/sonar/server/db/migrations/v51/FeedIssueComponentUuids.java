@@ -20,14 +20,14 @@
 
 package org.sonar.server.db.migrations.v51;
 
+import java.sql.SQLException;
+
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.SqlStatement;
-
-import java.sql.SQLException;
 
 public class FeedIssueComponentUuids extends BaseDataChange {
 

@@ -25,7 +25,7 @@
 class RemovePermissionsOnModules < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v51.RemovePermissionsOnModulesMigration'
+    execute_java_migration 'org.sonar.server.db.migrations.v51.RemovePermissionsOnModulesMigrationStep'
   end
 
 end

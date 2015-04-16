@@ -18,8 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.v50;
+package org.sonar.server.db.migrations.v43;
 
+import java.sql.SQLException;
+import java.util.Date;
+
+import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -27,39 +31,38 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-
 /**
- * Used in the Active Record Migration 716
+ * Used in the Active Record Migration 525
  *
- * @since 5.0
+ * @since 4.3
  */
-public class InsertProjectsAuthorizationUpdatedAtMigration extends BaseDataChange {
+public class NotResolvedIssuesOnRemovedComponentsMigrationStep extends BaseDataChange {
 
-  private final System2 system;
+  private final System2 system2;
 
-  public InsertProjectsAuthorizationUpdatedAtMigration(Database db, System2 system) {
-    super(db);
-    this.system = system;
+  public NotResolvedIssuesOnRemovedComponentsMigrationStep(Database database, System2 system2) {
+    super(database);
+    this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    final long now = system.now();
-
+    final Date now = new Date(system2.now());
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=? and p.authorization_updated_at IS NULL").setString(1, "PRJ").setBoolean(2, true);
-    massUpdate.update("UPDATE projects SET authorization_updated_at=? WHERE id=?");
-    massUpdate.rowPluralName("projects");
+    massUpdate.select("SELECT i.id FROM issues i " +
+      "INNER JOIN projects p on p.id=i.component_id " +
+      "WHERE p.enabled=? AND i.resolution IS NULL ").setBoolean(1, false);
+    massUpdate.update("UPDATE issues SET status=?,resolution=?,updated_at=? WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getNullableLong(1);
-        update.setLong(1, now);
-        update.setLong(2, id);
+        update.setString(1, Issue.STATUS_CLOSED);
+        update.setString(2, Issue.RESOLUTION_REMOVED);
+        update.setDate(3, now);
+        update.setLong(4, id);
         return true;
       }
     });
   }
-
 }

@@ -41,13 +41,13 @@ public class IssueActionPlanKeyMigrationTest {
   @Mock
   System2 system2;
 
-  IssueActionPlanKeyMigration migration;
+  IssueActionPlanKeyMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-28").getTime());
 
-    migration = new IssueActionPlanKeyMigration(db.database(), system2);
+    migration = new IssueActionPlanKeyMigrationStep(db.database(), system2);
   }
 
   @Test

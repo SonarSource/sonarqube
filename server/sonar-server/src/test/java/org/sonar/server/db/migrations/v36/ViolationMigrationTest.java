@@ -35,7 +35,7 @@ public class ViolationMigrationTest {
   public void migrate_violations() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_violations.xml");
 
-    new ViolationMigration(db.database(), new Settings()).execute();
+    new ViolationMigrationStep(db.database(), new Settings()).execute();
 
     db.assertDbUnit(getClass(), "migrate_violations_result.xml", "issues", "issue_changes");
     assertMigrationEnded();
@@ -45,7 +45,7 @@ public class ViolationMigrationTest {
   public void no_violations_to_migrate() throws Exception {
     db.prepareDbUnit(getClass(), "no_violations_to_migrate.xml");
 
-    new ViolationMigration(db.database(), new Settings()).execute();
+    new ViolationMigrationStep(db.database(), new Settings()).execute();
 
     db.assertDbUnit(getClass(), "no_violations_to_migrate_result.xml", "issues", "issue_changes");
     assertMigrationEnded();

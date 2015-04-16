@@ -24,7 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +41,7 @@ public class FeedIssueLongDatesTest {
 
     System2 system = mock(System2.class);
     when(system.now()).thenReturn(1500000000000L);
-    DatabaseMigration migration = new FeedIssueLongDates(db.database(), system);
+    MigrationStep migration = new FeedIssueLongDates(db.database(), system);
     migration.execute();
 
     int count = db.countSql("select count(*) from issues where created_at_ms is not null and updated_at_ms is not null");

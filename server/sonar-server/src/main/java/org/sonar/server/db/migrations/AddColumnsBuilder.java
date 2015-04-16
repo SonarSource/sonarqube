@@ -19,19 +19,20 @@
  */
 package org.sonar.server.db.migrations;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.List;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.MsSql;
 import org.sonar.core.persistence.dialect.Oracle;
 import org.sonar.core.persistence.dialect.PostgreSql;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
 
 public class AddColumnsBuilder {
 

@@ -20,9 +20,15 @@
 
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -31,14 +37,9 @@ import org.sonar.server.db.migrations.Upsert;
 import org.sonar.server.db.migrations.UpsertImpl;
 import org.sonar.server.util.ProgressLogger;
 
-import javax.annotation.CheckForNull;
-
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static com.google.common.collect.Lists.newArrayList;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
 

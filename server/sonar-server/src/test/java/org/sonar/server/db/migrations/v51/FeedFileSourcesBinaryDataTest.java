@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.InputStream;
@@ -49,7 +49,7 @@ public class FeedFileSourcesBinaryDataTest {
   public void convert_csv_to_protobuf() throws Exception {
     db.prepareDbUnit(getClass(), "data.xml");
 
-    DatabaseMigration migration = new FeedFileSourcesBinaryData(db.database());
+    MigrationStep migration = new FeedFileSourcesBinaryData(db.database());
     migration.execute();
 
     int count = db.countSql("select count(*) from file_sources where binary_data is not null");
@@ -73,7 +73,7 @@ public class FeedFileSourcesBinaryDataTest {
   public void fail_to_parse_csv() throws Exception {
     db.prepareDbUnit(getClass(), "bad_data.xml");
 
-    DatabaseMigration migration = new FeedFileSourcesBinaryData(db.database());
+    MigrationStep migration = new FeedFileSourcesBinaryData(db.database());
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Error during processing of row: [id=1,data=");

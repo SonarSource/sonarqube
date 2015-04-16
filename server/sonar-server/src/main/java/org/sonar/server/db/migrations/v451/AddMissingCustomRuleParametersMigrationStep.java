@@ -19,26 +19,27 @@
  */
 package org.sonar.server.db.migrations.v451;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v45.Migration45Mapper;
 import org.sonar.core.persistence.migration.v45.Rule;
 import org.sonar.core.persistence.migration.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.util.ProgressLogger;
 
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 
 /**
  * See http://jira.codehaus.org/browse/SONAR-5575
@@ -47,13 +48,13 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @since 4.5.1
  */
-public class AddMissingCustomRuleParametersMigration implements DatabaseMigration {
+public class AddMissingCustomRuleParametersMigrationStep implements MigrationStep {
 
   private final DbClient db;
   private final System2 system;
   private final AtomicLong counter = new AtomicLong(0L);
 
-  public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
+  public AddMissingCustomRuleParametersMigrationStep(DbClient db, System2 system) {
     this.db = db;
     this.system = system;
   }

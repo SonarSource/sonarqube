@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.v44;
+package org.sonar.server.db.migrations.v50;
+
+import java.sql.SQLException;
 
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -27,44 +29,37 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-import java.util.Date;
-
 /**
- * SONAR-5218
- * Update all issues having action plan linked on removed action plan.
- * <p/>
- * Used in the Active Record Migration 531.
+ * Used in the Active Record Migration 716
  *
- * @since 4.4
+ * @since 5.0
  */
-public class IssueActionPlanKeyMigration extends BaseDataChange {
+public class InsertProjectsAuthorizationUpdatedAtMigrationStep extends BaseDataChange {
 
-  private final System2 system2;
+  private final System2 system;
 
-  public IssueActionPlanKeyMigration(Database database, System2 system2) {
-    super(database);
-    this.system2 = system2;
+  public InsertProjectsAuthorizationUpdatedAtMigrationStep(Database db, System2 system) {
+    super(db);
+    this.system = system;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    final Date now = new Date(system2.now());
+    final long now = system.now();
+
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT i.id FROM issues i " +
-      "LEFT OUTER JOIN action_plans ap ON ap.kee=i.action_plan_key " +
-      "WHERE i.action_plan_key IS NOT NULL " +
-      "AND ap.kee is null");
-    massUpdate.update("UPDATE issues SET action_plan_key=NULL,updated_at=? WHERE id=?");
+    massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=? and p.authorization_updated_at IS NULL").setString(1, "PRJ").setBoolean(2, true);
+    massUpdate.update("UPDATE projects SET authorization_updated_at=? WHERE id=?");
+    massUpdate.rowPluralName("projects");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getNullableLong(1);
-
-        update.setDate(1, now);
+        update.setLong(1, now);
         update.setLong(2, id);
         return true;
       }
     });
   }
+
 }

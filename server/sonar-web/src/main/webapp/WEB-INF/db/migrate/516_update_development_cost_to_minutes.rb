@@ -25,6 +25,6 @@
 class UpdateDevelopmentCostToMinutes < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigrationStep')
   end
 end

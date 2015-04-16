@@ -38,7 +38,7 @@ public class FeedQProfileKeysMigrationTest {
   public void feed_keys() throws Exception {
     db.prepareDbUnit(getClass(), "feed_keys.xml");
 
-    new FeedQProfileKeysMigration(db.database()).execute();
+    new FeedQProfileKeysMigrationStep(db.database()).execute();
 
     List<Map<String, Object>> profiles = db.select("SELECT kee, name, language, parent_kee FROM rules_profiles ORDER BY id ASC");
 

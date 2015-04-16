@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public class FeedEventsLongDatesTest {
 
   @Test
   public void execute() throws Exception {
-    DatabaseMigration migration = newMigration(System2.INSTANCE);
+    MigrationStep migration = newMigration(System2.INSTANCE);
 
     migration.execute();
 
@@ -59,7 +59,7 @@ public class FeedEventsLongDatesTest {
     System2 system = mock(System2.class);
     when(system.now()).thenReturn(1234L);
 
-    DatabaseMigration migration = newMigration(system);
+    MigrationStep migration = newMigration(system);
 
     migration.execute();
 
@@ -71,7 +71,7 @@ public class FeedEventsLongDatesTest {
 
   @Test
   public void take_date_if_in_the_past() throws Exception {
-    DatabaseMigration migration = newMigration(System2.INSTANCE);
+    MigrationStep migration = newMigration(System2.INSTANCE);
 
     migration.execute();
 
@@ -82,7 +82,7 @@ public class FeedEventsLongDatesTest {
     assertThat(count).isEqualTo(1);
   }
 
-  private DatabaseMigration newMigration(System2 system) {
+  private MigrationStep newMigration(System2 system) {
     return new FeedEventsLongDates(db.database(), system);
   }
 }

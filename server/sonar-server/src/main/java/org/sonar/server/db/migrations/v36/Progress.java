@@ -19,12 +19,11 @@
  */
 package org.sonar.server.db.migrations.v36;
 
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This task logs every minute the status of migration. It is destroyed
@@ -64,7 +63,7 @@ class Progress extends TimerTask {
       long remaining = (totalViolations - totalIssues) / frequency;
       logger.info(String.format(
         "%d%% [%d/%d violations, %d minutes remaining]", percents, totalIssues, totalViolations, remaining)
-      );
+        );
     } else {
       logger.info(String.format("%d%% [%d/%d violations]", percents, totalIssues, totalViolations));
     }

@@ -25,7 +25,7 @@
 class MigratePackageKeys < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v42.PackageKeysMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v42.PackageKeysMigrationStep')
   end
 
 end

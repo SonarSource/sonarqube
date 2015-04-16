@@ -33,11 +33,11 @@ public class MeasureDataMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(MeasureDataMigrationTest.class, "schema.sql");
 
-  MeasureDataMigration migration;
+  MeasureDataMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
-    migration = new MeasureDataMigration(db.database());
+    migration = new MeasureDataMigrationStep(db.database());
   }
 
   @Test

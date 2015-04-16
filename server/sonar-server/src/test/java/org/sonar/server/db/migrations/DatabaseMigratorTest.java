@@ -47,7 +47,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   public ExpectedException thrown = ExpectedException.none();
 
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  DatabaseMigration[] migrations = new DatabaseMigration[]{new FakeMigration()};
+  MigrationStep[] migrations = new MigrationStep[]{new FakeMigrationStep()};
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   DatabaseMigrator migrator;
 
@@ -74,9 +74,9 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   @Test
   public void execute_migration() throws Exception {
-    assertThat(FakeMigration.executed).isFalse();
-    migrator.executeMigration(FakeMigration.class.getName());
-    assertThat(FakeMigration.executed).isTrue();
+    assertThat(FakeMigrationStep.executed).isFalse();
+    migrator.executeMigration(FakeMigrationStep.class.getName());
+    assertThat(FakeMigrationStep.executed).isTrue();
   }
 
   @Test
@@ -98,7 +98,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     assertThat(databaseMigrator.createDatabase()).isTrue();
   }
 
-  public static class FakeMigration implements DatabaseMigration {
+  public static class FakeMigrationStep implements MigrationStep {
     static boolean executed = false;
 
     @Override

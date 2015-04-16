@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,12 +38,12 @@ public class DeleteMeasuresOnDeletedProfilesMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(DeleteMeasuresOnDeletedProfilesMigrationTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
-    migration = new DeleteMeasuresOnDeletedProfilesMigration(dbClient);
+    migration = new DeleteMeasuresOnDeletedProfilesMigrationStep(dbClient);
   }
 
   @Test

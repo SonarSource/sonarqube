@@ -37,12 +37,12 @@ public class ConvertProfileMeasuresMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(ConvertProfileMeasuresMigrationTest.class, "schema.sql");
 
-  ConvertProfileMeasuresMigration migration;
+  ConvertProfileMeasuresMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
-    migration = new ConvertProfileMeasuresMigration(dbClient);
+    migration = new ConvertProfileMeasuresMigrationStep(dbClient);
   }
 
   @Test

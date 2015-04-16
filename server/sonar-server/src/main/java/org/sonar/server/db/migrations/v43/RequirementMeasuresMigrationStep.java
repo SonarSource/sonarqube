@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.v44;
+package org.sonar.server.db.migrations.v43;
+
+import java.sql.SQLException;
 
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -26,36 +28,32 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-
 /**
- * SONAR-5249
- * Merge measure data table into project_measure
+ * Used in the Active Record Migration 521
  *
- * Used in the Active Record Migration 530.
- * @since 4.4
+ * @since 4.3
  */
-public class MeasureDataMigration extends BaseDataChange {
+public class RequirementMeasuresMigrationStep extends BaseDataChange {
 
-  public MeasureDataMigration(Database database) {
+  public RequirementMeasuresMigrationStep(Database database) {
     super(database);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.rowPluralName("measures");
-    massUpdate.select("select md.id, md.measure_id FROM measure_data md " +
-      "inner join project_measures m on m.id=md.measure_id and m.measure_data is null");
-    massUpdate.update("update project_measures SET measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE id=?");
+    massUpdate.select("SELECT project_measures.id,characteristics.rule_id FROM project_measures " +
+      "INNER JOIN characteristics ON characteristics.id = project_measures.characteristic_id " +
+      "WHERE characteristics.rule_id IS NOT NULL");
+    massUpdate.update("UPDATE project_measures SET characteristic_id=null,rule_id=? WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getNullableLong(1);
-        Long measureId = row.getNullableLong(2);
+        Long ruleId = row.getNullableLong(2);
 
-        update.setLong(1, id);
-        update.setLong(2, measureId);
+        update.setLong(1, ruleId);
+        update.setLong(2, id);
         return true;
       }
     });

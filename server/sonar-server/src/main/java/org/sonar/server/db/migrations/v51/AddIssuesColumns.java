@@ -20,11 +20,11 @@
 
 package org.sonar.server.db.migrations.v51;
 
+import java.sql.SQLException;
+
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.AddColumnsBuilder;
 import org.sonar.server.db.migrations.DdlChange;
-
-import java.sql.SQLException;
 
 /**
  * Add the following columns to the issues table :

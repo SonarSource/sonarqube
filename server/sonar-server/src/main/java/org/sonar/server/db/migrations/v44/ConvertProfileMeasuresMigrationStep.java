@@ -20,6 +20,9 @@
 
 package org.sonar.server.db.migrations.v44;
 
+import java.io.StringWriter;
+import java.util.Date;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.UtcDateUtils;
@@ -28,21 +31,18 @@ import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.persistence.migration.v44.ProfileMeasure;
 import org.sonar.core.persistence.migration.v44.QProfileDto44;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
-
-import java.io.StringWriter;
-import java.util.Date;
+import org.sonar.server.db.migrations.MigrationStep;
 
 /**
  * Feed the new columns RULES_PROFILE.KEE and PARENT_KEE.
  * 
  * @since 4.4
  */
-public class ConvertProfileMeasuresMigration implements DatabaseMigration {
+public class ConvertProfileMeasuresMigrationStep implements MigrationStep {
 
   private final DbClient db;
 
-  public ConvertProfileMeasuresMigration(DbClient db) {
+  public ConvertProfileMeasuresMigrationStep(DbClient db) {
     this.db = db;
   }
 
@@ -60,7 +60,7 @@ public class ConvertProfileMeasuresMigration implements DatabaseMigration {
         if (profile != null) {
           Date date = now;
           if (version != null) {
-            date = (Date)ObjectUtils.defaultIfNull(
+            date = (Date) ObjectUtils.defaultIfNull(
               mapper.selectProfileVersionDate(profileMeasure.getProfileId(), version), now);
           }
           // see format of JSON in org.sonar.batch.rule.UsedQProfiles

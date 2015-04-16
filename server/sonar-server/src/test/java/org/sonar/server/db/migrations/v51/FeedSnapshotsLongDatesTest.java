@@ -24,7 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,7 +39,7 @@ public class FeedSnapshotsLongDatesTest {
   public void execute() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
-    DatabaseMigration migration = new FeedSnapshotsLongDates(db.database(), System2.INSTANCE);
+    MigrationStep migration = new FeedSnapshotsLongDates(db.database(), System2.INSTANCE);
     migration.execute();
 
     int count = db
@@ -59,7 +59,7 @@ public class FeedSnapshotsLongDatesTest {
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(0L);
 
-    DatabaseMigration migration = new FeedSnapshotsLongDates(db.database(), mock(System2.class));
+    MigrationStep migration = new FeedSnapshotsLongDates(db.database(), mock(System2.class));
     migration.execute();
 
     int count = db
@@ -73,7 +73,7 @@ public class FeedSnapshotsLongDatesTest {
     db.prepareDbUnit(getClass(), "before.xml");
     long snapshotTime = parseDate("2014-09-25").getTime();
 
-    DatabaseMigration migration = new FeedSnapshotsLongDates(db.database(), System2.INSTANCE);
+    MigrationStep migration = new FeedSnapshotsLongDates(db.database(), System2.INSTANCE);
     migration.execute();
 
     int count = db

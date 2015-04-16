@@ -19,8 +19,9 @@
  */
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
+import java.sql.SQLException;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -31,9 +32,8 @@ import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowHandler;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-import java.util.Map;
-
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
 
 /**
  * SONAR-5897

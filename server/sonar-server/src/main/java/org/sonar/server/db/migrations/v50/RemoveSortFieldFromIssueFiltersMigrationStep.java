@@ -19,7 +19,10 @@
  */
 package org.sonar.server.db.migrations.v50;
 
-import com.google.common.collect.Lists;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -28,13 +31,11 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 // TODO could be refactored to benefit from existing code of ReplaceIssueFiltersProjectKeyByUuid
 // -> make any change of issue_filters easier
-public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
+public class RemoveSortFieldFromIssueFiltersMigrationStep extends BaseDataChange {
 
   private static final char FIELD_SEPARATOR = '|';
   private static final String SORT_KEY = "sort=";
@@ -42,7 +43,7 @@ public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
 
   private final System2 system;
 
-  public RemoveSortFieldFromIssueFiltersMigration(Database db, System2 system) {
+  public RemoveSortFieldFromIssueFiltersMigrationStep(Database db, System2 system) {
     super(db);
     this.system = system;
   }
@@ -50,7 +51,7 @@ public class RemoveSortFieldFromIssueFiltersMigration extends BaseDataChange {
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("select id,data from issue_filters where data like '%" + SORT_KEY + "%' or data like '%" + ASC_KEY +"%'");
+    massUpdate.select("select id,data from issue_filters where data like '%" + SORT_KEY + "%' or data like '%" + ASC_KEY + "%'");
     massUpdate.update("update issue_filters set data=?, updated_at=? where id=?");
     massUpdate.rowPluralName("issue filters");
     massUpdate.execute(new FilterHandler(new Date(system.now())));

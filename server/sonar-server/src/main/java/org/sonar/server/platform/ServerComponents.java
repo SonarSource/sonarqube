@@ -103,7 +103,7 @@ import org.sonar.server.dashboard.ws.DashboardsWebService;
 import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
-import org.sonar.server.db.migrations.DatabaseMigrations;
+import org.sonar.server.db.migrations.MigrationSteps;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.debt.*;
 import org.sonar.server.design.FileDesignWidget;
@@ -303,7 +303,7 @@ class ServerComponents {
       FileSourceDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
-    components.addAll(DatabaseMigrations.CLASSES);
+    components.addAll(MigrationSteps.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
     return components;
   }
