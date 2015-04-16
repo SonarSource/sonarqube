@@ -21095,80 +21095,94 @@ public final class BatchReport {
     int getTestFileRef();
 
     /**
-     * <code>optional .TestType type = 2;</code>
+     * <code>optional string name = 2;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>optional .TestType type = 3;</code>
      */
     boolean hasType();
     /**
-     * <code>optional .TestType type = 2;</code>
+     * <code>optional .TestType type = 3;</code>
      */
     org.sonar.batch.protocol.Constants.TestType getType();
 
     /**
-     * <code>optional .TestResultStatus status = 3;</code>
+     * <code>optional .TestResultStatus status = 4;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .TestResultStatus status = 3;</code>
+     * <code>optional .TestResultStatus status = 4;</code>
      */
     org.sonar.batch.protocol.Constants.TestResultStatus getStatus();
 
     /**
-     * <code>optional int64 duration_in_ms = 4;</code>
+     * <code>optional int64 duration_in_ms = 5;</code>
      */
     boolean hasDurationInMs();
     /**
-     * <code>optional int64 duration_in_ms = 4;</code>
+     * <code>optional int64 duration_in_ms = 5;</code>
      */
     long getDurationInMs();
 
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     boolean hasStacktrace();
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     java.lang.String getStacktrace();
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     com.google.protobuf.ByteString
         getStacktraceBytes();
 
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     boolean hasMsg();
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     java.lang.String getMsg();
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     com.google.protobuf.ByteString
         getMsgBytes();
 
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> 
         getCoverageBlockList();
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock getCoverageBlock(int index);
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     int getCoverageBlockCount();
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder> 
         getCoverageBlockOrBuilderList();
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder getCoverageBlockOrBuilder(
         int index);
@@ -21230,49 +21244,55 @@ public final class BatchReport {
               testFileRef_ = input.readInt32();
               break;
             }
-            case 16: {
-              int rawValue = input.readEnum();
-              org.sonar.batch.protocol.Constants.TestType value = org.sonar.batch.protocol.Constants.TestType.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(2, rawValue);
-              } else {
-                bitField0_ |= 0x00000002;
-                type_ = value;
-              }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              name_ = bs;
               break;
             }
             case 24: {
               int rawValue = input.readEnum();
-              org.sonar.batch.protocol.Constants.TestResultStatus value = org.sonar.batch.protocol.Constants.TestResultStatus.valueOf(rawValue);
+              org.sonar.batch.protocol.Constants.TestType value = org.sonar.batch.protocol.Constants.TestType.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(3, rawValue);
               } else {
                 bitField0_ |= 0x00000004;
-                status_ = value;
+                type_ = value;
               }
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
-              durationInMs_ = input.readInt64();
+              int rawValue = input.readEnum();
+              org.sonar.batch.protocol.Constants.TestResultStatus value = org.sonar.batch.protocol.Constants.TestResultStatus.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(4, rawValue);
+              } else {
+                bitField0_ |= 0x00000008;
+                status_ = value;
+              }
               break;
             }
-            case 42: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 40: {
               bitField0_ |= 0x00000010;
-              stacktrace_ = bs;
+              durationInMs_ = input.readInt64();
               break;
             }
             case 50: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              msg_ = bs;
+              stacktrace_ = bs;
               break;
             }
             case 58: {
-              if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000040;
+              msg_ = bs;
+              break;
+            }
+            case 66: {
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
                 coverageBlock_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock>();
-                mutable_bitField0_ |= 0x00000040;
+                mutable_bitField0_ |= 0x00000080;
               }
               coverageBlock_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.PARSER, extensionRegistry));
               break;
@@ -21285,7 +21305,7 @@ public final class BatchReport {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
           coverageBlock_ = java.util.Collections.unmodifiableList(coverageBlock_);
         }
         this.unknownFields = unknownFields.build();
@@ -21887,61 +21907,103 @@ public final class BatchReport {
       return testFileRef_;
     }
 
-    public static final int TYPE_FIELD_NUMBER = 2;
-    private org.sonar.batch.protocol.Constants.TestType type_;
+    public static final int NAME_FIELD_NUMBER = 2;
+    private java.lang.Object name_;
     /**
-     * <code>optional .TestType type = 2;</code>
+     * <code>optional string name = 2;</code>
      */
-    public boolean hasType() {
+    public boolean hasName() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .TestType type = 2;</code>
+     * <code>optional string name = 2;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TYPE_FIELD_NUMBER = 3;
+    private org.sonar.batch.protocol.Constants.TestType type_;
+    /**
+     * <code>optional .TestType type = 3;</code>
+     */
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .TestType type = 3;</code>
      */
     public org.sonar.batch.protocol.Constants.TestType getType() {
       return type_;
     }
 
-    public static final int STATUS_FIELD_NUMBER = 3;
+    public static final int STATUS_FIELD_NUMBER = 4;
     private org.sonar.batch.protocol.Constants.TestResultStatus status_;
     /**
-     * <code>optional .TestResultStatus status = 3;</code>
+     * <code>optional .TestResultStatus status = 4;</code>
      */
     public boolean hasStatus() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional .TestResultStatus status = 3;</code>
+     * <code>optional .TestResultStatus status = 4;</code>
      */
     public org.sonar.batch.protocol.Constants.TestResultStatus getStatus() {
       return status_;
     }
 
-    public static final int DURATION_IN_MS_FIELD_NUMBER = 4;
+    public static final int DURATION_IN_MS_FIELD_NUMBER = 5;
     private long durationInMs_;
     /**
-     * <code>optional int64 duration_in_ms = 4;</code>
+     * <code>optional int64 duration_in_ms = 5;</code>
      */
     public boolean hasDurationInMs() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional int64 duration_in_ms = 4;</code>
+     * <code>optional int64 duration_in_ms = 5;</code>
      */
     public long getDurationInMs() {
       return durationInMs_;
     }
 
-    public static final int STACKTRACE_FIELD_NUMBER = 5;
+    public static final int STACKTRACE_FIELD_NUMBER = 6;
     private java.lang.Object stacktrace_;
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     public boolean hasStacktrace() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     public java.lang.String getStacktrace() {
       java.lang.Object ref = stacktrace_;
@@ -21958,7 +22020,7 @@ public final class BatchReport {
       }
     }
     /**
-     * <code>optional string stacktrace = 5;</code>
+     * <code>optional string stacktrace = 6;</code>
      */
     public com.google.protobuf.ByteString
         getStacktraceBytes() {
@@ -21974,16 +22036,16 @@ public final class BatchReport {
       }
     }
 
-    public static final int MSG_FIELD_NUMBER = 6;
+    public static final int MSG_FIELD_NUMBER = 7;
     private java.lang.Object msg_;
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     public boolean hasMsg() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     public java.lang.String getMsg() {
       java.lang.Object ref = msg_;
@@ -22000,7 +22062,7 @@ public final class BatchReport {
       }
     }
     /**
-     * <code>optional string msg = 6;</code>
+     * <code>optional string msg = 7;</code>
      */
     public com.google.protobuf.ByteString
         getMsgBytes() {
@@ -22016,35 +22078,35 @@ public final class BatchReport {
       }
     }
 
-    public static final int COVERAGE_BLOCK_FIELD_NUMBER = 7;
+    public static final int COVERAGE_BLOCK_FIELD_NUMBER = 8;
     private java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> coverageBlock_;
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     public java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> getCoverageBlockList() {
       return coverageBlock_;
     }
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder> 
         getCoverageBlockOrBuilderList() {
       return coverageBlock_;
     }
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     public int getCoverageBlockCount() {
       return coverageBlock_.size();
     }
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock getCoverageBlock(int index) {
       return coverageBlock_.get(index);
     }
     /**
-     * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+     * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
      */
     public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder getCoverageBlockOrBuilder(
         int index) {
@@ -22053,6 +22115,7 @@ public final class BatchReport {
 
     private void initFields() {
       testFileRef_ = 0;
+      name_ = "";
       type_ = org.sonar.batch.protocol.Constants.TestType.UT;
       status_ = org.sonar.batch.protocol.Constants.TestResultStatus.OK;
       durationInMs_ = 0L;
@@ -22077,22 +22140,25 @@ public final class BatchReport {
         output.writeInt32(1, testFileRef_);
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeEnum(2, type_.getNumber());
+        output.writeBytes(2, getNameBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeEnum(3, status_.getNumber());
+        output.writeEnum(3, type_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt64(4, durationInMs_);
+        output.writeEnum(4, status_.getNumber());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, getStacktraceBytes());
+        output.writeInt64(5, durationInMs_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getMsgBytes());
+        output.writeBytes(6, getStacktraceBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBytes(7, getMsgBytes());
       }
       for (int i = 0; i < coverageBlock_.size(); i++) {
-        output.writeMessage(7, coverageBlock_.get(i));
+        output.writeMessage(8, coverageBlock_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -22109,27 +22175,31 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(2, type_.getNumber());
+          .computeBytesSize(2, getNameBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(3, status_.getNumber());
+          .computeEnumSize(3, type_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(4, durationInMs_);
+          .computeEnumSize(4, status_.getNumber());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, getStacktraceBytes());
+          .computeInt64Size(5, durationInMs_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getMsgBytes());
+          .computeBytesSize(6, getStacktraceBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, getMsgBytes());
       }
       for (int i = 0; i < coverageBlock_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, coverageBlock_.get(i));
+          .computeMessageSize(8, coverageBlock_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -22251,19 +22321,21 @@ public final class BatchReport {
         super.clear();
         testFileRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        type_ = org.sonar.batch.protocol.Constants.TestType.UT;
+        name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        status_ = org.sonar.batch.protocol.Constants.TestResultStatus.OK;
+        type_ = org.sonar.batch.protocol.Constants.TestType.UT;
         bitField0_ = (bitField0_ & ~0x00000004);
-        durationInMs_ = 0L;
+        status_ = org.sonar.batch.protocol.Constants.TestResultStatus.OK;
         bitField0_ = (bitField0_ & ~0x00000008);
-        stacktrace_ = "";
+        durationInMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000010);
-        msg_ = "";
+        stacktrace_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
+        msg_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
         if (coverageBlockBuilder_ == null) {
           coverageBlock_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
         } else {
           coverageBlockBuilder_.clear();
         }
@@ -22302,27 +22374,31 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.type_ = type_;
+        result.name_ = name_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.status_ = status_;
+        result.type_ = type_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.durationInMs_ = durationInMs_;
+        result.status_ = status_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.stacktrace_ = stacktrace_;
+        result.durationInMs_ = durationInMs_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
+        result.stacktrace_ = stacktrace_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
         result.msg_ = msg_;
         if (coverageBlockBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          if (((bitField0_ & 0x00000080) == 0x00000080)) {
             coverageBlock_ = java.util.Collections.unmodifiableList(coverageBlock_);
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000080);
           }
           result.coverageBlock_ = coverageBlock_;
         } else {
@@ -22347,6 +22423,11 @@ public final class BatchReport {
         if (other.hasTestFileRef()) {
           setTestFileRef(other.getTestFileRef());
         }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000002;
+          name_ = other.name_;
+          onChanged();
+        }
         if (other.hasType()) {
           setType(other.getType());
         }
@@ -22357,12 +22438,12 @@ public final class BatchReport {
           setDurationInMs(other.getDurationInMs());
         }
         if (other.hasStacktrace()) {
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000020;
           stacktrace_ = other.stacktrace_;
           onChanged();
         }
         if (other.hasMsg()) {
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000040;
           msg_ = other.msg_;
           onChanged();
         }
@@ -22370,7 +22451,7 @@ public final class BatchReport {
           if (!other.coverageBlock_.isEmpty()) {
             if (coverageBlock_.isEmpty()) {
               coverageBlock_ = other.coverageBlock_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000080);
             } else {
               ensureCoverageBlockIsMutable();
               coverageBlock_.addAll(other.coverageBlock_);
@@ -22383,7 +22464,7 @@ public final class BatchReport {
               coverageBlockBuilder_.dispose();
               coverageBlockBuilder_ = null;
               coverageBlock_ = other.coverageBlock_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000080);
               coverageBlockBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getCoverageBlockFieldBuilder() : null;
@@ -22451,36 +22532,112 @@ public final class BatchReport {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.TestType type_ = org.sonar.batch.protocol.Constants.TestType.UT;
+      private java.lang.Object name_ = "";
       /**
-       * <code>optional .TestType type = 2;</code>
+       * <code>optional string name = 2;</code>
        */
-      public boolean hasType() {
+      public boolean hasName() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .TestType type = 2;</code>
+       * <code>optional string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private org.sonar.batch.protocol.Constants.TestType type_ = org.sonar.batch.protocol.Constants.TestType.UT;
+      /**
+       * <code>optional .TestType type = 3;</code>
+       */
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .TestType type = 3;</code>
        */
       public org.sonar.batch.protocol.Constants.TestType getType() {
         return type_;
       }
       /**
-       * <code>optional .TestType type = 2;</code>
+       * <code>optional .TestType type = 3;</code>
        */
       public Builder setType(org.sonar.batch.protocol.Constants.TestType value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         type_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional .TestType type = 2;</code>
+       * <code>optional .TestType type = 3;</code>
        */
       public Builder clearType() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
         type_ = org.sonar.batch.protocol.Constants.TestType.UT;
         onChanged();
         return this;
@@ -22488,34 +22645,34 @@ public final class BatchReport {
 
       private org.sonar.batch.protocol.Constants.TestResultStatus status_ = org.sonar.batch.protocol.Constants.TestResultStatus.OK;
       /**
-       * <code>optional .TestResultStatus status = 3;</code>
+       * <code>optional .TestResultStatus status = 4;</code>
        */
       public boolean hasStatus() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional .TestResultStatus status = 3;</code>
+       * <code>optional .TestResultStatus status = 4;</code>
        */
       public org.sonar.batch.protocol.Constants.TestResultStatus getStatus() {
         return status_;
       }
       /**
-       * <code>optional .TestResultStatus status = 3;</code>
+       * <code>optional .TestResultStatus status = 4;</code>
        */
       public Builder setStatus(org.sonar.batch.protocol.Constants.TestResultStatus value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000008;
         status_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional .TestResultStatus status = 3;</code>
+       * <code>optional .TestResultStatus status = 4;</code>
        */
       public Builder clearStatus() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000008);
         status_ = org.sonar.batch.protocol.Constants.TestResultStatus.OK;
         onChanged();
         return this;
@@ -22523,31 +22680,31 @@ public final class BatchReport {
 
       private long durationInMs_ ;
       /**
-       * <code>optional int64 duration_in_ms = 4;</code>
+       * <code>optional int64 duration_in_ms = 5;</code>
        */
       public boolean hasDurationInMs() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional int64 duration_in_ms = 4;</code>
+       * <code>optional int64 duration_in_ms = 5;</code>
        */
       public long getDurationInMs() {
         return durationInMs_;
       }
       /**
-       * <code>optional int64 duration_in_ms = 4;</code>
+       * <code>optional int64 duration_in_ms = 5;</code>
        */
       public Builder setDurationInMs(long value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000010;
         durationInMs_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 duration_in_ms = 4;</code>
+       * <code>optional int64 duration_in_ms = 5;</code>
        */
       public Builder clearDurationInMs() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000010);
         durationInMs_ = 0L;
         onChanged();
         return this;
@@ -22555,13 +22712,13 @@ public final class BatchReport {
 
       private java.lang.Object stacktrace_ = "";
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public boolean hasStacktrace() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public java.lang.String getStacktrace() {
         java.lang.Object ref = stacktrace_;
@@ -22578,7 +22735,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public com.google.protobuf.ByteString
           getStacktraceBytes() {
@@ -22594,36 +22751,36 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public Builder setStacktrace(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
         stacktrace_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public Builder clearStacktrace() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000020);
         stacktrace_ = getDefaultInstance().getStacktrace();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string stacktrace = 5;</code>
+       * <code>optional string stacktrace = 6;</code>
        */
       public Builder setStacktraceBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
         stacktrace_ = value;
         onChanged();
         return this;
@@ -22631,13 +22788,13 @@ public final class BatchReport {
 
       private java.lang.Object msg_ = "";
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public boolean hasMsg() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public java.lang.String getMsg() {
         java.lang.Object ref = msg_;
@@ -22654,7 +22811,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public com.google.protobuf.ByteString
           getMsgBytes() {
@@ -22670,36 +22827,36 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public Builder setMsg(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000040;
         msg_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public Builder clearMsg() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000040);
         msg_ = getDefaultInstance().getMsg();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string msg = 6;</code>
+       * <code>optional string msg = 7;</code>
        */
       public Builder setMsgBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000040;
         msg_ = value;
         onChanged();
         return this;
@@ -22708,9 +22865,9 @@ public final class BatchReport {
       private java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> coverageBlock_ =
         java.util.Collections.emptyList();
       private void ensureCoverageBlockIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
           coverageBlock_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock>(coverageBlock_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000080;
          }
       }
 
@@ -22718,7 +22875,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder> coverageBlockBuilder_;
 
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> getCoverageBlockList() {
         if (coverageBlockBuilder_ == null) {
@@ -22728,7 +22885,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public int getCoverageBlockCount() {
         if (coverageBlockBuilder_ == null) {
@@ -22738,7 +22895,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock getCoverageBlock(int index) {
         if (coverageBlockBuilder_ == null) {
@@ -22748,7 +22905,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder setCoverageBlock(
           int index, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock value) {
@@ -22765,7 +22922,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder setCoverageBlock(
           int index, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder builderForValue) {
@@ -22779,7 +22936,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder addCoverageBlock(org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock value) {
         if (coverageBlockBuilder_ == null) {
@@ -22795,7 +22952,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder addCoverageBlock(
           int index, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock value) {
@@ -22812,7 +22969,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder addCoverageBlock(
           org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder builderForValue) {
@@ -22826,7 +22983,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder addCoverageBlock(
           int index, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder builderForValue) {
@@ -22840,7 +22997,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder addAllCoverageBlock(
           java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock> values) {
@@ -22855,12 +23012,12 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder clearCoverageBlock() {
         if (coverageBlockBuilder_ == null) {
           coverageBlock_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000080);
           onChanged();
         } else {
           coverageBlockBuilder_.clear();
@@ -22868,7 +23025,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public Builder removeCoverageBlock(int index) {
         if (coverageBlockBuilder_ == null) {
@@ -22881,14 +23038,14 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder getCoverageBlockBuilder(
           int index) {
         return getCoverageBlockFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder getCoverageBlockOrBuilder(
           int index) {
@@ -22898,7 +23055,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder> 
            getCoverageBlockOrBuilderList() {
@@ -22909,14 +23066,14 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder addCoverageBlockBuilder() {
         return getCoverageBlockFieldBuilder().addBuilder(
             org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.getDefaultInstance());
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder addCoverageBlockBuilder(
           int index) {
@@ -22924,7 +23081,7 @@ public final class BatchReport {
             index, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.getDefaultInstance());
       }
       /**
-       * <code>repeated .TestResult.CoverageBlock coverage_block = 7;</code>
+       * <code>repeated .TestResult.CoverageBlock coverage_block = 8;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder> 
            getCoverageBlockBuilderList() {
@@ -22937,7 +23094,7 @@ public final class BatchReport {
           coverageBlockBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlock.Builder, org.sonar.batch.protocol.output.BatchReport.TestResult.CoverageBlockOrBuilder>(
                   coverageBlock_,
-                  ((bitField0_ & 0x00000040) == 0x00000040),
+                  ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
                   isClean());
           coverageBlock_ = null;
@@ -23132,14 +23289,15 @@ public final class BatchReport {
       "\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n\032overal" +
       "l_covered_conditions\030\007 \001(\005\"L\n\022SyntaxHigh" +
       "lighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004type\030" +
-      "\002 \001(\0162\021.HighlightingType\"\374\001\n\nTestResult\022" +
-      "\025\n\rtest_file_ref\030\001 \001(\005\022\027\n\004type\030\002 \001(\0162\t.T" +
-      "estType\022!\n\006status\030\003 \001(\0162\021.TestResultStat",
-      "us\022\026\n\016duration_in_ms\030\004 \001(\003\022\022\n\nstacktrace" +
-      "\030\005 \001(\t\022\013\n\003msg\030\006 \001(\t\0221\n\016coverage_block\030\007 " +
-      "\003(\0132\031.TestResult.CoverageBlock\032/\n\rCovera" +
-      "geBlock\022\020\n\010file_ref\030\001 \001(\005\022\014\n\004line\030\002 \003(\005B" +
-      "#\n\037org.sonar.batch.protocol.outputH\001"
+      "\002 \001(\0162\021.HighlightingType\"\212\002\n\nTestResult\022" +
+      "\025\n\rtest_file_ref\030\001 \001(\005\022\014\n\004name\030\002 \001(\t\022\027\n\004" +
+      "type\030\003 \001(\0162\t.TestType\022!\n\006status\030\004 \001(\0162\021.",
+      "TestResultStatus\022\026\n\016duration_in_ms\030\005 \001(\003" +
+      "\022\022\n\nstacktrace\030\006 \001(\t\022\013\n\003msg\030\007 \001(\t\0221\n\016cov" +
+      "erage_block\030\010 \003(\0132\031.TestResult.CoverageB" +
+      "lock\032/\n\rCoverageBlock\022\020\n\010file_ref\030\001 \001(\005\022" +
+      "\014\n\004line\030\002 \003(\005B#\n\037org.sonar.batch.protoco" +
+      "l.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -23267,7 +23425,7 @@ public final class BatchReport {
     internal_static_TestResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_TestResult_descriptor,
-        new java.lang.String[] { "TestFileRef", "Type", "Status", "DurationInMs", "Stacktrace", "Msg", "CoverageBlock", });
+        new java.lang.String[] { "TestFileRef", "Name", "Type", "Status", "DurationInMs", "Stacktrace", "Msg", "CoverageBlock", });
     internal_static_TestResult_CoverageBlock_descriptor =
       internal_static_TestResult_descriptor.getNestedTypes().get(0);
     internal_static_TestResult_CoverageBlock_fieldAccessorTable = new

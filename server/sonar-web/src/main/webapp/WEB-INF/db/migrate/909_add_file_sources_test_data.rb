@@ -26,6 +26,7 @@ class AddFileSourcesTestData < ActiveRecord::Migration
 
   def self.up
     add_column 'file_sources', 'test_data', :binary, :null => true
+    add_column 'file_sources', 'test_hash', :string, :limit => 50, :null => true
   end
 
 end

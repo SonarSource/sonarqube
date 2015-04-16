@@ -33,27 +33,25 @@ Notes
 
 // Temporarily in sonar-batch-protocol
 
+import "constants.proto";
+
 package org.sonar.server.source.db;
 option optimize_for = SPEED;
 
-message Test {
-  optional string uuid = 1;
-  optional string key = 2;
-  optional string method_name = 3;
-  optional string status = 4;
-  optional string test_message = 5;
-  optional string type = 6;
-  repeated CoverageBlock coverage_block = 7;
+message TestResult {
+  optional string key = 1;
+  optional string name = 2;
+  optional TestType type = 3;
+  optional TestResultStatus status = 4;
+  optional int64 duration_in_msg = 5;
+  optional string msg = 6;
+  optional string stacktrace = 7;
+  repeated CoverageBlock coverage_block = 8;
 
   message CoverageBlock {
     optional string uuid = 1;
     optional string key = 2;
     optional string long_name = 3;
-    repeated int32 lines = 4;
-    optional int32 nb_covered_lines = 5;
+    repeated int32 line = 4;
   }
-}
-
-message Tests {
-  repeated Test test = 1;
 }
