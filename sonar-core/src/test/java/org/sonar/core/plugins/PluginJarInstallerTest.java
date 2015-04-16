@@ -82,14 +82,6 @@ public class PluginJarInstallerTest {
   }
 
   @Test
-  public void should_extract_parent_information() throws IOException {
-    DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("fake1bis-plugin-1.0.jar"), true);
-
-    assertThat(metadata.getKey()).isEqualTo("fake1bis");
-    assertThat(metadata.getParent()).isEqualTo("fake1");
-  }
-
-  @Test
   public void should_extract_requires_plugin_information() throws IOException {
     DefaultPluginMetadata metadata = extractor.extractMetadata(getFileFromCache("fake2-plugin-1.1.jar"), true);
 

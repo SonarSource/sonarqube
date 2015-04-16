@@ -78,7 +78,6 @@ public abstract class PluginJarInstaller implements BatchComponent, ServerCompon
       metadata.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
       metadata.setBasePlugin(manifest.getBasePlugin());
       metadata.setImplementationBuild(manifest.getImplementationBuild());
-      metadata.setParent(manifest.getParent());
       metadata.setRequiredPlugins(Arrays.asList(manifest.getRequirePlugins()));
       metadata.setCore(isCore);
       return metadata;

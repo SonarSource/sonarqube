@@ -36,7 +36,6 @@ public class DefaultPluginMetadataTest {
   public void testGettersAndSetters() {
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"));
     metadata.setKey("checkstyle")
-      .setParent("java")
       .setLicense("LGPL")
       .setDescription("description")
       .setHomepage("http://home")
@@ -51,7 +50,7 @@ public class DefaultPluginMetadataTest {
       .setImplementationBuild("abcdef");
 
     assertThat(metadata.getKey()).isEqualTo("checkstyle");
-    assertThat(metadata.getParent()).isEqualTo("java");
+    assertThat(metadata.getParent()).isNull();
     assertThat(metadata.getLicense()).isEqualTo("LGPL");
     assertThat(metadata.getDescription()).isEqualTo("description");
     assertThat(metadata.getHomepage()).isEqualTo("http://home");

@@ -19,6 +19,7 @@
  */
 package org.sonar.api.platform;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
 import java.util.List;
 
@@ -57,6 +58,12 @@ public interface PluginMetadata {
 
   String getBasePlugin();
 
+  /**
+   * Always return <code>null</code> since version 5.2
+   * @deprecated in 5.2. Concept of parent relationship is removed. See https://jira.codehaus.org/browse/SONAR-6433
+   */
+  @Deprecated
+  @CheckForNull
   String getParent();
 
   List<String> getRequiredPlugins();
