@@ -215,7 +215,6 @@ public class QProfilesWsTest {
     WebService.Action importers = controller.action("importers");
     assertThat(importers).isNotNull();
     assertThat(importers.isPost()).isFalse();
-    assertThat(importers.isInternal()).isTrue();
     assertThat(importers.params()).isEmpty();
     assertThat(importers.responseExampleAsString()).isNotEmpty();
   }
