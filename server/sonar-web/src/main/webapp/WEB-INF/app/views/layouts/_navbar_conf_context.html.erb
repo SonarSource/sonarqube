@@ -29,6 +29,18 @@
         name: '<%= escape_javascript active_dashboard.dashboard.name(true) -%>'
       }<% if index < dashboards.size - 1 -%>, <% end %>
       <% end %>
+    ],
+    contextExtensions: [
+      <% project_metrics = @project.last_snapshot.metric_keys.to_java(:string) if @project.last_snapshot
+         pages = controller.java_facade.getPages(Navigation::SECTION_RESOURCE.key, @project.scope, @project.qualifier, @project.language, project_metrics)
+         pages.each_with_index do |page, index|
+           page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
+      %>
+      {
+        url: '<%= page_url -%>',
+        label: '<%= escape_javascript message(page.getId() + '.page', :default => page.getTitle()) -%>'
+      }<% if index < pages.size - 1 -%>, <% end %>
+      <% end %>
     ]
   });
 
