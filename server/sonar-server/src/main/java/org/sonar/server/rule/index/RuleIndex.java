@@ -66,6 +66,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public static final String FACET_TAGS = "tags";
   public static final String FACET_REPOSITORIES = "repositories";
   public static final String FACET_SEVERITIES = "severities";
+  public static final String FACET_ACTIVE_SEVERITIES = "active_severities";
   public static final String FACET_STATUSES = "statuses";
   public static final String FACET_DEBT_CHARACTERISTICS = "debt_characteristics";
   public static final String FACET_OLD_DEFAULT = "true";
@@ -361,6 +362,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.SEVERITY.field(), FACET_SEVERITIES, Severity.ALL.toArray()));
     }
 
+    addActiveSeverityFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
+
     addCharacteristicsFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
 
     return aggregations;
@@ -381,6 +384,41 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             .size(ALL_STATUSES_EXCEPT_REMOVED.size()));
 
       aggregations.put(FACET_STATUSES, AggregationBuilders.global(FACET_STATUSES).subAggregation(statuses));
+    }
+  }
+
+  private void addActiveSeverityFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.facets().contains(FACET_ACTIVE_SEVERITIES)) {
+      // We are building a children aggregation on active rules
+      // so the rule filter has to be used as parent filter for active rules
+      // from which we remove filters that concern active rules ("activation")
+      HasParentFilterBuilder ruleFilter = FilterBuilders.hasParentFilter(
+        IndexDefinition.RULE.getIndexType(),
+        stickyFacetBuilder.getStickyFacetFilter("activation"));
+
+      // Rebuilding the active rule filter without severities
+      BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
+      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
+      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
+      FilterBuilder activeRuleFilter;
+      if (childrenFilter.hasClauses()) {
+        activeRuleFilter = childrenFilter.must(ruleFilter);
+      } else {
+        activeRuleFilter = ruleFilter;
+      }
+
+      AggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
+        .childType(IndexDefinition.ACTIVE_RULE.getIndexType())
+        .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
+          .filter(activeRuleFilter)
+          .subAggregation(
+            AggregationBuilders
+              .terms(FACET_ACTIVE_SEVERITIES)
+              .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+              .include(Joiner.on('|').join(Severity.ALL))
+              .size(Severity.ALL.size())));
+
+      aggregations.put(FACET_ACTIVE_SEVERITIES, AggregationBuilders.global(FACET_ACTIVE_SEVERITIES).subAggregation(activeSeverities));
     }
   }
 
