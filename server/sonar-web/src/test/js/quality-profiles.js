@@ -836,7 +836,7 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'Synchronisation should not');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'BLOCKER');
 
-        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'April 13 2015');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'Anakin Skywalker');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'ACTIVATED');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(2)', 'Double.longBitsToDouble');
