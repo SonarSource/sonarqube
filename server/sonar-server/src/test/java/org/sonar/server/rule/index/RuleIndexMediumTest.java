@@ -52,7 +52,15 @@ import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -827,6 +835,45 @@ public class RuleIndexMediumTest {
   }
 
   @Test
+  public void search_by_profile_and_active_severity() throws InterruptedException {
+    QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
+    QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
+    db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
+
+    RuleDto rule1 = RuleTesting.newXooX1().setSeverity("MAJOR");
+    RuleDto rule2 = RuleTesting.newXooX2().setSeverity("MINOR");
+    RuleDto rule3 = RuleTesting.newXooX3().setSeverity("INFO");
+    dao.insert(dbSession, rule1, rule2, rule3);
+
+    db.activeRuleDao().insert(
+      dbSession,
+      ActiveRuleDto.createFor(qualityProfileDto1, rule1).setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto2, rule1).setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto1, rule2).setSeverity("CRITICAL"));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // 1. get all active rules.
+    Result<Rule> result = index.search(new RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()),
+      new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+
+    // 2. get rules with active severity critical.
+    result = index.search(new RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()).setActiveSeverities(Arrays.asList("CRITICAL")),
+      new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
+    assertThat(result.getHits()).hasSize(1);
+    assertThat(result.getHits().get(0).name()).isEqualTo(rule2.getName());
+    // check stickyness of active severity facet
+    assertThat(result.getFacetValues(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(new FacetValue("BLOCKER", 1), new FacetValue("CRITICAL", 1));
+
+    // 3. count activation severities of all active rules
+    result = index.search(new RuleQuery(),
+      new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
+    assertThat(result.getHits()).hasSize(3);
+    assertThat(result.getFacetValues(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(new FacetValue("BLOCKER", 2), new FacetValue("CRITICAL", 1));
+  }
+
+  @Test
   public void complex_param_value() throws InterruptedException {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
@@ -1074,7 +1121,6 @@ public class RuleIndexMediumTest {
   @Test
   public void sticky_facets() {
 
-    Integer numberOfSystemTags = 2;
     dao.insert(dbSession,
       RuleTesting.newDto(RuleKey.of("xoo", "S001")).setLanguage("java").setTags(ImmutableSet.<String>of()),
       RuleTesting.newDto(RuleKey.of("xoo", "S002")).setLanguage("java").setTags(ImmutableSet.<String>of()),
