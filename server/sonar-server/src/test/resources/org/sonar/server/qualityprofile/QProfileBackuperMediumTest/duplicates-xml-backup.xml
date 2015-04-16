@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile>
+  <name>P1</name>
+  <language>xoo</language>
+  <rules>
+    <rule>
+      <repositoryKey>xoo</repositoryKey>
+      <key>x1</key>
+      <priority>BLOCKER</priority>
+      <parameters>
+        <parameter>
+          <key>max</key>
+          <value>7</value>
+        </parameter>
+      </parameters>
+    </rule>
+    <rule>
+      <repositoryKey>xoo</repositoryKey>
+      <key>x2</key>
+      <priority>CRITICAL</priority>
+    </rule>
+    <rule>
+      <repositoryKey>xoo</repositoryKey>
+      <key>x1</key>
+      <priority>MAJOR</priority>
+      <parameters>
+        <parameter>
+          <key>max</key>
+          <value>5</value>
+        </parameter>
+      </parameters>
+    </rule>
+    <rule>
+      <repositoryKey>xoo</repositoryKey>
+      <key>x2</key>
+      <priority>MINOR</priority>
+    </rule>
+    
+  </rules>
+</profile>
