@@ -26,70 +26,55 @@ import org.sonar.batch.protocol.output.BatchReport;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 
-public class RangeHelperTest {
+public class RangeOffsetHelperTest {
 
   @Test
   public void append_range() throws Exception {
-    StringBuilder element = new StringBuilder();
-    RangeHelper.appendRange(element, BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(1)
       .setStartOffset(2).setEndOffset(3)
-      .build(),
-      1, 5);
-    assertThat(element.toString()).isEqualTo("2,3,");
-  }
-
-  @Test
-  public void append_range_om_existing_element() throws Exception {
-    StringBuilder element = new StringBuilder("1,2,a");
-    RangeHelper.appendRange(element, BatchReport.Range.newBuilder()
-      .setStartLine(1).setEndLine(1)
-      .setStartOffset(3).setEndOffset(4)
-      .build(),
-      1, 5);
-    assertThat(element.toString()).isEqualTo("1,2,a;3,4,");
+      .build(), 1, 5)).isEqualTo("2,3");
   }
 
   @Test
   public void append_range_not_finishing_in_current_line() throws Exception {
-    StringBuilder element = new StringBuilder();
-    RangeHelper.appendRange(element, BatchReport.Range.newBuilder()
+    assertThat( RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
-      .build(),
-      1, 5);
-    assertThat(element.toString()).isEqualTo("2,4,");
+      .build(), 1, 5)).isEqualTo("2,5");
   }
 
   @Test
   public void append_range_that_began_in_previous_line_and_finish_in_current_line() throws Exception {
-    StringBuilder element = new StringBuilder();
-    RangeHelper.appendRange(element, BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
-      .build(),
-      3, 5);
-    assertThat(element.toString()).isEqualTo("0,3,");
+      .build(), 3, 5)).isEqualTo("0,3");
   }
 
   @Test
   public void append_range_that_began_in_previous_line_and_not_finishing_in_current_line() throws Exception {
-    StringBuilder element = new StringBuilder();
-    RangeHelper.appendRange(element, BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
-      .build(),
-      2, 5);
-    assertThat(element.toString()).isEqualTo("0,4,");
+      .build(), 2, 5)).isEqualTo("0,5");
+  }
+
+  @Test
+  public void do_nothing_if_offset_is_empty() throws Exception {
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+      .setStartLine(1).setEndLine(1)
+      .setStartOffset(0).setEndOffset(0)
+      .build(), 1, 5)).isEmpty();
   }
 
   @Test
   public void fail_when_end_offset_is_before_start_offset() {
     try {
-      RangeHelper.appendRange(new StringBuilder(), BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(4).setEndOffset(2)
-        .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(4).setEndOffset(2)
+          .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
@@ -100,10 +85,10 @@ public class RangeHelperTest {
   @Test
   public void fail_when_end_offset_is_higher_than_line_length() {
     try {
-      RangeHelper.appendRange(new StringBuilder(), BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(4).setEndOffset(10)
-        .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(4).setEndOffset(10)
+          .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
@@ -114,10 +99,10 @@ public class RangeHelperTest {
   @Test
   public void fail_when_start_offset_is_higher_than_line_length() {
     try {
-      RangeHelper.appendRange(new StringBuilder(), BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(10).setEndOffset(11)
-        .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(10).setEndOffset(11)
+          .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {

@@ -47,9 +47,7 @@ public class ComputationSteps {
       PersistComponentLinksStep.class,
       PersistEventsStep.class,
       PersistDuplicationMeasuresStep.class,
-
-      // TODO File sources persistence should not be activated as long as all data are not persisted and persistence should be removed from batch
-//      PersistFileSourcesStep.class,
+      PersistFileSourcesStep.class,
 
       // Switch snapshot and purge
       SwitchSnapshotStep.class,

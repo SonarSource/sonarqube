@@ -196,7 +196,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         lineReaders.add(new DuplicationLineReader(duplications));
       }
       if (!symbols.isEmpty()) {
-        lineReaders.add(new SymbolsLineReader(newArrayList(symbols)));
+        lineReaders.add(new SymbolsLineReader(symbols));
       }
     }
 

@@ -116,6 +116,30 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
+  public void read_symbols_with_two_references_on_the_same_line() throws Exception {
+    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
+      BatchReport.Symbols.Symbol.newBuilder()
+        .setDeclaration(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
+          .build())
+        .addReference(BatchReport.Range.newBuilder()
+          .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
+          .build())
+        .addReference(BatchReport.Range.newBuilder()
+          .setStartLine(2).setEndLine(2).setStartOffset(2).setEndOffset(3)
+          .build())
+        .build()
+    );
+
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+
+    assertThat(line1.getSymbols()).isEqualTo("2,3,1");
+    assertThat(line2.getSymbols()).isEqualTo("0,1,1;2,3,1");
+  }
+
+  @Test
   public void read_symbols_when_reference_line_is_before_declaration_line() throws Exception {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
@@ -247,10 +271,35 @@ public class SymbolsLineReaderTest {
     symbolsLineReader.read(line3);
     symbolsLineReader.read(line4);
 
-    assertThat(line1.getSymbols()).isEqualTo("1,4,1");
+    assertThat(line1.getSymbols()).isEqualTo("1,5,1");
     assertThat(line2.getSymbols()).isEqualTo("0,3,1");
-    assertThat(line3.getSymbols()).isEqualTo("1,4,1");
+    assertThat(line3.getSymbols()).isEqualTo("1,5,1");
     assertThat(line4.getSymbols()).isEqualTo("0,3,1");
+  }
+
+  @Test
+  public void read_symbols_declared_on_a_whole_line() throws Exception {
+    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
+      BatchReport.Symbols.Symbol.newBuilder()
+        .setDeclaration(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(2).setStartOffset(0).setEndOffset(0)
+          .build())
+        .addReference(BatchReport.Range.newBuilder()
+          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+          .build())
+        .build()
+    );
+
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    symbolsLineReader.read(line1);
+    symbolsLineReader.read(line2);
+    symbolsLineReader.read(line3);
+    symbolsLineReader.read(line4);
+
+    assertThat(line1.getSymbols()).isEqualTo("0,5,1");
+    assertThat(line2.getSymbols()).isEmpty();
+    assertThat(line3.getSymbols()).isEqualTo("1,3,1");
+    assertThat(line4.getSymbols()).isEmpty();
   }
 
 }
