@@ -7,6 +7,6 @@
 
 <script type="text/javascript">
   window.fileKey = '<%= @file.key -%>';
-  window.metric = '<%= @metric -%>';
+  window.metric = '<%= escape_javascript(@metric) -%>';
   document.getElementById('crumbs').remove();
 </script>
