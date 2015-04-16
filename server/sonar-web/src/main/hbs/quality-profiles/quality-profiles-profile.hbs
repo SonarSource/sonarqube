@@ -1,8 +1,19 @@
-{{#if isInherited}}
-  <i class="icon-inheritance" title="{{tp 'quality_profiles.inherits' parentName}}"
-     data-toggle="tooltip" data-placement="bottom"></i>
-{{/if}}
-{{name}}
-{{#if isDefault}}
-  <span class="note pull-right">{{t 'default'}}</span>
-{{/if}}
+<table>
+  <tr>
+    {{#if isInherited}}
+      <td class="text-top thin spacer-right">
+        <i class="icon-inheritance" title="{{tp 'quality_profiles.inherits' parentName}}"
+           data-toggle="tooltip" data-placement="bottom"></i>
+      </td>
+    {{/if}}
+    <td class="text-top">{{name}}</td>
+    {{#if isDefault}}
+      <td class="text-top thin">
+        <span class="note pull-right">{{t 'default'}}</span>
+      </td>
+    {{/if}}
+  </tr>
+</table>
+
+
+
