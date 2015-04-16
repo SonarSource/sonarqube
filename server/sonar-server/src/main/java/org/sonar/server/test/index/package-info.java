@@ -17,19 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
 
-import org.sonar.api.ServerComponent;
+@ParametersAreNonnullByDefault
+package org.sonar.server.test.index;
 
-public abstract class BaseIndex implements ServerComponent {
-  private final EsClient client;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public BaseIndex(EsClient client) {
-    this.client = client;
-  }
-
-  protected EsClient getClient() {
-    return client;
-  }
-
-}

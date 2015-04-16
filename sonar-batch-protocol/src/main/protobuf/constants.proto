@@ -19,6 +19,7 @@
 */
 
 option java_package = "org.sonar.batch.protocol";
+
 option optimize_for = SPEED;
 
 enum Severity {
@@ -70,4 +71,16 @@ enum HighlightingType {
   HIGHLIGHTING_STRING = 6;
   KEYWORD_LIGHT = 7;
   PREPROCESS_DIRECTIVE = 8;
+}
+
+enum TestType {
+  UT = 1;
+  IT = 2;
+}
+
+enum TestResultStatus {
+  OK = 1;
+  FAILURE = 2;
+  ERROR = 3;
+  SKIPPED = 4;
 }

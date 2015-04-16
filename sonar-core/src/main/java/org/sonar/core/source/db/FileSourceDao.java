@@ -50,8 +50,7 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
   public FileSourceDto select(String fileUuid) {
     DbSession session = mybatis.openSession(false);
     try {
-      FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
-      return mapper.select(fileUuid);
+      return mapper(session).select(fileUuid);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -112,7 +111,11 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
   }
 
   public void insert(DbSession session, FileSourceDto dto) {
-    session.getMapper(FileSourceMapper.class).insert(dto);
+    mapper(session).insert(dto);
+  }
+
+  private FileSourceMapper mapper(DbSession session) {
+    return session.getMapper(FileSourceMapper.class);
   }
 
   public void update(FileSourceDto dto) {
@@ -126,11 +129,11 @@ public class FileSourceDao implements BatchComponent, ServerComponent, DaoCompon
   }
 
   public void update(DbSession session, FileSourceDto dto) {
-    session.getMapper(FileSourceMapper.class).update(dto);
+    mapper(session).update(dto);
   }
 
   public void updateDateWhenUpdatedDateIsZero(DbSession session, String projectUuid, long updateDate) {
-    session.getMapper(FileSourceMapper.class).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
+    mapper(session).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
   }
 
 }
