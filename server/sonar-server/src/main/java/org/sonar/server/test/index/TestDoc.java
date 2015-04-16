@@ -93,6 +93,7 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
+  // TODO TBE - it should be a CoverageBlockDoc list
   public List<Map<String, Object>> coverageBlocks() {
     return getField(FIELD_COVERAGE_BLOCKS);
   }

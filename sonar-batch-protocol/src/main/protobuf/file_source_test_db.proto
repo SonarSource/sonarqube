@@ -36,6 +36,7 @@ Notes
 import "constants.proto";
 
 package org.sonar.server.source.db;
+
 option optimize_for = SPEED;
 
 message TestResult {
@@ -50,6 +51,7 @@ message TestResult {
 
   message CoverageBlock {
     optional string uuid = 1;
+    //TODO TBE - should the key and long_name specified directly ?
     optional string key = 2;
     optional string long_name = 3;
     repeated int32 line = 4;
