@@ -23,7 +23,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +32,7 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -235,7 +235,7 @@ public class Settings implements BatchComponent, ServerComponent {
         return ArrayUtils.EMPTY_STRING_ARRAY;
       }
 
-      List<String> values = Lists.newArrayList();
+      List<String> values = new ArrayList<>();
       for (String v : Splitter.on(",").trimResults().split(value)) {
         values.add(v.replace("%2C", ","));
       }
@@ -276,7 +276,7 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public List<String> getKeysStartingWith(String prefix) {
-    List<String> result = Lists.newArrayList();
+    List<String> result = new ArrayList<>();
     for (String key : properties.keySet()) {
       if (StringUtils.startsWith(key, prefix)) {
         result.add(key);
@@ -303,7 +303,7 @@ public class Settings implements BatchComponent, ServerComponent {
 
     String text = null;
     if (values != null) {
-      List<String> escaped = Lists.newArrayList();
+      List<String> escaped = new ArrayList<>();
       for (String value : values) {
         if (null != value) {
           escaped.add(value.replace(",", "%2C"));

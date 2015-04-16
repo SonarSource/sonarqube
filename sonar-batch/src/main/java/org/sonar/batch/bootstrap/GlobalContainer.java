@@ -24,7 +24,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.Durations;
-import org.sonar.api.utils.HttpDownloader;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
@@ -88,7 +88,7 @@ public class GlobalContainer extends ComponentContainer {
       DefaultServer.class,
       new TempFolderProvider(),
       TempFolderCleaner.class,
-      HttpDownloader.class,
+      DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,

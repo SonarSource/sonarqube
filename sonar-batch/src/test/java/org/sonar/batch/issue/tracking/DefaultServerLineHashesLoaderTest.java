@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.api.utils.HttpDownloader;
 
 import java.net.URI;
 import java.net.URISyntaxException;

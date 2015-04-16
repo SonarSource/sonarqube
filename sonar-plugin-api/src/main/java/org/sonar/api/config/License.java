@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public final class License {
   private Map<String, String> additionalProperties;
 
   private License(Map<String, String> properties) {
-    this.additionalProperties = Maps.newHashMap(properties);
+    this.additionalProperties = new HashMap<>(properties);
     product = StringUtils.defaultString(get("Product", properties), get("Plugin", properties));
     organization = StringUtils.defaultString(get("Organisation", properties), get("Name", properties));
     expirationDate = StringUtils.defaultString(get("Expiration", properties), get("Expires", properties));

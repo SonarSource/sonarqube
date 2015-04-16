@@ -19,12 +19,12 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -128,7 +128,7 @@ public class DateUtilsTest {
   public void shouldBeThreadSafe() throws Exception {
     final DateUtils.ThreadSafeDateFormat format = new DateUtils.ThreadSafeDateFormat("yyyy-MM-dd'T'HH:mm:ss,S z");
     final Date now = new Date();
-    final List<Throwable> throwables = Lists.newArrayList();
+    final List<Throwable> throwables = new ArrayList<>();
 
     final ThreadGroup tg = new ThreadGroup("shouldBeThreadSafe") {
       @Override

@@ -19,10 +19,10 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ActiveRulesBuilder {
 
-  private final Map<RuleKey, NewActiveRule> map = Maps.newLinkedHashMap();
+  private final Map<RuleKey, NewActiveRule> map = new LinkedHashMap<>();
 
   public NewActiveRule create(RuleKey ruleKey) {
     return new NewActiveRule(this, ruleKey);

@@ -19,11 +19,11 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,13 +44,13 @@ public final class FieldUtils2 {
    *                    <code>False</code> only matches public fields.
    */
   public static List<Field> getFields(Class clazz, boolean forceAccess) {
-    List<Field> result = Lists.newArrayList();
+    List<Field> result = new ArrayList<>();
     Class c = clazz;
     while (c != null) {
       for (Field declaredField : c.getDeclaredFields()) {
         if (!Modifier.isPublic(declaredField.getModifiers())) {
           if (forceAccess) {
-            declaredField.setAccessible(true);//NOSONAR only works from sufficiently privileged code
+            declaredField.setAccessible(true);// NOSONAR only works from sufficiently privileged code
           } else {
             continue;
           }

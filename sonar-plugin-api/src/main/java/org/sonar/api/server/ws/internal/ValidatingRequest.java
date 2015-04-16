@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +95,7 @@ public abstract class ValidatingRequest extends Request {
       return null;
     }
     Iterable<String> values = Splitter.on(',').omitEmptyStrings().trimResults().split(value);
-    List<E> result = Lists.newArrayList();
+    List<E> result = new ArrayList<>();
     for (String s : values) {
       validate(s, definition);
       result.add(Enum.valueOf(enumClass, s));

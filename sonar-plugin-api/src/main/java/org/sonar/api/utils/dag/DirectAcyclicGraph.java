@@ -63,7 +63,7 @@ public class DirectAcyclicGraph {
   public List sort() {
     sortNodes();
 
-    List<Object> result = Lists.newArrayList();
+    List<Object> result = new ArrayList<>();
     for (Node node : nodes) {
       result.add(node.getObject());
     }

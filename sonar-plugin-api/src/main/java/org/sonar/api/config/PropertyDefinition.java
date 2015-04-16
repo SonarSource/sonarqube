@@ -33,10 +33,9 @@ import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
@@ -127,7 +126,7 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       .propertySetKey(annotation.propertySetKey())
       .fields(PropertyFieldDefinition.create(annotation.fields()))
       .deprecatedKey(annotation.deprecatedKey());
-    List<String> qualifiers = newArrayList();
+    List<String> qualifiers = new ArrayList<>();
     if (annotation.project()) {
       qualifiers.add(Qualifiers.PROJECT);
     }
@@ -322,14 +321,14 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
      * @see PropertyDefinition.Builder#subCategory(String)
      */
     private String subCategory = "";
-    private List<String> onQualifiers = newArrayList();
-    private List<String> onlyOnQualifiers = newArrayList();
+    private List<String> onQualifiers = new ArrayList<>();
+    private List<String> onlyOnQualifiers = new ArrayList<>();
     private boolean global = true;
     private PropertyType type = PropertyType.STRING;
-    private List<String> options = newArrayList();
+    private List<String> options = new ArrayList<>();
     private boolean multiValues = false;
     private String propertySetKey = "";
-    private List<PropertyFieldDefinition> fields = newArrayList();
+    private List<PropertyFieldDefinition> fields = new ArrayList<>();
     private String deprecatedKey = "";
     private boolean hidden = false;
     private int index = 999;

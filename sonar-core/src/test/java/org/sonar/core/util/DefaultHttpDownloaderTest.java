@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils;
+package org.sonar.core.util;
 
 import com.google.common.base.Charsets;
 import org.hamcrest.BaseMatcher;
@@ -37,6 +37,7 @@ import org.simpleframework.http.core.Container;
 import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +58,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HttpDownloaderTest {
+public class DefaultHttpDownloaderTest {
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -125,25 +126,25 @@ public class HttpDownloaderTest {
 
   @Test
   public void downloadBytes() throws URISyntaxException {
-    byte[] bytes = new HttpDownloader(new Settings()).readBytes(new URI(baseUrl));
+    byte[] bytes = new DefaultHttpDownloader(new Settings()).readBytes(new URI(baseUrl));
     assertThat(bytes.length).isGreaterThan(10);
   }
 
   @Test
   public void readString() throws URISyntaxException {
-    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
   public void readGzipString() throws URISyntaxException {
-    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), Charsets.UTF_8);
     assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
-    String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
@@ -159,7 +160,7 @@ public class HttpDownloaderTest {
       public void describeTo(Description arg0) {
       }
     });
-    new HttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    new DefaultHttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
   @Test
@@ -167,7 +168,7 @@ public class HttpDownloaderTest {
     File toDir = temporaryFolder.newFolder();
     File toFile = new File(toDir, "downloadToFile.txt");
 
-    new HttpDownloader(new Settings()).download(new URI(baseUrl), toFile);
+    new DefaultHttpDownloader(new Settings()).download(new URI(baseUrl), toFile);
     assertThat(toFile).exists();
     assertThat(toFile.length()).isGreaterThan(10l);
   }
@@ -179,7 +180,7 @@ public class HttpDownloaderTest {
 
     try {
       int port = new InetSocketAddress(0).getPort();
-      new HttpDownloader(new Settings()).download(new URI("http://localhost:" + port), toFile);
+      new DefaultHttpDownloader(new Settings()).download(new URI("http://localhost:" + port), toFile);
     } catch (SonarException e) {
       assertThat(toFile).doesNotExist();
     }
@@ -190,7 +191,7 @@ public class HttpDownloaderTest {
     Server server = mock(Server.class);
     when(server.getVersion()).thenReturn("2.2");
 
-    InputStream stream = new HttpDownloader(server, new Settings()).openStream(new URI(baseUrl));
+    InputStream stream = new DefaultHttpDownloader(server, new Settings()).openStream(new URI(baseUrl));
     Properties props = new Properties();
     props.load(stream);
     stream.close();
@@ -200,7 +201,7 @@ public class HttpDownloaderTest {
 
   @Test
   public void followRedirect() throws URISyntaxException {
-    String content = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/redirect/"), Charsets.UTF_8);
+    String content = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/redirect/"), Charsets.UTF_8);
     assertThat(content).contains("agent");
   }
 
@@ -208,24 +209,24 @@ public class HttpDownloaderTest {
   public void shouldGetDirectProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select(any(URI.class))).thenReturn(Arrays.asList(Proxy.NO_PROXY));
-    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
+    assertThat(DefaultHttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("no proxy");
   }
 
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy>asList(new FakeProxy()));
-    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("HTTP proxy: /123.45.67.89:4040");
+    assertThat(DefaultHttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("HTTP proxy: /123.45.67.89:4040");
   }
 
   @Test
   public void supported_schemes() {
-    assertThat(new HttpDownloader(new Settings()).getSupportedSchemes()).contains("http");
+    assertThat(new DefaultHttpDownloader(new Settings()).getSupportedSchemes()).contains("http");
   }
 
   @Test
   public void uri_description() throws URISyntaxException {
-    String description = new HttpDownloader(new Settings()).description(new URI("http://sonarsource.org"));
+    String description = new DefaultHttpDownloader(new Settings()).description(new URI("http://sonarsource.org"));
     assertThat(description).matches("http://sonarsource.org \\(.*\\)");
   }
 }

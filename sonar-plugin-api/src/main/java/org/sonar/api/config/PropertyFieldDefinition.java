@@ -27,9 +27,8 @@ import org.sonar.api.PropertyType;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.3
@@ -52,16 +51,16 @@ public final class PropertyFieldDefinition {
   }
 
   static List<PropertyFieldDefinition> create(PropertyField[] fields) {
-    List<PropertyFieldDefinition> definitions = newArrayList();
+    List<PropertyFieldDefinition> definitions = new ArrayList<>();
     for (PropertyField field : fields) {
       definitions.add(PropertyFieldDefinition.build(field.key())
-          .name(field.name())
-          .description(field.description())
-          .indicativeSize(field.indicativeSize())
-          .type(field.type())
-          .options(field.options())
-          .build()
-      );
+        .name(field.name())
+        .description(field.description())
+        .indicativeSize(field.indicativeSize())
+        .type(field.type())
+        .options(field.options())
+        .build()
+        );
     }
     return definitions;
   }
@@ -112,7 +111,7 @@ public final class PropertyFieldDefinition {
       this.description = "";
       this.indicativeSize = 20;
       this.type = PropertyType.STRING;
-      this.options = newArrayList();
+      this.options = new ArrayList<>();
     }
 
     public Builder name(String name) {

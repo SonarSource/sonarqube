@@ -19,12 +19,12 @@
  */
 package org.sonar.api.batch;
 
-import com.google.common.collect.Lists;
 import org.sonar.api.measures.FormulaData;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class DefaultFormulaData implements FormulaData {
 
   @Override
   public Collection<FormulaData> getChildren() {
-    List<FormulaData> result = Lists.newArrayList();
+    List<FormulaData> result = new ArrayList<>();
     for (DecoratorContext childContext : decoratorContext.getChildren()) {
       result.add(new DefaultFormulaData(childContext));
     }

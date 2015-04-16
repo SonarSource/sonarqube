@@ -20,7 +20,6 @@
 package org.sonar.api.config;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
@@ -44,12 +43,12 @@ import java.util.Map;
  */
 public final class PropertyDefinitions implements BatchComponent, ServerComponent {
 
-  private final Map<String, PropertyDefinition> definitions = Maps.newHashMap();
-  private final Map<String, Category> categories = Maps.newHashMap();
-  private final Map<String, SubCategory> subcategories = Maps.newHashMap();
+  private final Map<String, PropertyDefinition> definitions = new HashMap<>();
+  private final Map<String, Category> categories = new HashMap<>();
+  private final Map<String, SubCategory> subcategories = new HashMap<>();
 
   // deprecated key -> new key
-  private final Map<String, String> deprecatedKeys = Maps.newHashMap();
+  private final Map<String, String> deprecatedKeys = new HashMap<>();
 
   public PropertyDefinitions(Object... components) {
     if (components != null) {

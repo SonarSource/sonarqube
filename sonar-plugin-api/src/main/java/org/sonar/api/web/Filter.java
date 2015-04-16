@@ -19,11 +19,10 @@
  */
 package org.sonar.api.web;
 
-import com.google.common.collect.Lists;
-
-import java.util.List;
-
 import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Definition of a filter.
@@ -44,8 +43,8 @@ public final class Filter {
 
   private Filter() {
     displayAs = LIST;
-    criteria = Lists.newArrayList();
-    columns = Lists.newArrayList();
+    criteria = new ArrayList<>();
+    columns = new ArrayList<>();
   }
 
   /**

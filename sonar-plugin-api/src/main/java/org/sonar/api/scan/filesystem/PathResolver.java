@@ -21,13 +21,13 @@ package org.sonar.api.scan.filesystem;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class PathResolver implements BatchComponent {
   }
 
   public List<File> relativeFiles(File dir, List<String> paths) {
-    List<File> result = Lists.newArrayList();
+    List<File> result = new ArrayList<>();
     for (String path : paths) {
       result.add(relativeFile(dir, path));
     }
@@ -59,7 +59,7 @@ public class PathResolver implements BatchComponent {
 
   @CheckForNull
   public RelativePath relativePath(Collection<File> dirs, File file) {
-    List<String> stack = Lists.newArrayList();
+    List<String> stack = new ArrayList<>();
     File cursor = file;
     while (cursor != null) {
       File parentDir = parentDir(dirs, cursor);
@@ -74,7 +74,7 @@ public class PathResolver implements BatchComponent {
 
   @CheckForNull
   public String relativePath(File dir, File file) {
-    List<String> stack = Lists.newArrayList();
+    List<String> stack = new ArrayList<>();
     String dirPath = PathUtils.canonicalPath(dir);
     File cursor = file;
     while (cursor != null) {

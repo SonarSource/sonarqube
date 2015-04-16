@@ -33,8 +33,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.HttpDownloader;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.api.utils.HttpDownloader;
 
 import javax.annotation.Nullable;
 
@@ -57,11 +58,11 @@ public class ServerClient implements BatchComponent {
 
   private static final String GET = "GET";
   private BootstrapProperties props;
-  private HttpDownloader.BaseHttpDownloader downloader;
+  private DefaultHttpDownloader.BaseHttpDownloader downloader;
 
   public ServerClient(BootstrapProperties settings, EnvironmentInformation env) {
     this.props = settings;
-    this.downloader = new HttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
+    this.downloader = new DefaultHttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
   }
 
   public String getURL() {
