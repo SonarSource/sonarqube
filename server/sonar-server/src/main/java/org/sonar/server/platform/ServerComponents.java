@@ -216,6 +216,7 @@ import org.sonar.server.plugins.ServerPluginJarsInstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
 import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.properties.ProjectSettingsFactory;
@@ -881,6 +882,7 @@ class ServerComponents {
 
     // Plugins WS
     pico.addSingleton(InstalledPluginsWsAction.class);
+    pico.addSingleton(AvailablePluginsWsAction.class);
     pico.addSingleton(PluginsWs.class);
 
     // Compute engine
