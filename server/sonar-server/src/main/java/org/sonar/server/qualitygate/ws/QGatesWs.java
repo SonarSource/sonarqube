@@ -42,46 +42,10 @@ public class QGatesWs implements WebService {
   static final String PARAM_PROJECT_ID = "projectId";
   static final String PARAM_ID = "id";
 
-  private final QGatesListAction listAction;
-  private final QGatesShowAction showAction;
-  private final QGatesSearchAction searchAction;
+  private final BaseQGateWsAction[] actions;
 
-  private final QGatesCreateAction createAction;
-  private final QGatesCopyAction copyAction;
-  private final QGatesSetAsDefaultAction setAsDefaultAction;
-  private final QGatesUnsetDefaultAction unsetAction;
-  private final QGatesDestroyAction destroyAction;
-  private final QGatesRenameAction renameAction;
-
-  private final QGatesCreateConditionAction createConditionAction;
-  private final QGatesUpdateConditionAction updateConditionAction;
-  private final QGatesDeleteConditionAction deleteConditionAction;
-
-  private final QGatesSelectAction selectAction;
-  private final QGatesDeselectAction deselectAction;
-
-  private final QGatesAppAction appAction;
-
-  public QGatesWs(QGatesListAction listAction, QGatesShowAction showAction, QGatesSearchAction searchAction,
-                  QGatesCreateAction createAction, QGatesCopyAction copyAction, QGatesDestroyAction destroyAction, QGatesRenameAction renameAction,
-                  QGatesSetAsDefaultAction setAsDefaultAction, QGatesUnsetDefaultAction unsetAction,
-                  QGatesCreateConditionAction createConditionAction, QGatesUpdateConditionAction updateConditionAction, QGatesDeleteConditionAction deleteConditionAction,
-                  QGatesSelectAction selectAction, QGatesDeselectAction deselectAction, QGatesAppAction appAction) {
-    this.listAction = listAction;
-    this.showAction = showAction;
-    this.searchAction = searchAction;
-    this.createAction = createAction;
-    this.destroyAction = destroyAction;
-    this.renameAction = renameAction;
-    this.unsetAction = unsetAction;
-    this.createConditionAction = createConditionAction;
-    this.updateConditionAction = updateConditionAction;
-    this.deleteConditionAction = deleteConditionAction;
-    this.selectAction = selectAction;
-    this.deselectAction = deselectAction;
-    this.copyAction = copyAction;
-    this.setAsDefaultAction = setAsDefaultAction;
-    this.appAction = appAction;
+  public QGatesWs(BaseQGateWsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
@@ -90,25 +54,9 @@ public class QGatesWs implements WebService {
       .setSince("4.3")
       .setDescription("This service manages quality gates, including conditions and project association");
 
-    listAction.define(controller);
-    showAction.define(controller);
-    searchAction.define(controller);
-
-    createAction.define(controller);
-    renameAction.define(controller);
-    copyAction.define(controller);
-    destroyAction.define(controller);
-    setAsDefaultAction.define(controller);
-    unsetAction.define(controller);
-
-    createConditionAction.define(controller);
-    updateConditionAction.define(controller);
-    deleteConditionAction.define(controller);
-
-    selectAction.define(controller);
-    deselectAction.define(controller);
-
-    appAction.define(controller);
+    for (BaseQGateWsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

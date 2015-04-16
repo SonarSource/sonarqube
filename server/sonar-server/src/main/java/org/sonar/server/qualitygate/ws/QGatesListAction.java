@@ -22,14 +22,13 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesListAction implements RequestHandler {
+public class QGatesListAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -37,7 +36,8 @@ public class QGatesListAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("list")
       .setDescription("Get a list of quality gates")
       .setSince("4.3")

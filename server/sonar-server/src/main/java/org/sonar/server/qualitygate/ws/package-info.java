@@ -21,3 +21,4 @@
 package org.sonar.server.qualitygate.ws;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+

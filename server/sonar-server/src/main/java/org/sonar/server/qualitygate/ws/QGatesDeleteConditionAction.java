@@ -21,12 +21,11 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesDeleteConditionAction implements RequestHandler {
+public class QGatesDeleteConditionAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -34,7 +33,8 @@ public class QGatesDeleteConditionAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction("delete_condition")
       .setDescription("Delete a condition from a quality gate. Require Administer Quality Profiles and Gates permission")
       .setPost(true)

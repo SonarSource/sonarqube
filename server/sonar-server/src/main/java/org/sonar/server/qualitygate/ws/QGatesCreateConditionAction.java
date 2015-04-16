@@ -21,12 +21,11 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesCreateConditionAction implements RequestHandler {
+public class QGatesCreateConditionAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -34,7 +33,8 @@ public class QGatesCreateConditionAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction("create_condition")
       .setDescription("Add a new condition to a quality gate. Require Administer Quality Profiles and Gates permission")
       .setPost(true)
@@ -60,8 +60,8 @@ public class QGatesCreateConditionAction implements RequestHandler {
         request.param(QGatesWs.PARAM_WARNING),
         request.param(QGatesWs.PARAM_ERROR),
         request.paramAsInt(QGatesWs.PARAM_PERIOD)
-      ), response.newJsonWriter()
-    ).close();
+        ), response.newJsonWriter()
+      ).close();
   }
 
 }

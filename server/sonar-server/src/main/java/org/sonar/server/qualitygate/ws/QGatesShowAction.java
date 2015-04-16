@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -35,7 +34,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 
-public class QGatesShowAction implements RequestHandler {
+public class QGatesShowAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -43,7 +42,8 @@ public class QGatesShowAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
       .setDescription("Display the details of a quality gate")
       .setSince("4.3")

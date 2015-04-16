@@ -21,12 +21,11 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesSelectAction implements RequestHandler {
+public class QGatesSelectAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -34,7 +33,8 @@ public class QGatesSelectAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("select")
       .setDescription("Associate a project to a quality gate. Require Administer Quality Profiles and Gates permission")
       .setPost(true)

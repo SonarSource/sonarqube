@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -30,7 +29,7 @@ import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 
-public class QGatesSearchAction implements RequestHandler {
+public class QGatesSearchAction implements BaseQGateWsAction {
 
   private final QgateProjectFinder projectFinder;
 
@@ -38,7 +37,8 @@ public class QGatesSearchAction implements RequestHandler {
     this.projectFinder = projectFinder;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
       .setDescription("Search for projects associated (or not) to a quality gate")
       .setSince("4.3")

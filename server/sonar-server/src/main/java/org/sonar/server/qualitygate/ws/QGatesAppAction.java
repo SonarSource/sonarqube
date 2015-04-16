@@ -23,7 +23,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
@@ -32,7 +31,7 @@ import org.sonar.server.qualitygate.QualityGates;
 
 import java.util.Locale;
 
-public class QGatesAppAction implements RequestHandler {
+public class QGatesAppAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -46,7 +45,8 @@ public class QGatesAppAction implements RequestHandler {
     this.i18n = i18n;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("app")
       .setInternal(true)
       .setDescription("Get initialization items for the admin UI. For internal use")
@@ -69,7 +69,7 @@ public class QGatesAppAction implements RequestHandler {
 
   private void addPeriods(JsonWriter writer) {
     writer.name("periods").beginArray();
-    for (int i=0; i < 3; i ++) {
+    for (int i = 0; i < 3; i++) {
       writer.beginObject().prop("key", (long) i + 1).prop("text", periods.label(i + 1)).endObject();
     }
     addProjectPeriod(4, writer);
@@ -80,12 +80,12 @@ public class QGatesAppAction implements RequestHandler {
   private void addProjectPeriod(int periodIndex, JsonWriter writer) {
     writer.beginObject().prop("key", periodIndex).prop("text",
       i18n.message(Locale.getDefault(), "quality_gates.project_period", "Period " + periodIndex, periodIndex)
-    ).endObject();
+      ).endObject();
   }
 
   private void addMetrics(JsonWriter writer) {
     writer.name("metrics").beginArray();
-    for (Metric metric: qualityGates.gateMetrics()) {
+    for (Metric metric : qualityGates.gateMetrics()) {
       writer.beginObject()
         .prop("id", metric.getId())
         .prop("key", metric.getKey())
@@ -93,10 +93,9 @@ public class QGatesAppAction implements RequestHandler {
         .prop("type", metric.getType().toString())
         .prop("domain", metric.getDomain())
         .prop("hidden", BooleanUtils.isNotFalse(metric.isHidden()))
-      .endObject();
+        .endObject();
     }
     writer.endArray();
   }
-
 
 }

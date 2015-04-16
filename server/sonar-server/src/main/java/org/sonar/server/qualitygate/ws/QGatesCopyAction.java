@@ -21,14 +21,13 @@
 package org.sonar.server.qualitygate.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesCopyAction implements RequestHandler {
+public class QGatesCopyAction implements BaseQGateWsAction {
 
   private final QualityGates qualityGates;
 
@@ -36,7 +35,8 @@ public class QGatesCopyAction implements RequestHandler {
     this.qualityGates = qualityGates;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("copy")
       .setDescription("Copy a Quality Gate. Require Administer Quality Profiles and Gates permission")
       .setPost(true)
