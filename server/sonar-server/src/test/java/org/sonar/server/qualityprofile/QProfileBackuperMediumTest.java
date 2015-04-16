@@ -270,6 +270,17 @@ public class QProfileBackuperMediumTest {
   }
 
   @Test
+  public void fail_to_restore_if_duplicate_rule() throws Exception {
+    try {
+      tester.get(QProfileBackuper.class).restore(new StringReader(
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/duplicates-xml-backup.xml"), Charsets.UTF_8)), null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("The quality profile cannot be restored as it contains duplicates for the following rules: xoo:x1, xoo:x2");
+    }
+  }
+
+  @Test
   public void restore_and_override_profile_name() throws Exception {
     tester.get(QProfileBackuper.class).restore(new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),

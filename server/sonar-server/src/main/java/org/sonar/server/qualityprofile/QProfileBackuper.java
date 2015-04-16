@@ -19,8 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
@@ -44,12 +46,15 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class QProfileBackuper implements ServerComponent {
 
   private final QProfileReset reset;
   private final DbClient db;
   private final IndexClient index;
+
+  private static final Joiner RULEKEY_JOINER = Joiner.on(", ").skipNulls();
 
   public QProfileBackuper(QProfileReset reset, DbClient db, IndexClient index) {
     this.reset = reset;
@@ -134,6 +139,8 @@ public class QProfileBackuper implements ServerComponent {
 
   private List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
     List<RuleActivation> activations = Lists.newArrayList();
+    Set<RuleKey> activatedKeys = Sets.newHashSet();
+    List<RuleKey> duplicatedKeys = Lists.newArrayList();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
       String repositoryKey = null, key = null, severity = null;
@@ -155,10 +162,18 @@ public class QProfileBackuper implements ServerComponent {
         }
       }
       RuleKey ruleKey = RuleKey.of(repositoryKey, key);
+      if (activatedKeys.contains(ruleKey)) {
+        duplicatedKeys.add(ruleKey);
+      }
+      activatedKeys.add(ruleKey);
       RuleActivation activation = new RuleActivation(ruleKey);
       activation.setSeverity(severity);
       activation.setParameters(parameters);
       activations.add(activation);
+    }
+    if (!duplicatedKeys.isEmpty()) {
+      throw new IllegalArgumentException("The quality profile cannot be restored as it contains duplicates for the following rules: " +
+        RULEKEY_JOINER.join(duplicatedKeys));
     }
     return activations;
   }
