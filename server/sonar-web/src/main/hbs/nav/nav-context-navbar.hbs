@@ -70,6 +70,11 @@
             <a href="{{link '/comparison/index?resource=' contextKey}}">{{t 'comparison.page'}}</a>
           </li>
         {{/if}}
+        {{#each contextExtensions}}
+          <li>
+            <a href="{{link url}}">{{label}}</a>
+          </li>
+        {{/each}}
       </ul>
     </li>
   </ul>
