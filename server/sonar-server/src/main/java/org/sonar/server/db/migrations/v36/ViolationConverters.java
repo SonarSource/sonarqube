@@ -19,10 +19,6 @@
  */
 package org.sonar.server.db.migrations.v36;
 
-import com.google.common.collect.Lists;
-import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.Database;
-
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,6 +26,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.sonar.api.config.Settings;
+import org.sonar.core.persistence.Database;
+
+import com.google.common.collect.Lists;
 
 class ViolationConverters {
 

@@ -25,7 +25,7 @@
 class UpdateIssuesActionPlanKeyOnRemovedActionPlan < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigrationStep')
   end
   
 end

@@ -42,7 +42,7 @@ public class ChangeLogMigrationTest {
   System2 system2 = mock(System2.class);
   DbClient dbClient;
   ActivityDao dao;
-  ChangeLogMigration migration;
+  ChangeLogMigrationStep migration;
   DbSession session;
 
   @Before
@@ -50,7 +50,7 @@ public class ChangeLogMigrationTest {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
     dao = new ActivityDao(db.myBatis(), system2);
     dbClient = new DbClient(db.database(), db.myBatis(), dao);
-    migration = new ChangeLogMigration(dao, dbClient);
+    migration = new ChangeLogMigrationStep(dao, dbClient);
     session = dbClient.openSession(false);
   }
 

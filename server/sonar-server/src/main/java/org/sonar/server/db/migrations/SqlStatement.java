@@ -19,10 +19,10 @@
  */
 package org.sonar.server.db.migrations;
 
-import javax.annotation.Nullable;
-
 import java.sql.SQLException;
 import java.util.Date;
+
+import javax.annotation.Nullable;
 
 public interface SqlStatement<CHILD extends SqlStatement> {
   CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;

@@ -20,18 +20,22 @@
 
 package org.sonar.server.db.migrations.v50;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
-
-import javax.annotation.Nullable;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.Database;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
+import org.sonar.server.db.migrations.SqlUtil;
 
 /**
  * Used in the Active Record Migration 710
@@ -84,7 +88,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
   private String convertData(PreparedStatement pstmt, String data) throws SQLException {
     StringBuilder newFields = new StringBuilder();
     String[] fields = data.split("\\|");
-    for (int i=0; i<fields.length; i++) {
+    for (int i = 0; i < fields.length; i++) {
       String field = fields[i];
       if (field.contains("componentRoots")) {
         String[] componentRootValues = field.split("=");

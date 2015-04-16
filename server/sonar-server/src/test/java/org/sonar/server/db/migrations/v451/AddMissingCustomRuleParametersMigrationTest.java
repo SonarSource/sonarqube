@@ -26,7 +26,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +36,7 @@ public class AddMissingCustomRuleParametersMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(AddMissingCustomRuleParametersMigrationTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
   System2 system = mock(System2.class);
 
   @Before
@@ -44,7 +44,7 @@ public class AddMissingCustomRuleParametersMigrationTest {
     db.executeUpdateSql("truncate table rules");
     db.executeUpdateSql("truncate table rules_parameters");
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
-    migration = new AddMissingCustomRuleParametersMigration(dbClient, system);
+    migration = new AddMissingCustomRuleParametersMigrationStep(dbClient, system);
     when(system.now()).thenReturn(DateUtils.parseDate("2014-10-09").getTime());
   }
 

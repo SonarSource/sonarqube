@@ -47,7 +47,7 @@ public class IssueChangelogMigrationTest {
   @Mock
   PropertiesDao propertiesDao;
 
-  IssueChangelogMigration migration;
+  IssueChangelogMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
@@ -56,7 +56,7 @@ public class IssueChangelogMigrationTest {
 
     WorkDurationConvertor convertor = new WorkDurationConvertor(propertiesDao);
     convertor.init();
-    migration = new IssueChangelogMigration(db.database(), system2, convertor);
+    migration = new IssueChangelogMigrationStep(db.database(), system2, convertor);
   }
 
   @Test

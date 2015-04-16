@@ -18,49 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.db.migrations.v43;
+package org.sonar.server.db.migrations.v44;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.utils.System2;
+import java.sql.SQLException;
+
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-import java.util.Date;
-
 /**
- * Used in the Active Record Migration 525
+ * SONAR-5249
+ * Merge measure data table into project_measure
  *
- * @since 4.3
+ * Used in the Active Record Migration 530.
+ * @since 4.4
  */
-public class NotResolvedIssuesOnRemovedComponentsMigration extends BaseDataChange {
+public class MeasureDataMigrationStep extends BaseDataChange {
 
-  private final System2 system2;
-
-  public NotResolvedIssuesOnRemovedComponentsMigration(Database database, System2 system2) {
+  public MeasureDataMigrationStep(Database database) {
     super(database);
-    this.system2 = system2;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    final Date now = new Date(system2.now());
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT i.id FROM issues i " +
-      "INNER JOIN projects p on p.id=i.component_id " +
-      "WHERE p.enabled=? AND i.resolution IS NULL ").setBoolean(1, false);
-    massUpdate.update("UPDATE issues SET status=?,resolution=?,updated_at=? WHERE id=?");
+    massUpdate.rowPluralName("measures");
+    massUpdate.select("select md.id, md.measure_id FROM measure_data md " +
+      "inner join project_measures m on m.id=md.measure_id and m.measure_data is null");
+    massUpdate.update("update project_measures SET measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getNullableLong(1);
-        update.setString(1, Issue.STATUS_CLOSED);
-        update.setString(2, Issue.RESOLUTION_REMOVED);
-        update.setDate(3, now);
-        update.setLong(4, id);
+        Long measureId = row.getNullableLong(2);
+
+        update.setLong(1, id);
+        update.setLong(2, measureId);
         return true;
       }
     });

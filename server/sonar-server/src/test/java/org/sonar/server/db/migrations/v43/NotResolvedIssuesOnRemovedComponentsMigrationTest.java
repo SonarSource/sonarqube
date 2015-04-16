@@ -41,13 +41,13 @@ public class NotResolvedIssuesOnRemovedComponentsMigrationTest {
   @Mock
   System2 system2;
 
-  NotResolvedIssuesOnRemovedComponentsMigration migration;
+  NotResolvedIssuesOnRemovedComponentsMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
 
-    migration = new NotResolvedIssuesOnRemovedComponentsMigration(db.database(), system2);
+    migration = new NotResolvedIssuesOnRemovedComponentsMigrationStep(db.database(), system2);
   }
 
   @Test

@@ -19,8 +19,13 @@
  */
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -29,12 +34,8 @@ import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 /**
  * See http://jira.codehaus.org/browse/SONAR-6187

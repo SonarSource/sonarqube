@@ -24,7 +24,7 @@
 class AddMissingRuleParameterDefaultValues < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration'
+    execute_java_migration 'org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigrationStep'
   end
 
 end

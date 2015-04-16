@@ -25,6 +25,6 @@
 class UpdateIssueMessageByRuleNameWhenNoMessage < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v42.CompleteIssueMessageMigrationStep')
   end
 end

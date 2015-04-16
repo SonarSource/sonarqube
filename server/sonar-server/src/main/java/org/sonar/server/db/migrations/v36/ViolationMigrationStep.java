@@ -19,30 +19,29 @@
  */
 package org.sonar.server.db.migrations.v36;
 
+import java.sql.SQLException;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.db.migrations.SqlUtil;
-
-import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 401
  */
-public class ViolationMigration implements DatabaseMigration {
+public class ViolationMigrationStep implements MigrationStep {
 
-  private static final Logger LOGGER = Loggers.get(ViolationMigration.class);
+  private static final Logger LOGGER = Loggers.get(ViolationMigrationStep.class);
 
   private static final String FAILURE_MESSAGE = "Fail to convert violations to issues";
 
   private final Settings settings;
   private final Database db;
 
-  public ViolationMigration(Database database, Settings settings) {
+  public ViolationMigrationStep(Database database, Settings settings) {
     this.db = database;
     this.settings = settings;
   }

@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.v42;
+
+package org.sonar.server.db.migrations.v51;
+
+import java.sql.SQLException;
 
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -25,34 +28,41 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-
 /**
- * Used in Rails migration 497
+ * See http://jira.codehaus.org/browse/SONAR-5596
  *
- * @since 4.2
+ * It's no possible to set permission on a module or a sub-view, but the batch was setting default permission on it on their creation.
+ * As now it's no more the case, we need to purge this useless data.
+ *
+ * @since 5.1
  */
-public class CompleteIssueMessageMigration extends BaseDataChange {
+public class RemovePermissionsOnModulesMigrationStep extends BaseDataChange {
 
-  public CompleteIssueMessageMigration(Database database) {
-    super(database);
+  public RemovePermissionsOnModulesMigrationStep(Database db) {
+    super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
+    removeUserRolePermissions(context, "user_roles", "user roles");
+    removeUserRolePermissions(context, "group_roles", "group roles");
+  }
+
+  private void removeUserRolePermissions(Context context, String tableName, String pluralName) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT i.id, r.name FROM issues i INNER JOIN rules r ON r.id=i.rule_id WHERE i.message IS NULL");
-    massUpdate.update("UPDATE issues SET message=? WHERE id=?");
+    massUpdate.select("SELECT r.id " +
+      "FROM " + tableName + " r " +
+      "  INNER JOIN projects ON projects.id = r.resource_id " +
+      "WHERE projects.module_uuid IS NOT NULL");
+    massUpdate.update("DELETE FROM " + tableName + " WHERE id=?");
+    massUpdate.rowPluralName(pluralName);
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long issueId = row.getNullableLong(1);
-        String ruleName = row.getNullableString(2);
-
-        update.setString(1, ruleName);
-        update.setLong(2, issueId);
+        update.setLong(1, row.getLong(1));
         return true;
       }
     });
   }
+
 }

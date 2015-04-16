@@ -17,45 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.db.migrations.v42;
 
-package org.sonar.server.db.migrations.v43;
+import java.sql.SQLException;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.SQLException;
-
 /**
- * Used in the Active Record Migration 521
+ * Used in Rails migration 490
  *
- * @since 4.3
+ * @since 4.2
  */
-public class RequirementMeasuresMigration extends BaseDataChange {
+public class PackageKeysMigrationStep extends BaseDataChange {
 
-  public RequirementMeasuresMigration(Database database) {
+  public PackageKeysMigrationStep(Database database) {
     super(database);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT project_measures.id,characteristics.rule_id FROM project_measures " +
-      "INNER JOIN characteristics ON characteristics.id = project_measures.characteristic_id " +
-      "WHERE characteristics.rule_id IS NOT NULL");
-    massUpdate.update("UPDATE project_measures SET characteristic_id=null,rule_id=? WHERE id=?");
+    massUpdate.select("SELECT id, kee FROM projects WHERE qualifier='PAC'");
+    massUpdate.update("UPDATE projects SET qualifier='DIR', kee=? WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getNullableLong(1);
-        Long ruleId = row.getNullableLong(2);
-
-        update.setLong(1, ruleId);
+        String key = row.getNullableString(2);
+        update.setString(1, convertKey(key));
         update.setLong(2, id);
         return true;
       }
     });
+  }
+
+  @CheckForNull
+  String convertKey(@Nullable String packageKey) {
+    if (packageKey != null) {
+      String prefix = StringUtils.substringBeforeLast(packageKey, ":") + ":";
+      String key = StringUtils.substringAfterLast(packageKey, ":");
+      if ("[default]".equals(key)) {
+        return prefix + "[root]";
+      }
+      return prefix + StringUtils.replace(key, ".", "/");
+    }
+    return null;
   }
 }

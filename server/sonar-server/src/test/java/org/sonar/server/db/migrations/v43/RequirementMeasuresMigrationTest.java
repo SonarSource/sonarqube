@@ -30,11 +30,11 @@ public class RequirementMeasuresMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(RequirementMeasuresMigrationTest.class, "schema.sql");
 
-  RequirementMeasuresMigration migration;
+  RequirementMeasuresMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
-    migration = new RequirementMeasuresMigration(db.database());
+    migration = new RequirementMeasuresMigrationStep(db.database());
   }
 
   @Test

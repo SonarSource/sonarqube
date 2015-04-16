@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,13 +35,13 @@ public class InsertProjectsAuthorizationUpdatedAtMigrationTest {
   @ClassRule
   public static DbTester db = new DbTester().schema(InsertProjectsAuthorizationUpdatedAtMigrationTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
   System2 system = mock(System2.class);
 
   @Before
   public void setUp() throws Exception {
     db.executeUpdateSql("truncate table projects");
-    migration = new InsertProjectsAuthorizationUpdatedAtMigration(db.database(), system);
+    migration = new InsertProjectsAuthorizationUpdatedAtMigrationStep(db.database(), system);
     when(system.now()).thenReturn(123456789L);
   }
 

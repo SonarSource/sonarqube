@@ -19,10 +19,14 @@
  */
 package org.sonar.server.db.migrations.v36;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
@@ -31,13 +35,10 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 class ViolationConverter implements Callable<Object> {
 

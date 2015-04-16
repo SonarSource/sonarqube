@@ -20,6 +20,12 @@
 
 package org.sonar.server.db.migrations.v43;
 
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
@@ -28,22 +34,16 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.List;
-
 /**
  * Used in the Active Record Migration 515
  *
  * @since 4.3
  */
-public class TechnicalDebtMeasuresMigration extends BaseDataChange {
+public class TechnicalDebtMeasuresMigrationStep extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
 
-  public TechnicalDebtMeasuresMigration(Database database, PropertiesDao propertiesDao) {
+  public TechnicalDebtMeasuresMigrationStep(Database database, PropertiesDao propertiesDao) {
     super(database);
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
   }

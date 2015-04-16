@@ -78,7 +78,7 @@ class WorkDurationConvertor {
     }
   }
 
-  private void checkHoursInDay(){
+  private void checkHoursInDay() {
     if (hoursInDay == null) {
       throw new IllegalStateException("init() has not been called");
     }

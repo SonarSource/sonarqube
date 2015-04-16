@@ -24,7 +24,7 @@
 class RemoveSortFieldFromIssueFilters < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v50.RemoveSortFieldFromIssueFiltersMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v50.RemoveSortFieldFromIssueFiltersMigrationStep')
   end
 end
 

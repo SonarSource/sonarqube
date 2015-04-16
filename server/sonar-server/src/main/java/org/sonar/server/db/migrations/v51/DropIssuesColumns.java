@@ -20,12 +20,13 @@
 
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.sql.SQLException;
+
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DdlChange;
 import org.sonar.server.db.migrations.DropColumnsBuilder;
 
-import java.sql.SQLException;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Drop the following columns from the issues table :

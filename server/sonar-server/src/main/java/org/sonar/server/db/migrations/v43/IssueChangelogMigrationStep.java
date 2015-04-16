@@ -20,8 +20,14 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
@@ -30,31 +36,26 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 
 /**
  * Used in the Active Record Migration 514
  *
  * @since 4.3
  */
-public class IssueChangelogMigration extends BaseDataChange {
+public class IssueChangelogMigrationStep extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
   private final Pattern pattern = Pattern.compile("technicalDebt=(\\d*)\\|(\\d*)", Pattern.CASE_INSENSITIVE);
 
-  public IssueChangelogMigration(Database database, System2 system2, PropertiesDao propertiesDao) {
+  public IssueChangelogMigrationStep(Database database, System2 system2, PropertiesDao propertiesDao) {
     this(database, system2, new WorkDurationConvertor(propertiesDao));
   }
 
   @VisibleForTesting
-  IssueChangelogMigration(Database database, System2 system2, WorkDurationConvertor convertor) {
+  IssueChangelogMigrationStep(Database database, System2 system2, WorkDurationConvertor convertor) {
     super(database);
     this.workDurationConvertor = convertor;
     this.system2 = system2;

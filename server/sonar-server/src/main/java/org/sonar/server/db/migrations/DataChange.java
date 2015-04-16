@@ -19,10 +19,10 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.sonar.core.persistence.Database;
-
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import org.sonar.core.persistence.Database;
 
 public interface DataChange {
 

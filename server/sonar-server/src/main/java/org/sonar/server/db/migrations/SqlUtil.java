@@ -19,15 +19,14 @@
  */
 package org.sonar.server.db.migrations;
 
-
-import org.sonar.api.utils.log.Logger;
-
-import javax.annotation.CheckForNull;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+
+import javax.annotation.CheckForNull;
+
+import org.sonar.api.utils.log.Logger;
 
 public class SqlUtil {
 

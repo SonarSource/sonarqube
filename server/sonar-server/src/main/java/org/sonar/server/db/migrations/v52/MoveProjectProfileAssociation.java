@@ -19,17 +19,22 @@
  */
 package org.sonar.server.db.migrations.v52;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import java.sql.SQLException;
+
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.MassUpdate.Handler;
+import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
+import org.sonar.server.db.migrations.SqlStatement;
+import org.sonar.server.db.migrations.Upsert;
 
-import java.sql.SQLException;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 
 /**
  * SonarQube 5.2
@@ -56,7 +61,7 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
       String profileName = row.getString(3);
       Long projectId = row.getNullableLong(4);
       String projectUuid = row.getString(5);
- 
+
       if (profileKeysByLanguageThenName.contains(profileLanguage, profileName)) {
         String profileKey = profileKeysByLanguageThenName.get(profileLanguage, profileName);
 

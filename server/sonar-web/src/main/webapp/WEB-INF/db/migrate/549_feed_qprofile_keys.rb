@@ -25,7 +25,7 @@
 class FeedQprofileKeys < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v44.FeedQProfileKeysMigrationStep')
 
     # set as non-null and unique
     change_column :rules_profiles, :kee, :string, :limit => 255, :null => false

@@ -19,14 +19,6 @@
  */
 package org.sonar.server.db.migrations.v36;
 
-import com.google.common.collect.Maps;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.sonar.core.persistence.Database;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,6 +26,16 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.ResultSetHandler;
+import org.sonar.core.persistence.Database;
+
+import com.google.common.collect.Maps;
 
 /**
  * Data loaded from database before migrating violations. It is

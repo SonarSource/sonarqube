@@ -19,14 +19,14 @@
  */
 package org.sonar.server.db.migrations;
 
-import javax.annotation.CheckForNull;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+
+import javax.annotation.CheckForNull;
 
 public interface Select extends SqlStatement<Select> {
 

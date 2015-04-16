@@ -30,7 +30,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
 
   Migration50Mapper mapper;
 
-  DatabaseMigration migration;
+  MigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
@@ -54,7 +54,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     dbClient = new DbClient(db.database(), db.myBatis());
     session = dbClient.openSession(false);
     mapper = session.getMapper(Migration50Mapper.class);
-    migration = new PopulateProjectsUuidColumnsMigration(dbClient);
+    migration = new PopulateProjectsUuidColumnsMigrationStep(dbClient);
   }
 
   @After

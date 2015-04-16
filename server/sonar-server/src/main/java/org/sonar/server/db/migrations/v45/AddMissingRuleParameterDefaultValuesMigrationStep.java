@@ -19,26 +19,26 @@
  */
 package org.sonar.server.db.migrations.v45;
 
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
 
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
 /**
  * SONAR-5446
  */
-public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChange {
+public class AddMissingRuleParameterDefaultValuesMigrationStep extends BaseDataChange {
 
   private final System2 system;
 
-  public AddMissingRuleParameterDefaultValuesMigration(Database db, System2 system) {
+  public AddMissingRuleParameterDefaultValuesMigrationStep(Database db, System2 system) {
     super(db);
     this.system = system;
   }

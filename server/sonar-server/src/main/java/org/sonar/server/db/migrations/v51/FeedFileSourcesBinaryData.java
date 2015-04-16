@@ -19,9 +19,12 @@
  */
 package org.sonar.server.db.migrations.v51;
 
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import java.sql.SQLException;
+import java.util.Iterator;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -36,11 +39,9 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 import org.sonar.server.source.db.FileSourceDb;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.sql.SQLException;
-import java.util.Iterator;
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 public class FeedFileSourcesBinaryData extends BaseDataChange {
 

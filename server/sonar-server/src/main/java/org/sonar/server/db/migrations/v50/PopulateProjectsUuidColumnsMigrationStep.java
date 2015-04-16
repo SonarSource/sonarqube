@@ -20,8 +20,13 @@
 
 package org.sonar.server.db.migrations.v50;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
@@ -30,27 +35,23 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.util.ProgressLogger;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 
 /**
  * Used in the Active Record Migration 705
  *
  * @since 5.0
  */
-public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
+public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
 
   private final DbClient db;
   private final AtomicLong counter = new AtomicLong(0L);
 
-  public PopulateProjectsUuidColumnsMigration(DbClient db) {
+  public PopulateProjectsUuidColumnsMigrationStep(DbClient db) {
     this.db = db;
   }
 

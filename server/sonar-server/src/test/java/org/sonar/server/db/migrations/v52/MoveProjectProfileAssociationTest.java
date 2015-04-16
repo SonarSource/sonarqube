@@ -24,14 +24,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 
 public class MoveProjectProfileAssociationTest {
 
   @ClassRule
   public static DbTester db = new DbTester().schema(MoveProjectProfileAssociationTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  MigrationStep migration;
 
   @Before
   public void setUp() throws Exception {

@@ -19,8 +19,20 @@
  */
 package org.sonar.server.db.migrations.v50;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
+import static com.google.common.base.Charsets.UTF_8;
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
@@ -31,15 +43,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.CsvWriter;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.util.*;
-
-import static com.google.common.base.Charsets.UTF_8;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 
 class FileSourceDto {
 

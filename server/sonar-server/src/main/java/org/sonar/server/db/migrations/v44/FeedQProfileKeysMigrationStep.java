@@ -20,6 +20,8 @@
 
 package org.sonar.server.db.migrations.v44;
 
+import java.sql.SQLException;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -28,16 +30,14 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 import org.sonar.server.util.Slug;
 
-import java.sql.SQLException;
-
 /**
  * Feed the new columns RULES_PROFILES.KEE and PARENT_KEE.
  * 
  * @since 4.4
  */
-public class FeedQProfileKeysMigration extends BaseDataChange {
+public class FeedQProfileKeysMigrationStep extends BaseDataChange {
 
-  public FeedQProfileKeysMigration(Database db) {
+  public FeedQProfileKeysMigrationStep(Database db) {
     super(db);
   }
 

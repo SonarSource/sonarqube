@@ -19,6 +19,10 @@
  */
 package org.sonar.server.db.migrations.v44;
 
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
@@ -32,12 +36,8 @@ import org.sonar.core.rule.SeverityUtil;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * SONAR-5329
@@ -47,12 +47,12 @@ import java.util.List;
  *
  * @since 4.4
  */
-public class ChangeLogMigration implements DatabaseMigration {
+public class ChangeLogMigrationStep implements MigrationStep {
 
   private final ActivityDao dao;
   private final DbClient db;
 
-  public ChangeLogMigration(ActivityDao dao, DbClient db) {
+  public ChangeLogMigrationStep(ActivityDao dao, DbClient db) {
     this.dao = dao;
     this.db = db;
   }

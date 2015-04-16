@@ -19,12 +19,12 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.sonar.core.persistence.Database;
-import org.sonar.server.util.ProgressLogger;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.sonar.core.persistence.Database;
+import org.sonar.server.util.ProgressLogger;
 
 public class MassUpdate {
 

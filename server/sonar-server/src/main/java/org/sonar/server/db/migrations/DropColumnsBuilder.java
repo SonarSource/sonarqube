@@ -19,7 +19,11 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.MsSql;
+import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 
 public class DropColumnsBuilder {
 

@@ -19,13 +19,13 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.apache.commons.dbutils.DbUtils;
-import org.sonar.core.persistence.Database;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public abstract class BaseDataChange implements DataChange, DatabaseMigration {
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.core.persistence.Database;
+
+public abstract class BaseDataChange implements DataChange, MigrationStep {
 
   private final Database db;
 
