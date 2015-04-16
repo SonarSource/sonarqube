@@ -44,7 +44,7 @@ public class QProfileExportAction implements BaseQProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_LANGUAGE = "language";
-  private static final String PARAM_FORMAT = "format";
+  private static final String PARAM_FORMAT = "exporterKey";
 
   private final DbClient dbClient;
 
@@ -89,7 +89,8 @@ public class QProfileExportAction implements BaseQProfileWsAction {
     }
     if (!exporterKeys.isEmpty()) {
       create.createParam(PARAM_FORMAT)
-        .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used.")
+        .setDescription("Output format. If left empty, the same format as api/qualityprofiles/backup is used. " +
+          "Possible values are described by api/qualityprofiles/exporters.")
         .setPossibleValues(exporterKeys);
     }
   }

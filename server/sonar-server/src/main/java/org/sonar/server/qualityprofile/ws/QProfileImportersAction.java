@@ -42,7 +42,6 @@ public class QProfileImportersAction implements BaseQProfileWsAction {
     controller.createAction("importers")
       .setSince("5.2")
       .setDescription("List supported importers.")
-      .setInternal(true)
       .setResponseExample(getClass().getResource("example-importers.json"))
       .setHandler(this);
   }

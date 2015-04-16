@@ -42,7 +42,6 @@ public class QProfileExportersAction implements BaseQProfileWsAction {
     context.createAction("exporters")
       .setDescription("Lists available profile export formats.")
       .setHandler(this)
-      .setInternal(true)
       .setResponseExample(getClass().getResource("example-exporters.json"))
       .setSince("5.2");
   }

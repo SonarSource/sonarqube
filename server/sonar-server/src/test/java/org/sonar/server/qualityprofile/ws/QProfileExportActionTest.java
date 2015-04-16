@@ -143,7 +143,7 @@ public class QProfileExportActionTest {
     session.commit();
 
     Result result = wsTester.newGetRequest("api/qualityprofiles", "export")
-      .setParam("language", profile.getLanguage()).setParam("name", profile.getName()).setParam("format", "polop").execute();
+      .setParam("language", profile.getLanguage()).setParam("name", profile.getName()).setParam("exporterKey", "polop").execute();
 
     assertThat(result.outputAsString()).isEqualTo("Profile " + profile.getName() + " exported by polop");
   }
@@ -156,7 +156,7 @@ public class QProfileExportActionTest {
     session.commit();
 
     Result result = wsTester.newGetRequest("api/qualityprofiles", "export")
-      .setParam("language", "xoo").setParam("format", "polop").execute();
+      .setParam("language", "xoo").setParam("exporterKey", "polop").execute();
 
     assertThat(result.outputAsString()).isEqualTo("Profile " + profile2.getName() + " exported by polop");
   }
@@ -164,7 +164,7 @@ public class QProfileExportActionTest {
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_profile() throws Exception {
     wsTester.newGetRequest("api/qualityprofiles", "export")
-      .setParam("language", "xoo").setParam("format", "polop").execute();
+      .setParam("language", "xoo").setParam("exporterKey", "polop").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -174,25 +174,25 @@ public class QProfileExportActionTest {
     session.commit();
 
     wsTester.newGetRequest("api/qualityprofiles", "export")
-      .setParam("language", "xoo").setParam("format", "unknown").execute();
+      .setParam("language", "xoo").setParam("exporterKey", "unknown").execute();
   }
 
   @Test
   public void do_not_fail_when_no_exporters() throws Exception {
-    exporters = new QProfileExporters(null, null, null, new ProfileExporter[0], null);
-    wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
+    QProfileExporters myExporters = new QProfileExporters(null, null, null, new ProfileExporter[0], null);
+    WsTester myWsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileExportAction(dbClient, new QProfileFactory(dbClient), backuper, exporters, LanguageTesting.newLanguages("xoo"))));
+      new QProfileExportAction(dbClient, new QProfileFactory(dbClient), backuper, myExporters, LanguageTesting.newLanguages("xoo"))));
 
-    Action export = wsTester.controller("api/qualityprofiles").action("export");
+    Action export = myWsTester.controller("api/qualityprofiles").action("export");
     assertThat(export.params()).hasSize(2);
 
     QualityProfileDto profile = QProfileTesting.newXooP1();
     qualityProfileDao.insert(session, profile);
     session.commit();
 
-    wsTester.newGetRequest("api/qualityprofiles", "export").setParam("language", "xoo").setParam("name", profile.getName()).execute();
+    myWsTester.newGetRequest("api/qualityprofiles", "export").setParam("language", "xoo").setParam("name", profile.getName()).execute();
 
   }
 }
