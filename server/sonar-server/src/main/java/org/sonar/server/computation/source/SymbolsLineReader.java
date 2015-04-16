@@ -24,11 +24,16 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 
 public class SymbolsLineReader implements LineReader {
 
@@ -39,7 +44,7 @@ public class SymbolsLineReader implements LineReader {
     this.symbols = newArrayList(symbols);
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
-    Collections.sort(this.symbols, new SymbolsDuplication());
+    Collections.sort(this.symbols, new SymbolsComparator());
 
     this.idsBySymbol = createIdsBySymbolMap(this.symbols);
   }
@@ -78,8 +83,8 @@ public class SymbolsLineReader implements LineReader {
   }
 
   private List<BatchReport.Symbols.Symbol> findSymbolsMatchingLine(int line) {
-    List<BatchReport.Symbols.Symbol> lineSymbols = newArrayList();
-    Set<BatchReport.Symbols.Symbol> symbolsIndex = newHashSet();
+    List<BatchReport.Symbols.Symbol> lineSymbols = new ArrayList<>();
+    Set<BatchReport.Symbols.Symbol> symbolsIndex = new HashSet<>();
     for (BatchReport.Symbols.Symbol symbol : symbols) {
       if (matchLine(symbol.getDeclaration(), line) && !symbolsIndex.contains(symbol)) {
         lineSymbols.add(symbol);
@@ -101,7 +106,7 @@ public class SymbolsLineReader implements LineReader {
   }
 
   private Map<BatchReport.Symbols.Symbol, Integer> createIdsBySymbolMap(List<BatchReport.Symbols.Symbol> symbols) {
-    Map<BatchReport.Symbols.Symbol, Integer> map = newHashMap();
+    Map<BatchReport.Symbols.Symbol, Integer> map = new HashMap<>();
     int symbolId = 1;
     for (BatchReport.Symbols.Symbol symbol : symbols) {
       map.put(symbol, symbolId);
@@ -110,7 +115,7 @@ public class SymbolsLineReader implements LineReader {
     return map;
   }
 
-  private static class SymbolsDuplication implements Comparator<BatchReport.Symbols.Symbol>, Serializable {
+  private static class SymbolsComparator implements Comparator<BatchReport.Symbols.Symbol>, Serializable {
     @Override
     public int compare(BatchReport.Symbols.Symbol o1, BatchReport.Symbols.Symbol o2) {
       if (o1.getDeclaration().getStartLine() == o2.getDeclaration().getStartLine()) {

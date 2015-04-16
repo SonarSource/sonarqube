@@ -278,14 +278,26 @@ public final class FileSourceTestDb {
 
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       boolean hasKey();
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       java.lang.String getKey();
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       com.google.protobuf.ByteString
           getKeyBytes();
@@ -511,12 +523,20 @@ public final class FileSourceTestDb {
       private java.lang.Object key_;
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       public boolean hasKey() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       public java.lang.String getKey() {
         java.lang.Object ref = key_;
@@ -534,6 +554,10 @@ public final class FileSourceTestDb {
       }
       /**
        * <code>optional string key = 2;</code>
+       *
+       * <pre>
+       *TODO TBE - should the key and long_name specified directly ?
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getKeyBytes() {
@@ -1023,12 +1047,20 @@ public final class FileSourceTestDb {
         private java.lang.Object key_ = "";
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public boolean hasKey() {
           return ((bitField0_ & 0x00000002) == 0x00000002);
         }
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public java.lang.String getKey() {
           java.lang.Object ref = key_;
@@ -1046,6 +1078,10 @@ public final class FileSourceTestDb {
         }
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public com.google.protobuf.ByteString
             getKeyBytes() {
@@ -1062,6 +1098,10 @@ public final class FileSourceTestDb {
         }
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public Builder setKey(
             java.lang.String value) {
@@ -1075,6 +1115,10 @@ public final class FileSourceTestDb {
         }
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public Builder clearKey() {
           bitField0_ = (bitField0_ & ~0x00000002);
@@ -1084,6 +1128,10 @@ public final class FileSourceTestDb {
         }
         /**
          * <code>optional string key = 2;</code>
+         *
+         * <pre>
+         *TODO TBE - should the key and long_name specified directly ?
+         * </pre>
          */
         public Builder setKeyBytes(
             com.google.protobuf.ByteString value) {

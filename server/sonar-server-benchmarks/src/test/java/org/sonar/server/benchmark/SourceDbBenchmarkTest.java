@@ -73,7 +73,7 @@ public class SourceDbBenchmarkTest {
 
     try {
       long start = System.currentTimeMillis();
-      SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L);
+      SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
       while (it.hasNext()) {
         SourceFileResultSetIterator.Row row = it.next();
         assertThat(row.getLineUpdateRequests().size()).isEqualTo(NUMBER_OF_LINES);

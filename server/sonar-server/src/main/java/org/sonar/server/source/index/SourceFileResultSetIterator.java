@@ -29,6 +29,8 @@ import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.source.db.FileSourceDb;
 
+import javax.annotation.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.Connection;
@@ -79,21 +81,47 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
     "updated_at",
     "binary_data"
   };
-  private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from file_sources";
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where updated_at>?";
 
-  public static SourceFileResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
+  private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM file_sources ";
+  private static final String AFTER_DATE_FILTER = "updated_at>? ";
+  private static final String PROJECT_FILTER = "project_uuid=? ";
+
+  public static SourceFileResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
     try {
-      String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
+      String sql = createSQL(afterDate, projectUuid);
       // rows are big, so they are scrolled once at a time (one row in memory at a time)
       PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);
+      int index = 1;
       if (afterDate > 0L) {
-        stmt.setLong(1, afterDate);
+        stmt.setLong(index, afterDate);
+        index++;
+      }
+      if (projectUuid != null) {
+        stmt.setString(index, projectUuid);
       }
       return new SourceFileResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);
     }
+  }
+
+  private static String createSQL(long afterDate, @Nullable String projectUuid) {
+    String sql = SQL_ALL;
+    if (afterDate > 0L || projectUuid != null) {
+      sql += "WHERE ";
+      boolean isFirst = true;
+      if (afterDate > 0L) {
+        sql += AFTER_DATE_FILTER;
+        isFirst = false;
+      }
+      if (projectUuid != null) {
+        if (!isFirst) {
+          sql += "AND ";
+        }
+        sql += PROJECT_FILTER;
+      }
+    }
+    return sql;
   }
 
   private SourceFileResultSetIterator(PreparedStatement stmt) throws SQLException {
@@ -130,62 +158,62 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
 
       // unit tests
       if (line.hasUtLineHits()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_UT_LINE_HITS,  line.getUtLineHits());
+        writer.prop(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, line.getUtLineHits());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_UT_LINE_HITS).valueObject(null);
       }
       if (line.hasUtConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_UT_CONDITIONS,  line.getUtConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, line.getUtConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_UT_CONDITIONS).valueObject(null);
       }
       if (line.hasUtCoveredConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS,  line.getUtCoveredConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, line.getUtCoveredConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS).valueObject(null);
       }
 
       // IT
       if (line.hasItLineHits()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_IT_LINE_HITS,  line.getItLineHits());
+        writer.prop(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, line.getItLineHits());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_IT_LINE_HITS).valueObject(null);
       }
       if (line.hasItConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_IT_CONDITIONS,  line.getItConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, line.getItConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_IT_CONDITIONS).valueObject(null);
       }
       if (line.hasItCoveredConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS,  line.getItCoveredConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, line.getItCoveredConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS).valueObject(null);
       }
 
       // Overall coverage
       if (line.hasOverallLineHits()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS,  line.getOverallLineHits());
+        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, line.getOverallLineHits());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS).valueObject(null);
       }
       if (line.hasOverallConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS,  line.getOverallConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, line.getOverallConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS).valueObject(null);
       }
       if (line.hasOverallCoveredConditions()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS,  line.getOverallCoveredConditions());
+        writer.prop(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, line.getOverallCoveredConditions());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS).valueObject(null);
       }
 
       if (line.hasHighlighting()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_HIGHLIGHTING,  line.getHighlighting());
+        writer.prop(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, line.getHighlighting());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_HIGHLIGHTING).valueObject(null);
       }
       if (line.hasSymbols()) {
-        writer.prop(SourceLineIndexDefinition.FIELD_SYMBOLS,  line.getSymbols());
+        writer.prop(SourceLineIndexDefinition.FIELD_SYMBOLS, line.getSymbols());
       } else {
         writer.name(SourceLineIndexDefinition.FIELD_SYMBOLS).valueObject(null);
       }

@@ -29,6 +29,8 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import javax.annotation.Nullable;
+
 import java.sql.Connection;
 import java.util.Iterator;
 
@@ -48,15 +50,28 @@ public class SourceLineIndexer extends BaseIndexer {
     this.dbClient = dbClient;
   }
 
+  public void index(final String projectUuid){
+    super.index(new IndexerTask() {
+      @Override
+      public long index(long lastUpdatedAt) {
+        return doIndex(lastUpdatedAt, projectUuid);
+      }
+    });
+  }
+
   @Override
   protected long doIndex(long lastUpdatedAt) {
+    return doIndex(lastUpdatedAt, null);
+  }
+
+  private long doIndex(long lastUpdatedAt, @Nullable String projectUuid) {
     final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     try {
-      SourceFileResultSetIterator rowIt = SourceFileResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      SourceFileResultSetIterator rowIt = SourceFileResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt, projectUuid);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;

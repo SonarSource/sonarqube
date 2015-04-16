@@ -5,4 +5,8 @@
                 test_data="[null]"
                 created_at="1500000000000" updated_at="0"/>
 
+  <file_sources id="102" project_uuid="DCBA" file_uuid="FILE2_UUID"
+                binary_data="edcba" data_hash="hash2" line_hashes="CBA\nFDE\nIHG" src_hash="FILE2_HASH"
+                created_at="1500000000000" updated_at="0"/>
+
 </dataset>

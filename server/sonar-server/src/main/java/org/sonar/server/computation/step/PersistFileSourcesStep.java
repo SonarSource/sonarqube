@@ -36,17 +36,23 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.source.*;
+import org.sonar.server.computation.source.ComputeFileSourceData;
+import org.sonar.server.computation.source.CoverageLineReader;
+import org.sonar.server.computation.source.DuplicationLineReader;
+import org.sonar.server.computation.source.HighlightingLineReader;
+import org.sonar.server.computation.source.LineReader;
+import org.sonar.server.computation.source.ReportIterator;
+import org.sonar.server.computation.source.ScmLineReader;
+import org.sonar.server.computation.source.SymbolsLineReader;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class PersistFileSourcesStep implements ComputationStep {
 
@@ -131,8 +137,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         .setDataHash(dataHash)
         .setLineHashes(lineHashes)
         .setCreatedAt(system2.now())
-        // TODO set current date here when indexing sources in E/S will be done in this class
-        .setUpdatedAt(0L);
+        .setUpdatedAt(system2.now());
       dbClient.fileSourceDao().insert(fileSourcesContext.session, dto);
       fileSourcesContext.session.commit();
     } else {
@@ -147,8 +152,7 @@ public class PersistFileSourcesStep implements ComputationStep {
           .setLineHashes(lineHashes);
         // Optimization only change updated at when updating binary data to avoid unecessary indexation by E/S
         if (binaryDataUpdated) {
-          // TODO set current date here when indexing sources in E/S will be done in this class
-          previousDto.setUpdatedAt(0L);
+          previousDto.setUpdatedAt(system2.now());
         }
         dbClient.fileSourceDao().update(previousDto);
         fileSourcesContext.session.commit();
@@ -169,8 +173,8 @@ public class PersistFileSourcesStep implements ComputationStep {
   }
 
   private static class LineReaders {
-    private final List<LineReader> lineReaders = newArrayList();
-    private final List<ReportIterator> reportIterators = newArrayList();
+    private final List<LineReader> lineReaders = new ArrayList<>();
+    private final List<ReportIterator> reportIterators = new ArrayList<>();
 
     LineReaders(BatchReportReader reportReader, int componentRef) {
       File coverageFile = reportReader.readComponentCoverage(componentRef);

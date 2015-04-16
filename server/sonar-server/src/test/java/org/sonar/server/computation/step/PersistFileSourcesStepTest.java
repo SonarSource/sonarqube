@@ -22,7 +22,11 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
@@ -113,7 +117,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getDataHash()).isNotEmpty();
     assertThat(fileSourceDto.getLineHashes()).isNotEmpty();
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(0L);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
 
     FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
     assertThat(data.getLinesCount()).isEqualTo(2);
@@ -374,7 +378,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(0L);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test

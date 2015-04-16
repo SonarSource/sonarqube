@@ -48,6 +48,8 @@ public class SourceFileResultSetIteratorTest {
 
   Connection connection;
 
+  SourceFileResultSetIterator iterator;
+
   @Before
   public void setUp() throws Exception {
     dbClient = new DbClient(db.database(), db.myBatis());
@@ -56,6 +58,9 @@ public class SourceFileResultSetIteratorTest {
 
   @After
   public void after() throws Exception {
+    if (iterator != null) {
+      iterator.close();
+    }
     connection.close();
   }
 
@@ -64,9 +69,9 @@ public class SourceFileResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "shared.xml");
     FileSourceTesting.updateDataColumn(connection, "F1", FileSourceTesting.newFakeData(3).build());
 
-    SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L);
-    assertThat(it.hasNext()).isTrue();
-    SourceFileResultSetIterator.Row row = it.next();
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
+    assertThat(iterator.hasNext()).isTrue();
+    SourceFileResultSetIterator.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -91,8 +96,7 @@ public class SourceFileResultSetIteratorTest {
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 7),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 8),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 9)
-      );
-    it.close();
+    );
   }
 
   /**
@@ -105,8 +109,8 @@ public class SourceFileResultSetIteratorTest {
     dataBuilder.addLinesBuilder().setLine(1).build();
     FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
 
-    SourceFileResultSetIterator it = SourceFileResultSetIterator.create(dbClient, connection, 0L);
-    SourceFileResultSetIterator.Row row = it.next();
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
+    SourceFileResultSetIterator.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -117,7 +121,7 @@ public class SourceFileResultSetIteratorTest {
       MapEntry.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "P1"),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_FILE_UUID, "F1"),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_LINE, 1)
-      );
+    );
     // null values
     assertThat(doc).containsKeys(
       SourceLineIndexDefinition.FIELD_SCM_REVISION,
@@ -134,16 +138,48 @@ public class SourceFileResultSetIteratorTest {
       SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS,
       SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS
     );
-    it.close();
   }
 
   @Test
   public void filter_by_date() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    SourceFileResultSetIterator iterator = SourceFileResultSetIterator.create(dbClient, connection, 2000000000000L);
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 2000000000000L, null);
     assertThat(iterator.hasNext()).isFalse();
-    iterator.close();
+  }
+
+  @Test
+  public void filter_by_project() throws Exception {
+    db.prepareDbUnit(getClass(), "filter_by_project.xml");
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    dataBuilder.addLinesBuilder().setLine(1).build();
+    FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, "P1");
+
+    SourceFileResultSetIterator.Row row = iterator.next();
+    assertThat(row.getProjectUuid()).isEqualTo("P1");
+    assertThat(row.getFileUuid()).isEqualTo("F1");
+
+    // File from other project P2 is not returned
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  @Test
+  public void filter_by_project_and_date() throws Exception {
+    db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
+    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    dataBuilder.addLinesBuilder().setLine(1).build();
+    FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
+
+    SourceFileResultSetIterator.Row row = iterator.next();
+    assertThat(row.getProjectUuid()).isEqualTo("P1");
+    assertThat(row.getFileUuid()).isEqualTo("F1");
+
+    // File F2 is not returned
+    assertThat(iterator.hasNext()).isFalse();
   }
 
   @Test
@@ -152,7 +188,7 @@ public class SourceFileResultSetIteratorTest {
 
     FileSourceTesting.updateDataColumn(connection, "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
-    SourceFileResultSetIterator iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L);
+    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
     try {
       assertThat(iterator.hasNext()).isTrue();
       iterator.next();
@@ -160,6 +196,5 @@ public class SourceFileResultSetIteratorTest {
     } catch (IllegalStateException e) {
       // ok
     }
-    iterator.close();
   }
 }

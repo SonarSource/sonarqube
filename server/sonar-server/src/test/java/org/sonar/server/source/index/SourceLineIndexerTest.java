@@ -48,7 +48,24 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.sonar.server.source.index.SourceLineIndexDefinition.*;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_DUPLICATIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_IT_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_IT_LINE_HITS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_LINE;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_SCM_AUTHOR;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_SCM_REVISION;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_SOURCE;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_UT_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_UT_LINE_HITS;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.INDEX;
+import static org.sonar.server.source.index.SourceLineIndexDefinition.TYPE;
 
 @Category(DbTests.class)
 public class SourceLineIndexerTest {
@@ -70,7 +87,7 @@ public class SourceLineIndexerTest {
   }
 
   @Test
-  public void index_source_lines_from_db() throws Exception {
+  public void index_source_lines() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
     Connection connection = db.openConnection();
@@ -79,6 +96,30 @@ public class SourceLineIndexerTest {
 
     indexer.index();
     assertThat(countDocuments()).isEqualTo(3);
+  }
+
+  @Test
+  public void index_source_lines_from_project() throws Exception {
+    db.prepareDbUnit(getClass(), "db.xml");
+
+    Connection connection = db.openConnection();
+    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    connection.close();
+
+    indexer.index("PROJECT_UUID");
+    assertThat(countDocuments()).isEqualTo(3);
+  }
+
+  @Test
+  public void index_nothing_from_unknown_project() throws Exception {
+    db.prepareDbUnit(getClass(), "db.xml");
+
+    Connection connection = db.openConnection();
+    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    connection.close();
+
+    indexer.index("UNKNOWN");
+    assertThat(countDocuments()).isZero();
   }
 
   /**

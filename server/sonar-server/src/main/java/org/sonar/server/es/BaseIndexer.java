@@ -49,7 +49,7 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
   private boolean enabled = false;
 
   protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName,
-                        String dateFieldName) {
+    String dateFieldName) {
     this.indexName = indexName;
     this.typeName = typeName;
     this.dateFieldName = dateFieldName;
@@ -58,14 +58,14 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
       threadKeepAliveSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
-  public void index() {
+  public void index(final IndexerTask task) {
     if (enabled) {
       final long requestedAt = System.currentTimeMillis();
       Future submit = executor.submit(new Runnable() {
         @Override
         public void run() {
           if (requestedAt > lastUpdatedAt) {
-            long l = doIndex(lastUpdatedAt);
+            long l = task.index(lastUpdatedAt);
             // l can be 0 if no documents were indexed
             lastUpdatedAt = Math.max(l, lastUpdatedAt);
           }
@@ -77,6 +77,15 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
         Throwables.propagate(e);
       }
     }
+  }
+
+  public void index() {
+    index(new IndexerTask() {
+      @Override
+      public long index(long lastUpdatedAt) {
+        return doIndex(lastUpdatedAt);
+      }
+    });
   }
 
   protected abstract long doIndex(long lastUpdatedAt);
@@ -94,6 +103,10 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
   @Override
   public void stop() {
     executor.shutdown();
+  }
+
+  public interface IndexerTask {
+    long index(long lastUpdatedAt);
   }
 
 }

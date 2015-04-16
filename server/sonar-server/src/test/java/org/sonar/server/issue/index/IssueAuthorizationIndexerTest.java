@@ -54,7 +54,7 @@ public class IssueAuthorizationIndexerTest {
   @Test
   public void index_nothing() throws Exception {
     IssueAuthorizationIndexer indexer = createIndexer();
-    indexer.doIndex(0L);
+    indexer.index();
 
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
