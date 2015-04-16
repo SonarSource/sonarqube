@@ -30,6 +30,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.language.LanguageTesting;
+import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
@@ -66,7 +67,16 @@ public class QProfilesWsTest {
       new QProfileSetDefaultAction(languages, null, null),
       new QProfileProjectsAction(null),
       new QProfileBackupAction(null, null, null, languages),
-      new QProfileRestoreAction(null, languages)
+      new QProfileRestoreAction(null, languages),
+      new QProfileChangelogAction(null, null, null, languages),
+      new QProfileChangeParentAction(null, null, null, languages),
+      new QProfileCompareAction(null, null, null, languages),
+      new QProfileCopyAction(null, languages),
+      new QProfileDeleteAction(languages, null, null),
+      new QProfileExportAction(null, null, null, mock(QProfileExporters.class), languages),
+      new QProfileExportersAction(),
+      new QProfileInheritanceAction(null, null, null, null, languages),
+      new QProfileRenameAction(null)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -92,7 +102,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(14);
+    assertThat(controller.actions()).hasSize(23);
   }
 
   @Test
@@ -217,5 +227,98 @@ public class QProfilesWsTest {
     assertThat(importers.isPost()).isFalse();
     assertThat(importers.params()).isEmpty();
     assertThat(importers.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_changelog_action() throws Exception {
+    WebService.Action changelog = controller.action("changelog");
+    assertThat(changelog).isNotNull();
+    assertThat(changelog.isPost()).isFalse();
+    assertThat(changelog.params()).hasSize(7).extracting("key").containsOnly(
+      "profileKey", "profileName", "language", "since", "to", "p", "ps"
+      );
+    assertThat(changelog.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_change_parent_action() throws Exception {
+    WebService.Action changeParent = controller.action("change_parent");
+    assertThat(changeParent).isNotNull();
+    assertThat(changeParent.isPost()).isTrue();
+    assertThat(changeParent.params()).hasSize(5).extracting("key").containsOnly(
+      "profileKey", "profileName", "language", "parentKey", "parentName"
+      );
+  }
+
+  @Test
+  public void define_compare_action() throws Exception {
+    WebService.Action compare = controller.action("compare");
+    assertThat(compare).isNotNull();
+    assertThat(compare.isPost()).isFalse();
+    assertThat(compare.isInternal()).isTrue();
+    assertThat(compare.params()).hasSize(2).extracting("key").containsOnly(
+      "leftKey", "rightKey"
+      );
+    assertThat(compare.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_copy_action() throws Exception {
+    WebService.Action copy = controller.action("copy");
+    assertThat(copy).isNotNull();
+    assertThat(copy.isPost()).isTrue();
+    assertThat(copy.params()).hasSize(2).extracting("key").containsOnly(
+      "fromKey", "toName"
+      );
+  }
+
+  @Test
+  public void define_delete_action() throws Exception {
+    WebService.Action delete = controller.action("delete");
+    assertThat(delete).isNotNull();
+    assertThat(delete.isPost()).isTrue();
+    assertThat(delete.params()).hasSize(3).extracting("key").containsOnly(
+      "profileKey", "language", "profileName"
+      );
+  }
+
+  @Test
+  public void define_export_action() throws Exception {
+    WebService.Action export = controller.action("export");
+    assertThat(export).isNotNull();
+    assertThat(export.isPost()).isFalse();
+    assertThat(export.params()).hasSize(2).extracting("key").containsOnly(
+      "language", "name"
+      );
+  }
+
+  @Test
+  public void define_exporters_action() throws Exception {
+    WebService.Action exporters = controller.action("exporters");
+    assertThat(exporters).isNotNull();
+    assertThat(exporters.isPost()).isFalse();
+    assertThat(exporters.params()).isEmpty();
+    assertThat(exporters.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_inheritance_action() throws Exception {
+    WebService.Action inheritance = controller.action("inheritance");
+    assertThat(inheritance).isNotNull();
+    assertThat(inheritance.isPost()).isFalse();
+    assertThat(inheritance.params()).hasSize(3).extracting("key").containsOnly(
+      "profileKey", "language", "profileName"
+      );
+    assertThat(inheritance.responseExampleAsString()).isNotEmpty();
+  }
+
+  @Test
+  public void define_rename_action() throws Exception {
+    WebService.Action rename = controller.action("rename");
+    assertThat(rename).isNotNull();
+    assertThat(rename.isPost()).isTrue();
+    assertThat(rename.params()).hasSize(2).extracting("key").containsOnly(
+      "key", "name"
+      );
   }
 }
