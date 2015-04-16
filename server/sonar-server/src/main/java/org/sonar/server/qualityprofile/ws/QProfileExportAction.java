@@ -24,13 +24,16 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.*;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -122,7 +125,7 @@ public class QProfileExportAction implements BaseQProfileWsAction {
 
       String profileKey = profile.getKey();
       if (format == null) {
-        stream.setMediaType(QProfileBackuper.MEDIA_TYPE_XML);
+        stream.setMediaType(MimeTypes.XML);
         backuper.backup(profileKey, writer);
       } else {
         stream.setMediaType(exporters.mimeType(format));

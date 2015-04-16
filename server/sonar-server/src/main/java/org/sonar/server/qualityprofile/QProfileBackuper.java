@@ -50,8 +50,6 @@ import java.util.Set;
 
 public class QProfileBackuper implements ServerComponent {
 
-  public static final String MEDIA_TYPE_XML = "text/xml";
-
   private final QProfileReset reset;
   private final DbClient db;
   private final IndexClient index;

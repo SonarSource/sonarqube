@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
 
@@ -65,7 +66,7 @@ public class QProfileBackupAction implements BaseQProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
-    stream.setMediaType(QProfileBackuper.MEDIA_TYPE_XML);
+    stream.setMediaType(MimeTypes.XML);
     OutputStreamWriter writer = new OutputStreamWriter(stream.output(), Charsets.UTF_8);
     DbSession session = dbClient.openSession(false);
     try {
