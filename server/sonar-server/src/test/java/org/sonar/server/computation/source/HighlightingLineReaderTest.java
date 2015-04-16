@@ -33,6 +33,12 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class HighlightingLineReaderTest {
 
+  FileSourceDb.Data.Builder sourceData = FileSourceDb.Data.newBuilder();
+  FileSourceDb.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  FileSourceDb.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+
   @Test
   public void nothing_to_read() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
@@ -55,10 +61,9 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
-    highlightingLineReader.read(lineBuilder);
+    highlightingLineReader.read(line1);
 
-    assertThat(lineBuilder.getHighlighting()).isEqualTo("2,4,a");
+    assertThat(line1.getHighlighting()).isEqualTo("2,4,a");
   }
 
   @Test
@@ -87,12 +92,9 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder line1 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
     highlightingLineReader.read(line1);
-    FileSourceDb.Line.Builder line2 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line2").setLine(2);
     highlightingLineReader.read(line2);
-    highlightingLineReader.read(FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line3").setLine(3));
-    FileSourceDb.Line.Builder line4 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line4").setLine(4);
+    highlightingLineReader.read(line3);
     highlightingLineReader.read(line4);
 
     assertThat(line1.getHighlighting()).isEqualTo("0,4,a");
@@ -119,10 +121,9 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
-    highlightingLineReader.read(lineBuilder);
+    highlightingLineReader.read(line1);
 
-    assertThat(lineBuilder.getHighlighting()).isEqualTo("2,3,a;4,5,cd");
+    assertThat(line1.getHighlighting()).isEqualTo("2,3,a;4,5,cd");
   }
 
   @Test
@@ -145,10 +146,9 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
-    highlightingLineReader.read(lineBuilder);
+    highlightingLineReader.read(line1);
 
-    assertThat(lineBuilder.getHighlighting()).isEqualTo("0,4,c;2,3,k");
+    assertThat(line1.getHighlighting()).isEqualTo("0,4,c;2,3,k");
   }
 
   @Test
@@ -164,19 +164,16 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder line1 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
     highlightingLineReader.read(line1);
-    FileSourceDb.Line.Builder line2 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line 2").setLine(2);
+    FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
     highlightingLineReader.read(line2);
-    FileSourceDb.Line.Builder line3 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line3").setLine(3);
     highlightingLineReader.read(line3);
 
-    assertThat(line1.getHighlighting()).isEqualTo("3,4,a");
-    assertThat(line2.getHighlighting()).isEqualTo("0,5,a");
+    assertThat(line1.getHighlighting()).isEqualTo("3,5,a");
+    assertThat(line2.getHighlighting()).isEqualTo("0,6,a");
     assertThat(line3.getHighlighting()).isEqualTo("0,2,a");
   }
 
-  // TODO
   @Test
   public void read_many_syntax_highlighting_on_many_lines() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
@@ -203,19 +200,37 @@ public class HighlightingLineReaderTest {
         .build()
     ).iterator());
 
-    FileSourceDb.Line.Builder line1 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1);
     highlightingLineReader.read(line1);
-    FileSourceDb.Line.Builder line2 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line2").setLine(2);
     highlightingLineReader.read(line2);
-    FileSourceDb.Line.Builder line3 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line3").setLine(3);
     highlightingLineReader.read(line3);
-    FileSourceDb.Line.Builder line4 = FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line4").setLine(4);
     highlightingLineReader.read(line4);
 
-    assertThat(line1.getHighlighting()).isEqualTo("3,4,a");
-    assertThat(line2.getHighlighting()).isEqualTo("0,4,a;0,4,s;1,2,cd");
-    assertThat(line3.getHighlighting()).isEqualTo("0,2,a;0,4,s");
+    assertThat(line1.getHighlighting()).isEqualTo("3,5,a");
+    assertThat(line2.getHighlighting()).isEqualTo("0,5,a;0,5,s;1,2,cd");
+    assertThat(line3.getHighlighting()).isEqualTo("0,2,a;0,5,s");
     assertThat(line4.getHighlighting()).isEqualTo("0,3,s");
+  }
+
+  @Test
+  public void read_highlighting_declared_on_a_whole_line() {
+    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
+      BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(2)
+          .setStartOffset(0).setEndOffset(0)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ).iterator());
+
+    highlightingLineReader.read(line1);
+    highlightingLineReader.read(line2);
+    highlightingLineReader.read(line3);
+
+    assertThat(line1.getHighlighting()).isEqualTo("0,5,a");
+    // Nothing should be set on line 2
+    assertThat(line2.getHighlighting()).isEmpty();
+    assertThat(line3.getHighlighting()).isEmpty();
   }
 
   @Test
@@ -231,7 +246,7 @@ public class HighlightingLineReaderTest {
     ).iterator());
 
     try {
-      highlightingLineReader.read(FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1));
+      highlightingLineReader.read(line1);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("End offset 2 cannot be defined before start offset 4 on line 1");
@@ -251,7 +266,7 @@ public class HighlightingLineReaderTest {
     ).iterator());
 
     try {
-      highlightingLineReader.read(FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1));
+      highlightingLineReader.read(line1);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("End offset 10 is defined outside the length (5) of the line 1");
@@ -271,7 +286,7 @@ public class HighlightingLineReaderTest {
     ).iterator());
 
     try {
-      highlightingLineReader.read(FileSourceDb.Data.newBuilder().addLinesBuilder().setSource("line1").setLine(1));
+      highlightingLineReader.read(line1);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Start offset 10 is defined outside the length (5) of the line 1");

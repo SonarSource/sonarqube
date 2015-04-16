@@ -21,9 +21,6 @@ package org.sonar.batch.index;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.FileMetadata.LineHashConsumer;
@@ -39,7 +36,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SourcePersister implements ScanPersister {
@@ -64,24 +60,24 @@ public class SourcePersister implements ScanPersister {
   @Override
   public void persist() {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
-    try (DbSession session = mybatis.openSession(false)) {
-
-      final Map<String, FileSourceDto> previousDtosByUuid = new HashMap<>();
-      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", projectTree.getRootProject().getUuid(), new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext context) {
-          FileSourceDto dto = (FileSourceDto) context.getResultObject();
-          previousDtosByUuid.put(dto.getFileUuid(), dto);
-        }
-      });
-
-      FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
-      for (InputFile inputFile : inputPathCache.allFiles()) {
-        persist(session, mapper, (DefaultInputFile) inputFile, previousDtosByUuid);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to save file sources", e);
-    }
+//    try (DbSession session = mybatis.openSession(false)) {
+//
+//      final Map<String, FileSourceDto> previousDtosByUuid = new HashMap<>();
+//      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", projectTree.getRootProject().getUuid(), new ResultHandler() {
+//        @Override
+//        public void handleResult(ResultContext context) {
+//          FileSourceDto dto = (FileSourceDto) context.getResultObject();
+//          previousDtosByUuid.put(dto.getFileUuid(), dto);
+//        }
+//      });
+//
+//      FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
+//      for (InputFile inputFile : inputPathCache.allFiles()) {
+//        persist(session, mapper, (DefaultInputFile) inputFile, previousDtosByUuid);
+//      }
+//    } catch (Exception e) {
+//      throw new IllegalStateException("Unable to save file sources", e);
+//    }
 
   }
 

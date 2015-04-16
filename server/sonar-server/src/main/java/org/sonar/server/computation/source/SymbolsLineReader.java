@@ -24,13 +24,11 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class SymbolsLineReader implements LineReader {
 
@@ -38,12 +36,12 @@ public class SymbolsLineReader implements LineReader {
   private final Map<BatchReport.Symbols.Symbol, Integer> idsBySymbol;
 
   public SymbolsLineReader(List<BatchReport.Symbols.Symbol> symbols) {
-    this.symbols = symbols;
+    this.symbols = newArrayList(symbols);
     // Sort symbols to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data
     Collections.sort(this.symbols, new SymbolsDuplication());
 
-    this.idsBySymbol = createIdsBySymbolMap(symbols);
+    this.idsBySymbol = createIdsBySymbolMap(this.symbols);
   }
 
   @Override
@@ -67,20 +65,30 @@ public class SymbolsLineReader implements LineReader {
 
   private void appendSymbol(StringBuilder lineSymbol, BatchReport.Range range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
-      RangeHelper.appendRange(lineSymbol, range, line, sourceLine.length());
-      lineSymbol.append(symbolId);
+      String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
+      if (!offsets.isEmpty()) {
+        if (lineSymbol.length() > 0) {
+          lineSymbol.append(RangeOffsetHelper.SYMBOLS_SEPARATOR);
+        }
+        lineSymbol.append(offsets)
+          .append(RangeOffsetHelper.OFFSET_SEPARATOR)
+          .append(symbolId);
+      }
     }
   }
 
   private List<BatchReport.Symbols.Symbol> findSymbolsMatchingLine(int line) {
     List<BatchReport.Symbols.Symbol> lineSymbols = newArrayList();
+    Set<BatchReport.Symbols.Symbol> symbolsIndex = newHashSet();
     for (BatchReport.Symbols.Symbol symbol : symbols) {
-      if (matchLine(symbol.getDeclaration(), line)) {
+      if (matchLine(symbol.getDeclaration(), line) && !symbolsIndex.contains(symbol)) {
         lineSymbols.add(symbol);
+        symbolsIndex.add(symbol);
       } else {
         for (BatchReport.Range range : symbol.getReferenceList()) {
-          if (matchLine(range, line)) {
+          if (matchLine(range, line) && !symbolsIndex.contains(symbol)) {
             lineSymbols.add(symbol);
+            symbolsIndex.add(symbol);
           }
         }
       }

@@ -49,23 +49,29 @@ public class ComputeFileSourceData {
   public Data compute() {
     Data data = new Data();
     while (linesIterator.hasNext()) {
-      read(data, linesIterator.next());
+      currentLine++;
+      read(data, linesIterator.next(), hasNextLine());
     }
     // Process last line
-    if (currentLine < numberOfLines) {
-      read(data, "");
+    if (hasNextLine()) {
+      currentLine++;
+      read(data, "", false);
     }
     return data;
   }
 
-  private void read(Data data, String source) {
-    FileSourceDb.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder().setSource(source);
+  private void read(Data data, String source, boolean hasNextLine) {
+    if (hasNextLine) {
+      data.lineHashes.append(computeLineChecksum(source)).append("\n");
+      data.srcMd5Digest.update((source + "\n").getBytes(UTF_8));
+    } else {
+      data.lineHashes.append(computeLineChecksum(source));
+      data.srcMd5Digest.update(source.getBytes(UTF_8));
+    }
 
-    currentLine++;
-    String sourceLine = lineBuilder.getSource();
-    data.lineHashes.append(computeLineChecksum(sourceLine)).append("\n");
-    data.srcMd5Digest.update((sourceLine + "\n").getBytes(UTF_8));
-    lineBuilder.setLine(currentLine);
+    FileSourceDb.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
+      .setSource(source)
+      .setLine(currentLine);
     for (LineReader lineReader : lineReaders) {
       lineReader.read(lineBuilder);
     }
@@ -77,6 +83,10 @@ public class ComputeFileSourceData {
       return "";
     }
     return DigestUtils.md5Hex(reducedLine);
+  }
+
+  private boolean hasNextLine(){
+    return linesIterator.hasNext() || currentLine < numberOfLines;
   }
 
   public static class Data {

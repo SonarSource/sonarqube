@@ -38,8 +38,8 @@ public class ComputeFileSourceDataTest {
       );
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getSrcHash()).isEqualTo("1ddab9058a07abc0db2605ab02a61a00");
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\n");
+    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
+    assertThat(data.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(1);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
   }
@@ -53,8 +53,8 @@ public class ComputeFileSourceDataTest {
     );
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getSrcHash()).isEqualTo("4fcc82a88ee38e0aa16c17f512c685c9");
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605\n");
+    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
+    assertThat(data.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
     assertThat(data.getFileSourceData().getLines(1).getHighlighting()).isEqualTo("h-2");
@@ -70,8 +70,8 @@ public class ComputeFileSourceDataTest {
     );
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
-    assertThat(data.getSrcHash()).isEqualTo("990c2680400ef07240a32901c101768b");
-    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\n\n");
+    assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\n");
+    assertThat(data.getSrcHash()).isEqualTo("1ddab9058a07abc0db2605ab02a61a00");
     assertThat(data.getFileSourceData().getLinesList()).hasSize(2);
     assertThat(data.getFileSourceData().getLines(0).getHighlighting()).isEqualTo("h-1");
     assertThat(data.getFileSourceData().getLines(1).getHighlighting()).isEqualTo("h-2");
@@ -98,7 +98,7 @@ public class ComputeFileSourceDataTest {
       newArrayList("   ").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
       1
-    ).compute().getLineHashes()).isEqualTo("\n");
+    ).compute().getLineHashes()).isEqualTo("");
   }
 
   private static class MockLineReader implements LineReader {

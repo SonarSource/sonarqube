@@ -163,8 +163,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().select("FILE");
-    assertThat(fileSourceDto.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605\n");
-    assertThat(fileSourceDto.getSrcHash()).isEqualTo("4fcc82a88ee38e0aa16c17f512c685c9");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
   }
 
   @Test
@@ -313,8 +313,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void not_update_sources_when_nothing_has_changed() throws Exception {
     // Existing sources
     long past = 150000L;
-    String srcHash = "1ddab9058a07abc0db2605ab02a61a00";
-    String lineHashes = "137f72c3708c6bd0de00a0e5a69c699b\n";
+    String srcHash = "137f72c3708c6bd0de00a0e5a69c699b";
+    String lineHashes = "137f72c3708c6bd0de00a0e5a69c699b";
     String dataHash = "29f25900140c94db38035128cb6de6a2";
 
     dbClient.fileSourceDao().insert(session, new FileSourceDto()
@@ -385,7 +385,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       // Source hash is missing, update will be made
-      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b\n")
+      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
       .setBinaryData(FileSourceDto.encodeData(FileSourceDb.Data.newBuilder()
         .addLines(FileSourceDb.Line.newBuilder()
@@ -406,7 +406,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     // Updated at is not updated to not reindex the file source in E/S as the src hash is not indexed
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(past);
-    assertThat(fileSourceDto.getSrcHash()).isEqualTo("1ddab9058a07abc0db2605ab02a61a00");
+    assertThat(fileSourceDto.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
   }
 
   private BatchReportWriter initBasicReport(int numberOfLines) throws IOException {

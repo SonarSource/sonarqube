@@ -22,35 +22,31 @@ package org.sonar.server.computation.source;
 
 import org.sonar.batch.protocol.output.BatchReport;
 
-public class RangeHelper {
+public class RangeOffsetHelper {
 
-  private static final String OFFSET_SEPARATOR = ",";
-  private static final String SYMBOLS_SEPARATOR = ";";
+  static final String OFFSET_SEPARATOR = ",";
+  static final String SYMBOLS_SEPARATOR = ";";
 
-  private RangeHelper() {
+  private RangeOffsetHelper() {
     // Only static methods
   }
 
-  public static void appendRange(StringBuilder element, BatchReport.Range range, int lineIndex, int lineLength) {
+  public static String offsetToString(BatchReport.Range range, int lineIndex, int lineLength) {
+    StringBuilder element = new StringBuilder();
+
     validateOffsetOrder(range, lineIndex);
+    validateStartOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
+    validateEndOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
 
-    if (element.length() > 0) {
-      element.append(SYMBOLS_SEPARATOR);
+    int startOffset = range.getStartLine() == lineIndex ? range.getStartOffset() : 0;
+    int endOffset = range.getEndLine() == lineIndex ? range.getEndOffset() : lineLength;
+
+    if (startOffset < endOffset) {
+      element.append(startOffset).append(OFFSET_SEPARATOR);
+      element.append(endOffset);
     }
 
-    if (range.getStartLine() == lineIndex) {
-      validateStartOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
-      element.append(range.getStartOffset()).append(OFFSET_SEPARATOR);
-    } else if (range.getStartLine() < lineIndex) {
-      element.append(0).append(OFFSET_SEPARATOR);
-    }
-
-    if (range.getEndLine() == lineIndex) {
-      validateEndOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
-      element.append(range.getEndOffset()).append(OFFSET_SEPARATOR);
-    } else if (range.getEndLine() > lineIndex) {
-      element.append(lineLength - 1).append(OFFSET_SEPARATOR);
-    }
+    return element.toString();
   }
 
   private static void validateOffsetOrder(BatchReport.Range range, int line) {
@@ -60,13 +56,13 @@ public class RangeHelper {
   }
 
   private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.Range range, int lineLength, int line) {
-    if (range.getStartOffset() > lineLength) {
+    if (range.getStartLine() == line && range.getStartOffset() > lineLength) {
       throw new IllegalArgumentException(String.format("Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line));
     }
   }
 
   private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.Range range, int lineLength, int line) {
-    if (range.getEndOffset() > lineLength) {
+    if (range.getEndLine() == line && range.getEndOffset() > lineLength) {
       throw new IllegalArgumentException(String.format("End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line));
     }
   }
