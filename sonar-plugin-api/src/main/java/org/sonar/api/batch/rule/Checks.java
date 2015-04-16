@@ -32,6 +32,8 @@ import javax.annotation.CheckForNull;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,8 +84,8 @@ import java.util.Map;
 public class Checks<C> {
   private final ActiveRules activeRules;
   private final String repository;
-  private final Map<RuleKey, C> checkByRule = Maps.newHashMap();
-  private final Map<C, RuleKey> ruleByCheck = Maps.newIdentityHashMap();
+  private final Map<RuleKey, C> checkByRule = new HashMap<>();
+  private final Map<C, RuleKey> ruleByCheck = new IdentityHashMap<>();
 
   Checks(ActiveRules activeRules, String repository) {
     this.activeRules = activeRules;

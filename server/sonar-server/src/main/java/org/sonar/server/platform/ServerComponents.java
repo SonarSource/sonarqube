@@ -32,7 +32,7 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
-import org.sonar.api.utils.HttpDownloader;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
@@ -331,7 +331,7 @@ class ServerComponents {
       ThreadLocalDatabaseSessionFactory.class,
       new DatabaseSessionProvider(),
       ServerMetadataPersister.class,
-      HttpDownloader.class,
+      DefaultHttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
       );

@@ -26,9 +26,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.api.utils.HttpDownloader;
 
 import java.net.HttpURLConnection;
 import java.net.URI;

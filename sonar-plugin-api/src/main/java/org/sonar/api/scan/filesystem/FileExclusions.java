@@ -19,13 +19,13 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,7 +52,7 @@ public class FileExclusions implements BatchComponent {
 
   private String[] inclusions(String propertyKey) {
     String[] patterns = sanitize(settings.getStringArray(propertyKey));
-    List<String> list = Lists.newArrayList();
+    List<String> list = new ArrayList<>();
     for (String pattern : patterns) {
       if (!"**/*".equals(pattern) && !"file:**/*".equals(pattern)) {
         list.add(pattern);

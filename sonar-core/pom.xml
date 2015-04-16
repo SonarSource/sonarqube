@@ -159,6 +159,13 @@
       <artifactId>bean-matchers</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.simpleframework</groupId>
+      <artifactId>simple</artifactId>
+      <version>4.1.21</version>
+      <scope>test</scope>
+    </dependency>
+
 
 
     <!--

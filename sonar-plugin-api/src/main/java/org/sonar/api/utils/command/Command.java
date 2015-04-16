@@ -23,12 +23,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +38,8 @@ import java.util.Map;
  */
 public class Command {
   private final String executable;
-  private final List<String> arguments = Lists.newArrayList();
-  private final List<String> argumentsForLogs = Lists.newArrayList();
+  private final List<String> arguments = new ArrayList<>();
+  private final List<String> argumentsForLogs = new ArrayList<>();
   private final Map<String, String> env;
   private File directory;
   private boolean newShell = false;

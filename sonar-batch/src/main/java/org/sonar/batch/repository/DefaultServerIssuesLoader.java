@@ -21,9 +21,9 @@ package org.sonar.batch.repository;
 
 import com.google.common.base.Function;
 import com.google.common.io.InputSupplier;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+import org.sonar.api.utils.HttpDownloader;
 
 import java.io.IOException;
 import java.io.InputStream;

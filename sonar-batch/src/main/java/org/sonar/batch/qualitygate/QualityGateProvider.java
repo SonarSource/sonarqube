@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.api.utils.HttpDownloader;
 
 import java.net.HttpURLConnection;
 

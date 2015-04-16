@@ -21,7 +21,6 @@ package org.sonar.api.profiles;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +33,6 @@ import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +66,7 @@ public class RulesProfile implements Cloneable {
   private Boolean defaultProfile = Boolean.FALSE;
   private String language;
   private String parentName;
-  private List<ActiveRule> activeRules = Lists.newArrayList();
+  private List<ActiveRule> activeRules = new ArrayList<>();
 
   /**
    * @deprecated use the factory method create()
@@ -84,7 +82,7 @@ public class RulesProfile implements Cloneable {
   public RulesProfile(String name, String language) {
     this.name = name;
     this.language = language;
-    this.activeRules = Lists.newArrayList();
+    this.activeRules = new ArrayList<>();
   }
 
   /**
@@ -163,7 +161,7 @@ public class RulesProfile implements Cloneable {
     if (acceptDisabledRules) {
       return activeRules;
     }
-    List<ActiveRule> result = Lists.newArrayList();
+    List<ActiveRule> result = new ArrayList<>();
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.isEnabled()) {
         result.add(activeRule);
@@ -244,7 +242,7 @@ public class RulesProfile implements Cloneable {
    * @return the list of active rules for a given severity
    */
   public List<ActiveRule> getActiveRules(RulePriority severity) {
-    List<ActiveRule> result = Lists.newArrayList();
+    List<ActiveRule> result = new ArrayList<>();
     for (ActiveRule activeRule : activeRules) {
       if (activeRule.getSeverity().equals(severity) && activeRule.isEnabled()) {
         result.add(activeRule);
@@ -258,7 +256,7 @@ public class RulesProfile implements Cloneable {
    * Only enabled rules are selected. Disabled rules are excluded.
    */
   public List<ActiveRule> getActiveRulesByRepository(String repositoryKey) {
-    List<ActiveRule> result = Lists.newArrayList();
+    List<ActiveRule> result = new ArrayList<>();
     for (ActiveRule activeRule : activeRules) {
       if (repositoryKey.equals(activeRule.getRepositoryKey()) && activeRule.isEnabled()) {
         result.add(activeRule);

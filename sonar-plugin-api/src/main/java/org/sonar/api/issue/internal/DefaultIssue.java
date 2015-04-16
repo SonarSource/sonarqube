@@ -42,8 +42,6 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
  *
@@ -506,7 +504,7 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue addChange(FieldDiffs change) {
     if (changes == null) {
-      changes = newArrayList();
+      changes = new ArrayList<>();
     }
     changes.add(change);
     return this;
@@ -526,7 +524,7 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue addComment(DefaultIssueComment comment) {
     if (comments == null) {
-      comments = newArrayList();
+      comments = new ArrayList<>();
     }
     comments.add(comment);
     return this;

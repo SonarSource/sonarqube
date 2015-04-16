@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
@@ -80,8 +79,8 @@ public class ProjectDefinition {
   private File baseDir, workDir, buildDir;
   private Map<String, String> properties = new HashMap<String, String>();
   private ProjectDefinition parent = null;
-  private List<ProjectDefinition> subProjects = Lists.newArrayList();
-  private List<Object> containerExtensions = Lists.newArrayList();
+  private List<ProjectDefinition> subProjects = new ArrayList<>();
+  private List<Object> containerExtensions = new ArrayList<>();
 
   private ProjectDefinition(Properties p) {
     for (Entry<Object, Object> entry : p.entrySet()) {
@@ -603,7 +602,7 @@ public class ProjectDefinition {
   }
 
   private static List<String> trim(String[] strings) {
-    List<String> result = Lists.newArrayList();
+    List<String> result = new ArrayList<>();
     for (String s : strings) {
       result.add(StringUtils.trim(s));
     }

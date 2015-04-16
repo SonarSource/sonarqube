@@ -28,6 +28,7 @@ import org.sonar.api.utils.SonarException;
 import javax.annotation.CheckForNull;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -187,7 +188,7 @@ public abstract class Request {
       return null;
     }
     Iterable<String> values = Splitter.on(',').omitEmptyStrings().trimResults().split(value);
-    List<E> result = Lists.newArrayList();
+    List<E> result = new ArrayList<>();
     for (String s : values) {
       result.add(Enum.valueOf(enumClass, s));
     }

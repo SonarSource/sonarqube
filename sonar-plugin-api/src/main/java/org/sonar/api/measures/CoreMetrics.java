@@ -22,7 +22,6 @@ package org.sonar.api.measures;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -2226,7 +2226,7 @@ public final class CoreMetrics {
   private static final List<Metric> METRICS;
 
   static {
-    METRICS = Lists.newLinkedList();
+    METRICS = new LinkedList<>();
     for (Field field : CoreMetrics.class.getFields()) {
       if (!Modifier.isTransient(field.getModifiers()) && Metric.class.isAssignableFrom(field.getType())) {
         try {

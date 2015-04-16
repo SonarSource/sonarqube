@@ -19,10 +19,10 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.api.utils.KeyValueFormat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,7 +110,7 @@ public final class CoverageMeasuresBuilder {
   }
 
   public Collection<Measure> createMeasures() {
-    Collection<Measure> measures = Lists.newArrayList();
+    Collection<Measure> measures = new ArrayList<>();
     if (getLinesToCover() > 0) {
       measures.add(new Measure(CoreMetrics.LINES_TO_COVER, (double) getLinesToCover()));
       measures.add(new Measure(CoreMetrics.UNCOVERED_LINES, (double) (getLinesToCover() - getCoveredLines())));

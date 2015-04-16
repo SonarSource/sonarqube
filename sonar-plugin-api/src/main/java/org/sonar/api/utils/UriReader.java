@@ -86,14 +86,14 @@ public class UriReader implements BatchComponent, ServerComponent {
     return processor;
   }
 
-  abstract static class SchemeProcessor {
-    abstract String[] getSupportedSchemes();
+  public abstract static class SchemeProcessor {
+    protected abstract String[] getSupportedSchemes();
 
-    abstract byte[] readBytes(URI uri);
+    protected abstract byte[] readBytes(URI uri);
 
-    abstract String readString(URI uri, Charset charset);
+    protected abstract String readString(URI uri, Charset charset);
 
-    abstract String description(URI uri);
+    protected abstract String description(URI uri);
   }
 
 
@@ -108,7 +108,7 @@ public class UriReader implements BatchComponent, ServerComponent {
     }
 
     @Override
-    byte[] readBytes(URI uri) {
+    protected byte[] readBytes(URI uri) {
       try {
         return Files.toByteArray(new File(uri));
       } catch (IOException e) {
@@ -117,7 +117,7 @@ public class UriReader implements BatchComponent, ServerComponent {
     }
 
     @Override
-    String readString(URI uri, Charset charset) {
+    protected String readString(URI uri, Charset charset) {
       try {
         return Files.toString(new File(uri), charset);
       } catch (IOException e) {
@@ -126,7 +126,7 @@ public class UriReader implements BatchComponent, ServerComponent {
     }
 
     @Override
-    String description(URI uri) {
+    protected String description(URI uri) {
       return new File(uri).getAbsolutePath();
     }
   }

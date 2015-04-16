@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public final class InputFileUtils {
    * @return not null list
    */
   public static List<java.io.File> toFiles(Collection<InputFile> inputFiles) {
-    List<java.io.File> files = Lists.newArrayList();
+    List<java.io.File> files = new ArrayList<>();
     for (InputFile inputFile : inputFiles) {
       files.add(inputFile.getFile());
     }
@@ -89,7 +90,7 @@ public final class InputFileUtils {
    * For internal and for testing purposes. Please use the FileSystem component to access files.
    */
   public static List<InputFile> create(java.io.File basedir, Collection<java.io.File> files) {
-    List<InputFile> inputFiles = Lists.newArrayList();
+    List<InputFile> inputFiles = new ArrayList<>();
     for (File file : files) {
       InputFile inputFile = create(basedir, file);
       if (inputFile != null) {

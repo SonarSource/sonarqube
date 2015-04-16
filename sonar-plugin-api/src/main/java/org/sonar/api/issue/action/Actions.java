@@ -22,9 +22,8 @@ package org.sonar.api.issue.action;
 import com.google.common.annotations.Beta;
 import org.sonar.api.ServerExtension;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
@@ -32,11 +31,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @Beta
 public class Actions implements ServerExtension {
 
-  private final List<Action> actions;
-
-  public Actions() {
-    actions = newArrayList();
-  }
+  private final List<Action> actions = new ArrayList<>();
 
   public Action add(String actionKey) {
     Action action = new Action(actionKey);
