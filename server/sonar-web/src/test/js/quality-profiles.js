@@ -830,7 +830,7 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
         test.assertExists('.js-show-more-changelog');
         test.assertElementCount('#quality-profile-changelog tbody tr', 2);
 
-        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'April 13 2015');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'System');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'ACTIVATED');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(1)', 'Synchronisation should not');
@@ -852,7 +852,7 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
         test.assertDoesntExist('.js-show-changelog');
         test.assertDoesntExist('.js-show-more-changelog');
 
-        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'April 13 2015 1:44 PM');
+        test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'April 13 2015');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'System');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'DEACTIVATED');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'runFinalizersOnExit');
