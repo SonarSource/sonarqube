@@ -34,18 +34,24 @@ import org.sonar.api.utils.text.JsonWriter;
 import java.util.Collection;
 import java.util.SortedSet;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.collect.Iterables.filter;
 
 /**
  * Implementation of the {@code installed} action for the Plugins WebService.
  */
 public class InstalledPluginsWsAction implements PluginsWsAction {
-  private static final String DEFAULT_VERSION = "-";
   private static final String PROPERTY_KEY = "key";
   private static final String PROPERTY_NAME = "name";
+  private static final String PROPERTY_DESCRIPTION = "description";
+  private static final String PROPERTY_LICENSE = "license";
   private static final String PROPERTY_VERSION = "version";
   private static final String ARRAY_PLUGINS = "plugins";
+  private static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
+  private static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
+  private static final String OBJECT_URLS = "urls";
+  private static final String PROPERTY_HOMEPAGE = "homepage";
+  private static final String PROPERTY_ISSUE_TRACKER = "issueTracker";
+  private static final String OBJECT_ARTIFACT = "artifact";
 
   private final PluginRepository pluginRepository;
 
@@ -71,6 +77,7 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
     Collection<PluginMetadata> pluginMetadatas = retrieveAndSortPluginMetadata();
 
     JsonWriter jsonWriter = response.newJsonWriter();
+    jsonWriter.setSerializeEmptys(false);
     jsonWriter.beginObject();
 
     writeMetadataList(jsonWriter, pluginMetadatas);
@@ -90,16 +97,49 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
       jsonWriter.name(ARRAY_PLUGINS);
       jsonWriter.beginArray();
       for (PluginMetadata pluginMetadata : pluginMetadatas) {
-        writeMetadata(jsonWriter, pluginMetadata);
+        writePluginMetadata(jsonWriter, pluginMetadata);
       }
       jsonWriter.endArray();
   }
 
-  private void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
+  private void writePluginMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
     jsonWriter.beginObject();
+
+    writeMetadata(jsonWriter, pluginMetadata);
+
+    writeUrls(jsonWriter, pluginMetadata);
+
+    writeArtifact(jsonWriter, pluginMetadata);
+
+    jsonWriter.endObject();
+  }
+
+  private void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
     jsonWriter.prop(PROPERTY_KEY, pluginMetadata.getKey());
     jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getName());
-    jsonWriter.prop(PROPERTY_VERSION, firstNonNull(pluginMetadata.getVersion(), DEFAULT_VERSION));
+    jsonWriter.prop(PROPERTY_DESCRIPTION, pluginMetadata.getDescription());
+    jsonWriter.prop(PROPERTY_VERSION, pluginMetadata.getVersion());
+    jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
+    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganization());
+    jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
+  }
+
+  private void writeUrls(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
+    jsonWriter.name(OBJECT_URLS);
+    jsonWriter.beginObject();
+    jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
+    jsonWriter.prop(PROPERTY_ISSUE_TRACKER, pluginMetadata.getIssueTrackerUrl());
+    jsonWriter.endObject();
+  }
+
+  private void writeArtifact(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
+    if (pluginMetadata.getFile() == null) {
+      return;
+    }
+
+    jsonWriter.name(OBJECT_ARTIFACT);
+    jsonWriter.beginObject();
+    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getFile().getName());
     jsonWriter.endObject();
   }
 

@@ -1,20 +1,52 @@
 {
-  "plugins":
-  [
+  "plugins": [
     {
-      "key": "findbugs",
-      "name": "Findbugs",
-      "version": "2.1"
+      "key": "scmgit",
+      "name": "Git",
+      "description": "Git SCM Provider.",
+      "version": "1.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "urls": {
+        "homepage": "http://redirect.sonarsource.com/plugins/scmgit.html",
+        "issueTracker": "http://jira.codehaus.org/browse/SONARSCGIT"
+      },
+      "artifact": {
+        "name": "sonar-scm-git-plugin-1.0.jar"
+      }
     },
     {
-      "key": "l10nfr",
-      "name": "French Pack",
-      "version": "1.10"
+      "key": "java",
+      "name": "Java",
+      "description": "SonarQube rule engine.",
+      "version": "3.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "urls": {
+        "homepage": "http://redirect.sonarsource.com/plugins/java.html",
+        "issueTracker": "http://jira.codehaus.org/browse/SONARJAVA"
+      },
+      "artifact": {
+        "name": "sonar-java-plugin-3.0.jar"
+      }
     },
     {
-      "key": "jira",
-      "name": "JIRA",
-      "version": "1.2"
+      "key": "scmsvn",
+      "name": "SVN",
+      "description": "SVN SCM Provider.",
+      "version": "1.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "urls": {
+        "homepage": "http://redirect.sonarsource.com/plugins/scmsvn.html",
+        "issueTracker": "http://jira.codehaus.org/browse/SONARSCSVN"
+      },
+      "artifact": {
+        "name": "sonar-scm-svn-plugin-1.0.jar"
+      }
     }
   ]
 }
