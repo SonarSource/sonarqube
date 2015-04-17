@@ -218,6 +218,7 @@ import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
 import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
+import org.sonar.server.plugins.ws.PendingPluginsWsAction;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -888,6 +889,7 @@ class ServerComponents {
     // Plugins WS
     pico.addSingleton(InstalledPluginsWsAction.class);
     pico.addSingleton(AvailablePluginsWsAction.class);
+    pico.addSingleton(PendingPluginsWsAction.class);
     pico.addSingleton(PluginsWs.class);
 
     // Compute engine

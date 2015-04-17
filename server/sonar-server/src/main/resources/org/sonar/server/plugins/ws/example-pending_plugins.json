@@ -1,0 +1,23 @@
+{
+  "installing":
+  [
+    {
+      "artifact": {
+        "name": "findbugs-2.1.jar"
+      }
+    },
+    {
+      "artifact": {
+        "name": "jira-2.6.jar"
+      }
+    }
+  ],
+  "removing":
+  [
+    {
+      "artifact": {
+        "name": "pmd-2.1.jar"
+      }
+    }
+  ]
+}
