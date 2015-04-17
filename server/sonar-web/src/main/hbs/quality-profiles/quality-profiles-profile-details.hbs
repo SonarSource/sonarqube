@@ -13,7 +13,7 @@
           {{#eachEven rulesSeverities}}
             <p class="spacer-top">
               {{severityIcon val}}
-              <a href="{{link ../rulesSearchUrl '|severities=' val}}">{{formatMeasure count 'INT'}}</a>
+              <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
               <span class="text-lowercase">{{t 'severity' val}}</span>
             </p>
           {{/eachEven}}
@@ -22,7 +22,7 @@
           {{#eachOdd rulesSeverities}}
             <p class="spacer-top">
               {{severityIcon val}}
-              <a href="{{link ../rulesSearchUrl '|severities=' val}}">{{formatMeasure count 'INT'}}</a>
+              <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
               <span class="text-lowercase">{{t 'severity' val}}</span>
             </p>
           {{/eachOdd}}

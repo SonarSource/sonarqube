@@ -45,12 +45,12 @@ define(function () {
           key = this.id,
           options = {
             ps: 1,
-            facets: 'severities,tags',
+            facets: 'active_severities',
             qprofile: key,
             activation: 'true'
           };
       return $.get(url, options).done(function (r) {
-        var severityFacet = _.findWhere(r.facets, { property: 'severities' });
+        var severityFacet = _.findWhere(r.facets, { property: 'active_severities' });
         if (severityFacet != null) {
           var severities = severityFacet.values,
               severityComparator = function (s) {
