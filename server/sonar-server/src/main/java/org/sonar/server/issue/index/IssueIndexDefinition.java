@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -92,8 +91,8 @@ public class IssueIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    EsUtils.refreshHandledByIndexer(index);
-    EsUtils.setShards(index, settings);
+    index.refreshHandledByIndexer();
+    index.setShards(settings);
 
     // type "authorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);

@@ -93,6 +93,15 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
+  public Long durationInMs() {
+    return getField(FIELD_DURATION_IN_MS);
+  }
+
+  public TestDoc setDurationInMs(Long durationInMs) {
+    setField(FIELD_DURATION_IN_MS, durationInMs);
+    return this;
+  }
+
   // TODO TBE - it should be a CoverageBlockDoc list
   public List<Map<String, Object>> coverageBlocks() {
     return getField(FIELD_COVERAGE_BLOCKS);

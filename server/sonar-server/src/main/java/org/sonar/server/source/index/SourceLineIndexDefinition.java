@@ -21,7 +21,6 @@ package org.sonar.server.source.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -60,8 +59,8 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    EsUtils.refreshHandledByIndexer(index);
-    EsUtils.setShards(index, settings);
+    index.refreshHandledByIndexer();
+    index.setShards(settings);
 
     // type "sourceline"
     NewIndex.NewIndexType mapping = index.createType(TYPE);

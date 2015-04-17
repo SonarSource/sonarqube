@@ -23,15 +23,32 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessProperties;
 import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class NewIndex {
+
+  public void refreshHandledByIndexer() {
+    getSettings().put("index.refresh_interval", "-1");
+  }
+
+  public void setShards(Settings settings) {
+    boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
+    if (clusterMode) {
+      getSettings().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 4);
+      getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1);
+      // else keep defaults (one shard)
+    }
+  }
 
   public static class NewIndexType {
     private final String name;
@@ -100,7 +117,7 @@ public class NewIndex {
     }
 
     public NewIndexType createDynamicNestedField(String fieldName) {
-      return setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true", "include_in_parent", "true"));
+      return setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true"));
     }
 
     public NewIndexType createShortField(String fieldName) {

@@ -22,7 +22,6 @@ package org.sonar.server.view.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -48,7 +47,7 @@ public class ViewIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    EsUtils.setShards(index, settings);
+    index.setShards(settings);
 
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(TYPE_VIEW);

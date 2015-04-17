@@ -21,7 +21,6 @@ package org.sonar.server.activity.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -50,8 +49,8 @@ public class ActivityIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
     index.getSettings().put("analysis.analyzer.default.type", "keyword");
-    EsUtils.refreshHandledByIndexer(index);
-    EsUtils.setShards(index, settings);
+    index.setShards(settings);
+    index.refreshHandledByIndexer();
 
     // type "activity"
     NewIndex.NewIndexType mapping = index.createType(TYPE);

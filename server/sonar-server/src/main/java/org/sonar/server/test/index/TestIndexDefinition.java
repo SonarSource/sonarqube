@@ -21,7 +21,6 @@
 package org.sonar.server.test.index;
 
 import org.sonar.api.config.Settings;
-import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
@@ -31,14 +30,13 @@ public class TestIndexDefinition implements IndexDefinition {
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_STATUS = "status";
+  public static final String FIELD_TYPE = "type";
+  public static final String FIELD_DURATION_IN_MS = "durationInMs";
   public static final String FIELD_MESSAGE = "message";
   public static final String FIELD_STACKTRACE = "stacktrace";
-  public static final String FIELD_TYPE = "type";
   public static final String FIELD_COVERAGE_BLOCKS = "coverageBlocks";
   public static final String FIELD_COVERAGE_BLOCK_UUID = "uuid";
-  public static final String FIELD_COVERAGE_BLOCK_KEY = "key";
   public static final String FIELD_COVERAGE_BLOCK_LINES = "lines";
-  public static final String FIELD_COVERAGE_BLOCK_COVERED_LINES = "coveredLines";
 
   private final Settings settings;
 
@@ -50,22 +48,21 @@ public class TestIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
 
-    EsUtils.refreshHandledByIndexer(index);
-    EsUtils.setShards(index, settings);
+    index.refreshHandledByIndexer();
+    index.setShards(settings);
 
     NewIndex.NewIndexType nestedMapping = index.createType(TYPE);
-    nestedMapping.stringFieldBuilder(FIELD_COVERAGE_BLOCK_KEY).build();
     nestedMapping.stringFieldBuilder(FIELD_COVERAGE_BLOCK_UUID).build();
     nestedMapping.createIntegerField(FIELD_COVERAGE_BLOCK_LINES);
-    nestedMapping.createIntegerField(FIELD_COVERAGE_BLOCK_COVERED_LINES);
 
     NewIndex.NewIndexType mapping = index.createType(TYPE);
     mapping.stringFieldBuilder(FIELD_UUID).build();
     mapping.stringFieldBuilder(FIELD_NAME).build();
     mapping.stringFieldBuilder(FIELD_STATUS).disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_TYPE).disableSearch().build();
+    mapping.createLongField(FIELD_DURATION_IN_MS);
     mapping.stringFieldBuilder(FIELD_MESSAGE).disableSearch().build();
     mapping.stringFieldBuilder(FIELD_STACKTRACE).disableSearch().build();
-    mapping.stringFieldBuilder(FIELD_TYPE).disableSearch().build();
     mapping.nestedObjectBuilder(FIELD_COVERAGE_BLOCKS, nestedMapping).build();
   }
 }
