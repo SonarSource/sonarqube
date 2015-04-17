@@ -1,12 +1,6 @@
-<div class="modal-container">
-  <h3 class="coding-rules-detail-header">
-    {{name}}
-    <a class="coding-rules-detail-permalink" target="_blank" href="{{permalink}}">
-      <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
-    </a>
-  </h3>
+<div class="workspace-viewer-header"></div>
 
-  <span class="note">{{key}}</span>
+<div class="workspace-viewer-container">
 
   <ul class="coding-rules-detail-properties">
     <li class="coding-rules-detail-property coding-rules-detail-tag-list">
@@ -16,6 +10,9 @@
     {{#if debtCharName}}
       <li class="coding-rules-detail-property">{{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}</li>
     {{/if}}
+    <li class="pull-right">
+      <a class="icon-link" target="_blank" href="{{rulePermalink key}}"></a>
+    </li>
   </ul>
 
   <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
@@ -25,8 +22,4 @@
       <div class="rule-desc markdown">{{{htmlNote}}}</div>
     </div>
   {{/if}}
-</div>
-
-<div class="modal-foot">
-  <a class="js-modal-close" href="#">{{t 'close'}}</a>
 </div>

@@ -1,0 +1,36 @@
+{
+  "rule": {
+    "key": "common-java:InsufficientBranchCoverage",
+    "repo": "common-java",
+    "name": "Insufficient branch coverage by unit tests",
+    "createdAt": "2015-04-13T13:44:07+0200",
+    "severity": "MAJOR",
+    "status": "READY",
+    "internalKey": "InsufficientBranchCoverage",
+    "isTemplate": false,
+    "tags": [],
+    "sysTags": [],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+    "defaultDebtChar": "RELIABILITY",
+    "defaultDebtSubChar": "UNIT_TESTS",
+    "debtChar": "RELIABILITY",
+    "debtSubChar": "UNIT_TESTS",
+    "debtCharName": "Reliability",
+    "debtSubCharName": "Unit tests coverage",
+    "defaultDebtRemFnType": "LINEAR",
+    "defaultDebtRemFnCoeff": "10min",
+    "debtOverloaded": false,
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "10min",
+    "params": [
+      {
+        "key": "minimumBranchCoverageRatio",
+        "htmlDesc": "The minimum required branch coverage ratio.",
+        "type": "STRING",
+        "defaultValue": "65.0"
+      }
+    ]
+  }
+}

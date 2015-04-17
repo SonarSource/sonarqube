@@ -32,8 +32,9 @@ define [
   'issue/views/plan-form-view'
   'issue/views/set-severity-form-view'
   'issue/views/more-actions-view'
-  'issue/views/rule-overlay'
   'issue/views/tags-form-view'
+
+  'workspace/main'
 
   'templates/issue'
 
@@ -51,8 +52,9 @@ define [
   PlanFormView
   SetSeverityFormView
   MoreActionsView
-  RuleOverlay
   TagsFormView
+
+  Workspace
 
 ) ->
 
@@ -261,12 +263,10 @@ define [
 
 
     showRule: ->
+      unless Workspace?
+        Workspace = require 'workspace/main'
       ruleKey = @model.get 'rule'
-      $.get "#{baseUrl}/api/rules/show", key: ruleKey, (r) =>
-        ruleOverlay = new RuleOverlay
-          model: new Backbone.Model r.rule
-          large: true
-        ruleOverlay.render()
+      Workspace.openRule key: ruleKey
 
 
     editTags: (e)->

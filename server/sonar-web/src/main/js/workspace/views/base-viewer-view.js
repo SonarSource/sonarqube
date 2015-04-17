@@ -18,38 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-  'workspace/views/base-viewer-view',
-  'source-viewer/viewer',
-  'templates/workspace'
-], function (BaseView, SourceViewer) {
+  'workspace/views/viewer-header-view'
+], function (HeaderView) {
 
-  return BaseView.extend({
-    template: Templates['workspace-viewer'],
+  return Marionette.Layout.extend({
+    className: 'workspace-viewer',
 
-    onRender: function () {
-      BaseView.prototype.onRender.apply(this, arguments);
-      this.showViewer();
+    modelEvents: {
+      'destroy': 'close'
     },
 
-    showViewer: function () {
-      if (SourceViewer == null) {
-        SourceViewer = require('source-viewer/viewer');
-      }
-      var that = this,
-          viewer = new SourceViewer(),
-          options = this.model.toJSON();
-      viewer.open(this.model.get('uuid'), { workspace: true });
-      viewer.on('loaded', function () {
-        that.model.set({
-          name: viewer.model.get('name'),
-          q: viewer.model.get('q')
-        });
-        if (options.line != null) {
-          viewer.highlightLine(options.line);
-          viewer.scrollToLine(options.line);
-        }
-      });
-      this.viewerRegion.show(viewer);
+    regions: {
+      headerRegion: '.workspace-viewer-header',
+      viewerRegion: '.workspace-viewer-container'
+    },
+
+    onRender: function () {
+      this.showHeader();
+      this.$('.workspace-viewer-container').isolatedScroll();
+    },
+
+    onViewerMinimize: function () {
+      this.trigger('viewerMinimize');
+    },
+
+    onViewerClose: function () {
+      this.trigger('viewerClose', this.model);
+    },
+
+    showHeader: function () {
+      var headerView = new HeaderView({ model: this.model });
+      this.listenTo(headerView, 'viewerMinimize', this.onViewerMinimize);
+      this.listenTo(headerView, 'viewerClose', this.onViewerClose);
+      this.headerRegion.show(headerView);
     }
   });
 

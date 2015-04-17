@@ -234,6 +234,48 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
 });
 
 
+casper.test.begin(testName('Issue Box', 'Rule'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/show', 'rule.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/issues/app-new.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected');
+      })
+
+      .then(function () {
+        casper.click('.issue.selected .js-issue-rule');
+        casper.waitForSelector('.workspace-viewer-container .coding-rules-detail-properties');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.workspace-viewer-name', 'Insufficient branch coverage by unit tests');
+        test.assertSelectorContains('.workspace-viewer-container', 'Reliability > Unit tests coverage');
+        test.assertSelectorContains('.workspace-viewer-container', 'An issue is created on a file as soon as the');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('File-Level Issues'), function (test) {
   var issueKey = '200d4a8b-9666-4e70-9953-7bab57933f97',
       issueSelector = '.issue[data-key="' + issueKey + '"]';

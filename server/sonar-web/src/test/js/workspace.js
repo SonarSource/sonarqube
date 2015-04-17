@@ -286,3 +286,46 @@ casper.test.begin(testName('Full Screen'), 6, function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Rule'), 3, function (test) {
+  casper
+      .start(lib.buildUrl('nav'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/rules/show', 'rule.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.localStorage.setItem('sonarqube-workspace',
+              '[{"key":"common-java:InsufficientBranchCoverage","type":"rule"}]');
+          window.SS.isUserAdmin = false;
+          window.navbarOptions = new Backbone.Model();
+          require(['/js/nav/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.workspace-nav-item');
+      })
+
+      .then(function () {
+        casper.click('.workspace-nav-item');
+        casper.waitForSelector('.workspace-viewer .coding-rules-detail-properties');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.workspace-viewer-name', 'Insufficient branch coverage by unit tests');
+        test.assertSelectorContains('.workspace-viewer-container', 'Reliability > Unit tests coverage');
+        test.assertSelectorContains('.workspace-viewer-container', 'An issue is created on a file as soon as the');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

@@ -21,8 +21,9 @@ define([
   'workspace/models/item',
   'workspace/models/items',
   'workspace/views/items-view',
-  'workspace/views/viewer-view'
-], function (Item, Items, ItemsView, ViewerView) {
+  'workspace/views/viewer-view',
+  'workspace/views/rule-view'
+], function (Item, Items, ItemsView, ViewerView, RuleView) {
 
   var $ = jQuery,
 
@@ -56,10 +57,6 @@ define([
       this.items.save();
     },
 
-    load: function () {
-      this.items.load();
-    },
-
     addComponent: function (model) {
       if (!this.items.has(model)) {
         this.items.add(model);
@@ -76,21 +73,26 @@ define([
       if (model.isComponent()) {
         this.showComponentViewer(model);
       }
+      if (model.isRule()) {
+        this.showRule(model);
+      }
     },
 
     openComponent: function (options) {
       return this.open(_.extend(options, { type: 'component' }));
     },
 
-    showComponentViewer: function (model) {
+    openRule: function (options) {
+      return this.open(_.extend(options, { type: 'rule' }));
+    },
+
+    showViewer: function (Viewer, model) {
       var that = this;
       if (this.viewerView != null) {
         this.viewerView.close();
       }
       $('.source-viewer').addClass('with-workspace');
-      this.viewerView = new ViewerView({
-        model: model
-      });
+      this.viewerView = new Viewer({ model: model });
       this.viewerView
           .on('viewerMinimize', function () {
             that.closeComponentViewer();
@@ -102,11 +104,28 @@ define([
       this.viewerView.render().$el.appendTo(document.body);
     },
 
+    showComponentViewer: function (model) {
+      this.showViewer(ViewerView, model);
+    },
+
     closeComponentViewer: function () {
       if (this.viewerView != null) {
         this.viewerView.close();
         $('.with-workspace').removeClass('with-workspace');
       }
+    },
+
+    showRule: function (model) {
+      this.showViewer(RuleView, model);
+      this.fetchRule(model);
+    },
+
+    fetchRule: function (model) {
+      var url = baseUrl + '/api/rules/show',
+          options = { key: model.get('key') };
+      return $.get(url, options).done(function (r) {
+        model.set(r.rule);
+      });
     }
   };
 
