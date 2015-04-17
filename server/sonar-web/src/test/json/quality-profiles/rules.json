@@ -5,7 +5,7 @@
   "rules": [],
   "facets": [
     {
-      "property": "severities",
+      "property": "active_severities",
       "values": [
         {
           "val": "MAJOR",
