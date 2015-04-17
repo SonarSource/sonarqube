@@ -343,6 +343,59 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
 });
 
 
+casper.test.begin(testName('Should Move Between Profiles'), 1, function (test) {
+  casper
+      .start(lib.buildUrl('profiles'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-inheritance.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
+        this.rulesMock = lib.mockRequestFromFile('/api/rules/search', 'rules.json',
+            { data: { qprofile: 'java-inherited-profile-85155', activation: 'true' }});
+        this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-plus.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        casper.click('.js-list .list-group-item[data-key="java-inherited-profile-85155"]');
+        casper.waitForSelector('#quality-profile-ancestors');
+      })
+
+      .then(function () {
+        lib.clearRequestMock(this.rulesMock);
+        lib.clearRequestMock(this.inheritanceMock);
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json',
+            { data: { qprofile: 'java-sonar-way-67887', activation: 'true' }});
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+
+        casper.click('#quality-profile-ancestors .js-profile[data-key="java-sonar-way-67887"]');
+        casper.waitForSelectorTextChange('.search-navigator-header-component');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.search-navigator-header-component', 'Sonar way');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Copy Profile'), 5, function (test) {
   casper
       .start(lib.buildUrl('profiles'), function () {
