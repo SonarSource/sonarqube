@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.step;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,7 +29,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;

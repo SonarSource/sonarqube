@@ -19,6 +19,8 @@
  */
 package org.sonar.server.db;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -30,7 +32,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;

@@ -20,6 +20,8 @@
 
 package org.sonar.server.batch;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +43,6 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;

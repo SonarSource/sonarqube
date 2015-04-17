@@ -38,7 +38,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.*;
@@ -68,7 +67,6 @@ public final class DaoUtils {
       AuthorizationDao.class,
       DashboardDao.class,
       DuplicationDao.class,
-      FileSourceDao.class,
       GraphDao.class,
       GroupMembershipDao.class,
       IssueDao.class,
@@ -90,7 +88,7 @@ public final class DaoUtils {
       RuleDao.class,
       SemaphoreDao.class,
       UserDao.class
-    );
+      );
   }
 
   /**
@@ -116,7 +114,7 @@ public final class DaoUtils {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < count; i++) {
       sb.append(sql);
-      if (i < count-1) {
+      if (i < count - 1) {
         sb.append(" ").append(separator).append(" ");
       }
     }

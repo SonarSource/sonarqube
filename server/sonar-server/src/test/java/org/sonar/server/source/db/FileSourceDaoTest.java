@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.db;
+package org.sonar.server.source.db;
 
 import com.google.common.base.Function;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.source.db.FileSourceDto;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -129,7 +129,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultFileLinesContextFactory.class,
       Caches.class,
       ResourceCache.class,
-      SourceDataFactory.class,
 
       // file system
       InputPathCache.class,
@@ -196,7 +195,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(
       ResourcePersister.class,
-      SourcePersister.class,
       ResourceKeyMigration.class,
 
       // Users

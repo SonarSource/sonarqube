@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.source.db;
+package org.sonar.server.source.db;
+
+import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceMapper;
 
 import com.google.common.base.Function;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -38,7 +40,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FileSourceDao implements BatchComponent, ServerComponent, DaoComponent {
+public class FileSourceDao implements ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.server.benchmark;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -27,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;

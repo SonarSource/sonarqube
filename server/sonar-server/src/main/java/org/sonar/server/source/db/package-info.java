@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.core.source;
+package org.sonar.server.source.db;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -32,7 +32,6 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
@@ -64,6 +63,7 @@ import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
@@ -172,6 +172,7 @@ import org.sonar.server.search.IndexSynchronizer;
 import org.sonar.server.search.SearchClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -287,7 +288,8 @@ class ServerComponents {
 
       EventDao.class,
       ActivityDao.class,
-      AnalysisReportDao.class
+      AnalysisReportDao.class,
+      FileSourceDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);

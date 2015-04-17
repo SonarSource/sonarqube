@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -37,7 +39,6 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;

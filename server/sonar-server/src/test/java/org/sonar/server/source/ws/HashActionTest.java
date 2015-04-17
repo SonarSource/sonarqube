@@ -19,6 +19,8 @@
  */
 package org.sonar.server.source.ws;
 
+import org.sonar.server.source.db.FileSourceDao;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,7 +31,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -37,7 +38,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
