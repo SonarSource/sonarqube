@@ -73,6 +73,7 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
 
     String languageKey = copiedProfile.getLanguage();
     Language language = languages.get(copiedProfile.getLanguage());
+    String parentKey = copiedProfile.getParentKee();
     response.newJsonWriter()
       .beginObject()
       .prop("key", copiedProfile.getKey())
@@ -80,7 +81,8 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
       .prop("language", languageKey)
       .prop("languageName", language == null ? null : language.getName())
       .prop("isDefault", copiedProfile.isDefault())
-      .prop("isInherited", copiedProfile.getParentKee() != null)
+      .prop("isInherited", parentKey != null)
+      .prop("parentKey", parentKey)
       .endObject().close();
   }
 }

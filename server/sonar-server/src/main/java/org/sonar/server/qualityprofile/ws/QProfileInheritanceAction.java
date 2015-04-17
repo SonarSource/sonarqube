@@ -34,7 +34,11 @@ import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.search.FacetValue;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -101,24 +105,15 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
 
   private void writeProfile(JsonWriter json, QualityProfileDto profile, Map<String, Multimap<String, FacetValue>> profileStats) {
     String profileKey = profile.getKey();
-    json.name("profile").beginObject()
-      .prop("key", profileKey)
-      .prop("name", profile.getName())
-      .prop("parent", profile.getParentKee());
-    writeStats(json, profileKey, profileStats);
-    json.endObject();
+    json.name("profile");
+    writeProfileAttributes(json, profileKey, profile.getName(), profile.getParentKee(), profileStats);
   }
 
   private void writeAncestors(JsonWriter json, List<QProfile> ancestors, Map<String, Multimap<String, FacetValue>> profileStats) {
     json.name("ancestors").beginArray();
     for (QProfile ancestor : ancestors) {
       String ancestorKey = ancestor.key();
-      json.beginObject()
-        .prop("key", ancestorKey)
-        .prop("name", ancestor.name())
-        .prop("parent", ancestor.parent());
-      writeStats(json, ancestorKey, profileStats);
-      json.endObject();
+      writeProfileAttributes(json, ancestorKey, ancestor.name(), ancestor.parent(), profileStats);
     }
     json.endArray();
   }
@@ -127,13 +122,18 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
     json.name("children").beginArray();
     for (QualityProfileDto child : children) {
       String childKey = child.getKey();
-      json.beginObject()
-        .prop("key", childKey)
-        .prop("name", child.getName());
-      writeStats(json, childKey, profileStats);
-      json.endObject();
+      writeProfileAttributes(json, childKey, child.getName(), null, profileStats);
     }
     json.endArray();
+  }
+
+  private void writeProfileAttributes(JsonWriter json, String key, String name, @Nullable String parentKey, Map<String, Multimap<String, FacetValue>> profileStats) {
+    json.beginObject();
+    json.prop("key", key)
+      .prop("name", name)
+      .prop("parent", parentKey);
+    writeStats(json, key, profileStats);
+    json.endObject();
   }
 
   private void writeStats(JsonWriter json, String profileKey, Map<String, Multimap<String, FacetValue>> profileStats) {
@@ -148,16 +148,16 @@ public class QProfileInheritanceAction implements BaseQProfileWsAction {
 
   private Long getActiveRuleCount(Multimap<String, FacetValue> profileStats) {
     Long result = null;
-    if (profileStats.containsKey("countActiveRules")) {
-      result = profileStats.get("countActiveRules").iterator().next().getValue();
+    if (profileStats.containsKey(ActiveRuleIndex.COUNT_ACTIVE_RULES)) {
+      result = profileStats.get(ActiveRuleIndex.COUNT_ACTIVE_RULES).iterator().next().getValue();
     }
     return result;
   }
 
   private Long getOverridingRuleCount(Multimap<String, FacetValue> profileStats) {
     Long result = null;
-    if (profileStats.containsKey("inheritance")) {
-      for (FacetValue value : profileStats.get("inheritance")) {
+    if (profileStats.containsKey(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())) {
+      for (FacetValue value : profileStats.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())) {
         if ("OVERRIDES".equals(value.getKey())) {
           result = value.getValue();
         }

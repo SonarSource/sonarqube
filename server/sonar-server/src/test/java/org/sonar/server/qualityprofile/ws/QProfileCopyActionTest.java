@@ -74,6 +74,27 @@ public class QProfileCopyActionTest {
     verify(qProfileCopier).copyToName(fromProfileKey, toName);
   }
 
+  @Test
+  public void copy_with_parent() throws Exception {
+    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    String fromProfileKey = "xoo-sonar-way-23456";
+    String toName = "Other Sonar Way";
+
+    when(qProfileCopier.copyToName(fromProfileKey, toName)).thenReturn(
+      QualityProfileDto.createFor("xoo-other-sonar-way-12345")
+        .setName(toName)
+        .setLanguage("xoo")
+        .setParentKee("xoo-parent-profile-01324"));
+
+    tester.newPostRequest("api/qualityprofiles", "copy")
+      .setParam("fromKey", fromProfileKey)
+      .setParam("toName", toName)
+      .execute().assertJson(getClass(), "copy_with_parent.json");
+
+    verify(qProfileCopier).copyToName(fromProfileKey, toName);
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
     MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);

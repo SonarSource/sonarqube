@@ -22,8 +22,10 @@ package org.sonar.server.qualityprofile.ws;
 import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.*;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.Response.Stream;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -33,8 +35,6 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import java.io.OutputStreamWriter;
 
 public class QProfileBackupAction implements BaseQProfileWsAction {
-
-  private static final String PARAM_KEY = "key";
 
   private final QProfileBackuper backuper;
 

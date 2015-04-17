@@ -37,11 +37,21 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.SearchClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
+
+  public static final String COUNT_ACTIVE_RULES = "countActiveRules";
 
   public ActiveRuleIndex(ActiveRuleNormalizer normalizer, SearchClient node) {
     super(IndexDefinition.ACTIVE_RULE, normalizer, node);
@@ -171,7 +181,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
           .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))
-        .subAggregation(AggregationBuilders.count("countActiveRules")))
+        .subAggregation(AggregationBuilders.count(COUNT_ACTIVE_RULES)))
       .setSize(0)
       .setTypes(this.getIndexType());
     SearchResponse response = request.get();

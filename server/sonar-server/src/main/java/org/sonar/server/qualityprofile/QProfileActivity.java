@@ -89,9 +89,9 @@ public class QProfileActivity extends ActivityDoc {
 
   public Map<String, String> parameters() {
     Map<String, String> params = Maps.newHashMap();
-    for (String key : fields.keySet()) {
-      if (key.startsWith("param_")) {
-        params.put(key.replace("param_", ""), (String) fields.get(key));
+    for (Map.Entry<String, Object> param : fields.entrySet()) {
+      if (param.getKey().startsWith("param_")) {
+        params.put(param.getKey().replace("param_", ""), (String) param.getValue());
       }
     }
     return params;

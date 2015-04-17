@@ -35,7 +35,11 @@ import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -657,6 +661,7 @@ public interface WebService extends ServerExtension, Definable<WebService.Contex
   /**
    * Executed once at server startup.
    */
+  @Override
   void define(Context context);
 
 }

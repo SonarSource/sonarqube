@@ -98,7 +98,7 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
     String parentKey = request.param(PARAM_PARENT_KEY);
 
     Preconditions.checkArgument(
-      (isEmpty(parentName) || isEmpty(parentKey)), "parentKey and parentName cannot be used simultaneously");
+      isEmpty(parentName) || isEmpty(parentKey), "parentKey and parentName cannot be used simultaneously");
 
     if (isEmpty(parentKey)) {
       if (!isEmpty(parentName)) {

@@ -46,6 +46,21 @@ import java.util.Map.Entry;
 
 public class QProfileCompareAction implements BaseQProfileWsAction {
 
+  private static final String ATTRIBUTE_LEFT = "left";
+  private static final String ATTRIBUTE_RIGHT = "right";
+  private static final String ATTRIBUTE_IN_LEFT = "inLeft";
+  private static final String ATTRIBUTE_IN_RIGHT = "inRight";
+  private static final String ATTRIBUTE_MODIFIED = "modified";
+  private static final String ATTRIBUTE_SAME = "same";
+  private static final String ATTRIBUTE_KEY = "key";
+  private static final String ATTRIBUTE_NAME = "name";
+  private static final String ATTRIBUTE_SEVERITY = "severity";
+  private static final String ATTRIBUTE_PLUGIN_KEY = "pluginKey";
+  private static final String ATTRIBUTE_PLUGIN_NAME = "pluginName";
+  private static final String ATTRIBUTE_LANGUAGE_KEY = "languageKey";
+  private static final String ATTRIBUTE_LANGUAGE_NAME = "languageName";
+  private static final String ATTRIBUTE_PARAMS = "params";
+
   private static final String PARAM_LEFT_KEY = "leftKey";
   private static final String PARAM_RIGHT_KEY = "rightKey";
 
@@ -102,32 +117,32 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
   private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, Rule> rulesByKey) {
     json.beginObject();
 
-    json.name("left").beginObject();
+    json.name(ATTRIBUTE_LEFT).beginObject();
     writeProfile(json, result.left());
     json.endObject();
 
-    json.name("right").beginObject();
+    json.name(ATTRIBUTE_RIGHT).beginObject();
     writeProfile(json, result.right());
     json.endObject();
 
-    json.name("inLeft");
+    json.name(ATTRIBUTE_IN_LEFT);
     writeRules(json, result.inLeft(), rulesByKey);
 
-    json.name("inRight");
+    json.name(ATTRIBUTE_IN_RIGHT);
     writeRules(json, result.inRight(), rulesByKey);
 
-    json.name("modified");
+    json.name(ATTRIBUTE_MODIFIED);
     writeDifferences(json, result.modified(), rulesByKey);
 
-    json.name("same");
+    json.name(ATTRIBUTE_SAME);
     writeRules(json, result.same(), rulesByKey);
 
     json.endObject().close();
   }
 
   private void writeProfile(JsonWriter json, QualityProfileDto profile) {
-    json.prop("key", profile.getKey())
-      .prop("name", profile.getName());
+    json.prop(ATTRIBUTE_KEY, profile.getKey())
+      .prop(ATTRIBUTE_NAME, profile.getName());
   }
 
   private void writeRules(JsonWriter json, Map<RuleKey, ActiveRule> activeRules, Map<RuleKey, Rule> rulesByKey) {
@@ -138,7 +153,7 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
 
       json.beginObject();
       writeRule(json, key, rulesByKey);
-      json.prop("severity", value.severity());
+      json.prop(ATTRIBUTE_SEVERITY, value.severity());
       json.endObject();
     }
     json.endArray();
@@ -146,18 +161,18 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
 
   private void writeRule(JsonWriter json, RuleKey key, Map<RuleKey, Rule> rulesByKey) {
     String repositoryKey = key.repository();
-    json.prop("key", key.toString())
-      .prop("name", rulesByKey.get(key).name())
-      .prop("pluginKey", repositoryKey);
+    json.prop(ATTRIBUTE_KEY, key.toString())
+      .prop(ATTRIBUTE_NAME, rulesByKey.get(key).name())
+      .prop(ATTRIBUTE_PLUGIN_KEY, repositoryKey);
 
     Repository repo = ruleRepositories.repository(repositoryKey);
     if (repo != null) {
       String languageKey = repo.getLanguage();
       Language language = languages.get(languageKey);
 
-      json.prop("pluginName", repo.getName());
-      json.prop("languageKey", languageKey);
-      json.prop("languageName", language == null ? null : language.getName());
+      json.prop(ATTRIBUTE_PLUGIN_NAME, repo.getName());
+      json.prop(ATTRIBUTE_LANGUAGE_KEY, languageKey);
+      json.prop(ATTRIBUTE_LANGUAGE_NAME, language == null ? null : language.getName());
     }
   }
 
@@ -169,9 +184,9 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
       json.beginObject();
       writeRule(json, key, rulesByKey);
 
-      json.name("left").beginObject();
-      json.prop("severity", value.leftSeverity());
-      json.name("params").beginObject();
+      json.name(ATTRIBUTE_LEFT).beginObject();
+      json.prop(ATTRIBUTE_SEVERITY, value.leftSeverity());
+      json.name(ATTRIBUTE_PARAMS).beginObject();
       for (Entry<String, ValueDifference<String>> valueDiff : value.paramDifference().entriesDiffering().entrySet()) {
         json.prop(valueDiff.getKey(), valueDiff.getValue().leftValue());
       }
@@ -183,9 +198,9 @@ public class QProfileCompareAction implements BaseQProfileWsAction {
       // left
       json.endObject();
 
-      json.name("right").beginObject();
-      json.prop("severity", value.rightSeverity());
-      json.name("params").beginObject();
+      json.name(ATTRIBUTE_RIGHT).beginObject();
+      json.prop(ATTRIBUTE_SEVERITY, value.rightSeverity());
+      json.name(ATTRIBUTE_PARAMS).beginObject();
       for (Entry<String, ValueDifference<String>> valueDiff : value.paramDifference().entriesDiffering().entrySet()) {
         json.prop(valueDiff.getKey(), valueDiff.getValue().rightValue());
       }
