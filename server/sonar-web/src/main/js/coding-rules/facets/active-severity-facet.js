@@ -32,8 +32,9 @@ define([
 
     onQueryChange: function () {
       var query = this.options.app.state.get('query'),
-          isProfileSelected = query.qprofile != null;
-      if (!isProfileSelected) {
+          isProfileSelected = query.qprofile != null,
+          isActiveShown = '' + query.activation === 'true';
+      if (!isProfileSelected || !isActiveShown) {
         this.forbid();
       }
     },
@@ -53,22 +54,10 @@ define([
       this.$el.prop('title', null);
     },
 
-    getValues: function () {
-      return this.severities.map(function (s) {
-        return { val: s };
-      });
-    },
-
     sortValues: function (values) {
       var order = this.severities;
       return _.sortBy(values, function (v) {
         return order.indexOf(v.val);
-      });
-    },
-
-    serializeData: function () {
-      return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
-        values: this.sortValues(this.getValues())
       });
     }
   });

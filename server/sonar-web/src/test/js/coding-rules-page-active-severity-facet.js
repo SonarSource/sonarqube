@@ -34,6 +34,7 @@ casper.test.begin('coding-rules-page-active-severity-facet', 7, function (test) 
 
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-BLOCKER.json', { data: { active_severities: 'BLOCKER' } });
+        lib.mockRequestFromFile('/api/rules/search', 'facet.json', { data: { facets: 'active_severities', ps: '1' } });
         lib.mockRequestFromFile('/api/rules/search', 'search-qprofile.json',
             { data: { qprofile: 'java-default-with-mojo-conventions-49307' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
