@@ -63,13 +63,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     d3.json(this.source(), function(error, response) {
       if (response && !error) {
         that.hideSpinner();
-        if (typeof(response.components) === 'undefined' || response.components.length > 0) {
+        if (typeof response.components === 'undefined' || response.components.length > 0) {
           that.widget = new SonarWidgets[that.type()]();
           that.widget.metricsPriority(that.metricsPriority());
           that.widget.options(that.options());
           that.widget.metrics(response.metrics);
           that.widget.components(response.components);
-          if(typeof(that.widget.parseSource) === 'function') {
+          if(typeof that.widget.parseSource === 'function') {
             that.widget.parseSource(response);
           }
           if (typeof that.widget.maxResultsReached === 'function') {

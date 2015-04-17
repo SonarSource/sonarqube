@@ -77,7 +77,7 @@ define([
       } else {
         this.$('[data-language]').removeClass('hidden');
       }
-    },
+    }
   });
 
 });
