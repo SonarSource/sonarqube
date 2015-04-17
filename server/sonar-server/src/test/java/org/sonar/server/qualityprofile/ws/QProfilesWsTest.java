@@ -63,7 +63,7 @@ public class QProfilesWsTest {
       new QProfileCreateAction(null, null, null, languages, importers),
       new QProfileImportersAction(importers),
       new QProfileRestoreBuiltInAction(null),
-      new QProfileSearchAction(languages, null, null),
+      new QProfileSearchAction(languages, null, null, null),
       new QProfileSetDefaultAction(languages, null, null),
       new QProfileProjectsAction(null),
       new QProfileBackupAction(null, null, null, languages),
@@ -121,7 +121,7 @@ public class QProfilesWsTest {
     assertThat(search.params()).hasSize(2);
     assertThat(search.param("language").possibleValues()).containsOnly(xoo1Key, xoo2Key);
     assertThat(search.param("f").possibleValues())
-      .containsOnly("key", "name", "language", "languageName", "isInherited", "parentKey", "parentName", "isDefault", "activeRuleCount");
+      .containsOnly("key", "name", "language", "languageName", "isInherited", "parentKey", "parentName", "isDefault", "activeRuleCount", "projectCount");
   }
 
   @Test

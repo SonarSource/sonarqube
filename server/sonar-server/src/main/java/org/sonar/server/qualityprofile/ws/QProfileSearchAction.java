@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -36,7 +37,11 @@ import org.sonar.server.qualityprofile.QProfileLookup;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class QProfileSearchAction implements BaseQProfileWsAction {
 
@@ -49,8 +54,11 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
   private static final String FIELD_PARENT_KEY = "parentKey";
   private static final String FIELD_PARENT_NAME = "parentName";
   private static final String FIELD_ACTIVE_RULE_COUNT = "activeRuleCount";
+  private static final String FIELD_PROJECT_COUNT = "projectCount";
+
   private static final Set<String> ALL_FIELDS = ImmutableSet.of(
-    FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_PARENT_NAME, FIELD_IS_DEFAULT, FIELD_ACTIVE_RULE_COUNT);
+    FIELD_KEY, FIELD_NAME, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_IS_INHERITED, FIELD_PARENT_KEY, FIELD_PARENT_NAME, FIELD_IS_DEFAULT, FIELD_ACTIVE_RULE_COUNT,
+    FIELD_PROJECT_COUNT);
 
   private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
   private static final String PARAM_FIELDS = "f";
@@ -62,10 +70,13 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
 
   private final QProfileLoader profileLoader;
 
-  public QProfileSearchAction(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader) {
+  private final QualityProfileDao qualityProfileDao;
+
+  public QProfileSearchAction(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QualityProfileDao qualityProfileDao) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileLoader = profileLoader;
+    this.qualityProfileDao = qualityProfileDao;
   }
 
   @Override
@@ -123,6 +134,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       }
     });
     Map<String, Long> activeRuleCountByKey = profileLoader.countAllActiveRules();
+    Map<String, Long> projectCountByKey = qualityProfileDao.countProjectsByProfileKey();
 
 
     json.name("profiles")
@@ -135,10 +147,15 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
 
       String key = profile.key();
       Long activeRuleCount = activeRuleCountByKey.containsKey(key) ? activeRuleCountByKey.get(key) : 0L;
+      Long projectCount = projectCountByKey.containsKey(key) ? projectCountByKey.get(key) : 0L;
       json.beginObject()
         .prop(FIELD_KEY, nullUnlessNeeded(FIELD_KEY, key, fields))
         .prop(FIELD_NAME, nullUnlessNeeded(FIELD_NAME, profile.name(), fields))
         .prop(FIELD_ACTIVE_RULE_COUNT, nullUnlessNeeded(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields));
+
+      if (!profile.isDefault()) {
+        json.prop(FIELD_PROJECT_COUNT, nullUnlessNeeded(FIELD_PROJECT_COUNT, projectCount, fields));
+      }
       writeLanguageFields(json, profile, fields);
       writeParentFields(json, profile, fields, profilesByKey);
       // Special case for booleans

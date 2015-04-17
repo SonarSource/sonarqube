@@ -6,7 +6,8 @@
       "language": "cs",
       "languageName": "C#",
       "isInherited": false,
-      "activeRuleCount": 37
+      "activeRuleCount": 37,
+      "isDefault": true
     },
     {
       "key": "my-bu-profile-java-34567",
@@ -16,7 +17,9 @@
       "isInherited": true,
       "parentKey": "my-company-profile-java-23456",
       "parentName": "My Company Profile",
-      "activeRuleCount": 72
+      "activeRuleCount": 72,
+      "isDefault": false,
+      "projectCount": 13
     },
     {
       "key": "my-company-profile-java-23456",
@@ -33,7 +36,8 @@
       "language": "py",
       "languageName": "Python",
       "isInherited": false,
-      "activeRuleCount": 125
+      "activeRuleCount": 125,
+      "isDefault": true
     }
   ]
 }

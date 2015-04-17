@@ -22,6 +22,7 @@ package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
@@ -34,6 +35,7 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class QualityProfileDao implements ServerComponent, DaoComponent {
 
@@ -47,7 +49,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getByKey(DbSession session, String key) {
-    return session.getMapper(QualityProfileMapper.class).selectByKey(key);
+    return getMapper(session).selectByKey(key);
   }
 
   public QualityProfileDto getNonNullByKey(DbSession session, String key) {
@@ -59,11 +61,11 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<QualityProfileDto> findAll(DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectAll();
+    return getMapper(session).selectAll();
   }
 
   public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
-    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    QualityProfileMapper mapper = getMapper(session);
     doInsert(mapper, profile);
     for (QualityProfileDto other : otherProfiles) {
       doInsert(mapper, other);
@@ -93,7 +95,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public void update(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
-    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    QualityProfileMapper mapper = getMapper(session);
     doUpdate(mapper, profile);
     for (QualityProfileDto otherProfile : otherProfiles) {
       doUpdate(mapper, otherProfile);
@@ -121,7 +123,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public void delete(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
-    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    QualityProfileMapper mapper = getMapper(session);
     doDelete(mapper, profile);
     for (QualityProfileDto otherProfile : otherProfiles) {
       doDelete(mapper, otherProfile);
@@ -138,7 +140,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
    */
   @Deprecated
   public void delete(int id, DbSession session) {
-    session.getMapper(QualityProfileMapper.class).delete(id);
+    getMapper(session).delete(id);
   }
 
   /**
@@ -163,7 +165,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   public List<QualityProfileDto> findAll() {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).selectAll();
+      return getMapper(session).selectAll();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -171,7 +173,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getDefaultProfile(String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language);
+    return getMapper(session).selectDefaultProfile(language);
   }
 
   @CheckForNull
@@ -188,7 +190,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   public QualityProfileDto getByProjectAndLanguage(long projectId, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByProjectIdAndLanguage(projectId, language);
+      return getMapper(session).selectByProjectIdAndLanguage(projectId, language);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -196,13 +198,13 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getByProjectAndLanguage(String projectKey, String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectKey, language);
+    return getMapper(session).selectByProjectAndLanguage(projectKey, language);
   }
 
   public List<QualityProfileDto> findByLanguage(String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByLanguage(language);
+      return getMapper(session).selectByLanguage(language);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -215,7 +217,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   @Deprecated
   @CheckForNull
   public QualityProfileDto getById(int id, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectById(id);
+    return getMapper(session).selectById(id);
   }
 
   /**
@@ -235,7 +237,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getParent(String childKey, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectParent(childKey);
+    return getMapper(session).selectParent(childKey);
   }
 
   @CheckForNull
@@ -250,7 +252,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getParentById(int childId, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectParentById(childId);
+    return getMapper(session).selectParentById(childId);
   }
 
   @CheckForNull
@@ -264,7 +266,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<QualityProfileDto> findChildren(DbSession session, String key) {
-    return session.getMapper(QualityProfileMapper.class).selectChildren(key);
+    return getMapper(session).selectChildren(key);
   }
 
   /**
@@ -281,7 +283,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   @CheckForNull
   public QualityProfileDto getByNameAndLanguage(String name, String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
+    return getMapper(session).selectByNameAndLanguage(name, language);
   }
 
   /**
@@ -308,50 +310,68 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<ComponentDto> selectProjects(String profileName, String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectProjects(profileName, language);
+    return getMapper(session).selectProjects(profileName, language);
   }
 
   public int countProjects(String profileName, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).countProjects(profileName, language);
+      return getMapper(session).countProjects(profileName, language);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public Map<String, Long> countProjectsByProfileKey() {
+    DbSession session = mybatis.openSession(false);
+    try {
+      Map<String, Long> countByKey = Maps.newHashMap();
+      for (QualityProfileProjectCount count : getMapper(session).countProjectsByProfile()) {
+        countByKey.put(count.getProfileKey(), count.getProjectCount());
+      }
+      return countByKey;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public void insertProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    session.getMapper(QualityProfileMapper.class).insertProjectProfileAssociation(projectUuid, profileKey);
+    getMapper(session).insertProjectProfileAssociation(projectUuid, profileKey);
   }
 
   public void deleteProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    session.getMapper(QualityProfileMapper.class).deleteProjectProfileAssociation(projectUuid, profileKey);
+    getMapper(session).deleteProjectProfileAssociation(projectUuid, profileKey);
   }
 
   public void updateProjectProfileAssociation(String projectUuid, String profileKey, DbSession session) {
-    session.getMapper(QualityProfileMapper.class).updateProjectProfileAssociation(projectUuid, profileKey);
+    getMapper(session).updateProjectProfileAssociation(projectUuid, profileKey);
   }
 
   public void deleteAllProjectProfileAssociation(String profileKey, DbSession session) {
-    session.getMapper(QualityProfileMapper.class).deleteAllProjectProfileAssociation(profileKey);
+    getMapper(session).deleteAllProjectProfileAssociation(profileKey);
   }
 
   public List<ProjectQprofileAssociationDto> selectSelectedProjects(String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return session.getMapper(QualityProfileMapper.class).selectSelectedProjects(profileKey, nameQuery);
+    return getMapper(session).selectSelectedProjects(profileKey, nameQuery);
   }
 
   public List<ProjectQprofileAssociationDto> selectDeselectedProjects(String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return session.getMapper(QualityProfileMapper.class).selectDeselectedProjects(profileKey, nameQuery);
+    return getMapper(session).selectDeselectedProjects(profileKey, nameQuery);
   }
 
   public List<ProjectQprofileAssociationDto> selectProjectAssociations(String profileKey, @Nullable String query, DbSession session) {
     String nameQuery = sqlQueryString(query);
-    return session.getMapper(QualityProfileMapper.class).selectProjectAssociations(profileKey, nameQuery);
+    return getMapper(session).selectProjectAssociations(profileKey, nameQuery);
   }
 
   private String sqlQueryString(String query) {
     return query == null ? "%" : "%" + query.toUpperCase() + "%";
   }
+
+  private QualityProfileMapper getMapper(DbSession session) {
+    return session.getMapper(QualityProfileMapper.class);
+  }
+
 }
