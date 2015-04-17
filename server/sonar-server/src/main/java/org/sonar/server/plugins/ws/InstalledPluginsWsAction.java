@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.SortedSet;
 
@@ -147,8 +148,8 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
     INSTANCE;
 
     @Override
-    public boolean apply(PluginMetadata input) {
-      return !input.isCore();
+    public boolean apply(@Nullable PluginMetadata input) {
+      return input != null && !input.isCore();
     }
   }
 
@@ -156,7 +157,10 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
     INSTANCE;
 
     @Override
-    public String apply(PluginMetadata input) {
+    public String apply(@Nullable PluginMetadata input) {
+      if (input == null) {
+        return null;
+      }
       return input.getName();
     }
   }
@@ -165,7 +169,10 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
     INSTANCE;
 
     @Override
-    public String apply(PluginMetadata input) {
+    public String apply(@Nullable PluginMetadata input) {
+      if (input == null) {
+        return null;
+      }
       return input.getKey();
     }
   }
