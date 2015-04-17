@@ -78,7 +78,7 @@ enum TestType {
   IT = 2;
 }
 
-enum TestResultStatus {
+enum TestStatus {
   OK = 1;
   FAILURE = 2;
   ERROR = 3;

@@ -115,9 +115,14 @@ public class BatchReportWriter {
     ProtobufUtil.writeMessagesToFile(coverageList, file);
   }
 
-  public void writeTestResults(int componentRef, Iterable<BatchReport.TestResult> testResults) {
-    File file = fileStructure.fileFor(FileStructure.Domain.TEST_RESULT, componentRef);
-    ProtobufUtil.writeMessagesToFile(testResults, file);
+  public void writeTests(int componentRef, Iterable<BatchReport.Test> tests) {
+    File file = fileStructure.fileFor(FileStructure.Domain.TESTS, componentRef);
+    ProtobufUtil.writeMessagesToFile(tests, file);
+  }
+
+  public void writeCoverageDetails(int componentRef, Iterable<BatchReport.CoverageDetail> tests) {
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, componentRef);
+    ProtobufUtil.writeMessagesToFile(tests, file);
   }
 
   public File getSourceFile(int componentRef) {

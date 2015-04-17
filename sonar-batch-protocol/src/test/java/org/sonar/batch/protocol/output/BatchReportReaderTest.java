@@ -232,29 +232,44 @@ public class BatchReportReaderTest {
   public void read_tests() throws Exception {
     initFiles(dir);
     BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeTestResults(1, Arrays.asList(
-      BatchReport.TestResult.newBuilder()
-        .setTestFileRef(1)
+    writer.writeTests(1, Arrays.asList(
+      BatchReport.Test.newBuilder()
         .setDurationInMs(60_000)
         .setStacktrace("stacktrace")
         .setMsg("message")
-        .setStatus(Constants.TestResultStatus.OK)
+        .setStatus(Constants.TestStatus.OK)
         .setType(Constants.TestType.IT)
-        .addCoverageBlock(BatchReport.TestResult.CoverageBlock.newBuilder()
-          .setFileRef(2)
-          .addAllLine(Arrays.asList(1, 2, 3, 4, 5)))
         .build()));
 
-    try (InputStream inputStream = FileUtils.openInputStream(sut.readTestResults(1))) {
-      BatchReport.TestResult testResult = BatchReport.TestResult.PARSER.parseDelimitedFrom(inputStream);
-      assertThat(testResult.getTestFileRef()).isEqualTo(1);
+    try (InputStream inputStream = FileUtils.openInputStream(sut.readTests(1))) {
+      BatchReport.Test testResult = BatchReport.Test.PARSER.parseDelimitedFrom(inputStream);
       assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
       assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
       assertThat(testResult.getMsg()).isEqualTo("message");
       assertThat(testResult.getType()).isEqualTo(Constants.TestType.IT);
-      assertThat(testResult.getStatus()).isEqualTo(Constants.TestResultStatus.OK);
-      assertThat(testResult.getCoverageBlockList().get(0).getFileRef()).isEqualTo(2);
-      assertThat(testResult.getCoverageBlockList().get(0).getLineList()).containsOnly(1, 2, 3, 4, 5);
+      assertThat(testResult.getStatus()).isEqualTo(Constants.TestStatus.OK);
+    }
+  }
+
+  @Test
+  public void read_coverage_details() throws Exception {
+    initFiles(dir);
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeCoverageDetails(1, Arrays.asList(
+      BatchReport.CoverageDetail.newBuilder()
+        .setTestName("test-name")
+        .addCoveredFile(BatchReport.CoverageDetail.CoveredFile.newBuilder()
+          .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
+          .setFileRef(2)
+        )
+        .build()
+      ));
+
+    try (InputStream inputStream = FileUtils.openInputStream(sut.readCoverageDetails(1))) {
+      BatchReport.CoverageDetail coverageDetail = BatchReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(coverageDetail.getTestName()).isEqualTo("test-name");
+      assertThat(coverageDetail.getCoveredFile(0).getFileRef()).isEqualTo(2);
+      assertThat(coverageDetail.getCoveredFile(0).getCoveredLineList()).containsExactly(1, 2, 3, 5, 7);
     }
   }
 
@@ -315,7 +330,12 @@ public class BatchReportReaderTest {
 
   @Test
   public void null_if_no_test_found() throws Exception {
-    assertThat(sut.readTestResults(666)).isNull();
+    assertThat(sut.readTests(666)).isNull();
+  }
+
+  @Test
+  public void null_if_no_coverage_detail_found() throws Exception {
+    assertThat(sut.readCoverageDetails(666)).isNull();
   }
 
   private void initFiles(File dir) {

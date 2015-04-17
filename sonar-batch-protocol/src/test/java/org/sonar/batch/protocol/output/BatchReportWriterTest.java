@@ -295,16 +295,26 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_test() throws Exception {
-    assertThat(sut.hasComponentData(FileStructure.Domain.TEST_RESULT, 1)).isFalse();
+  public void write_tests() throws Exception {
+    assertThat(sut.hasComponentData(FileStructure.Domain.TESTS, 1)).isFalse();
 
-    sut.writeTestResults(1, Arrays.asList(
-      BatchReport.TestResult.newBuilder()
-        .setTestFileRef(1)
-        .build()
+    sut.writeTests(1, Arrays.asList(
+      BatchReport.Test.getDefaultInstance()
       ));
 
-    assertThat(sut.hasComponentData(FileStructure.Domain.TEST_RESULT, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.TESTS, 1)).isTrue();
+
+  }
+
+  @Test
+  public void write_coverage_details() throws Exception {
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isFalse();
+
+    sut.writeCoverageDetails(1, Arrays.asList(
+      BatchReport.CoverageDetail.getDefaultInstance()
+      ));
+
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isTrue();
 
   }
 }

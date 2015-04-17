@@ -233,17 +233,21 @@ message SyntaxHighlighting {
   optional HighlightingType type = 2;
 }
 
-message TestResult {
-  optional int32 test_file_ref = 1;
+message Test {
+  optional string name = 1;
   optional TestType type = 2;
-  optional TestResultStatus status = 3;
+  optional TestStatus status = 3;
   optional int64 duration_in_ms = 4;
   optional string stacktrace = 5;
   optional string msg = 6;
-  repeated CoverageBlock coverage_block = 7;
+}
 
-  message CoverageBlock {
+message CoverageDetail {
+  optional string test_name = 1;
+  repeated CoveredFile covered_file = 2;
+
+  message CoveredFile {
     optional int32 file_ref = 1;
-    repeated int32 line = 2;
+    repeated int32 covered_line = 2 [packed = true];
   }
 }

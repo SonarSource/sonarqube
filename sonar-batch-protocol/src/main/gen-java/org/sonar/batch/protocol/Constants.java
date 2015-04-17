@@ -767,9 +767,9 @@ public final class Constants {
   }
 
   /**
-   * Protobuf enum {@code TestResultStatus}
+   * Protobuf enum {@code TestStatus}
    */
-  public enum TestResultStatus
+  public enum TestStatus
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <code>OK = 1;</code>
@@ -809,7 +809,7 @@ public final class Constants {
 
     public final int getNumber() { return value; }
 
-    public static TestResultStatus valueOf(int value) {
+    public static TestStatus valueOf(int value) {
       switch (value) {
         case 1: return OK;
         case 2: return FAILURE;
@@ -819,15 +819,15 @@ public final class Constants {
       }
     }
 
-    public static com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>
+    public static com.google.protobuf.Internal.EnumLiteMap<TestStatus>
         internalGetValueMap() {
       return internalValueMap;
     }
-    private static com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>
+    private static com.google.protobuf.Internal.EnumLiteMap<TestStatus>
         internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<TestResultStatus>() {
-            public TestResultStatus findValueByNumber(int number) {
-              return TestResultStatus.valueOf(number);
+          new com.google.protobuf.Internal.EnumLiteMap<TestStatus>() {
+            public TestStatus findValueByNumber(int number) {
+              return TestStatus.valueOf(number);
             }
           };
 
@@ -844,9 +844,9 @@ public final class Constants {
       return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(7);
     }
 
-    private static final TestResultStatus[] VALUES = values();
+    private static final TestStatus[] VALUES = values();
 
-    public static TestResultStatus valueOf(
+    public static TestStatus valueOf(
         com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
@@ -858,12 +858,12 @@ public final class Constants {
     private final int index;
     private final int value;
 
-    private TestResultStatus(int index, int value) {
+    private TestStatus(int index, int value) {
       this.index = index;
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:TestResultStatus)
+    // @@protoc_insertion_point(enum_scope:TestStatus)
   }
 
 
@@ -889,9 +889,9 @@ public final class Constants {
       "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
       "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
       "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010*\032\n\010TestT" +
-      "ype\022\006\n\002UT\020\001\022\006\n\002IT\020\002*?\n\020TestResultStatus\022" +
-      "\006\n\002OK\020\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n\007SKIPP" +
-      "ED\020\004B\034\n\030org.sonar.batch.protocolH\001"
+      "ype\022\006\n\002UT\020\001\022\006\n\002IT\020\002*9\n\nTestStatus\022\006\n\002OK\020" +
+      "\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n\007SKIPPED\020\004B\034" +
+      "\n\030org.sonar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
