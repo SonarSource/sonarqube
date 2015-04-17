@@ -231,8 +231,6 @@ public class DefaultSensorStorage implements SensorStorage {
 
         @Override
         public BatchReport.SyntaxHighlighting apply(SyntaxHighlightingRule input) {
-          builder.clear();
-          rangeBuilder.clear();
           builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
             .setStartOffset(input.range().start().lineOffset())
             .setEndLine(input.range().end().line())

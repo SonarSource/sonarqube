@@ -227,6 +227,10 @@ public class DefaultInputFile implements InputFile {
   public TextRange newRange(TextPointer start, TextPointer end) {
     checkValid(start, "start pointer");
     checkValid(end, "end pointer");
+    return newRangeValidPointers(start, end);
+  }
+
+  private TextRange newRangeValidPointers(TextPointer start, TextPointer end) {
     Preconditions.checkArgument(start.compareTo(end) < 0, "Start pointer %s should be before end pointer %s", start, end);
     return new DefaultTextRange(start, end);
   }
@@ -235,7 +239,7 @@ public class DefaultInputFile implements InputFile {
    * Create Range from global offsets. Used for backward compatibility with older API.
    */
   public TextRange newRange(int startOffset, int endOffset) {
-    return newRange(newPointer(startOffset), newPointer(endOffset));
+    return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset));
   }
 
   public TextPointer newPointer(int globalOffset) {
