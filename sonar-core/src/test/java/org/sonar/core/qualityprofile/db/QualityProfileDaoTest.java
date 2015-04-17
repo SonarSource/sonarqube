@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -223,6 +224,15 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     setupData("projects");
 
     assertThat(dao.countProjects("Sonar Way", "java")).isEqualTo(2);
+  }
+
+  @Test
+  public void count_projects_by_profile() {
+    setupData("projects");
+
+    assertThat(dao.countProjectsByProfileKey()).containsOnly(
+      MapEntry.entry("java_sonar_way", 2L),
+      MapEntry.entry("js_sonar_way", 2L));
   }
 
   @Test
