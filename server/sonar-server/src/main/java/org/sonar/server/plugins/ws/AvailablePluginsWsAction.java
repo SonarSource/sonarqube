@@ -19,52 +19,27 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.updatecenter.common.Artifact;
-import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
-import org.sonar.updatecenter.common.Release;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
-import static org.sonar.server.plugins.ws.PluginWSCommons.OBJECT_ARTIFACT;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_DATE;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_DESCRIPTION;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_KEY;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_NAME;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_ORGANIZATION_NAME;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_ORGANIZATION_URL;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_STATUS;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_TERMS_AND_CONDITIONS_URL;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_URL;
-import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_VERSION;
-
-/**
- * Implementation of the {@code available} action for the Plugins WebService.
- */
 public class AvailablePluginsWsAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
-  private static final String OBJECT_UPDATE = "update";
-  private static final String OBJECT_RELEASE = "release";
-  private static final String ARRAY_REQUIRES = "requires";
   private static final String ARRAY_PLUGINS = "plugins";
-  private static final String PROPERTY_CATEGORY = "category";
-  private static final String PROPERTY_LICENSE = "license";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
+  private final PluginWSCommons pluginWSCommons;
 
-  public AvailablePluginsWsAction(UpdateCenterMatrixFactory updateCenterFactory) {
+  public AvailablePluginsWsAction(UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
     this.updateCenterFactory = updateCenterFactory;
+    this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
@@ -92,7 +67,7 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
     for (PluginUpdate pluginUpdate : retrieveAvailablePlugins()) {
-      writePluginUpdate(jsonWriter, pluginUpdate);
+      pluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
     }
     jsonWriter.endArray();
     jsonWriter.endObject();
@@ -100,93 +75,5 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
 
   private List<PluginUpdate> retrieveAvailablePlugins() {
     return updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findAvailablePlugins();
-  }
-
-  private void writePluginUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
-    jsonWriter.beginObject();
-    Plugin plugin = pluginUpdate.getPlugin();
-
-    writeMetadata(jsonWriter, plugin);
-
-    writeRelease(jsonWriter, pluginUpdate.getRelease());
-
-    writeUpdate(jsonWriter, pluginUpdate);
-
-    jsonWriter.endObject();
-  }
-
-  private void writeMetadata(JsonWriter jsonWriter, Plugin plugin) {
-    jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
-    jsonWriter.prop(PROPERTY_NAME, plugin.getName());
-    jsonWriter.prop(PROPERTY_CATEGORY, plugin.getCategory());
-    jsonWriter.prop(PROPERTY_DESCRIPTION, plugin.getDescription());
-    jsonWriter.prop(PROPERTY_LICENSE, plugin.getLicense());
-    jsonWriter.prop(PROPERTY_TERMS_AND_CONDITIONS_URL, plugin.getTermsConditionsUrl());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, plugin.getOrganization());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_URL, plugin.getOrganizationUrl());
-  }
-
-  private void writeRelease(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_RELEASE);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
-    jsonWriter.propDate(PROPERTY_DATE, release.getDate());
-    writeArchive(jsonWriter, release);
-    jsonWriter.endObject();
-  }
-
-  private void writeArchive(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_ARTIFACT);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_NAME, release.getFilename());
-    jsonWriter.prop(PROPERTY_URL, release.getDownloadUrl());
-    jsonWriter.endObject();
-  }
-
-  private void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
-    jsonWriter.name(OBJECT_UPDATE);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_STATUS, toJSon(pluginUpdate.getStatus()));
-
-    jsonWriter.name(ARRAY_REQUIRES);
-    jsonWriter.beginArray();
-    Release release = pluginUpdate.getRelease();
-    for (Plugin child : filter(transform(release.getOutgoingDependencies(), ReleaseToArtifact.INSTANCE), Plugin.class)) {
-      jsonWriter.beginObject();
-      jsonWriter.prop(PROPERTY_KEY, child.getKey());
-      jsonWriter.prop(PROPERTY_NAME, child.getName());
-      jsonWriter.prop(PROPERTY_DESCRIPTION, child.getDescription());
-      jsonWriter.endObject();
-    }
-    jsonWriter.endArray();
-
-    jsonWriter.endObject();
-  }
-
-  private static String toJSon(PluginUpdate.Status status) {
-    switch (status) {
-      case COMPATIBLE:
-        return "COMPATIBLE";
-      case INCOMPATIBLE:
-        return "INCOMPATIBLE";
-      case REQUIRE_SONAR_UPGRADE:
-        return "REQUIRES_UPGRADE";
-      case DEPENDENCIES_REQUIRE_SONAR_UPGRADE:
-        return "DEPS_REQUIRE_UPGRADE";
-      default:
-        throw new IllegalArgumentException("Unsupported value of PluginUpdate.Status " + status);
-    }
-  }
-
-  private enum ReleaseToArtifact implements Function<Release, Artifact> {
-    INSTANCE;
-
-    @Override
-    public Artifact apply(@Nullable Release input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getArtifact();
-    }
   }
 }

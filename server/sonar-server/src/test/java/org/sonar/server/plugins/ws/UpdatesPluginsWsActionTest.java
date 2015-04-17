@@ -19,26 +19,26 @@
  */
 package org.sonar.server.plugins.ws;
 
+import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.PluginUpdate;
+import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.Version;
+
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
-import static org.sonar.updatecenter.common.PluginUpdate.Status.DEPENDENCIES_REQUIRE_SONAR_UPGRADE;
-import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
-import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UPGRADE;
 
-import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
-import org.sonar.updatecenter.common.PluginUpdate;
+public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
 
-public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
-
-  private AvailablePluginsWsAction underTest = new AvailablePluginsWsAction(updateCenterFactory, new PluginWSCommons());
+  private UpdatesPluginsWsAction underTest = new UpdatesPluginsWsAction(updateCenterFactory, new PluginWSCommons());
 
   @Test
-  public void action_available_is_defined() throws Exception {
+  public void action_updatable_is_defined() throws Exception {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -46,7 +46,7 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
     newController.done();
 
     WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("available");
+    assertThat(controller.actions()).extracting("key").containsExactly("updates");
 
     WebService.Action action = controller.actions().iterator().next();
     assertThat(action.isPost()).isFalse();
@@ -63,7 +63,7 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
 
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
+    when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)
       ));
 
@@ -74,27 +74,8 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
 
   @Test
   public void status_COMPATIBLE_is_displayed_COMPATIBLE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(COMPATIBLE, "COMPATIBLE");
-  }
-
-  @Test
-  public void status_INCOMPATIBLE_is_displayed_INCOMPATIBLE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(INCOMPATIBLE, "INCOMPATIBLE");
-  }
-
-  @Test
-  public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_UPGRADE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_UPGRADE");
-  }
-
-  @Test
-  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_UPGRADE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_UPGRADE");
-  }
-
-  private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
-    when(updateCenter.findAvailablePlugins()).thenReturn(of(
-      pluginUpdate(release(PLUGIN_1, "1.0.0"), status)
+    when(updateCenter.findPluginUpdates()).thenReturn(of(
+      pluginUpdate(release(PLUGIN_1, "1.0.0"), COMPATIBLE)
       ));
 
     underTest.handle(request, response);
@@ -104,7 +85,7 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
         "  \"plugins\": [" +
         "    {" +
         "      \"update\": {" +
-        "        \"status\": \"" + expectedValue + "\"" +
+        "        \"status\": \"COMPATIBLE\"" +
         "      }" +
         "    }" +
         "  ]" +
@@ -112,4 +93,46 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
       );
   }
 
+  @Test
+  public void plugins_are_sorted_by_name_then_key_and_made_unique() throws Exception {
+    when(updateCenter.findPluginUpdates()).thenReturn(of(
+      pluginUpdate("key2", "name2"),
+      pluginUpdate("key1", "name2"),
+      pluginUpdate("key2", "name2"),
+      pluginUpdate("key0", "name0"),
+      pluginUpdate("key1", "name1")
+      ));
+
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+      "{" +
+        "  \"plugins\": [" +
+        "    {" +
+        "      \"key\": \"key0\"," +
+        "      \"name\": \"name0\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key1\"," +
+        "      \"name\": \"name1\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key1\"," +
+        "      \"name\": \"name2\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key2\"," +
+        "      \"name\": \"name2\"," +
+        "    }," +
+        "  ]" +
+        "}"
+      );
+  }
+
+  private static PluginUpdate pluginUpdate(String key, String name) {
+    return PluginUpdate.createWithStatus(
+      new Release(new Plugin(key).setName(name), Version.create("1.0")),
+      COMPATIBLE
+      );
+  }
 }

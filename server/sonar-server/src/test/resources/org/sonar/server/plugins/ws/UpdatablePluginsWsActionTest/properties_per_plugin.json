@@ -1,0 +1,36 @@
+{
+  "plugins": [
+    {
+      "key": "p_key",
+      "name": "p_name",
+      "category": "p_category",
+      "description": "p_description",
+      "license": "p_license",
+      "organizationName": "p_orga_name",
+      "organizationUrl": "p_orga_url",
+      "termsAndConditionsUrl": "p_t_and_c_url",
+      "release": {
+        "version": "1.12.1",
+        "date": "2015-04-16",
+        "artifact": {
+          "name": "p_file.jar",
+          "url": "http://p_file.jar"
+        }
+      },
+      "update": {
+        "status": "COMPATIBLE",
+        "requires": [
+          {
+            "key": "p_key_1",
+            "name": "p_name_1"
+          },
+          {
+            "key": "p_key_2",
+            "name": "p_name_2",
+            "description": "p_desc_2"
+          }
+        ]
+      }
+    }
+  ]
+}
