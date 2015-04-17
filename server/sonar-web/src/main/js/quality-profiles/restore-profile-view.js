@@ -20,8 +20,9 @@
 define([
   'common/modal-form',
   'common/file-upload',
+  'quality-profiles/profile',
   'templates/quality-profiles'
-], function (ModalFormView, uploader) {
+], function (ModalFormView, uploader, Profile) {
 
   var $ = jQuery;
 
@@ -31,21 +32,23 @@ define([
     onFormSubmit: function (e) {
       var that = this;
       ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-      this.disableForm();
       uploader({ form: $(e.currentTarget) }).done(function (r) {
         if (_.isArray(r.errors) || _.isArray(r.warnings)) {
           that.showErrors(r.errors, r.warnings);
-          that.enableForm();
         } else {
-          that.collection.fetch().done(function () {
-            var profile = that.collection.findWhere({ key: r.profile.key });
-            if (profile != null) {
-              profile.trigger('select', profile);
-            }
-          });
+          that.addProfile(r.profile);
           that.close();
         }
       });
+    },
+
+    addProfile: function (profileData) {
+      var profile = new Profile(profileData);
+      this.collection.add([profile], { merge: true });
+      var addedProfile = this.collection.get(profile.id);
+      if (addedProfile != null) {
+        addedProfile.trigger('select', addedProfile);
+      }
     }
   });
 

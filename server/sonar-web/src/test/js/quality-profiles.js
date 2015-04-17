@@ -566,6 +566,53 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
 });
 
 
+casper.test.begin(testName('Restore Profile'), 2, function (test) {
+  casper
+      .start(lib.buildUrl('profiles'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
+        this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/rules/search', 'rules.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+          jQuery.ajaxSetup({ dataType: 'json' });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        test.assertElementCount('.js-list .list-group-item', 5);
+        casper.click('#quality-profiles-restore');
+        casper.waitForSelector('.modal');
+      })
+
+      .then(function () {
+        casper.click('#restore-profile-submit');
+        lib.waitForElementCount('.js-list .list-group-item', 6);
+      })
+
+      .then(function () {
+        test.assert(true);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Importers'), 6, function (test) {
   casper
       .start(lib.buildUrl('profiles'), function () {
