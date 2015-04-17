@@ -35,6 +35,8 @@ import java.sql.SQLException;
 
 public class DatabaseChecker implements ServerComponent, Startable {
 
+  public static final int ORACLE_MIN_MAJOR_VERSION = 11;
+
   private final Database db;
 
   public DatabaseChecker(Database db) {
@@ -65,9 +67,9 @@ public class DatabaseChecker implements ServerComponent, Startable {
       // check version of db
       // See http://jira.codehaus.org/browse/SONAR-6434
       int majorVersion = connection.getMetaData().getDatabaseMajorVersion();
-      if (majorVersion < 11) {
+      if (majorVersion < ORACLE_MIN_MAJOR_VERSION) {
         throw MessageException.of(String.format(
-          "Unsupported Oracle version: %s. Minimal required version is 11g.", connection.getMetaData().getDatabaseProductVersion()));
+          "Unsupported Oracle version: %s. Minimal required version is %d.", connection.getMetaData().getDatabaseProductVersion(), ORACLE_MIN_MAJOR_VERSION));
       }
 
       // check version of driver

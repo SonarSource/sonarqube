@@ -85,7 +85,7 @@ public class DatabaseCheckerTest {
       new DatabaseChecker(db).start();
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported Oracle version: 10.2.1. Minimal required version is 11g.");
+      assertThat(e).hasMessage("Unsupported Oracle version: 10.2.1. Minimal required version is 11.");
     }
   }
 
