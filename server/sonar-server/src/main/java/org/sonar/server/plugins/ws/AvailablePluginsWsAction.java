@@ -47,7 +47,7 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
   private static final String PROPERTY_URL = "url";
   private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
   private static final String OBJECT_UPDATE = "update";
-  private static final String OBJECT_ARCHIVE = "archive";
+  private static final String OBJECT_ARTIFACT = "artifact";
   private static final String OBJECT_RELEASE = "release";
   private static final String PROPERTY_VERSION = "version";
   private static final String PROPERTY_DATE = "date";
@@ -128,7 +128,7 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
   }
 
   private void writeArchive(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_ARCHIVE);
+    jsonWriter.name(OBJECT_ARTIFACT);
     jsonWriter.beginObject();
     jsonWriter.prop(PROPERTY_NAME, release.getFilename());
     jsonWriter.prop(PROPERTY_URL, release.getDownloadUrl());

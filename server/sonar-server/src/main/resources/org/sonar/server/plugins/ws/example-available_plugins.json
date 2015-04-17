@@ -12,7 +12,7 @@
       "release": {
         "version": "3.2",
         "date": "2015-03-10",
-        "archive": {
+        "artifact": {
           "name": "sonar-abap-plugin-3.2.jar",
           "url": "http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar"
         }
@@ -33,7 +33,7 @@
       "release": {
         "version": "1.0",
         "date": "2014-03-31",
-        "archive": {
+        "artifact": {
           "name": "sonar-android-plugin-1.0.jar",
           "url": "http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar"
         }
