@@ -74,7 +74,7 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private void writeInstalling(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_INSTALLING);
     jsonWriter.beginArray();
-    for (String fileName : copyOf(CASE_INSENSITIVE_ORDER, pluginDownloader.getDownloads())) {
+    for (String fileName : copyOf(CASE_INSENSITIVE_ORDER, pluginDownloader.getDownloadedPluginFilenames())) {
       writeArchive(jsonWriter, fileName);
     }
     jsonWriter.endArray();

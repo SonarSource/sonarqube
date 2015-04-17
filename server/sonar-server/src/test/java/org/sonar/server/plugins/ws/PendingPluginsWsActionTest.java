@@ -74,7 +74,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    when(pluginDownloader.getDownloads()).thenReturn(of("installed_file.jar"));
+    when(pluginDownloader.getDownloadedPluginFilenames()).thenReturn(of("installed_file.jar"));
 
     underTest.handle(request, response);
 
@@ -116,7 +116,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void installing_plugin_are_sorted_and_unique() throws Exception {
-    when(pluginDownloader.getDownloads()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
+    when(pluginDownloader.getDownloadedPluginFilenames()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
 
     underTest.handle(request, response);
 

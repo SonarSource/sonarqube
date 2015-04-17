@@ -20,12 +20,12 @@
 package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.HttpDownloader;
+import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
@@ -38,6 +38,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.commons.io.FileUtils.cleanDirectory;
+import static org.apache.commons.io.FileUtils.copyFile;
+import static org.apache.commons.io.FileUtils.copyFileToDirectory;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static org.apache.commons.io.FileUtils.forceMkdir;
+import static org.apache.commons.io.FileUtils.toFile;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+
 public class PluginDownloader implements Startable {
 
   private static final Logger LOG = Loggers.get(PluginDownloader.class);
@@ -46,12 +56,14 @@ public class PluginDownloader implements Startable {
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final HttpDownloader downloader;
+  private final ServerPluginJarInstaller installer;
   private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader,
-    DefaultServerFileSystem fileSystem) {
+                          DefaultServerFileSystem fileSystem, ServerPluginJarInstaller installer) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
+    this.installer = installer;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
   }
 
@@ -63,12 +75,10 @@ public class PluginDownloader implements Startable {
   @Override
   public void start() {
     try {
-      FileUtils.forceMkdir(downloadDir);
-      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[] {TMP_SUFFIX}, false);
-      for (File tempFile : tempFiles) {
-        FileUtils.deleteQuietly(tempFile);
+      forceMkdir(downloadDir);
+      for (File tempFile : listTempFile(this.downloadDir)) {
+        deleteQuietly(tempFile);
       }
-
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create the directory: " + downloadDir, e);
     }
@@ -82,7 +92,7 @@ public class PluginDownloader implements Startable {
   public void cancelDownloads() {
     try {
       if (downloadDir.exists()) {
-        FileUtils.cleanDirectory(downloadDir);
+        cleanDirectory(downloadDir);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Fail to clean the plugin downloads directory: " + downloadDir, e);
@@ -90,16 +100,22 @@ public class PluginDownloader implements Startable {
   }
 
   public boolean hasDownloads() {
-    return !getDownloads().isEmpty();
+    return !getDownloadedPluginFilenames().isEmpty();
   }
 
-  public List<String> getDownloads() {
-    List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] {PLUGIN_EXTENSION}, false);
-    for (File file : files) {
+  public List<String> getDownloadedPluginFilenames() {
+    List<String> names = new ArrayList<>();
+    for (File file : listPlugins(this.downloadDir)) {
       names.add(file.getName());
     }
     return names;
+  }
+
+  /**
+   * @return the list of download plugins as {@link DefaultPluginMetadata} instances
+   */
+  public Collection<DefaultPluginMetadata> getDownloadedPlugins() {
+    return newArrayList(transform(listPlugins(this.downloadDir), installer.fileToPlugin(false)));
   }
 
   public void download(String pluginKey, Version version) {
@@ -122,18 +138,26 @@ public class PluginDownloader implements Startable {
     URI uri = new URI(url);
     if (url.startsWith("file:")) {
       // used for tests
-      File file = FileUtils.toFile(uri.toURL());
-      FileUtils.copyFileToDirectory(file, downloadDir);
+      File file = toFile(uri.toURL());
+      copyFileToDirectory(file, downloadDir);
     } else {
-      String filename = StringUtils.substringAfterLast(uri.getPath(), "/");
+      String filename = substringAfterLast(uri.getPath(), "/");
       if (!filename.endsWith("." + PLUGIN_EXTENSION)) {
         filename = release.getKey() + "-" + release.getVersion() + "." + PLUGIN_EXTENSION;
       }
       File targetFile = new File(downloadDir, filename);
       File tempFile = new File(downloadDir, filename + "." + TMP_SUFFIX);
       downloader.download(uri, tempFile);
-      FileUtils.copyFile(tempFile, targetFile);
-      FileUtils.deleteQuietly(tempFile);
+      copyFile(tempFile, targetFile);
+      deleteQuietly(tempFile);
     }
+  }
+
+  private static Collection<File> listTempFile(File dir) {
+    return FileUtils.listFiles(dir, new String[]{TMP_SUFFIX}, false);
+  }
+
+  private static Collection<File> listPlugins(File dir) {
+    return FileUtils.listFiles(dir, new String[]{PLUGIN_EXTENSION}, false);
   }
 }

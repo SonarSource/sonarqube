@@ -141,7 +141,7 @@ public final class JRubyFacade {
   }
 
   public List<String> getPluginDownloads() {
-    return get(PluginDownloader.class).getDownloads();
+    return get(PluginDownloader.class).getDownloadedPluginFilenames();
   }
 
   public void uninstallPlugin(String pluginKey) {

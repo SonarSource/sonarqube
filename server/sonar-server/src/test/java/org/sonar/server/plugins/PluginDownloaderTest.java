@@ -19,8 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,16 +29,21 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
-import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.commons.io.FileUtils.copyFileToDirectory;
+import static org.apache.commons.io.FileUtils.touch;
+import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -52,6 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.updatecenter.common.Version.create;
 
 public class PluginDownloaderTest {
 
@@ -62,6 +66,7 @@ public class PluginDownloaderTest {
   UpdateCenter updateCenter;
   HttpDownloader httpDownloader;
   PluginDownloader pluginDownloader;
+  ServerPluginJarInstaller installer;
 
   @Before
   public void before() throws Exception {
@@ -74,7 +79,7 @@ public class PluginDownloaderTest {
       @Override
       public Object answer(InvocationOnMock inv) throws Throwable {
         File toFile = (File) inv.getArguments()[1];
-        FileUtils.touch(toFile);
+        touch(toFile);
         return null;
       }
     }).when(httpDownloader).download(any(URI.class), any(File.class));
@@ -83,7 +88,8 @@ public class PluginDownloaderTest {
     downloadDir = testFolder.newFolder("downloads");
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
 
-    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
+    installer = new ServerPluginJarInstaller();
+    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem, installer);
   }
 
   @After
@@ -93,8 +99,8 @@ public class PluginDownloaderTest {
 
   @Test
   public void clean_temporary_files_at_startup() throws Exception {
-    FileUtils.touch(new File(downloadDir, "sonar-php.jar"));
-    FileUtils.touch(new File(downloadDir, "sonar-js.jar.tmp"));
+    touch(new File(downloadDir, "sonar-php.jar"));
+    touch(new File(downloadDir, "sonar-js.jar.tmp"));
     assertThat(downloadDir.listFiles()).hasSize(2);
     pluginDownloader.start();
 
@@ -109,10 +115,10 @@ public class PluginDownloaderTest {
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
 
-    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
 
     pluginDownloader.start();
-    pluginDownloader.download("foo", Version.create("1.0"));
+    pluginDownloader.download("foo", create("1.0"));
 
     // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
     // The JAR file is downloaded in a temp file
@@ -130,10 +136,10 @@ public class PluginDownloaderTest {
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
     test.addRelease(test10);
 
-    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
 
     pluginDownloader.start();
-    pluginDownloader.download("foo", Version.create("1.0"));
+    pluginDownloader.download("foo", create("1.0"));
 
     // SONAR-4523: do not corrupt JAR files when restarting the server while a plugin is being downloaded.
     // The JAR file is downloaded in a temp file
@@ -149,7 +155,7 @@ public class PluginDownloaderTest {
     File downloadDir = testFolder.newFile();
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
 
-    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
+    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem, installer);
     try {
       pluginDownloader.start();
       fail();
@@ -163,13 +169,13 @@ public class PluginDownloaderTest {
     Plugin test = new Plugin("test");
     File file = testFolder.newFile("test-1.0.jar");
     file.createNewFile();
-    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
+    Release test10 = new Release(test, "1.0").setDownloadUrl("file://" + separatorsToUnix(file.getCanonicalPath()));
     test.addRelease(test10);
 
-    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
 
     pluginDownloader.start();
-    pluginDownloader.download("foo", Version.create("1.0"));
+    pluginDownloader.download("foo", create("1.0"));
     verify(httpDownloader, never()).download(any(URI.class), any(File.class));
     assertThat(pluginDownloader.hasDownloads()).isTrue();
   }
@@ -180,11 +186,11 @@ public class PluginDownloaderTest {
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://not_found");
     test.addRelease(test10);
 
-    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
 
     pluginDownloader.start();
     try {
-      pluginDownloader.download("foo", Version.create("1.0"));
+      pluginDownloader.download("foo", create("1.0"));
       fail();
     } catch (SonarException e) {
       // ok
@@ -196,13 +202,13 @@ public class PluginDownloaderTest {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
-    when(updateCenter.findInstallablePlugins("foo", Version.create("1.0"))).thenReturn(newArrayList(test10));
+    when(updateCenter.findInstallablePlugins("foo", create("1.0"))).thenReturn(newArrayList(test10));
 
     doThrow(new RuntimeException()).when(httpDownloader).download(any(URI.class), any(File.class));
 
     pluginDownloader.start();
     try {
-      pluginDownloader.download("foo", Version.create("1.0"));
+      pluginDownloader.download("foo", create("1.0"));
       fail();
     } catch (SonarException e) {
       // ok
@@ -212,14 +218,37 @@ public class PluginDownloaderTest {
   @Test
   public void read_download_folder() throws Exception {
     pluginDownloader.start();
-    assertThat(pluginDownloader.getDownloads()).hasSize(0);
+    assertThat(pluginDownloader.getDownloadedPluginFilenames()).hasSize(0);
+
+    copyFileToDirectory(new File(resource("foo-plugin-1.0.jar")), downloadDir);
+
+    assertThat(pluginDownloader.getDownloadedPlugins()).hasSize(1);
+    DefaultPluginMetadata metadata = pluginDownloader.getDownloadedPlugins().iterator().next();
+    assertThat(metadata.getKey()).isEqualTo("foo");
+    assertThat(metadata.getName()).isEqualTo("Foo");
+    assertThat(metadata.getVersion()).isEqualTo("1.0");
+    assertThat(metadata.getOrganization()).isEqualTo("SonarSource");
+    assertThat(metadata.getOrganizationUrl()).isEqualTo("http://www.sonarsource.org");
+    assertThat(metadata.getLicense()).isEqualTo("LGPL 3");
+    assertThat(metadata.getMainClass()).isEqualTo("foo.Main");
+  }
+
+  private URI resource(String fileName) throws URISyntaxException {
+    URL resource = getClass().getResource(getClass().getSimpleName() + "/" + fileName);
+    return resource.toURI();
+  }
+
+  @Test
+  public void getDownloadedPluginFilenames_reads_plugin_metadata_of_files_in_download_folder() throws Exception {
+    pluginDownloader.start();
+    assertThat(pluginDownloader.getDownloadedPlugins()).hasSize(0);
 
     File file1 = new File(downloadDir, "file1.jar");
     file1.createNewFile();
     File file2 = new File(downloadDir, "file2.jar");
     file2.createNewFile();
 
-    assertThat(pluginDownloader.getDownloads()).hasSize(2);
+    assertThat(pluginDownloader.getDownloadedPluginFilenames()).hasSize(2);
   }
 
   @Test
@@ -250,12 +279,12 @@ public class PluginDownloaderTest {
     Release testDepR = new Release(testDep, "1.0").setDownloadUrl("http://server/testdep-1.0.jar");
     testDep.addRelease(testDepR);
 
-    when(updateCenter.findInstallablePlugins("test1", Version.create("1.0"))).thenReturn(newArrayList(test1R, testDepR));
-    when(updateCenter.findInstallablePlugins("test2", Version.create("1.0"))).thenReturn(newArrayList(test2R, testDepR));
+    when(updateCenter.findInstallablePlugins("test1", create("1.0"))).thenReturn(newArrayList(test1R, testDepR));
+    when(updateCenter.findInstallablePlugins("test2", create("1.0"))).thenReturn(newArrayList(test2R, testDepR));
 
     pluginDownloader.start();
-    pluginDownloader.download("test1", Version.create("1.0"));
-    pluginDownloader.download("test2", Version.create("1.0"));
+    pluginDownloader.download("test1", create("1.0"));
+    pluginDownloader.download("test2", create("1.0"));
 
     assertThat(new File(downloadDir, "test1-1.0.jar")).exists();
     assertThat(new File(downloadDir, "test2-1.0.jar")).exists();
