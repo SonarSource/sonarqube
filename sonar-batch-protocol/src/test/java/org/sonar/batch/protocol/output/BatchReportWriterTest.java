@@ -169,23 +169,23 @@ public class BatchReportWriterTest {
 
   @Test
   public void write_scm() throws Exception {
-    assertThat(sut.hasComponentData(FileStructure.Domain.SCM, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isFalse();
 
-    BatchReport.Scm scm = BatchReport.Scm.newBuilder()
+    BatchReport.Changesets scm = BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangesetIndexByLine(0)
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setRevision("123-456-789")
         .setAuthor("author")
         .setDate(123_456_789L))
       .build();
 
-    sut.writeComponentScm(scm);
+    sut.writeComponentChangesets(scm);
 
-    assertThat(sut.hasComponentData(FileStructure.Domain.SCM, 1)).isTrue();
-    File file = sut.getFileStructure().fileFor(FileStructure.Domain.SCM, 1);
+    assertThat(sut.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isTrue();
+    File file = sut.getFileStructure().fileFor(FileStructure.Domain.CHANGESETS, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Scm read = ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+    BatchReport.Changesets read = ProtobufUtil.readFile(file, BatchReport.Changesets.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getChangesetCount()).isEqualTo(1);
     assertThat(read.getChangesetList()).hasSize(1);
@@ -259,7 +259,7 @@ public class BatchReportWriterTest {
   @Test
   public void write_syntax_highlighting() throws Exception {
     // no data yet
-    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isFalse();
 
     sut.writeComponentSyntaxHighlighting(1, Arrays.asList(
       BatchReport.SyntaxHighlighting.newBuilder()
@@ -271,13 +271,13 @@ public class BatchReportWriterTest {
         .build()
       ));
 
-    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTING, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isTrue();
   }
 
   @Test
   public void write_coverage() throws Exception {
     // no data yet
-    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isFalse();
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();
 
     sut.writeComponentCoverage(1, Arrays.asList(
       BatchReport.Coverage.newBuilder()
@@ -291,7 +291,7 @@ public class BatchReportWriterTest {
         .build()
       ));
 
-    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE, 1)).isTrue();
+    assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
   }
 
   @Test

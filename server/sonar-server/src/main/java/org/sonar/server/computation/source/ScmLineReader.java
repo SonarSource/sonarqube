@@ -25,15 +25,15 @@ import org.sonar.server.source.db.FileSourceDb;
 
 public class ScmLineReader implements LineReader {
 
-  private final BatchReport.Scm scmReport;
+  private final BatchReport.Changesets scmReport;
 
-  public ScmLineReader(BatchReport.Scm scmReport) {
+  public ScmLineReader(BatchReport.Changesets scmReport) {
     this.scmReport = scmReport;
   }
   @Override
   public void read(FileSourceDb.Line.Builder lineBuilder) {
     int changeSetIndex = scmReport.getChangesetIndexByLine(lineBuilder.getLine() - 1);
-    BatchReport.Scm.Changeset changeset = scmReport.getChangeset(changeSetIndex);
+    BatchReport.Changesets.Changeset changeset = scmReport.getChangeset(changeSetIndex);
     boolean hasAuthor = changeset.hasAuthor();
     if (hasAuthor) {
       lineBuilder.setScmAuthor(changeset.getAuthor());

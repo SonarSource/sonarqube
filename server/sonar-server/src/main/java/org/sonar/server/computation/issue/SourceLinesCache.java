@@ -21,8 +21,8 @@ package org.sonar.server.computation.issue;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -52,7 +52,7 @@ public class SourceLinesCache {
   private BatchReportReader reportReader;
 
   private boolean loaded = false;
-  private BatchReport.Scm scm;
+  private BatchReport.Changesets scm;
   private String currentFileUuid;
   private Integer currentFileReportRef;
 
@@ -90,7 +90,7 @@ public class SourceLinesCache {
     }
     String author = null;
     if (lineIndex < scm.getChangesetIndexByLineCount()) {
-      BatchReport.Scm.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineIndex));
+      BatchReport.Changesets.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineIndex));
       author = changeset.hasAuthor() ? changeset.getAuthor() : null;
     }
 
@@ -113,19 +113,19 @@ public class SourceLinesCache {
     computeLastCommitDateAndAuthor();
   }
 
-  private BatchReport.Scm loadScmFromReport() {
-    return reportReader.readComponentScm(currentFileReportRef);
+  private BatchReport.Changesets loadScmFromReport() {
+    return reportReader.readChangesets(currentFileReportRef);
   }
 
-  private BatchReport.Scm loadLinesFromIndexAndBuildScm() {
+  private BatchReport.Changesets loadLinesFromIndexAndBuildScm() {
     List<SourceLineDoc> lines = index.getLines(currentFileUuid);
-    Map<String, BatchReport.Scm.Changeset> changesetByRevision = new HashMap<>();
-    BatchReport.Scm.Builder scmBuilder = BatchReport.Scm.newBuilder()
+    Map<String, BatchReport.Changesets.Changeset> changesetByRevision = new HashMap<>();
+    BatchReport.Changesets.Builder scmBuilder = BatchReport.Changesets.newBuilder()
       .setComponentRef(currentFileReportRef);
     for (SourceLineDoc sourceLine : lines) {
       String scmRevision = sourceLine.scmRevision();
       if (scmRevision == null || changesetByRevision.get(scmRevision) == null) {
-        Builder changeSetBuilder = BatchReport.Scm.Changeset.newBuilder();
+        Builder changeSetBuilder = BatchReport.Changesets.Changeset.newBuilder();
         String scmAuthor = sourceLine.scmAuthor();
         if (scmAuthor != null) {
           changeSetBuilder.setAuthor(scmAuthor);
@@ -152,7 +152,7 @@ public class SourceLinesCache {
   }
 
   private void computeLastCommitDateAndAuthor() {
-    for (BatchReport.Scm.Changeset changeset : scm.getChangesetList()) {
+    for (BatchReport.Changesets.Changeset changeset : scm.getChangesetList()) {
       if (changeset.hasAuthor() && changeset.hasDate() && changeset.getDate() > lastCommitDate) {
         lastCommitDate = changeset.getDate();
         lastCommitAuthor = changeset.getAuthor();

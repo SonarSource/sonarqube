@@ -29,7 +29,7 @@ import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Builder;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Builder;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.util.ProgressReport;
 
@@ -76,7 +76,7 @@ class DefaultBlameOutput implements BlameOutput {
     }
 
     BatchResource batchComponent = componentCache.get(file);
-    Builder scmBuilder = BatchReport.Scm.newBuilder();
+    Builder scmBuilder = BatchReport.Changesets.newBuilder();
     scmBuilder.setComponentRef(batchComponent.batchId());
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();
 
@@ -93,14 +93,14 @@ class DefaultBlameOutput implements BlameOutput {
         addChangeset(scmBuilder, line);
       }
     }
-    writer.writeComponentScm(scmBuilder.build());
+    writer.writeComponentChangesets(scmBuilder.build());
     allFilesToBlame.remove(file);
     count++;
     progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
   }
 
   private void addChangeset(Builder scmBuilder, BlameLine line) {
-    BatchReport.Scm.Changeset.Builder changesetBuilder = BatchReport.Scm.Changeset.newBuilder();
+    BatchReport.Changesets.Changeset.Builder changesetBuilder = BatchReport.Changesets.Changeset.newBuilder();
     if (StringUtils.isNotBlank(line.revision())) {
       changesetBuilder.setRevision(line.revision());
     }

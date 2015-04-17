@@ -61,7 +61,7 @@ public class SourceLinesCacheTest {
   @Test
   public void line_author_from_report() throws Exception {
     BatchReportWriter reportWriter = new BatchReportWriter(dir);
-    reportWriter.writeComponentScm(BatchReport.Scm.newBuilder()
+    reportWriter.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(123_456_789)
       .addChangeset(newChangeset("charb", "123-456-789", 123_456_789L))
       .addChangeset(newChangeset("wolinski", "987-654-321", 987_654_321L))
@@ -106,8 +106,8 @@ public class SourceLinesCacheTest {
     sut.lineAuthor(0);
   }
 
-  private BatchReport.Scm.Changeset.Builder newChangeset(String author, String revision, long date) {
-    return BatchReport.Scm.Changeset.newBuilder()
+  private BatchReport.Changesets.Changeset.Builder newChangeset(String author, String revision, long date) {
+    return BatchReport.Changesets.Changeset.newBuilder()
       .setAuthor(author)
       .setRevision(revision)
       .setDate(date);

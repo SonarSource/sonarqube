@@ -12984,8 +12984,8 @@ public final class BatchReport {
     // @@protoc_insertion_point(class_scope:Issues)
   }
 
-  public interface ScmOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:Scm)
+  public interface ChangesetsOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:Changesets)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -12998,34 +12998,34 @@ public final class BatchReport {
     int getComponentRef();
 
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> 
+    java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> 
         getChangesetList();
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index);
+    org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getChangeset(int index);
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
     int getChangesetCount();
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+    java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> 
         getChangesetOrBuilderList();
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+    org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder getChangesetOrBuilder(
         int index);
 
     /**
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     java.util.List<java.lang.Integer> getChangesetIndexByLineList();
@@ -13033,7 +13033,7 @@ public final class BatchReport {
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     int getChangesetIndexByLineCount();
@@ -13041,31 +13041,31 @@ public final class BatchReport {
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     int getChangesetIndexByLine(int index);
   }
   /**
-   * Protobuf type {@code Scm}
+   * Protobuf type {@code Changesets}
    */
-  public static final class Scm extends
+  public static final class Changesets extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:Scm)
-      ScmOrBuilder {
-    // Use Scm.newBuilder() to construct.
-    private Scm(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:Changesets)
+      ChangesetsOrBuilder {
+    // Use Changesets.newBuilder() to construct.
+    private Changesets(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
       this.unknownFields = builder.getUnknownFields();
     }
-    private Scm(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+    private Changesets(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    private static final Scm defaultInstance;
-    public static Scm getDefaultInstance() {
+    private static final Changesets defaultInstance;
+    public static Changesets getDefaultInstance() {
       return defaultInstance;
     }
 
-    public Scm getDefaultInstanceForType() {
+    public Changesets getDefaultInstanceForType() {
       return defaultInstance;
     }
 
@@ -13075,7 +13075,7 @@ public final class BatchReport {
         getUnknownFields() {
       return this.unknownFields;
     }
-    private Scm(
+    private Changesets(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -13105,10 +13105,10 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset>();
+                changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              changeset_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.PARSER, extensionRegistry));
+              changeset_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.PARSER, extensionRegistry));
               break;
             }
             case 24: {
@@ -13152,33 +13152,33 @@ public final class BatchReport {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_fieldAccessorTable
+      return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              org.sonar.batch.protocol.output.BatchReport.Scm.class, org.sonar.batch.protocol.output.BatchReport.Scm.Builder.class);
+              org.sonar.batch.protocol.output.BatchReport.Changesets.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<Scm> PARSER =
-        new com.google.protobuf.AbstractParser<Scm>() {
-      public Scm parsePartialFrom(
+    public static com.google.protobuf.Parser<Changesets> PARSER =
+        new com.google.protobuf.AbstractParser<Changesets>() {
+      public Changesets parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Scm(input, extensionRegistry);
+        return new Changesets(input, extensionRegistry);
       }
     };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<Scm> getParserForType() {
+    public com.google.protobuf.Parser<Changesets> getParserForType() {
       return PARSER;
     }
 
     public interface ChangesetOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:Scm.Changeset)
+        // @@protoc_insertion_point(interface_extends:Changesets.Changeset)
         com.google.protobuf.MessageOrBuilder {
 
       /**
@@ -13219,11 +13219,11 @@ public final class BatchReport {
       long getDate();
     }
     /**
-     * Protobuf type {@code Scm.Changeset}
+     * Protobuf type {@code Changesets.Changeset}
      */
     public static final class Changeset extends
         com.google.protobuf.GeneratedMessage implements
-        // @@protoc_insertion_point(message_implements:Scm.Changeset)
+        // @@protoc_insertion_point(message_implements:Changesets.Changeset)
         ChangesetOrBuilder {
       // Use Changeset.newBuilder() to construct.
       private Changeset(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -13301,14 +13301,14 @@ public final class BatchReport {
       }
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_Changeset_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_fieldAccessorTable
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_Changeset_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder.class);
+                org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder.class);
       }
 
       public static com.google.protobuf.Parser<Changeset> PARSER =
@@ -13486,53 +13486,53 @@ public final class BatchReport {
         return super.writeReplace();
       }
 
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           com.google.protobuf.ByteString data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           com.google.protobuf.ByteString data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(byte[] data)
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(byte[] data)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           byte[] data,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(java.io.InputStream input)
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(java.io.InputStream input)
           throws java.io.IOException {
         return PARSER.parseFrom(input);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return PARSER.parseFrom(input, extensionRegistry);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseDelimitedFrom(java.io.InputStream input)
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseDelimitedFrom(java.io.InputStream input)
           throws java.io.IOException {
         return PARSER.parseDelimitedFrom(input);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseDelimitedFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseDelimitedFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         return PARSER.parseDelimitedFrom(input, extensionRegistry);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           com.google.protobuf.CodedInputStream input)
           throws java.io.IOException {
         return PARSER.parseFrom(input);
       }
-      public static org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parseFrom(
+      public static org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parseFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
@@ -13541,7 +13541,7 @@ public final class BatchReport {
 
       public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset prototype) {
+      public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset prototype) {
         return newBuilder().mergeFrom(prototype);
       }
       public Builder toBuilder() { return newBuilder(this); }
@@ -13553,25 +13553,25 @@ public final class BatchReport {
         return builder;
       }
       /**
-       * Protobuf type {@code Scm.Changeset}
+       * Protobuf type {@code Changesets.Changeset}
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:Scm.Changeset)
-          org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder {
+          // @@protoc_insertion_point(builder_implements:Changesets.Changeset)
+          org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
-          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_Changeset_descriptor;
         }
 
         protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
             internalGetFieldAccessorTable() {
-          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_fieldAccessorTable
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_Changeset_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
-                  org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder.class);
+                  org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder.class);
         }
 
-        // Construct using org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.newBuilder()
+        // Construct using org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
         }
@@ -13606,23 +13606,23 @@ public final class BatchReport {
 
         public com.google.protobuf.Descriptors.Descriptor
             getDescriptorForType() {
-          return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_Changeset_descriptor;
+          return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_Changeset_descriptor;
         }
 
-        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getDefaultInstanceForType() {
-          return org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance();
+        public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getDefaultInstanceForType() {
+          return org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.getDefaultInstance();
         }
 
-        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset build() {
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset result = buildPartial();
+        public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset build() {
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset result = buildPartial();
           if (!result.isInitialized()) {
             throw newUninitializedMessageException(result);
           }
           return result;
         }
 
-        public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset buildPartial() {
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset result = new org.sonar.batch.protocol.output.BatchReport.Scm.Changeset(this);
+        public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset buildPartial() {
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset result = new org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset(this);
           int from_bitField0_ = bitField0_;
           int to_bitField0_ = 0;
           if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -13643,16 +13643,16 @@ public final class BatchReport {
         }
 
         public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof org.sonar.batch.protocol.output.BatchReport.Scm.Changeset) {
-            return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Scm.Changeset)other);
+          if (other instanceof org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset) {
+            return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset)other);
           } else {
             super.mergeFrom(other);
             return this;
           }
         }
 
-        public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset other) {
-          if (other == org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance()) return this;
+        public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset other) {
+          if (other == org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.getDefaultInstance()) return this;
           if (other.hasRevision()) {
             bitField0_ |= 0x00000001;
             revision_ = other.revision_;
@@ -13678,11 +13678,11 @@ public final class BatchReport {
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws java.io.IOException {
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset parsedMessage = null;
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset parsedMessage = null;
           try {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Scm.Changeset) e.getUnfinishedMessage();
+            parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset) e.getUnfinishedMessage();
             throw e;
           } finally {
             if (parsedMessage != null) {
@@ -13877,7 +13877,7 @@ public final class BatchReport {
           return this;
         }
 
-        // @@protoc_insertion_point(builder_scope:Scm.Changeset)
+        // @@protoc_insertion_point(builder_scope:Changesets.Changeset)
       }
 
       static {
@@ -13885,7 +13885,7 @@ public final class BatchReport {
         defaultInstance.initFields();
       }
 
-      // @@protoc_insertion_point(class_scope:Scm.Changeset)
+      // @@protoc_insertion_point(class_scope:Changesets.Changeset)
     }
 
     private int bitField0_;
@@ -13905,36 +13905,36 @@ public final class BatchReport {
     }
 
     public static final int CHANGESET_FIELD_NUMBER = 2;
-    private java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> changeset_;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> changeset_;
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> getChangesetList() {
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> getChangesetList() {
       return changeset_;
     }
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> 
         getChangesetOrBuilderList() {
       return changeset_;
     }
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
     public int getChangesetCount() {
       return changeset_.size();
     }
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index) {
+    public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getChangeset(int index) {
       return changeset_.get(index);
     }
     /**
-     * <code>repeated .Scm.Changeset changeset = 2;</code>
+     * <code>repeated .Changesets.Changeset changeset = 2;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+    public org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder getChangesetOrBuilder(
         int index) {
       return changeset_.get(index);
     }
@@ -13945,7 +13945,7 @@ public final class BatchReport {
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     public java.util.List<java.lang.Integer>
@@ -13956,7 +13956,7 @@ public final class BatchReport {
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     public int getChangesetIndexByLineCount() {
@@ -13966,7 +13966,7 @@ public final class BatchReport {
      * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
      *
      * <pre>
-     * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+     * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
      * </pre>
      */
     public int getChangesetIndexByLine(int index) {
@@ -14048,53 +14048,53 @@ public final class BatchReport {
       return super.writeReplace();
     }
 
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(byte[] data)
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(java.io.InputStream input)
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseFrom(input, extensionRegistry);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseDelimitedFrom(java.io.InputStream input)
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseDelimitedFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return PARSER.parseFrom(input);
     }
-    public static org.sonar.batch.protocol.output.BatchReport.Scm parseFrom(
+    public static org.sonar.batch.protocol.output.BatchReport.Changesets parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -14103,7 +14103,7 @@ public final class BatchReport {
 
     public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Scm prototype) {
+    public static Builder newBuilder(org.sonar.batch.protocol.output.BatchReport.Changesets prototype) {
       return newBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() { return newBuilder(this); }
@@ -14115,25 +14115,25 @@ public final class BatchReport {
       return builder;
     }
     /**
-     * Protobuf type {@code Scm}
+     * Protobuf type {@code Changesets}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:Scm)
-        org.sonar.batch.protocol.output.BatchReport.ScmOrBuilder {
+        // @@protoc_insertion_point(builder_implements:Changesets)
+        org.sonar.batch.protocol.output.BatchReport.ChangesetsOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_fieldAccessorTable
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                org.sonar.batch.protocol.output.BatchReport.Scm.class, org.sonar.batch.protocol.output.BatchReport.Scm.Builder.class);
+                org.sonar.batch.protocol.output.BatchReport.Changesets.class, org.sonar.batch.protocol.output.BatchReport.Changesets.Builder.class);
       }
 
-      // Construct using org.sonar.batch.protocol.output.BatchReport.Scm.newBuilder()
+      // Construct using org.sonar.batch.protocol.output.BatchReport.Changesets.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -14173,23 +14173,23 @@ public final class BatchReport {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return org.sonar.batch.protocol.output.BatchReport.internal_static_Scm_descriptor;
+        return org.sonar.batch.protocol.output.BatchReport.internal_static_Changesets_descriptor;
       }
 
-      public org.sonar.batch.protocol.output.BatchReport.Scm getDefaultInstanceForType() {
-        return org.sonar.batch.protocol.output.BatchReport.Scm.getDefaultInstance();
+      public org.sonar.batch.protocol.output.BatchReport.Changesets getDefaultInstanceForType() {
+        return org.sonar.batch.protocol.output.BatchReport.Changesets.getDefaultInstance();
       }
 
-      public org.sonar.batch.protocol.output.BatchReport.Scm build() {
-        org.sonar.batch.protocol.output.BatchReport.Scm result = buildPartial();
+      public org.sonar.batch.protocol.output.BatchReport.Changesets build() {
+        org.sonar.batch.protocol.output.BatchReport.Changesets result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public org.sonar.batch.protocol.output.BatchReport.Scm buildPartial() {
-        org.sonar.batch.protocol.output.BatchReport.Scm result = new org.sonar.batch.protocol.output.BatchReport.Scm(this);
+      public org.sonar.batch.protocol.output.BatchReport.Changesets buildPartial() {
+        org.sonar.batch.protocol.output.BatchReport.Changesets result = new org.sonar.batch.protocol.output.BatchReport.Changesets(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -14216,16 +14216,16 @@ public final class BatchReport {
       }
 
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.sonar.batch.protocol.output.BatchReport.Scm) {
-          return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Scm)other);
+        if (other instanceof org.sonar.batch.protocol.output.BatchReport.Changesets) {
+          return mergeFrom((org.sonar.batch.protocol.output.BatchReport.Changesets)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Scm other) {
-        if (other == org.sonar.batch.protocol.output.BatchReport.Scm.getDefaultInstance()) return this;
+      public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.Changesets other) {
+        if (other == org.sonar.batch.protocol.output.BatchReport.Changesets.getDefaultInstance()) return this;
         if (other.hasComponentRef()) {
           setComponentRef(other.getComponentRef());
         }
@@ -14277,11 +14277,11 @@ public final class BatchReport {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        org.sonar.batch.protocol.output.BatchReport.Scm parsedMessage = null;
+        org.sonar.batch.protocol.output.BatchReport.Changesets parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Scm) e.getUnfinishedMessage();
+          parsedMessage = (org.sonar.batch.protocol.output.BatchReport.Changesets) e.getUnfinishedMessage();
           throw e;
         } finally {
           if (parsedMessage != null) {
@@ -14324,22 +14324,22 @@ public final class BatchReport {
         return this;
       }
 
-      private java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> changeset_ =
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> changeset_ =
         java.util.Collections.emptyList();
       private void ensureChangesetIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset>(changeset_);
+          changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset>(changeset_);
           bitField0_ |= 0x00000002;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> changesetBuilder_;
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> changesetBuilder_;
 
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> getChangesetList() {
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> getChangesetList() {
         if (changesetBuilder_ == null) {
           return java.util.Collections.unmodifiableList(changeset_);
         } else {
@@ -14347,7 +14347,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public int getChangesetCount() {
         if (changesetBuilder_ == null) {
@@ -14357,9 +14357,9 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset getChangeset(int index) {
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset getChangeset(int index) {
         if (changesetBuilder_ == null) {
           return changeset_.get(index);
         } else {
@@ -14367,10 +14367,10 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder setChangeset(
-          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+          int index, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset value) {
         if (changesetBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -14384,10 +14384,10 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder setChangeset(
-          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+          int index, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder builderForValue) {
         if (changesetBuilder_ == null) {
           ensureChangesetIsMutable();
           changeset_.set(index, builderForValue.build());
@@ -14398,9 +14398,9 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public Builder addChangeset(org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+      public Builder addChangeset(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset value) {
         if (changesetBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -14414,10 +14414,10 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder addChangeset(
-          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset value) {
+          int index, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset value) {
         if (changesetBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -14431,10 +14431,10 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder addChangeset(
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder builderForValue) {
         if (changesetBuilder_ == null) {
           ensureChangesetIsMutable();
           changeset_.add(builderForValue.build());
@@ -14445,10 +14445,10 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder addChangeset(
-          int index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder builderForValue) {
+          int index, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder builderForValue) {
         if (changesetBuilder_ == null) {
           ensureChangesetIsMutable();
           changeset_.add(index, builderForValue.build());
@@ -14459,10 +14459,10 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder addAllChangeset(
-          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Scm.Changeset> values) {
+          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset> values) {
         if (changesetBuilder_ == null) {
           ensureChangesetIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -14474,7 +14474,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder clearChangeset() {
         if (changesetBuilder_ == null) {
@@ -14487,7 +14487,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
       public Builder removeChangeset(int index) {
         if (changesetBuilder_ == null) {
@@ -14500,16 +14500,16 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder getChangesetBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder getChangesetBuilder(
           int index) {
         return getChangesetFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder getChangesetOrBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder getChangesetOrBuilder(
           int index) {
         if (changesetBuilder_ == null) {
           return changeset_.get(index);  } else {
@@ -14517,9 +14517,9 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> 
            getChangesetOrBuilderList() {
         if (changesetBuilder_ != null) {
           return changesetBuilder_.getMessageOrBuilderList();
@@ -14528,33 +14528,33 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder addChangesetBuilder() {
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder addChangesetBuilder() {
         return getChangesetFieldBuilder().addBuilder(
-            org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance());
+            org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.getDefaultInstance());
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder addChangesetBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder addChangesetBuilder(
           int index) {
         return getChangesetFieldBuilder().addBuilder(
-            index, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.getDefaultInstance());
+            index, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.getDefaultInstance());
       }
       /**
-       * <code>repeated .Scm.Changeset changeset = 2;</code>
+       * <code>repeated .Changesets.Changeset changeset = 2;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder> 
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder> 
            getChangesetBuilderList() {
         return getChangesetFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder> 
+          org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> 
           getChangesetFieldBuilder() {
         if (changesetBuilder_ == null) {
           changesetBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Scm.Changeset, org.sonar.batch.protocol.output.BatchReport.Scm.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Scm.ChangesetOrBuilder>(
+              org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder>(
                   changeset_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -14575,7 +14575,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public java.util.List<java.lang.Integer>
@@ -14586,7 +14586,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public int getChangesetIndexByLineCount() {
@@ -14596,7 +14596,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public int getChangesetIndexByLine(int index) {
@@ -14606,7 +14606,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public Builder setChangesetIndexByLine(
@@ -14620,7 +14620,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public Builder addChangesetIndexByLine(int value) {
@@ -14633,7 +14633,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public Builder addAllChangesetIndexByLine(
@@ -14648,7 +14648,7 @@ public final class BatchReport {
        * <code>repeated int32 changesetIndexByLine = 3 [packed = true];</code>
        *
        * <pre>
-       * if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+       * if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
        * </pre>
        */
       public Builder clearChangesetIndexByLine() {
@@ -14658,15 +14658,15 @@ public final class BatchReport {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:Scm)
+      // @@protoc_insertion_point(builder_scope:Changesets)
     }
 
     static {
-      defaultInstance = new Scm(true);
+      defaultInstance = new Changesets(true);
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:Scm)
+    // @@protoc_insertion_point(class_scope:Changesets)
   }
 
   public interface DuplicateOrBuilder extends
@@ -23562,15 +23562,15 @@ public final class BatchReport {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Issues_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_Scm_descriptor;
+    internal_static_Changesets_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_Scm_fieldAccessorTable;
+      internal_static_Changesets_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_Scm_Changeset_descriptor;
+    internal_static_Changesets_Changeset_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_Scm_Changeset_fieldAccessorTable;
+      internal_static_Changesets_Changeset_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Duplicate_descriptor;
   private static
@@ -23680,37 +23680,37 @@ public final class BatchReport {
       "\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010" +
       "\022\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Issu" +
       "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\013" +
-      "2\006.Issue\022\026\n\016component_uuid\030\003 \001(\t\"\236\001\n\003Scm" +
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\tchangeset\030\002 \003" +
-      "(\0132\016.Scm.Changeset\022 \n\024changesetIndexByLi" +
-      "ne\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 " +
-      "\001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDup",
-      "licate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005range\030" +
-      "\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003 \001(\t\"M\n" +
-      "\013Duplication\022\037\n\017origin_position\030\001 \001(\0132\006." +
-      "Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"H\n\014" +
-      "Duplications\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013d" +
-      "uplication\030\002 \003(\0132\014.Duplication\"W\n\005Range\022" +
-      "\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n" +
-      "\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"" +
-      "~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006symbol\030\002" +
-      " \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013decla",
-      "ration\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132" +
-      "\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nco" +
-      "nditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hi" +
-      "ts\030\004 \001(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022" +
-      "\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n\032overal" +
-      "l_covered_conditions\030\007 \001(\005\"L\n\022SyntaxHigh" +
-      "lighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004type\030" +
-      "\002 \001(\0162\021.HighlightingType\"\203\001\n\004Test\022\014\n\004nam" +
-      "e\030\001 \001(\t\022\027\n\004type\030\002 \001(\0162\t.TestType\022\033\n\006stat" +
-      "us\030\003 \001(\0162\013.TestStatus\022\026\n\016duration_in_ms\030",
-      "\004 \001(\003\022\022\n\nstacktrace\030\005 \001(\t\022\013\n\003msg\030\006 \001(\t\"\221" +
-      "\001\n\016CoverageDetail\022\021\n\ttest_name\030\001 \001(\t\0221\n\014" +
-      "covered_file\030\002 \003(\0132\033.CoverageDetail.Cove" +
-      "redFile\0329\n\013CoveredFile\022\020\n\010file_ref\030\001 \001(\005" +
-      "\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#\n\037org.sonar." +
-      "batch.protocol.outputH\001"
+      "2\006.Issue\022\026\n\016component_uuid\030\003 \001(\t\"\254\001\n\nCha" +
+      "ngesets\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchange" +
+      "set\030\002 \003(\0132\025.Changesets.Changeset\022 \n\024chan" +
+      "gesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022" +
+      "\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004dat",
+      "e\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001" +
+      " \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016other_fil" +
+      "e_key\030\003 \001(\t\"M\n\013Duplication\022\037\n\017origin_pos" +
+      "ition\030\001 \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n" +
+      ".Duplicate\"H\n\014Duplications\022\025\n\rcomponent_" +
+      "ref\030\001 \001(\005\022!\n\013duplication\030\002 \003(\0132\014.Duplica" +
+      "tion\"W\n\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end" +
+      "_line\030\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend" +
+      "_offset\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001" +
+      "(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006S",
+      "ymbol\022\033\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\tre" +
+      "ference\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004li" +
+      "ne\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030" +
+      "\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_con" +
+      "ditions\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006" +
+      " \001(\005\022\"\n\032overall_covered_conditions\030\007 \001(\005" +
+      "\"L\n\022SyntaxHighlighting\022\025\n\005range\030\001 \001(\0132\006." +
+      "Range\022\037\n\004type\030\002 \001(\0162\021.HighlightingType\"\203" +
+      "\001\n\004Test\022\014\n\004name\030\001 \001(\t\022\027\n\004type\030\002 \001(\0162\t.Te" +
+      "stType\022\033\n\006status\030\003 \001(\0162\013.TestStatus\022\026\n\016d",
+      "uration_in_ms\030\004 \001(\003\022\022\n\nstacktrace\030\005 \001(\t\022" +
+      "\013\n\003msg\030\006 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest_" +
+      "name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.Cover" +
+      "ageDetail.CoveredFile\0329\n\013CoveredFile\022\020\n\010" +
+      "file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001" +
+      "B#\n\037org.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -23773,17 +23773,17 @@ public final class BatchReport {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issues_descriptor,
         new java.lang.String[] { "ComponentRef", "Issue", "ComponentUuid", });
-    internal_static_Scm_descriptor =
+    internal_static_Changesets_descriptor =
       getDescriptor().getMessageTypes().get(8);
-    internal_static_Scm_fieldAccessorTable = new
+    internal_static_Changesets_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_Scm_descriptor,
+        internal_static_Changesets_descriptor,
         new java.lang.String[] { "ComponentRef", "Changeset", "ChangesetIndexByLine", });
-    internal_static_Scm_Changeset_descriptor =
-      internal_static_Scm_descriptor.getNestedTypes().get(0);
-    internal_static_Scm_Changeset_fieldAccessorTable = new
+    internal_static_Changesets_Changeset_descriptor =
+      internal_static_Changesets_descriptor.getNestedTypes().get(0);
+    internal_static_Changesets_Changeset_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_Scm_Changeset_descriptor,
+        internal_static_Changesets_Changeset_descriptor,
         new java.lang.String[] { "Revision", "Author", "Date", });
     internal_static_Duplicate_descriptor =
       getDescriptor().getMessageTypes().get(9);

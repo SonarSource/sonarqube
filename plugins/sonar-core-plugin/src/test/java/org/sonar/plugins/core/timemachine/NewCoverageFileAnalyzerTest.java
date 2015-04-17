@@ -32,8 +32,8 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.BatchReport.Scm;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.report.ReportPublisher;
 
@@ -88,7 +88,7 @@ public class NewCoverageFileAnalyzerTest {
 
   @Test
   public void shouldDoNothingIfNoCoverageData() throws ParseException {
-    writer.writeComponentScm(Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
         .setDate(DateUtils.parseDateTime("2008-05-18T00:00:00+0000").getTime())
@@ -105,7 +105,7 @@ public class NewCoverageFileAnalyzerTest {
   public void shouldGetNewLines() throws ParseException {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
       new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
-    writer.writeComponentScm(Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
         .build())
@@ -155,7 +155,7 @@ public class NewCoverageFileAnalyzerTest {
       new Measure(CoreMetrics.CONDITIONS_BY_LINE, "11=4"));
     when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
       new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "11=1"));
-    writer.writeComponentScm(Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
         .build())
@@ -205,7 +205,7 @@ public class NewCoverageFileAnalyzerTest {
       new Measure(CoreMetrics.CONDITIONS_BY_LINE, "10=1"));
     when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
       new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "10=1"));
-    writer.writeComponentScm(Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
         .build())
@@ -244,7 +244,7 @@ public class NewCoverageFileAnalyzerTest {
       new Measure(CoreMetrics.CONDITIONS_BY_LINE, "2=1"));
     when(context.getMeasure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)).thenReturn(
       new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "2=1"));
-    writer.writeComponentScm(Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
         .setDate(DateUtils.parseDateTime("2008-08-02T13:56:37+0200").getTime())

@@ -55,10 +55,10 @@ public class BatchReportReader {
   }
 
   @CheckForNull
-  public BatchReport.Scm readComponentScm(int componentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.SCM, componentRef);
+  public BatchReport.Changesets readChangesets(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, componentRef);
     if (doesFileExists(file)) {
-      return ProtobufUtil.readFile(file, BatchReport.Scm.PARSER);
+      return ProtobufUtil.readFile(file, BatchReport.Changesets.PARSER);
     }
     return null;
   }
@@ -111,13 +111,13 @@ public class BatchReportReader {
   }
 
   public boolean hasSyntaxHighlighting(int componentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef);
     return file.exists();
   }
 
   @CheckForNull
   public File readComponentSyntaxHighlighting(int fileRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, fileRef);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
     if (doesFileExists(file)) {
       return file;
     }
@@ -126,7 +126,7 @@ public class BatchReportReader {
 
   @CheckForNull
   public File readComponentCoverage(int fileRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, fileRef);
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
     if (doesFileExists(file)) {
       return file;
     }

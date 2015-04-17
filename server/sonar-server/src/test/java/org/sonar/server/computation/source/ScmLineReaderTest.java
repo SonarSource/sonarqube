@@ -31,8 +31,8 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_scm() throws Exception {
-    BatchReport.Scm scmReport = BatchReport.Scm.newBuilder()
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
@@ -52,8 +52,8 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_author() throws Exception {
-    BatchReport.Scm scmReport = BatchReport.Scm.newBuilder()
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .build())
       .addChangesetIndexByLine(0)
@@ -71,8 +71,8 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_date() throws Exception {
-    BatchReport.Scm scmReport = BatchReport.Scm.newBuilder()
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setDate(123456789L)
         .build())
       .addChangesetIndexByLine(0)
@@ -90,8 +90,8 @@ public class ScmLineReaderTest {
 
   @Test
   public void set_only_revision() throws Exception {
-    BatchReport.Scm scmReport = BatchReport.Scm.newBuilder()
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setRevision("rev-1")
         .build())
       .addChangesetIndexByLine(0)
@@ -109,8 +109,8 @@ public class ScmLineReaderTest {
 
   @Test
   public void fail_when_changeset_is_empty() throws Exception {
-    BatchReport.Scm scmReport = BatchReport.Scm.newBuilder()
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+    BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .build())
       .addChangesetIndexByLine(0)
       .build();

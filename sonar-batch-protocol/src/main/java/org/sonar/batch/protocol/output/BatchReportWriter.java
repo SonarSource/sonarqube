@@ -71,9 +71,9 @@ public class BatchReportWriter {
     ProtobufUtil.writeToFile(measuresBuilder.build(), file);
   }
 
-  public void writeComponentScm(BatchReport.Scm scm) {
-    File file = fileStructure.fileFor(FileStructure.Domain.SCM, scm.getComponentRef());
-    ProtobufUtil.writeToFile(scm, file);
+  public void writeComponentChangesets(BatchReport.Changesets changesets) {
+    File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, changesets.getComponentRef());
+    ProtobufUtil.writeToFile(changesets, file);
   }
 
   /**
@@ -106,12 +106,12 @@ public class BatchReportWriter {
   }
 
   public void writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting> syntaxHighlightingRules) {
-    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTING, componentRef);
+    File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef);
     ProtobufUtil.writeMessagesToFile(syntaxHighlightingRules, file);
   }
 
   public void writeComponentCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
-    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE, componentRef);
+    File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, componentRef);
     ProtobufUtil.writeMessagesToFile(coverageList, file);
   }
 

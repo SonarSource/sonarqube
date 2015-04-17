@@ -32,9 +32,9 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReport.Component;
-import org.sonar.batch.protocol.output.BatchReport.Scm;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.xoo.XooPlugin;
 
@@ -87,7 +87,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    Scm fileScm = getScm(baseDir, 0);
+    BatchReport.Changesets fileScm = getChangesets(baseDir, 0);
 
     assertThat(fileScm.getChangesetIndexByLineList()).hasSize(5);
 
@@ -107,14 +107,14 @@ public class ScmMediumTest {
     assertThat(changesetLine5.getAuthor()).isEqualTo("simon");
   }
 
-  private Scm getScm(File baseDir, int fileId) {
+  private BatchReport.Changesets getChangesets(File baseDir, int fileId) {
     File reportDir = new File(baseDir, ".sonar/batch-report");
     BatchReportReader reader = new BatchReportReader(reportDir);
 
     Component project = reader.readComponent(reader.readMetadata().getRootComponentRef());
     Component dir = reader.readComponent(project.getChildRef(0));
     Component file = reader.readComponent(dir.getChildRef(fileId));
-    Scm fileScm = reader.readComponentScm(file.getRef());
+    BatchReport.Changesets fileScm = reader.readChangesets(file.getRef());
     return fileScm;
   }
 
@@ -139,9 +139,9 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    Scm fileScm = getScm(baseDir, 0);
+    BatchReport.Changesets changesets = getChangesets(baseDir, 0);
 
-    assertThat(fileScm).isNull();
+    assertThat(changesets).isNull();
 
   }
 
@@ -165,10 +165,10 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    Scm file1Scm = getScm(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
     assertThat(file1Scm).isNotNull();
 
-    Scm file2Scm = getScm(baseDir, 1);
+    BatchReport.Changesets file2Scm = getChangesets(baseDir, 1);
     assertThat(file2Scm).isNull();
   }
 
@@ -201,10 +201,10 @@ public class ScmMediumTest {
 
     taskBuilder.start();
 
-    Scm file1Scm = getScm(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
     assertThat(file1Scm).isNotNull();
 
-    Scm file2Scm = getScm(baseDir, 1);
+    BatchReport.Changesets file2Scm = getChangesets(baseDir, 1);
     assertThat(file2Scm).isNotNull();
   }
 
@@ -226,7 +226,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    Scm file1Scm = getScm(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
     assertThat(file1Scm).isNotNull();
   }
 
@@ -248,7 +248,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    Scm file1Scm = getScm(baseDir, 0);
+    BatchReport.Changesets file1Scm = getChangesets(baseDir, 0);
     assertThat(file1Scm).isNotNull();
   }
 

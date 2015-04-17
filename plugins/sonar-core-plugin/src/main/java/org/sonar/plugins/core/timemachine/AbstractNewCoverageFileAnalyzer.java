@@ -22,7 +22,12 @@ package org.sonar.plugins.core.timemachine;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
@@ -33,8 +38,8 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.protocol.output.BatchReport.Scm;
-import org.sonar.batch.protocol.output.BatchReport.Scm.Changeset;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
 
@@ -118,7 +123,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   private boolean parse(DecoratorContext context) {
     BatchReportReader reader = new BatchReportReader(publishReportJob.getReportDir());
-    Scm componentScm = reader.readComponentScm(resourceCache.get(context.getResource()).batchId());
+    BatchReport.Changesets componentScm = reader.readChangesets(resourceCache.get(context.getResource()).batchId());
     Measure hitsByLineMeasure = context.getMeasure(getCoverageLineHitsDataMetric());
 
     if (componentScm != null && hitsByLineMeasure != null && hitsByLineMeasure.hasData()) {

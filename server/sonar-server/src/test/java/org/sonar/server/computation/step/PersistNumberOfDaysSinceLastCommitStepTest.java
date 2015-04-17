@@ -83,11 +83,11 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   public void persist_number_of_days_since_last_commit_from_report() throws Exception {
     long threeDaysAgo = DateUtils.addDays(new Date(), -3).getTime();
     BatchReportWriter reportWriter = initReportWithProjectAndFile();
-    reportWriter.writeComponentScm(
-      BatchReport.Scm.newBuilder()
+    reportWriter.writeComponentChangesets(
+      BatchReport.Changesets.newBuilder()
         .setComponentRef(2)
         .addChangeset(
-          BatchReport.Scm.Changeset.newBuilder()
+          BatchReport.Changesets.Changeset.newBuilder()
             .setDate(threeDaysAgo)
         )
         .build()

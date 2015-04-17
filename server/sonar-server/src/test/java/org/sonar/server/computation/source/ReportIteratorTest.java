@@ -55,7 +55,7 @@ public class ReportIteratorTest {
         .build()
     ));
 
-    file = new FileStructure(dir).fileFor(FileStructure.Domain.COVERAGE, 1);
+    file = new FileStructure(dir).fileFor(FileStructure.Domain.COVERAGES, 1);
   }
 
   @After

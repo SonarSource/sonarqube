@@ -87,7 +87,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
-    BatchReport.Scm scm = reportReader.readComponentScm(componentRef);
+    BatchReport.Changesets scm = reportReader.readChangesets(componentRef);
     processScm(scm);
 
     for (Integer childRef : component.getChildRefList()) {
@@ -95,12 +95,12 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private void processScm(@Nullable BatchReport.Scm scm) {
+  private void processScm(@Nullable BatchReport.Changesets scm) {
     if (scm == null) {
       return;
     }
 
-    for (BatchReport.Scm.Changeset changeset : scm.getChangesetList()) {
+    for (BatchReport.Changesets.Changeset changeset : scm.getChangesetList()) {
       if (changeset.hasDate() && changeset.getDate() > lastCommitTimestamp) {
         lastCommitTimestamp = changeset.getDate();
       }

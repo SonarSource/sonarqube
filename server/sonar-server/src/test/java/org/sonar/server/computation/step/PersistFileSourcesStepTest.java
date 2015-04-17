@@ -20,8 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.server.source.db.FileSourceDao;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -43,6 +41,7 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.test.DbTests;
 
@@ -146,7 +145,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid(FILE_UUID)
-        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
 
@@ -209,9 +208,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_scm() throws Exception {
     BatchReportWriter writer = initBasicReport(1);
 
-    writer.writeComponentScm(BatchReport.Scm.newBuilder()
+    writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Scm.Changeset.newBuilder()
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
@@ -237,13 +236,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ));
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(2).setEndOffset(4)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build()
+      ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -266,10 +265,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-            .build()
+          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+          .build()
         ).build()
-    ));
+      ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 

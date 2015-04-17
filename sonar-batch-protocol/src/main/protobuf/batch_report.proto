@@ -157,10 +157,10 @@ message Issues {
   optional string component_uuid = 3;
 }
 
-message Scm {
+message Changesets {
   optional int32 component_ref = 1;
   repeated Changeset changeset = 2;
-  // if changesetIndexByLine[3] = 2 then it means that changeset[2] is the last one on line 4
+  // if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
   repeated int32 changesetIndexByLine = 3 [packed = true];
 
   message Changeset {
