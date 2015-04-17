@@ -1,26 +1,46 @@
-<h1 class="page-title">{{t 'quality_profiles.page'}}</h1>
+<header class="page-header">
+  <h1 class="page-title">{{t 'quality_profiles.page'}}</h1>
 
+  <div class="page-actions">
+    {{#if canWrite}}
+      <div class="button-group dropdown">
+        <button id="quality-profiles-create">{{t 'create'}}</button>
+        <a class="button dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-dropdown"></i></a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li>
+            <a id="quality-profiles-compare" href="#">{{t 'quality_profiles.compare_profiles'}}</a>
+          </li>
+          <li>
+            <a id="quality-profiles-restore" href="#">{{t 'quality_profiles.restore_profile'}}</a>
+          </li>
+          <li>
+            <a id="quality-profiles-restore-built-in" href="#">{{t 'quality_profiles.restore_built_in_profiles'}}</a>
+          </li>
+        </ul>
+      </div>
+    {{else}}
+      <div class="button-group">
+        <button id="quality-profiles-compare">{{t 'quality_profiles.compare_profiles'}}</button>
+      </div>
+    {{/if}}
+  </div>
+</header>
 
-<div class="page-actions">
-  {{#if canWrite}}
-    <div class="button-group dropdown">
-      <button id="quality-profiles-create">{{t 'create'}}</button>
-      <a class="button dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-dropdown"></i></a>
-      <ul class="dropdown-menu dropdown-menu-right">
-        <li>
-          <a id="quality-profiles-compare" href="#">{{t 'quality_profiles.compare_profiles'}}</a>
-        </li>
-        <li>
-          <a id="quality-profiles-restore" href="#">{{t 'quality_profiles.restore_profile'}}</a>
-        </li>
-        <li>
-          <a id="quality-profiles-restore-built-in" href="#">{{t 'quality_profiles.restore_built_in_profiles'}}</a>
-        </li>
-      </ul>
-    </div>
+<div class="dropdown" id="quality-profiles-filter-by-language">
+  <span>Show:</span>
+  {{#if selectedLanguage}}
+    <a class="dropdown-toggle link-no-underline" href="#" data-toggle="dropdown">
+      {{tp 'quality_profiles.x_profiles' selectedLanguage.name}} <i class="icon-dropdown"></i>
+    </a>
   {{else}}
-    <div class="button-group">
-      <button id="quality-profiles-compare">{{t 'quality_profiles.compare_profiles'}}</button>
-    </div>
+    <a class="dropdown-toggle link-no-underline" href="#" data-toggle="dropdown">
+      {{t 'quality_profiles.all_profiles'}} <i class="icon-dropdown"></i>
+    </a>
   {{/if}}
+  <ul class="dropdown-menu">
+    <li><a class="js-filter-by-language" href="#">{{t 'quality_profiles.all_profiles'}}</a></li>
+    {{#each languages}}
+      <li><a class="js-filter-by-language" href="#" data-language="{{key}}">{{tp 'quality_profiles.x_profiles' name}}</a></li>
+    {{/each}}
+  </ul>
 </div>

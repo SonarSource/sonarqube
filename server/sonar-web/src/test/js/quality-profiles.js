@@ -34,6 +34,7 @@ casper.test.begin(testName('Should Show List'), 9, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
       })
 
       .then(function () {
@@ -70,6 +71,69 @@ casper.test.begin(testName('Should Show List'), 9, function (test) {
 });
 
 
+casper.test.begin(testName('Should Filter List By Language'), 15, function (test) {
+  casper
+      .start(lib.buildUrl('profiles'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/users/current', 'user.json');
+        lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/quality-profiles/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.js-list .list-group-item');
+      })
+
+      .then(function () {
+        test.assertElementCount('.js-list .list-group-item', 5);
+        test.assertVisible('.js-list .list-group-item[data-key="java-sonar-way-67887"]');
+        test.assertVisible('.js-list .list-group-item[data-key="js-sonar-way-71566"]');
+
+        test.assertElementCount('.js-list-language', 4);
+        test.assertVisible('.js-list-language[data-language="java"]');
+        test.assertVisible('.js-list-language[data-language="js"]');
+      })
+
+      .then(function () {
+        test.assertExists('#quality-profiles-filter-by-language');
+        casper.click('.js-filter-by-language[data-language="js"]');
+      })
+
+      .then(function () {
+        test.assertNotVisible('.js-list .list-group-item[data-key="java-sonar-way-67887"]');
+        test.assertVisible('.js-list .list-group-item[data-key="js-sonar-way-71566"]');
+        test.assertNotVisible('.js-list-language[data-language="java"]');
+        test.assertVisible('.js-list-language[data-language="js"]');
+      })
+
+      .then(function () {
+        casper.click('.js-filter-by-language:nth-child(1)');
+      })
+
+      .then(function () {
+        test.assertVisible('.js-list .list-group-item[data-key="java-sonar-way-67887"]');
+        test.assertVisible('.js-list .list-group-item[data-key="js-sonar-way-71566"]');
+        test.assertVisible('.js-list-language[data-language="java"]');
+        test.assertVisible('.js-list-language[data-language="js"]');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Should Show Details'), 10, function (test) {
   casper
       .start(lib.buildUrl('profiles'), function () {
@@ -77,6 +141,7 @@ casper.test.begin(testName('Should Show Details'), 10, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json',
             { data: { qprofile: 'java-sonar-way-67887', activation: 'true' }});
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json', {
@@ -130,6 +195,7 @@ casper.test.begin(testName('Should Show Details', 'Admin'), 10, function (test) 
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json',
             { data: { qprofile: 'java-sonar-way-67887', activation: 'true' }});
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json', {
@@ -183,6 +249,7 @@ casper.test.begin(testName('Should Show Inheritance Details'), 10, function (tes
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-inheritance.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance-plus.json', {
           data: { profileKey: 'java-inherited-profile-85155' }
@@ -236,6 +303,7 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/projects?key=php-psr-2-46772', 'projects.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
@@ -282,6 +350,7 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/copy', 'copy.json', {
@@ -343,6 +412,7 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/rename', '{}', {
@@ -404,6 +474,7 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/set_default', '{}', {
@@ -459,6 +530,7 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequest('/api/qualityprofiles/delete', '{}', {
@@ -573,6 +645,7 @@ casper.test.begin(testName('Restore Profile'), 2, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
       })
@@ -739,6 +812,7 @@ casper.test.begin(testName('Change Parent'), 1, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         this.searchMock = lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-change-parent.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         this.inheritanceMock = lib.mockRequestFromFile('/api/qualityprofiles/inheritance',
             'inheritance-change-parent.json');
@@ -802,6 +876,7 @@ casper.test.begin(testName('Permalink'), 9, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user-admin.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
       })
@@ -846,6 +921,7 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', {
@@ -922,6 +998,7 @@ casper.test.begin(testName('Changelog Permalink'), 2, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/changelog', 'changelog2.json', {
@@ -979,6 +1056,7 @@ casper.test.begin(testName('Comparison'), 12, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/compare', 'compare.json', {
@@ -1036,6 +1114,7 @@ casper.test.begin(testName('Comparison Permalink'), 4, function (test) {
 
         lib.mockRequestFromFile('/api/users/current', 'user.json');
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-with-copy.json');
+        lib.mockRequestFromFile('/api/languages/list', 'languages.json');
         lib.mockRequestFromFile('/api/rules/search', 'rules.json');
         lib.mockRequestFromFile('/api/qualityprofiles/inheritance', 'inheritance.json');
         lib.mockRequestFromFile('/api/qualityprofiles/compare', 'compare.json', {

@@ -46,7 +46,9 @@ require([
       collection: this.profiles,
       canWrite: this.canWrite
     });
-    this.layout.actionsRegion.show(this.actionsView);
+    this.actionsView.requestLanguages().done(function () {
+      App.layout.actionsRegion.show(App.actionsView);
+    });
 
     // Profiles View
     this.profilesView = new ProfilesView({

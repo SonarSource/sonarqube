@@ -37,6 +37,7 @@ define([
     onRender: function () {
       this.$el.toggleClass('active', this.options.highlighted);
       this.$el.attr('data-key', this.model.id);
+      this.$el.attr('data-language', this.model.get('language'));
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
 

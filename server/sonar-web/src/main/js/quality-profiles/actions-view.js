@@ -32,7 +32,9 @@ define([
     events: {
       'click #quality-profiles-create': 'onCreateClick',
       'click #quality-profiles-restore': 'onRestoreClick',
-      'click #quality-profiles-restore-built-in': 'onRestoreBuiltInClick'
+      'click #quality-profiles-restore-built-in': 'onRestoreBuiltInClick',
+
+      'click .js-filter-by-language': 'onLanguageClick'
     },
 
     onCreateClick: function (e) {
@@ -50,9 +52,15 @@ define([
       this.restoreBuiltIn();
     },
 
+    onLanguageClick: function (e) {
+      e.preventDefault();
+      var language = $(e.currentTarget).data('language');
+      this.filterByLanguage(language);
+    },
+
     create: function () {
       var that = this;
-      $.when(this.requestLanguages(), this.requestImporters()).done(function () {
+      this.requestImporters().done(function () {
         new CreateProfileView({
           collection: that.collection,
           languages: that.languages,
@@ -68,13 +76,10 @@ define([
     },
 
     restoreBuiltIn: function () {
-      var that = this;
-      this.requestLanguages().done(function (r) {
-        new RestoreBuiltInProfilesView({
-          collection: that.collection,
-          languages: r.languages
-        }).render();
-      });
+      new RestoreBuiltInProfilesView({
+        collection: this.collection,
+        languages: this.languages
+      }).render();
     },
 
     requestLanguages: function () {
@@ -93,9 +98,17 @@ define([
       });
     },
 
+    filterByLanguage: function (language) {
+      this.selectedLanguage = _.findWhere(this.languages, { key: language });
+      this.render();
+      this.collection.trigger('filter', language);
+    },
+
     serializeData: function () {
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        canWrite: this.options.canWrite
+        canWrite: this.options.canWrite,
+        languages: this.languages,
+        selectedLanguage: this.selectedLanguage
       });
     }
   });

@@ -29,6 +29,10 @@ define([
     itemView: ProfileView,
     itemViewContainer: '.js-list',
 
+    collectionEvents: {
+      'filter': 'filterByLanguage'
+    },
+
     itemViewOptions: function (model) {
       return {
         collectionView: this,
@@ -64,7 +68,16 @@ define([
     closeChildren: function () {
       Marionette.CompositeView.prototype.closeChildren.apply(this, arguments);
       this.$('.js-list-language').remove();
-    }
+    },
+
+    filterByLanguage: function (language) {
+      if (language) {
+        this.$('[data-language]').addClass('hidden');
+        this.$('[data-language="' + language + '"]').removeClass('hidden');
+      } else {
+        this.$('[data-language]').removeClass('hidden');
+      }
+    },
   });
 
 });
