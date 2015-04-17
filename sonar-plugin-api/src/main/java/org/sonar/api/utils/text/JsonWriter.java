@@ -22,7 +22,6 @@ package org.sonar.api.utils.text;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
-
 import java.io.Writer;
 import java.util.Date;
 import java.util.Map;
@@ -30,7 +29,7 @@ import java.util.Map;
 /**
  * Writes JSON as a stream. This class allows plugins to not directly depend
  * on the underlying JSON library.
- * <p/>
+ * <p>
  * <h3>How to use</h3>
  * <pre>
  *   StringWriter json = new StringWriter();
@@ -48,17 +47,28 @@ import java.util.Map;
  *     .endObject()
  *     .close();
  * </pre>
+ * </p>
+ * <p>
+ * By default, null objects are not serialized. To enable {@code null} serialization,
+ * use {@link #setSerializeNulls(boolean)}.
+ * </p>
+ * <p>
+ * By default, emptry strings are serialized. To disable empty string serialization,
+ * use {@link #setSerializeEmptys(boolean)}.
+ * </p>
  *
  * @since 4.2
  */
 public class JsonWriter {
 
   private final com.google.gson.stream.JsonWriter stream;
+  private boolean serializeEmptyStrings;
 
   private JsonWriter(Writer writer) {
     this.stream = new com.google.gson.stream.JsonWriter(writer);
     this.stream.setSerializeNulls(false);
     this.stream.setLenient(false);
+    this.serializeEmptyStrings = true;
   }
 
   // for unit testing
@@ -72,6 +82,14 @@ public class JsonWriter {
 
   public JsonWriter setSerializeNulls(boolean b) {
     this.stream.setSerializeNulls(b);
+    return this;
+  }
+
+  /**
+   * Enable/disable serialization of properties which value is an empty String.
+   */
+  public JsonWriter setSerializeEmptys(boolean serializeEmptyStrings) {
+    this.serializeEmptyStrings = serializeEmptyStrings;
     return this;
   }
 
@@ -178,7 +196,7 @@ public class JsonWriter {
    */
   public JsonWriter value(@Nullable String value) {
     try {
-      stream.value(value);
+      stream.value(serializeEmptyStrings ? value : emptyToNull(value));
       return this;
     } catch (Exception e) {
       throw rethrow(e);
@@ -202,7 +220,7 @@ public class JsonWriter {
         stream.nullValue();
       } else {
         if (value instanceof String) {
-          stream.value((String) value);
+          stream.value(serializeEmptyStrings ? (String) value : emptyToNull((String) value));
         } else if (value instanceof Number) {
           stream.value((Number) value);
         } else if (value instanceof Boolean) {
@@ -210,7 +228,7 @@ public class JsonWriter {
         } else if (value instanceof Date) {
           valueDateTime((Date) value);
         } else if (value instanceof Enum) {
-          stream.value(((Enum)value).name());
+          stream.value(((Enum) value).name());
         } else if (value instanceof Map) {
           stream.beginObject();
           for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
@@ -367,5 +385,13 @@ public class JsonWriter {
   private IllegalStateException rethrow(Exception e) {
     // stacktrace is not helpful
     throw new WriterException("Fail to write JSON: " + e.getMessage());
+  }
+
+  @Nullable
+  private static String emptyToNull(@Nullable String value) {
+    if (value == null || value.isEmpty()) {
+      return null;
+    }
+    return value;
   }
 }

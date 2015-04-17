@@ -39,6 +39,8 @@ import static org.mockito.Mockito.when;
 
 public class JsonWriterTest {
 
+  private static final String EMPTY_STRING = "";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -125,6 +127,28 @@ public class JsonWriterTest {
       .name("nullDateTime").valueDate(null)
       .endObject().close();
     expect("{\"nullNumber\":null,\"nullString\":null,\"nullNumber\":null,\"nullString\":null,\"nullDate\":null,\"nullDateTime\":null}");
+  }
+
+  @Test
+  public void serialize_empty_strings_by_default() throws Exception {
+    writer.beginObject()
+      .prop("emptyString", EMPTY_STRING)
+      .name("emptyStringAsObject").valueObject(EMPTY_STRING)
+      .endObject().close();
+    expect("{" +
+      "\"emptyString\":\"\"," +
+      "\"emptyStringAsObject\":\"\"" +
+      "}");
+  }
+
+  @Test
+  public void ignore_empty_strings_when_requested() throws Exception {
+    writer.setSerializeEmptys(false)
+      .beginObject()
+      .prop("emptyString", EMPTY_STRING)
+      .name("emptyStringAsObject").valueObject(EMPTY_STRING)
+      .endObject().close();
+    expect("{}");
   }
 
   @Test
