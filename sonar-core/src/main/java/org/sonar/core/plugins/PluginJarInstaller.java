@@ -19,16 +19,18 @@
  */
 package org.sonar.core.plugins;
 
+import com.google.common.base.Function;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.SonarException;
 import org.sonar.updatecenter.common.PluginManifest;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class PluginJarInstaller implements BatchComponent, ServerComponent {
 
@@ -86,4 +88,21 @@ public abstract class PluginJarInstaller implements BatchComponent, ServerCompon
       throw new IllegalStateException("Fail to extract plugin metadata from file: " + file, e);
     }
   }
+
+  public Function<File, DefaultPluginMetadata> fileToPlugin(boolean core) {
+    return core ? jarFileToCorePlugin : jarFileToPlugin;
+  }
+
+  private final Function<File, DefaultPluginMetadata> jarFileToCorePlugin = new Function<File, DefaultPluginMetadata>() {
+    @Override
+    public DefaultPluginMetadata apply(@Nullable File file) {
+      return extractMetadata(checkNotNull(file), true);
+    }
+  };
+  private final Function<File, DefaultPluginMetadata> jarFileToPlugin = new Function<File, DefaultPluginMetadata>() {
+    @Override
+    public DefaultPluginMetadata apply(@Nullable File file) {
+      return extractMetadata(checkNotNull(file), false);
+    }
+  };
 }

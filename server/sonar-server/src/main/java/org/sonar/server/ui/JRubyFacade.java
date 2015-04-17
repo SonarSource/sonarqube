@@ -153,7 +153,7 @@ public final class JRubyFacade {
   }
 
   public List<String> getPluginUninstalls() {
-    return get(ServerPluginJarsInstaller.class).getUninstalls();
+    return get(ServerPluginJarsInstaller.class).getUninstalledPluginFilenames();
   }
 
   public UpdateCenter getUpdatePluginCenter(boolean forceReload) {

@@ -286,8 +286,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
       return false;
     }
     DefaultPluginMetadata that = (DefaultPluginMetadata) o;
-    return !(key != null ? !key.equals(that.key) : that.key != null);
-
+    return key == null ? that.key == null : key.equals(that.key);
   }
 
   @Override

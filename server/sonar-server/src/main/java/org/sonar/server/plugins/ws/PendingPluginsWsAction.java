@@ -83,7 +83,7 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private void writeRemoving(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_REMOVING);
     jsonWriter.beginArray();
-    for (String fileName : copyOf(CASE_INSENSITIVE_ORDER, serverPluginJarsInstaller.getUninstalls())) {
+    for (String fileName : copyOf(CASE_INSENSITIVE_ORDER, serverPluginJarsInstaller.getUninstalledPluginFilenames())) {
       writeArchive(jsonWriter, fileName);
     }
     jsonWriter.endArray();

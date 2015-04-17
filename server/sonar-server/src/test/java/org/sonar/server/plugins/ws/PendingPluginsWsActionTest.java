@@ -95,7 +95,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalls()).thenReturn(of("removed_file.jar"));
+    when(serverPluginJarsInstaller.getUninstalledPluginFilenames()).thenReturn(of("removed_file.jar"));
 
     underTest.handle(request, response);
 
@@ -147,7 +147,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void removing_plugin_are_sorted_and_unique() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalls()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
+    when(serverPluginJarsInstaller.getUninstalledPluginFilenames()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
 
     underTest.handle(request, response);
 

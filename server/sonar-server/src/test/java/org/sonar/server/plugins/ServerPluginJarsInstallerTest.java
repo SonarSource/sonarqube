@@ -30,9 +30,11 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
+import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -100,7 +102,7 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
   }
 
   @Test
@@ -114,7 +116,7 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
 
     // do not copy foo 1.0
-    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(2);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(2);
     assertThat(new File(pluginsDir, "foo-plugin-2.0.jar")).exists().isFile();
     assertThat(new File(pluginsDir, "bar-plugin-1.0.jar")).exists().isFile();
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
@@ -137,7 +139,7 @@ public class ServerPluginJarsInstallerTest {
     assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
 
     // check that the file is still present in extensions/plugins
-    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
     assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
   }
 
@@ -173,7 +175,7 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
     assertThat(FileUtils.listFiles(downloadsDir, new String[] {"jar"}, false)).isEmpty();
     assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
   }
@@ -246,9 +248,31 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
     jarsInstaller.uninstall("foo");
 
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(trashDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(jarsInstaller.getUninstalledPluginFilenames()).containsOnly("foo-plugin-1.0.jar");
+  }
+
+  @Test
+  public void pending_removals_reads_metadata() throws Exception {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
+
+    jarsInstaller.install();
+    jarsInstaller.uninstall("foo");
+
     assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).isEmpty();
     assertThat(FileUtils.listFiles(trashDir, new String[] {"jar"}, false)).hasSize(1);
-    assertThat(jarsInstaller.getUninstalls()).containsOnly("foo-plugin-1.0.jar");
+    Collection<DefaultPluginMetadata> removals = jarsInstaller.getUninstalledPlugins();
+    assertThat(removals).hasSize(1);
+    PluginMetadata metadata = removals.iterator().next();
+    assertThat(metadata.getKey()).isEqualTo("foo");
+    assertThat(metadata.getName()).isEqualTo("Foo");
+    assertThat(metadata.getVersion()).isEqualTo("1.0");
+    assertThat(metadata.getOrganization()).isEqualTo("SonarSource");
+    assertThat(metadata.getOrganizationUrl()).isEqualTo("http://www.sonarsource.org");
+    assertThat(metadata.getLicense()).isEqualTo("LGPL 3");
+    assertThat(metadata.getMainClass()).isEqualTo("foo.Main");
   }
 
   @Test
@@ -262,7 +286,7 @@ public class ServerPluginJarsInstallerTest {
 
     assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
     assertThat(FileUtils.listFiles(trashDir, new String[] {"jar"}, false)).hasSize(0);
-    assertThat(jarsInstaller.getUninstalls()).isEmpty();
+    assertThat(jarsInstaller.getUninstalledPluginFilenames()).isEmpty();
   }
 
   @Test
