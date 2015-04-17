@@ -19,46 +19,47 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 
-public class QProfileImportersAction implements BaseQProfileWsAction {
+public class QProfileExportersAction implements BaseQProfileWsAction {
 
-  private final ProfileImporter[] importers;
+  private ProfileExporter[] exporters;
 
-  public QProfileImportersAction(ProfileImporter[] importers) {
-    this.importers = importers;
+  public QProfileExportersAction(ProfileExporter[] exporters) {
+    this.exporters = exporters;
   }
 
-  public QProfileImportersAction() {
-    this(new ProfileImporter[0]);
+  public QProfileExportersAction() {
+    this(new ProfileExporter[0]);
   }
 
   @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("importers")
-      .setSince("5.2")
-      .setDescription("List supported importers.")
-      .setResponseExample(getClass().getResource("example-importers.json"))
-      .setHandler(this);
+  public void define(NewController context) {
+    context.createAction("exporters")
+      .setDescription("Lists available profile export formats.")
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("example-exporters.json"))
+      .setSince("5.2");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    JsonWriter json = response.newJsonWriter().beginObject().name("importers").beginArray();
-    for (ProfileImporter importer : importers) {
+    JsonWriter json = response.newJsonWriter().beginObject().name("exporters").beginArray();
+    for (ProfileExporter exporter : exporters) {
       json.beginObject()
-        .prop("key", importer.getKey())
-        .prop("name", importer.getName())
-        .name("languages").beginArray();
-      for (String languageKey : importer.getSupportedLanguages()) {
-        json.value(languageKey);
+        .prop("key", exporter.getKey())
+        .prop("name", exporter.getName());
+      json.name("languages").beginArray();
+      for (String language : exporter.getSupportedLanguages()) {
+        json.value(language);
       }
       json.endArray().endObject();
     }
     json.endArray().endObject().close();
   }
+
 }

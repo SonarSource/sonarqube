@@ -34,6 +34,7 @@ import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 
@@ -49,6 +50,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class QProfileBackuper implements ServerComponent {
+
+  public static final String MEDIA_TYPE_XML = MimeTypes.XML;
 
   private final QProfileReset reset;
   private final DbClient db;

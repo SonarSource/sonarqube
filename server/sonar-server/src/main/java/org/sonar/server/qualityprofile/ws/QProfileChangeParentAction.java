@@ -59,6 +59,7 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
   public void define(NewController context) {
     NewAction inheritance = context.createAction("change_parent")
       .setSince("5.2")
+      .setPost(true)
       .setDescription("Change a quality profile's parent.")
       .setHandler(this);
 

@@ -65,7 +65,7 @@ public class QProfileBackupAction implements BaseQProfileWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
-    stream.setMediaType("text/xml");
+    stream.setMediaType(QProfileBackuper.MEDIA_TYPE_XML);
     OutputStreamWriter writer = new OutputStreamWriter(stream.output(), Charsets.UTF_8);
     DbSession session = dbClient.openSession(false);
     try {
