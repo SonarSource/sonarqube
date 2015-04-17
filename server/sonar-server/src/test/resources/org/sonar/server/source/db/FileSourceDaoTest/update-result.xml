@@ -2,7 +2,6 @@
 
   <file_sources id="101" project_uuid="PRJ_UUID" file_uuid="FILE1_UUID"
                 binary_data="[ignore]"
-                test_data="[null]"
                 data_hash="NEW_DATA_HASH"
                 line_hashes="NEW_LINE_HASHES"
                 src_hash="NEW_FILE_HASH"

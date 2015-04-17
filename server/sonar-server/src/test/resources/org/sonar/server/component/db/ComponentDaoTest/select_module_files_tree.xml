@@ -21,7 +21,6 @@
 
   <file_sources id="101" project_uuid="ABCD" file_uuid="EFGHI"
                 binary_data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
-                test_data="[null]"
                 line_hashes="lineEFGHI"
                 data_hash="dataEFGHI"
                 src_hash="srcEFGHI"
@@ -49,7 +48,6 @@
 
   <file_sources id="102" project_uuid="ABCD" file_uuid="HIJK"
                 binary_data=",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;"
-                test_data="[null]"
                 line_hashes="lineHIJK"
                 data_hash="dataHIJK"
                 src_hash="srcHIJK"
