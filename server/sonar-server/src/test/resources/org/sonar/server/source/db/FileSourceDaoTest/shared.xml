@@ -4,6 +4,6 @@
                   binary_data="abcde" data_hash="hash"
                   line_hashes="ABC\nDEF\nGHI"
                   src_hash="FILE_HASH"
-                  created_at="1500000000000" updated_at="1500000000000" />
+                  created_at="1500000000000" updated_at="1500000000000"  data_type="SOURCE" />
 
 </dataset>

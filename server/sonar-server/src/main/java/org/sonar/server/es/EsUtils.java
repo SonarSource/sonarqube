@@ -29,7 +29,12 @@ import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EsUtils {
 

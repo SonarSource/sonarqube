@@ -64,6 +64,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getFileUuid()).isEqualTo("FILE1_UUID");
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
+    assertThat(fileSourceDto.getDataType()).isEqualTo(FileSourceDto.Type.SOURCE);
   }
 
   @Test
@@ -107,26 +108,29 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
       .setDataHash("FILE2_DATA_HASH")
       .setLineHashes("LINE1_HASH\\nLINE2_HASH")
       .setSrcHash("FILE2_HASH")
+      .setDataType(FileSourceDto.Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L));
 
-    checkTable("insert", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
+    checkTable("insert", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
   }
 
   @Test
   public void update() throws Exception {
     setupData("shared");
 
-    dao.update(new FileSourceDto().setId(101L)
+    dao.update(new FileSourceDto()
+      .setId(101L)
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
       .setBinaryData("updated data".getBytes())
       .setDataHash("NEW_DATA_HASH")
       .setSrcHash("NEW_FILE_HASH")
       .setLineHashes("NEW_LINE_HASHES")
+      .setDataType(FileSourceDto.Type.SOURCE)
       .setUpdatedAt(1500000000002L));
 
-    checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
+    checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
   }
 
   @Test

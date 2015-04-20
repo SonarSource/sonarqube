@@ -1,0 +1,10 @@
+<dataset>
+
+  <file_sources id="1" project_uuid="project-1" file_uuid="file-1" data_type="SOURCE" created_at="123456789"
+                updated_at="456456456"/>
+  <file_sources id="2" project_uuid="project-2" file_uuid="file-2" data_type="SOURCE" created_at="123456789"
+                updated_at="456456456"/>
+  <file_sources id="3" project_uuid="project-3" file_uuid="file-3" data_type="SOURCE" created_at="123456789"
+                updated_at="456456456"/>
+
+</dataset>

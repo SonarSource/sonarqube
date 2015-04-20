@@ -24,7 +24,7 @@
                 line_hashes="lineEFGHI"
                 data_hash="dataEFGHI"
                 src_hash="srcEFGHI"
-                created_at="1412952242000" updated_at="1412952242000"/>
+                created_at="1412952242000" updated_at="1412952242000" data_type="SOURCE" />
 
   <!-- sub module -->
   <projects id="4" root_id="1" kee="org.struts:struts-data" name="Struts Data"
@@ -51,6 +51,6 @@
                 line_hashes="lineHIJK"
                 data_hash="dataHIJK"
                 src_hash="srcHIJK"
-                created_at="1412952242000" updated_at="1412952242000"/>
+                created_at="1412952242000" updated_at="1412952242000" data_type="SOURCE" />
 
 </dataset>

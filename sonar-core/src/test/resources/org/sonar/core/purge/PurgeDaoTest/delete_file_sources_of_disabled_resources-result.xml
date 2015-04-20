@@ -1,5 +1,5 @@
 <dataset>
 
   <file_sources id="2" project_uuid="ABCD" file_uuid="KLMN" binary_data="[null]" line_hashes="[null]" data_hash="321654988"
-                created_at="123456789" updated_at="123456789" src_hash="123456"/>
+                created_at="123456789" updated_at="123456789" src_hash="123456" data_type="SOURCE" />
 </dataset>

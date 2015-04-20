@@ -42,6 +42,7 @@ public class FileSourceDto {
   private String lineHashes;
   private String srcHash;
   private byte[] binaryData;
+  private String dataType;
   private String dataHash;
 
   public Long getId() {
@@ -187,5 +188,19 @@ public class FileSourceDto {
   public FileSourceDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  public String getDataType() {
+    return dataType;
+  }
+
+  public FileSourceDto setDataType(String dataType) {
+    this.dataType = dataType;
+    return this;
+  }
+
+  public static class Type {
+    public final static String SOURCE = "SOURCE";
+    public final static String TEST = "TEST";
   }
 }

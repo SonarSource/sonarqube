@@ -68,6 +68,7 @@ import org.sonar.server.db.migrations.v52.AddDependenciesComponentUuidColumns;
 import org.sonar.server.db.migrations.v52.DropDependenciesComponentColumns;
 import org.sonar.server.db.migrations.v52.FeedDependenciesComponentUuids;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
+import org.sonar.server.db.migrations.v52.FeedFileSourcesDataType;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 
@@ -141,6 +142,7 @@ public interface MigrationSteps {
     MoveProjectProfileAssociation.class,
     AddDependenciesComponentUuidColumns.class,
     FeedDependenciesComponentUuids.class,
-    DropDependenciesComponentColumns.class
+    DropDependenciesComponentColumns.class,
+    FeedFileSourcesDataType.class
     );
 }

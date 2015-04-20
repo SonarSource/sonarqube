@@ -8,6 +8,6 @@
                 binary_data="" data_hash="hash"
                 line_hashes="987654"
                 src_hash="12345"
-                created_at="1414597442000" updated_at="1414683842000"/>
+                created_at="1414597442000" updated_at="1414683842000" data_type="SOURCE" />
 
 </dataset>
