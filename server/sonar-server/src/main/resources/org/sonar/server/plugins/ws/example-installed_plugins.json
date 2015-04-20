@@ -8,10 +8,8 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "urls": {
-        "homepage": "http://redirect.sonarsource.com/plugins/scmgit.html",
-        "issueTracker": "http://jira.codehaus.org/browse/SONARSCGIT"
-      },
+      "homepage": "http://redirect.sonarsource.com/plugins/scmgit.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCGIT",
       "artifact": {
         "name": "sonar-scm-git-plugin-1.0.jar"
       }
@@ -24,10 +22,8 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "urls": {
-        "homepage": "http://redirect.sonarsource.com/plugins/java.html",
-        "issueTracker": "http://jira.codehaus.org/browse/SONARJAVA"
-      },
+      "homepage": "http://redirect.sonarsource.com/plugins/java.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARJAVA",
       "artifact": {
         "name": "sonar-java-plugin-3.0.jar"
       }
@@ -40,10 +36,8 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "urls": {
-        "homepage": "http://redirect.sonarsource.com/plugins/scmsvn.html",
-        "issueTracker": "http://jira.codehaus.org/browse/SONARSCSVN"
-      },
+      "homepage": "http://redirect.sonarsource.com/plugins/scmsvn.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCSVN",
       "artifact": {
         "name": "sonar-scm-svn-plugin-1.0.jar"
       }

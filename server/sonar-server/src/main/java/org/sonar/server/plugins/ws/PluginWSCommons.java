@@ -36,9 +36,8 @@ public class PluginWSCommons {
   static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
   static final String PROPERTY_DATE = "date";
   static final String PROPERTY_STATUS = "status";
-  static final String OBJECT_URLS = "urls";
   static final String PROPERTY_HOMEPAGE = "homepage";
-  static final String PROPERTY_ISSUE_TRACKER = "issueTracker";
+  static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
   static final String OBJECT_ARTIFACT = "artifact";
   static final String PROPERTY_URL = "url";
   static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
@@ -51,8 +50,6 @@ public class PluginWSCommons {
     jsonWriter.beginObject();
 
     writeMetadata(jsonWriter, pluginMetadata);
-
-    writeUrls(jsonWriter, pluginMetadata);
 
     writeArtifact(jsonWriter, pluginMetadata);
 
@@ -67,14 +64,8 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
     jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganization());
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
-  }
-
-  public void writeUrls(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.name(OBJECT_URLS);
-    jsonWriter.beginObject();
     jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
-    jsonWriter.prop(PROPERTY_ISSUE_TRACKER, pluginMetadata.getIssueTrackerUrl());
-    jsonWriter.endObject();
+    jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
   }
 
   public void writeArtifact(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {

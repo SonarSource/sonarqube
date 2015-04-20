@@ -58,10 +58,8 @@ public class PluginWSCommonsTest {
         "  \"license\": \"GNU LGPL 3\"," +
         "  \"organizationName\": \"SonarSource\"," +
         "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "  \"urls\": {" +
-        "    \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "    \"issueTracker\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
-        "  }," +
+        "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "  \"artifact\": {" +
         "    \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "  }" +
@@ -83,21 +81,8 @@ public class PluginWSCommonsTest {
         "  \"license\": \"GNU LGPL 3\"," +
         "  \"organizationName\": \"SonarSource\"," +
         "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "}");
-  }
-
-  @Test
-  public void verify_properties_written_by_writeUrls() throws Exception {
-    jsonWriter.beginObject();
-    underTest.writeUrls(jsonWriter, GIT_PLUGIN_METADATA);
-    jsonWriter.endObject();
-
-    jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"urls\": {" +
-        "    \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "    \"issueTracker\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
-        "  }," +
+        "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "}");
   }
 

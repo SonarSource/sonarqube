@@ -126,11 +126,8 @@ public class InstalledPluginsWsActionTest {
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\"," +
-        "      \"urls\":" +
-        "      {" +
-        "        \"homepage\": \"homepage_url\"," +
-        "        \"issueTracker\": \"issueTracker_url\"" +
-        "      }," +
+        "      \"homepage\": \"homepage_url\"," +
+        "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"artifact\":" +
         "      {" +
         "        \"name\": \"some.jar\"" +
