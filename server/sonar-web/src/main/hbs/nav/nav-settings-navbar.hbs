@@ -50,7 +50,7 @@
 
     <li class="dropdown">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-        {{t 'sidebar.system'}}&nbsp;<i class="icon-dropdown"></i>
+        {{t 'sidebar.projects'}}&nbsp;<i class="icon-dropdown"></i>
       </a>
       <ul class="dropdown-menu">
         {{#if settingsProvisioning}}
@@ -61,6 +61,17 @@
         <li>
           <a href="{{link '/bulk_deletion'}}">{{t 'bulk_deletion.page'}}</a>
         </li>
+        <li>
+          <a href="{{link '/analysis_reports'}}">{{t 'analysis_reports.page'}}</a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        {{t 'sidebar.system'}}&nbsp;<i class="icon-dropdown"></i>
+      </a>
+      <ul class="dropdown-menu">
         {{#if settingsUpdateCenter}}
           <li>
             <a href="{{link '/updatecenter'}}">{{t 'update_center.page'}}</a>
@@ -68,9 +79,6 @@
         {{/if}}
         <li>
           <a href="{{link '/system'}}">{{t 'system_info.page'}}</a>
-        </li>
-        <li>
-          <a href="{{link '/analysis_reports'}}">{{t 'analysis_reports.page'}}</a>
         </li>
       </ul>
     </li>
