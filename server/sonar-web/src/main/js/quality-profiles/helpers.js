@@ -20,8 +20,7 @@
 (function () {
 
   Handlebars.registerHelper('profileUrl', function (key) {
-    //FIXME change me
-    return baseUrl + '/quality_profiles/show?key=' + encodeURIComponent(key);
+    return baseUrl + '/profiles/show?key=' + encodeURIComponent(key);
   });
 
   Handlebars.registerHelper('exporterUrl', function (profile, exporterKey) {

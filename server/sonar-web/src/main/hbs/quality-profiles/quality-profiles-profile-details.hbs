@@ -4,7 +4,7 @@
   </header>
   <p>
     <a class="big" href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
-    activate rules
+    {{tp 'quality_profile.x_active_rules' ''}}
   </p>
   {{#notEmpty rulesSeverities}}
     <div class="abs-width-400 spacer-top">
