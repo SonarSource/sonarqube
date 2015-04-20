@@ -68,10 +68,13 @@ require([
 
 
   var requestUser = $.get(baseUrl + '/api/users/current').done(function (r) {
-    App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
-  });
+        App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
+      }),
+      requestExporters = $.get(baseUrl + '/api/qualityprofiles/exporters').done(function (r) {
+        App.exporters = r.exporters;
+      });
 
-  $.when(window.requestMessages(), requestUser).done(function () {
+  $.when(window.requestMessages(), requestUser, requestExporters).done(function () {
     App.start();
   });
 

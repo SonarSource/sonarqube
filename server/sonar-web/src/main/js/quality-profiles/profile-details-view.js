@@ -132,12 +132,20 @@ define([
       this.scrollTo('#quality-profile-comparison');
     },
 
+    getExporters: function () {
+      var language = this.model.get('language');
+      return this.options.exporters.filter(function (exporter) {
+        return exporter.languages.indexOf(language) !== -1;
+      });
+    },
+
     serializeData: function () {
       var key = this.model.get('key'),
           rulesSearchUrl = '/coding_rules#qprofile=' + encodeURIComponent(key) + '|activation=true';
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         rulesSearchUrl: rulesSearchUrl,
-        canWrite: this.options.canWrite
+        canWrite: this.options.canWrite,
+        exporters: this.getExporters()
       });
     }
   });

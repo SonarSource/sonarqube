@@ -51,7 +51,16 @@
   <header class="page-header">
     <h3 class="page-title">{{t 'permalinks'}}</h3>
   </header>
-  <p class="alert alert-warning">Coming soon...</p>
+  <ul class="list-inline">
+    <li>
+      <a href="{{exporterUrl this null}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{t 'quality_profiles.export_all_rules'}}</a>
+    </li>
+    {{#each exporters}}
+      <li>
+        <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
+      </li>
+    {{/each}}
+  </ul>
 </div>
 
 <div class="panel panel-vertical" id="quality-profile-inheritance">

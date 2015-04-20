@@ -20,7 +20,18 @@
 (function () {
 
   Handlebars.registerHelper('profileUrl', function (key) {
+    //FIXME change me
     return baseUrl + '/quality_profiles/show?key=' + encodeURIComponent(key);
+  });
+
+  Handlebars.registerHelper('exporterUrl', function (profile, exporterKey) {
+    var url = baseUrl + '/api/qualityprofiles/export';
+    url += '?language=' + encodeURIComponent(profile.language);
+    url += '&name=' + encodeURIComponent(profile.name);
+    if (exporterKey != null) {
+      url += '&exporterKey=' + encodeURIComponent(exporterKey);
+    }
+    return url;
   });
 
   Handlebars.registerHelper('severityChangelog', function (severity) {

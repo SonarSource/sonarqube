@@ -89,6 +89,7 @@ define([
         var profileDetailsView = new ProfileDetailsView({
           model: profile,
           canWrite: that.options.app.canWrite,
+          exporters: that.options.app.exporters,
           anchor: that.anchor
         });
         that.options.app.layout.detailsRegion.show(profileDetailsView);
