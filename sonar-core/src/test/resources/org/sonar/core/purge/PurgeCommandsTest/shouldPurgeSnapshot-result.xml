@@ -33,11 +33,11 @@ Note that measures, events and reviews are not deleted.
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]" measure_data="[null]"/>
 
-  <!--<dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="2" to_snapshot_id="2"-->
+  <!--<dependencies id="1" from_resource_id="1" from_component_uuid="A" from_snapshot_id="1" to_resource_id="2" to_component_uuid="B" to_snapshot_id="2"-->
   <!--parent_dependency_id="[null]" project_snapshot_id="[null]"-->
   <!--dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>-->
 
-  <!--<dependencies id="2" from_resource_id="3" from_snapshot_id="3" to_resource_id="1" to_snapshot_id="1"-->
+  <!--<dependencies id="2" from_resource_id="3" from_component_uuid="C" from_snapshot_id="3" to_resource_id="1" to_component_uuid="A" to_snapshot_id="1"-->
   <!--parent_dependency_id="[null]" project_snapshot_id="2"-->
   <!--dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>-->
 
@@ -72,11 +72,11 @@ Note that measures, events and reviews are not deleted.
                     text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
                     description="[null]" measure_data="[null]"/>
 
-  <dependencies id="3" from_resource_id="33" from_snapshot_id="33" to_resource_id="44" to_snapshot_id="44"
+  <dependencies id="3" from_resource_id="33" from_component_uuid="CC" from_snapshot_id="33" to_resource_id="44" to_component_uuid="DD" to_snapshot_id="44"
                 parent_dependency_id="[null]" project_snapshot_id="[null]"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
 
-  <dependencies id="4" from_resource_id="55" from_snapshot_id="55" to_resource_id="66" to_snapshot_id="66"
+  <dependencies id="4" from_resource_id="55" from_component_uuid="EE" from_snapshot_id="55" to_resource_id="66" to_component_uuid="FF" to_snapshot_id="66"
                 parent_dependency_id="[null]" project_snapshot_id="2"
                 dep_usage="USES" dep_weight="1" from_scope="LIB" to_scope="PRJ"/>
 

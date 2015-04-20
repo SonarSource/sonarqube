@@ -64,6 +64,7 @@ import org.sonar.server.db.migrations.v51.FeedUsersLongDates;
 import org.sonar.server.db.migrations.v51.RemovePermissionsOnModulesMigrationStep;
 import org.sonar.server.db.migrations.v51.RenameComponentRelatedParamsInIssueFilters;
 import org.sonar.server.db.migrations.v51.UpdateProjectsModuleUuidPath;
+import org.sonar.server.db.migrations.v52.AddDependenciesComponentUuidColumns;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
@@ -135,6 +136,7 @@ public interface MigrationSteps {
     // 5.2
     FeedProjectLinksComponentUuid.class,
     FeedEventsComponentUuid.class,
-    MoveProjectProfileAssociation.class
+    MoveProjectProfileAssociation.class,
+    AddDependenciesComponentUuidColumns.class
     );
 }
