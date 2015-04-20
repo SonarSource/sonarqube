@@ -56,7 +56,7 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
 
   private final PluginRepository pluginRepository;
 
-  private static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
+  public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
     .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
 

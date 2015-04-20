@@ -2,21 +2,48 @@
   "installing":
   [
     {
+      "key": "scmgit",
+      "name": "Git",
+      "description": "Git SCM Provider.",
+      "version": "1.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCGIT",
       "artifact": {
-        "name": "findbugs-2.1.jar"
+        "name": "sonar-scm-git-plugin-1.0.jar"
       }
     },
     {
+      "key": "java",
+      "name": "Java",
+      "description": "SonarQube rule engine.",
+      "version": "3.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/java.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARJAVA",
       "artifact": {
-        "name": "jira-2.6.jar"
+        "name": "sonar-java-plugin-3.0.jar"
       }
     }
   ],
   "removing":
   [
     {
+      "key": "scmsvn",
+      "name": "SVN",
+      "description": "SVN SCM Provider.",
+      "version": "1.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmsvn.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCSVN",
       "artifact": {
-        "name": "pmd-2.1.jar"
+        "name": "sonar-scm-svn-plugin-1.0.jar"
       }
     }
   ]

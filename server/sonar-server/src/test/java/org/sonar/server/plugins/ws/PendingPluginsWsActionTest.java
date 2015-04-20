@@ -22,19 +22,36 @@ package org.sonar.server.plugins.ws;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginJarsInstaller;
 import org.sonar.server.ws.WsTester;
+
+import java.io.File;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.plugins.DefaultPluginMetadata.create;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class PendingPluginsWsActionTest {
 
+  public static final DefaultPluginMetadata GIT_PLUGIN_METADATA = create("scmgit")
+    .setName("Git")
+    .setDescription("Git SCM Provider.")
+    .setVersion("1.0")
+    .setLicense("GNU LGPL 3")
+    .setOrganization("SonarSource")
+    .setOrganizationUrl("http://www.sonarsource.com")
+    .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
+    .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
+    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
+  public static final DefaultPluginMetadata PLUGIN_2_2 = create("key2").setName("name2");
+  public static final DefaultPluginMetadata PLUGIN_2_1 = create("key1").setName("name2");
+  public static final DefaultPluginMetadata PLUGIN_0_0 = create("key0").setName("name0");
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private ServerPluginJarsInstaller serverPluginJarsInstaller = mock(ServerPluginJarsInstaller.class);
@@ -74,7 +91,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    when(pluginDownloader.getDownloadedPluginFilenames()).thenReturn(of("installed_file.jar"));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(GIT_PLUGIN_METADATA));
 
     underTest.handle(request, response);
 
@@ -83,8 +100,17 @@ public class PendingPluginsWsActionTest {
         "  \"installing\": " +
         "  [" +
         "    {" +
+        "      \"key\": \"scmgit\"," +
+        "      \"name\": \"Git\"," +
+        "      \"description\": \"Git SCM Provider.\"," +
+        "      \"version\": \"1.0\"," +
+        "      \"license\": \"GNU LGPL 3\"," +
+        "      \"organizationName\": \"SonarSource\"," +
+        "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
+        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "      \"artifact\": {" +
-        "        \"name\": \"installed_file.jar\"" +
+        "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +
         "    }" +
         "  ]," +
@@ -95,7 +121,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalledPluginFilenames()).thenReturn(of("removed_file.jar"));
+    when(serverPluginJarsInstaller.getUninstalledPlugins()).thenReturn(of(GIT_PLUGIN_METADATA));
 
     underTest.handle(request, response);
 
@@ -105,8 +131,17 @@ public class PendingPluginsWsActionTest {
         "  \"removing\": " +
         "  [" +
         "    {" +
+        "      \"key\": \"scmgit\"," +
+        "      \"name\": \"Git\"," +
+        "      \"description\": \"Git SCM Provider.\"," +
+        "      \"version\": \"1.0\"," +
+        "      \"license\": \"GNU LGPL 3\"," +
+        "      \"organizationName\": \"SonarSource\"," +
+        "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
+        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "      \"artifact\": {" +
-        "        \"name\": \"removed_file.jar\"" +
+        "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +
         "    }" +
         "  ]" +
@@ -115,8 +150,13 @@ public class PendingPluginsWsActionTest {
   }
 
   @Test
-  public void installing_plugin_are_sorted_and_unique() throws Exception {
-    when(pluginDownloader.getDownloadedPluginFilenames()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
+  public void installing_plugin_are_sorted_by_name_then_key_and_are_unique() throws Exception {
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
+      PLUGIN_2_2,
+      PLUGIN_2_1,
+      PLUGIN_2_2,
+      PLUGIN_0_0
+      ));
 
     underTest.handle(request, response);
 
@@ -125,19 +165,16 @@ public class PendingPluginsWsActionTest {
         "  \"installing\": " +
         "  [" +
         "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file0.jar\"" +
-        "      }" +
+        "      \"key\": \"key0\"," +
+        "      \"name\": \"name0\"," +
         "    }," +
         "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file1.jar\"" +
-        "      }" +
+        "      \"key\": \"key1\"," +
+        "      \"name\": \"name2\"," +
         "    }," +
         "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file2.jar\"" +
-        "      }" +
+        "      \"key\": \"key2\"," +
+        "      \"name\": \"name2\"," +
         "    }" +
         "  ]," +
         "  \"removing\": []" +
@@ -147,7 +184,12 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void removing_plugin_are_sorted_and_unique() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalledPluginFilenames()).thenReturn(of("file2.jar", "file0.jar", "file0.jar", "file1.jar"));
+    when(serverPluginJarsInstaller.getUninstalledPlugins()).thenReturn(of(
+        PLUGIN_2_2,
+        PLUGIN_2_1,
+        PLUGIN_2_2,
+        PLUGIN_0_0
+    ));
 
     underTest.handle(request, response);
 
@@ -156,21 +198,18 @@ public class PendingPluginsWsActionTest {
         "  \"installing\": []," +
         "  \"removing\": " +
         "  [" +
-        "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file0.jar\"" +
-        "      }" +
-        "    }," +
-        "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file1.jar\"" +
-        "      }" +
-        "    }," +
-        "    {" +
-        "      \"artifact\": {" +
-        "        \"name\": \"file2.jar\"" +
-        "      }" +
-        "    }" +
+          "    {" +
+          "      \"key\": \"key0\"," +
+          "      \"name\": \"name0\"," +
+          "    }," +
+          "    {" +
+          "      \"key\": \"key1\"," +
+          "      \"name\": \"name2\"," +
+          "    }," +
+          "    {" +
+          "      \"key\": \"key2\"," +
+          "      \"name\": \"name2\"," +
+          "    }" +
         "  ]" +
         "}"
       );
