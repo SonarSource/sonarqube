@@ -55,7 +55,7 @@ public class PendingPluginsWsActionTest {
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private ServerPluginJarsInstaller serverPluginJarsInstaller = mock(ServerPluginJarsInstaller.class);
-  private PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginJarsInstaller);
+  private PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginJarsInstaller, new PluginWSCommons());
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
@@ -107,8 +107,10 @@ public class PendingPluginsWsActionTest {
         "      \"license\": \"GNU LGPL 3\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"urls\": {" +
+        "        \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "        \"issueTracker\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
+        "      }," +
         "      \"artifact\": {" +
         "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +
@@ -138,8 +140,10 @@ public class PendingPluginsWsActionTest {
         "      \"license\": \"GNU LGPL 3\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"urls\": {" +
+        "        \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "        \"issueTracker\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
+        "      }," +
         "      \"artifact\": {" +
         "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +
@@ -185,11 +189,11 @@ public class PendingPluginsWsActionTest {
   @Test
   public void removing_plugin_are_sorted_and_unique() throws Exception {
     when(serverPluginJarsInstaller.getUninstalledPlugins()).thenReturn(of(
-        PLUGIN_2_2,
-        PLUGIN_2_1,
-        PLUGIN_2_2,
-        PLUGIN_0_0
-    ));
+      PLUGIN_2_2,
+      PLUGIN_2_1,
+      PLUGIN_2_2,
+      PLUGIN_0_0
+      ));
 
     underTest.handle(request, response);
 
@@ -198,18 +202,18 @@ public class PendingPluginsWsActionTest {
         "  \"installing\": []," +
         "  \"removing\": " +
         "  [" +
-          "    {" +
-          "      \"key\": \"key0\"," +
-          "      \"name\": \"name0\"," +
-          "    }," +
-          "    {" +
-          "      \"key\": \"key1\"," +
-          "      \"name\": \"name2\"," +
-          "    }," +
-          "    {" +
-          "      \"key\": \"key2\"," +
-          "      \"name\": \"name2\"," +
-          "    }" +
+        "    {" +
+        "      \"key\": \"key0\"," +
+        "      \"name\": \"name0\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key1\"," +
+        "      \"name\": \"name2\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key2\"," +
+        "      \"name\": \"name2\"," +
+        "    }" +
         "  ]" +
         "}"
       );

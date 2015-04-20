@@ -19,10 +19,8 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -36,38 +34,27 @@ import java.util.Collection;
 import java.util.SortedSet;
 
 import static com.google.common.collect.Iterables.filter;
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 
 /**
  * Implementation of the {@code installed} action for the Plugins WebService.
  */
 public class InstalledPluginsWsAction implements PluginsWsAction {
-  private static final String PROPERTY_KEY = "key";
-  private static final String PROPERTY_NAME = "name";
-  private static final String PROPERTY_DESCRIPTION = "description";
-  private static final String PROPERTY_LICENSE = "license";
-  private static final String PROPERTY_VERSION = "version";
   private static final String ARRAY_PLUGINS = "plugins";
-  private static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
-  private static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
-  private static final String OBJECT_URLS = "urls";
-  private static final String PROPERTY_HOMEPAGE = "homepage";
-  private static final String PROPERTY_ISSUE_TRACKER = "issueTracker";
-  private static final String OBJECT_ARTIFACT = "artifact";
 
   private final PluginRepository pluginRepository;
+  private final PluginWSCommons pluginWSCommons;
 
-  public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
-    .onResultOf(PluginMetadataToName.INSTANCE)
-    .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
-
-  public InstalledPluginsWsAction(PluginRepository pluginRepository) {
+  public InstalledPluginsWsAction(PluginRepository pluginRepository,
+    PluginWSCommons pluginWSCommons) {
     this.pluginRepository = pluginRepository;
+    this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("installed")
-      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by name")
+      .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
@@ -95,53 +82,12 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
   }
 
   private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginMetadata> pluginMetadatas) {
-      jsonWriter.name(ARRAY_PLUGINS);
-      jsonWriter.beginArray();
-      for (PluginMetadata pluginMetadata : pluginMetadatas) {
-        writePluginMetadata(jsonWriter, pluginMetadata);
-      }
-      jsonWriter.endArray();
-  }
-
-  private void writePluginMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.beginObject();
-
-    writeMetadata(jsonWriter, pluginMetadata);
-
-    writeUrls(jsonWriter, pluginMetadata);
-
-    writeArtifact(jsonWriter, pluginMetadata);
-
-    jsonWriter.endObject();
-  }
-
-  private void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.prop(PROPERTY_KEY, pluginMetadata.getKey());
-    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getName());
-    jsonWriter.prop(PROPERTY_DESCRIPTION, pluginMetadata.getDescription());
-    jsonWriter.prop(PROPERTY_VERSION, pluginMetadata.getVersion());
-    jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganization());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
-  }
-
-  private void writeUrls(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.name(OBJECT_URLS);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
-    jsonWriter.prop(PROPERTY_ISSUE_TRACKER, pluginMetadata.getIssueTrackerUrl());
-    jsonWriter.endObject();
-  }
-
-  private void writeArtifact(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    if (pluginMetadata.getFile() == null) {
-      return;
+    jsonWriter.name(ARRAY_PLUGINS);
+    jsonWriter.beginArray();
+    for (PluginMetadata pluginMetadata : pluginMetadatas) {
+      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
-
-    jsonWriter.name(OBJECT_ARTIFACT);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getFile().getName());
-    jsonWriter.endObject();
+    jsonWriter.endArray();
   }
 
   private enum NotCorePluginsPredicate implements Predicate<PluginMetadata> {
@@ -150,30 +96,6 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
     @Override
     public boolean apply(@Nullable PluginMetadata input) {
       return input != null && !input.isCore();
-    }
-  }
-
-  private enum PluginMetadataToName implements Function<PluginMetadata, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nullable PluginMetadata input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getName();
-    }
-  }
-
-  private enum PluginMetadataToKey implements Function<PluginMetadata, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nullable PluginMetadata input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getKey();
     }
   }
 }

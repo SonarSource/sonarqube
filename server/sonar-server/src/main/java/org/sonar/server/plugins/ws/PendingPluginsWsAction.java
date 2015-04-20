@@ -29,11 +29,10 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginJarsInstaller;
 
 import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.io.Resources.getResource;
-import static org.sonar.server.plugins.ws.InstalledPluginsWsAction.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 
 /**
  * Implementation of the {@code pending} action for the Plugins WebService.
@@ -42,21 +41,23 @@ public class PendingPluginsWsAction implements PluginsWsAction {
 
   private static final String ARRAY_INSTALLING = "installing";
   private static final String ARRAY_REMOVING = "removing";
-  private static final String OBJECT_ARTIFACT = "artifact";
-  private static final String PROPERTY_NAME = "name";
 
   private final PluginDownloader pluginDownloader;
   private final ServerPluginJarsInstaller serverPluginJarsInstaller;
+  private final PluginWSCommons pluginWSCommons;
 
-  public PendingPluginsWsAction(PluginDownloader pluginDownloader, ServerPluginJarsInstaller serverPluginJarsInstaller) {
+  public PendingPluginsWsAction(PluginDownloader pluginDownloader,
+                                ServerPluginJarsInstaller serverPluginJarsInstaller,
+                                PluginWSCommons pluginWSCommons) {
     this.pluginDownloader = pluginDownloader;
     this.serverPluginJarsInstaller = serverPluginJarsInstaller;
+    this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("pending")
-        .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by archive name")
+        .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name")
         .setSince("5.2")
         .setHandler(this)
         .setResponseExample(getResource(this.getClass(), "example-pending_plugins.json"));
@@ -79,9 +80,9 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private void writeInstalling(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_INSTALLING);
     jsonWriter.beginArray();
-    List<DefaultPluginMetadata> plugins = pluginDownloader.getDownloadedPlugins();
+    Collection<DefaultPluginMetadata> plugins = pluginDownloader.getDownloadedPlugins();
     for (PluginMetadata pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
-      writePlugin(jsonWriter, pluginMetadata);
+      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();
   }
@@ -91,42 +92,9 @@ public class PendingPluginsWsAction implements PluginsWsAction {
     jsonWriter.beginArray();
     Collection<DefaultPluginMetadata> plugins = serverPluginJarsInstaller.getUninstalledPlugins();
     for (PluginMetadata pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
-      writePlugin(jsonWriter, pluginMetadata);
+      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();
   }
 
-  private void writePlugin(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.beginObject();
-
-    writeMetadata(jsonWriter, pluginMetadata);
-
-    jsonWriter.prop("homepageUrl", pluginMetadata.getHomepage());
-    jsonWriter.prop("issueTrackerUrl", pluginMetadata.getIssueTrackerUrl());
-
-    writeArchive(jsonWriter, pluginMetadata);
-
-    jsonWriter.endObject();
-  }
-
-  private void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    jsonWriter.prop("key", pluginMetadata.getKey());
-    jsonWriter.prop("name", pluginMetadata.getName());
-    jsonWriter.prop("description", pluginMetadata.getDescription());
-    jsonWriter.prop("version", pluginMetadata.getVersion());
-    jsonWriter.prop("license", pluginMetadata.getLicense());
-    jsonWriter.prop("organizationName", pluginMetadata.getOrganization());
-    jsonWriter.prop("organizationUrl", pluginMetadata.getOrganizationUrl());
-  }
-
-  private void writeArchive(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    if (pluginMetadata.getFile() == null) {
-      return;
-    }
-
-    jsonWriter.name(OBJECT_ARTIFACT);
-    jsonWriter.beginObject();
-    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getFile().getName());
-    jsonWriter.endObject();
-  }
 }

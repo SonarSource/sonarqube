@@ -19,10 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
@@ -37,7 +34,6 @@ import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class InstalledPluginsWsActionTest {
@@ -47,20 +43,12 @@ public class InstalledPluginsWsActionTest {
       "  \"plugins\":" + "[]" +
       "}";
 
-  @Mock
-  private PluginRepository pluginRepository;
-  @InjectMocks
-  private InstalledPluginsWsAction underTest;
+  private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private InstalledPluginsWsAction underTest = new InstalledPluginsWsAction(pluginRepository, new PluginWSCommons());
 
-  @Mock
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
   private PluginMetadata corePlugin = corePlugin("core1", 10);
-
-  @Before
-  public void createMocks() throws Exception {
-    initMocks(this);
-  }
 
   @Test
   public void action_installed_is_defined() throws Exception {
@@ -98,10 +86,10 @@ public class InstalledPluginsWsActionTest {
   @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
     when(pluginRepository.getMetadata()).thenReturn(
-        of(
-            (PluginMetadata) DefaultPluginMetadata.create("").setName("").setCore(false)
-        )
-    );
+      of(
+      (PluginMetadata) DefaultPluginMetadata.create("").setName("").setCore(false)
+      )
+      );
 
     underTest.handle(request, response);
 
@@ -127,30 +115,30 @@ public class InstalledPluginsWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(
-        "{" +
-            "  \"plugins\":" +
-            "  [" +
-            "    {" +
-            "      \"key\": \"plugKey\"," +
-            "      \"name\": \"plugName\"," +
-            "      \"description\": \"desc_it\"," +
-            "      \"version\": \"10\"," +
-            "      \"license\": \"license_hey\"," +
-            "      \"organizationName\": \"org_name\"," +
-            "      \"organizationUrl\": \"org_url\"," +
-            "      \"urls\":" +
-            "      {" +
-            "        \"homepage\": \"homepage_url\"," +
-            "        \"issueTracker\": \"issueTracker_url\"" +
-            "      }," +
-            "      \"artifact\":" +
-            "      {" +
-            "        \"name\": \"some.jar\"" +
-            "      }" +
-            "    }" +
-            "  ]" +
-            "}"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"plugKey\"," +
+        "      \"name\": \"plugName\"," +
+        "      \"description\": \"desc_it\"," +
+        "      \"version\": \"10\"," +
+        "      \"license\": \"license_hey\"," +
+        "      \"organizationName\": \"org_name\"," +
+        "      \"organizationUrl\": \"org_url\"," +
+        "      \"urls\":" +
+        "      {" +
+        "        \"homepage\": \"homepage_url\"," +
+        "        \"issueTracker\": \"issueTracker_url\"" +
+        "      }," +
+        "      \"artifact\":" +
+        "      {" +
+        "        \"name\": \"some.jar\"" +
+        "      }" +
+        "    }" +
+        "  ]" +
+        "}"
+      );
   }
 
   @Test
@@ -167,16 +155,16 @@ public class InstalledPluginsWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
-        "{" +
-            "  \"plugins\":" +
-            "  [" +
-            "    {\"key\": \"C\"}" + "," +
-            "    {\"key\": \"D\"}" + "," +
-            "    {\"key\": \"B\"}" + "," +
-            "    {\"key\": \"A\"}" +
-            "  ]" +
-            "}"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {\"key\": \"C\"}" + "," +
+        "    {\"key\": \"D\"}" + "," +
+        "    {\"key\": \"B\"}" + "," +
+        "    {\"key\": \"A\"}" +
+        "  ]" +
+        "}"
+      );
   }
 
   @Test
@@ -191,13 +179,13 @@ public class InstalledPluginsWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
-        "{" +
-            "  \"plugins\":" +
-            "  [" +
-            "    {\"key\": \"A\"}" +
-            "  ]" +
-            "}"
-    );
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {\"key\": \"A\"}" +
+        "  ]" +
+        "}"
+      );
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
   }
 

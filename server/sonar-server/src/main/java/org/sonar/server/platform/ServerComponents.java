@@ -219,6 +219,7 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
 import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
 import org.sonar.server.plugins.ws.PendingPluginsWsAction;
+import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -875,18 +876,19 @@ class ServerComponents {
 
     // System
     pico.addSingletons(Arrays.asList(
-      SystemRestartWsAction.class,
-      SystemInfoWsAction.class,
-      SystemWs.class,
-      SystemMonitor.class,
-      SonarQubeMonitor.class,
-      EsMonitor.class,
-      PluginsMonitor.class,
-      JvmPropertiesMonitor.class,
-      DatabaseMonitor.class
-      ));
+        SystemRestartWsAction.class,
+        SystemInfoWsAction.class,
+        SystemWs.class,
+        SystemMonitor.class,
+        SonarQubeMonitor.class,
+        EsMonitor.class,
+        PluginsMonitor.class,
+        JvmPropertiesMonitor.class,
+        DatabaseMonitor.class
+    ));
 
     // Plugins WS
+    pico.addSingleton(PluginWSCommons.class);
     pico.addSingleton(InstalledPluginsWsAction.class);
     pico.addSingleton(AvailablePluginsWsAction.class);
     pico.addSingleton(PendingPluginsWsAction.class);
