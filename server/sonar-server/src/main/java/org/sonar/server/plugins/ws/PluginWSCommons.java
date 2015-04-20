@@ -31,9 +31,11 @@ import org.sonar.updatecenter.common.Release;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Comparator;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
 
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
@@ -58,6 +60,11 @@ public class PluginWSCommons {
   public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
     .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
+  public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
+    .onResultOf(PluginUpdateToName.INSTANCE)
+    .compound(
+      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginUpdateToKey.INSTANCE)
+    );
 
   public void writePluginMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
     jsonWriter.beginObject();
@@ -198,6 +205,30 @@ public class PluginWSCommons {
     @Override
     public String apply(@Nonnull PluginMetadata input) {
       return input.getKey();
+    }
+  }
+
+  private enum PluginUpdateToKey implements Function<PluginUpdate, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nullable PluginUpdate input) {
+      if (input == null) {
+        return null;
+      }
+      return input.getPlugin().getKey();
+    }
+  }
+
+  private enum PluginUpdateToName implements Function<PluginUpdate, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nullable PluginUpdate input) {
+      if (input == null) {
+        return null;
+      }
+      return input.getPlugin().getName();
     }
   }
 }

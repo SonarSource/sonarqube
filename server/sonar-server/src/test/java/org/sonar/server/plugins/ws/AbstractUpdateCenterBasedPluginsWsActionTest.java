@@ -28,12 +28,14 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.Version;
 
 import java.net.URL;
 
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.Version.create;
 
 public class AbstractUpdateCenterBasedPluginsWsActionTest {
@@ -75,6 +77,13 @@ public class AbstractUpdateCenterBasedPluginsWsActionTest {
   protected static URL resource(String s) {
     Class<AvailablePluginsWsActionTest> clazz = AvailablePluginsWsActionTest.class;
     return clazz.getResource(clazz.getSimpleName() + "/" + s);
+  }
+
+  protected static PluginUpdate pluginUpdate(String key, String name) {
+    return PluginUpdate.createWithStatus(
+        new Release(new Plugin(key).setName(name), Version.create("1.0")),
+        COMPATIBLE
+    );
   }
 
   @Before

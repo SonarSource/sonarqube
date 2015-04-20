@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,7 +28,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.PluginUpdate;
 
-import java.util.List;
+import java.util.Collection;
+
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
 
 public class AvailablePluginsWsAction implements PluginsWsAction {
 
@@ -73,7 +76,10 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
     jsonWriter.endObject();
   }
 
-  private List<PluginUpdate> retrieveAvailablePlugins() {
-    return updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findAvailablePlugins();
+  private Collection<PluginUpdate> retrieveAvailablePlugins() {
+    return ImmutableSortedSet.copyOf(
+        NAME_KEY_PLUGIN_UPDATE_ORDERING,
+        updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findAvailablePlugins()
+    );
   }
 }

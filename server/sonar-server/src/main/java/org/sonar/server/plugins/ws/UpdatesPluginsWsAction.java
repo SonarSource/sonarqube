@@ -19,9 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -30,11 +28,9 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.PluginUpdate;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Comparator;
 
-import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -43,11 +39,6 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
   private static final String ARRAY_PLUGINS = "plugins";
-  private static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
-    .onResultOf(PluginUpdateToName.INSTANCE)
-    .compound(
-      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginUpdateToKey.INSTANCE)
-    );
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginWSCommons pluginWSCommons;
@@ -96,29 +87,5 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
       NAME_KEY_PLUGIN_UPDATE_ORDERING,
       updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findPluginUpdates()
       );
-  }
-
-  private enum PluginUpdateToKey implements Function<PluginUpdate, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nullable PluginUpdate input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getPlugin().getKey();
-    }
-  }
-
-  private enum PluginUpdateToName implements Function<PluginUpdate, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nullable PluginUpdate input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getPlugin().getName();
-    }
   }
 }

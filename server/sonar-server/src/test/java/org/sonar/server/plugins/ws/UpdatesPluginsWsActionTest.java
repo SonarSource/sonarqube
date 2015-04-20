@@ -22,10 +22,6 @@ package org.sonar.server.plugins.ws;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.WsTester;
-import org.sonar.updatecenter.common.Plugin;
-import org.sonar.updatecenter.common.PluginUpdate;
-import org.sonar.updatecenter.common.Release;
-import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,13 +122,6 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
         "    }," +
         "  ]" +
         "}"
-      );
-  }
-
-  private static PluginUpdate pluginUpdate(String key, String name) {
-    return PluginUpdate.createWithStatus(
-      new Release(new Plugin(key).setName(name), Version.create("1.0")),
-      COMPATIBLE
       );
   }
 }
