@@ -6,7 +6,7 @@
 <div id="accordion-panel"></div>
 
 <script type="text/javascript">
-  window.fileKey = '<%= @file.key -%>';
-  window.metric = '<%= @metric -%>';
+  window.fileKey = '<%= escape_javascript @file.key -%>';
+  window.metric = '<%= escape_javascript @metric -%>';
   document.getElementById('crumbs').remove();
 </script>

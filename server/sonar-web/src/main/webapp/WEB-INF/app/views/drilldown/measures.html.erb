@@ -8,7 +8,7 @@
   <div id="snapshot_title" class="page_title">
     <h4>
       <form method="GET" action="<%= url_for :action => 'measures' -%>" style="display: inline">
-        <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
+        <input type="hidden" name="metric" value="<%= h params[:metric] -%>"/>
 
         <select id="select-comparison" name="period" onchange="submit()">
           <% if @drilldown.display_value? %>
@@ -121,10 +121,10 @@
   <% end %>
 
   window.drilldown = {
-    metric: <% if @metric %>'<%= @metric.key -%>'<% else %>null<% end %>,
+    metric: <% if @metric %>'<%= escape_javascript @metric.key -%>'<% else %>null<% end %>,
     rule: null,
     severity: null,
-    period: <% if @period %><%= @period -%><% else %>null<% end %>
+    period: <% if @period %><%= escape_javascript @period -%><% else %>null<% end %>
   };
 </script>
 
