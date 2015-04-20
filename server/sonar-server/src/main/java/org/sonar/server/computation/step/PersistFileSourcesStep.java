@@ -173,8 +173,8 @@ public class PersistFileSourcesStep implements ComputationStep {
   }
 
   private static class LineReaders {
-    private final List<LineReader> lineReaders = new ArrayList<>();
-    private final List<ReportIterator> reportIterators = new ArrayList<>();
+    private final List<LineReader> readers = new ArrayList<>();
+    private final List<ReportIterator> iterators = new ArrayList<>();
 
     LineReaders(BatchReportReader reportReader, int componentRef) {
       File coverageFile = reportReader.readComponentCoverage(componentRef);
@@ -185,31 +185,31 @@ public class PersistFileSourcesStep implements ComputationStep {
 
       if (coverageFile != null) {
         ReportIterator<BatchReport.Coverage> coverageReportIterator = new ReportIterator<>(coverageFile, BatchReport.Coverage.PARSER);
-        reportIterators.add(coverageReportIterator);
-        lineReaders.add(new CoverageLineReader(coverageReportIterator));
+        iterators.add(coverageReportIterator);
+        readers.add(new CoverageLineReader(coverageReportIterator));
       }
       if (scmReport != null) {
-        lineReaders.add(new ScmLineReader(scmReport));
+        readers.add(new ScmLineReader(scmReport));
       }
       if (highlightingFile != null) {
         ReportIterator<BatchReport.SyntaxHighlighting> syntaxHighlightingReportIterator = new ReportIterator<>(highlightingFile, BatchReport.SyntaxHighlighting.PARSER);
-        reportIterators.add(syntaxHighlightingReportIterator);
-        lineReaders.add(new HighlightingLineReader(syntaxHighlightingReportIterator));
+        iterators.add(syntaxHighlightingReportIterator);
+        readers.add(new HighlightingLineReader(syntaxHighlightingReportIterator));
       }
       if (!duplications.isEmpty()) {
-        lineReaders.add(new DuplicationLineReader(duplications));
+        readers.add(new DuplicationLineReader(duplications));
       }
       if (!symbols.isEmpty()) {
-        lineReaders.add(new SymbolsLineReader(symbols));
+        readers.add(new SymbolsLineReader(symbols));
       }
     }
 
     List<LineReader> readers() {
-      return lineReaders;
+      return readers;
     }
 
     void close() {
-      for (ReportIterator reportIterator : reportIterators) {
+      for (ReportIterator reportIterator : iterators) {
         reportIterator.close();
       }
     }

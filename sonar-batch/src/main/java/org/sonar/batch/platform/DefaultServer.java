@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.platform;
 
-import org.sonar.batch.bootstrap.ServerClient;
-
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.batch.bootstrap.ServerClient;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.text.ParseException;
@@ -72,6 +73,7 @@ public class DefaultServer extends Server implements BatchComponent {
   }
 
   @Override
+  @CheckForNull
   public File getDeployDir() {
     return null;
   }

@@ -25,10 +25,14 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.platform.ServerStopHandler;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class ServerLifecycleNotifierTest {
 
@@ -106,6 +110,7 @@ class FakeServer extends Server {
   }
 
   @Override
+  @CheckForNull
   public File getDeployDir() {
     return null;
   }

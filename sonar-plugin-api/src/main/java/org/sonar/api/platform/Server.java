@@ -22,6 +22,8 @@ package org.sonar.api.platform;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Date;
 
@@ -38,6 +40,7 @@ public abstract class Server implements BatchComponent, ServerComponent {
 
   public abstract File getRootDir();
 
+  @CheckForNull
   public abstract File getDeployDir();
 
   public abstract String getContextPath();

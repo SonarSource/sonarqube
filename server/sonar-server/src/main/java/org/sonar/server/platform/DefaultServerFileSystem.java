@@ -29,6 +29,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -66,24 +68,24 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   @Override
   public void start() {
     LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
+
+    File deployDir = getDeployDir();
+    if (deployDir == null) {
+      throw new IllegalArgumentException("Web app directory does not exist: " + getDeployDir());
+    }
     try {
-      if (getDeployDir() == null) {
-        throw new IllegalArgumentException("Web app directory does not exist: " + getDeployDir());
-      }
-      FileUtils.forceMkdir(getDeployDir());
-      for (File subDirectory : getDeployDir().listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
+      FileUtils.forceMkdir(deployDir);
+      for (File subDirectory : deployDir.listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
         FileUtils.cleanDirectory(subDirectory);
       }
-
     } catch (IOException e) {
-      throw new IllegalStateException("The following directory can not be created: " + getDeployDir().getAbsolutePath(), e);
+      throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
     }
 
     File deprecated = getDeprecatedPluginsDir();
     try {
       FileUtils.forceMkdir(deprecated);
       FileUtils.cleanDirectory(deprecated);
-
     } catch (IOException e) {
       throw new IllegalStateException("The following directory can not be created: " + deprecated.getAbsolutePath(), e);
     }
@@ -104,6 +106,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return tempDir;
   }
 
+  @CheckForNull
   public File getDeployDir() {
     return server.getDeployDir();
   }

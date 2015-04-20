@@ -33,6 +33,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,6 +129,7 @@ public final class ServerImpl extends Server implements Startable {
   }
 
   @Override
+  @CheckForNull
   public File getDeployDir() {
     return deployDir;
   }
