@@ -86,3 +86,53 @@ casper.test.begin(testName('Move Between Rules From Detailed View'), 3, function
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Filter Similar Rules'), 3, function (test) {
+  casper
+      .start(lib.buildUrl('coding-rules'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/rules/app', 'app.json');
+        lib.mockRequestFromFile('/api/rules/search', 'search-sql-tag.json', { data: { tags: 'sql' } });
+        lib.mockRequestFromFile('/api/rules/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['/js/coding-rules/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.coding-rule.selected .js-rule-filter');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('#coding-rules-total', '609');
+
+        casper.click('.js-rule-filter');
+        casper.waitForSelector('.bubble-popup');
+      })
+
+      .then(function () {
+        test.assertExists('.bubble-popup [data-property="languages"][data-value="java"]');
+
+        casper.click('.bubble-popup [data-property="tags"][data-value="sql"]');
+        casper.wait(1000, function () { lib.capture(); });
+        casper.waitForSelectorTextChange('#coding-rules-total');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('#coding-rules-total', '2');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

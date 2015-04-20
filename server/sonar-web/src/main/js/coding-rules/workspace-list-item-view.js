@@ -20,8 +20,11 @@
 define([
   'components/navigator/workspace-list-item-view',
   'coding-rules/rule/profile-activation-view',
+  'coding-rules/rule-filter-view',
   'templates/coding-rules'
-], function (WorkspaceListItemView, ProfileActivationView) {
+], function (WorkspaceListItemView, ProfileActivationView, RuleFilterView) {
+
+  var $ = jQuery;
 
   return WorkspaceListItemView.extend({
     className: 'coding-rule',
@@ -35,6 +38,7 @@ define([
       'click': 'selectCurrent',
       'dblclick': 'openRule',
       'click .js-rule': 'openRule',
+      'click .js-rule-filter': 'onRuleFilterClick',
       'click .coding-rules-detail-quality-profile-activate': 'activate',
       'click .coding-rules-detail-quality-profile-change': 'change',
       'click .coding-rules-detail-quality-profile-revert': 'revert',
@@ -90,6 +94,25 @@ define([
           });
         }
       });
+    },
+
+    onRuleFilterClick: function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('body').click();
+      var that = this,
+          popup = new RuleFilterView({
+        triggerEl: $(e.currentTarget),
+        bottomRight: true,
+        model: this.model
+      });
+      popup.on('select', function (property, value) {
+        var obj = {};
+        obj[property] = '' + value;
+        that.options.app.state.updateFilter(obj);
+        popup.close();
+      });
+      popup.render();
     },
 
     serializeData: function () {

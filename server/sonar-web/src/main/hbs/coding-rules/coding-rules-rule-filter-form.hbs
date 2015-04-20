@@ -1,0 +1,18 @@
+<h6>{{t 'coding_rules.filter_similar_rules'}}</h6>
+
+<div class="issue-action-options">
+  <a href="#" class="issue-action-option" data-property="languages" data-value="{{lang}}">
+    {{langName}}
+  </a>
+
+  {{#notEmpty tags}}
+    <hr>
+    {{#each tags}}
+      <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
+        <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
+      </a>
+    {{/each}}
+  {{/notEmpty}}
+</div>
+
+<div class="bubble-popup-arrow"></div>

@@ -1,0 +1,30 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 200,
+  "rules": [
+    {
+      "key": "php:S2014",
+      "tags": [],
+      "status": "READY",
+      "langName": "PHP",
+      "name": "\"$this\" should not be used in a static context",
+      "lang": "php",
+      "sysTags": [
+        "sql"
+      ]
+    },
+    {
+      "key": "squid:S2204",
+      "tags": [],
+      "status": "READY",
+      "langName": "Java",
+      "name": "\".equals()\" should not be used to test the values of \"Atomic\" classes",
+      "lang": "java",
+      "sysTags": [
+        "sql"
+      ]
+    }
+  ],
+  "facets": []
+}
