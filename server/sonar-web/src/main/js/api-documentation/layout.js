@@ -17,44 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
-@import (reference) "../init/links";
+define([
+  'templates/api-documentation'
+], function () {
 
-.badge {
-  display: inline-block;
-  min-width: 10px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 300;
-  color: @white;
-  line-height: 12px;
-  vertical-align: baseline;
-  white-space: nowrap;
-  text-align: center;
-  background-color: @blue;
+  var $ = jQuery;
 
-  &:empty { display: none; }
+  return Marionette.Layout.extend({
+    template: Templates['api-documentation-layout'],
 
-  &:hover, &:focus, &:active { color: @white; }
+    regions: {
+      headerRegion: '.search-navigator-workspace-header',
+      actionsRegion: '.search-navigator-filters',
+      resultsRegion: '.api-documentation-results',
+      detailsRegion: '.search-navigator-workspace-details'
+    },
 
-  a& { .link-no-underline; }
+    onRender: function () {
+      var navigator = $('.search-navigator');
+      navigator.addClass('sticky search-navigator-extended-view');
+      var top = navigator.offset().top;
+      this.$('.search-navigator-workspace-header').css({ top: top });
+      this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
+    }
+  });
 
-  .list-group-item > &,
-  .list-group-item-heading > & {
-    float: right;
-    margin-top: 3px;
-  }
-
-  .list-group-item > & + &,
-  .list-group-item-heading > & + & {
-    margin-right: 5px;
-  }
-}
-
-.badge-muted {
-  background-color: transparent;
-  color: @secondFontColor;
-
-  &:hover, &:focus, &:active { color: @blue; }
-}
+});

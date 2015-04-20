@@ -1,0 +1,52 @@
+{
+  "webServices": [
+    {
+      "path": "api/public",
+      "description": "api/public description",
+      "actions": [
+        {
+          "key": "do",
+          "description": "api/public/do description",
+          "since": "3.6",
+          "internal": false,
+          "post": true,
+          "hasResponseExample": false,
+          "params": [
+            {
+              "key": "format",
+              "description": "api/public/do format description",
+              "required": false,
+              "possibleValues": [
+                "json",
+                "xml"
+              ]
+            }
+          ]
+        },
+        {
+          "key": "undo",
+          "description": "api/public/undo description",
+          "internal": false,
+          "post": false,
+          "hasResponseExample": true,
+          "params": []
+        }
+      ]
+    },
+    {
+      "path": "api/internal",
+      "description": "api/internal description",
+      "actions": [
+        {
+          "key": "move",
+          "description": "api/internal/move description",
+          "since": "4.4",
+          "internal": true,
+          "post": false,
+          "hasResponseExample": false,
+          "params": []
+        }
+      ]
+    }
+  ]
+}

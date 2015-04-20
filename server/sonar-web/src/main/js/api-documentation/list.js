@@ -17,44 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
-@import (reference) "../init/links";
+define(function () {
 
-.badge {
-  display: inline-block;
-  min-width: 10px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 300;
-  color: @white;
-  line-height: 12px;
-  vertical-align: baseline;
-  white-space: nowrap;
-  text-align: center;
-  background-color: @blue;
+  return Backbone.Collection.extend({
+    url: baseUrl + '/api/webservices/list',
+    comparator: 'path',
 
-  &:empty { display: none; }
+    parse: function (r) {
+      return r.webServices.map(function (webService) {
+        var internal = _.every(webService.actions, function (action) {
+              return action.internal;
+            }),
+            actions = webService.actions.map(function (action) {
+              return _.extend(action, { path: webService.path });
+            });
+        return _.extend(webService, {
+          internal: internal,
+          actions: actions
+        });
+      });
+    }
+  });
 
-  &:hover, &:focus, &:active { color: @white; }
-
-  a& { .link-no-underline; }
-
-  .list-group-item > &,
-  .list-group-item-heading > & {
-    float: right;
-    margin-top: 3px;
-  }
-
-  .list-group-item > & + &,
-  .list-group-item-heading > & + & {
-    margin-right: 5px;
-  }
-}
-
-.badge-muted {
-  background-color: transparent;
-  color: @secondFontColor;
-
-  &:hover, &:focus, &:active { color: @blue; }
-}
+});

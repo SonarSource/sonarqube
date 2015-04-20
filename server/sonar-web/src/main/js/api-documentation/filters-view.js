@@ -17,44 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../variables";
-@import (reference) "../mixins";
-@import (reference) "../init/links";
+define([
+  'templates/api-documentation'
+], function () {
 
-.badge {
-  display: inline-block;
-  min-width: 10px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 300;
-  color: @white;
-  line-height: 12px;
-  vertical-align: baseline;
-  white-space: nowrap;
-  text-align: center;
-  background-color: @blue;
+  return Marionette.ItemView.extend({
+    template: Templates['api-documentation-filters'],
 
-  &:empty { display: none; }
+    events: {
+      'change .js-toggle-internal': 'toggleInternal'
+    },
 
-  &:hover, &:focus, &:active { color: @white; }
+    initialize: function () {
+      this.listenTo(this.options.state, 'change:internal', this.render);
+    },
 
-  a& { .link-no-underline; }
+    toggleInternal: function () {
+      this.options.state.set({ internal: !this.options.state.get('internal')});
+    },
 
-  .list-group-item > &,
-  .list-group-item-heading > & {
-    float: right;
-    margin-top: 3px;
-  }
+    serializeData: function () {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        state: this.options.state.toJSON()
+      });
+    }
+  });
 
-  .list-group-item > & + &,
-  .list-group-item-heading > & + & {
-    margin-right: 5px;
-  }
-}
-
-.badge-muted {
-  background-color: transparent;
-  color: @secondFontColor;
-
-  &:hover, &:focus, &:active { color: @blue; }
-}
+});

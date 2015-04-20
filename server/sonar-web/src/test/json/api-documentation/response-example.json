@@ -1,0 +1,4 @@
+{
+  "format": "json",
+  "example": "{\n  \"authors\": {\n    \"more\": true,\n    \"results\": [\n      {\n        \"key\": \"leia.organa\",\n        \"text\": \"leia.organa\"\n      },\n      {\n        \"key\": \"luke@skywalker.name\",\n        \"text\": \"luke@skywalker.name\"\n      }\n    ]\n  }\n}"
+}

@@ -1,51 +1,75 @@
-<h3 class="big">
-  {{#if post}}POST{{else}}GET{{/if}}
-  {{path}}
-</h3>
-<span class="note">
-  {{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
-  {{#if internal}}<span class="badge">For internal use only</span>{{/if}}
-</span>
-<p>{{{description}}}</p>
+<header class="page-header">
+  <h3 class="page-title big">{{#if post}}POST{{else}}GET{{/if}} {{path}}/{{key}}</h3>
+
+  <div class="page-actions">
+    {{#if internal}}
+      <span class="badge spacer-right">internal</span>
+    {{/if}}
+    {{#if since}}
+      <span class="note spacer-right">Since {{since}}</span>
+    {{/if}}
+
+    <a class="js-permalink icon-link" href="{{link '/api_documentation/' path '/' key}}" target="_blank"></a>
+  </div>
+</header>
+
+<div class="markdown">{{{description}}}</div>
+
 {{#if params}}
-<h3>Parameters</h3>
-<table>
-  {{#each params}}
-  <tr>
-    <td style="width:10em">
-      <code>{{key}}</code>
-      <div class="note">{{#if required}}required{{else}}optional{{/if}}</div>
-    </td>
-    <td>
-      <p>{{{description}}}</p>
+  <h4 class="spacer-top little-spacer-bottom">Parameters</h4>
+  <table class="width-100 data zebra">
+    {{#each params}}
+      <tr>
+        <td style="width: 10em;">
+          <code>{{key}}</code>
+          <div class="note">{{#if required}}required{{else}}optional{{/if}}</div>
+        </td>
+        <td>
+          <div class="markdown">{{{description}}}</div>
 
-      {{#if possibleValues}}
-      <p>
-      <em>Possible values:</em>
-      <ul class="possible-values">
-      {{#each possibleValues}}
-        <li><code>{{this}}</code></li>
-      {{/each}}
-      </ul>
-      </p>
-      {{/if}}
+          {{#if possibleValues}}
+            <ul class="list-inline little-spacer-top">
+              <li>
+                <strong>Possible values:</strong>
+              </li>
+              {{#each possibleValues}}
+                <li>
+                  <code>{{this}}</code>
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
 
-      {{#if defaultValue}}
-      <p>
-      <em>Default value:</em> <code>{{defaultValue}}</code>
-      </p>
-      {{/if}}
+          {{#if defaultValue}}
+            <p class="little-spacer-top">
+              <strong>Default value:</strong> <code>{{defaultValue}}</code>
+            </p>
+          {{/if}}
 
-      {{#if exampleValue}}
-      <p>
-      <em>Example value:</em> <code>{{exampleValue}}</code>
-      </p>
-      {{/if}}
-    </td>
-  </tr>
-  {{/each}}
-</table>
+          {{#if exampleValue}}
+            <p class="little-spacer-top">
+              <strong>Example value:</strong> <code>{{exampleValue}}</code>
+            </p>
+          {{/if}}
+        </td>
+      </tr>
+    {{/each}}
+  </table>
 {{/if}}
+
 {{#if hasResponseExample}}
-<p><a name="example-key" class="example-response">Example response</a></p>
+  <h4 class="spacer-top">
+    Example Response
+    {{#unless responseExample}}
+      <a class="js-show-response-example little-spacer-left" href="#">Show</a>
+    {{/unless}}
+  </h4>
+
+  {{#if responseExample}}
+    <div class="little-spacer-top">
+      <pre>
+{{responseExample}}
+      </pre>
+    </div>
+  {{/if}}
 {{/if}}
