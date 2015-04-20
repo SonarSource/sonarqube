@@ -154,8 +154,9 @@
   <select id="countProjectsByProfile" resultType="org.sonar.core.qualityprofile.db.QualityProfileProjectCount">
     SELECT pp.profile_key as profileKey, count(projects.id) as projectCount
     FROM projects projects
-    JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
-    JOIN rules_profiles prof ON pp.profile_key=prof.kee
+    INNER JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
+    INNER JOIN rules_profiles prof ON pp.profile_key=prof.kee
+    WHERE projects.enabled=${_true}
     GROUP BY profileKey
   </select>
 
