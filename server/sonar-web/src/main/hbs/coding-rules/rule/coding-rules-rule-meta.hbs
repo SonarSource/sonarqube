@@ -68,23 +68,11 @@
     {{#if debtRemFnType}}
       <li class="coding-rules-detail-property"
           data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
-        {{t 'coding_rules.remediation_function' debtRemFnType}}
-      </li>
-    {{/if}}
+        {{t 'coding_rules.remediation_function' debtRemFnType}}:
 
-    {{#if debtRemFnCoeff}}
-      <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom"
-          title="{{#if effortToFixDescription}}{{effortToFixDescription}}{{else}}{{t 'coding_rules.remediation_function.coeff'}}{{/if}}">
-        {{debtRemFnCoeff}}
-      </li>
-    {{/if}}
-
-    {{#if debtRemFnOffset}}
-      <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom"
-          title="{{#eq debtRemFnType 'CONSTANT_ISSUE'}}{{t 'coding_rules.remediation_function.constant'}}{{else}}{{t 'coding_rules.remediation_function.offset'}}{{/eq}}">
-        {{debtRemFnOffset}}
+        {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
+        {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
+        {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
       </li>
     {{/if}}
   </ul>
