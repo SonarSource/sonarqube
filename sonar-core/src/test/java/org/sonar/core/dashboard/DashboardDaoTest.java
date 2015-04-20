@@ -20,8 +20,11 @@
 package org.sonar.core.dashboard;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
 import java.util.Date;
 
@@ -30,18 +33,23 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class DashboardDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class DashboardDaoTest {
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
 
   private DashboardDao dao;
 
   @Before
   public void createDao() {
-    dao = new DashboardDao(getMyBatis());
+    dbTester.truncateTables();
+    dao = new DashboardDao(dbTester.myBatis());
   }
 
   @Test
   public void shouldSelectGlobalDashboard() {
-    setupData("shouldSelectGlobalDashboard");
+    dbTester.prepareDbUnit(getClass(), "shouldSelectGlobalDashboard.xml");
     DashboardDto dashboard = dao.selectGlobalDashboard("SQALE");
     assertThat(dashboard.getId(), is(2L));
     assertThat(dashboard.getUserId(), nullValue());
@@ -51,7 +59,7 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldInsert() {
-    setupData("shouldInsert");
+    dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
     Date aDate = new Date();
 
     DashboardDto dashboardDto = new DashboardDto();
@@ -82,12 +90,12 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dashboardDto);
 
-    checkTables("shouldInsert", new String[]{"created_at", "updated_at"}, "dashboards", "widgets", "widget_properties");
+    dbTester.assertDbUnit(getClass(), "shouldInsert-result.xml", new String[] {"created_at", "updated_at"}, "dashboards", "widgets", "widget_properties");
   }
 
   @Test
   public void shouldInsertWithNullableColumns() throws Exception {
-    setupData("shouldInsert");
+    dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     DashboardDto dashboardDto = new DashboardDto();
     dashboardDto.setUserId(null);
@@ -117,7 +125,7 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dashboardDto);
 
-    checkTables("shouldInsertWithNullableColumns", "dashboards", "widgets", "widget_properties");
+    dbTester.assertDbUnit(getClass(), "shouldInsertWithNullableColumns-result.xml", "dashboards", "widgets", "widget_properties");
   }
 
 }

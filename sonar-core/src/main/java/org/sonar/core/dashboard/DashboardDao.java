@@ -22,9 +22,10 @@ package org.sonar.core.dashboard;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
-public class DashboardDao implements BatchComponent, ServerComponent {
+public class DashboardDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private MyBatis mybatis;
 

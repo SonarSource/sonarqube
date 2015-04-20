@@ -22,9 +22,14 @@ package org.sonar.core.dashboard;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
-public class ActiveDashboardDao implements BatchComponent, ServerComponent {
+import javax.annotation.Nullable;
+
+import java.util.List;
+
+public class ActiveDashboardDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private MyBatis mybatis;
 
@@ -34,9 +39,8 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
 
   public void insert(ActiveDashboardDto activeDashboardDto) {
     SqlSession session = mybatis.openSession(false);
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
-      mapper.insert(activeDashboardDto);
+      getMapper(session).insert(activeDashboardDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -45,9 +49,8 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
 
   public int selectMaxOrderIndexForNullUser() {
     SqlSession session = mybatis.openSession(false);
-    ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
-      Integer max = mapper.selectMaxOrderIndexForNullUser();
+      Integer max = getMapper(session).selectMaxOrderIndexForNullUser();
       return max != null ? max.intValue() : 0;
     } finally {
       session.close();
@@ -55,4 +58,16 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
 
   }
 
+  public List<DashboardDto> selectGlobalDashboardsForUserLogin(@Nullable String login) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return getMapper(session).selectGlobalDashboardsForUserLogin(login);
+    } finally {
+      session.close();
+    }
+  }
+
+  private ActiveDashboardMapper getMapper(SqlSession session) {
+    return session.getMapper(ActiveDashboardMapper.class);
+  }
 }

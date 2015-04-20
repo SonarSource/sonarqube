@@ -20,24 +20,31 @@
 package org.sonar.core.dashboard;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActiveDashboardDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ActiveDashboardDaoTest {
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
 
   private ActiveDashboardDao dao;
 
   @Before
   public void createDao() throws Exception {
-    dao = new ActiveDashboardDao(getMyBatis());
+    dbTester.truncateTables();
+    dao = new ActiveDashboardDao(dbTester.myBatis());
   }
 
   @Test
   public void shouldInsert() throws Exception {
-    setupData("shouldInsert");
+    dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     ActiveDashboardDto dashboard = new ActiveDashboardDto();
     dashboard.setDashboardId(2L);
@@ -45,37 +52,50 @@ public class ActiveDashboardDaoTest extends AbstractDaoTestCase {
     dashboard.setOrderIndex(4);
     dao.insert(dashboard);
 
-    checkTables("shouldInsert", "active_dashboards");
+    dbTester.assertDbUnit(getClass(), "shouldInsert-result.xml", "active_dashboards");
   }
 
   @Test
   public void shouldInsertWithNoUser() throws Exception {
-    setupData("shouldInsert");
+    dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     ActiveDashboardDto dashboard = new ActiveDashboardDto();
     dashboard.setDashboardId(2L);
     dashboard.setOrderIndex(4);
     dao.insert(dashboard);
 
-    checkTables("shouldInsertWithNoUser", "active_dashboards");
+    dbTester.assertDbUnit(getClass(), "shouldInsertWithNoUser-result.xml", "active_dashboards");
   }
 
   @Test
   public void shouldGetMaxOrderIndexForNullUser() throws Exception {
-    setupData("shouldGetMaxOrderIndexForNullUser");
+    dbTester.prepareDbUnit(getClass(), "shouldGetMaxOrderIndexForNullUser.xml");
 
     int index = dao.selectMaxOrderIndexForNullUser();
 
-    assertThat(index, is(15));
+    assertThat(index).isEqualTo(15);
   }
 
   @Test
   public void shouldGetZeroMaxOrderIndex() throws Exception {
-    setupData("empty");
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     int index = dao.selectMaxOrderIndexForNullUser();
 
-    assertThat(index, is(0));
+    assertThat(index).isZero();
   }
 
+  @Test
+  public void should_get_dashboards_for_anonymous() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shouldSelectDashboardsForAnonymous.xml");
+
+    assertThat(dao.selectGlobalDashboardsForUserLogin(null)).hasSize(2).extracting("id").containsExactly(2L, 1L);
+  }
+
+  @Test
+  public void should_get_dashboards_for_user() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shouldSelectDashboardsForUser.xml");
+
+    assertThat(dao.selectGlobalDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);
+  }
 }

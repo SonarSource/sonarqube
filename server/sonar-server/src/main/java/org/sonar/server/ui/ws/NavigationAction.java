@@ -17,22 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.dashboard;
+package org.sonar.server.ui.ws;
 
+import org.sonar.server.ws.WsAction;
 
-import org.apache.ibatis.annotations.Param;
+public interface NavigationAction extends WsAction {
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-public interface ActiveDashboardMapper {
-
-  void insert(ActiveDashboardDto activeDashboardDto);
-
-  @CheckForNull
-  Integer selectMaxOrderIndexForNullUser();
-
-  List<DashboardDto> selectGlobalDashboardsForUserLogin(@Nullable @Param("login") String login);
+  // Marker interface for navigation related actions
 }

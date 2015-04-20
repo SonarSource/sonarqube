@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.dashboard;
+package org.sonar.server.ui.ws;
 
+import org.sonar.api.server.ws.WebService;
 
-import org.apache.ibatis.annotations.Param;
+public class NavigationWs implements WebService {
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+  private final NavigationAction[] actions;
 
-import java.util.List;
+  public NavigationWs(NavigationAction... actions) {
+    this.actions = actions;
+  }
 
-public interface ActiveDashboardMapper {
+  @Override
+  public void define(Context context) {
+    NewController navigation = context.createController("api/navigation")
+      .setDescription("Get information required to build navigation UI components")
+      .setSince("5.2");
 
-  void insert(ActiveDashboardDto activeDashboardDto);
+    for (NavigationAction action : actions) {
+      action.define(navigation);
+    }
 
-  @CheckForNull
-  Integer selectMaxOrderIndexForNullUser();
+    navigation.done();
+  }
 
-  List<DashboardDto> selectGlobalDashboardsForUserLogin(@Nullable @Param("login") String login);
 }
