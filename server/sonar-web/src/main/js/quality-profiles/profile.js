@@ -25,7 +25,8 @@ define(function () {
     idAttribute: 'key',
 
     defaults: {
-      activeRuleCount: 0
+      activeRuleCount: 0,
+      projectCount: 0
     },
 
     fetch: function () {

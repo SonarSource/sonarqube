@@ -59,7 +59,7 @@ casper.test.begin(testName('Should Show List'), 9, function (test) {
         test.assertSelectorContains('.js-list-language', 'PHP');
         test.assertSelectorContains('.js-list-language', 'Python');
 
-        test.assertElementCount('.js-list .note', 4);
+        test.assertElementCount('.js-list .badge', 4);
       })
 
       .then(function () {
@@ -557,8 +557,8 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertDoesntExist('.js-list .list-group-item[data-key="php-psr-2-46772"] .note');
-        test.assertExists('.js-list .list-group-item[data-key="php-sonar-way-10778"] .note');
+        test.assertDoesntExist('.js-list .list-group-item[data-key="php-psr-2-46772"] .badge');
+        test.assertExists('.js-list .list-group-item[data-key="php-sonar-way-10778"] .badge');
         casper.click('.js-list .list-group-item[data-key="php-psr-2-46772"]');
         casper.waitForSelector('#quality-profile-set-as-default');
       })
@@ -568,12 +568,12 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
         lib.mockRequestFromFile('/api/qualityprofiles/search', 'search-another-default.json');
 
         casper.click('#quality-profile-set-as-default');
-        casper.waitWhileSelector('.js-list .list-group-item[data-key="php-sonar-way-10778"] .note');
+        casper.waitWhileSelector('.js-list .list-group-item[data-key="php-sonar-way-10778"] .badge');
       })
 
       .then(function () {
         test.assertDoesntExist('#quality-profile-set-as-default');
-        test.assertExists('.js-list .list-group-item[data-key="php-psr-2-46772"] .note');
+        test.assertExists('.js-list .list-group-item[data-key="php-psr-2-46772"] .badge');
       })
 
       .then(function () {

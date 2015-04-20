@@ -28,6 +28,17 @@ define([
 
     parse: function (r) {
       return r.profiles;
+    },
+
+    updateForLanguage: function (language) {
+      this.fetch({
+        data: {
+          language: language
+        },
+        merge: true,
+        reset: false,
+        remove: false
+      });
     }
   });
 

@@ -48,6 +48,12 @@ define([
     onClick: function (e) {
       e.preventDefault();
       this.model.trigger('select', this.model);
+    },
+
+    serializeData: function () {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        projectCountFormatted: window.formatMeasure(this.model.get('projectCount'), 'INT')
+      });
     }
   });
 

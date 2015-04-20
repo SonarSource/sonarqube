@@ -61,7 +61,7 @@ define([
 
     initProjectsSelect: function () {
       var key = this.model.get('key');
-      new window.SelectList({
+      this.projectsSelectList = new window.SelectList({
         el: this.$('#quality-profile-projects-list'),
         width: '100%',
         readOnly: !this.options.canWrite,
@@ -88,6 +88,7 @@ define([
           deselect: t('quality_gates.projects.deselect_hint')
         }
       });
+      this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);
     },
 
     onProfileClick: function (e) {
@@ -102,6 +103,10 @@ define([
     onChangeParentClick: function (e) {
       e.preventDefault();
       this.changeParent();
+    },
+
+    onProjectsChange: function () {
+      this.model.collection.updateForLanguage(this.model.get('language'));
     },
 
     changeParent: function () {
