@@ -157,7 +157,7 @@
     INNER JOIN project_qprofiles pp ON pp.project_uuid=projects.uuid
     INNER JOIN rules_profiles prof ON pp.profile_key=prof.kee
     WHERE projects.enabled=${_true}
-    GROUP BY profileKey
+    GROUP BY pp.profile_key
   </select>
 
   <select id="selectByProjectIdAndLanguage" parameterType="map" resultType="QualityProfile">
