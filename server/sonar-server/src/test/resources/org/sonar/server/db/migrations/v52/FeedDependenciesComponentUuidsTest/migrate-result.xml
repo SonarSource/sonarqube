@@ -1,0 +1,7 @@
+<dataset>
+
+  <dependencies id="1" from_resource_id="1" from_component_uuid="ABCD" from_snapshot_id="1" to_resource_id="2" to_component_uuid="EFGH" to_snapshot_id="2"
+                parent_dependency_id="[null]" project_snapshot_id="1"
+                dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="PRJ"/>
+
+</dataset>

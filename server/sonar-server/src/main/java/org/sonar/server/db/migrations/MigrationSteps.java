@@ -65,6 +65,7 @@ import org.sonar.server.db.migrations.v51.RemovePermissionsOnModulesMigrationSte
 import org.sonar.server.db.migrations.v51.RenameComponentRelatedParamsInIssueFilters;
 import org.sonar.server.db.migrations.v51.UpdateProjectsModuleUuidPath;
 import org.sonar.server.db.migrations.v52.AddDependenciesComponentUuidColumns;
+import org.sonar.server.db.migrations.v52.FeedDependenciesComponentUuids;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
@@ -137,6 +138,7 @@ public interface MigrationSteps {
     FeedProjectLinksComponentUuid.class,
     FeedEventsComponentUuid.class,
     MoveProjectProfileAssociation.class,
-    AddDependenciesComponentUuidColumns.class
+    AddDependenciesComponentUuidColumns.class,
+    FeedDependenciesComponentUuids.class
     );
 }
