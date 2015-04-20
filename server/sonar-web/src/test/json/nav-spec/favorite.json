@@ -1,0 +1,14 @@
+[
+  {
+    "key": "favorite-project-key",
+    "name": "Favorite Project",
+    "lname": "SonarSource :: Rule API",
+    "qualifier": "TRK"
+  },
+  {
+    "key": "favorite-file-key",
+    "name": "FavoriteFile.java",
+    "lname": "src/main/java/com/example/FavoriteFile.java",
+    "qualifier": "FIL"
+  }
+]

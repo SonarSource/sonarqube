@@ -228,16 +228,18 @@ casper.test.begin(testName('Login'), 3, function (test) {
 });
 
 
-casper.test.begin(testName('Search'), 16, function (test) {
+casper.test.begin(testName('Search'), 20, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/suggestions', 'search.json');
+        lib.mockRequestFromFile('/api/favourites', 'favorite.json');
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.SS.user = 'user';
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
           window.navbarOptions.set({ qualifiers: ['TRK', 'VW', 'DEV'] });
@@ -259,6 +261,7 @@ casper.test.begin(testName('Search'), 16, function (test) {
       })
 
       .then(function () {
+        lib.capture();
         // for top-level qualifiers
         test.assertExists('.js-search-results a[href*="/all_projects?qualifier=TRK"]');
         test.assertExists('.js-search-results a[href*="/all_projects?qualifier=VW"]');
@@ -267,6 +270,12 @@ casper.test.begin(testName('Search'), 16, function (test) {
         // browsed recently
         test.assertExists('.js-search-results a[href*="localhistoryproject"]');
         test.assertSelectorContains('.js-search-results a[href*="localhistoryproject"]', 'Local History Project');
+
+        // favorite
+        test.assertExists('.js-search-results a[href*="favorite-project-key"]');
+        test.assertSelectorContains('.js-search-results a[href*="favorite-project-key"]', 'Favorite Project');
+        test.assertExists('.js-search-results a[href*="favorite-file-key"]');
+        test.assertSelectorContains('.js-search-results a[href*="favorite-file-key"]', 'FavoriteFile.java');
       })
 
       .then(function () {

@@ -8,6 +8,7 @@
 {{/notNull}}
 
 <a href="{{url}}" title="{{name}}">
+  {{#if icon}}<i class="icon-{{icon}} text-text-bottom"></i>{{/if}}
   {{#if q}}{{qualifierIcon q}}{{/if}}
   {{#eq q 'FIL'}}
     {{collapsedDirFromPath name}}{{fileFromPath name}}

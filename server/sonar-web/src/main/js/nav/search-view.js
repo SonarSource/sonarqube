@@ -75,8 +75,16 @@ define([
     },
 
     initialize: function () {
+      var that = this;
       this.results = new Backbone.Collection();
-      this.resetResultsToDefault();
+      this.favorite = [];
+      if (window.SS.user) {
+        this.fetchFavorite().always(function () {
+          that.resetResultsToDefault();
+        });
+      } else {
+        this.resetResultsToDefault();
+      }
       this.resultsView = new SearchResultsView({ collection: this.results });
       this.debouncedOnKeyUp = _.debounce(this.onKeyUp, 400);
       this._bufferedValue = '';
@@ -125,6 +133,21 @@ define([
       return false;
     },
 
+    fetchFavorite: function () {
+      var that = this;
+      return $.get(baseUrl + '/api/favourites').done(function (r) {
+        that.favorite = r.map(function (f, index) {
+          var isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
+          return {
+            url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + dashboardParameters(true),
+            name: isFile ? window.collapsedDirFromPath(f.lname) + window.fileFromPath(f.lname) : f.name,
+            icon: 'favorite',
+            extra: index === 0 ? t('favorite') : null
+          };
+        });
+      });
+    },
+
     resetResultsToDefault: function () {
       var recentHistory = JSON.parse(localStorage.getItem('sonar_recent_history')),
           history = (recentHistory || []).map(function (historyItem, index) {
@@ -142,7 +165,7 @@ define([
               extra: index === 0 ? '' : null
             };
           });
-      this.results.reset(history.concat(qualifiers));
+      this.results.reset([].concat(history, this.favorite, qualifiers));
     },
 
     search: function (q) {
