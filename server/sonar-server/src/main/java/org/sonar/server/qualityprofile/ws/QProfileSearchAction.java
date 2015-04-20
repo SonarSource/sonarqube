@@ -151,8 +151,11 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       json.beginObject()
         .prop(FIELD_KEY, nullUnlessNeeded(FIELD_KEY, key, fields))
         .prop(FIELD_NAME, nullUnlessNeeded(FIELD_NAME, profile.name(), fields))
-        .prop(FIELD_ACTIVE_RULE_COUNT, nullUnlessNeeded(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields))
-        .prop(FIELD_PROJECT_COUNT, nullUnlessNeeded(FIELD_PROJECT_COUNT, projectCount, fields));
+        .prop(FIELD_ACTIVE_RULE_COUNT, nullUnlessNeeded(FIELD_ACTIVE_RULE_COUNT, activeRuleCount, fields));
+
+      if (!profile.isDefault()) {
+        json.prop(FIELD_PROJECT_COUNT, nullUnlessNeeded(FIELD_PROJECT_COUNT, projectCount, fields));
+      }
       writeLanguageFields(json, profile, fields);
       writeParentFields(json, profile, fields, profilesByKey);
       // Special case for booleans
