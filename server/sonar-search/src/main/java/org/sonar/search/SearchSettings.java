@@ -61,7 +61,7 @@ class SearchSettings {
   Settings build() {
     ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
     configureFileSystem(builder);
-    configureStorage(builder);
+    configureIndexDefaults(builder);
     configurePlugins(builder);
     configureNetwork(builder);
     configureCluster(builder);
@@ -138,10 +138,12 @@ class SearchSettings {
     }
   }
 
-  private void configureStorage(ImmutableSettings.Builder builder) {
+  private void configureIndexDefaults(ImmutableSettings.Builder builder) {
     builder
       .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s");
+      .put("index.refresh_interval", "30s")
+      .put("action.auto_create_index", false)
+      .put("index.mapper.dynamic", false);
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {
