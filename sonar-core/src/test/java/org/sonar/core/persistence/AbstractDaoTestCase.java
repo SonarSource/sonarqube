@@ -30,7 +30,11 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.*;
+import org.dbunit.dataset.CompositeDataSet;
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
@@ -61,7 +65,12 @@ import java.util.Properties;
 
 import static org.junit.Assert.fail;
 
+/**
+ * @deprecated use an instance of {@link org.sonar.core.persistence.DbTester instead} instead,
+ * and do no forget to annotated the test class with {@link org.sonar.test.DbTests}.
+ */
 @Category(DbTests.class)
+@Deprecated
 public abstract class AbstractDaoTestCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
