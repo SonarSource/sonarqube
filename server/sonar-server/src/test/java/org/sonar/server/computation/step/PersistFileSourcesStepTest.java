@@ -467,7 +467,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     for (int i = 1; i <= numberOfLines; i++) {
       lines.add("line" + i);
     }
-    FileUtils.writeLines(writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF), lines);
+    FileUtils.writeLines(writer.getSourceFile(FILE_REF), lines);
 
     return writer;
   }
