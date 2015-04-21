@@ -71,12 +71,16 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
     File deployDir = getDeployDir();
     if (deployDir == null) {
-      throw new IllegalArgumentException("Web app directory does not exist: " + getDeployDir());
+      throw new IllegalArgumentException("Web app directory does not exist");
     }
     try {
       FileUtils.forceMkdir(deployDir);
-      for (File subDirectory : deployDir.listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
-        FileUtils.cleanDirectory(subDirectory);
+      FileFilter fileFilter = FileFilterUtils.directoryFileFilter();
+      File[] files = deployDir.listFiles(fileFilter);
+      if (files != null) {
+        for (File subDirectory : files) {
+          FileUtils.cleanDirectory(subDirectory);
+        }
       }
     } catch (IOException e) {
       throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
