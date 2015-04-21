@@ -1,0 +1,20 @@
+{
+  "key": "polop",
+  "uuid": "abcd",
+  "name": "Polop",
+  "isComparable": false,
+  "canBeFavorite": false,
+  "isFavorite": false,
+  "dashboards": [
+    {
+      "name": "Anon Dashboard"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

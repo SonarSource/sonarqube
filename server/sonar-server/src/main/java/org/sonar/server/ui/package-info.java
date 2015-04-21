@@ -17,27 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
+package org.sonar.server.ui;
 
-package org.sonar.core.measure.db;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
-public interface MeasureMapper {
-
-  MeasureDto selectByKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-
-  List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
-
-  @CheckForNull
-  MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-
-  long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
-
-  void insert(MeasureDto measureDto);
-
-  List<String> selectMetricKeysForSnapshot(@Param("snapshotId") long snapshotId);
-}

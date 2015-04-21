@@ -28,6 +28,8 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,7 +72,8 @@ public class Views implements ServerComponent {
     return getPages(section, null, null, null, null);
   }
 
-  public List<ViewProxy<Page>> getPages(String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
+  public List<ViewProxy<Page>> getPages(String section,
+    @Nullable String resourceScope, @Nullable String resourceQualifier, @Nullable String resourceLanguage, @Nullable String[] availableMeasures) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
       if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage, availableMeasures)) {
@@ -109,7 +112,8 @@ public class Views implements ServerComponent {
     return Lists.newArrayList(widgets);
   }
 
-  protected static boolean accept(ViewProxy proxy, String section, String resourceScope, String resourceQualifier, String resourceLanguage, String[] availableMeasures) {
+  protected static boolean accept(ViewProxy proxy,
+    @Nullable String section, @Nullable String resourceScope, @Nullable String resourceQualifier, @Nullable String resourceLanguage, @Nullable String[] availableMeasures) {
     return acceptNavigationSection(proxy, section)
       && acceptResourceScope(proxy, resourceScope)
       && acceptResourceQualifier(proxy, resourceQualifier)
@@ -117,23 +121,23 @@ public class Views implements ServerComponent {
       && acceptAvailableMeasures(proxy, availableMeasures);
   }
 
-  protected static boolean acceptResourceLanguage(ViewProxy proxy, String resourceLanguage) {
+  protected static boolean acceptResourceLanguage(ViewProxy proxy, @Nullable String resourceLanguage) {
     return resourceLanguage == null || ArrayUtils.isEmpty(proxy.getResourceLanguages()) || ArrayUtils.contains(proxy.getResourceLanguages(), resourceLanguage);
   }
 
-  protected static boolean acceptResourceScope(ViewProxy proxy, String resourceScope) {
+  protected static boolean acceptResourceScope(ViewProxy proxy, @Nullable String resourceScope) {
     return resourceScope == null || ArrayUtils.isEmpty(proxy.getResourceScopes()) || ArrayUtils.contains(proxy.getResourceScopes(), resourceScope);
   }
 
-  protected static boolean acceptResourceQualifier(ViewProxy proxy, String resourceQualifier) {
+  protected static boolean acceptResourceQualifier(ViewProxy proxy, @Nullable String resourceQualifier) {
     return resourceQualifier == null || ArrayUtils.isEmpty(proxy.getResourceQualifiers()) || ArrayUtils.contains(proxy.getResourceQualifiers(), resourceQualifier);
   }
 
-  protected static boolean acceptNavigationSection(ViewProxy proxy, String section) {
+  protected static boolean acceptNavigationSection(ViewProxy proxy, @Nullable String section) {
     return proxy.isWidget() || section == null || ArrayUtils.contains(proxy.getSections(), section);
   }
 
-  protected static boolean acceptAvailableMeasures(ViewProxy proxy, String[] availableMeasures) {
+  protected static boolean acceptAvailableMeasures(ViewProxy proxy, @Nullable String[] availableMeasures) {
     return availableMeasures == null || proxy.acceptsAvailableMeasures(availableMeasures);
   }
 }

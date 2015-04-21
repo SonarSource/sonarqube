@@ -36,4 +36,21 @@
     ORDER BY order_index ASC
   </select>
 
+  <select id="selectProjectDashboardsForUserLogin" parameterType="String" resultType="Dashboard">
+    SELECT <include refid="dashboardColumns" />
+    FROM dashboards d
+    INNER JOIN active_dashboards ad on d.id=ad.dashboard_id
+    LEFT OUTER JOIN users u on u.id=ad.user_id
+    WHERE d.is_global=${_false}
+    <choose>
+      <when test="login == null">
+      AND u.login IS NULL
+      </when>
+      <otherwise>
+      AND u.login=#{login}
+      </otherwise>
+    </choose>
+    ORDER BY order_index ASC
+  </select>
+
 </mapper>

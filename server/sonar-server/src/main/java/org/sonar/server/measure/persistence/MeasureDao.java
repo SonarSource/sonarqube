@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class MeasureDao implements ServerComponent, DaoComponent {
@@ -53,6 +54,10 @@ public class MeasureDao implements ServerComponent, DaoComponent {
 
   public void insert(DbSession session, MeasureDto measureDto) {
     mapper(session).insert(measureDto);
+  }
+
+  public List<String> selectMetricKeysForSnapshot(DbSession session, Long snapshotId) {
+    return mapper(session).selectMetricKeysForSnapshot(snapshotId);
   }
 
   private MeasureMapper mapper(DbSession session) {

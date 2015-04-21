@@ -1,0 +1,68 @@
+<dataset>
+
+  <users id="42" login="obiwan" name="Obiwan" email="obiwan@keno.bi"
+    created_at="1418215735482" updated_at="1418215735482" active="[true]"/>
+
+  <dashboards
+    id="1"
+    user_id="1"
+    name="My Dashboard"
+    description="Dashboard shared by admin"
+    column_layout="100%"
+    shared="[true]"
+    is_global="[false]"
+  />
+  <dashboards
+    id="2"
+    user_id="[null]"
+    name="Default Dashboard"
+    description="Dashboard provided by system"
+    column_layout="100%"
+    shared="[true]"
+    is_global="[false]"
+  />
+  <dashboards
+    id="3"
+    user_id="[null]"
+    name="Project Dashboard"
+    description="Won't appear, global"
+    column_layout="100%"
+    shared="[true]"
+    is_global="[true]"
+  />
+  <dashboards
+    id="4"
+    user_id="[null]"
+    name="User Dashboard"
+    description="Won't appear, not anonymous"
+    column_layout="100%"
+    shared="[true]"
+    is_global="[false]"
+  />
+
+  <!-- Dashboard with ID 1 appears after ID 2 -->
+  <active_dashboards
+    id="1"
+    dashboard_id="1"
+    user_id="[null]"
+    order_index="2"/>
+  <!-- Dashboard with ID 2 appears before ID 1 -->
+  <active_dashboards
+    id="2"
+    dashboard_id="2"
+    user_id="[null]"
+    order_index="1"/>
+  <!-- Dashboard with ID 3 does not appear (global) -->
+  <active_dashboards
+    id="3"
+    dashboard_id="3"
+    user_id="[null]"
+    order_index="1"/>
+  <!-- Dashboard with ID 4 does not appear (not anonymous) -->
+  <active_dashboards
+    id="4"
+    dashboard_id="4"
+    user_id="42"
+    order_index="1"/>
+
+</dataset>

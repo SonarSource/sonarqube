@@ -35,4 +35,6 @@ public interface ActiveDashboardMapper {
   Integer selectMaxOrderIndexForNullUser();
 
   List<DashboardDto> selectGlobalDashboardsForUserLogin(@Nullable @Param("login") String login);
+
+  List<DashboardDto> selectProjectDashboardsForUserLogin(@Nullable @Param("login") String login);
 }

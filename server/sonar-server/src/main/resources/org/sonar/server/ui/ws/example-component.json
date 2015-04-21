@@ -1,0 +1,39 @@
+{
+  "id": 2865,
+  "key": "org.codehaus.sonar:sonar",
+  "uuid": "69e57151-be0d-4157-adff-c06741d88879",
+  "isComparable": true,
+  "canBeFavorite": true,
+  "isFavorite": true,
+  "version": "5.2-SNAPSHOT",
+  "snapshotDate": "2015-04-16T14:40:32+02:00",
+  "dashboards": [
+    {
+      "key": 1,
+      "name": "Main Dashboard"
+    }
+  ],
+  "extensions": [
+    {
+      "name": "My Resource Plugin",
+      "url": "/plugins/resource/2865?page=my-resource-plugin"
+    }
+  ],
+  "configuration": [
+    {
+      "name": "General Settings",
+      "url": "/project/settings/2865"
+    },
+    {
+      "name": "Action Plans",
+      "url": "/action_plans/index/2865"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "name": "SonarQube",
+      "qualifier": "TRK",
+      "key": "org.codehaus.sonar:sonar"
+    }
+  ]
+}

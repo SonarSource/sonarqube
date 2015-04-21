@@ -1,0 +1,16 @@
+{
+  "key": "polop",
+  "uuid": "abcd",
+  "name": "Polop",
+  "isComparable": false,
+  "canBeFavorite": true,
+  "isFavorite": true,
+  "dashboards": [],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

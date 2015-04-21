@@ -1,0 +1,22 @@
+{
+  "key": "polop",
+  "uuid": "abcd",
+  "name": "Polop",
+  "isComparable": false,
+  "canBeFavorite": true,
+  "isFavorite": false,
+  "dashboards": [],
+  "configuration": [
+    {
+      "name": "Visible Config Page",
+      "url": "/visible/page"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

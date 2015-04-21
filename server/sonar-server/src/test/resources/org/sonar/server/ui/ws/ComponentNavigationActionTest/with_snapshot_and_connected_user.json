@@ -1,0 +1,18 @@
+{
+  "key": "polop",
+  "uuid": "abcd",
+  "name": "Polop",
+  "isComparable": false,
+  "canBeFavorite": true,
+  "isFavorite": false,
+  "date": "2015-04-22T11:44:00+0200",
+  "version": "3.14",
+  "dashboards": [],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

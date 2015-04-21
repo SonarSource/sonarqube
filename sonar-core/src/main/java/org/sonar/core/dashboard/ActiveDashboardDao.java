@@ -67,6 +67,19 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent, DaoC
     }
   }
 
+  public List<DashboardDto> selectProjectDashboardsForUserLogin(@Nullable String login) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return selectProjectDashboardsForUserLogin(session, login);
+    } finally {
+      session.close();
+    }
+  }
+
+  public List<DashboardDto> selectProjectDashboardsForUserLogin(SqlSession session, @Nullable String login) {
+    return getMapper(session).selectProjectDashboardsForUserLogin(login);
+  }
+
   private ActiveDashboardMapper getMapper(SqlSession session) {
     return session.getMapper(ActiveDashboardMapper.class);
   }

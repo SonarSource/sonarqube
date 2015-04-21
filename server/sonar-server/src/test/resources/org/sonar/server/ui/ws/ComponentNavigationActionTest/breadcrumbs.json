@@ -1,0 +1,31 @@
+{
+  "key": "palap:src/main/xoo/Source.xoo",
+  "uuid": "cdef",
+  "name": "Source.xoo",
+  "isComparable": false,
+  "canBeFavorite": false,
+  "isFavorite": false,
+  "dashboards": [],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    },
+    {
+      "key": "palap",
+      "name": "Palap",
+      "qualifier": "BRC"
+    },
+    {
+      "key": "palap:src/main/xoo",
+      "name": "src/main/xoo",
+      "qualifier": "DIR"
+    },
+    {
+      "key": "palap:src/main/xoo/Source.xoo",
+      "name": "Source.xoo",
+      "qualifier": "FIL"
+    }
+  ]
+}

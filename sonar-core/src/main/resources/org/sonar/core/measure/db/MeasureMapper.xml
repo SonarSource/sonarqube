@@ -83,4 +83,11 @@
     )
   </insert>
 
+  <select id="selectMetricKeysForSnapshot" parameterType="long" resultType="string">
+  SELECT m.name
+  FROM project_measures pm
+  INNER JOIN metrics m ON m.id=pm.metric_id
+  WHERE pm.snapshot_id=#{snapshotId}
+  </select>
+
 </mapper>

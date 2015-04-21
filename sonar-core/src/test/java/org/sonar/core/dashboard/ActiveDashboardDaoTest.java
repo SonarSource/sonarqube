@@ -98,4 +98,18 @@ public class ActiveDashboardDaoTest {
 
     assertThat(dao.selectGlobalDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);
   }
+
+  @Test
+  public void should_get_project_dashboards_for_anonymous() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForAnonymous.xml");
+
+    assertThat(dao.selectProjectDashboardsForUserLogin(null)).hasSize(2).extracting("id").containsExactly(2L, 1L);
+  }
+
+  @Test
+  public void should_get_project_dashboards_for_user() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForUser.xml");
+
+    assertThat(dao.selectProjectDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);
+  }
 }

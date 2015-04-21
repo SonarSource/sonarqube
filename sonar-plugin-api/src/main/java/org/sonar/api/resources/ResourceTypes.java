@@ -57,6 +57,10 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
   private final Map<String, ResourceType> typeByQualifier;
   private final Collection<ResourceType> rootTypes;
 
+  public ResourceTypes() {
+    this(new ResourceTypeTree[0]);
+  }
+
   public ResourceTypes(ResourceTypeTree[] trees) {
     Preconditions.checkNotNull(trees);
 
