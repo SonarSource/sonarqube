@@ -338,8 +338,6 @@ import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.test.CoverageService;
-import org.sonar.server.test.ws.CoverageShowAction;
-import org.sonar.server.test.ws.CoverageWs;
 import org.sonar.server.test.ws.TestsCoveredFilesAction;
 import org.sonar.server.test.ws.TestsShowAction;
 import org.sonar.server.test.ws.TestsTestCasesAction;
@@ -847,8 +845,6 @@ class ServerComponents {
 
     // Tests
     pico.addSingleton(CoverageService.class);
-    pico.addSingleton(CoverageWs.class);
-    pico.addSingleton(CoverageShowAction.class);
     pico.addSingleton(TestsWs.class);
     pico.addSingleton(TestsTestCasesAction.class);
     pico.addSingleton(TestsCoveredFilesAction.class);
@@ -876,16 +872,16 @@ class ServerComponents {
 
     // System
     pico.addSingletons(Arrays.asList(
-        SystemRestartWsAction.class,
-        SystemInfoWsAction.class,
-        SystemWs.class,
-        SystemMonitor.class,
-        SonarQubeMonitor.class,
-        EsMonitor.class,
-        PluginsMonitor.class,
-        JvmPropertiesMonitor.class,
-        DatabaseMonitor.class
-    ));
+      SystemRestartWsAction.class,
+      SystemInfoWsAction.class,
+      SystemWs.class,
+      SystemMonitor.class,
+      SonarQubeMonitor.class,
+      EsMonitor.class,
+      PluginsMonitor.class,
+      JvmPropertiesMonitor.class,
+      DatabaseMonitor.class
+      ));
 
     // Plugins WS
     pico.addSingleton(PluginWSCommons.class);
