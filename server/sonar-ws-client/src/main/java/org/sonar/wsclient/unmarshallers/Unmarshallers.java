@@ -19,7 +19,21 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.sonar.wsclient.services.*;
+import org.sonar.wsclient.services.Authentication;
+import org.sonar.wsclient.services.Event;
+import org.sonar.wsclient.services.Favourite;
+import org.sonar.wsclient.services.ManualMeasure;
+import org.sonar.wsclient.services.Metric;
+import org.sonar.wsclient.services.Model;
+import org.sonar.wsclient.services.Plugin;
+import org.sonar.wsclient.services.Profile;
+import org.sonar.wsclient.services.Property;
+import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.ResourceSearchResult;
+import org.sonar.wsclient.services.Server;
+import org.sonar.wsclient.services.ServerSetup;
+import org.sonar.wsclient.services.Source;
+import org.sonar.wsclient.services.TimeMachine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,15 +45,13 @@ public final class Unmarshallers {
   private static volatile Map<Class, Unmarshaller> unmarshallers;
 
   static {
-    unmarshallers = new HashMap<Class, Unmarshaller>();
+    unmarshallers = new HashMap<>();
     unmarshallers.put(Metric.class, new MetricUnmarshaller());
-    unmarshallers.put(Dependency.class, new DependencyUnmarshaller());
     unmarshallers.put(Resource.class, new ResourceUnmarshaller());
     unmarshallers.put(Property.class, new PropertyUnmarshaller());
     unmarshallers.put(Source.class, new SourceUnmarshaller());
     unmarshallers.put(Server.class, new ServerUnmarshaller());
     unmarshallers.put(ServerSetup.class, new ServerSetupUnmarshaller());
-    unmarshallers.put(DependencyTree.class, new DependencyTreeUnmarshaller());
     unmarshallers.put(Event.class, new EventUnmarshaller());
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
     unmarshallers.put(Plugin.class, new PluginUnmarshaller());
