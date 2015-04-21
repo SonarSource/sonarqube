@@ -24,7 +24,7 @@ import com.google.common.collect.Ordering;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.text.JsonWriter;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
@@ -83,10 +83,7 @@ public class PluginWSCommons {
     INSTANCE;
 
     @Override
-    public String apply(@Nullable PluginMetadata input) {
-      if (input == null) {
-        return null;
-      }
+    public String apply(@Nonnull PluginMetadata input) {
       return input.getName();
     }
   }
@@ -95,10 +92,7 @@ public class PluginWSCommons {
     INSTANCE;
 
     @Override
-    public String apply(@Nullable PluginMetadata input) {
-      if (input == null) {
-        return null;
-      }
+    public String apply(@Nonnull PluginMetadata input) {
       return input.getKey();
     }
   }

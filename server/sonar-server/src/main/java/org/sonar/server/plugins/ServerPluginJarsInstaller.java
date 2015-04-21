@@ -33,7 +33,7 @@ import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.PluginReferential;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -280,8 +279,8 @@ public class ServerPluginJarsInstaller {
     INSTANCE;
 
     @Override
-    public String apply(@Nullable File file) {
-      return checkNotNull(file).getName();
+    public String apply(@Nonnull File file) {
+      return file.getName();
     }
   }
 }
