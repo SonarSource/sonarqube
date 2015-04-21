@@ -66,7 +66,7 @@ class Api::DependencyTreeController < Api::ApiController
       dependencies.each do |dep|
         hash={
           :did => dep.id.to_s,
-          :rid => dep.to_resource_id.to_s,
+          :rid => dep.to.id.to_s,
           :w => dep.weight,
           :u => dep.usage,
           :s => dep.to_scope,

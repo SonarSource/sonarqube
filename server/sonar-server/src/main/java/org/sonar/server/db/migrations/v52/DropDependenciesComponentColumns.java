@@ -20,24 +20,23 @@
 
 package org.sonar.server.db.migrations.v52;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.AddColumnsBuilder;
 import org.sonar.server.db.migrations.DdlChange;
+import org.sonar.server.db.migrations.DropColumnsBuilder;
 
 import java.sql.SQLException;
 
-import static org.sonar.server.db.migrations.AddColumnsBuilder.ColumnDef.Type.STRING;
-
 /**
- * Add the following columns to the dependencies table :
- * - from_component_uuid
- * - to_component_uuid
+ * Remove the following columns from the dependencies table :
+ * - from_resource_id
+ * - to_resource_id
  */
-public class AddDependenciesComponentUuidColumns extends DdlChange {
+public class DropDependenciesComponentColumns extends DdlChange {
 
   private final Database db;
 
-  public AddDependenciesComponentUuidColumns(Database db) {
+  public DropDependenciesComponentColumns(Database db) {
     super(db);
     this.db = db;
   }
@@ -47,22 +46,9 @@ public class AddDependenciesComponentUuidColumns extends DdlChange {
     context.execute(generateSql());
   }
 
-  private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "dependencies")
-      .addColumn(
-        new AddColumnsBuilder.ColumnDef()
-          .setName("from_component_uuid")
-          .setType(STRING)
-          .setLimit(50)
-          .setNullable(true)
-      )
-      .addColumn(
-        new AddColumnsBuilder.ColumnDef()
-          .setName("to_component_uuid")
-          .setType(STRING)
-          .setLimit(50)
-          .setNullable(true)
-      )
+  @VisibleForTesting
+  String generateSql() {
+    return new DropColumnsBuilder(db.getDialect(), "dependencies", "from_resource_id", "to_resource_id")
       .build();
   }
 

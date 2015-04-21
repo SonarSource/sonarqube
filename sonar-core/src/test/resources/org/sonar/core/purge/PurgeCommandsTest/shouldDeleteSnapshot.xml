@@ -21,7 +21,7 @@
                     person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
-  <dependencies id="1" from_resource_id="1" from_component_uuid="A" from_snapshot_id="1" to_resource_id="30" to_component_uuid="CC" to_snapshot_id="30"
+  <dependencies id="1" from_component_uuid="A" from_snapshot_id="1" to_component_uuid="CC" to_snapshot_id="30"
                 parent_dependency_id="[null]" project_snapshot_id="1"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
@@ -51,10 +51,10 @@
                     person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
-  <dependencies id="2" from_resource_id="10" from_component_uuid="AA" from_snapshot_id="10" to_resource_id="5" to_component_uuid="E" to_snapshot_id="5"
+  <dependencies id="2" from_component_uuid="AA" from_snapshot_id="10" to_component_uuid="E" to_snapshot_id="5"
                 parent_dependency_id="[null]" project_snapshot_id="5"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
-  <dependencies id="3" from_resource_id="5" from_component_uuid="C" from_snapshot_id="5" to_resource_id="300" to_component_uuid="CCC" to_snapshot_id="300"
+  <dependencies id="3" from_component_uuid="C" from_snapshot_id="5" to_component_uuid="CCC" to_snapshot_id="300"
                 parent_dependency_id="[null]" project_snapshot_id="5"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="2" name="Version 1.0" component_uuid="5" snapshot_id="5" category="VERSION" description="[null]"

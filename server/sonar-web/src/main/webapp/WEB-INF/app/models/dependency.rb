@@ -18,10 +18,10 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class Dependency < ActiveRecord::Base
-  belongs_to :from, :class_name => 'Project', :foreign_key => 'from_resource_id'
+  belongs_to :from, :class_name => 'Project', :foreign_key => 'from_component_uuid', :primary_key => 'uuid'
   belongs_to :from_snapshot, :class_name => 'Snapshot', :foreign_key => 'from_snapshot_id'
 
-  belongs_to :to, :class_name => 'Project', :foreign_key => 'to_resource_id'
+  belongs_to :to, :class_name => 'Project', :foreign_key => 'to_component_uuid', :primary_key => 'uuid'
   belongs_to :to_snapshot, :class_name => 'Snapshot', :foreign_key => 'to_snapshot_id'
 
   belongs_to :project, :class_name => 'Project', :foreign_key => 'project_id'

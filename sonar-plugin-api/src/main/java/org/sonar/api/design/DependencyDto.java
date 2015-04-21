@@ -24,7 +24,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "dependencies")
@@ -38,8 +42,8 @@ public class DependencyDto {
   @Column(name = "from_snapshot_id", updatable = true, nullable = false)
   private Integer fromSnapshotId;
 
-  @Column(name = "from_resource_id", updatable = true, nullable = false)
-  private Integer fromResourceId;
+  @Column(name = "from_component_uuid", updatable = true, nullable = false)
+  private String fromComponentUuid;
 
   @Column(name = "from_scope", updatable = true, nullable = true)
   private String fromScope;
@@ -47,8 +51,8 @@ public class DependencyDto {
   @Column(name = "to_snapshot_id", updatable = true, nullable = false)
   private Integer toSnapshotId;
 
-  @Column(name = "to_resource_id", updatable = true, nullable = false)
-  private Integer toResourceId;
+  @Column(name = "to_component_uuid", updatable = true, nullable = false)
+  private String toComponentUuid;
 
   @Column(name = "to_scope", updatable = true, nullable = true)
   private String toScope;
@@ -82,12 +86,12 @@ public class DependencyDto {
     return this;
   }
 
-  public Integer getFromResourceId() {
-    return fromResourceId;
+  public String getFromComponentUuid() {
+    return fromComponentUuid;
   }
 
-  public DependencyDto setFromResourceId(Integer fromResourceId) {
-    this.fromResourceId = fromResourceId;
+  public DependencyDto setFromComponentUuid(String fromComponentUuid) {
+    this.fromComponentUuid = fromComponentUuid;
     return this;
   }
 
@@ -100,12 +104,12 @@ public class DependencyDto {
     return this;
   }
 
-  public Integer getToResourceId() {
-    return toResourceId;
+  public String getToComponentUuid() {
+    return toComponentUuid;
   }
 
-  public DependencyDto setToResourceId(Integer toResourceId) {
-    this.toResourceId = toResourceId;
+  public DependencyDto setToComponentUuid(String toComponentUuid) {
+    this.toComponentUuid = toComponentUuid;
     return this;
   }
 

@@ -64,11 +64,11 @@ public final class DependencyPersister {
     model.setUsage(dependency.getUsage());
     model.setWeight(dependency.getWeight());
 
-    model.setFromResourceId(fromResource.resource().getId());
+    model.setFromComponentUuid(fromResource.resource().getUuid());
     model.setFromScope(fromResource.resource().getScope());
     model.setFromSnapshotId(fromResource.snapshotId());
 
-    model.setToResourceId(toResource.resource().getId());
+    model.setToComponentUuid(toResource.resource().getUuid());
     model.setToScope(toResource.resource().getScope());
     model.setToSnapshotId(toResource.snapshotId());
 
