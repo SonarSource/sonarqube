@@ -229,7 +229,7 @@
     metric: null,
     rule: <% if @rule %>'<%= escape_javascript @rule.key -%>'<% else %>null<% end %>,
     severity: <% if @severity %>'<%= escape_javascript @severity -%>'<% else %>null<% end %>,
-    period: <% if @period %><%= escape_javascript @period -%><% else %>null<% end %>
+    period: <% if @period %><%= @period -%><% else %>null<% end %>
   };
 </script>
 
