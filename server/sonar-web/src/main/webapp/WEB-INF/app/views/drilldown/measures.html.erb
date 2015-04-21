@@ -51,6 +51,10 @@
     <% end %>
   </div>
 
+  <% unless @drilldown.columns.size > 0 %>
+  <div class="alert alert-info"><%= h message('drilldown.no_items_found') -%></div>
+  <% end %>
+
   <div id="drilldown" class="width100">
     <%
        rids=[]
