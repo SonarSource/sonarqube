@@ -48,6 +48,9 @@ import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_TERMS_AND_CON
 import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_URL;
 import static org.sonar.server.plugins.ws.PluginWSCommons.PROPERTY_VERSION;
 
+/**
+ * Implementation of the {@code available} action for the Plugins WebService.
+ */
 public class AvailablePluginsWsAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;

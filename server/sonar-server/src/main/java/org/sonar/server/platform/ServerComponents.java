@@ -221,6 +221,7 @@ import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
 import org.sonar.server.plugins.ws.PendingPluginsWsAction;
 import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
+import org.sonar.server.plugins.ws.UpdatePluginsWsAction;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
@@ -381,7 +382,6 @@ import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -890,6 +890,7 @@ class ServerComponents {
     pico.addSingleton(InstalledPluginsWsAction.class);
     pico.addSingleton(AvailablePluginsWsAction.class);
     pico.addSingleton(PendingPluginsWsAction.class);
+    pico.addSingleton(UpdatePluginsWsAction.class);
     pico.addSingleton(PluginsWs.class);
 
     // Compute engine
