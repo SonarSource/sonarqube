@@ -51,6 +51,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -145,7 +146,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid(FILE_UUID)
-      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
 
@@ -236,13 +237,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(2).setEndOffset(4)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build()
-      ));
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(2).setEndOffset(4)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -265,10 +266,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build()
+            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+            .build()
         ).build()
-      ));
+    ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
@@ -413,6 +414,28 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
   }
 
+  @Test
+  public void display_file_path_when_exception_is_generated() throws Exception {
+    BatchReportWriter writer = initBasicReport(1);
+
+    writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+            // Wrong offset -> fail
+          .setStartOffset(4).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
+
+    try {
+      sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+      failBecauseExceptionWasNotThrown(IllegalStateException.class);
+    } catch (IllegalStateException e){
+      assertThat(e).hasMessage("Cannot persist sources of src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);
+    }
+  }
+
   private BatchReportWriter initBasicReport(int numberOfLines) throws IOException {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -436,6 +459,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid(FILE_UUID)
+      .setPath("src/Foo.java")
       .setLines(numberOfLines)
       .build());
 

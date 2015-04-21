@@ -100,6 +100,8 @@ public class PersistFileSourcesStep implements ComputationStep {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourcesContext, fileSourceData, component);
+      } catch (Exception e) {
+        throw new IllegalStateException(String.format("Cannot persist sources of %s", component.getPath()), e);
       } finally {
         linesIterator.close();
         lineReaders.close();
