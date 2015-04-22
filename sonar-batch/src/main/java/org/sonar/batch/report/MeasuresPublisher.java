@@ -153,10 +153,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
     if (variation5 != null) {
       builder.setVariationValue5(variation5);
     }
-    Integer tendency = measure.getTendency();
-    if (tendency != null) {
-      builder.setTendency(tendency);
-    }
     Characteristic charac = measure.getCharacteristic();
     if (charac != null) {
       builder.setCharactericId(charac.id());

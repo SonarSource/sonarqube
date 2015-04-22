@@ -59,7 +59,7 @@ public class DefaultTimeMachine implements TimeMachine {
   public List<Measure> getMeasures(TimeMachineQuery query) {
     Map<Integer, Metric> metricById = getMetricsById(query);
 
-    List<Object[]> objects = execute(query, true, metricById.keySet());
+    List<Object[]> objects = execute(query, metricById.keySet());
     List<Measure> result = Lists.newArrayList();
 
     for (Object[] object : objects) {
@@ -75,15 +75,10 @@ public class DefaultTimeMachine implements TimeMachine {
 
   @Override
   public List<Object[]> getMeasuresFields(TimeMachineQuery query) {
-    Map<Integer, Metric> metricById = getMetricsById(query);
-    List<Object[]> rows = execute(query, false, metricById.keySet());
-    for (Object[] fields : rows) {
-      fields[1] = metricById.get(fields[1]);
-    }
-    return rows;
+    return Collections.emptyList();
   }
 
-  protected List<Object[]> execute(TimeMachineQuery query, boolean selectAllFields, Set<Integer> metricIds) {
+  protected List<Object[]> execute(TimeMachineQuery query, Set<Integer> metricIds) {
     Resource resource = query.getResource();
     if (resource != null && resource.getId() == null) {
       resource = index.getResource(query.getResource());
@@ -95,11 +90,7 @@ public class DefaultTimeMachine implements TimeMachine {
     StringBuilder sb = new StringBuilder();
     Map<String, Object> params = Maps.newHashMap();
 
-    if (selectAllFields) {
-      sb.append("SELECT m, s.createdAt ");
-    } else {
-      sb.append("SELECT s.createdAt, m.metricId, m.value ");
-    }
+    sb.append("SELECT m, s.createdAt ");
     sb.append(" FROM ")
       .append(MeasureModel.class.getSimpleName())
       .append(" m, ")
@@ -163,7 +154,6 @@ public class DefaultTimeMachine implements TimeMachine {
     measure.setData(model.getData(metric));
     measure.setAlertStatus(model.getAlertStatus());
     measure.setAlertText(model.getAlertText());
-    measure.setTendency(model.getTendency());
     measure.setVariation1(model.getVariationValue1());
     measure.setVariation2(model.getVariationValue2());
     measure.setVariation3(model.getVariationValue3());

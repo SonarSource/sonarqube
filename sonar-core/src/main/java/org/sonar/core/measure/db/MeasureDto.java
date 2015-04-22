@@ -36,7 +36,6 @@ public class MeasureDto {
   private Double value;
   private String textValue;
   private byte[] dataValue;
-  private Integer tendency;
   private Double variation1, variation2, variation3, variation4, variation5;
   private String alertStatus;
   private String alertText;
@@ -134,16 +133,6 @@ public class MeasureDto {
       default:
         throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getTendency() {
-    return tendency;
-  }
-
-  public MeasureDto setTendency(@Nullable Integer tendency) {
-    this.tendency = tendency;
     return this;
   }
 

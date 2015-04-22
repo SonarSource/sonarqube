@@ -260,13 +260,8 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def tendency_qualitative
-    if !metric.qualitative? || tendency.nil? || tendency==0 || metric.direction==0
-      0
-    elsif tendency>0
-      metric.direction>0 ? 1 : -1
-    else
-      metric.direction<0 ? 1 : -1
-    end
+    # unsupported since version 5.2
+    0
   end
 
   def <=>(other)

@@ -17,7 +17,7 @@
         <span class="widget-label"><%= message('widget.documentation_comments.documentation') -%></span>
         <span class="nowrap">
           <%= format_measure(public_documented_api_density, :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) %>
-          <%= dashboard_configuration.selected_period? ? format_variation('public_documented_api_density') : trend_icon('public_documented_api_density') -%>
+          <%= format_variation('public_documented_api_density') if dashboard_configuration.selected_period? -%>
         </span>
       </div>
       <% end %>
@@ -25,14 +25,14 @@
         <span class="widget-label"><%= message('metric.public_api.name') -%></span>
         <span class="nowrap">
           <%= format_measure(public_api,:url => url_for_drilldown(public_api)) %>
-          <%= dashboard_configuration.selected_period? ? format_variation(public_api) : trend_icon(public_api) -%>
+          <%= format_variation(public_api) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
       <div class="widget-measure">
         <span class="widget-label"><%= message('metric.public_undocumented_api.abbreviation') -%></span>
         <span class="nowrap">
           <%= format_measure(public_undocumented_api,:url => url_for_drilldown(public_undocumented_api)) %>
-          <%= dashboard_configuration.selected_period? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
+          <%= format_variation(public_undocumented_api) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
     </div>
@@ -45,14 +45,14 @@
         <span class="widget-label"><%= message('widget.documentation_comments.comments') -%></span>
         <span class="nowrap">
           <%= format_measure(comment_lines_density,:url => url_for_drilldown(comment_lines_density))%>
-          <%= dashboard_configuration.selected_period? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
+          <%= format_variation(comment_lines_density) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
       <div class="widget-measure">
         <span class="widget-label"><%= message('metric.comment_lines.name') -%></span>
         <span class="nowrap">
           <%= format_measure(comment_lines,:url => url_for_drilldown(comment_lines)) %>
-          <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
+          <%= format_variation(comment_lines) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
     </div>

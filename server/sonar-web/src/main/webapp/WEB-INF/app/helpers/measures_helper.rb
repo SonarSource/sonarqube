@@ -43,8 +43,6 @@ module MeasuresHelper
         else
           format_variation(measure, :index => column.period, :style => 'light')
         end
-      elsif column.metric.numeric?
-        format_measure(measure) + ' ' + trend_icon(measure, :empty => true)
       else
         format_measure(measure) + ' '
       end

@@ -22,7 +22,7 @@
                   <%= format_measure(measure, :url => url_for_drilldown(measure, :period => period), :period => period) -%>
                 <% else %>
                   <%= format_measure(measure, :url => url_for_drilldown(measure)) -%>
-                  <%= dashboard_configuration.selected_period? ? format_variation(measure) : trend_icon(measure) -%>
+                  <%= format_variation(measure) if dashboard_configuration.selected_period? -%>
                 <% end -%>
               </span>
             </p>

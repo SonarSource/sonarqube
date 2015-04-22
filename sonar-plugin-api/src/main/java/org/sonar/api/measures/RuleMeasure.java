@@ -161,7 +161,6 @@ public class RuleMeasure extends Measure {
       .append("description", description)
       .append("alertStatus", alertStatus)
       .append("alertText", alertText)
-      .append("tendency", tendency)
       .append("severity", rulePriority)
       .toString();
   }

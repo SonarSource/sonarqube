@@ -108,9 +108,8 @@ message Measure {
   optional double variation_value_3 = 16;
   optional double variation_value_4 = 17;
   optional double variation_value_5 = 18;
-  optional int32 tendency = 19;
-  optional int32 characteric_id = 20;
-  optional int32 person_id = 21;
+  optional int32 characteric_id = 19;
+  optional int32 person_id = 20;
 }
 
 message Measures {

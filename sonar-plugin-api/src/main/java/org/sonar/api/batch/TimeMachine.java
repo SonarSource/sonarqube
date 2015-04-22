@@ -42,10 +42,7 @@ public interface TimeMachine extends BatchComponent {
   List<Measure> getMeasures(TimeMachineQuery query);
 
   /**
-   * Past measures sorted by date. Return only a subset of basic fields : [date (java.util.Date), metric (org.sonar.api.measures.Metric), value (Double)].
-   * <p/>
-   * <p>Measures of current analysis are not included.</p>
-   * <p>This method is recommended instead of getMeasures() for performance reasons. It needs less memory.</p>
+   * Return an empty list since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
    */
   List<Object[]> getMeasuresFields(TimeMachineQuery query);
 

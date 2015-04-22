@@ -55,7 +55,6 @@ public class Measure<G extends Serializable> implements Serializable {
   protected String description;
   protected Metric.Level alertStatus;
   protected String alertText;
-  protected Integer tendency;
   protected Date date;
   protected Double variation1, variation2, variation3, variation4, variation5;
   protected String url;
@@ -438,22 +437,22 @@ public class Measure<G extends Serializable> implements Serializable {
   }
 
   /**
-   * Gets the measure tendency
-   *
-   * @return the tendency
+   * Concept of measure trend is dropped.
+   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
+   * @return {@code null} since version 5.2
    */
+  @Deprecated
+  @CheckForNull
   public Integer getTendency() {
-    return tendency;
+    return null;
   }
 
   /**
-   * Sets the tendency for the measure - Internal use only
-   *
-   * @param tendency the tendency
+   * Concept of measure trend is dropped. This method does nothing.
+   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
    * @return the measure object instance
    */
   public Measure setTendency(@Nullable Integer tendency) {
-    this.tendency = tendency;
     return this;
   }
 
@@ -684,7 +683,7 @@ public class Measure<G extends Serializable> implements Serializable {
     return metric.isOptimizedBestValue() == Boolean.TRUE
       && bestValue != null
       && (value == null || NumberUtils.compare(bestValue, value) == 0)
-      && allNull(alertStatus, description, tendency, url, data)
+      && allNull(alertStatus, description, url, data)
       && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
   }
 

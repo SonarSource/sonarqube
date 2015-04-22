@@ -5502,15 +5502,6 @@ public final class BatchReport {
     double getVariationValue5();
 
     /**
-     * <code>optional int32 tendency = 19;</code>
-     */
-    boolean hasTendency();
-    /**
-     * <code>optional int32 tendency = 19;</code>
-     */
-    int getTendency();
-
-    /**
      * <code>optional int32 characteric_id = 20;</code>
      */
     boolean hasCharactericId();
@@ -5683,18 +5674,13 @@ public final class BatchReport {
               variationValue5_ = input.readDouble();
               break;
             }
-            case 152: {
-              bitField0_ |= 0x00020000;
-              tendency_ = input.readInt32();
-              break;
-            }
             case 160: {
-              bitField0_ |= 0x00040000;
+              bitField0_ |= 0x00020000;
               charactericId_ = input.readInt32();
               break;
             }
             case 168: {
-              bitField0_ |= 0x00080000;
+              bitField0_ |= 0x00040000;
               personId_ = input.readInt32();
               break;
             }
@@ -6175,28 +6161,13 @@ public final class BatchReport {
       return variationValue5_;
     }
 
-    public static final int TENDENCY_FIELD_NUMBER = 19;
-    private int tendency_;
-    /**
-     * <code>optional int32 tendency = 19;</code>
-     */
-    public boolean hasTendency() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
-    }
-    /**
-     * <code>optional int32 tendency = 19;</code>
-     */
-    public int getTendency() {
-      return tendency_;
-    }
-
     public static final int CHARACTERIC_ID_FIELD_NUMBER = 20;
     private int charactericId_;
     /**
      * <code>optional int32 characteric_id = 20;</code>
      */
     public boolean hasCharactericId() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
      * <code>optional int32 characteric_id = 20;</code>
@@ -6211,7 +6182,7 @@ public final class BatchReport {
      * <code>optional int32 person_id = 21;</code>
      */
     public boolean hasPersonId() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
+      return ((bitField0_ & 0x00040000) == 0x00040000);
     }
     /**
      * <code>optional int32 person_id = 21;</code>
@@ -6238,7 +6209,6 @@ public final class BatchReport {
       variationValue3_ = 0D;
       variationValue4_ = 0D;
       variationValue5_ = 0D;
-      tendency_ = 0;
       charactericId_ = 0;
       personId_ = 0;
     }
@@ -6307,12 +6277,9 @@ public final class BatchReport {
         output.writeDouble(18, variationValue5_);
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        output.writeInt32(19, tendency_);
-      }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
         output.writeInt32(20, charactericId_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
         output.writeInt32(21, personId_);
       }
       getUnknownFields().writeTo(output);
@@ -6394,13 +6361,9 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(19, tendency_);
-      }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(20, charactericId_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(21, personId_);
       }
@@ -6555,12 +6518,10 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00008000);
         variationValue5_ = 0D;
         bitField0_ = (bitField0_ & ~0x00010000);
-        tendency_ = 0;
-        bitField0_ = (bitField0_ & ~0x00020000);
         charactericId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00040000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         personId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00080000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         return this;
       }
 
@@ -6660,13 +6621,9 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
           to_bitField0_ |= 0x00020000;
         }
-        result.tendency_ = tendency_;
+        result.charactericId_ = charactericId_;
         if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00040000;
-        }
-        result.charactericId_ = charactericId_;
-        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
-          to_bitField0_ |= 0x00080000;
         }
         result.personId_ = personId_;
         result.bitField0_ = to_bitField0_;
@@ -6747,9 +6704,6 @@ public final class BatchReport {
         }
         if (other.hasVariationValue5()) {
           setVariationValue5(other.getVariationValue5());
-        }
-        if (other.hasTendency()) {
-          setTendency(other.getTendency());
         }
         if (other.hasCharactericId()) {
           setCharactericId(other.getCharactericId());
@@ -7638,44 +7592,12 @@ public final class BatchReport {
         return this;
       }
 
-      private int tendency_ ;
-      /**
-       * <code>optional int32 tendency = 19;</code>
-       */
-      public boolean hasTendency() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
-      }
-      /**
-       * <code>optional int32 tendency = 19;</code>
-       */
-      public int getTendency() {
-        return tendency_;
-      }
-      /**
-       * <code>optional int32 tendency = 19;</code>
-       */
-      public Builder setTendency(int value) {
-        bitField0_ |= 0x00020000;
-        tendency_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 tendency = 19;</code>
-       */
-      public Builder clearTendency() {
-        bitField0_ = (bitField0_ & ~0x00020000);
-        tendency_ = 0;
-        onChanged();
-        return this;
-      }
-
       private int charactericId_ ;
       /**
        * <code>optional int32 characteric_id = 20;</code>
        */
       public boolean hasCharactericId() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
+        return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
        * <code>optional int32 characteric_id = 20;</code>
@@ -7687,7 +7609,7 @@ public final class BatchReport {
        * <code>optional int32 characteric_id = 20;</code>
        */
       public Builder setCharactericId(int value) {
-        bitField0_ |= 0x00040000;
+        bitField0_ |= 0x00020000;
         charactericId_ = value;
         onChanged();
         return this;
@@ -7696,7 +7618,7 @@ public final class BatchReport {
        * <code>optional int32 characteric_id = 20;</code>
        */
       public Builder clearCharactericId() {
-        bitField0_ = (bitField0_ & ~0x00040000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         charactericId_ = 0;
         onChanged();
         return this;
@@ -7707,7 +7629,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 21;</code>
        */
       public boolean hasPersonId() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
+        return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
        * <code>optional int32 person_id = 21;</code>
@@ -7719,7 +7641,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 21;</code>
        */
       public Builder setPersonId(int value) {
-        bitField0_ |= 0x00080000;
+        bitField0_ |= 0x00040000;
         personId_ = value;
         onChanged();
         return this;
@@ -7728,7 +7650,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 21;</code>
        */
       public Builder clearPersonId() {
-        bitField0_ = (bitField0_ & ~0x00080000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         personId_ = 0;
         onChanged();
         return this;
@@ -25967,7 +25889,7 @@ public final class BatchReport {
       "\020\001\022\034\n\004link\030\n \003(\0132\016.ComponentLink\022\017\n\007vers" +
       "ion\030\014 \001(\t\022\013\n\003key\030\016 \001(\t\022\r\n\005lines\030\017 \001(\005\022\n\n" +
       "\002id\030\r \001(\003\022\023\n\013snapshot_id\030\010 \001(\003\022\014\n\004uuid\030\t" +
-      " \001(\t\022\025\n\005event\030\013 \003(\0132\006.Event\"\340\003\n\007Measure\022" +
+      " \001(\t\022\025\n\005event\030\013 \003(\0132\006.Event\"\316\003\n\007Measure\022" +
       "%\n\nvalue_type\030\001 \001(\0162\021.MeasureValueType\022\025" +
       "\n\rboolean_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005" +
       "\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001",
@@ -25978,62 +25900,61 @@ public final class BatchReport {
       "riation_value_1\030\016 \001(\001\022\031\n\021variation_value" +
       "_2\030\017 \001(\001\022\031\n\021variation_value_3\030\020 \001(\001\022\031\n\021v" +
       "ariation_value_4\030\021 \001(\001\022\031\n\021variation_valu" +
-      "e_5\030\022 \001(\001\022\020\n\010tendency\030\023 \001(\005\022\026\n\016character" +
-      "ic_id\030\024 \001(\005\022\021\n\tperson_id\030\025 \001(\005\"<\n\010Measur" +
-      "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003",
-      "(\0132\010.Measure\"\231\004\n\005Issue\022\027\n\017rule_repositor" +
-      "y\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022" +
-      "\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severit" +
-      "y\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n" +
-      "\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_m" +
-      "inutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006stat" +
-      "us\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_sev" +
-      "erity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assigne" +
-      "e\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nattr" +
-      "ibutes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcr",
-      "eation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n" +
-      "\013update_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022" +
-      "\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010" +
-      "\022\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Issu" +
-      "es\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\013" +
-      "2\006.Issue\022\026\n\016component_uuid\030\003 \001(\t\"\254\001\n\nCha" +
-      "ngesets\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchange" +
-      "set\030\002 \003(\0132\025.Changesets.Changeset\022 \n\024chan" +
-      "gesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022" +
-      "\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004dat",
-      "e\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001" +
-      " \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016other_fil" +
-      "e_key\030\003 \001(\t\"M\n\013Duplication\022\037\n\017origin_pos" +
-      "ition\030\001 \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n" +
-      ".Duplicate\"H\n\014Duplications\022\025\n\rcomponent_" +
-      "ref\030\001 \001(\005\022!\n\013duplication\030\002 \003(\0132\014.Duplica" +
-      "tion\"W\n\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end" +
-      "_line\030\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend" +
-      "_offset\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001" +
-      "(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006S",
-      "ymbol\022\033\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\tre" +
-      "ference\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004li" +
-      "ne\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030" +
-      "\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_con" +
-      "ditions\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006" +
-      " \001(\005\022\"\n\032overall_covered_conditions\030\007 \001(\005" +
-      "\"L\n\022SyntaxHighlighting\022\025\n\005range\030\001 \001(\0132\006." +
-      "Range\022\037\n\004type\030\002 \001(\0162\021.HighlightingType\"\203" +
-      "\001\n\004Test\022\014\n\004name\030\001 \001(\t\022\027\n\004type\030\002 \001(\0162\t.Te" +
-      "stType\022\033\n\006status\030\003 \001(\0162\013.TestStatus\022\026\n\016d",
-      "uration_in_ms\030\004 \001(\003\022\022\n\nstacktrace\030\005 \001(\t\022" +
-      "\013\n\003msg\030\006 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest_" +
-      "name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.Cover" +
-      "ageDetail.CoveredFile\0329\n\013CoveredFile\022\020\n\010" +
-      "file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001" +
-      "\"5\n\016FileDependency\022\023\n\013to_file_ref\030\001 \001(\005\022" +
-      "\016\n\006weight\030\002 \001(\005\"\275\001\n\022ModuleDependencies\0221" +
-      "\n\003dep\030\001 \003(\0132$.ModuleDependencies.ModuleD" +
-      "ependency\032t\n\020ModuleDependency\022\013\n\003key\030\001 \001" +
-      "(\t\022\017\n\007version\030\002 \001(\t\022\r\n\005scope\030\003 \001(\t\0223\n\005ch",
-      "ild\030\004 \003(\0132$.ModuleDependencies.ModuleDep" +
-      "endencyB#\n\037org.sonar.batch.protocol.outp" +
-      "utH\001"
+      "e_5\030\022 \001(\001\022\026\n\016characteric_id\030\024 \001(\005\022\021\n\tper" +
+      "son_id\030\025 \001(\005\"<\n\010Measures\022\025\n\rcomponent_re" +
+      "f\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Measure\"\231\004\n\005I",
+      "ssue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule_ke" +
+      "y\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010se" +
+      "verity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003(\t\022\025\n\r" +
+      "effort_to_fix\030\007 \001(\001\022\016\n\006is_new\030\010 \001(\010\022\014\n\004u" +
+      "uid\030\t \001(\t\022\027\n\017debt_in_minutes\030\n \001(\003\022\022\n\nre" +
+      "solution\030\013 \001(\t\022\016\n\006status\030\014 \001(\t\022\020\n\010checks" +
+      "um\030\r \001(\t\022\027\n\017manual_severity\030\016 \001(\010\022\020\n\010rep" +
+      "orter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t\022\027\n\017action_" +
+      "plan_key\030\021 \001(\t\022\022\n\nattributes\030\022 \001(\t\022\024\n\014au" +
+      "thor_login\030\023 \001(\t\022\025\n\rcreation_date\030\024 \001(\003\022",
+      "\022\n\nclose_date\030\025 \001(\003\022\023\n\013update_date\030\026 \001(\003" +
+      "\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff_fields\030\030 \001" +
+      "(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_send_noti" +
+      "fication\030\032 \001(\010\"N\n\006Issues\022\025\n\rcomponent_re" +
+      "f\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\022\026\n\016compon" +
+      "ent_uuid\030\003 \001(\t\"\254\001\n\nChangesets\022\025\n\rcompone" +
+      "nt_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Change" +
+      "sets.Changeset\022 \n\024changesetIndexByLine\030\003" +
+      " \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 \001(\t\022" +
+      "\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplica",
+      "te\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(" +
+      "\0132\006.Range\022\026\n\016other_file_key\030\003 \001(\t\"M\n\013Dup" +
+      "lication\022\037\n\017origin_position\030\001 \001(\0132\006.Rang" +
+      "e\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"H\n\014Dupl" +
+      "ications\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013dupli" +
+      "cation\030\002 \003(\0132\014.Duplication\"W\n\005Range\022\022\n\ns" +
+      "tart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014sta" +
+      "rt_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"~\n\007S" +
+      "ymbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\013" +
+      "2\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013declarati",
+      "on\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132\006.Ra" +
+      "nge\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\ncondit" +
+      "ions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004" +
+      " \001(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022\035\n\025i" +
+      "t_covered_conditions\030\006 \001(\005\022\"\n\032overall_co" +
+      "vered_conditions\030\007 \001(\005\"L\n\022SyntaxHighligh" +
+      "ting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(" +
+      "\0162\021.HighlightingType\"\203\001\n\004Test\022\014\n\004name\030\001 " +
+      "\001(\t\022\027\n\004type\030\002 \001(\0162\t.TestType\022\033\n\006status\030\003" +
+      " \001(\0162\013.TestStatus\022\026\n\016duration_in_ms\030\004 \001(",
+      "\003\022\022\n\nstacktrace\030\005 \001(\t\022\013\n\003msg\030\006 \001(\t\"\221\001\n\016C" +
+      "overageDetail\022\021\n\ttest_name\030\001 \001(\t\0221\n\014cove" +
+      "red_file\030\002 \003(\0132\033.CoverageDetail.CoveredF" +
+      "ile\0329\n\013CoveredFile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014" +
+      "covered_line\030\002 \003(\005B\002\020\001\"5\n\016FileDependency" +
+      "\022\023\n\013to_file_ref\030\001 \001(\005\022\016\n\006weight\030\002 \001(\005\"\275\001" +
+      "\n\022ModuleDependencies\0221\n\003dep\030\001 \003(\0132$.Modu" +
+      "leDependencies.ModuleDependency\032t\n\020Modul" +
+      "eDependency\022\013\n\003key\030\001 \001(\t\022\017\n\007version\030\002 \001(" +
+      "\t\022\r\n\005scope\030\003 \001(\t\0223\n\005child\030\004 \003(\0132$.Module",
+      "Dependencies.ModuleDependencyB#\n\037org.son" +
+      "ar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -26077,7 +25998,7 @@ public final class BatchReport {
     internal_static_Measure_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Measure_descriptor,
-        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", "Description", "RuleKey", "Severity", "AlertStatus", "AlertText", "VariationValue1", "VariationValue2", "VariationValue3", "VariationValue4", "VariationValue5", "Tendency", "CharactericId", "PersonId", });
+        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", "Description", "RuleKey", "Severity", "AlertStatus", "AlertText", "VariationValue1", "VariationValue2", "VariationValue3", "VariationValue4", "VariationValue5", "CharactericId", "PersonId", });
     internal_static_Measures_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_Measures_fieldAccessorTable = new

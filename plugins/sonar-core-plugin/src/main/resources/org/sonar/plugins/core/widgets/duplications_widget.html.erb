@@ -8,7 +8,7 @@
       <span class="widget-label"><%= message('widget.duplications.duplications') -%></span>
       <span class="nowrap">
         <%= format_measure(duplicated_lines_density, :url => url_for_drilldown('duplicated_lines', :highlight =>  'duplicated_lines_density')) %>
-        <%= dashboard_configuration.selected_period? ? format_variation('duplicated_lines_density') : trend_icon('duplicated_lines_density') -%>
+        <%= format_variation('duplicated_lines_density') if dashboard_configuration.selected_period? -%>
       </span>
     </div>
 
@@ -16,7 +16,7 @@
       <span class="widget-label"><%= message('widget.duplications.lines.suffix') -%></span>
       <span class="nowrap">
         <%= format_measure(measure('duplicated_lines'), :url => url_for_drilldown('duplicated_lines'))%>
-        <%= dashboard_configuration.selected_period? ? format_variation('duplicated_lines') : trend_icon('duplicated_lines') -%>
+        <%= format_variation('duplicated_lines') if dashboard_configuration.selected_period? -%>
       </span>
     </div>
 
@@ -24,7 +24,7 @@
       <span class="widget-label"><%= message('widget.duplications.blocks.suffix') -%></span>
       <span class="nowrap">
         <%= format_measure(measure('duplicated_blocks'), :url => url_for_drilldown('duplicated_blocks'))%>
-        <%= dashboard_configuration.selected_period? ? format_variation('duplicated_blocks') : trend_icon('duplicated_blocks') -%>
+        <%= format_variation('duplicated_blocks') if dashboard_configuration.selected_period? -%>
       </span>
     </div>
 
@@ -32,7 +32,7 @@
       <span class="widget-label"><%= message('widget.duplications.files.suffix') -%></span>
       <span class="nowrap">
         <%= format_measure(measure('duplicated_files'), :url => url_for_drilldown('duplicated_files'))%>
-        <%= dashboard_configuration.selected_period? ? format_variation('duplicated_files') : trend_icon('duplicated_files') -%>
+        <%= format_variation('duplicated_files') if dashboard_configuration.selected_period? -%>
       </span>
     </div>
 

@@ -51,7 +51,6 @@ class MeasureValueCoder implements ValueCoder {
     putUTFOrNull(value, m.getDescription());
     value.putString(m.getAlertStatus() != null ? m.getAlertStatus().name() : null);
     putUTFOrNull(value, m.getAlertText());
-    value.put(m.getTendency());
     value.putDate(m.getDate());
     value.put(m.getVariation1());
     value.put(m.getVariation2());
@@ -91,7 +90,6 @@ class MeasureValueCoder implements ValueCoder {
     m.setDescription(value.getString());
     m.setAlertStatus(value.isNull(true) ? null : Metric.Level.valueOf(value.getString()));
     m.setAlertText(value.getString());
-    m.setTendency(value.isNull(true) ? null : value.getInt());
     m.setDate(value.getDate());
     m.setVariation1(value.isNull(true) ? null : value.getDouble());
     m.setVariation2(value.isNull(true) ? null : value.getDouble());

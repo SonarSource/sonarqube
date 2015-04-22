@@ -129,7 +129,7 @@ module ApplicationHelper
 
   # deprecated since 2.5. Use trend_icon() instead
   def tendency_icon(metric_or_measure, small=true, no_tendency_img=true)
-    trend_icon(metric_or_measure, {:big => !small, :empty => !no_tendency_img})
+    trend_icon(nil, {:empty => !no_tendency_img})
   end
 
   def boolean_icon(boolean_value, options={})
@@ -446,44 +446,10 @@ module ApplicationHelper
   end
 
   #
-  #
-  # Display the trend icon :
-  #
-  # === Optional parameters
-  # :empty: true|false. Show an empty transparent image when no trend or no measure. Default is false.
-  # :big : true|false (default is false). Default is 10x10px. Big is 16x16px.
-  #
-  # === Examples
-  # trend_icon('ncloc')
-  # trend_icon(measure('ncloc'))
-  # trend_icon('ncloc', :empty => true)
+  # Unsupported since version 5.2
   #
   def trend_icon(metric_or_measure, options={})
-    m=nil
-    if metric_or_measure.is_a? ProjectMeasure
-      m = metric_or_measure
-    elsif @snapshot
-      m = @snapshot.measure(metric_or_measure)
-    end
-
-    if m.nil? || m.tendency.nil? || m.tendency==0
-      return options[:empty] ? "<i class=\"icon-trend-0\"></i>" : nil
-    end
-    className = m.tendency.to_s
-
-    if options[:big]
-      className += ' icon-trend-big'
-    end
-
-    case m.tendency_qualitative
-      when 0
-        className += ' icon-black'
-      when -1
-        className += ' icon-red'
-      when 1
-        className += ' icon-green'
-    end
-    "<i class=\"icon-trend-#{className}\"></i>"
+    return options[:empty] ? "<i class=\"icon-trend-0\"></i>" : nil
   end
 
   #

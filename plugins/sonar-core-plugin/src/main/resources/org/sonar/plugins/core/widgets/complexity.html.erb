@@ -15,7 +15,7 @@
             <span class="widget-label"><%= message('metric.complexity.name') %></span>
             <span class="nowrap">
               <%= format_measure(complexity, :url => url_for_drilldown(complexity)) %>
-              <%= dashboard_configuration.selected_period? ? format_variation(complexity) : trend_icon(complexity) -%>
+              <%= format_variation(complexity) if dashboard_configuration.selected_period? -%>
             </span>
           </p>
         <% end %>
@@ -24,7 +24,7 @@
             <span class="widget-label"><%= message('widget.complexity.per_method.suffix') %></span>
             <span class="nowrap">
               <%= format_measure(function_complexity, :url => url_for_drilldown(function_complexity)) %>
-              <%= dashboard_configuration.selected_period? ? format_variation(function_complexity) : trend_icon(function_complexity) -%>
+              <%= format_variation(function_complexity) if dashboard_configuration.selected_period? -%>
             </span>
           </p>
         <% end %>
@@ -33,7 +33,7 @@
             <span class="widget-label"><%= message('widget.complexity.per_class.suffix') %></span>
             <span class="nowrap">
               <%= format_measure(class_complexity, :url => url_for_drilldown(class_complexity)) %>
-                <%= dashboard_configuration.selected_period? ? format_variation(class_complexity) : trend_icon(class_complexity) -%>
+                <%= format_variation(class_complexity) if dashboard_configuration.selected_period? -%>
             </span>
           </p>
         <% end %>
@@ -42,7 +42,7 @@
             <span class="widget-label"><%= message('widget.complexity.per_file.suffix') %></span>
             <span class="nowrap">
               <%= format_measure(file_complexity, :url => url_for_drilldown(file_complexity)) %>
-                <%= dashboard_configuration.selected_period? ? format_variation(file_complexity) : trend_icon(file_complexity) -%>
+                <%= format_variation(file_complexity) if dashboard_configuration.selected_period? -%>
             </span>
           </p>
         <% end %>

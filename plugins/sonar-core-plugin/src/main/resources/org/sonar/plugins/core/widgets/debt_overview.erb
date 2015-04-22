@@ -11,9 +11,6 @@
             <span class="widget-label"><%= message('metric.sqale_rating.name') -%></span>
             <span class="nowrap">
               <%= format_measure(sqale_rating, :url => url_for_drilldown(sqale_rating)) %>
-              <% unless dashboard_configuration.selected_period? %>
-                <%= trend_icon(sqale_rating) -%>
-              <% end %>
             </span>
           </div>
         </div>
@@ -26,7 +23,7 @@
           <span class="widget-label"><%= message('metric.sqale_debt_ratio.name') -%></span>
           <span class="nowrap">
             <%= format_measure(sqale_debt_ratio, :url => url_for_drilldown(sqale_debt_ratio)) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(sqale_debt_ratio) : trend_icon(sqale_debt_ratio) -%>
+            <%= format_variation(sqale_debt_ratio) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
       </div>

@@ -27,6 +27,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.*;
 
 import java.io.UnsupportedEncodingException;
@@ -50,9 +51,6 @@ public class MeasureModel implements Cloneable {
 
   @Column(name = "text_value", updatable = true, nullable = true, length = TEXT_VALUE_LENGTH)
   private String textValue;
-
-  @Column(name = "tendency", updatable = true, nullable = true)
-  private Integer tendency;
 
   @Column(name = "metric_id", updatable = false, nullable = false)
   private Integer metricId;
@@ -208,19 +206,20 @@ public class MeasureModel implements Cloneable {
   }
 
   /**
-   * @return the measure tendency
+   * Concept of measure trend is dropped. This method always returns {@code null} since version 5.2.
+   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
+   * @return null
    */
+  @CheckForNull
   public Integer getTendency() {
-    return tendency;
+    return null;
   }
 
   /**
-   * Sets the measure tendency
-   *
-   * @return the current object
+   * Concept of measure trend is dropped. This method does nothing.
+   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
    */
   public MeasureModel setTendency(Integer tendency) {
-    this.tendency = tendency;
     return this;
   }
 
@@ -468,7 +467,6 @@ public class MeasureModel implements Cloneable {
     clone.setTextValue(getTextValue());
     clone.setAlertStatus(getAlertStatus());
     clone.setAlertText(getAlertText());
-    clone.setTendency(getTendency());
     clone.setVariationValue1(getVariationValue1());
     clone.setVariationValue2(getVariationValue2());
     clone.setVariationValue3(getVariationValue3());

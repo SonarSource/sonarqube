@@ -97,8 +97,7 @@ public class ResourcesWs implements WebService {
       .setExampleValue("10");
 
     action.createParam("includetrends")
-      .setDescription("Include trends and period variations in response: add &lttrend&gt (1 if better, else worse), &ltvar&gt (1 if measure value increases) " +
-        "and nodes &ltp*&gt for period variations")
+      .setDescription("Include period variations in response: add nodes &ltp*&gt for period variations")
       .setDefaultValue("false")
       .setPossibleValues("true", "false");
 

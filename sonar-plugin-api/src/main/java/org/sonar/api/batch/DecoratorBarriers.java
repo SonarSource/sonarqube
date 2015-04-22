@@ -110,7 +110,7 @@ public interface DecoratorBarriers {
 
   /**
    * Any kinds of time machine data are calculated before this barrier. Decorators executed after this barrier can use
-   * Measure#getVariationValue() and Measure#getTendency() methods.
+   * Measure#getVariationValue() method.
    *
    * @since 2.5
    */

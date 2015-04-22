@@ -104,7 +104,6 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     MeasureDto out = new MeasureDto();
-    out.setTendency(in.hasTendency() ? in.getTendency() : null);
     out.setVariation(1, in.hasVariationValue1() ? in.getVariationValue1() : null);
     out.setVariation(2, in.hasVariationValue2() ? in.getVariationValue2() : null);
     out.setVariation(3, in.hasVariationValue3() ? in.getVariationValue3() : null);

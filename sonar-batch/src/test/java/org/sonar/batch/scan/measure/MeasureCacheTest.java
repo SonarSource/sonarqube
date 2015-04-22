@@ -296,7 +296,6 @@ public class MeasureCacheTest {
     when(r.id()).thenReturn(7);
     when(techDebtModel.requirementsById(7)).thenReturn(r);
     measure.setRequirement(r);
-    measure.setTendency(4);
     measure.setUrl("http://foo");
     measure.setVariation1(11.0);
     measure.setVariation2(12.0);

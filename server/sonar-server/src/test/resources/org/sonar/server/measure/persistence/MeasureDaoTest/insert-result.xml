@@ -9,7 +9,7 @@
       person_id="23"
       value="2.0"
       text_value="measure-value"
-      tendency="42"
+      tendency="[null]"
       rule_priority="0"
       measure_date="[null]"
       measure_data="[null]"

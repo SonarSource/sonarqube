@@ -100,8 +100,6 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
         .setFormattedValue(utils.getString(json, "frmt_val"))
         .setAlertStatus(utils.getString(json, "alert"))
         .setAlertText(utils.getString(json, "alert_text"))
-        .setTrend(utils.getInteger(json, "trend"))
-        .setVar(utils.getInteger(json, "var"))
         .setData(utils.getString(json, "data"))
         .setRuleKey(utils.getString(json, "rule_key"))
         .setRuleName(utils.getString(json, "rule_name"))

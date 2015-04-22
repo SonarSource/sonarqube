@@ -36,9 +36,6 @@ public class Measure extends Model {
   private String characteristicKey;
   private String characteristicName;
 
-  private Integer trend;
-  private Integer var;
-
   private String ruleKey;
   private String ruleName;
   private String ruleSeverity;
@@ -161,26 +158,6 @@ public class Measure extends Model {
 
   public Measure setData(@Nullable String data) {
     this.data = data;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getTrend() {
-    return trend;
-  }
-
-  public Measure setTrend(@Nullable Integer trend) {
-    this.trend = trend;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getVar() {
-    return var;
-  }
-
-  public Measure setVar(@Nullable Integer var) {
-    this.var = var;
     return this;
   }
 
@@ -371,7 +348,6 @@ public class Measure extends Model {
         .append(", data='").append(data).append('\'')
         .append(", characteristicKey='").append(characteristicKey).append('\'')
         .append(", characteristicName='").append(characteristicName).append('\'')
-        .append(", trend=").append(trend).append(", var=").append(var)
         .append(", ruleKey='").append(ruleKey).append('\'')
         .append(", ruleName='").append(ruleName).append('\'')
         .append(", ruleCategory='").append(ruleCategory).append('\'')

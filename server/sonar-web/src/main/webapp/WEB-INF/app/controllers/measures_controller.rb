@@ -280,7 +280,6 @@ class MeasuresController < ApplicationController
           component_hash[:measures][measure.metric.key][:val] = measure.value if measure.value
           component_hash[:measures][measure.metric.key][:fval] = measure.formatted_value if measure.value
           component_hash[:measures][measure.metric.key][:text] = measure.data if measure.data
-          component_hash[:measures][measure.metric.key][:trend] = measure.tendency if fields.include?('measureTrend') && measure.tendency
           component_hash[:measures][measure.metric.key][:status] = measure.alert_status if fields.include?('measureStatus') && measure.alert_status
           component_hash[:measures][measure.metric.key][:p1] = measure.variation_value_1 if display_variation && measure.variation_value_1
           component_hash[:measures][measure.metric.key][:p2] = measure.variation_value_2 if display_variation && measure.variation_value_2

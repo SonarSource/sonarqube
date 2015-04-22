@@ -289,7 +289,7 @@ class Api::ResourcesController < Api::ApiController
   def select_columns_for_measures
     select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id,project_measures.measure_data'
     if params[:includetrends]=='true'
-      select_columns+=',project_measures.tendency,project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
+      select_columns+=',project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
     if params[:includealerts]=='true'
       select_columns+=',project_measures.alert_status,project_measures.alert_text'
@@ -438,10 +438,6 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:alert_text]=measure.alert_text
         end
         if include_trends
-          if measure.tendency
-            json_measure[:trend]=measure.tendency_qualitative
-            json_measure[:var]=measure.tendency
-          end
           json_measure[:var1]=measure.variation_value_1.to_f if measure.variation_value_1
           json_measure[:fvar1]=measure.format_numeric_value(measure.variation_value_1.to_f) if measure.variation_value_1
           json_measure[:var2]=measure.variation_value_2.to_f if measure.variation_value_2
@@ -529,10 +525,6 @@ class Api::ResourcesController < Api::ApiController
               xml.alert_text(measure.alert_text) if measure.alert_text
             end
             if include_trends
-              if measure.tendency
-                xml.trend(measure.tendency_qualitative)
-                xml.var(measure.tendency)
-              end
               xml.var1(measure.variation_value_1.to_f) if measure.variation_value_1
               xml.fvar1(measure.format_numeric_value(measure.variation_value_1.to_f)) if measure.variation_value_1
               xml.var2(measure.variation_value_2.to_f) if measure.variation_value_2

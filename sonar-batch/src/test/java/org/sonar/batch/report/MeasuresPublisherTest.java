@@ -86,7 +86,6 @@ public class MeasuresPublisherTest {
       .setValue(2.0)
       .setAlertStatus(Level.ERROR)
       .setAlertText("Foo")
-      .setTendency(-1)
       .setCharacteristic(mock(Characteristic.class))
       .setPersonId(2);
     // No value on new_xxx

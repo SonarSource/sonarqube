@@ -37,7 +37,6 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 
 public class PeriodsDefinition implements BatchComponent {
 
-  public static final int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
 
   private DatabaseSession session;

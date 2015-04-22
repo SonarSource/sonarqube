@@ -13,7 +13,7 @@
         <span class="widget-label"><%= message('widget.file_design.file_tangle_index') -%></span>
         <span class="nowrap">
           <%= format_measure(file_tangle_index, :suffix => '', :default => '-', :url => dsm_url) -%>
-          <%= dashboard_configuration.selected_period? ? format_variation(file_tangle_index) : trend_icon(file_tangle_index, :big => true) -%>
+          <%= format_variation(file_tangle_index) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
 
@@ -23,7 +23,7 @@
           <span class="nowrap">
             <span class="widget-medium">&gt;</span>
             <%= format_measure(file_cycles, :default => '-', :url => dsm_url) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(file_cycles) : trend_icon(file_cycles) -%>
+            <%= format_variation(file_cycles) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
       <% end %>
@@ -37,7 +37,7 @@
         <span class="widget-label"><%= message('widget.file_design.suspect_file_dependencies') -%></span>
         <span class="nowrap">
           <%= format_measure(file_feedback_edges, :url => dsm_url) -%>
-          <%= dashboard_configuration.selected_period? ? format_variation(file_feedback_edges) : trend_icon(file_feedback_edges, :big => true) -%>
+          <%= format_variation(file_feedback_edges) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
     </div>
@@ -59,7 +59,7 @@
         <span class="widget-label"><%= message('widget.package_design.package_tangle_index') -%></span>
         <span class="nowrap">
           <%= format_measure(package_tangle_index, :suffix => '', :default => '-', :url => dsm_url) %>
-          <%= dashboard_configuration.selected_period? ? format_variation(package_tangle_index) : trend_icon(package_tangle_index) -%>
+          <%= format_variation(package_tangle_index) if dashboard_configuration.selected_period? -%>
         </span>
       </div>
 
@@ -69,7 +69,7 @@
           <span class="nowrap">
             <span class="widget-medium">&gt;</span>
             <%= format_measure(package_cycles, :default => '-', :url => dsm_url) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(package_cycles) : trend_icon(package_cycles) -%>
+            <%= format_variation(package_cycles) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
       <% end %>
@@ -87,7 +87,7 @@
           <span class="widget-label"><%= message('widget.package_design.between_packages.suffix') -%></span>
           <span class="nowrap">
             <%= format_measure(package_feedback_edges, :default => '-', :url => dsm_url) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(package_feedback_edges) : trend_icon(package_feedback_edges) -%>
+            <%= format_variation(package_feedback_edges) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
       <% end %>
@@ -97,7 +97,7 @@
           <span class="widget-label"><%= message('widget.package_design.between_files.suffix') -%></span>
           <span class="nowrap">
             <%= format_measure(package_tangles, :default => '-', :url => dsm_url) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(package_tangles) : trend_icon(package_tangles) -%>
+            <%= format_variation(package_tangles) if dashboard_configuration.selected_period? -%>
           </span>
         </div>
       <% end %>

@@ -147,7 +147,6 @@ public class MeasureDaoTest {
       .setComponentId(6L)
       .setValue(2.0d)
       .setData("measure-value")
-      .setTendency(42)
       .setSeverity(Severity.INFO)
       .setVariation(1, 1.0d)
       .setVariation(2, 2.0d)

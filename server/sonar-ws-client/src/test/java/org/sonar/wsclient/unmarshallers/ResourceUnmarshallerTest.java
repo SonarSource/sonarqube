@@ -53,20 +53,6 @@ public class ResourceUnmarshallerTest extends UnmarshallerTestCase {
   }
 
   @Test
-  public void singleResourceWithTrends() {
-    Resource resource = new ResourceUnmarshaller().toModel(loadFile("/resources/single-resource-with-trends.json"));
-    assertSonar(resource);
-
-    assertThat(resource.getMeasures().size(), is(2));
-    assertThat(resource.getMeasureIntValue("lines"), is(47798));
-    assertThat(resource.getMeasureIntValue("ncloc"), is(27066));
-    assertThat(resource.getMeasure("lines").getTrend(), is(0));
-    assertThat(resource.getMeasure("lines").getVar(), is(2));
-    assertThat(resource.getMeasure("ncloc").getTrend(), is(1));
-    assertThat(resource.getMeasure("ncloc").getVar(), is(1));
-  }
-
-  @Test
   public void manyResources() {
     List<Resource> resources = new ResourceUnmarshaller().toModels(loadFile("/resources/many-resources.json"));
 
