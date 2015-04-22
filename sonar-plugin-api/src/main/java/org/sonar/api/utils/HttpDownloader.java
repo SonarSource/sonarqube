@@ -31,6 +31,8 @@ import java.net.URI;
  * a constructor parameter. It is available in both batch and server.
  */
 public abstract class HttpDownloader extends UriReader.SchemeProcessor implements BatchComponent, ServerComponent {
+  public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
+
   public abstract String downloadPlainText(URI uri, String encoding);
 
   public abstract byte[] download(URI uri);

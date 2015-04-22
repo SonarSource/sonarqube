@@ -19,11 +19,13 @@
  */
 package org.sonar.api.utils.dag;
 
-import com.google.common.collect.Lists;
-
 import org.sonar.api.utils.SonarException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">http://en.wikipedia.org/wiki/Directed_acyclic_graph</a>

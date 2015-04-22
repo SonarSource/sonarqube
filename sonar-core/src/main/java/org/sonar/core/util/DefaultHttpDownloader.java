@@ -60,8 +60,6 @@ import java.util.zip.GZIPInputStream;
  * @since 2.2
  */
 public class DefaultHttpDownloader extends HttpDownloader {
-  public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
-
   private final BaseHttpDownloader downloader;
   private final Integer readTimeout;
 
