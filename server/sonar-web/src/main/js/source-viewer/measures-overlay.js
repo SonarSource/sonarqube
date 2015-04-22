@@ -65,7 +65,7 @@ define([
         async: false
       }).done(function (data) {
         metrics = _.filter(data, function (metric) {
-          return !metric.hidden && metric.val_type !== 'DATA';
+          return metric.val_type !== 'DATA';
         });
         metrics = _.sortBy(metrics, 'name');
       });

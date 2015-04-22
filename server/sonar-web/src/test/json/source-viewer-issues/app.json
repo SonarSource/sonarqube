@@ -14,6 +14,6 @@
   "canCreateManualIssue": true,
   "measures": {
     "lines": "20",
-    "duplicationDensity": "25%"
+    "issues": "17"
   }
 }

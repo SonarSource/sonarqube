@@ -63,10 +63,10 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
 
       .then(function () {
         casper.evaluate(function () {
-		  jQuery('.js-manual-issue-form [name="rule"]').val('manual:api');
-		  jQuery('.js-manual-issue-form [name="message"]').val('An issue message');
-		  jQuery('.js-manual-issue-form input[type="submit"]').click();
-		});
+          jQuery('.js-manual-issue-form [name="rule"]').val('manual:api');
+          jQuery('.js-manual-issue-form [name="message"]').val('An issue message');
+          jQuery('.js-manual-issue-form input[type="submit"]').click();
+        });
       })
 
       .then(function () {

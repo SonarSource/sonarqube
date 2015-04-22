@@ -9,7 +9,7 @@
   ],
   "files": {
     "1": {
-      "uuid": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbbb",
+      "uuid": "uuid",
       "key": "test:sample",
       "longName": "SampleTest"
     }

@@ -148,7 +148,7 @@
   },
   {
     "line": 22,
-    "code": "<span class=\"k\">import </span>com.google.common.collect.<span class=\"sym-1 sym\">Sets</span>;",
+    "code": "<span class=\"k\">import </span>com.google.common.collect.<span class=\"sym-9999 sym\">Sets</span>;",
     "scmAuthor": "simon.brandhof@gmail.com",
     "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
     "scmDate": "2013-04-16T17:26:34+0200"
@@ -162,14 +162,14 @@
   },
   {
     "line": 24,
-    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-3 sym\">Key</span>;",
+    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-9999 sym\">Key</span>;",
     "scmAuthor": "simon.brandhof@gmail.com",
     "scmRevision": "26edff10d133e29e7013f803e7ef0d69ff593aeb",
     "scmDate": "2013-04-16T17:26:34+0200"
   },
   {
     "line": 25,
-    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-4 sym\">KeyFilter</span>;",
+    "code": "<span class=\"k\">import </span>com.persistit.<span class=\"sym-9999 sym\">KeyFilter</span>;",
     "scmAuthor": "julien.henry@sonarsource.com",
     "scmRevision": "cc071cc29e8c4d4592282313a3ca2ec376fd7f71",
     "scmDate": "2014-05-01T00:00:12+0200"

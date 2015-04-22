@@ -1,0 +1,46 @@
+{
+  "total": 6,
+  "p": 1,
+  "ps": 100,
+  "issues": [],
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "INFO",
+          "count": 5
+        },
+        {
+          "val": "MINOR",
+          "count": 4
+        },
+        {
+          "val": "MAJOR",
+          "count": 3
+        },
+        {
+          "val": "CRITICAL",
+          "count": 2
+        },
+        {
+          "val": "BLOCKER",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "bug",
+          "count": 8
+        },
+        {
+          "val": "sql",
+          "count": 7
+        }
+      ]
+    }
+  ]
+}

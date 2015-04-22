@@ -1,0 +1,25 @@
+[
+  {
+    "id": 33667,
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "name": "Cache.java",
+    "scope": "FIL",
+    "qualifier": "FIL",
+    "date": "2015-04-22T10:40:40+0200",
+    "creationDate": "2014-07-11T23:32:19+0200",
+    "lname": "src/main/java/org/sonar/batch/index/Cache.java",
+    "lang": "java",
+    "msr": [
+      {
+        "key": "tests",
+        "val": 1,
+        "frmt_val": "1"
+      },
+      {
+        "key": "test_execution_time",
+        "val": 15,
+        "frmt_val": "15 ms"
+      }
+    ]
+  }
+]

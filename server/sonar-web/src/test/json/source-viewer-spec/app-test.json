@@ -4,7 +4,7 @@
   "path": "src/main/java/org/sonar/batch/index/Cache.java",
   "name": "Cache.java",
   "longName": "src/main/java/org/sonar/batch/index/Cache.java",
-  "q": "FIL",
+  "q": "UTS",
   "subProject": "org.codehaus.sonar:sonar-batch",
   "subProjectName": "SonarQube :: Batch",
   "project": "org.codehaus.sonar:sonar",

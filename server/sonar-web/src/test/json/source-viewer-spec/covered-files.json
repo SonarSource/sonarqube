@@ -1,0 +1,9 @@
+{
+  "files": [
+    {
+      "key": "covered-file1",
+      "longName": "src/main/java/com/sonar/CoveredFile1.java",
+      "coveredLines": 2
+    }
+  ]
+}

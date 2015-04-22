@@ -28,19 +28,19 @@ lib.changeWorkingDirectory('source-viewer-spec');
 lib.configureCasper();
 
 
-casper.test.begin(testName('Base'), function (test) {
+casper.test.begin(testName('Base'), 14, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-
-        lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
-        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })
@@ -56,8 +56,7 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertExists('.source-viewer-header-actions');
 
           // Check main measures
-          // FIXME enable lines check
-          //test.assertSelectorContains('.source-viewer-header-measure', '379');
+          test.assertSelectorContains('.source-viewer-header-measure', '378');
           test.assertSelectorContains('.source-viewer-header-measure', 'A');
           test.assertSelectorContains('.source-viewer-header-measure', '2h 10min');
           test.assertSelectorContains('.source-viewer-header-measure', '6');
@@ -65,9 +64,8 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertSelectorContains('.source-viewer-header-measure', '5.8%');
 
           // Check source
-          // FIXME enable source lines count check
-          //test.assertElementCount('.source-line', 518);
-          test.assertSelectorContains('.source-viewer', 'public class Cache');
+          test.assertElementCount('.source-line', 519);
+          test.assertSelectorContains('.source-viewer', 'import com.google.common.collect.Sets');
         });
       })
 
@@ -81,19 +79,19 @@ casper.test.begin(testName('Base'), function (test) {
 });
 
 
-casper.test.begin(testName('Decoration'), function (test) {
+casper.test.begin(testName('Decoration'), 8, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-
-        lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
-        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })
@@ -136,7 +134,7 @@ casper.test.begin(testName('Decoration'), function (test) {
 });
 
 
-casper.test.begin(testName('Test File'), function (test) {
+casper.test.begin(testName('Test File'), 1, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
@@ -149,6 +147,7 @@ casper.test.begin(testName('Test File'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })
@@ -159,6 +158,324 @@ casper.test.begin(testName('Test File'), function (test) {
 
       .then(function () {
         test.assertSelectorContains('.source-viewer-header-measure', '6');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Highlight Usages'), 6, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        test.assertElementCount('.sym-9999', 3);
+        test.assertElementCount('.sym.highlighted', 0);
+
+        casper.click('.sym-9999');
+        test.assertElementCount('.sym-9999.highlighted', 3);
+        test.assertElementCount('.sym.highlighted', 3);
+
+        casper.click('.sym-9999');
+        test.assertElementCount('.sym-9999.highlighted', 0);
+        test.assertElementCount('.sym.highlighted', 0);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Line Permalink'), 1, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.source-line-number[data-line-number="3"]');
+        casper.waitForSelector('.js-get-permalink');
+      })
+
+      .then(function () {
+        casper.click('.js-get-permalink');
+
+        // TODO check raw url
+        test.assert(true);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Link to Raw'), 1, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-raw-source');
+      })
+
+      .then(function () {
+        casper.click('.js-raw-source');
+
+        // TODO check raw url
+        test.assert(true);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Details'), 15, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues-details.json', { data: { componentUuids: 'uuid' } });
+        lib.mockRequestFromFile('/api/metrics', 'metrics.json');
+        lib.mockRequestFromFile('/api/resources', 'measures.json',
+            { data: { resource: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-measures');
+      })
+
+      .then(function () {
+        casper.click('.js-measures');
+        casper.waitForSelector('.measure[data-metric="function_complexity"]');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.measure[data-metric="lines"]', '92');
+        test.assertSelectorContains('.measure[data-metric="ncloc"]', '57');
+        test.assertSelectorContains('.measure[data-metric="comment_lines"]', '19.7% / 14');
+        test.assertSelectorContains('.measure[data-metric="complexity"]', '22');
+        test.assertSelectorContains('.measure[data-metric="function_complexity"]', '4.9');
+
+        test.assertSelectorContains('.measure[data-metric="sqale_rating"]', 'A');
+        test.assertSelectorContains('.measure[data-metric="sqale_index"]', '0');
+        test.assertSelectorContains('.measure[data-metric="violations"]', '6');
+
+        test.assertSelectorContains('.measure[data-metric="coverage"]', '11.3%');
+        test.assertSelectorContains('.measure[data-metric="lines_to_cover"]', '6/38');
+        test.assertSelectorContains('.measure[data-metric="conditions_to_cover"]', '6/38');
+        test.assertSelectorContains('.measure[data-metric="it_lines_to_cover"]', '31/37');
+        test.assertSelectorContains('.measure[data-metric="it_conditions_to_cover"]', '30/35');
+      })
+
+      .then(function () {
+        test.assertNotVisible('.measure[data-metric="file_complexity"]');
+        casper.click('.js-show-all-measures');
+        test.assertVisible('.measure[data-metric="file_complexity"]');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
+  casper
+      .start(lib.buildUrl('source-viewer'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/components/app', 'app-test.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues-details.json', { data: { componentUuids: 'uuid' } });
+        lib.mockRequestFromFile('/api/metrics', 'metrics.json');
+        lib.mockRequestFromFile('/api/resources', 'measures-test.json',
+            { data: { resource: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
+        lib.mockRequestFromFile('/api/tests/show', 'tests.json',
+            { data: { key: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
+        lib.mockRequestFromFile('/api/tests/covered_files', 'covered-files.json', { data: {
+          key: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java',
+          test: 'test1'
+        } });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
+          require(['/js/source-viewer/app.js']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.source-line');
+      })
+
+      .then(function () {
+        casper.click('.js-actions');
+        casper.waitForSelector('.js-measures');
+      })
+
+      .then(function () {
+        casper.click('.js-measures');
+        casper.waitForSelector('.measure[data-metric="tests"]');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.measure[data-metric="tests"]', '1');
+        test.assertSelectorContains('.measure[data-metric="test_execution_time"]', '15 ms');
+
+        casper.waitForSelector('.source-viewer-test-name');
+      })
+
+      .then(function () {
+        test.assertElementCount('.source-viewer-test-name', 5);
+
+        test.assertElementCount('.source-viewer-test-status .icon-test-status-ok', 2);
+        test.assertElementCount('.source-viewer-test-status .icon-test-status-failure', 1);
+        test.assertElementCount('.source-viewer-test-status .icon-test-status-error', 1);
+        test.assertElementCount('.source-viewer-test-status .icon-test-status-skipped', 1);
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test4');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test1');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test5');
+
+        casper.click('.js-sort-tests-by-status');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test5');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test1');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test4');
+        casper.click('.js-sort-tests-by-status');
+
+        casper.click('.js-sort-tests-by-duration');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test4');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test1');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test5');
+
+        casper.click('.js-sort-tests-by-duration');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test5');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test1');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test4');
+
+        casper.click('.js-sort-tests-by-name');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test5');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test4');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test1');
+
+        casper.click('.js-sort-tests-by-name');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(2)', 'test1');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(3)', 'test2');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(4)', 'test3');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(5)', 'test4');
+        test.assertSelectorContains('.source-viewer-tests-list tr:nth-child(6)', 'test5');
+      })
+
+      .then(function () {
+        casper.click('.js-show-test[data-name="test1"]');
+        casper.waitForText('src/main/java/com/sonar/CoveredFile1.java');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.js-selected-test', 'src/main/java/com/sonar/CoveredFile1.java');
+        test.assertSelectorContains('.js-selected-test', '2');
       })
 
       .then(function () {

@@ -27,7 +27,7 @@
       "projectName": "Duplicated Project"
     },
     "1": {
-      "uuid": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaaa",
+      "uuid": "uuid",
       "key": "sample:sample",
       "name": "Sample",
       "longName": "Sample",

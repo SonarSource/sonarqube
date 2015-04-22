@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "test1",
+      "status": "OK",
+      "durationInMs": 15,
+      "coveredLines": 2
+    },
+    {
+      "name": "test2",
+      "status": "OK",
+      "durationInMs": 13,
+      "coveredLines": 3
+    },
+    {
+      "name": "test3",
+      "status": "FAILURE",
+      "durationInMs": 14,
+      "coveredLines": 1
+    },
+    {
+      "name": "test4",
+      "status": "ERROR",
+      "durationInMs": 0,
+      "coveredLines": 0
+    },
+    {
+      "name": "test5",
+      "status": "SKIPPED"
+    }
+  ]
+}

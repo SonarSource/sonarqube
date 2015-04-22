@@ -21,27 +21,28 @@
 
 
 var lib = require('../lib'),
-    testName = lib.testName('Source Viewer');
+    testName = lib.testName('Source Viewer', 'Coverage');
 
 lib.initMessages();
 lib.changeWorkingDirectory('source-viewer-coverage');
 lib.configureCasper();
 
 
-casper.test.begin(testName('Coverage'), 4, function (test) {
+casper.test.begin(testName(), 12, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
 
-        lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
-        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
-        lib.mockRequestFromFile('/api/tests/test_cases', 'test-cases.json');
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
+        lib.mockRequestFromFile('/api/tests/test_cases', 'test-cases.json', { data: { uuid: 'uuid', line: '11' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })
@@ -51,8 +52,20 @@ casper.test.begin(testName('Coverage'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('.source-line-covered', 1);
-        casper.click('.source-line-covered');
+        test.assertExists('.source-line-covered[data-line-number="6"]');
+        test.assertExists('.source-line-covered[data-line-number="8"]');
+        test.assertExists('.source-line-covered[data-line-number="11"]');
+        test.assertExists('.source-line-covered[data-line-number="12"]');
+
+        test.assertExists('.source-line-partially-covered[data-line-number="5"]');
+        test.assertExists('.source-line-partially-covered[data-line-number="7"]');
+
+        test.assertExists('.source-line-uncovered[data-line-number="1"]');
+        test.assertExists('.source-line-uncovered[data-line-number="2"]');
+      })
+
+      .then(function () {
+        casper.click('.source-line-covered[data-line-number="11"]');
         casper.waitForSelector('.bubble-popup');
       })
 
@@ -60,6 +73,15 @@ casper.test.begin(testName('Coverage'), 4, function (test) {
         test.assertSelectorContains('.bubble-popup', 'SampleTest');
         test.assertSelectorContains('.bubble-popup', '2ms');
         test.assertExists('.bubble-popup .icon-test-status-ok');
+      })
+
+      .then(function () {
+        casper.click('[data-uuid="uuid"]');
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        test.assertElementCount('.workspace-viewer .source-line', 17);
       })
 
       .then(function () {

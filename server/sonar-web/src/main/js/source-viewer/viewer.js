@@ -313,10 +313,6 @@ define([
           this.model.addMeta(issuesPerLine);
         },
 
-        limitIssues: function (issues) {
-          return issues.first(this.ISSUES_LIMIT);
-        },
-
         renderIssues: function () {
           this.$('.issue-list').addClass('hidden');
         },

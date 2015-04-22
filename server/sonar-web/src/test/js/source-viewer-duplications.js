@@ -28,20 +28,20 @@ lib.changeWorkingDirectory('source-viewer-duplications');
 lib.configureCasper();
 
 
-casper.test.begin(testName(), 4, function (test) {
+casper.test.begin(testName(), 5, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
-        lib.mockRequestFromFile('/api/duplications/show', 'duplications.json');
+        lib.mockRequestFromFile('/api/duplications/show', 'duplications.json', { data: { uuid: 'uuid' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })
@@ -67,6 +67,15 @@ casper.test.begin(testName(), 4, function (test) {
       })
 
       .then(function () {
+        casper.click('[data-uuid="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbbb"]');
+        casper.waitForSelector('.workspace-viewer .source-line');
+      })
+
+      .then(function () {
+        test.assertElementCount('.workspace-viewer .source-line', 21);
+      })
+
+      .then(function () {
         lib.sendCoverage();
       })
 
@@ -81,15 +90,15 @@ casper.test.begin(testName('In Removed Component'), 2, function (test) {
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
 
-
-        lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
-        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
-        lib.mockRequestFromFile('/api/duplications/show', 'duplications-removed.json');
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
+        lib.mockRequestFromFile('/api/duplications/show', 'duplications-removed.json', { data: { uuid: 'uuid' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })

@@ -34,13 +34,14 @@ casper.test.begin(testName('SCM'), 4, function (test) {
         lib.setDefaultViewport();
 
 
-        lib.mockRequestFromFile('/api/components/app', 'app.json');
-        lib.mockRequestFromFile('/api/sources/lines', 'lines.json');
-        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+        lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
+          window.file = { uuid: 'uuid', key: 'key' };
           require(['/js/source-viewer/app.js']);
         });
       })

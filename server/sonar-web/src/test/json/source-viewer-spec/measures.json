@@ -1,0 +1,136 @@
+[
+  {
+    "id": 33667,
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "name": "Cache.java",
+    "scope": "FIL",
+    "qualifier": "FIL",
+    "date": "2015-04-22T10:40:40+0200",
+    "creationDate": "2014-07-11T23:32:19+0200",
+    "lname": "src/main/java/org/sonar/batch/index/Cache.java",
+    "lang": "java",
+    "msr": [
+      {
+        "key": "lines",
+        "val": 92,
+        "frmt_val": "92"
+      },
+      {
+        "key": "ncloc",
+        "val": 57,
+        "frmt_val": "57"
+      },
+      {
+        "key": "classes",
+        "val": 0,
+        "frmt_val": "0"
+      },
+      {
+        "key": "files",
+        "val": 1,
+        "frmt_val": "1"
+      },
+      {
+        "key": "functions",
+        "val": 12,
+        "frmt_val": "12"
+      },
+      {
+        "key": "statements",
+        "val": 34,
+        "frmt_val": "34"
+      },
+      {
+        "key": "comment_lines",
+        "val": 14,
+        "frmt_val": "14"
+      },
+      {
+        "key": "comment_lines_density",
+        "val": 19.7,
+        "frmt_val": "19.7%"
+      },
+      {
+        "key": "complexity",
+        "val": 22,
+        "frmt_val": "22"
+      },
+      {
+        "key": "function_complexity",
+        "val": 4.9,
+        "frmt_val": "4.9"
+      },
+      {
+        "key": "file_complexity",
+        "val": 22,
+        "frmt_val": "22.0"
+      },
+      {
+        "key": "coverage",
+        "val": 11.3,
+        "frmt_val": "11.3%"
+      },
+      {
+        "key": "lines_to_cover",
+        "val": 38,
+        "frmt_val": "38"
+      },
+      {
+        "key": "uncovered_lines",
+        "val": 32,
+        "frmt_val": "32"
+      },
+      {
+        "key": "it_lines_to_cover",
+        "val": 37,
+        "frmt_val": "37"
+      },
+      {
+        "key": "it_uncovered_lines",
+        "val": 31,
+        "frmt_val": "31"
+      },
+      {
+        "key": "line_coverage",
+        "val": 15.8,
+        "frmt_val": "15.8%"
+      },
+      {
+        "key": "uncovered_conditions",
+        "val": 15,
+        "frmt_val": "15"
+      },
+      {
+        "key": "branch_coverage",
+        "val": 0,
+        "frmt_val": "0.0%"
+      },
+      {
+        "key": "conditions_to_cover",
+        "val": 38,
+        "frmt_val": "38"
+      },
+      {
+        "key": "uncovered_conditions",
+        "val": 32,
+        "frmt_val": "32"
+      },
+      {
+        "key": "it_conditions_to_cover",
+        "val": 35,
+        "frmt_val": "35"
+      },
+      {
+        "key": "it_uncovered_conditions",
+        "val": 30,
+        "frmt_val": "30"
+      },
+      {
+        "key": "sqale_rating",
+        "val": 1,
+        "frmt_val": "A",
+        "data": "A"
+      }
+    ]
+  }
+]
