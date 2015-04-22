@@ -147,7 +147,7 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
           line++;
         }
       }
-      return FileSourceDto.encodeData(dataBuilder.build());
+      return FileSourceDto.encodeSourceData(dataBuilder.build());
     } catch (Exception e) {
       throw new IllegalStateException("Invalid FILE_SOURCES.DATA on row with ID " + fileSourceId + ": " + data, e);
     } finally {

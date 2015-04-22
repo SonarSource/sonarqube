@@ -89,7 +89,7 @@ public class FeedFileSourcesBinaryDataTest {
       rs = pstmt.executeQuery();
       rs.next();
       InputStream data = rs.getBinaryStream(1);
-      return FileSourceDto.decodeData(data);
+      return FileSourceDto.decodeSourceData(data);
     } finally {
       DbUtils.closeQuietly(rs);
       DbUtils.closeQuietly(pstmt);

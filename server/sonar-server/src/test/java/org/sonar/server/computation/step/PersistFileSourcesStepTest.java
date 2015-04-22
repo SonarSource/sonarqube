@@ -38,6 +38,7 @@ import org.sonar.batch.protocol.output.FileStructure;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
@@ -111,7 +112,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
     assertThat(fileSourceDto.getProjectUuid()).isEqualTo(PROJECT_UUID);
     assertThat(fileSourceDto.getFileUuid()).isEqualTo(FILE_UUID);
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
@@ -120,7 +121,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
 
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
     assertThat(data.getLinesCount()).isEqualTo(2);
     assertThat(data.getLines(0).getLine()).isEqualTo(1);
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
@@ -146,15 +147,15 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .setUuid(FILE_UUID)
-        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
     assertThat(data.getLinesCount()).isEqualTo(3);
     assertThat(data.getLines(2).getLine()).isEqualTo(3);
     assertThat(data.getLines(2).getSource()).isEmpty();
@@ -167,7 +168,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select("FILE");
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource("FILE");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
     assertThat(fileSourceDto.getSrcHash()).isEqualTo("ee5a58024a155466b43bc559d953e018");
   }
@@ -189,8 +190,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -222,8 +223,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -237,19 +238,19 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     BatchReportWriter writer = initBasicReport(1);
 
     writer.writeComponentSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ));
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(2).setEndOffset(4)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build()
+      ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -266,16 +267,16 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-            .build()
+          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+          .build()
         ).build()
-    ));
+      ));
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(3);
 
@@ -306,8 +307,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeData(fileSourceDto.getBinaryData());
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -328,12 +329,12 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setSrcHash(srcHash)
       .setLineHashes(lineHashes)
       .setDataHash(dataHash)
-      .setBinaryData(FileSourceDto.encodeData(FileSourceDb.Data.newBuilder()
+      .setSourceData(FileSourceDb.Data.newBuilder()
         .addLines(FileSourceDb.Line.newBuilder()
           .setLine(1)
           .setSource("line1")
           .build())
-        .build()))
+        .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
     session.commit();
@@ -344,7 +345,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
     assertThat(fileSourceDto.getSrcHash()).isEqualTo(srcHash);
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(lineHashes);
     assertThat(fileSourceDto.getDataHash()).isEqualTo(dataHash);
@@ -359,15 +360,16 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     dbClient.fileSourceDao().insert(session, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
+      .setDataType(Type.SOURCE)
       .setSrcHash("5b4bd9815cdb17b8ceae19eb1810c34c")
       .setLineHashes("6438c669e0d0de98e6929c2cc0fac474\n")
       .setDataHash("6cad150e3d065976c230cddc5a09efaa")
-      .setBinaryData(FileSourceDto.encodeData(FileSourceDb.Data.newBuilder()
+      .setSourceData(FileSourceDb.Data.newBuilder()
         .addLines(FileSourceDb.Line.newBuilder()
           .setLine(1)
           .setSource("old line")
           .build())
-        .build()))
+        .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
     session.commit();
@@ -377,7 +379,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
   }
@@ -389,15 +391,16 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     dbClient.fileSourceDao().insert(session, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
+      .setDataType(Type.SOURCE)
       // Source hash is missing, update will be made
       .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
-      .setBinaryData(FileSourceDto.encodeData(FileSourceDb.Data.newBuilder()
+      .setSourceData(FileSourceDb.Data.newBuilder()
         .addLines(FileSourceDb.Line.newBuilder()
           .setLine(1)
           .setSource("line")
           .build())
-        .build()))
+        .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
     session.commit();
@@ -407,7 +410,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
-    FileSourceDto fileSourceDto = dbClient.fileSourceDao().select(FILE_UUID);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     // Updated at is not updated to not reindex the file source in E/S as the src hash is not indexed
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(past);

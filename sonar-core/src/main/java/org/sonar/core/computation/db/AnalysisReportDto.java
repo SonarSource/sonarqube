@@ -128,7 +128,7 @@ public class AnalysisReportDto {
     return this;
   }
 
-  public static enum Status {
+  public enum Status {
     PENDING, WORKING, SUCCESS, FAILED, CANCELLED
   }
 }

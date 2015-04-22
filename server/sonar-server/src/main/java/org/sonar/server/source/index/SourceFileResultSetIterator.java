@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.es.EsUtils;
@@ -82,9 +83,9 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
     "binary_data"
   };
 
-  private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM file_sources ";
-  private static final String AFTER_DATE_FILTER = "updated_at>? ";
-  private static final String PROJECT_FILTER = "project_uuid=? ";
+  private static final String SQL_ALL = String.format("SELECT %s FROM file_sources WHERE data_type='%s' ", StringUtils.join(FIELDS, ","), Type.SOURCE);
+  private static final String AFTER_DATE_FILTER = " AND updated_at>?";
+  private static final String PROJECT_FILTER = " AND project_uuid=?";
 
   public static SourceFileResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
     try {
@@ -108,16 +109,10 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
   private static String createSQL(long afterDate, @Nullable String projectUuid) {
     String sql = SQL_ALL;
     if (afterDate > 0L || projectUuid != null) {
-      sql += "WHERE ";
-      boolean isFirst = true;
       if (afterDate > 0L) {
         sql += AFTER_DATE_FILTER;
-        isFirst = false;
       }
       if (projectUuid != null) {
-        if (!isFirst) {
-          sql += "AND ";
-        }
         sql += PROJECT_FILTER;
       }
     }
@@ -133,7 +128,7 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    FileSourceDb.Data data = FileSourceDto.decodeData(rs.getBinaryStream(4));
+    FileSourceDb.Data data = FileSourceDto.decodeSourceData(rs.getBinaryStream(4));
     return toRow(projectUuid, fileUuid, updatedAt, data);
   }
 

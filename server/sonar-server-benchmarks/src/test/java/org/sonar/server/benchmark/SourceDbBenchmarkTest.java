@@ -139,6 +139,6 @@ public class SourceDbBenchmarkTest {
         .addAllDuplication(Arrays.asList(19, 33, 141))
         .build());
     }
-    return FileSourceDto.encodeData(dataBuilder.build());
+    return FileSourceDto.encodeSourceData(dataBuilder.build());
   }
 }

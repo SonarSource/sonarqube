@@ -20,9 +20,6 @@
 
 package org.sonar.server.source.db;
 
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceMapper;
-
 import com.google.common.base.Function;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,6 +27,9 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceDto.Type;
+import org.sonar.core.source.db.FileSourceMapper;
 
 import javax.annotation.CheckForNull;
 
@@ -49,11 +49,20 @@ public class FileSourceDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public FileSourceDto select(String fileUuid) {
+  public FileSourceDto selectSource(String fileUuid) {
     DbSession session = mybatis.openSession(false);
     try {
-      FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
-      return mapper.select(fileUuid);
+      return mapper(session).select(fileUuid, Type.SOURCE);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public FileSourceDto selectTest(String fileUuid) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      return mapper(session).select(fileUuid, Type.TEST);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -114,7 +123,7 @@ public class FileSourceDao implements ServerComponent, DaoComponent {
   }
 
   public void insert(DbSession session, FileSourceDto dto) {
-    session.getMapper(FileSourceMapper.class).insert(dto);
+    mapper(session).insert(dto);
   }
 
   public void update(FileSourceDto dto) {
@@ -128,11 +137,14 @@ public class FileSourceDao implements ServerComponent, DaoComponent {
   }
 
   public void update(DbSession session, FileSourceDto dto) {
-    session.getMapper(FileSourceMapper.class).update(dto);
+    mapper(session).update(dto);
   }
 
   public void updateDateWhenUpdatedDateIsZero(DbSession session, String projectUuid, long updateDate) {
-    session.getMapper(FileSourceMapper.class).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
+    mapper(session).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
   }
 
+  private FileSourceMapper mapper(DbSession session) {
+    return session.getMapper(FileSourceMapper.class);
+  }
 }

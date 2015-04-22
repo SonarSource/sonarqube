@@ -26,6 +26,7 @@ class AddFileSourcesDataType < ActiveRecord::Migration
 
   def self.up
     add_column 'file_sources', 'data_type', :string, :limit => 20
+    change_column 'file_sources', 'data_hash', :string, :limit => 50, :null => true
     remove_index_quietly('file_sources_file_uuid_uniq')
     add_index 'file_sources', ['file_uuid', 'data_type'], :name => 'file_sources_uuid_type', :unique => true
   end

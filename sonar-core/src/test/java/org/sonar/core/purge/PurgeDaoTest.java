@@ -86,7 +86,6 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, system2);
   }
 
-
   @Test
   public void delete_file_sources_of_disabled_resources() {
     setupData("delete_file_sources_of_disabled_resources");

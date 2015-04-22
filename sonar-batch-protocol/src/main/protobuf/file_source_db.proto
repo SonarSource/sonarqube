@@ -36,6 +36,9 @@ Notes
 // are already in correct package
 
 package org.sonar.server.source.db;
+
+import "constants.proto";
+
 option optimize_for = SPEED;
 
 message Line {
@@ -64,9 +67,23 @@ message Line {
 
   optional string highlighting = 15;
   optional string symbols = 16;
-  repeated int32 duplication = 17 [packed=true];
+  repeated int32 duplication = 17 [packed = true];
 }
 
 message Data {
   repeated Line lines = 1;
+}
+
+message Test {
+  optional string name = 2;
+  optional TestStatus status = 3;
+  optional int64 execution_time_ms = 4;
+  optional string stacktrace = 5;
+  optional string msg = 6;
+  repeated CoveredFile covered_file = 7;
+
+  message CoveredFile {
+    optional string file_uuid = 1;
+    repeated int32 covered_line = 2 [packed = true];
+  }
 }

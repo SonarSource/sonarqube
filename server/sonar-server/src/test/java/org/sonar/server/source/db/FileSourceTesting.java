@@ -36,7 +36,7 @@ public class FileSourceTesting {
   }
 
   public static void updateDataColumn(Connection connection, String fileUuid, FileSourceDb.Data data) throws SQLException {
-    updateDataColumn(connection, fileUuid, FileSourceDto.encodeData(data));
+    updateDataColumn(connection, fileUuid, FileSourceDto.encodeSourceData(data));
   }
 
   public static void updateDataColumn(Connection connection, String fileUuid, byte[] data) throws SQLException {

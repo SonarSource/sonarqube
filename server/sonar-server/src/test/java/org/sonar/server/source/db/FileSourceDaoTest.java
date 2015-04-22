@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceDto.Type;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,12 +40,12 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   DbSession session;
 
-  FileSourceDao dao;
+  FileSourceDao sut;
 
   @Before
   public void setUpTestData() {
     session = getMyBatis().openSession(false);
-    dao = new FileSourceDao(getMyBatis());
+    sut = new FileSourceDao(getMyBatis());
   }
 
   @After
@@ -56,7 +57,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void select() throws Exception {
     setupData("shared");
 
-    FileSourceDto fileSourceDto = dao.select("FILE1_UUID");
+    FileSourceDto fileSourceDto = sut.selectSource("FILE1_UUID");
 
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
@@ -64,7 +65,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getFileUuid()).isEqualTo("FILE1_UUID");
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(1500000000000L);
-    assertThat(fileSourceDto.getDataType()).isEqualTo(FileSourceDto.Type.SOURCE);
+    assertThat(fileSourceDto.getDataType()).isEqualTo(Type.SOURCE);
   }
 
   @Test
@@ -72,7 +73,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     InputStreamToStringFunction fn = new InputStreamToStringFunction();
-    dao.readDataStream("FILE1_UUID", fn);
+    sut.readDataStream("FILE1_UUID", fn);
 
     assertThat(fn.result).isNotEmpty();
   }
@@ -82,7 +83,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    dao.readLineHashesStream(session, "FILE1_UUID", fn);
+    sut.readLineHashesStream(session, "FILE1_UUID", fn);
 
     assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
   }
@@ -92,7 +93,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    dao.readLineHashesStream(session, "unknown", fn);
+    sut.readLineHashesStream(session, "unknown", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -101,14 +102,14 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void insert() throws Exception {
     setupData("shared");
 
-    dao.insert(new FileSourceDto()
+    sut.insert(new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
       .setDataHash("FILE2_DATA_HASH")
       .setLineHashes("LINE1_HASH\\nLINE2_HASH")
       .setSrcHash("FILE2_HASH")
-      .setDataType(FileSourceDto.Type.SOURCE)
+      .setDataType(Type.SOURCE)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L));
 
@@ -119,7 +120,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void update() throws Exception {
     setupData("shared");
 
-    dao.update(new FileSourceDto()
+    sut.update(new FileSourceDto()
       .setId(101L)
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
@@ -127,7 +128,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
       .setDataHash("NEW_DATA_HASH")
       .setSrcHash("NEW_FILE_HASH")
       .setLineHashes("NEW_LINE_HASHES")
-      .setDataType(FileSourceDto.Type.SOURCE)
+      .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L));
 
     checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
@@ -137,10 +138,11 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void update_date_when_updated_date_is_zero() throws Exception {
     setupData("update_date_when_updated_date_is_zero");
 
-    dao.updateDateWhenUpdatedDateIsZero(session, "ABCD", 1500000000002L);
+    sut.updateDateWhenUpdatedDateIsZero(session, "ABCD", 1500000000002L);
     session.commit();
 
-    checkTable("update_date_when_updated_date_is_zero", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at");
+    checkTable("update_date_when_updated_date_is_zero", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at",
+      "data_type");
   }
 
   private static class ReaderToStringFunction implements Function<Reader, String> {

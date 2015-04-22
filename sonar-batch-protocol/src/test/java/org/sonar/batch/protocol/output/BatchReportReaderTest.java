@@ -324,7 +324,7 @@ public class BatchReportReaderTest {
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeTests(1, Arrays.asList(
       BatchReport.Test.newBuilder()
-        .setDurationInMs(60_000)
+        .setExecutionTimeMs(60_000)
         .setStacktrace("stacktrace")
         .setMsg("message")
         .setStatus(Constants.TestStatus.OK)
@@ -332,7 +332,7 @@ public class BatchReportReaderTest {
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readTests(1))) {
       BatchReport.Test testResult = BatchReport.Test.PARSER.parseDelimitedFrom(inputStream);
-      assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
+      assertThat(testResult.getExecutionTimeMs()).isEqualTo(60_000);
       assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
       assertThat(testResult.getMsg()).isEqualTo("message");
       assertThat(testResult.getStatus()).isEqualTo(Constants.TestStatus.OK);
