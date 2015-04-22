@@ -20,18 +20,16 @@
 package org.sonar.api.measures;
 
 import com.google.common.collect.Maps;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.KeyValueFormat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
+import java.util.*;
 
 /**
  * @since 2.7
+ * @deprecated since 5.2 use {@link SensorContext#newCoverage()}
  */
+@Deprecated
 public final class CoverageMeasuresBuilder {
 
   /**

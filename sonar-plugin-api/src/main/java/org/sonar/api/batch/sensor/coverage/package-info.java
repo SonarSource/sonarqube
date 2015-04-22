@@ -17,26 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.test;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-public interface MutableTestCase extends TestCase {
-  MutableTestCase setStatus(@Nullable Status s);
-
-  MutableTestCase setDurationInMs(@Nullable Long l);
-
-  MutableTestCase setMessage(@Nullable String s);
-
-  MutableTestCase setStackTrace(@Nullable String s);
-
-  /**
-   * @deprecated since 5.2 not used
-   */
-  @Deprecated
-  MutableTestCase setType(@Nullable String s);
-
-  MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines);
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.coverage;

@@ -42,12 +42,11 @@ import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.*;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
@@ -246,6 +245,23 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       }
     }
     return Collections.emptyList();
+  }
+
+  @CheckForNull
+  public BatchReport.Coverage coverageFor(InputFile file, int line) {
+    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readComponentCoverage(ref))) {
+      BatchReport.Coverage coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+      while (coverage != null) {
+        if (coverage.getLine() == line) {
+          return coverage;
+        }
+        coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+    return null;
   }
 
   /**

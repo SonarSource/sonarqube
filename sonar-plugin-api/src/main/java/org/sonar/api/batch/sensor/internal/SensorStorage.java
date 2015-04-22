@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.internal;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -41,5 +42,10 @@ public interface SensorStorage extends BatchComponent {
   void store(Dependency dependency);
 
   void store(DefaultHighlighting highlighting);
+
+  /**
+   * @since 5.2
+   */
+  void store(DefaultCoverage defaultCoverage);
 
 }

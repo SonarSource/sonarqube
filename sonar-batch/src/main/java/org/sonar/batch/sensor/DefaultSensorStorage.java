@@ -30,6 +30,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -51,6 +53,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.DefaultIndex;
@@ -271,5 +274,23 @@ public class DefaultSensorStorage implements SensorStorage {
         }
 
       }));
+  }
+
+  @Override
+  public void store(DefaultCoverage defaultCoverage) {
+    File file = getFile(defaultCoverage.inputFile());
+    CoverageType type = defaultCoverage.type();
+    if (defaultCoverage.linesToCover() > 0) {
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.linesToCover(), (double) defaultCoverage.linesToCover()));
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.uncoveredLines(), (double) (defaultCoverage.linesToCover() - defaultCoverage.coveredLines())));
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.lineHitsData()).setData(KeyValueFormat.format(defaultCoverage.hitsByLine())));
+    }
+    if (defaultCoverage.conditions() > 0) {
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.conditionsToCover(), (double) defaultCoverage.conditions()));
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.uncoveredConditions(), (double) (defaultCoverage.conditions() - defaultCoverage.coveredConditions())));
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.coveredConditionsByLine()).setData(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
+      sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.conditionsByLine()).setData(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
+    }
+
   }
 }

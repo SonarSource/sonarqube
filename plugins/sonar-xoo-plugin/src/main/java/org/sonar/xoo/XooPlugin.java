@@ -20,6 +20,9 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
+import org.sonar.xoo.coverage.ItCoverageSensor;
+import org.sonar.xoo.coverage.OverallCoverageSensor;
+import org.sonar.xoo.coverage.UtCoverageSensor;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
 import org.sonar.xoo.lang.*;
@@ -69,6 +72,11 @@ public class XooPlugin extends SonarPlugin {
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class,
+
+      // Coverage
+      UtCoverageSensor.class,
+      ItCoverageSensor.class,
+      OverallCoverageSensor.class,
 
       // Other
       XooProjectBuilder.class,

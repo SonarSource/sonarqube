@@ -17,26 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.test;
+package org.sonar.xoo.coverage;
 
-import javax.annotation.Nullable;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
 
-import java.util.List;
+/**
+ * Parse files *.xoo.coverage
+ */
+public class UtCoverageSensor extends AbstractCoverageSensor {
 
-public interface MutableTestCase extends TestCase {
-  MutableTestCase setStatus(@Nullable Status s);
+  @Override
+  protected String getCoverageExtension() {
+    return ".coverage";
+  }
 
-  MutableTestCase setDurationInMs(@Nullable Long l);
+  @Override
+  protected CoverageType getCoverageType() {
+    return CoverageType.UNIT;
+  }
 
-  MutableTestCase setMessage(@Nullable String s);
+  @Override
+  protected String getSensorName() {
+    return "Xoo UT Coverage Sensor";
+  }
 
-  MutableTestCase setStackTrace(@Nullable String s);
-
-  /**
-   * @deprecated since 5.2 not used
-   */
-  @Deprecated
-  MutableTestCase setType(@Nullable String s);
-
-  MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines);
 }

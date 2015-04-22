@@ -166,6 +166,12 @@ public class DefaultInputFileTest {
     } catch (Exception e) {
       assertThat(e).hasMessage("Start pointer [line=1, lineOffset=0] should be before end pointer [line=1, lineOffset=0]");
     }
+    try {
+      file.newRange(file.newPointer(1, 0), file.newPointer(1, 10));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("10 is not a valid line offset for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 9 character(s) at line 1");
+    }
   }
 
   @Test

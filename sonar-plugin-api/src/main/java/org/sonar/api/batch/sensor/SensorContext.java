@@ -24,6 +24,7 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
@@ -98,6 +99,12 @@ public interface SensorContext {
   NewDuplication newDuplication();
 
   // ------------ TESTS ------------
+
+  /**
+   * Builder to define coverage in a file.
+   * Don't forget to call {@link NewDuplication#save()}.
+   */
+  NewCoverage newCoverage();
 
   // TODO
 

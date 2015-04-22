@@ -30,7 +30,15 @@ public interface TestCase {
     }
   }
 
+  /**
+   * @deprecated since 5.2 not used
+   */
+  @Deprecated
   String TYPE_UNIT = "UNIT";
+  /**
+   * @deprecated since 5.2 not used
+   */
+  @Deprecated
   String TYPE_INTEGRATION = "INTEGRATION";
 
   /**

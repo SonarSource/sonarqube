@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -175,5 +176,36 @@ public class SensorContextTesterTest {
       .weight(3)
       .save();
     assertThat(tester.dependencies()).hasSize(1);
+  }
+
+  @Test
+  public void testLineHits() {
+    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();
+    tester.newCoverage()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
+      .ofType(CoverageType.UNIT)
+      .lineHits(1, 2)
+      .lineHits(4, 3)
+      .save();
+    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(2);
+    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
+    assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isEqualTo(3);
+  }
+
+  @Test
+  public void testConditions() {
+    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
+    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
+    tester.newCoverage()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
+      .ofType(CoverageType.UNIT)
+      .conditions(1, 4, 2)
+      .save();
+    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(4);
+    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.UNIT, 1)).isEqualTo(2);
+
+    assertThat(tester.conditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
+    assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
   }
 }

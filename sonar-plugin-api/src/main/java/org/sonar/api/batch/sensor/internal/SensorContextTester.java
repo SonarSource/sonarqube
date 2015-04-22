@@ -32,6 +32,9 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
@@ -170,9 +173,50 @@ public class SensorContextTester implements SensorContext {
     }
   }
 
+  @CheckForNull
+  public Integer lineHits(String fileKey, CoverageType type, int line) {
+    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
+    if (defaultCoverageByType == null) {
+      return null;
+    }
+    if (defaultCoverageByType.containsKey(type)) {
+      return defaultCoverageByType.get(type).hitsByLine().get(line);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public Integer conditions(String fileKey, CoverageType type, int line) {
+    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
+    if (defaultCoverageByType == null) {
+      return null;
+    }
+    if (defaultCoverageByType.containsKey(type)) {
+      return defaultCoverageByType.get(type).conditionsByLine().get(line);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public Integer coveredConditions(String fileKey, CoverageType type, int line) {
+    Map<CoverageType, DefaultCoverage> defaultCoverageByType = sensorStorage.coverageByComponent.get(fileKey);
+    if (defaultCoverageByType == null) {
+      return null;
+    }
+    if (defaultCoverageByType.containsKey(type)) {
+      return defaultCoverageByType.get(type).coveredConditionsByLine().get(line);
+    }
+    return null;
+  }
+
   @Override
   public NewHighlighting newHighlighting() {
     return new DefaultHighlighting(sensorStorage);
+  }
+
+  @Override
+  public NewCoverage newCoverage() {
+    return new DefaultCoverage(sensorStorage);
   }
 
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
@@ -240,6 +284,7 @@ public class SensorContextTester implements SensorContext {
     private Map<String, List<Issue>> issuesByComponent = new HashMap<>();
 
     private Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
+    private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
 
     private List<Duplication> duplications = new ArrayList<>();
     private List<Dependency> dependencies = new ArrayList<>();
@@ -283,6 +328,15 @@ public class SensorContextTester implements SensorContext {
     @Override
     public void store(DefaultHighlighting highlighting) {
       highlightingByComponent.put(getKey(highlighting.inputFile()), highlighting);
+    }
+
+    @Override
+    public void store(DefaultCoverage defaultCoverage) {
+      String key = getKey(defaultCoverage.inputFile());
+      if (!coverageByComponent.containsKey(key)) {
+        coverageByComponent.put(key, new HashMap<CoverageType, DefaultCoverage>());
+      }
+      coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
     }
 
     @CheckForNull

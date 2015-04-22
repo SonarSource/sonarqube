@@ -23,6 +23,8 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
@@ -92,6 +94,11 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public NewDuplication newDuplication() {
     return new DefaultDuplication(sensorStorage);
+  }
+
+  @Override
+  public NewCoverage newCoverage() {
+    return new DefaultCoverage(sensorStorage);
   }
 
   @Override

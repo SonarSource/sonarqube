@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.symbol;
+package org.sonar.batch.mediumtest.coverage;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
@@ -26,9 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -36,7 +38,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SymbolMediumTest {
+public class CoverageTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -57,17 +59,16 @@ public class SymbolMediumTest {
   }
 
   @Test
-  public void computeSymbolReferencesOnTempProject() throws IOException {
+  public void unitTests() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
-    FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
-    // Highlight xoo symbol
-    FileUtils.write(xooSymbolFile, "7,10,27");
+    File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -82,7 +83,32 @@ public class SymbolMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.symbolReferencesFor(file, 1, 7)).containsOnly(Range.newBuilder().setStartLine(3).setStartOffset(8).setEndLine(3).setEndOffset(11).build());
+    assertThat(result.coverageFor(file, 2).getUtHits()).isTrue();
+    assertThat(result.coverageFor(file, 2).getItHits()).isFalse();
+    assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
+    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(1);
+    assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES_TO_COVER)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(2));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.UNCOVERED_LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(0));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.CONDITIONS_TO_COVER)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(2));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue("2=1"));
   }
 
 }

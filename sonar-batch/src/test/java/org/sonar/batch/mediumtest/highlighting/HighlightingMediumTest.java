@@ -100,7 +100,7 @@ public class HighlightingMediumTest {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    int nbFiles = 10;
+    int nbFiles = 100;
     int ruleCount = 100000;
     int nblines = 1000;
     int linesize = ruleCount / nblines;
