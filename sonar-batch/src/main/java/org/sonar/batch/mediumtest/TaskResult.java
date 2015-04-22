@@ -264,6 +264,38 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return null;
   }
 
+  public BatchReport.Test testExecutionFor(InputFile testFile, String testName) {
+    int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
+    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
+      BatchReport.Test test = BatchReport.Test.PARSER.parseDelimitedFrom(inputStream);
+      while (test != null) {
+        if (test.getName().equals(testName)) {
+          return test;
+        }
+        test = BatchReport.Test.PARSER.parseDelimitedFrom(inputStream);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+    return null;
+  }
+
+  public BatchReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
+    int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
+    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
+      BatchReport.CoverageDetail details = BatchReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+      while (details != null) {
+        if (details.getTestName().equals(testName)) {
+          return details;
+        }
+        details = BatchReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+    return null;
+  }
+
   /**
    * @return null if no dependency else return dependency weight.
    */

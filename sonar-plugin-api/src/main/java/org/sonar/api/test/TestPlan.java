@@ -21,6 +21,9 @@ package org.sonar.api.test;
 
 import org.sonar.api.component.Perspective;
 
+/**
+ * A {@link TestPlan} is 
+ */
 public interface TestPlan<T extends TestCase> extends Perspective {
   Iterable<T> testCases();
 

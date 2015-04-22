@@ -53,7 +53,7 @@ public abstract class BeanElement<T extends Element, C extends BeanElement<T, C>
     return element.getPropertyKeys();
   }
 
-  protected final C setProperty(String key, @Nullable Object value) {
+  public final C setProperty(String key, @Nullable Object value) {
     if (value != null) {
       element.setProperty(key, value);
     } else {

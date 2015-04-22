@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.coverage;
+package org.sonar.batch.mediumtest.tests;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
@@ -26,11 +26,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.Constants.TestStatus;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -38,7 +36,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CoverageTest {
+public class TestExecutionMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -64,11 +62,20 @@ public class CoverageTest {
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
+    File testDir = new File(baseDir, "test");
+    testDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
-    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
-    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1");
+    FileUtils.write(xooFile, "foo");
+
+    File xooTestFile = new File(testDir, "sampleTest.xoo");
+    FileUtils.write(xooTestFile, "failure\nerror\nok\nskipped");
+
+    File xooTestExecutionFile = new File(testDir, "sampleTest.xoo.test");
+    FileUtils.write(xooTestExecutionFile, "skipped::::SKIPPED:UNIT\n" +
+      "failure:2:Failure::FAILURE:UNIT\n" +
+      "error:2:Error:The stack:ERROR:UNIT\n" +
+      "success:4:::OK:INTEGRATION");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -79,36 +86,20 @@ public class CoverageTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
+        .put("sonar.tests", "test")
         .build())
       .start();
 
-    InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.coverageFor(file, 2).getUtHits()).isTrue();
-    assertThat(result.coverageFor(file, 2).getItHits()).isFalse();
-    assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(2);
-    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(1);
-    assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
-    assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+    InputFile file = result.inputFile("test/sampleTest.xoo");
+    org.sonar.batch.protocol.output.BatchReport.Test success = result.testExecutionFor(file, "success");
+    assertThat(success.getDurationInMs()).isEqualTo(4);
+    assertThat(success.getStatus()).isEqualTo(TestStatus.OK);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES_TO_COVER)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.UNCOVERED_LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(0));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.CONDITIONS_TO_COVER)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("2=1"));
+    org.sonar.batch.protocol.output.BatchReport.Test error = result.testExecutionFor(file, "error");
+    assertThat(error.getDurationInMs()).isEqualTo(2);
+    assertThat(error.getStatus()).isEqualTo(TestStatus.ERROR);
+    assertThat(error.getMsg()).isEqualTo("Error");
+    assertThat(error.getStacktrace()).isEqualTo("The stack");
   }
 
 }

@@ -68,4 +68,15 @@ public abstract class GraphPerspectiveBuilder<T extends Perspective> extends Per
     }
     return null;
   }
+
+  public T get(Class<T> perspectiveClass, String componentKey) {
+    ComponentVertex vertex = graph.getComponent(componentKey);
+    if (vertex != null) {
+      T perspective = perspectiveLoader.load(vertex);
+      if (perspective != null) {
+        return perspective;
+      }
+    }
+    return null;
+  }
 }

@@ -234,11 +234,10 @@ message SyntaxHighlighting {
 
 message Test {
   optional string name = 1;
-  optional TestType type = 2;
-  optional TestStatus status = 3;
-  optional int64 duration_in_ms = 4;
-  optional string stacktrace = 5;
-  optional string msg = 6;
+  optional TestStatus status = 2;
+  optional int64 duration_in_ms = 3;
+  optional string stacktrace = 4;
+  optional string msg = 5;
 }
 
 message CoverageDetail {

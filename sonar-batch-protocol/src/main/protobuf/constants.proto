@@ -73,11 +73,6 @@ enum HighlightingType {
   PREPROCESS_DIRECTIVE = 8;
 }
 
-enum TestType {
-  UT = 1;
-  IT = 2;
-}
-
 enum TestStatus {
   OK = 1;
   FAILURE = 2;

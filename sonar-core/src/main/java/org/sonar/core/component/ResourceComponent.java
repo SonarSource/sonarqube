@@ -21,10 +21,7 @@ package org.sonar.core.component;
 
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Resource;
-
-import javax.annotation.Nullable;
 
 public class ResourceComponent implements Component {
   private String key;
@@ -33,14 +30,8 @@ public class ResourceComponent implements Component {
   private String longName;
   private String qualifier;
   private String scope;
-  private Long snapshotId;
-  private Long resourceId;
 
-  public ResourceComponent(Resource resource, @Nullable Snapshot snapshot) {
-    this(resource, snapshot != null ? snapshot.getId() : null);
-  }
-
-  public ResourceComponent(Resource resource, @Nullable Integer snapshotId) {
+  public ResourceComponent(Resource resource) {
     this.key = resource.getEffectiveKey();
     this.path = resource.getPath();
     if (Strings.isNullOrEmpty(key)) {
@@ -50,14 +41,6 @@ public class ResourceComponent implements Component {
     this.longName = resource.getLongName();
     this.qualifier = resource.getQualifier();
     this.scope = resource.getScope();
-    if (snapshotId != null) {
-      this.snapshotId = snapshotId.longValue();
-      this.resourceId = resource.getId().longValue();
-    }
-  }
-
-  public ResourceComponent(Resource resource) {
-    this(resource, (Integer) null);
   }
 
   @Override
@@ -87,14 +70,6 @@ public class ResourceComponent implements Component {
 
   public String scope() {
     return scope;
-  }
-
-  public Long snapshotId() {
-    return snapshotId;
-  }
-
-  public Long resourceId() {
-    return resourceId;
   }
 
   @Override

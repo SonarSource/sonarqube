@@ -201,7 +201,7 @@ public class BatchReportReaderTest {
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()
-    ));
+      ));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readComponentSyntaxHighlighting(1))) {
       BatchReport.SyntaxHighlighting syntaxHighlighting = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
@@ -328,7 +328,6 @@ public class BatchReportReaderTest {
         .setStacktrace("stacktrace")
         .setMsg("message")
         .setStatus(Constants.TestStatus.OK)
-        .setType(Constants.TestType.IT)
         .build()));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readTests(1))) {
@@ -336,7 +335,6 @@ public class BatchReportReaderTest {
       assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
       assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
       assertThat(testResult.getMsg()).isEqualTo("message");
-      assertThat(testResult.getType()).isEqualTo(Constants.TestType.IT);
       assertThat(testResult.getStatus()).isEqualTo(Constants.TestStatus.OK);
     }
   }
@@ -353,11 +351,11 @@ public class BatchReportReaderTest {
       BatchReport.CoverageDetail.newBuilder()
         .setTestName("test-name")
         .addCoveredFile(BatchReport.CoverageDetail.CoveredFile.newBuilder()
-            .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
-            .setFileRef(2)
+          .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
+          .setFileRef(2)
         )
         .build()
-    ));
+      ));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readCoverageDetails(1))) {
       BatchReport.CoverageDetail coverageDetail = BatchReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
@@ -380,7 +378,7 @@ public class BatchReportReaderTest {
         .setToFileRef(5)
         .setWeight(20)
         .build()
-    ));
+      ));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readFileDependencies(1))) {
       BatchReport.FileDependency fileDependency = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
