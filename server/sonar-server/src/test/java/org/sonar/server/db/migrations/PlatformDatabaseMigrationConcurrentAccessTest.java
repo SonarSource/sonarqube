@@ -21,50 +21,58 @@ package org.sonar.server.db.migrations;
 
 import com.google.common.base.Throwables;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class PlatformDatabaseMigrationConcurrentAccessTest {
 
   private ExecutorService pool = Executors.newFixedThreadPool(2);
   /**
-   * Implementation of execute runs Runnable synchronously with a delay of 200ms.
+   * Latch is used to make sure both testing threads try and call {@link PlatformDatabaseMigration#startIt()} at the
+   * same time
+   */
+  private CountDownLatch latch = new CountDownLatch(2);
+
+  /**
+   * Implementation of execute runs Runnable synchronously
    */
   private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
+      command.run();
+    }
+  };
+  /**
+   * thread-safe counter of calls to the trigger method of {@link #rubyDatabaseMigration}
+   */
+  private AtomicInteger triggerCount = new AtomicInteger();
+  /**
+   * Implementation of RubyDatabaseMigration which trigger method increments a thread-safe counter and add a delay of 200ms
+   */
+  private RubyDatabaseMigration rubyDatabaseMigration = new RubyDatabaseMigration() {
+    @Override
+    public void trigger() {
+      triggerCount.incrementAndGet();
       try {
         Thread.currentThread().sleep(200);
       } catch (InterruptedException e) {
         Throwables.propagate(e);
       }
-      command.run();
     }
   };
-  @Mock
-  private RubyDatabaseMigration rubyDatabaseMigration;
-  @Mock
-  private RubyBridge rubyBridge;
-  private PlatformDatabaseMigration underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-    underTest = new PlatformDatabaseMigration(rubyBridge, executorService);
-  }
+  private RubyBridge rubyBridge = mock(RubyBridge.class);
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService);
 
   @After
   public void tearDown() throws Exception {
@@ -80,14 +88,19 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
 
     pool.awaitTermination(3, TimeUnit.SECONDS);
 
-    verify(rubyBridge, times(1)).databaseMigration();
-
-    assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.SUCCEEDED);
+    assertThat(triggerCount.get()).isEqualTo(1);
   }
 
   private class CallStartit implements Runnable {
     @Override
     public void run() {
+      latch.countDown();
+      try {
+        latch.await();
+      } catch (InterruptedException e) {
+        // propagate interruption
+        Thread.currentThread().interrupt();
+      }
       underTest.startIt();
     }
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db.migrations;
 
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.ruby.RubyBridge;
 
@@ -32,6 +33,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * Handles concurrency to make sure only one DB migration can run at a time.
  */
 public class PlatformDatabaseMigration implements DatabaseMigration {
+
+  private static final Logger LOGGER = Loggers.get(PlatformDatabaseMigration.class);
 
   private final RubyBridge rubyBridge;
   /**
@@ -50,7 +53,7 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
    * by the thread executing the db migration.
    * </p>
    */
-  private AtomicBoolean running = new AtomicBoolean(false);
+  private final AtomicBoolean running = new AtomicBoolean(false);
   private Status status = Status.NONE;
   @Nullable
   private Date startDate;
@@ -64,15 +67,17 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
 
   @Override
   public void startIt() {
-    if (lock.isLocked() || this.running.get() /* fail-fast if db migration is running */) {
+    if (lock.isLocked() || this.running.get()) {
+      LOGGER.trace("{}: lock is already taken or process is already running", Thread.currentThread().getName());
       return;
     }
 
-    lock.lock();
-    try {
-      startAsynchronousDBMigration();
-    } finally {
-      lock.unlock();
+    if (lock.tryLock()) {
+      try {
+        startAsynchronousDBMigration();
+      } finally {
+        lock.unlock();
+      }
     }
   }
 
@@ -92,12 +97,12 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
         startDate = new Date();
         failureError = null;
         try {
-          Loggers.get(PlatformDatabaseMigration.class).info("Starting DB Migration at {}", startDate);
+          LOGGER.info("Starting DB Migration at {}", startDate);
           rubyBridge.databaseMigration().trigger();
-          Loggers.get(PlatformDatabaseMigration.class).info("DB Migration ended successfully at {}", new Date());
+          LOGGER.info("DB Migration ended successfully at {}", new Date());
           status = Status.SUCCEEDED;
         } catch (Throwable t) {
-          Loggers.get(PlatformDatabaseMigration.class).error("DB Migration failed and ended at " + startDate + " with an exception", t);
+          LOGGER.error("DB Migration failed and ended at " + startDate + " with an exception", t);
           status = Status.FAILED;
           failureError = t;
         } finally {
