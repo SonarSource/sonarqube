@@ -28,7 +28,7 @@ lib.configureCasper();
 
 casper.test.begin('Quality Gates', function suite (test) {
   casper
-      .start(lib.buildUrl('quality-gates'), function () {
+      .start(lib.buildUrl('quality_gates#show/1'), function () {
         lib.setDefaultViewport();
 
 

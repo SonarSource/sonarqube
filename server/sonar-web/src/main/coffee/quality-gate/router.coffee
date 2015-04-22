@@ -31,11 +31,15 @@ define [
   class QualityGateRouter extends Backbone.Router
 
     routes:
+      '': 'index'
       'show/:id': 'show'
 
 
     initialize: (options) ->
       @app = options.app
+
+
+    index: ->
 
 
     show: (id) ->

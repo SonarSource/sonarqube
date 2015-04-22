@@ -44,6 +44,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'rules_configuration/:action/:language/:name/:plugin.:format', :controller => 'rules_configuration'
 
   map.connect 'api_documentation/*other', :controller => 'api_documentation', :action => 'index'
+  map.connect 'quality_gates/*other', :controller => 'quality_gates', :action => 'index'
 
   # Install the default route as the lowest priority.
   map.connect ':controller/:action/:id', :requirements => { :id => /.*/ }

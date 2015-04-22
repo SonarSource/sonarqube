@@ -29,14 +29,12 @@ requirejs [
   'quality-gate/views/quality-gate-edit-view',
   'quality-gate/router',
   'quality-gate/layout'
-], (
-  QualityGates,
+], (QualityGates,
   QualityGateSidebarListItemView,
   QualityGateActionsView,
   QualityGateEditView,
   QualityGateRouter,
-  QualityGateLayout
-) ->
+  QualityGateLayout) ->
 
   # Create a Quality Gate Application
   App = new Marionette.Application
@@ -46,10 +44,7 @@ requirejs [
 
 
   App.openFirstQualityGate = ->
-    if @qualityGates.length > 0
-      @router.navigate "show/#{@qualityGates.models[0].get('id')}", trigger: true
-    else
-      App.layout.detailsRegion.reset()
+    App.layout.detailsRegion.reset()
 
 
   App.deleteQualityGate = (id) ->
@@ -93,7 +88,12 @@ requirejs [
   # Start router
   App.addInitializer ->
     @router = new QualityGateRouter app: @
-    Backbone.history.start()
+
+    QUALITY_GATES = '/quality_gates'
+    path = window.location.pathname
+    pos = path.indexOf QUALITY_GATES
+    root = path.substr(0, pos + QUALITY_GATES.length)
+    Backbone.history.start pushState: true, root: root
 
 
   # Open first quality gate when come to the page
@@ -106,9 +106,9 @@ requirejs [
   appXHR = jQuery.ajax
     url: "#{baseUrl}/api/qualitygates/app"
   .done (r) =>
-      App.canEdit = r.edit
-      App.periods = r.periods
-      App.metrics = r.metrics
+    App.canEdit = r.edit
+    App.periods = r.periods
+    App.metrics = r.metrics
 
   qualityGatesXHR = App.qualityGates.fetch()
 
@@ -116,6 +116,7 @@ requirejs [
   l10nXHR = window.requestMessages()
 
   jQuery.when(qualityGatesXHR, appXHR, l10nXHR)
-    .done ->
-      # Start the application
-      App.start()
+  .done ->
+    # Start the application
+    App.start()
+
