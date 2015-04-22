@@ -35,6 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchReportReaderTest {
 
+  private static int UNKNOWN_COMPONENT_REF = 123;
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -49,32 +51,109 @@ public class BatchReportReaderTest {
   }
 
   @Test
-  public void create_dir_if_does_not_exist() throws Exception {
-    initFiles(dir);
+  public void read_metadata() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(15000000L)
+      .setProjectKey("PROJECT_A")
+      .setRootComponentRef(1)
+      .setDeletedComponentsCount(10);
+    writer.writeMetadata(metadata.build());
 
     BatchReport.Metadata readMetadata = sut.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
-    assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(1);
+    assertThat(readMetadata.getProjectKey()).isEqualTo("PROJECT_A");
+    assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(10);
+    assertThat(readMetadata.getRootComponentRef()).isEqualTo(1);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_missing_metadata_file() throws Exception {
+    sut.readMetadata();
+  }
+
+  @Test
+  public void read_components() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setPath("src/main/java/Foo.java");
+    writer.writeComponent(component.build());
+
+    assertThat(sut.readComponent(1).getPath()).isEqualTo("src/main/java/Foo.java");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_missing_file_on_component() throws Exception {
+    sut.readComponent(UNKNOWN_COMPONENT_REF);
+  }
+
+  @Test
+  public void read_issues() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
+      .setUuid("ISSUE_A")
+      .setLine(50)
+      .build();
+    writer.writeComponentIssues(1, Arrays.asList(issue));
+    writer.writeDeletedComponentIssues(1, "compUuid", Arrays.asList(issue));
+
     assertThat(sut.readComponentIssues(1)).hasSize(1);
     assertThat(sut.readComponentIssues(200)).isEmpty();
-    assertThat(sut.readComponent(1).getUuid()).isEqualTo("UUID_A");
+
     BatchReport.Issues deletedComponentIssues = sut.readDeletedComponentIssues(1);
     assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
     assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_missing_file_on_deleted_component() throws Exception {
+    sut.readDeletedComponentIssues(UNKNOWN_COMPONENT_REF);
+  }
+
+  @Test
+  public void empty_list_if_no_issue_found() throws Exception {
+    assertThat(sut.readComponentIssues(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
+  public void read_measures() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    BatchReport.Measure.Builder measure = BatchReport.Measure.newBuilder()
+      .setStringValue("value_a");
+    writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
+
     assertThat(sut.readComponentMeasures(1)).hasSize(1);
     assertThat(sut.readComponentMeasures(1).get(0).getStringValue()).isEqualTo("value_a");
+  }
+
+  @Test
+  public void empty_list_if_no_measure_found() throws Exception {
+    assertThat(sut.readComponentMeasures(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
+  public void read_changesets() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    BatchReport.Changesets.Builder scm = BatchReport.Changesets.newBuilder()
+      .setComponentRef(1)
+      .addChangeset(BatchReport.Changesets.Changeset.newBuilder().setDate(123_456_789).setAuthor("jack.daniels").setRevision("123-456-789"));
+    writer.writeComponentChangesets(scm.build());
+
     assertThat(sut.readChangesets(1).getChangesetList()).hasSize(1);
     assertThat(sut.readChangesets(1).getChangeset(0).getDate()).isEqualTo(123_456_789L);
   }
 
   @Test
-  public void read_duplications() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
+  public void null_if_no_changeset_found() throws Exception {
+    assertThat(sut.readChangesets(UNKNOWN_COMPONENT_REF)).isNull();
+  }
 
+  @Test
+  public void read_duplications() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1).build());
-
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
@@ -101,13 +180,16 @@ public class BatchReportReaderTest {
   }
 
   @Test
+  public void empty_list_if_no_duplication_found() throws Exception {
+    assertThat(sut.readComponentDuplications(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
   public void read_syntax_highlighting() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(dir);
-
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
-
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
@@ -119,7 +201,7 @@ public class BatchReportReaderTest {
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()
-      ));
+    ));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readComponentSyntaxHighlighting(1))) {
       BatchReport.SyntaxHighlighting syntaxHighlighting = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
@@ -131,14 +213,16 @@ public class BatchReportReaderTest {
   }
 
   @Test
-  public void read_symbols() throws Exception {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
+  public void return_null_if_no_highlighting_found() throws Exception {
+    assertThat(sut.readComponentSyntaxHighlighting(UNKNOWN_COMPONENT_REF)).isNull();
+  }
 
+  @Test
+  public void read_symbols() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
-
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
@@ -164,13 +248,16 @@ public class BatchReportReaderTest {
   }
 
   @Test
+  public void empty_list_if_no_symbol_found() throws Exception {
+    assertThat(sut.readComponentSymbols(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
+  @Test
   public void read_coverage() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(dir);
-
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
-
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1).build());
 
@@ -218,8 +305,12 @@ public class BatchReportReaderTest {
   }
 
   @Test
+  public void return_null_if_no_coverage_found() throws Exception {
+    assertThat(sut.readComponentCoverage(UNKNOWN_COMPONENT_REF)).isNull();
+  }
+
+  @Test
   public void read_source_lines() throws Exception {
-    File dir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(dir);
     File file = writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, 1);
     FileUtils.writeLines(file, Lists.newArrayList("line1", "line2"));
@@ -230,7 +321,6 @@ public class BatchReportReaderTest {
 
   @Test
   public void read_tests() throws Exception {
-    initFiles(dir);
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeTests(1, Arrays.asList(
       BatchReport.Test.newBuilder()
@@ -252,18 +342,22 @@ public class BatchReportReaderTest {
   }
 
   @Test
+  public void null_if_no_test_found() throws Exception {
+    assertThat(sut.readTests(UNKNOWN_COMPONENT_REF)).isNull();
+  }
+
+  @Test
   public void read_coverage_details() throws Exception {
-    initFiles(dir);
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeCoverageDetails(1, Arrays.asList(
       BatchReport.CoverageDetail.newBuilder()
         .setTestName("test-name")
         .addCoveredFile(BatchReport.CoverageDetail.CoveredFile.newBuilder()
-          .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
-          .setFileRef(2)
+            .addAllCoveredLine(Arrays.asList(1, 2, 3, 5, 7))
+            .setFileRef(2)
         )
         .build()
-      ));
+    ));
 
     try (InputStream inputStream = FileUtils.openInputStream(sut.readCoverageDetails(1))) {
       BatchReport.CoverageDetail coverageDetail = BatchReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
@@ -273,103 +367,9 @@ public class BatchReportReaderTest {
     }
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_metadata_file() throws Exception {
-    sut.readMetadata();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_file_on_deleted_component() throws Exception {
-    sut.readDeletedComponentIssues(666);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_file_on_component() throws Exception {
-    sut.readComponent(666);
-  }
-
-  @Test
-  public void empty_list_if_no_measure_found() throws Exception {
-    assertThat(sut.readComponentMeasures(666)).isEmpty();
-  }
-
-  @Test
-  public void null_if_no_scm_found() throws Exception {
-    assertThat(sut.readChangesets(666)).isNull();
-  }
-
-  @Test
-  public void empty_list_if_no_duplication_found() throws Exception {
-    assertThat(sut.readComponentDuplications(123)).isEmpty();
-  }
-
-  @Test
-  public void empty_list_if_no_symbol_found() throws Exception {
-    assertThat(sut.readComponentSymbols(123)).isEmpty();
-  }
-
-  @Test
-  public void return_null_if_no_highlighting_found() throws Exception {
-    assertThat(sut.readComponentSyntaxHighlighting(123)).isNull();
-  }
-
-  @Test
-  public void return_null_if_no_coverage_found() throws Exception {
-    assertThat(sut.readComponentCoverage(123)).isNull();
-  }
-
-  @Test
-  public void return_null_if_no_source_found() throws Exception {
-    assertThat(sut.readComponentCoverage(123)).isNull();
-  }
-
-  @Test
-  public void empty_list_if_no_issue_found() throws Exception {
-    assertThat(sut.readComponentIssues(666)).isEmpty();
-  }
-
-  @Test
-  public void null_if_no_test_found() throws Exception {
-    assertThat(sut.readTests(666)).isNull();
-  }
-
   @Test
   public void null_if_no_coverage_detail_found() throws Exception {
-    assertThat(sut.readCoverageDetails(666)).isNull();
-  }
-
-  private void initFiles(File dir) {
-    BatchReportWriter writer = new BatchReportWriter(dir);
-
-    BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(15000000L)
-      .setProjectKey("PROJECT_A")
-      .setRootComponentRef(1)
-      .setDeletedComponentsCount(1);
-    writer.writeMetadata(metadata.build());
-
-    BatchReport.Component.Builder component = BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setUuid("UUID_A");
-    writer.writeComponent(component.build());
-
-    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
-      .setUuid("ISSUE_A")
-      .setLine(50)
-      .build();
-
-    writer.writeComponentIssues(1, Arrays.asList(issue));
-
-    writer.writeDeletedComponentIssues(1, "compUuid", Arrays.asList(issue));
-
-    BatchReport.Measure.Builder measure = BatchReport.Measure.newBuilder()
-      .setStringValue("value_a");
-    writer.writeComponentMeasures(1, Arrays.asList(measure.build()));
-
-    BatchReport.Changesets.Builder scm = BatchReport.Changesets.newBuilder()
-      .setComponentRef(1)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder().setDate(123_456_789).setAuthor("jack.daniels").setRevision("123-456-789"));
-    writer.writeComponentChangesets(scm.build());
+    assertThat(sut.readCoverageDetails(UNKNOWN_COMPONENT_REF)).isNull();
   }
 
 }
