@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db.migrations;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
 import java.util.concurrent.Executors;
@@ -32,6 +33,12 @@ public class PlatformDatabaseMigrationExecutorServiceImpl
   implements PlatformDatabaseMigrationExecutorService {
 
   public PlatformDatabaseMigrationExecutorServiceImpl() {
-    super(Executors.newSingleThreadExecutor());
+    super(
+      Executors.newSingleThreadExecutor(
+        new ThreadFactoryBuilder()
+          .setDaemon(false)
+          .setNameFormat("DB_migration-%d")
+          .build()
+        ));
   }
 }
