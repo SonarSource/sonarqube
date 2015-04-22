@@ -38,12 +38,10 @@ import static com.google.common.collect.Maps.newHashMap;
 public class ViewIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
-  private final EsClient esClient;
 
   public ViewIndexer(DbClient dbClient, EsClient esClient) {
     super(esClient, 300, ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, "updatedAt");
     this.dbClient = dbClient;
-    this.esClient = esClient;
   }
 
   /**

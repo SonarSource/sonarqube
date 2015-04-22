@@ -21,12 +21,12 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Charsets;
 import org.picocontainer.Startable;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
@@ -91,7 +91,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
     } catch (ServerException e) {
       sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
-      // TODO implement Request.toString()
       Loggers.get(getClass()).error("Fail to process request " + request, e);
       sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
     }
