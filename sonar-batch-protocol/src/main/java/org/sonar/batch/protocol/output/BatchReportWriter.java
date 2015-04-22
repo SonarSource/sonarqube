@@ -125,6 +125,18 @@ public class BatchReportWriter {
     ProtobufUtil.writeMessagesToFile(tests, file);
   }
 
+  public void writeFileDependencies(int componentRef, Iterable<BatchReport.FileDependency> fileDependencies) {
+    File file = fileStructure.fileFor(FileStructure.Domain.FILE_DEPENDENCIES, componentRef);
+    ProtobufUtil.writeMessagesToFile(fileDependencies, file);
+  }
+
+  public void writeModuleDependencies(int componentRef, Iterable<BatchReport.ModuleDependencies.ModuleDependency> dependencies) {
+    BatchReport.ModuleDependencies.Builder builder = BatchReport.ModuleDependencies.newBuilder();
+    builder.addAllDep(dependencies);
+    File file = fileStructure.fileFor(FileStructure.Domain.MODULE_DEPENDENCIES, componentRef);
+    ProtobufUtil.writeToFile(builder.build(), file);
+  }
+
   public File getSourceFile(int componentRef) {
     return fileStructure.fileFor(FileStructure.Domain.SOURCE, componentRef);
   }

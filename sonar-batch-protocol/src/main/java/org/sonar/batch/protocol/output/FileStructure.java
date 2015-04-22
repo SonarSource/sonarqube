@@ -38,6 +38,8 @@ public class FileStructure {
     COVERAGES("coverages-", Domain.PB),
     TESTS("tests-", Domain.PB),
     COVERAGE_DETAILS("coverage-details-", Domain.PB),
+    FILE_DEPENDENCIES("file-dependencies-", Domain.PB),
+    MODULE_DEPENDENCIES("module-dependencies-", Domain.PB),
     SOURCE("source-", ".txt");
 
     private static final String PB = ".pb";

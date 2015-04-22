@@ -372,4 +372,53 @@ public class BatchReportReaderTest {
     assertThat(sut.readCoverageDetails(UNKNOWN_COMPONENT_REF)).isNull();
   }
 
+  @Test
+  public void read_file_dependencies() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeFileDependencies(1, Arrays.asList(
+      BatchReport.FileDependency.newBuilder()
+        .setToFileRef(5)
+        .setWeight(20)
+        .build()
+    ));
+
+    try (InputStream inputStream = FileUtils.openInputStream(sut.readFileDependencies(1))) {
+      BatchReport.FileDependency fileDependency = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
+      assertThat(fileDependency.getToFileRef()).isEqualTo(5);
+      assertThat(fileDependency.getWeight()).isEqualTo(20);
+    }
+  }
+
+  @Test
+  public void null_if_no_file_dependencies_found() throws Exception {
+    assertThat(sut.readFileDependencies(UNKNOWN_COMPONENT_REF)).isNull();
+  }
+
+  @Test
+  public void read_module_dependencies() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeModuleDependencies(1, Arrays.asList(BatchReport.ModuleDependencies.ModuleDependency.newBuilder()
+      .setKey("PROJECT_1")
+      .setScope("PRJ")
+      .setVersion("1.1")
+      .addChild(BatchReport.ModuleDependencies.ModuleDependency.newBuilder()
+        .setKey("PROJECT_2")
+        .setScope("PRJ")
+        .setVersion("2.2")
+        .build())
+      .build()));
+
+    assertThat(sut.readModuleDependencies(1)).hasSize(1);
+    BatchReport.ModuleDependencies.ModuleDependency dependency = sut.readModuleDependencies(1).get(0);
+    assertThat(dependency.getKey()).isEqualTo("PROJECT_1");
+    assertThat(dependency.getScope()).isEqualTo("PRJ");
+    assertThat(dependency.getVersion()).isEqualTo("1.1");
+    assertThat(dependency.getChildList()).hasSize(1);
+  }
+
+  @Test
+  public void empty_list_if_no_module_dependencies_found() throws Exception {
+    assertThat(sut.readModuleDependencies(UNKNOWN_COMPONENT_REF)).isEmpty();
+  }
+
 }
