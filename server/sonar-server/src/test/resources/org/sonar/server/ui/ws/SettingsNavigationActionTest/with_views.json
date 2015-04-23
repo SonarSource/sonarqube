@@ -1,0 +1,13 @@
+{
+  "showUpdateCenter": false,
+  "plugins": [
+    {
+      "name": "First Page",
+      "url": "/plugins/configuration/first_page"
+    },
+    {
+      "name": "Second Page",
+      "url": "/second/page"
+    }
+  ]
+}

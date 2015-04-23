@@ -21,12 +21,12 @@ package org.sonar.server.plugins;
 
 import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
@@ -43,7 +43,7 @@ import java.util.Date;
  */
 @Properties({
   @Property(
-    key = "sonar.updatecenter.activate",
+    key = UpdateCenterClient.ACTIVATION_PROPERTY,
     defaultValue = "true",
     name = "Enable Update Center",
     project = false,
@@ -63,6 +63,7 @@ import java.util.Date;
 public class UpdateCenterClient {
 
   public static final String URL_PROPERTY = "sonar.updatecenter.url";
+  public static final String ACTIVATION_PROPERTY = "sonar.updatecenter.activate";
   public static final int PERIOD_IN_MILLISECONDS = 60 * 60 * 1000;
 
   private final URI uri;
