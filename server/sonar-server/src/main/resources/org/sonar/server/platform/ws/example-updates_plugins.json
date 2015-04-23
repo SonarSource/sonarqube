@@ -1,0 +1,29 @@
+{
+  "upgrades": [
+    {
+      "version": "5.1",
+      "description": "New overall layout, merge Issues Drilldown [...]",
+      "releaseDate": "2015-04-02",
+      "changeLogUrl": "http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11694&version=20666",
+      "downloadUrl": "http://dist.sonar.codehaus.org/sonarqube-5.1.zip",
+      "plugins": {
+        "requireUpdate": [
+          {
+            "key": "views",
+            "name": "Views",
+            "description": "Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.",
+            "version": "2.8"
+          }
+        ],
+        "incompatible": [
+          {
+            "key": "branding",
+            "name": "Branding",
+            "description": "Allows to add your own logo to the SonarQube UI."
+          }
+        ]
+      }
+    }
+  ],
+  "updateCenterRefresh": "2015-04-24T16:08:36+0200"
+}

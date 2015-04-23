@@ -19,13 +19,7 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.platform.ComponentContainer;
@@ -214,6 +208,7 @@ import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemInfoWsAction;
 import org.sonar.server.platform.ws.SystemRestartWsAction;
 import org.sonar.server.platform.ws.SystemWs;
+import org.sonar.server.platform.ws.UpgradesSystemWsAction;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -392,7 +387,11 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
-import com.google.common.collect.Lists;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 class ServerComponents {
 
@@ -883,6 +882,7 @@ class ServerComponents {
     pico.addSingletons(Arrays.asList(
       SystemRestartWsAction.class,
       SystemInfoWsAction.class,
+      UpgradesSystemWsAction.class,
       SystemWs.class,
       SystemMonitor.class,
       SonarQubeMonitor.class,
