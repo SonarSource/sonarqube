@@ -28,14 +28,12 @@
           <div class="markdown">{{{description}}}</div>
 
           {{#if possibleValues}}
-            <ul class="list-inline little-spacer-top">
-              <li>
-                <strong>Possible values:</strong>
-              </li>
+            <p class="little-spacer-top">
+              <strong>Possible values:</strong>
+            </p>
+            <ul class="list-styled">
               {{#each possibleValues}}
-                <li>
-                  <code>{{this}}</code>
-                </li>
+                <li class="little-spacer-top"><code>{{this}}</code></li>
               {{/each}}
             </ul>
           {{/if}}
