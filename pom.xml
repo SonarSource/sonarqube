@@ -65,7 +65,7 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.12.1</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
     <sonarJava.version>3.0</sonarJava.version>
     <sonarGit.version>1.0</sonarGit.version>
     <sonarSvn.version>1.0</sonarSvn.version>
@@ -280,7 +280,7 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>1.12.1</version>
+          <version>${sonarUpdateCenter.version}</version>
         </plugin>
         <plugin>
           <!-- declared to avoid enforcer error during SQ analysis when Clirr plugin installed -->

@@ -208,8 +208,8 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
       return true;
     }
 
-    Version minimumVersion = Version.createRelease(this.sonarVersion);
-    Version actualVersion = Version.createRelease(sonarVersion);
+    Version minimumVersion = Version.create(this.sonarVersion).removeQualifier();
+    Version actualVersion = Version.create(sonarVersion).removeQualifier();
     return actualVersion.compareTo(minimumVersion) >= 0;
   }
 
