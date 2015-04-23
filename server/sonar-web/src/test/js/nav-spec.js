@@ -228,7 +228,7 @@ casper.test.begin(testName('Login'), 3, function (test) {
 });
 
 
-casper.test.begin(testName('Search'), 20, function (test) {
+casper.test.begin(testName('Search'), 23, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
@@ -243,6 +243,7 @@ casper.test.begin(testName('Search'), 20, function (test) {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
           window.navbarOptions.set({ qualifiers: ['TRK', 'VW', 'DEV'] });
+          window.navbarOptions.set({ globalDashboards: [{ name: 'Quality', url: '/dashboard/?did=50' }] });
           window.localStorage.setItem('sonar_recent_history',
               '[{"key":"localhistoryproject","name":"Local History Project","icon":"trk"}]');
 
@@ -261,7 +262,6 @@ casper.test.begin(testName('Search'), 20, function (test) {
       })
 
       .then(function () {
-        lib.capture();
         // for top-level qualifiers
         test.assertExists('.js-search-results a[href*="/all_projects?qualifier=TRK"]');
         test.assertExists('.js-search-results a[href*="/all_projects?qualifier=VW"]');
@@ -280,7 +280,7 @@ casper.test.begin(testName('Search'), 20, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          jQuery('.navbar-search [name="q"]').val('search query').keyup();
+          jQuery('.navbar-search [name="q"]').val('quality').keyup();
         });
         casper.evaluate(function () {
           jQuery('.navbar-search [name="q"]').keyup();
@@ -289,7 +289,10 @@ casper.test.begin(testName('Search'), 20, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('.js-search-results a', 3);
+        test.assertElementCount('.js-search-results a', 6);
+        test.assertExists('.js-search-results a[href*="/profiles"]');
+        test.assertExists('.js-search-results a[href*="/quality_gates"]');
+        test.assertExists('.js-search-results a[href*="/dashboard/?did=50"]');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java :: Squid');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java :: Checks');

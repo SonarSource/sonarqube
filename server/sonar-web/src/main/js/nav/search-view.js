@@ -187,8 +187,45 @@ define([
             }));
           });
         });
-        that.results.reset(collection);
+        that.results.reset([].concat(that.getNavigationFindings(q), that.getGlobalDashboardFindings(q), collection));
       });
+    },
+
+    getNavigationFindings: function (q) {
+      var DEFAULT_ITEMS = [
+            { name: t('issues.page'), url: baseUrl + '/issues/search' },
+            { name: t('layout.measures'), url: baseUrl + '/measures/search?qualifiers[]=TRK' },
+            { name: t('coding_rules.page'), url: baseUrl + '/coding_rules' },
+            { name: t('quality_profiles.page'), url: baseUrl + '/profiles' },
+            { name: t('quality_gates.page'), url: baseUrl + '/quality_gates' },
+            { name: t('comparison_global.page'), url: baseUrl + '/comparison' },
+            { name: t('dependencies.page'), url: baseUrl + '/dependencies' }
+          ],
+          customItems = [];
+      if (window.SS.isUserAdmin) {
+        customItems.push({ name: t('layout.settings'), url: baseUrl + '/settings' });
+      }
+      var findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
+        return f.name.match(new RegExp(q, 'i'));
+      });
+      if (findings.length > 0) {
+        findings[0].extra = t('navigation');
+      }
+      return findings;
+    },
+
+    getGlobalDashboardFindings: function (q) {
+      var dashboards = this.model.get('globalDashboards') || [],
+          items = dashboards.map(function (d) {
+            return { name: d.name, url: baseUrl + d.url };
+          });
+      var findings = items.filter(function (f) {
+        return f.name.match(new RegExp(q, 'i'));
+      });
+      if (findings.length > 0) {
+        findings[0].extra = t('dashboard.global_dashboards');
+      }
+      return findings;
     }
   });
 
