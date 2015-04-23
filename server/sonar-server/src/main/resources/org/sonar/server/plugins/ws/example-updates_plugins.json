@@ -9,18 +9,32 @@
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
       "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
-      "release": {
-        "version": "3.2",
-        "date": "2015-03-10",
-        "artifact": {
-          "name": "sonar-abap-plugin-3.2.jar",
-          "url": "http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar"
+      "updates": [
+        {
+          "release": {
+            "version": "3.1",
+            "date": "2014-12-21",
+            "artifact": {
+              "name": "sonar-abap-plugin-3.1.jar",
+              "url": "http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.1.jar"
+            }
+          },
+          "status": "INCOMPATIBLE",
+          "requires": []
+        },
+        {
+          "release": {
+            "version": "3.2",
+            "date": "2015-03-10",
+            "artifact": {
+              "name": "sonar-abap-plugin-3.2.jar",
+              "url": "http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar"
+            }
+          },
+          "status": "COMPATIBLE",
+          "requires": []
         }
-      },
-      "update": {
-        "status": "COMPATIBLE",
-        "requires": []
-      }
+      ]
     },
     {
       "key": "android",
@@ -30,24 +44,26 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores",
       "organizationUrl": "http://www.sonarsource.com",
-      "release": {
-        "version": "1.0",
-        "date": "2014-03-31",
-        "artifact": {
-          "name": "sonar-android-plugin-1.0.jar",
-          "url": "http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar"
+      "updates": [
+        {
+          "release": {
+            "version": "1.0",
+            "date": "2014-03-31",
+            "artifact": {
+              "name": "sonar-android-plugin-1.0.jar",
+              "url": "http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar"
+            }
+          },
+          "status": "COMPATIBLE",
+          "requires": [
+            {
+              "key": "java",
+              "name": "Java",
+              "description": "SonarQube rule engine."
+            }
+          ]
         }
-      },
-      "update": {
-        "status": "COMPATIBLE",
-        "requires": [
-          {
-            "key": "java",
-            "name": "Java",
-            "description": "SonarQube rule engine."
-          }
-        ]
-      }
+      ]
     }
   ]
 }

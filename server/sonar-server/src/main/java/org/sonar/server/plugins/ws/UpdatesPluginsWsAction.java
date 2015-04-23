@@ -19,18 +19,22 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.ws.PluginUpdateAggregator.PluginUpdateAggregate;
+import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
-
-import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_UPDATE_ORDERING;
+import java.util.List;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -39,14 +43,27 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
   private static final String ARRAY_PLUGINS = "plugins";
+  private static final String ARRAY_UPDATES = "updates";
+
+  private static final Ordering<PluginUpdateAggregate> NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING =
+    Ordering.from(PluginWSCommons.NAME_KEY_PLUGIN_ORDERING).onResultOf(PluginUpdateAggregateToPlugin.INSTANCE);
+  private static final Ordering<PluginUpdate> PLUGIN_UPDATE_BY_VERSION_ORDERING = Ordering.natural().onResultOf(new Function<PluginUpdate, String>() {
+    @Override
+    public String apply(@Nonnull PluginUpdate input) {
+      return input.getRelease().getVersion().toString();
+    }
+  });
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginWSCommons pluginWSCommons;
+  private final PluginUpdateAggregator aggregator;
 
   public UpdatesPluginsWsAction(UpdateCenterMatrixFactory updateCenterMatrixFactory,
-                                PluginWSCommons pluginWSCommons) {
+    PluginWSCommons pluginWSCommons,
+    PluginUpdateAggregator aggregator) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.pluginWSCommons = pluginWSCommons;
+    this.aggregator = aggregator;
   }
 
   @Override
@@ -54,7 +71,7 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
     controller.createAction("updates")
       .setDescription("Lists plugins installed on the SonarQube instance for which at least one newer version is available, sorted by plugin name." +
         "br/>" +
-        "Each newer version is a separate entry in the returned list, with its update/compatibility status." +
+        "Each newer version is listed, ordered from the oldest to the newest, with its own update/compatibility status." +
         "<br/>" +
         "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]")
       .setSince("5.2")
@@ -75,17 +92,50 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
   private void writePlugins(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
-    for (PluginUpdate pluginUpdate : retrieveUpdatablePlugins()) {
-      pluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
+    for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins()) {
+      writePluginUpdateAggregate(jsonWriter, aggregate);
     }
     jsonWriter.endArray();
     jsonWriter.endObject();
   }
 
-  private Collection<PluginUpdate> retrieveUpdatablePlugins() {
+  private void writePluginUpdateAggregate(JsonWriter jsonWriter, PluginUpdateAggregate aggregate) {
+    jsonWriter.beginObject();
+    Plugin plugin = aggregate.getPlugin();
+
+    pluginWSCommons.writeMetadata(jsonWriter, plugin);
+
+    writeUpdates(jsonWriter, aggregate.getUpdates());
+
+    jsonWriter.endObject();
+  }
+
+  private void writeUpdates(JsonWriter jsonWriter, Collection<PluginUpdate> pluginUpdates) {
+    jsonWriter.name(ARRAY_UPDATES).beginArray();
+    for (PluginUpdate pluginUpdate : ImmutableSortedSet.copyOf(PLUGIN_UPDATE_BY_VERSION_ORDERING, pluginUpdates)) {
+      jsonWriter.beginObject();
+      pluginWSCommons.writeRelease(jsonWriter, pluginUpdate.getRelease());
+      pluginWSCommons.writeUpdateProperties(jsonWriter, pluginUpdate);
+      jsonWriter.endObject();
+    }
+    jsonWriter.endArray();
+  }
+
+  private Collection<PluginUpdateAggregate> retrieveUpdatablePlugins() {
+    List<PluginUpdate> pluginUpdates = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findPluginUpdates();
+    // aggregates updates of the same plugin to a single object and sort these objects by plugin name then key
     return ImmutableSortedSet.copyOf(
-      NAME_KEY_PLUGIN_UPDATE_ORDERING,
-      updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findPluginUpdates()
+      NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING,
+      aggregator.aggregate(pluginUpdates)
       );
+  }
+
+  private enum PluginUpdateAggregateToPlugin implements Function<PluginUpdateAggregate, Plugin> {
+    INSTANCE;
+
+    @Override
+    public Plugin apply(@Nonnull PluginUpdateAggregate input) {
+      return input.getPlugin();
+    }
   }
 }

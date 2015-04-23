@@ -21,7 +21,6 @@ package org.sonar.server.plugins.ws;
 
 import org.junit.Before;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
@@ -47,19 +46,6 @@ public class AbstractUpdateCenterBasedPluginsWsActionTest {
   protected static final Plugin PLUGIN_1 = new Plugin("p_key_1").setName("p_name_1");
   protected static final Plugin PLUGIN_2 = new Plugin("p_key_2").setName("p_name_2").setDescription("p_desc_2");
 
-  protected static final Plugin FULL_PROPERTIES_PLUGIN = new Plugin("p_key")
-    .setName("p_name")
-    .setCategory("p_category")
-    .setDescription("p_description")
-    .setLicense("p_license")
-    .setOrganization("p_orga_name")
-    .setOrganizationUrl("p_orga_url")
-    .setTermsConditionsUrl("p_t_and_c_url");
-  protected static final Release FULL_PROPERTIES_PLUGIN_RELEASE = release(FULL_PROPERTIES_PLUGIN, "1.12.1")
-    .setDate(DateUtils.parseDate("2015-04-16"))
-    .setDownloadUrl("http://p_file.jar")
-    .addOutgoingDependency(release(PLUGIN_1, "0.3.6"))
-    .addOutgoingDependency(release(PLUGIN_2, "1.0.0"));
 
   protected UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   protected UpdateCenter updateCenter = mock(UpdateCenter.class);
@@ -81,9 +67,9 @@ public class AbstractUpdateCenterBasedPluginsWsActionTest {
 
   protected static PluginUpdate pluginUpdate(String key, String name) {
     return PluginUpdate.createWithStatus(
-        new Release(new Plugin(key).setName(name), Version.create("1.0")),
-        COMPATIBLE
-    );
+      new Release(new Plugin(key).setName(name), Version.create("1.0")),
+      COMPATIBLE
+      );
   }
 
   @Before

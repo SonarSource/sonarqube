@@ -227,6 +227,7 @@ import org.sonar.server.plugins.ws.CancelAllPluginsWsAction;
 import org.sonar.server.plugins.ws.InstallPluginsWsAction;
 import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
 import org.sonar.server.plugins.ws.PendingPluginsWsAction;
+import org.sonar.server.plugins.ws.PluginUpdateAggregator;
 import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallPluginsWsAction;
@@ -893,6 +894,7 @@ class ServerComponents {
 
     // Plugins WS
     pico.addSingleton(PluginWSCommons.class);
+    pico.addSingleton(PluginUpdateAggregator.class);
     pico.addSingleton(InstalledPluginsWsAction.class);
     pico.addSingleton(AvailablePluginsWsAction.class);
     pico.addSingleton(UpdatesPluginsWsAction.class);

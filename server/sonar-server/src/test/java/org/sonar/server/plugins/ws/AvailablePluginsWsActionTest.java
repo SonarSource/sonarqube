@@ -21,11 +21,11 @@ package org.sonar.server.plugins.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
-import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +37,20 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UPGRADE;
 
 public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
+
+  private static final Plugin FULL_PROPERTIES_PLUGIN = new Plugin("p_key")
+      .setName("p_name")
+      .setCategory("p_category")
+      .setDescription("p_description")
+      .setLicense("p_license")
+      .setOrganization("p_orga_name")
+      .setOrganizationUrl("p_orga_url")
+      .setTermsConditionsUrl("p_t_and_c_url");
+  private static final Release FULL_PROPERTIES_PLUGIN_RELEASE = release(FULL_PROPERTIES_PLUGIN, "1.12.1")
+      .setDate(DateUtils.parseDate("2015-04-16"))
+      .setDownloadUrl("http://p_file.jar")
+      .addOutgoingDependency(release(PLUGIN_1, "0.3.6"))
+      .addOutgoingDependency(release(PLUGIN_2, "1.0.0"));
 
   private AvailablePluginsWsAction underTest = new AvailablePluginsWsAction(updateCenterFactory, new PluginWSCommons());
 

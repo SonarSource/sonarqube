@@ -21,17 +21,51 @@ package org.sonar.server.plugins.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Release;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
+import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
 
 public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
+  private static final Plugin JAVA_PLUGIN = new Plugin("java")
+    .setName("Java")
+    .setDescription("SonarQube rule engine.");
+  private static final Plugin ABAP_PLUGIN = new Plugin("abap")
+    .setName("ABAP")
+    .setCategory("Languages")
+    .setDescription("Enable analysis and reporting on ABAP projects")
+    .setLicense("Commercial")
+    .setOrganization("SonarSource")
+    .setOrganizationUrl("http://www.sonarsource.com")
+    .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf");
+  private static final Release ABAP_31 = release(ABAP_PLUGIN, "3.1")
+    .setDate(DateUtils.parseDate("2014-12-21"))
+    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.1.jar");
+  private static final Release ABAP_32 = release(ABAP_PLUGIN, "3.2")
+    .setDate(DateUtils.parseDate("2015-03-10"))
+    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar");
+  private static final Plugin ANDROID_PLUGIN = new Plugin("android")
+    .setName("Android")
+    .setCategory("Languages")
+    .setDescription("Import Android Lint reports.")
+    .setLicense("GNU LGPL 3")
+    .setOrganization("SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores")
+    .setOrganizationUrl("http://www.sonarsource.com");
+  private static final Release ANDROID_10 = release(ANDROID_PLUGIN, "1.0")
+    .setDate(DateUtils.parseDate("2014-03-31"))
+    .setDownloadUrl("http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar")
+    .addOutgoingDependency(release(JAVA_PLUGIN, "1.0"));
 
-  private UpdatesPluginsWsAction underTest = new UpdatesPluginsWsAction(updateCenterFactory, new PluginWSCommons());
+  private UpdatesPluginsWsAction underTest = new UpdatesPluginsWsAction(updateCenterFactory,
+    new PluginWSCommons(), new PluginUpdateAggregator()
+    );
 
   @Test
   public void action_updatable_is_defined() throws Exception {
@@ -58,14 +92,16 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
   }
 
   @Test
-  public void verify_properties_displayed_in_json_per_plugin() throws Exception {
+  public void verify_response_against_example() throws Exception {
     when(updateCenter.findPluginUpdates()).thenReturn(of(
-      pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)
+      pluginUpdate(ABAP_32, COMPATIBLE),
+      pluginUpdate(ABAP_31, INCOMPATIBLE),
+      pluginUpdate(ANDROID_10, COMPATIBLE)
       ));
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(resource("properties_per_plugin.json"));
+    assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-updates_plugins.json"));
   }
 
   @Test
@@ -79,10 +115,12 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
     assertJson(response.outputAsString()).isSimilarTo(
       "{" +
         "  \"plugins\": [" +
-        "    {" +
-        "      \"update\": {" +
-        "        \"status\": \"COMPATIBLE\"" +
-        "      }" +
+        "   {" +
+        "      \"updates\": [" +
+        "        {" +
+        "          \"status\": \"COMPATIBLE\"" +
+        "        }" +
+        "      ]" +
         "    }" +
         "  ]" +
         "}"
@@ -90,10 +128,9 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
   }
 
   @Test
-  public void plugins_are_sorted_by_name_then_key_and_made_unique() throws Exception {
+  public void plugins_are_sorted_by_name_and_made_unique() throws Exception {
     when(updateCenter.findPluginUpdates()).thenReturn(of(
       pluginUpdate("key2", "name2"),
-      pluginUpdate("key1", "name2"),
       pluginUpdate("key2", "name2"),
       pluginUpdate("key0", "name0"),
       pluginUpdate("key1", "name1")
@@ -106,19 +143,15 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
         "  \"plugins\": [" +
         "    {" +
         "      \"key\": \"key0\"," +
-        "      \"name\": \"name0\"," +
+        "      \"name\": \"name0\"" +
         "    }," +
         "    {" +
         "      \"key\": \"key1\"," +
-        "      \"name\": \"name1\"," +
-        "    }," +
-        "    {" +
-        "      \"key\": \"key1\"," +
-        "      \"name\": \"name2\"," +
+        "      \"name\": \"name1\"" +
         "    }," +
         "    {" +
         "      \"key\": \"key2\"," +
-        "      \"name\": \"name2\"," +
+        "      \"name\": \"name2\"" +
         "    }," +
         "  ]" +
         "}"

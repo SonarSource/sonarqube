@@ -30,7 +30,6 @@ import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Comparator;
 
 import static com.google.common.collect.Iterables.filter;
@@ -60,11 +59,13 @@ public class PluginWSCommons {
   public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
     .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
-  public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
-    .onResultOf(PluginUpdateToName.INSTANCE)
-    .compound(
-      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginUpdateToKey.INSTANCE)
-    );
+  public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
+      .onResultOf(PluginToName.INSTANCE)
+      .compound(
+          Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKey.INSTANCE)
+      );
+  public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
+    .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
   public void writePluginMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
     jsonWriter.beginObject();
@@ -142,9 +143,44 @@ public class PluginWSCommons {
     jsonWriter.endObject();
   }
 
+  /**
+   * Write an "update" object to the specified jsonwriter.
+   * <pre>
+   * "update": {
+   *   "status": "COMPATIBLE",
+   *   "requires": [
+   *     {
+   *       "key": "java",
+   *       "name": "Java",
+   *       "description": "SonarQube rule engine."
+   *     }
+   *   ]
+   * }
+   * </pre>
+   */
   public void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.name(OBJECT_UPDATE);
     jsonWriter.beginObject();
+
+    writeUpdateProperties(jsonWriter, pluginUpdate);
+
+    jsonWriter.endObject();
+  }
+
+  /**
+   * Write the update properties to the specified jsonwriter.
+   * <pre>
+   * "status": "COMPATIBLE",
+   * "requires": [
+   *   {
+   *     "key": "java",
+   *     "name": "Java",
+   *     "description": "SonarQube rule engine."
+   *   }
+   * ]
+   * </pre>
+   */
+  public void writeUpdateProperties(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.prop(PROPERTY_STATUS, toJSon(pluginUpdate.getStatus()));
 
     jsonWriter.name(ARRAY_REQUIRES);
@@ -158,8 +194,6 @@ public class PluginWSCommons {
       jsonWriter.endObject();
     }
     jsonWriter.endArray();
-
-    jsonWriter.endObject();
   }
 
   @VisibleForTesting
@@ -182,10 +216,7 @@ public class PluginWSCommons {
     INSTANCE;
 
     @Override
-    public Artifact apply(@Nullable Release input) {
-      if (input == null) {
-        return null;
-      }
+    public Artifact apply(@Nonnull Release input) {
       return input.getArtifact();
     }
   }
@@ -208,27 +239,30 @@ public class PluginWSCommons {
     }
   }
 
-  private enum PluginUpdateToKey implements Function<PluginUpdate, String> {
+  private enum PluginUpdateToPlugin implements Function<PluginUpdate, Plugin> {
     INSTANCE;
 
     @Override
-    public String apply(@Nullable PluginUpdate input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getPlugin().getKey();
+    public Plugin apply(@Nonnull PluginUpdate input) {
+      return input.getPlugin();
     }
   }
 
-  private enum PluginUpdateToName implements Function<PluginUpdate, String> {
+  private enum PluginToKey implements Function<Plugin, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nullable PluginUpdate input) {
-      if (input == null) {
-        return null;
-      }
-      return input.getPlugin().getName();
+    public String apply(@Nonnull Plugin input) {
+      return input.getKey();
+    }
+  }
+
+  private enum PluginToName implements Function<Plugin, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull Plugin input) {
+      return input.getName();
     }
   }
 }
