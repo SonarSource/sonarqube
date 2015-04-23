@@ -28,6 +28,7 @@ import org.sonar.updatecenter.common.Artifact;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.UpdateCenter;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -55,15 +56,16 @@ public class PluginWSCommons {
   static final String OBJECT_UPDATE = "update";
   static final String OBJECT_RELEASE = "release";
   static final String ARRAY_REQUIRES = "requires";
+  static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
 
   public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
     .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
-      .onResultOf(PluginToName.INSTANCE)
-      .compound(
-          Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKey.INSTANCE)
-      );
+    .onResultOf(PluginToName.INSTANCE)
+    .compound(
+      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKey.INSTANCE)
+    );
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
@@ -210,6 +212,16 @@ public class PluginWSCommons {
       default:
         throw new IllegalArgumentException("Unsupported value of PluginUpdate.Status " + status);
     }
+  }
+
+  /**
+   * Write properties of the specified UpdateCenter to the specified JsonWriter.
+   * <pre>
+   * "updateCenterRefresh": "2015-04-24T16:08:36+0200"
+   * </pre>
+   */
+  public void writeUpdateCenterProperties(JsonWriter jsonWriter, UpdateCenter updateCenter) {
+    jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
   }
 
   private enum ReleaseToArtifact implements Function<Release, Artifact> {

@@ -21,6 +21,8 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,9 +31,6 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 
@@ -56,8 +55,8 @@ public class UpdatePluginsWsAction implements PluginsWsAction {
     WebService.NewAction action = controller.createAction("update")
       .setPost(true)
       .setDescription("Updates a plugin specified by its key to the latest version compatible with the SonarQube instance." +
-          "<br/>" +
-          "Requires user to be authenticated with Administer System permissions")
+        "<br/>" +
+        "Requires user to be authenticated with Administer System permissions")
       .setHandler(this);
 
     action.createParam(PARAM_KEY)

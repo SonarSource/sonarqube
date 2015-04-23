@@ -39,18 +39,18 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UP
 public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPluginsWsActionTest {
 
   private static final Plugin FULL_PROPERTIES_PLUGIN = new Plugin("p_key")
-      .setName("p_name")
-      .setCategory("p_category")
-      .setDescription("p_description")
-      .setLicense("p_license")
-      .setOrganization("p_orga_name")
-      .setOrganizationUrl("p_orga_url")
-      .setTermsConditionsUrl("p_t_and_c_url");
+    .setName("p_name")
+    .setCategory("p_category")
+    .setDescription("p_description")
+    .setLicense("p_license")
+    .setOrganization("p_orga_name")
+    .setOrganizationUrl("p_orga_url")
+    .setTermsConditionsUrl("p_t_and_c_url");
   private static final Release FULL_PROPERTIES_PLUGIN_RELEASE = release(FULL_PROPERTIES_PLUGIN, "1.12.1")
-      .setDate(DateUtils.parseDate("2015-04-16"))
-      .setDownloadUrl("http://p_file.jar")
-      .addOutgoingDependency(release(PLUGIN_1, "0.3.6"))
-      .addOutgoingDependency(release(PLUGIN_2, "1.0.0"));
+    .setDate(DateUtils.parseDate("2015-04-16"))
+    .setDownloadUrl("http://p_file.jar")
+    .addOutgoingDependency(release(PLUGIN_1, "0.3.6"))
+    .addOutgoingDependency(release(PLUGIN_2, "1.0.0"));
 
   private AvailablePluginsWsAction underTest = new AvailablePluginsWsAction(updateCenterFactory, new PluginWSCommons());
 
@@ -117,26 +117,26 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(
-        "{" +
-            "  \"plugins\": [" +
-            "    {" +
-            "      \"update\": {" +
-            "        \"status\": \"" + expectedValue + "\"" +
-            "      }" +
-            "    }" +
-            "  ]" +
-            "}"
-    );
+      "{" +
+        "  \"plugins\": [" +
+        "    {" +
+        "      \"update\": {" +
+        "        \"status\": \"" + expectedValue + "\"" +
+        "      }" +
+        "    }" +
+        "  ]" +
+        "}"
+      );
   }
 
   @Test
   public void plugins_are_sorted_by_name_then_key_and_made_unique() throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
-        pluginUpdate("key2", "name2"),
-        pluginUpdate("key1", "name2"),
-        pluginUpdate("key2", "name2"),
-        pluginUpdate("key0", "name0"),
-        pluginUpdate("key1", "name1")
-    ));
+      pluginUpdate("key2", "name2"),
+      pluginUpdate("key1", "name2"),
+      pluginUpdate("key2", "name2"),
+      pluginUpdate("key0", "name0"),
+      pluginUpdate("key1", "name1")
+      ));
   }
 }

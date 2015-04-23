@@ -19,10 +19,11 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Ordering;
-import com.google.common.io.Resources;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -31,10 +32,12 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.PluginUpdateAggregator.PluginUpdateAggregate;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
+import org.sonar.updatecenter.common.UpdateCenter;
 
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.Ordering;
+import com.google.common.io.Resources;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -73,6 +76,8 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
         "br/>" +
         "Each newer version is listed, ordered from the oldest to the newest, with its own update/compatibility status." +
         "<br/>" +
+        "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
+        "<br/>" +
         "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]")
       .setSince("5.2")
       .setHandler(this)
@@ -84,19 +89,23 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 
-    writePlugins(jsonWriter);
+    UpdateCenter updateCenter = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
 
+    writePlugins(jsonWriter, updateCenter);
+
+    pluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
+
+    jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private void writePlugins(JsonWriter jsonWriter) {
+  private void writePlugins(JsonWriter jsonWriter, UpdateCenter updateCenter) {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
     for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins()) {
       writePluginUpdateAggregate(jsonWriter, aggregate);
     }
     jsonWriter.endArray();
-    jsonWriter.endObject();
   }
 
   private void writePluginUpdateAggregate(JsonWriter jsonWriter, PluginUpdateAggregate aggregate) {
