@@ -17,45 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.deprecated.perspectives;
 
-import com.google.common.collect.Sets;
-
-import java.util.Arrays;
-import java.util.Set;
-
-/**
- * Used by views
- */
-public class Phases {
-
-  public enum Phase {
-    INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
-
-    private final String label;
-
-    private Phase(String label) {
-      this.label = label;
-    }
-
-    @Override
-    public String toString() {
-      return label;
-    }
-  }
-
-  private final Set<Phase> enabled = Sets.newHashSet();
-
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
-  }
-
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
