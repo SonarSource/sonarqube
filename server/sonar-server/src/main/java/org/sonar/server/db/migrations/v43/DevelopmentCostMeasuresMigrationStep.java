@@ -20,16 +20,16 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import java.sql.SQLException;
-
-import javax.annotation.CheckForNull;
-
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
+
+import javax.annotation.CheckForNull;
+
+import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 516
@@ -57,8 +57,8 @@ public class DevelopmentCostMeasuresMigrationStep extends BaseDataChange {
       massUpdate.execute(new MassUpdate.Handler() {
         @Override
         public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-          Long id = row.getNullableLong(1);
-          Double value = row.getNullableDouble(2);
+          Long id = row.getLong(1);
+          Double value = row.getDouble(2);
 
           update.setString(1, convertDebtForDays(value));
           update.setLong(2, id);

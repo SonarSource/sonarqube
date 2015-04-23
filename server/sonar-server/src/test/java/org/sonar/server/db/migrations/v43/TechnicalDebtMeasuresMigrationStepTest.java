@@ -33,10 +33,10 @@ import org.sonar.core.properties.PropertyDto;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TechnicalDebtMeasuresMigrationTest {
+public class TechnicalDebtMeasuresMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(TechnicalDebtMeasuresMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(TechnicalDebtMeasuresMigrationStepTest.class, "schema.sql");
 
   @Mock
   PropertiesDao propertiesDao;

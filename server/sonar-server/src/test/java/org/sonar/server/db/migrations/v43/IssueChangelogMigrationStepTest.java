@@ -36,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueChangelogMigrationTest {
+public class IssueChangelogMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(IssueChangelogMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(IssueChangelogMigrationStepTest.class, "schema.sql");
 
   @Mock
   System2 system2;

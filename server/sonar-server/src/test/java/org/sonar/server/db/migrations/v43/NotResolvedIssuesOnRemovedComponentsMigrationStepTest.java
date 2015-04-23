@@ -23,26 +23,40 @@ package org.sonar.server.db.migrations.v43;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 
-public class RequirementMeasuresMigrationTest {
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class NotResolvedIssuesOnRemovedComponentsMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(RequirementMeasuresMigrationTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(NotResolvedIssuesOnRemovedComponentsMigrationStepTest.class, "schema.sql");
 
-  RequirementMeasuresMigrationStep migration;
+  @Mock
+  System2 system2;
+
+  NotResolvedIssuesOnRemovedComponentsMigrationStep migration;
 
   @Before
   public void setUp() throws Exception {
-    migration = new RequirementMeasuresMigrationStep(db.database());
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
+
+    migration = new NotResolvedIssuesOnRemovedComponentsMigrationStep(db.database(), system2);
   }
 
   @Test
-  public void migrate_measures_on_requirements() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_measures_on_requirements.xml");
+  public void migrate_issues() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_issues.xml");
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_measures_on_requirements_result.xml", "project_measures");
+    db.assertDbUnit(getClass(), "migrate_issues_result.xml", "issues");
   }
+
 }
