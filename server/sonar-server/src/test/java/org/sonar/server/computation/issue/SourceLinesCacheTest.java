@@ -72,11 +72,11 @@ public class SourceLinesCacheTest {
 
     sut.init("ANY_UUID", 123_456_789, new BatchReportReader(dir));
 
-    assertThat(sut.lineAuthor(0)).isEqualTo("charb");
     assertThat(sut.lineAuthor(1)).isEqualTo("charb");
-    assertThat(sut.lineAuthor(2)).isEqualTo("wolinski");
-    // compute last author
+    assertThat(sut.lineAuthor(2)).isEqualTo("charb");
     assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
+    // compute last author
+    assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
     assertThat(sut.lineAuthor(null)).isEqualTo("wolinski");
   }
 
@@ -92,12 +92,12 @@ public class SourceLinesCacheTest {
 
     sut.init("DEFAULT_UUID", 123, new BatchReportReader(dir));
 
-    assertThat(sut.lineAuthor(0)).isEqualTo("cabu");
     assertThat(sut.lineAuthor(1)).isEqualTo("cabu");
     assertThat(sut.lineAuthor(2)).isEqualTo("cabu");
-    assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
-    assertThat(sut.lineAuthor(4)).isEqualTo("cabu");
-    assertThat(sut.lineAuthor(5)).isEqualTo("wolinski");
+    assertThat(sut.lineAuthor(3)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
+    assertThat(sut.lineAuthor(5)).isEqualTo("cabu");
+    assertThat(sut.lineAuthor(6)).isEqualTo("wolinski");
   }
 
   @Test(expected = IllegalStateException.class)
@@ -113,12 +113,12 @@ public class SourceLinesCacheTest {
       .setDate(date);
   }
 
-  private SourceLineDoc newSourceLine(String author, String revision, long date, int line) {
+  private SourceLineDoc newSourceLine(String author, String revision, long date, int lineNumber) {
     return new SourceLineDoc()
       .setScmAuthor(author)
       .setScmRevision(revision)
       .setScmDate(new Date(date))
-      .setLine(line)
+      .setLine(lineNumber)
       .setProjectUuid("PROJECT_UUID")
       .setFileUuid("DEFAULT_UUID");
   }

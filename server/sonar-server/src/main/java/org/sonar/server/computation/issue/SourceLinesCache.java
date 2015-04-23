@@ -29,7 +29,6 @@ import org.sonar.server.source.index.SourceLineIndex;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -78,19 +77,18 @@ public class SourceLinesCache {
 
   /**
    * Last committer of the line, can be null.
-   * @param lineIndex starts at 0
    */
   @CheckForNull
-  public String lineAuthor(@Nullable Integer lineIndex) {
+  public String lineAuthor(@Nullable Integer lineNumber) {
     loadIfNeeded();
 
-    if (lineIndex == null) {
+    if (lineNumber == null) {
       // issue on file, approximately estimate that author is the last committer on the file
       return lastCommitAuthor;
     }
     String author = null;
-    if (lineIndex < scm.getChangesetIndexByLineCount()) {
-      BatchReport.Changesets.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineIndex));
+    if (lineNumber <= scm.getChangesetIndexByLineCount()) {
+      BatchReport.Changesets.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineNumber-1));
       author = changeset.hasAuthor() ? changeset.getAuthor() : null;
     }
 
