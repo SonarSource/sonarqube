@@ -32,11 +32,11 @@ define [
       headerRegion: '.search-navigator-workspace-header'
       actionsRegion: '.search-navigator-filters'
       resultsRegion: '.quality-gates-results'
-      detailsRegion: '.search-navigator-workspace-list'
+      detailsRegion: '.search-navigator-workspace-details'
 
 
     onRender: ->
-      $('.search-navigator').addClass 'sticky'
+      $('.search-navigator').addClass 'sticky search-navigator-extended-view'
       top = $('.search-navigator').offset().top
       @$('.search-navigator-workspace-header').css top: top
       @$('.search-navigator-side').css({ top: top }).isolatedScroll()
