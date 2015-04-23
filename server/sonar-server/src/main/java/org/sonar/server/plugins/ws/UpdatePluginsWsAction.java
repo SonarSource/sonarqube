@@ -24,8 +24,10 @@ import com.google.common.collect.Iterables;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
 
 import javax.annotation.Nonnull;
@@ -53,7 +55,9 @@ public class UpdatePluginsWsAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update")
       .setPost(true)
-      .setDescription("Updates a plugin specified by its key to the latest version compatible with the SonarQube instance")
+      .setDescription("Updates a plugin specified by its key to the latest version compatible with the SonarQube instance." +
+          "<br/>" +
+          "Requires user to be authenticated with Administer System permissions")
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
@@ -63,6 +67,7 @@ public class UpdatePluginsWsAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findPluginUpdateByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());

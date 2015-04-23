@@ -26,11 +26,15 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
+import org.sonar.updatecenter.common.PluginUpdate.Status;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -64,6 +68,19 @@ public class UpdatePluginsWsActionTest {
   @Before
   public void setUp() throws Exception {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  @Test
+  public void user_must_have_system_admin_permission() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    // no permission on user
+    MockUserSession.set().setGlobalPermissions();
+
+    underTest.handle(validRequest, response);
   }
 
   @Test
@@ -109,7 +126,7 @@ public class UpdatePluginsWsActionTest {
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
-      PluginUpdate.createWithStatus(new Release(new Plugin(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)
+      PluginUpdate.createWithStatus(new Release(new Plugin(PLUGIN_KEY), version), Status.COMPATIBLE)
       ));
 
     underTest.handle(validRequest, response);
