@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public class InternalPermissionService implements ServerComponent {
 
-  private static enum Operation {
+  private enum Operation {
     ADD, REMOVE
   }
 

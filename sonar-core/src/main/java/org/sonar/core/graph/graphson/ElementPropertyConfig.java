@@ -28,7 +28,7 @@ import java.util.Set;
  */
 class ElementPropertyConfig {
 
-  static enum ElementPropertiesRule {
+  enum ElementPropertiesRule {
     INCLUDE, EXCLUDE
   }
 

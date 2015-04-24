@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
  */
 public class Server extends Model {
 
-  public static enum Status {
+  public enum Status {
     SETUP,
     UP,
     DOWN,

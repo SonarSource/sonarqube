@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class Activity {
 
-  public static enum Type {
+  public enum Type {
     QPROFILE, SERVER, ANALYSIS_REPORT
   }
 

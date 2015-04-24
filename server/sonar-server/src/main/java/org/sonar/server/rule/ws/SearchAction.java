@@ -68,8 +68,6 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
-  public static final String PARAM_FACETS = "facets";
-
   public static final String SEARCH_ACTION = "search";
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");

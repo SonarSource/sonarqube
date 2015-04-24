@@ -21,7 +21,7 @@ package org.sonar.process;
 
 public class Lifecycle {
 
-  public static enum State {
+  public enum State {
     INIT, STARTING, STARTED, STOPPING, STOPPED
   }
 

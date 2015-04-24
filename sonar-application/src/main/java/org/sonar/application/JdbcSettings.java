@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class JdbcSettings {
 
-  static enum Provider {
+  enum Provider {
     H2("lib/jdbc/h2"), JTDS("lib/jdbc/jtds"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
     POSTGRESQL("lib/jdbc/postgresql");
 

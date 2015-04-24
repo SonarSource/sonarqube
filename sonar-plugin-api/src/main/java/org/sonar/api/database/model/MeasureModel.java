@@ -211,6 +211,7 @@ public class MeasureModel implements Cloneable {
    * @return null
    */
   @CheckForNull
+  @Deprecated
   public Integer getTendency() {
     return null;
   }
@@ -219,6 +220,7 @@ public class MeasureModel implements Cloneable {
    * Concept of measure trend is dropped. This method does nothing.
    * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
    */
+  @Deprecated
   public MeasureModel setTendency(Integer tendency) {
     return this;
   }

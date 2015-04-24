@@ -27,7 +27,7 @@ import java.util.Collections;
 
 public class IndexField {
 
-  public static enum Type {
+  public enum Type {
     STRING, TEXT, DATE, BOOLEAN, INTEGER, LONG, DOUBLE, OBJECT, UUID_PATH
   }
 

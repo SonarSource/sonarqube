@@ -452,6 +452,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
    * @return the measure object instance
    */
+  @Deprecated
   public Measure setTendency(@Nullable Integer tendency) {
     return this;
   }

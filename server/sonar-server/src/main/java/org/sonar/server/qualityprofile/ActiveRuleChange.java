@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class ActiveRuleChange {
 
-  public static enum Type {
+  public enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
   }
 

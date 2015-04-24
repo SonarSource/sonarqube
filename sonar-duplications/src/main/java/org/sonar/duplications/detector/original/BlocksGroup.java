@@ -148,9 +148,7 @@ final class BlocksGroup {
         j++;
         continue;
       }
-      if (c == 0) {
-        c = block1.getIndexInFile() - indexCorrection - block2.getIndexInFile();
-      }
+      c = block1.getIndexInFile() - indexCorrection - block2.getIndexInFile();
       if (c < 0) {
         // list1[i] < list2[j]
         break;
