@@ -228,7 +228,7 @@ casper.test.begin(testName('Login'), 3, function (test) {
 });
 
 
-casper.test.begin(testName('Search'), 23, function (test) {
+casper.test.begin(testName('Search'), 24, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
@@ -289,10 +289,11 @@ casper.test.begin(testName('Search'), 23, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('.js-search-results a', 6);
+        test.assertElementCount('.js-search-results a', 7);
         test.assertExists('.js-search-results a[href*="/profiles"]');
         test.assertExists('.js-search-results a[href*="/quality_gates"]');
         test.assertExists('.js-search-results a[href*="/dashboard/?did=50"]');
+        test.assertExists('.js-search-results a[href*="quality-project"]');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java :: Squid');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java :: Checks');

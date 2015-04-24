@@ -165,7 +165,7 @@ define([
               extra: index === 0 ? '' : null
             };
           });
-      this.results.reset([].concat(history, this.favorite, qualifiers));
+      this.results.reset([].concat(history, _.first(this.favorite, 6), qualifiers));
     },
 
     search: function (q) {
@@ -187,7 +187,12 @@ define([
             }));
           });
         });
-        that.results.reset([].concat(that.getNavigationFindings(q), that.getGlobalDashboardFindings(q), collection));
+        that.results.reset([].concat(
+            that.getNavigationFindings(q),
+            that.getGlobalDashboardFindings(q),
+            that.getFavoriteFindings(q),
+            collection
+        ));
       });
     },
 
@@ -211,7 +216,7 @@ define([
       if (findings.length > 0) {
         findings[0].extra = t('navigation');
       }
-      return findings;
+      return _.first(findings, 6);
     },
 
     getGlobalDashboardFindings: function (q) {
@@ -225,7 +230,17 @@ define([
       if (findings.length > 0) {
         findings[0].extra = t('dashboard.global_dashboards');
       }
-      return findings;
+      return _.first(findings, 6);
+    },
+
+    getFavoriteFindings: function (q) {
+      var findings = this.favorite.filter(function (f) {
+        return f.name.match(new RegExp(q, 'i'));
+      });
+      if (findings.length > 0) {
+        findings[0].extra = t('favorite');
+      }
+      return _.first(findings, 6);
     }
   });
 
