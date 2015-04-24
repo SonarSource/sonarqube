@@ -24,13 +24,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import javax.annotation.Nonnull;
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Artifact;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
@@ -59,7 +60,7 @@ public class PluginWSCommons {
   static final String PROPERTY_IMPLEMENTATION_BUILD = "implementationBuild";
   static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
 
-  public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
+  public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
     .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
@@ -70,23 +71,26 @@ public class PluginWSCommons {
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
-  public void writePluginMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
+  public void writePluginMetadata(JsonWriter jsonWriter, PluginInfo info) {
     jsonWriter.beginObject();
 
-    writeMetadata(jsonWriter, pluginMetadata);
+    writeMetadata(jsonWriter, info);
 
     jsonWriter.endObject();
   }
 
-  public void writeMetadata(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
+  public void writeMetadata(JsonWriter jsonWriter, PluginInfo pluginMetadata) {
     jsonWriter.prop(PROPERTY_KEY, pluginMetadata.getKey());
     jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getName());
     jsonWriter.prop(PROPERTY_DESCRIPTION, pluginMetadata.getDescription());
-    jsonWriter.prop(PROPERTY_VERSION, pluginMetadata.getVersion());
+    Version version = pluginMetadata.getVersion();
+    if (version != null) {
+      jsonWriter.prop(PROPERTY_VERSION, version.getName());
+    }
     jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganization());
+    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganizationName());
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
-    jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
+    jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepageUrl());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
     jsonWriter.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginMetadata.getImplementationBuild());
   }
@@ -221,20 +225,20 @@ public class PluginWSCommons {
     }
   }
 
-  private enum PluginMetadataToName implements Function<PluginMetadata, String> {
+  private enum PluginMetadataToName implements Function<PluginInfo, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull PluginMetadata input) {
+    public String apply(@Nonnull PluginInfo input) {
       return input.getName();
     }
   }
 
-  private enum PluginMetadataToKey implements Function<PluginMetadata, String> {
+  private enum PluginMetadataToKey implements Function<PluginInfo, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull PluginMetadata input) {
+    public String apply(@Nonnull PluginInfo input) {
       return input.getKey();
     }
   }

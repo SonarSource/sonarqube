@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation;
 
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.server.computation.issue.*;
 import org.sonar.server.computation.measure.MetricCache;

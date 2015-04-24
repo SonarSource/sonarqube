@@ -127,27 +127,16 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return new File(getHomeDir(), "extensions/downloads");
   }
 
-  public File getTrashPluginsDir() {
-    return new File(getHomeDir(), "extensions/trash");
-  }
-
-  public List<File> getCorePlugins() {
-    File corePluginsDir = new File(getHomeDir(), "lib/core-plugins");
-    return getFiles(corePluginsDir, "jar");
-  }
-
-  public List<File> getBundledPlugins() {
-    File corePluginsDir = new File(getHomeDir(), "lib/bundled-plugins");
-    return getFiles(corePluginsDir, "jar");
-  }
-
-  public List<File> getUserPlugins() {
-    File pluginsDir = getUserPluginsDir();
-    return getFiles(pluginsDir, "jar");
-  }
-
-  public File getUserPluginsDir() {
+  public File getInstalledPluginsDir() {
     return new File(getHomeDir(), "extensions/plugins");
+  }
+
+  public File getBundledPluginsDir() {
+    return new File(getHomeDir(), "lib/bundled-plugins");
+  }
+
+  public File getCorePluginsDir() {
+    return new File(getHomeDir(), "lib/core-plugins");
   }
 
   public File getDeprecatedPluginsDir() {
@@ -172,7 +161,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   }
 
   private List<File> getFiles(File dir, String... fileSuffixes) {
-    List<File> files = new ArrayList<File>();
+    List<File> files = new ArrayList<>();
     if (dir != null && dir.exists()) {
       if (fileSuffixes != null && fileSuffixes.length > 0) {
         files.addAll(FileUtils.listFiles(dir, fileSuffixes, false));

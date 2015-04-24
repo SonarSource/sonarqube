@@ -22,12 +22,13 @@ package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
+import org.sonar.updatecenter.common.Version;
+
+import javax.annotation.Nonnull;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Installed plugins (excluding core plugins)
@@ -47,21 +48,24 @@ public class PluginsMonitor implements Monitor {
   @Override
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    for (PluginMetadata plugin : plugins()) {
+    for (PluginInfo plugin : plugins()) {
       LinkedHashMap<String, Object> pluginAttributes = new LinkedHashMap<>();
       pluginAttributes.put("Name", plugin.getName());
-      pluginAttributes.put("Version", plugin.getVersion());
+      Version version = plugin.getVersion();
+      if (version != null) {
+        pluginAttributes.put("Version", version.getName());
+      }
       attributes.put(plugin.getKey(), pluginAttributes);
     }
     return attributes;
   }
 
-  private List<PluginMetadata> plugins() {
-    return Lists.newArrayList(Iterables.filter(repository.getMetadata(), new Predicate<PluginMetadata>() {
+  private Iterable<PluginInfo> plugins() {
+    return Iterables.filter(repository.getPluginInfos(), new Predicate<PluginInfo>() {
       @Override
-      public boolean apply(PluginMetadata input) {
-        return !input.isCore();
+      public boolean apply(@Nonnull PluginInfo info) {
+        return !info.isCore();
       }
-    }));
+    });
   }
 }

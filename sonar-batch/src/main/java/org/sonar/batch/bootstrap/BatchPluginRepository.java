@@ -19,174 +19,69 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
+import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.Settings;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
-import org.sonar.core.plugins.PluginClassloaders;
-import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginRepository;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
+public class BatchPluginRepository implements PluginRepository, Startable {
 
-public class BatchPluginRepository implements PluginRepository {
+  private final PluginInstaller installer;
+  private final PluginLoader loader;
 
-  private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
-  private static final String CORE_PLUGIN = "core";
+  private Map<String, Plugin> pluginInstancesByKeys;
+  private Map<String, PluginInfo> infosByKeys;
 
-  private PluginsRepository pluginsReferential;
-  private Map<String, Plugin> pluginsByKey;
-  private Map<String, PluginMetadata> metadataByKey;
-  private Settings settings;
-  private PluginClassloaders classLoaders;
-  private final DefaultAnalysisMode analysisMode;
-  private final BatchPluginJarInstaller pluginInstaller;
-
-  public BatchPluginRepository(PluginsRepository pluginsReferential, Settings settings, DefaultAnalysisMode analysisMode,
-    BatchPluginJarInstaller pluginInstaller) {
-    this.pluginsReferential = pluginsReferential;
-    this.settings = settings;
-    this.analysisMode = analysisMode;
-    this.pluginInstaller = pluginInstaller;
+  public BatchPluginRepository(PluginInstaller installer, PluginLoader loader) {
+    this.installer = installer;
+    this.loader = loader;
   }
 
+  @Override
   public void start() {
-    LOG.info("Install plugins");
-    doStart(pluginsReferential.pluginList());
+    infosByKeys = installer.installRemotes();
+    pluginInstancesByKeys = loader.load(infosByKeys);
 
-    Map<PluginMetadata, SonarPlugin> localPlugins = pluginsReferential.localPlugins();
-    if (!localPlugins.isEmpty()) {
-      LOG.info("Install local plugins");
-      for (Map.Entry<PluginMetadata, SonarPlugin> pluginByMetadata : localPlugins.entrySet()) {
-        metadataByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getKey());
-        pluginsByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getValue());
-      }
-    }
-  }
-
-  void doStart(List<RemotePlugin> remotePlugins) {
-    PluginFilter filter = new PluginFilter(settings, analysisMode);
-    metadataByKey = Maps.newHashMap();
-    for (RemotePlugin remote : remotePlugins) {
-      if (filter.accepts(remote.getKey())) {
-        File pluginFile = pluginsReferential.pluginFile(remote);
-        PluginMetadata metadata = pluginInstaller.installToCache(pluginFile, remote.isCore());
-        if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
-          metadataByKey.put(metadata.getKey(), metadata);
-        } else {
-          LOG.debug("Excluded plugin: " + metadata.getKey());
-        }
-      }
-    }
-    classLoaders = new PluginClassloaders(Thread.currentThread().getContextClassLoader());
-    pluginsByKey = classLoaders.init(metadataByKey.values());
-  }
-
-  public void stop() {
-    if (classLoaders != null) {
-      classLoaders.clean();
-      classLoaders = null;
-    }
-  }
-
-  @Override
-  public Plugin getPlugin(String key) {
-    return pluginsByKey.get(key);
-  }
-
-  @Override
-  public Collection<PluginMetadata> getMetadata() {
-    return metadataByKey.values();
-  }
-
-  @Override
-  public PluginMetadata getMetadata(String pluginKey) {
-    return metadataByKey.get(pluginKey);
-  }
-
-  public Map<PluginMetadata, Plugin> getPluginsByMetadata() {
-    Map<PluginMetadata, Plugin> result = Maps.newHashMap();
-    for (Map.Entry<String, PluginMetadata> entry : metadataByKey.entrySet()) {
+    // this part is only used by tests
+    for (Map.Entry<String, Plugin> entry : installer.installLocals().entrySet()) {
       String pluginKey = entry.getKey();
-      PluginMetadata metadata = entry.getValue();
-      result.put(metadata, pluginsByKey.get(pluginKey));
+      infosByKeys.put(pluginKey, new PluginInfo(pluginKey));
+      pluginInstancesByKeys.put(pluginKey, entry.getValue());
     }
-    return result;
   }
 
-  static class PluginFilter {
-    private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
-    private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
-    Set<String> whites = newHashSet(), blacks = newHashSet();
-    private DefaultAnalysisMode mode;
+  @Override
+  public void stop() {
+    // close plugin classloaders
+    loader.unload(pluginInstancesByKeys.values());
 
-    PluginFilter(Settings settings, DefaultAnalysisMode mode) {
-      this.mode = mode;
-      if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
-        whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
-      }
-      if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
-        blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
-      }
-      if (mode.isPreview()) {
-        // These default values are not supported by Settings because the class CorePlugin
-        // is not loaded yet.
-        if (settings.hasKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)) {
-          LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS));
-          whites.addAll(propertyValues(settings,
-            CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
-        } else {
-          whites.addAll(propertyValues(settings,
-            CoreProperties.PREVIEW_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
-        }
-        if (settings.hasKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)) {
-          LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS));
-          blacks.addAll(propertyValues(settings,
-            CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
-        } else {
-          blacks.addAll(propertyValues(settings,
-            CoreProperties.PREVIEW_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
-        }
-      }
-      if (!whites.isEmpty()) {
-        LOG.info("Include plugins: " + Joiner.on(", ").join(whites));
-      }
-      if (!blacks.isEmpty()) {
-        LOG.info("Exclude plugins: " + Joiner.on(", ").join(blacks));
-      }
-    }
+    pluginInstancesByKeys.clear();
+    infosByKeys.clear();
+  }
 
-    static List<String> propertyValues(Settings settings, String key, String defaultValue) {
-      String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
-      return Lists.newArrayList(Splitter.on(",").trimResults().split(s));
-    }
+  @Override
+  public Collection<PluginInfo> getPluginInfos() {
+    return infosByKeys.values();
+  }
 
-    boolean accepts(String pluginKey) {
-      if (CORE_PLUGIN.equals(pluginKey)) {
-        return !mode.isMediumTest();
-      }
+  @Override
+  public PluginInfo getPluginInfo(String key) {
+    // TODO check null result
+    return infosByKeys.get(key);
+  }
 
-      if (BUILDBREAKER_PLUGIN_KEY.equals(pluginKey) && mode.isPreview()) {
-        LOG.info("Build Breaker plugin is no more supported in preview/incremental mode");
-        return false;
-      }
+  @Override
+  public Plugin getPluginInstance(String key) {
+    // TODO check null result
+    return pluginInstancesByKeys.get(key);
+  }
 
-      List<String> mergeList = newArrayList(blacks);
-      mergeList.removeAll(whites);
-      return mergeList.isEmpty() || !mergeList.contains(pluginKey);
-    }
+  @Override
+  public boolean hasPlugin(String key) {
+    return infosByKeys.containsKey(key);
   }
 }

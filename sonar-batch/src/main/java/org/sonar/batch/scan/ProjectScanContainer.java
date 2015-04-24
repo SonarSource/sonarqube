@@ -26,7 +26,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;

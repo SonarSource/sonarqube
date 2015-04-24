@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.ClassUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,13 +27,12 @@ import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.SupportedEnvironment;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -42,19 +40,15 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
-  private DefaultAnalysisMode mode;
-  PluginMetadata metadata = mock(PluginMetadata.class);
+  DefaultAnalysisMode mode;
+  BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
 
-  Map<PluginMetadata, Plugin> newPlugin(final Object... extensions) {
-    Map<PluginMetadata, Plugin> result = Maps.newHashMap();
-    result.put(metadata,
-      new SonarPlugin() {
-        public List getExtensions() {
-          return Arrays.asList(extensions);
-        }
+  private static Plugin newPluginInstance(final Object... extensions) {
+    return new SonarPlugin() {
+      public List getExtensions() {
+        return Arrays.asList(extensions);
       }
-      );
-    return result;
+    };
   }
 
   @Before
@@ -64,8 +58,9 @@ public class ExtensionInstallerTest {
 
   @Test
   public void should_filter_extensions_to_install() {
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, Bar.class));
+    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
+    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, Bar.class));
+
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
     installer.install(container, new FooMatcher());
@@ -76,8 +71,8 @@ public class ExtensionInstallerTest {
 
   @Test
   public void should_execute_extension_provider() {
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooProvider(), new BarProvider()));
+    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
+    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 
@@ -89,8 +84,8 @@ public class ExtensionInstallerTest {
 
   @Test
   public void should_provide_list_of_extensions() {
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(new FooBarProvider()));
+    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
+    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 
@@ -102,9 +97,8 @@ public class ExtensionInstallerTest {
 
   @Test
   public void should_not_install_on_unsupported_environment() {
-    BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
-    when(pluginRepository.getPluginsByMetadata()).thenReturn(newPlugin(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
-
+    when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
+    when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
     ComponentContainer container = new ComponentContainer();
     ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
 

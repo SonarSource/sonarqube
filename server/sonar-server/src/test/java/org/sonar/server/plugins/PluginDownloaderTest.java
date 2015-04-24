@@ -29,11 +29,12 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
+import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
 import java.net.URI;
@@ -66,7 +67,6 @@ public class PluginDownloaderTest {
   UpdateCenter updateCenter;
   HttpDownloader httpDownloader;
   PluginDownloader pluginDownloader;
-  ServerPluginJarInstaller installer;
 
   @Before
   public void before() throws Exception {
@@ -88,8 +88,7 @@ public class PluginDownloaderTest {
     downloadDir = testFolder.newFolder("downloads");
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
 
-    installer = new ServerPluginJarInstaller();
-    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem, installer);
+    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
   }
 
   @After
@@ -155,7 +154,7 @@ public class PluginDownloaderTest {
     File downloadDir = testFolder.newFile();
     when(defaultServerFileSystem.getDownloadedPluginsDir()).thenReturn(downloadDir);
 
-    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem, installer);
+    pluginDownloader = new PluginDownloader(updateCenterMatrixFactory, httpDownloader, defaultServerFileSystem);
     try {
       pluginDownloader.start();
       fail();
@@ -220,26 +219,18 @@ public class PluginDownloaderTest {
     pluginDownloader.start();
     assertThat(pluginDownloader.getDownloadedPluginFilenames()).hasSize(0);
 
-    copyFileToDirectory(new File(resource("foo-plugin-1.0.jar")), downloadDir);
+    copyFileToDirectory(TestProjectUtils.jarOf("test-base-plugin"), downloadDir);
 
     assertThat(pluginDownloader.getDownloadedPlugins()).hasSize(1);
-    DefaultPluginMetadata metadata = pluginDownloader.getDownloadedPlugins().iterator().next();
-    assertThat(metadata.getKey()).isEqualTo("foo");
-    assertThat(metadata.getName()).isEqualTo("Foo");
-    assertThat(metadata.getVersion()).isEqualTo("1.0");
-    assertThat(metadata.getOrganization()).isEqualTo("SonarSource");
-    assertThat(metadata.getOrganizationUrl()).isEqualTo("http://www.sonarsource.org");
-    assertThat(metadata.getLicense()).isEqualTo("LGPL 3");
-    assertThat(metadata.getMainClass()).isEqualTo("foo.Main");
-  }
-
-  private URI resource(String fileName) throws URISyntaxException {
-    URL resource = getClass().getResource(getClass().getSimpleName() + "/" + fileName);
-    return resource.toURI();
+    PluginInfo info = pluginDownloader.getDownloadedPlugins().iterator().next();
+    assertThat(info.getKey()).isEqualTo("testbase");
+    assertThat(info.getName()).isEqualTo("Base Plugin");
+    assertThat(info.getVersion()).isEqualTo(Version.create("0.1-SNAPSHOT"));
+    assertThat(info.getMainClass()).isEqualTo("BasePlugin");
   }
 
   @Test
-  public void getDownloadedPluginFilenames_reads_plugin_metadata_of_files_in_download_folder() throws Exception {
+  public void getDownloadedPluginFilenames_reads_plugin_info_of_files_in_download_folder() throws Exception {
     pluginDownloader.start();
     assertThat(pluginDownloader.getDownloadedPlugins()).hasSize(0);
 

@@ -29,9 +29,9 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DdlUtils;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.plugins.ServerPluginRepository;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 /**
  * Restore schema by executing DDL scripts. Only H2 database is supported.
@@ -46,10 +46,10 @@ public class DatabaseMigrator implements ServerComponent, Startable {
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   /**
-   * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
+   * ServerPluginInstaller is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
   public DatabaseMigrator(DbClient dbClient, MigrationStep[] migrations, ServerUpgradeStatus serverUpgradeStatus,
-    ServerPluginRepository serverPluginRepository) {
+                          ServerPluginRepository unused) {
     this.dbClient = dbClient;
     this.migrations = migrations;
     this.serverUpgradeStatus = serverUpgradeStatus;

@@ -23,39 +23,39 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.plugins.DefaultPluginMetadata.create;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class PendingPluginsWsActionTest {
 
-  public static final DefaultPluginMetadata GIT_PLUGIN_METADATA = create("scmgit")
+  public static final PluginInfo GIT_PLUGIN_INFO = new PluginInfo("scmgit")
     .setName("Git")
     .setDescription("Git SCM Provider.")
-    .setVersion("1.0")
+    .setVersion(Version.create("1.0"))
     .setLicense("GNU LGPL 3")
-    .setOrganization("SonarSource")
+    .setOrganizationName("SonarSource")
     .setOrganizationUrl("http://www.sonarsource.com")
-    .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
+    .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
     .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
     .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"))
     .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
-  public static final DefaultPluginMetadata PLUGIN_2_2 = create("key2").setName("name2");
-  public static final DefaultPluginMetadata PLUGIN_2_1 = create("key1").setName("name2");
-  public static final DefaultPluginMetadata PLUGIN_0_0 = create("key0").setName("name0");
+  public static final PluginInfo PLUGIN_2_2 = new PluginInfo("key2").setName("name2");
+  public static final PluginInfo PLUGIN_2_1 = new PluginInfo("key1").setName("name2");
+  public static final PluginInfo PLUGIN_0_0 = new PluginInfo("key0").setName("name0");
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private ServerPluginJarsInstaller serverPluginJarsInstaller = mock(ServerPluginJarsInstaller.class);
-  private PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginJarsInstaller, new PluginWSCommons());
+  private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
+  private PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginRepository, new PluginWSCommons());
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
@@ -91,7 +91,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(GIT_PLUGIN_METADATA));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(GIT_PLUGIN_INFO));
 
     underTest.handle(request, response);
 
@@ -119,7 +119,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalledPlugins()).thenReturn(of(GIT_PLUGIN_METADATA));
+    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(GIT_PLUGIN_INFO));
 
     underTest.handle(request, response);
 
@@ -180,7 +180,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void removing_plugin_are_sorted_and_unique() throws Exception {
-    when(serverPluginJarsInstaller.getUninstalledPlugins()).thenReturn(of(
+    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
       PLUGIN_2_2,
       PLUGIN_2_1,
       PLUGIN_2_2,

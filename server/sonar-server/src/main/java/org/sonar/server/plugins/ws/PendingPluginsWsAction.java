@@ -19,14 +19,13 @@
  */
 package org.sonar.server.plugins.ws;
 
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import java.util.Collection;
 
@@ -43,24 +42,24 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private static final String ARRAY_REMOVING = "removing";
 
   private final PluginDownloader pluginDownloader;
-  private final ServerPluginJarsInstaller serverPluginJarsInstaller;
+  private final ServerPluginRepository installer;
   private final PluginWSCommons pluginWSCommons;
 
   public PendingPluginsWsAction(PluginDownloader pluginDownloader,
-                                ServerPluginJarsInstaller serverPluginJarsInstaller,
-                                PluginWSCommons pluginWSCommons) {
+    ServerPluginRepository installer,
+    PluginWSCommons pluginWSCommons) {
     this.pluginDownloader = pluginDownloader;
-    this.serverPluginJarsInstaller = serverPluginJarsInstaller;
+    this.installer = installer;
     this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("pending")
-        .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name")
-        .setSince("5.2")
-        .setHandler(this)
-        .setResponseExample(getResource(this.getClass(), "example-pending_plugins.json"));
+      .setDescription("Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name")
+      .setSince("5.2")
+      .setHandler(this)
+      .setResponseExample(getResource(this.getClass(), "example-pending_plugins.json"));
   }
 
   @Override
@@ -80,8 +79,8 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private void writeInstalling(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_INSTALLING);
     jsonWriter.beginArray();
-    Collection<DefaultPluginMetadata> plugins = pluginDownloader.getDownloadedPlugins();
-    for (PluginMetadata pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
+    Collection<PluginInfo> plugins = pluginDownloader.getDownloadedPlugins();
+    for (PluginInfo pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
       pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();
@@ -90,8 +89,8 @@ public class PendingPluginsWsAction implements PluginsWsAction {
   private void writeRemoving(JsonWriter jsonWriter) {
     jsonWriter.name(ARRAY_REMOVING);
     jsonWriter.beginArray();
-    Collection<DefaultPluginMetadata> plugins = serverPluginJarsInstaller.getUninstalledPlugins();
-    for (PluginMetadata pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
+    Collection<PluginInfo> plugins = installer.getUninstalledPlugins();
+    for (PluginInfo pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
       pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();

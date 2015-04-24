@@ -25,9 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -45,8 +44,8 @@ public class GeneratePluginIndexTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private DefaultServerFileSystem fileSystem;
-  private File index;
+  DefaultServerFileSystem fileSystem;
+  File index;
 
   @Before
   public void createIndexFile() {
@@ -58,9 +57,9 @@ public class GeneratePluginIndexTest {
   @Test
   public void shouldWriteIndex() throws IOException {
     PluginRepository repository = mock(PluginRepository.class);
-    PluginMetadata sqale = newMetadata("sqale");
-    PluginMetadata checkstyle = newMetadata("checkstyle");
-    when(repository.getMetadata()).thenReturn(Arrays.asList(sqale, checkstyle));
+    PluginInfo sqale = newInfo("sqale");
+    PluginInfo checkstyle = newInfo("checkstyle");
+    when(repository.getPluginInfos()).thenReturn(Arrays.asList(sqale, checkstyle));
 
     new GeneratePluginIndex(fileSystem, repository).start();
 
@@ -70,11 +69,7 @@ public class GeneratePluginIndexTest {
     assertThat(lines.get(1), containsString("checkstyle"));
   }
 
-  private PluginMetadata newMetadata(String pluginKey) throws IOException {
-    PluginMetadata plugin = mock(DefaultPluginMetadata.class);
-    when(plugin.getKey()).thenReturn(pluginKey);
-    File pluginFile = temp.newFile(pluginKey + ".jar");
-    when(plugin.getFile()).thenReturn(pluginFile);
-    return plugin;
+  private PluginInfo newInfo(String pluginKey) throws IOException {
+    return new PluginInfo(pluginKey).setFile(temp.newFile(pluginKey + ".jar"));
   }
 }

@@ -38,20 +38,6 @@ public class DefaultServerFileSystemTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void find_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(
-      new File(Resources.getResource(PATH + "shouldFindPlugins").toURI()), temp.newFolder(), null).getUserPlugins();
-    assertThat(plugins).hasSize(2);
-  }
-
-  @Test
-  public void not_fail_if_no_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(
-      new File(Resources.getResource(PATH + "shouldNotFailIfNoPlugins").toURI()), temp.newFolder(), null).getUserPlugins();
-    assertThat(plugins).isEmpty();
-  }
-
-  @Test
   public void find_checkstyle_extensions() throws Exception {
     ServerFileSystem fs = new DefaultServerFileSystem(
       new File(Resources.getResource(PATH + "shouldFindCheckstyleExtensions").toURI()), temp.newFolder(), null);

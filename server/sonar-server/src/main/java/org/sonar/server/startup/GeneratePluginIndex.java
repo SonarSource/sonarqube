@@ -22,9 +22,9 @@ package org.sonar.server.startup;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
@@ -33,10 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
- * @since 2.11
- */
-public final class GeneratePluginIndex {
+public final class GeneratePluginIndex implements ServerComponent {
 
   private DefaultServerFileSystem fileSystem;
   private PluginRepository repository;
@@ -54,8 +51,8 @@ public final class GeneratePluginIndex {
     FileUtils.forceMkdir(indexFile.getParentFile());
     Writer writer = new FileWriter(indexFile, false);
     try {
-      for (PluginMetadata metadata : repository.getMetadata()) {
-        writer.append(RemotePlugin.create((DefaultPluginMetadata) metadata).marshal());
+      for (PluginInfo pluginInfo : repository.getPluginInfos()) {
+        writer.append(RemotePlugin.create(pluginInfo).marshal());
         writer.append(CharUtils.LF);
       }
       writer.flush();

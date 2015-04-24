@@ -20,23 +20,19 @@
 package org.sonar.server.plugins;
 
 import org.junit.Test;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.PluginReferential;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PluginReferentialMetadataConverterTest {
 
   @Test
-  public void should_convert_metadata_to_plugin_referential() {
-    PluginMetadata metadata = mock(DefaultPluginMetadata.class);
-    when(metadata.getKey()).thenReturn("foo");
+  public void should_convert_info_to_plugin_referential() {
+    PluginInfo info = new PluginInfo("foo");
 
-    PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(metadata));
+    PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));
     assertThat(pluginReferential).isNotNull();
     assertThat(pluginReferential.getPlugins()).hasSize(1);
     assertThat(pluginReferential.getPlugins().get(0).getKey()).isEqualTo("foo");
@@ -44,11 +40,9 @@ public class PluginReferentialMetadataConverterTest {
 
   @Test
   public void should_not_add_core_plugin() {
-    PluginMetadata metadata = mock(DefaultPluginMetadata.class);
-    when(metadata.getKey()).thenReturn("foo");
-    when(metadata.isCore()).thenReturn(true);
+    PluginInfo info = new PluginInfo("foo").setCore(true);
 
-    PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(metadata));
+    PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));
     assertThat(pluginReferential).isNotNull();
     assertThat(pluginReferential.getPlugins()).hasSize(0);
   }

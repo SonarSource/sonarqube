@@ -20,7 +20,7 @@
 package org.sonar.server.plugins;
 
 import org.picocontainer.Startable;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.updatecenter.common.PluginReferential;
 
 public class InstalledPluginReferentialFactory implements Startable {
@@ -51,7 +51,7 @@ public class InstalledPluginReferentialFactory implements Startable {
   }
 
   private void init() {
-    installedPluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getMetadata());
+    installedPluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(pluginRepository.getPluginInfos());
   }
 
 }

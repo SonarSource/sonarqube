@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -51,8 +51,8 @@ public class DefaultI18nTest {
   @Before
   public void before() {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    List<PluginMetadata> plugins = Arrays.asList(newPlugin("core"), newPlugin("sqale"), newPlugin("frpack"), newPlugin("checkstyle"), newPlugin("other"));
-    when(pluginRepository.getMetadata()).thenReturn(plugins);
+    List<PluginInfo> plugins = Arrays.asList(newPlugin("core"), newPlugin("sqale"), newPlugin("frpack"), newPlugin("checkstyle"), newPlugin("other"));
+    when(pluginRepository.getPluginInfos()).thenReturn(plugins);
 
     manager = new DefaultI18n(pluginRepository, system2);
     manager.doStart(getClass().getClassLoader());
@@ -222,8 +222,8 @@ public class DefaultI18nTest {
     return new URLClassLoader(urls);
   }
 
-  private PluginMetadata newPlugin(String key) {
-    PluginMetadata plugin = mock(PluginMetadata.class);
+  private PluginInfo newPlugin(String key) {
+    PluginInfo plugin = mock(PluginInfo.class);
     when(plugin.getKey()).thenReturn(key);
     return plugin;
   }

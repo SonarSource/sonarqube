@@ -20,14 +20,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-classloader</artifactId>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>classworlds</groupId>
-          <artifactId>classworlds</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.mybatis</groupId>
@@ -88,10 +86,6 @@
     <dependency>
       <groupId>commons-dbutils</groupId>
       <artifactId>commons-dbutils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-classworlds</artifactId>
     </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>

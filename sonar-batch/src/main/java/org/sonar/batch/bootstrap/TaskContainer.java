@@ -23,7 +23,7 @@ import org.sonar.batch.components.PastMeasuresLoader;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskComponent;

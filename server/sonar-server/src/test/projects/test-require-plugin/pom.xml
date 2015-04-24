@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.sonar.tests</groupId>
+  <artifactId>test-require-plugin</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>sonar-plugin</packaging>
+  <name>Test Require Plugin</name>
+  <description>This fake plugin depends on test-base-plugin</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>4.5.4</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.13</version>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>testrequire</pluginKey>
+          <pluginClass>RequirePlugin</pluginClass>
+          <requirePlugins>testbase:0.1</requirePlugins>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

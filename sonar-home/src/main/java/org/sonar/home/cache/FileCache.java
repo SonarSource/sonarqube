@@ -20,15 +20,12 @@
 package org.sonar.home.cache;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.utils.ZipUtils;
 import org.sonar.home.log.Log;
 
 import javax.annotation.CheckForNull;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipEntry;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -138,7 +135,7 @@ public class FileCache {
     }
   }
 
-  private File createTempDir() {
+  public File createTempDir() {
     String baseName = System.currentTimeMillis() + "-";
 
     for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
@@ -160,44 +157,5 @@ public class FileCache {
       }
     }
     return dir;
-  }
-
-  /**
-   * Unzip a cached file. Unzip is done only the first time.
-   * @param cachedFile
-   * @return directory where cachedFile was unzipped
-   * @throws IOException
-   */
-  public File unzip(File cachedFile) throws IOException {
-    String filename = cachedFile.getName();
-    File destDir = new File(cachedFile.getParentFile(), filename + "_unzip");
-    File lockFile = new File(cachedFile.getParentFile(), filename + "_unzip.lock");
-    if (!destDir.exists()) {
-      FileOutputStream out = new FileOutputStream(lockFile);
-      try {
-        java.nio.channels.FileLock lock = out.getChannel().lock();
-        try {
-          // Recheck in case of concurrent processes
-          if (!destDir.exists()) {
-            File tempDir = createTempDir();
-            ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
-            FileUtils.moveDirectory(tempDir, destDir);
-          }
-        } finally {
-          lock.release();
-        }
-      } finally {
-        out.close();
-        FileUtils.deleteQuietly(lockFile);
-      }
-    }
-    return destDir;
-  }
-
-  private static final class LibFilter implements ZipUtils.ZipEntryFilter {
-    @Override
-    public boolean accept(ZipEntry entry) {
-      return entry.getName().startsWith("META-INF/lib");
-    }
   }
 }

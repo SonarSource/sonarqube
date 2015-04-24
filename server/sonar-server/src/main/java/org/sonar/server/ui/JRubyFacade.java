@@ -27,13 +27,12 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import org.sonar.api.Plugin;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.NewUserHandler;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -44,6 +43,9 @@ import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.api.web.Widget;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.process.ProcessProperties;
@@ -58,7 +60,6 @@ import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
@@ -149,15 +150,15 @@ public final class JRubyFacade {
   }
 
   public void uninstallPlugin(String pluginKey) {
-    get(ServerPluginJarsInstaller.class).uninstall(pluginKey);
+    get(ServerPluginRepository.class).uninstall(pluginKey);
   }
 
   public void cancelPluginUninstalls() {
-    get(ServerPluginJarsInstaller.class).cancelUninstalls();
+    get(ServerPluginRepository.class).cancelUninstalls();
   }
 
   public List<String> getPluginUninstalls() {
-    return get(ServerPluginJarsInstaller.class).getUninstalledPluginFilenames();
+    return get(ServerPluginRepository.class).getUninstalledPluginFilenames();
   }
 
   public UpdateCenter getUpdatePluginCenter(boolean forceReload) {
@@ -173,12 +174,11 @@ public final class JRubyFacade {
     return get(PropertyDefinitions.class);
   }
 
-  public boolean hasPlugin(String key) {
-    return get(PluginRepository.class).getPlugin(key) != null;
-  }
-
-  public Collection<PluginMetadata> getPluginsMetadata() {
-    return get(PluginRepository.class).getMetadata();
+  /**
+   * Used for WS api/updatecenter/installed_plugins, to be replaced by api/plugins/installed.
+   */
+  public Collection<PluginInfo> getPluginInfos() {
+    return get(PluginRepository.class).getPluginInfos();
   }
 
   public List<ViewProxy<Widget>> getWidgets(String resourceScope, String resourceQualifier, String resourceLanguage, Object[] availableMeasures) {
@@ -285,12 +285,13 @@ public final class JRubyFacade {
   }
 
   public Object getComponentByClassname(String pluginKey, String className) {
-    Object component = null;
-    Class<?> componentClass = get(ServerPluginRepository.class).getClass(pluginKey, className);
-    if (componentClass != null) {
-      component = get(componentClass);
+    Plugin plugin = get(PluginRepository.class).getPluginInstance(pluginKey);
+    try {
+      Class componentClass = plugin.getClass().getClassLoader().loadClass(className);
+      return get(componentClass);
+    } catch (ClassNotFoundException e) {
+      throw new IllegalStateException(String.format("Class [%s] not found in plugin [%s]", className, pluginKey), e);
     }
-    return component;
   }
 
   private JRubyI18n getJRubyI18n() {
@@ -391,7 +392,7 @@ public final class JRubyFacade {
     ComponentContainer container = Platform.getInstance().getContainer();
     DatabaseMigration databaseMigration = container.getComponentByType(DatabaseMigration.class);
     if (databaseMigration.status() == DatabaseMigration.Status.RUNNING
-        || databaseMigration.status() == DatabaseMigration.Status.FAILED) {
+      || databaseMigration.status() == DatabaseMigration.Status.FAILED) {
       return false;
     }
     if (databaseMigration.status() == DatabaseMigration.Status.SUCCEEDED) {

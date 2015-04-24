@@ -27,7 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.ProjectTree;

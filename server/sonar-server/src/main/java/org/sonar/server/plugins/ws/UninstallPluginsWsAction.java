@@ -19,18 +19,13 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Predicate;
-import javax.annotation.Nullable;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.Iterables.find;
 import static java.lang.String.format;
 
 /**
@@ -39,12 +34,10 @@ import static java.lang.String.format;
 public class UninstallPluginsWsAction implements PluginsWsAction {
   private static final String PARAM_KEY = "key";
 
-  private final PluginRepository pluginRepository;
-  private final ServerPluginJarsInstaller pluginJarsInstaller;
+  private final ServerPluginRepository pluginRepository;
 
-  public UninstallPluginsWsAction(PluginRepository pluginRepository, ServerPluginJarsInstaller pluginJarsInstaller) {
+  public UninstallPluginsWsAction(ServerPluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
-    this.pluginJarsInstaller = pluginJarsInstaller;
   }
 
   @Override
@@ -66,27 +59,14 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
     ensurePluginIsInstalled(key);
-    pluginJarsInstaller.uninstall(key);
+    pluginRepository.uninstall(key);
     response.noContent();
   }
 
+  // FIXME should be moved to {@link ServerPluginRepository#uninstall(String)}
   private void ensurePluginIsInstalled(String key) {
-    if (find(pluginRepository.getMetadata(), new PluginKeyPredicate(key), null) == null) {
-      throw new IllegalArgumentException(
-        format("No plugin with key '%s' or plugin '%s' is not installed", key, key));
-    }
-  }
-
-  private static class PluginKeyPredicate implements Predicate<PluginMetadata> {
-    private final String key;
-
-    public PluginKeyPredicate(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nullable PluginMetadata input) {
-      return input != null && key.equals(input.getKey());
+    if (!pluginRepository.hasPlugin(key)) {
+      throw new IllegalArgumentException(format("Plugin [%s] is not installed", key));
     }
   }
 }

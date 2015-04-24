@@ -20,6 +20,7 @@
 package org.sonar.server.plugins;
 
 import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,5 +35,10 @@ public class MimeTypesTest {
   public void getByFilename() {
     assertThat(MimeTypes.getByFilename("static/sqale/sqale.css")).isEqualTo("text/css");
     assertThat(MimeTypes.getByFilename("sqale.css")).isEqualTo("text/css");
+  }
+
+  @Test
+  public void only_statics() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(MimeTypes.class)).isTrue();
   }
 }

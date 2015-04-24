@@ -24,9 +24,9 @@ import java.util.List;
 /**
  * A plugin is a group of extensions. See <code>org.sonar.api.Extension</code> interface to browse
  * available extension points.
- * <p/>
  * <p>The manifest property <code>Plugin-Class</code> must declare the name of the implementation class.
  * It is automatically set by sonar-packaging-maven-plugin when building plugins.</p>
+ * <p>Implementation must declare a public constructor with no-parameters.</p>
  *
  * @see org.sonar.api.Extension
  * @since 1.10

@@ -21,28 +21,44 @@ package org.sonar.batch.bootstrap;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.deprecated.components.*;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.platform.DefaultServer;
-import org.sonar.batch.repository.*;
+import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultServerIssuesLoader;
+import org.sonar.batch.repository.GlobalRepositoriesLoader;
+import org.sonar.batch.repository.GlobalRepositoriesProvider;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoreUpdater;
+import org.sonar.core.persistence.SemaphoresImpl;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginLoader;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.HibernateUserFinder;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
@@ -79,11 +95,15 @@ public class GlobalContainer extends ComponentContainer {
 
   private void addBootstrapComponents() {
     add(
+      // plugins
       BatchPluginRepository.class,
-      BatchPluginJarInstaller.class,
+      PluginLoader.class,
+      BatchPluginUnzipper.class,
+      BatchPluginPredicate.class,
+      ExtensionInstaller.class,
+
       GlobalSettings.class,
       ServerClient.class,
-      ExtensionInstaller.class,
       Logback.class,
       DefaultServer.class,
       new TempFolderProvider(),
@@ -95,20 +115,16 @@ public class GlobalContainer extends ComponentContainer {
       DefaultI18n.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
-    if (getComponentByType(PluginsRepository.class) == null) {
-      add(DefaultPluginsRepository.class);
-    }
-    if (getComponentByType(GlobalRepositoriesLoader.class) == null) {
-      add(DefaultGlobalRepositoriesLoader.class);
-    }
-    if (getComponentByType(ProjectRepositoriesLoader.class) == null) {
-      add(DefaultProjectRepositoriesLoader.class);
-    }
-    if (getComponentByType(ServerIssuesLoader.class) == null) {
-      add(DefaultServerIssuesLoader.class);
-    }
-    if (getComponentByType(ServerLineHashesLoader.class) == null) {
-      add(DefaultServerLineHashesLoader.class);
+    addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
+    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
+    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
+    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
+  }
+
+  public void addIfMissing(Object object, Class objectType) {
+    if (getComponentByType(objectType) == null) {
+      add(object);
     }
   }
 
@@ -147,10 +163,10 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   private void installPlugins() {
-    for (Map.Entry<PluginMetadata, Plugin> entry : getComponentByType(BatchPluginRepository.class).getPluginsByMetadata().entrySet()) {
-      PluginMetadata metadata = entry.getKey();
-      Plugin plugin = entry.getValue();
-      addExtension(metadata, plugin);
+    PluginRepository pluginRepository = getComponentByType(PluginRepository.class);
+    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+      Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
+      addExtension(pluginInfo, instance);
     }
   }
 

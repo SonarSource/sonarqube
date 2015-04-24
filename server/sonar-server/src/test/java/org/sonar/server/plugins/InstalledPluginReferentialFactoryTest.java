@@ -20,9 +20,8 @@
 package org.sonar.server.plugins;
 
 import org.junit.Test;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,23 +32,22 @@ public class InstalledPluginReferentialFactoryTest {
 
   @Test
   public void should_create_plugin_referential() {
-    PluginMetadata metadata = mock(DefaultPluginMetadata.class);
-    when(metadata.getKey()).thenReturn("foo");
+    PluginInfo info = new PluginInfo("foo");
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.getMetadata()).thenReturn(newArrayList(metadata));
-    InstalledPluginReferentialFactory installedPluginReferentialFactory = new InstalledPluginReferentialFactory(pluginRepository);
+    when(pluginRepository.getPluginInfos()).thenReturn(newArrayList(info));
+    InstalledPluginReferentialFactory factory = new InstalledPluginReferentialFactory(pluginRepository);
 
-    assertThat(installedPluginReferentialFactory.getInstalledPluginReferential()).isNull();
-    installedPluginReferentialFactory.start();
-    assertThat(installedPluginReferentialFactory.getInstalledPluginReferential()).isNotNull();
-    assertThat(installedPluginReferentialFactory.getInstalledPluginReferential().getPlugins()).hasSize(1);
+    assertThat(factory.getInstalledPluginReferential()).isNull();
+    factory.start();
+    assertThat(factory.getInstalledPluginReferential()).isNotNull();
+    assertThat(factory.getInstalledPluginReferential().getPlugins()).hasSize(1);
   }
 
   @Test(expected = RuntimeException.class)
   public void should_encapsulate_exception() {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.getMetadata()).thenThrow(new IllegalArgumentException());
-    InstalledPluginReferentialFactory installedPluginReferentialFactory = new InstalledPluginReferentialFactory(pluginRepository);
-    installedPluginReferentialFactory.start();
+    when(pluginRepository.getPluginInfos()).thenThrow(new IllegalArgumentException());
+    InstalledPluginReferentialFactory factory = new InstalledPluginReferentialFactory(pluginRepository);
+    factory.start();
   }
 }

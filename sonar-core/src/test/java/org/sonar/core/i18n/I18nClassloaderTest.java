@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.PluginRepository;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -80,7 +80,7 @@ public class I18nClassloaderTest {
   private static URLClassLoader newClassLoader(String... resourcePaths) {
     URL[] urls = new URL[resourcePaths.length];
     for (int index = 0; index < resourcePaths.length; index++) {
-      urls[index] = DefaultI18nTest.class.getResource(resourcePaths[index]);
+      urls[index] = I18nClassloaderTest.class.getResource(resourcePaths[index]);
     }
     return new URLClassLoader(urls);
   }

@@ -48,7 +48,7 @@ class Api::UpdatecenterController < Api::ApiController
     hash={}
     hash['key']=plugin.getKey()
     hash['name']=plugin.getName()
-    hash['version']=plugin.getVersion() || '-'
+    hash['version']=plugin.getVersion().getName()
     hash
   end
 
@@ -58,13 +58,13 @@ class Api::UpdatecenterController < Api::ApiController
         xml.plugin do
           xml.key(plugin.getKey())
           xml.name(plugin.getName())
-          xml.version(plugin.getVersion() || '-')
+          xml.version(plugin.getVersion().getName())
         end
       end
     end
   end
 
   def user_plugins
-    java_facade.getPluginsMetadata().select{|plugin| !plugin.isCore()}.to_a.sort
+    java_facade.getPluginInfos().select{|plugin| !plugin.isCore()}.to_a.sort
   end
 end

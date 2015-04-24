@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.sonar.tests</groupId>
+  <artifactId>parent</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>test-base-plugin</module>
+    <module>test-base-plugin-v2</module>
+    <module>test-core-plugin</module>
+    <module>test-extend-plugin</module>
+    <module>test-libs-plugin</module>
+    <module>test-require-plugin</module>
+    <module>test-requirenew-plugin</module>
+  </modules>
+
+</project>

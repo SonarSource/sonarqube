@@ -20,7 +20,7 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.CoreProperties;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.DefaultProjectTree;

@@ -28,27 +28,31 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.batch.bootstrap.PluginsRepository;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
-import org.sonar.batch.protocol.input.*;
+import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.input.GlobalRepositories;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.plugins.DefaultPluginMetadata;
-import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -70,22 +74,22 @@ public class BatchMediumTester {
   public static class BatchMediumTesterBuilder {
     private final FakeGlobalRepositoriesLoader globalRefProvider = new FakeGlobalRepositoriesLoader();
     private final FakeProjectRepositoriesLoader projectRefProvider = new FakeProjectRepositoriesLoader();
-    private final FakePluginsRepository pluginsReferential = new FakePluginsRepository();
+    private final FakePluginInstaller pluginInstaller = new FakePluginInstaller();
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
-    private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
+    private final Map<String, String> bootstrapProperties = new HashMap<>();
 
     public BatchMediumTester build() {
       return new BatchMediumTester(this);
     }
 
     public BatchMediumTesterBuilder registerPlugin(String pluginKey, File location) {
-      pluginsReferential.addPlugin(pluginKey, location);
+      pluginInstaller.add(pluginKey, location);
       return this;
     }
 
     public BatchMediumTesterBuilder registerPlugin(String pluginKey, SonarPlugin instance) {
-      pluginsReferential.addPlugin(pluginKey, instance);
+      pluginInstaller.add(pluginKey, instance);
       return this;
     }
 
@@ -164,7 +168,7 @@ public class BatchMediumTester {
       .setEnableLoggingConfiguration(true)
       .addComponents(
         new EnvironmentInformation("mediumTest", "1.0"),
-        builder.pluginsReferential,
+        builder.pluginInstaller,
         builder.globalRefProvider,
         builder.projectRefProvider,
         builder.serverIssues,
@@ -276,41 +280,6 @@ public class BatchMediumTester {
     public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
       ref.addFileData(moduleKey, path, fileData);
       return this;
-    }
-
-  }
-
-  private static class FakePluginsRepository implements PluginsRepository {
-
-    private List<RemotePlugin> pluginList = new ArrayList<RemotePlugin>();
-    private Map<RemotePlugin, File> pluginFiles = new HashMap<RemotePlugin, File>();
-    Map<PluginMetadata, SonarPlugin> localPlugins = new HashMap<PluginMetadata, SonarPlugin>();
-
-    @Override
-    public List<RemotePlugin> pluginList() {
-      return pluginList;
-    }
-
-    @Override
-    public File pluginFile(RemotePlugin remote) {
-      return pluginFiles.get(remote);
-    }
-
-    public FakePluginsRepository addPlugin(String pluginKey, File location) {
-      RemotePlugin plugin = new RemotePlugin(pluginKey, false);
-      pluginList.add(plugin);
-      pluginFiles.put(plugin, location);
-      return this;
-    }
-
-    public FakePluginsRepository addPlugin(String pluginKey, SonarPlugin pluginInstance) {
-      localPlugins.put(DefaultPluginMetadata.create(pluginKey), pluginInstance);
-      return this;
-    }
-
-    @Override
-    public Map<PluginMetadata, SonarPlugin> localPlugins() {
-      return localPlugins;
     }
 
   }

@@ -22,14 +22,15 @@ package org.sonar.server.plugins.ws;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.SortedSet;
 
@@ -42,10 +43,10 @@ import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADA
 public class InstalledPluginsWsAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
 
-  private final PluginRepository pluginRepository;
+  private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
 
-  public InstalledPluginsWsAction(PluginRepository pluginRepository,
+  public InstalledPluginsWsAction(ServerPluginRepository pluginRepository,
     PluginWSCommons pluginWSCommons) {
     this.pluginRepository = pluginRepository;
     this.pluginWSCommons = pluginWSCommons;
@@ -62,39 +63,39 @@ public class InstalledPluginsWsAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Collection<PluginMetadata> pluginMetadatas = retrieveAndSortPluginMetadata();
+    Collection<PluginInfo> infos = retrieveAndSortPluginMetadata();
 
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.setSerializeEmptys(false);
     jsonWriter.beginObject();
 
-    writeMetadataList(jsonWriter, pluginMetadatas);
+    writeMetadataList(jsonWriter, infos);
 
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private SortedSet<PluginMetadata> retrieveAndSortPluginMetadata() {
+  private SortedSet<PluginInfo> retrieveAndSortPluginMetadata() {
     return ImmutableSortedSet.copyOf(
       NAME_KEY_PLUGIN_METADATA_COMPARATOR,
-      filter(pluginRepository.getMetadata(), NotCorePluginsPredicate.INSTANCE)
+      filter(pluginRepository.getPluginInfos(), NotCorePluginsPredicate.INSTANCE)
       );
   }
 
-  private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginMetadata> pluginMetadatas) {
+  private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginInfo> pluginMetadatas) {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
-    for (PluginMetadata pluginMetadata : pluginMetadatas) {
+    for (PluginInfo pluginMetadata : pluginMetadatas) {
       pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();
   }
 
-  private enum NotCorePluginsPredicate implements Predicate<PluginMetadata> {
+  private enum NotCorePluginsPredicate implements Predicate<PluginInfo> {
     INSTANCE;
 
     @Override
-    public boolean apply(@Nullable PluginMetadata input) {
+    public boolean apply(@Nullable PluginInfo input) {
       return input != null && !input.isCore();
     }
   }

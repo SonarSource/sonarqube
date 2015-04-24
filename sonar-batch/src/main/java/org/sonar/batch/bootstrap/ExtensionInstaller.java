@@ -21,22 +21,22 @@ package org.sonar.batch.bootstrap;
 
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 public class ExtensionInstaller {
 
-  private final BatchPluginRepository pluginRepository;
+  private final PluginRepository pluginRepository;
   private final EnvironmentInformation env;
   private final DefaultAnalysisMode analysisMode;
 
-  public ExtensionInstaller(BatchPluginRepository pluginRepository, EnvironmentInformation env, DefaultAnalysisMode analysisMode) {
+  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env, DefaultAnalysisMode analysisMode) {
     this.pluginRepository = pluginRepository;
     this.env = env;
     this.analysisMode = analysisMode;
@@ -50,11 +50,10 @@ public class ExtensionInstaller {
     }
 
     // plugin extensions
-    for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
-      PluginMetadata metadata = entry.getKey();
-      Plugin plugin = entry.getValue();
+    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+      Plugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
       for (Object extension : plugin.getExtensions()) {
-        doInstall(container, matcher, metadata, extension);
+        doInstall(container, matcher, pluginInfo, extension);
       }
     }
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
@@ -71,13 +70,13 @@ public class ExtensionInstaller {
     return this;
   }
 
-  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, Object extension) {
+  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
       && (analysisMode.isDb() || !ExtensionUtils.requiresDB(extension))
       && matcher.accept(extension)) {
-      container.addExtension(metadata, extension);
+      container.addExtension(pluginInfo, extension);
     } else {
-      container.declareExtension(metadata, extension);
+      container.declareExtension(pluginInfo, extension);
     }
   }
 

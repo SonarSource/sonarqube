@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.*;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.postjob.PostJobOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;

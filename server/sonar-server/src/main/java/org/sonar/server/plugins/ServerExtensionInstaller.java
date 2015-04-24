@@ -24,40 +24,43 @@ import com.google.common.collect.ListMultimap;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.util.Map;
 
 /**
- * This class adds to picocontainer the server extensions provided by plugins
+ * Loads the plugins server extensions and injects them to DI container
  */
-public class ServerExtensionInstaller {
-  private PluginRepository pluginRepository;
+public class ServerExtensionInstaller implements ServerComponent {
+
+  private final PluginRepository pluginRepository;
 
   public ServerExtensionInstaller(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
   }
 
   public void installExtensions(ComponentContainer container) {
-    ListMultimap<PluginMetadata, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
+    ListMultimap<PluginInfo, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
 
-    for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {
-      Plugin plugin = pluginRepository.getPlugin(pluginMetadata.getKey());
-      container.addExtension(pluginMetadata, plugin);
+    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+      String pluginKey = pluginInfo.getKey();
+      Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+      container.addExtension(pluginInfo, plugin);
 
       for (Object extension : plugin.getExtensions()) {
-        if (installExtension(container, pluginMetadata, extension, true) != null) {
-          installedExtensionsByPlugin.put(pluginMetadata, extension);
+        if (installExtension(container, pluginInfo, extension, true) != null) {
+          installedExtensionsByPlugin.put(pluginInfo, extension);
         } else {
-          container.declareExtension(pluginMetadata, extension);
+          container.declareExtension(pluginInfo, extension);
         }
       }
     }
-    for (Map.Entry<PluginMetadata, Object> entry : installedExtensionsByPlugin.entries()) {
-      PluginMetadata plugin = entry.getKey();
+    for (Map.Entry<PluginInfo, Object> entry : installedExtensionsByPlugin.entries()) {
+      PluginInfo plugin = entry.getKey();
       Object extension = entry.getValue();
       if (isExtensionProvider(extension)) {
         ExtensionProvider provider = (ExtensionProvider) container.getComponentByKey(extension);
@@ -66,25 +69,25 @@ public class ServerExtensionInstaller {
     }
   }
 
-  private void installProvider(ComponentContainer container, PluginMetadata plugin, ExtensionProvider provider) {
+  private void installProvider(ComponentContainer container, PluginInfo pluginInfo, ExtensionProvider provider) {
     Object obj = provider.provide();
     if (obj != null) {
       if (obj instanceof Iterable) {
         for (Object ext : (Iterable) obj) {
-          installExtension(container, plugin, ext, false);
+          installExtension(container, pluginInfo, ext, false);
         }
       } else {
-        installExtension(container, plugin, obj, false);
+        installExtension(container, pluginInfo, obj, false);
       }
     }
   }
 
-  Object installExtension(ComponentContainer container, PluginMetadata pluginMetadata, Object extension, boolean acceptProvider) {
+  Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
     if (isType(extension, ServerExtension.class)) {
       if (!acceptProvider && isExtensionProvider(extension)) {
         throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
       }
-      container.addExtension(pluginMetadata, extension);
+      container.addExtension(pluginInfo, extension);
       return extension;
     }
     return null;

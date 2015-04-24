@@ -25,11 +25,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import javax.annotation.Nullable;
 
@@ -47,28 +47,26 @@ public class RailsAppsDeployer implements Startable {
   private static final Logger LOG = Loggers.get(RailsAppsDeployer.class);
   private static final String ROR_PATH = "org/sonar/ror/";
 
-  private final ServerFileSystem fileSystem;
+  private final ServerFileSystem fs;
   private final PluginRepository pluginRepository;
 
-  public RailsAppsDeployer(ServerFileSystem fileSystem, PluginRepository pluginRepository) {
-    this.fileSystem = fileSystem;
+  public RailsAppsDeployer(ServerFileSystem fs, PluginRepository pluginRepository) {
+    this.fs = fs;
     this.pluginRepository = pluginRepository;
   }
 
   @Override
   public void start() {
-    LOG.info("Deploy Ruby on Rails applications");
+    LOG.info("Deploying Ruby on Rails applications");
     File appsDir = prepareRailsDirectory();
 
-    for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {
-      String pluginKey = pluginMetadata.getKey();
-      Plugin plugin = pluginRepository.getPlugin(pluginKey);
-      if (plugin != null) {
-        try {
-          deployRailsApp(appsDir, pluginKey, plugin.getClass().getClassLoader());
-        } catch (Exception e) {
-          throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
-        }
+    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+      String pluginKey = pluginInfo.getKey();
+      Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+      try {
+        deployRailsApp(appsDir, pluginKey, plugin.getClass().getClassLoader());
+      } catch (Exception e) {
+        throw new IllegalStateException(String.format("Fail to deploy Ruby on Rails application of plugin [%s]", pluginKey), e);
       }
     }
   }
@@ -80,7 +78,7 @@ public class RailsAppsDeployer implements Startable {
 
   @VisibleForTesting
   File prepareRailsDirectory() {
-    File appsDir = new File(fileSystem.getTempDir(), "ror");
+    File appsDir = new File(fs.getTempDir(), "ror");
     prepareDir(appsDir);
     return appsDir;
   }
@@ -88,7 +86,7 @@ public class RailsAppsDeployer implements Startable {
   @VisibleForTesting
   static void deployRailsApp(File appsDir, final String pluginKey, ClassLoader appClassLoader) {
     if (hasRailsApp(pluginKey, appClassLoader)) {
-      LOG.info("Deploy app: " + pluginKey);
+      LOG.info("Deploying app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
       ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, new Function<String, String>() {
         @Override

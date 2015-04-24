@@ -22,7 +22,7 @@ package org.sonar.server.plugins.ws;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -31,7 +31,6 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
-import static org.sonar.core.plugins.DefaultPluginMetadata.create;
 import static org.sonar.server.plugins.ws.PluginWSCommons.toJSon;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
@@ -40,14 +39,14 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UPGRADE;
 
 public class PluginWSCommonsTest {
-  private static final DefaultPluginMetadata GIT_PLUGIN_METADATA = create("scmgit")
+  private static final PluginInfo GIT_PLUGIN_METADATA = new PluginInfo("scmgit")
     .setName("Git")
     .setDescription("Git SCM Provider.")
-    .setVersion("1.0")
+    .setVersion(Version.create("1.0"))
     .setLicense("GNU LGPL 3")
-    .setOrganization("SonarSource")
+    .setOrganizationName("SonarSource")
     .setOrganizationUrl("http://www.sonarsource.com")
-    .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
+    .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
     .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
     .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
   private static final Plugin PLUGIN = new Plugin("p_key")
@@ -202,7 +201,7 @@ public class PluginWSCommonsTest {
     PluginUpdate pluginUpdate = new PluginUpdate();
     pluginUpdate.setRelease(
       new Release(PLUGIN, version("1.0")).addOutgoingDependency(RELEASE)
-      );
+    );
 
     jsonWriter.beginObject();
     underTest.writeUpdate(jsonWriter, pluginUpdate);

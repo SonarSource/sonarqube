@@ -24,17 +24,17 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.UserSession;
 
 public class CancelAllPluginsWsAction implements PluginsWsAction {
 
   private final PluginDownloader pluginDownloader;
-  private final ServerPluginJarsInstaller pluginJarsInstaller;
+  private final ServerPluginRepository pluginRepository;
 
-  public CancelAllPluginsWsAction(PluginDownloader pluginDownloader, ServerPluginJarsInstaller pluginJarsInstaller) {
+  public CancelAllPluginsWsAction(PluginDownloader pluginDownloader, ServerPluginRepository pluginRepository) {
     this.pluginDownloader = pluginDownloader;
-    this.pluginJarsInstaller = pluginJarsInstaller;
+    this.pluginRepository = pluginRepository;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class CancelAllPluginsWsAction implements PluginsWsAction {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     pluginDownloader.cancelDownloads();
-    pluginJarsInstaller.cancelUninstalls();
+    pluginRepository.cancelUninstalls();
 
     response.noContent();
   }

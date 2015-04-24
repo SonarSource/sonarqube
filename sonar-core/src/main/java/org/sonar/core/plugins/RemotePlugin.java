@@ -20,6 +20,7 @@
 package org.sonar.core.plugins;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileHashes;
 
 import java.io.File;
@@ -34,7 +35,7 @@ public class RemotePlugin {
     this.core = core;
   }
 
-  public static RemotePlugin create(DefaultPluginMetadata metadata) {
+  public static RemotePlugin create(PluginInfo metadata) {
     RemotePlugin result = new RemotePlugin(metadata.getKey(), metadata.isCore());
     result.setFile(metadata.getFile());
     return result;

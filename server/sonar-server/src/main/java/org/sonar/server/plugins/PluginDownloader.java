@@ -25,7 +25,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
@@ -48,6 +48,10 @@ import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 
+/**
+ * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then
+ * moved to extensions/plugins after server restart.
+ */
 public class PluginDownloader implements Startable {
 
   private static final Logger LOG = Loggers.get(PluginDownloader.class);
@@ -56,21 +60,17 @@ public class PluginDownloader implements Startable {
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final HttpDownloader downloader;
-  private final ServerPluginJarInstaller installer;
   private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader,
-                          DefaultServerFileSystem fileSystem, ServerPluginJarInstaller installer) {
+    DefaultServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
-    this.installer = installer;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
   }
 
   /**
-   * Delete the temporary files remaining from previous downloads
-   *
-   * @see #downloadRelease(org.sonar.updatecenter.common.Release)
+   * Deletes the temporary files remaining from previous downloads
    */
   @Override
   public void start() {
@@ -112,10 +112,10 @@ public class PluginDownloader implements Startable {
   }
 
   /**
-   * @return the list of download plugins as {@link DefaultPluginMetadata} instances
+   * @return the list of download plugins as {@link PluginInfo} instances
    */
-  public Collection<DefaultPluginMetadata> getDownloadedPlugins() {
-    return newArrayList(transform(listPlugins(this.downloadDir), installer.fileToPlugin()));
+  public Collection<PluginInfo> getDownloadedPlugins() {
+    return newArrayList(transform(listPlugins(this.downloadDir), PluginInfo.JarToPluginInfo.INSTANCE));
   }
 
   public void download(String pluginKey, Version version) {
@@ -154,10 +154,10 @@ public class PluginDownloader implements Startable {
   }
 
   private static Collection<File> listTempFile(File dir) {
-    return FileUtils.listFiles(dir, new String[]{TMP_SUFFIX}, false);
+    return FileUtils.listFiles(dir, new String[] {TMP_SUFFIX}, false);
   }
 
   private static Collection<File> listPlugins(File dir) {
-    return FileUtils.listFiles(dir, new String[]{PLUGIN_EXTENSION}, false);
+    return FileUtils.listFiles(dir, new String[] {PLUGIN_EXTENSION}, false);
   }
 }

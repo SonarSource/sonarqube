@@ -19,35 +19,30 @@
  */
 package org.sonar.core.i18n;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.sonar.api.Plugin;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
+/**
+ * Aggregation of all plugin and core classloaders, used to search for all l10n bundles
+ */
 class I18nClassloader extends URLClassLoader {
 
-  private static List<ClassLoader> classLoadersFromPlugin(PluginRepository pluginRepository) {
-    List<ClassLoader> list = Lists.newArrayList();
-    for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-      Plugin plugin = pluginRepository.getPlugin(metadata.getKey());
-      list.add(plugin.getClass().getClassLoader());
-    }
-    return list;
-  }
-
-  private ClassLoader[] pluginClassloaders;
+  private final ClassLoader[] pluginClassloaders;
 
   public I18nClassloader(PluginRepository pluginRepository) {
-    this(classLoadersFromPlugin(pluginRepository));
+    this(allPluginClassloaders(pluginRepository));
   }
 
+  @VisibleForTesting
   I18nClassloader(List<ClassLoader> pluginClassloaders) {
     super(new URL[0]);
-    pluginClassloaders.add(getClass().getClassLoader());
     this.pluginClassloaders = pluginClassloaders.toArray(new ClassLoader[pluginClassloaders.size()]);
   }
 
@@ -59,7 +54,7 @@ class I18nClassloader extends URLClassLoader {
         return url;
       }
     }
-    return null;
+    return getClass().getClassLoader().getResource(name);
   }
 
   @Override
@@ -70,5 +65,16 @@ class I18nClassloader extends URLClassLoader {
   @Override
   public String toString() {
     return "i18n-classloader";
+  }
+
+  private static List<ClassLoader> allPluginClassloaders(PluginRepository pluginRepository) {
+    // accepted limitation: some plugins extend base plugins, sharing the same classloader, so
+    // there may be duplicated classloaders in the list.
+    List<ClassLoader> list = Lists.newArrayList();
+    for (PluginInfo info : pluginRepository.getPluginInfos()) {
+      Plugin plugin = pluginRepository.getPluginInstance(info.getKey());
+      list.add(plugin.getClass().getClassLoader());
+    }
+    return list;
   }
 }

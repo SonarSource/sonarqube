@@ -28,8 +28,8 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -54,17 +54,15 @@ public class DebtModelPluginRepositoryTest {
   @Test
   public void test_component_initialization() throws Exception {
     // we do have the "csharp-model.xml" file in src/test/resources
-    PluginMetadata csharpPluginMetadata = mock(PluginMetadata.class);
-    when(csharpPluginMetadata.getKey()).thenReturn("csharp");
+    PluginInfo csharpPluginMetadata = new PluginInfo("csharp");
 
     // but we don' have the "php-model.xml" one
-    PluginMetadata phpPluginMetadata = mock(PluginMetadata.class);
-    when(phpPluginMetadata.getKey()).thenReturn("php");
+    PluginInfo phpPluginMetadata = new PluginInfo("php");
 
     PluginRepository repository = mock(PluginRepository.class);
-    when(repository.getMetadata()).thenReturn(Lists.newArrayList(csharpPluginMetadata, phpPluginMetadata));
+    when(repository.getPluginInfos()).thenReturn(Lists.newArrayList(csharpPluginMetadata, phpPluginMetadata));
     FakePlugin fakePlugin = new FakePlugin();
-    when(repository.getPlugin(anyString())).thenReturn(fakePlugin);
+    when(repository.getPluginInstance(anyString())).thenReturn(fakePlugin);
     modelFinder = new DebtModelPluginRepository(repository, TEST_XML_PREFIX_PATH);
 
     // when

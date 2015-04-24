@@ -19,17 +19,17 @@
  */
 package org.sonar.server.plugins.ws;
 
-import java.io.File;
 import org.junit.Test;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Version;
+
+import java.io.File;
 
 import static com.google.common.collect.ImmutableList.of;
-import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,12 +42,12 @@ public class InstalledPluginsWsActionTest {
       "  \"plugins\":" + "[]" +
       "}";
 
-  private PluginRepository pluginRepository = mock(PluginRepository.class);
+  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   private InstalledPluginsWsAction underTest = new InstalledPluginsWsAction(pluginRepository, new PluginWSCommons());
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
-  private PluginMetadata corePlugin = corePlugin("core1", 10);
+  private PluginInfo corePlugin = corePlugin("core1", "1.0");
 
   @Test
   public void action_installed_is_defined() {
@@ -75,7 +75,7 @@ public class InstalledPluginsWsActionTest {
 
   @Test
   public void core_plugin_are_not_returned() throws Exception {
-    when(pluginRepository.getMetadata()).thenReturn(of(corePlugin));
+    when(pluginRepository.getPluginInfos()).thenReturn(of(corePlugin));
 
     underTest.handle(request, response);
 
@@ -84,9 +84,9 @@ public class InstalledPluginsWsActionTest {
 
   @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
-    when(pluginRepository.getMetadata()).thenReturn(
+    when(pluginRepository.getPluginInfos()).thenReturn(
       of(
-      (PluginMetadata) DefaultPluginMetadata.create("").setName("").setCore(false)
+      new PluginInfo("").setName("").setCore(false)
       )
       );
 
@@ -98,14 +98,14 @@ public class InstalledPluginsWsActionTest {
   @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
-    when(pluginRepository.getMetadata()).thenReturn(of(
-      (PluginMetadata) DefaultPluginMetadata.create("plugKey").setName("plugName").setCore(false)
+    when(pluginRepository.getPluginInfos()).thenReturn(of(
+      new PluginInfo("plugKey").setName("plugName").setCore(false)
         .setDescription("desc_it")
-        .setVersion(valueOf(10))
+        .setVersion(Version.create("1.0"))
         .setLicense("license_hey")
-        .setOrganization("org_name")
+        .setOrganizationName("org_name")
         .setOrganizationUrl("org_url")
-        .setHomepage("homepage_url")
+        .setHomepageUrl("homepage_url")
         .setIssueTrackerUrl("issueTracker_url")
         .setFile(new File(getClass().getResource(jarFilename).toURI()))
         .setImplementationBuild("sou_rev_sha1")
@@ -122,7 +122,7 @@ public class InstalledPluginsWsActionTest {
         "      \"key\": \"plugKey\"," +
         "      \"name\": \"plugName\"," +
         "      \"description\": \"desc_it\"," +
-        "      \"version\": \"10\"," +
+        "      \"version\": \"1.0\"," +
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\"," +
@@ -137,7 +137,7 @@ public class InstalledPluginsWsActionTest {
 
   @Test
   public void plugins_are_sorted_by_name_then_key_and_only_one_plugin_can_have_a_specific_name() throws Exception {
-    when(pluginRepository.getMetadata()).thenReturn(
+    when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
         plugin("B", "name1"),
@@ -163,7 +163,7 @@ public class InstalledPluginsWsActionTest {
 
   @Test
   public void only_one_plugin_can_have_a_specific_name_and_key() throws Exception {
-    when(pluginRepository.getMetadata()).thenReturn(
+    when(pluginRepository.getPluginInfos()).thenReturn(
       of(
         plugin("A", "name2"),
         plugin("A", "name2")
@@ -183,15 +183,15 @@ public class InstalledPluginsWsActionTest {
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
   }
 
-  private static PluginMetadata corePlugin(String key, int version) {
-    return DefaultPluginMetadata.create(key).setName(key).setCore(true).setVersion(valueOf(version));
+  private static PluginInfo corePlugin(String key, String version) {
+    return new PluginInfo(key).setName(key).setCore(true).setVersion(Version.create(version));
   }
 
-  private static PluginMetadata plugin(String key, String name, int version) {
-    return DefaultPluginMetadata.create(key).setName(name).setCore(false).setVersion(valueOf(version));
+  private static PluginInfo plugin(String key, String name, String version) {
+    return new PluginInfo(key).setName(name).setCore(false).setVersion(Version.create(version));
   }
 
-  private static PluginMetadata plugin(String key, String name) {
-    return DefaultPluginMetadata.create(key).setName(name).setCore(false).setVersion("1.0");
+  private static PluginInfo plugin(String key, String name) {
+    return new PluginInfo(key).setName(name).setCore(false).setVersion(Version.create("1.0"));
   }
 }

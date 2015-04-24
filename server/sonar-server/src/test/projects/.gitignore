@@ -1,0 +1,7 @@
+# see README.txt
+!*/target/
+*/target/classes/
+*/target/maven-archiver/
+*/target/maven-status/
+*/target/test-*/
+

@@ -19,19 +19,15 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -45,11 +41,10 @@ public class UninstallPluginsWsActionTest {
   private static final String CONTROLLER_KEY = "api/plugins";
   private static final String ACTION_KEY = "uninstall";
   private static final String KEY_PARAM = "key";
-  private static final String PLUGIN_KEY = "pluginKey";
+  private static final String PLUGIN_KEY = "findbugs";
 
-  private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private ServerPluginJarsInstaller pluginJarsInstaller = mock(ServerPluginJarsInstaller.class);
-  private UninstallPluginsWsAction underTest = new UninstallPluginsWsAction(pluginRepository, pluginJarsInstaller);
+  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+  private UninstallPluginsWsAction underTest = new UninstallPluginsWsAction(pluginRepository);
 
   private WsTester wsTester = new WsTester(new PluginsWs(underTest));
   private Request invalidRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY);
@@ -109,20 +104,18 @@ public class UninstallPluginsWsActionTest {
   @Test
   public void IAE_is_raised_when_plugin_is_not_installed() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No plugin with key 'pluginKey'");
+    expectedException.expectMessage("Plugin [findbugs] is not installed");
 
     underTest.handle(validRequest, response);
   }
 
   @Test
   public void if_plugin_is_installed_uninstallation_is_triggered() throws Exception {
-    when(pluginRepository.getMetadata()).thenReturn(ImmutableList.<PluginMetadata>of(
-      DefaultPluginMetadata.create(PLUGIN_KEY)
-      ));
+    when(pluginRepository.hasPlugin(PLUGIN_KEY)).thenReturn(true);
 
     underTest.handle(validRequest, response);
 
-    verify(pluginJarsInstaller).uninstall(PLUGIN_KEY);
+    verify(pluginRepository).uninstall(PLUGIN_KEY);
     assertThat(response.outputAsString()).isEmpty();
   }
 

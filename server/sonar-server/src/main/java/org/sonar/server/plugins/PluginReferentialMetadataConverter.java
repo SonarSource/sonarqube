@@ -19,10 +19,11 @@
  */
 package org.sonar.server.plugins;
 
-import org.sonar.api.platform.PluginMetadata;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.PluginReferentialManifestConverter;
+import org.sonar.updatecenter.common.Version;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,14 +36,14 @@ public class PluginReferentialMetadataConverter {
     // Only static call
   }
 
-  public static PluginReferential getInstalledPluginReferential(Collection<PluginMetadata> metadata) {
+  public static PluginReferential getInstalledPluginReferential(Collection<PluginInfo> metadata) {
     List<PluginManifest> pluginManifestList = getPluginManifestList(metadata);
     return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList);
   }
 
-  private static List<PluginManifest> getPluginManifestList(Collection<PluginMetadata> metadata) {
+  private static List<PluginManifest> getPluginManifestList(Collection<PluginInfo> metadata) {
     List<PluginManifest> pluginManifestList = newArrayList();
-    for (PluginMetadata plugin : metadata) {
+    for (PluginInfo plugin : metadata) {
       if (!plugin.isCore()) {
         pluginManifestList.add(toPluginManifest(plugin));
       }
@@ -50,20 +51,23 @@ public class PluginReferentialMetadataConverter {
     return pluginManifestList;
   }
 
-  private static PluginManifest toPluginManifest(PluginMetadata metadata) {
+  private static PluginManifest toPluginManifest(PluginInfo metadata) {
     PluginManifest pluginManifest = new PluginManifest();
     pluginManifest.setKey(metadata.getKey());
     pluginManifest.setName(metadata.getName());
-    pluginManifest.setVersion(metadata.getVersion());
+    Version version = metadata.getVersion();
+    if (version != null) {
+      pluginManifest.setVersion(version.getName());
+    }
     pluginManifest.setDescription(metadata.getDescription());
     pluginManifest.setMainClass(metadata.getMainClass());
-    pluginManifest.setOrganization(metadata.getOrganization());
+    pluginManifest.setOrganization(metadata.getOrganizationName());
     pluginManifest.setOrganizationUrl(metadata.getOrganizationUrl());
     pluginManifest.setLicense(metadata.getLicense());
-    pluginManifest.setHomepage(metadata.getHomepage());
+    pluginManifest.setHomepage(metadata.getHomepageUrl());
     pluginManifest.setIssueTrackerUrl(metadata.getIssueTrackerUrl());
     pluginManifest.setBasePlugin(metadata.getBasePlugin());
-    pluginManifest.setRequirePlugins(metadata.getRequiredPlugins().toArray(new String []{}));
+    pluginManifest.setRequirePlugins(metadata.getRequiredPlugins().toArray(new String[] {}));
     return pluginManifest;
   }
 }

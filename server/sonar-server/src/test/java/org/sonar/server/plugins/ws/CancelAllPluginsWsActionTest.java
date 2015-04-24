@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -41,8 +41,8 @@ public class CancelAllPluginsWsActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private ServerPluginJarsInstaller pluginJarsInstaller = mock(ServerPluginJarsInstaller.class);
-  private CancelAllPluginsWsAction underTest = new CancelAllPluginsWsAction(pluginDownloader, pluginJarsInstaller);
+  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+  private CancelAllPluginsWsAction underTest = new CancelAllPluginsWsAction(pluginDownloader, pluginRepository);
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
@@ -90,7 +90,7 @@ public class CancelAllPluginsWsActionTest {
     underTest.handle(request, response);
 
     verify(pluginDownloader, times(1)).cancelDownloads();
-    verify(pluginJarsInstaller, times(1)).cancelUninstalls();
+    verify(pluginRepository, times(1)).cancelUninstalls();
     assertThat(response.outputAsString()).isEmpty();
   }
 

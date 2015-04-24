@@ -597,6 +597,11 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-classloader</artifactId>
+        <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-markdown</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -706,11 +711,6 @@
             <artifactId>classworlds</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-classworlds</artifactId>
-        <version>2.5.1</version>
       </dependency>
       <dependency>
         <groupId>com.tinkerpop.blueprints</groupId>

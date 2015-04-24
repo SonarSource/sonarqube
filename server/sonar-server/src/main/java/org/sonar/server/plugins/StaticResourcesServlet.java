@@ -22,8 +22,10 @@ package org.sonar.server.plugins;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.Platform;
 
 import javax.servlet.ServletException;
@@ -45,29 +47,25 @@ public class StaticResourcesServlet extends HttpServlet {
     String pluginKey = getPluginKey(request);
     String resource = getResourcePath(request);
 
-    ServerPluginRepository pluginRepository = Platform.getInstance().getContainer().getComponentByType(ServerPluginRepository.class);
-    ClassLoader classLoader = pluginRepository.getClassLoader(pluginKey);
-    if (classLoader == null) {
-      LOG.error("Plugin not found: " + pluginKey);
+    PluginRepository pluginRepository = Platform.getInstance().getContainer().getComponentByType(PluginRepository.class);
+    if (!pluginRepository.hasPlugin(pluginKey)) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
     InputStream in = null;
     OutputStream out = null;
     try {
-      in = classLoader.getResourceAsStream(resource);
+      in = pluginRepository.getPluginInstance(pluginKey).getClass().getClassLoader().getResourceAsStream(resource);
       if (in != null) {
         // mime type must be set before writing response body
         completeContentType(response, resource);
         out = response.getOutputStream();
         IOUtils.copy(in, out);
-
       } else {
-        LOG.error("Unable to find resource '" + resource + "' in plugin '" + pluginKey + "'");
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
       }
     } catch (Exception e) {
-      LOG.error("Unable to load static resource '" + resource + "' from plugin '" + pluginKey + "'", e);
+      LOG.error(String.format("Unable to load resource [%s] from plugin [%s]", resource, pluginKey), e);
       response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     } finally {
       IOUtils.closeQuietly(in);

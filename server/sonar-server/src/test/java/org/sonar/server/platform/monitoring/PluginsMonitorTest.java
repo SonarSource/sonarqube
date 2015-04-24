@@ -21,22 +21,22 @@
 package org.sonar.server.platform.monitoring;
 
 import org.junit.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
-import org.sonar.core.plugins.DefaultPluginMetadata;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
+import org.sonar.updatecenter.common.Version;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluginsMonitorTest {
 
-  PluginsMonitor sut = new PluginsMonitor(new FakePluginRepository());;
+  PluginRepository repo = mock(PluginRepository.class);
+  PluginsMonitor sut = new PluginsMonitor(repo);
 
   @Test
   public void name() {
@@ -44,42 +44,28 @@ public class PluginsMonitorTest {
   }
 
   @Test
-  public void plugin_name_and_version() {
+  public void plugin_name_and_version() throws Exception {
+    when(repo.getPluginInfos()).thenReturn(Arrays.asList(
+      new PluginInfo("key-1")
+        .setName("plugin-1")
+        .setVersion(Version.create("1.1")),
+      new PluginInfo("key-2")
+        .setName("plugin-2")
+        .setVersion(Version.create("2.2")),
+      new PluginInfo("no-version")
+        .setName("No Version")));
+
     LinkedHashMap<String, Object> attributes = sut.attributes();
 
     assertThat(attributes).containsKeys("key-1", "key-2");
     assertThat((Map) attributes.get("key-1"))
       .containsEntry("Name", "plugin-1")
       .containsEntry("Version", "1.1");
-    assertThat((Map)attributes.get("key-2"))
+    assertThat((Map) attributes.get("key-2"))
       .containsEntry("Name", "plugin-2")
       .containsEntry("Version", "2.2");
-  }
-
-  private static class FakePluginRepository implements PluginRepository {
-
-    @Override
-    public Plugin getPlugin(String key) {
-      return null;
-    }
-
-    @Override
-    public Collection<PluginMetadata> getMetadata() {
-      List<PluginMetadata> plugins = new ArrayList<>();
-      plugins.add(DefaultPluginMetadata
-        .create("key-1")
-        .setName("plugin-1")
-        .setVersion("1.1"));
-      plugins.add(DefaultPluginMetadata
-        .create("key-2")
-        .setName("plugin-2")
-        .setVersion("2.2"));
-      return plugins;
-    }
-
-    @Override
-    public PluginMetadata getMetadata(String pluginKey) {
-      return null;
-    }
+    assertThat((Map) attributes.get("no-version"))
+      .containsEntry("Name", "No Version")
+      .doesNotContainKey("Version");
   }
 }

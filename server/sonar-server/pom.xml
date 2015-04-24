@@ -248,7 +248,19 @@
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
+
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+      <testResource>
+        <directory>src/test/projects</directory>
+        <filtering>false</filtering>
+      </testResource>
+
+    </testResources>
 
     <plugins>
       <plugin>

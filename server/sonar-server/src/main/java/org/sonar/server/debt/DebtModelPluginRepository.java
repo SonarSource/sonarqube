@@ -25,9 +25,9 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.Charsets;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -45,7 +45,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * they must be named "<pluginKey>-model.xml".
  * </p>
  */
-public class DebtModelPluginRepository implements ServerExtension, Startable {
+public class DebtModelPluginRepository implements ServerComponent, Startable {
 
   public static final String DEFAULT_MODEL = "technical-debt";
 
@@ -87,14 +87,12 @@ public class DebtModelPluginRepository implements ServerExtension, Startable {
       contributingPluginKeyToClassLoader = Maps.newTreeMap();
       // Add default model
       contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
-      for (PluginMetadata metadata : pluginRepository.getMetadata()) {
-        String pluginKey = metadata.getKey();
-        Plugin plugin = pluginRepository.getPlugin(pluginKey);
-        if (plugin != null) {
-          ClassLoader classLoader = plugin.getClass().getClassLoader();
-          if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
-            contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
-          }
+      for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+        String pluginKey = pluginInfo.getKey();
+        Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+        ClassLoader classLoader = plugin.getClass().getClassLoader();
+        if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
+          contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
         }
       }
     }

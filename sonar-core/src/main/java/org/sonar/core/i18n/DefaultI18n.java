@@ -20,41 +20,49 @@
 package org.sonar.core.i18n;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Maps;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.IOUtils;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 
-public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Startable {
+public class DefaultI18n implements I18n, Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultI18n.class);
+  private static final Logger LOG = Loggers.get(DefaultI18n.class);
+  private static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
 
-  public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
-
-  private PluginRepository pluginRepository;
-  private ClassLoader classloader;
-  private Map<String, String> propertyToBundles;
+  private final PluginRepository pluginRepository;
   private final ResourceBundle.Control control;
   private final System2 system2;
+
+  // the following fields are available after startup
+  private ClassLoader classloader;
+  private Map<String, String> propertyToBundles;
 
   public DefaultI18n(PluginRepository pluginRepository) {
     this(pluginRepository, System2.INSTANCE);
@@ -68,9 +76,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     this.control = new ResourceBundle.Control() {
       @Override
       public Locale getFallbackLocale(String baseName, Locale locale) {
-        if (baseName == null) {
-          throw new NullPointerException();
-        }
+        Preconditions.checkNotNull(baseName);
         Locale defaultLocale = Locale.ENGLISH;
         return locale.equals(defaultLocale) ? null : defaultLocale;
       }
@@ -85,16 +91,16 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   @VisibleForTesting
   void doStart(ClassLoader classloader) {
     this.classloader = classloader;
-    propertyToBundles = Maps.newHashMap();
-    Collection<PluginMetadata> metadata = pluginRepository.getMetadata();
-    if (metadata.isEmpty()) {
+    this.propertyToBundles = new HashMap<>();
+    Collection<PluginInfo> infos = pluginRepository.getPluginInfos();
+    if (infos.isEmpty()) {
       addPlugin("core");
     } else {
-      for (PluginMetadata plugin : pluginRepository.getMetadata()) {
+      for (PluginInfo plugin : infos) {
         addPlugin(plugin.getKey());
       }
     }
-    LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
+    LOG.debug("Loaded {} properties from l10n bundles", propertyToBundles.size());
   }
 
   private void addPlugin(String pluginKey) {
@@ -113,6 +119,9 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
 
   @Override
   public void stop() {
+    if (classloader instanceof Closeable) {
+      IOUtils.closeQuietly((Closeable)classloader);
+    }
     classloader = null;
     propertyToBundles = null;
   }

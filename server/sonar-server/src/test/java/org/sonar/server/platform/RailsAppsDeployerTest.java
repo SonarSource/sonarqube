@@ -23,9 +23,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 import java.io.File;
 import java.net.URL;
@@ -77,7 +77,7 @@ public class RailsAppsDeployerTest {
     when(fileSystem.getTempDir()).thenReturn(tempDir);
 
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    when(pluginRepository.getMetadata()).thenReturn(Collections.<PluginMetadata>emptyList());
+    when(pluginRepository.getPluginInfos()).thenReturn(Collections.<PluginInfo>emptyList());
     new RailsAppsDeployer(fileSystem, pluginRepository).start();
 
     File appDir = new File(tempDir, "ror");
