@@ -1,3 +1,10 @@
+/*
+  WARNING - THIS FILE IS USED ONLY A TEMPLATE USED BY HtmlDecorator
+  The CSS file used by webapp is defined at in the sonar-web module (see sonar-colorizer.less)
+
+  Any modification of this file must be applied to the sonar-web less file.
+*/
+
 .code {
   font-size: 12px;
 }
