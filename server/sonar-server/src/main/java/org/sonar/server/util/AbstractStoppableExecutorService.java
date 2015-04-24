@@ -45,11 +45,13 @@ public abstract class AbstractStoppableExecutorService implements StoppableExecu
 
   @Override
   public void stop() {
-    delegate.shutdown(); // Disable new tasks from being submitted
+    // Disable new tasks from being submitted
+    delegate.shutdown();
     try {
       // Wait a while for existing tasks to terminate
       if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
-        delegate.shutdownNow(); // Cancel currently executing tasks
+        // Cancel currently executing tasks
+        delegate.shutdownNow();
         // Wait a while for tasks to respond to being cancelled
         if (!delegate.awaitTermination(5, TimeUnit.SECONDS)) {
           Loggers.get(getClass()).error(format("Pool %s did not terminate", getClass().getSimpleName()));

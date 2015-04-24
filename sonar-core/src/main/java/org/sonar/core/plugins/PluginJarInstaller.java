@@ -88,8 +88,12 @@ public abstract class PluginJarInstaller implements BatchComponent, ServerCompon
     }
   }
 
-  public Function<File, DefaultPluginMetadata> fileToPlugin(boolean core) {
-    return core ? jarFileToCorePlugin : jarFileToPlugin;
+  public Function<File, DefaultPluginMetadata> fileToPlugin() {
+    return jarFileToPlugin;
+  }
+
+  public Function<File, DefaultPluginMetadata> fileToCorePlugin() {
+    return jarFileToCorePlugin;
   }
 
   private final Function<File, DefaultPluginMetadata> jarFileToCorePlugin = new Function<File, DefaultPluginMetadata>() {

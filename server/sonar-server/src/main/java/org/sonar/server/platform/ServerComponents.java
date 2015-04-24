@@ -411,7 +411,7 @@ class ServerComponents {
   /**
    * All the stuff required to connect to database
    */
-  Collection<?> level1Components() {
+  Collection<Object> level1Components() {
     List<Object> components = Lists.newArrayList(platform, properties);
     addExtraRootComponents(components);
     components.addAll(Arrays.asList(

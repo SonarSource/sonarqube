@@ -115,7 +115,7 @@ public class PluginDownloader implements Startable {
    * @return the list of download plugins as {@link DefaultPluginMetadata} instances
    */
   public Collection<DefaultPluginMetadata> getDownloadedPlugins() {
-    return newArrayList(transform(listPlugins(this.downloadDir), installer.fileToPlugin(false)));
+    return newArrayList(transform(listPlugins(this.downloadDir), installer.fileToPlugin()));
   }
 
   public void download(String pluginKey, Version version) {

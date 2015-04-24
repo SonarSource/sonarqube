@@ -102,7 +102,7 @@ public class ServerPluginJarsInstaller {
 
   private void loadInstalledPlugins() {
     for (File file : fs.getUserPlugins()) {
-      PluginMetadata metadata = installer.fileToPlugin(false).apply(file);
+      PluginMetadata metadata = installer.fileToPlugin().apply(file);
       if (isNotBlank(metadata.getKey())) {
         loadInstalledPlugin(metadata);
       }
@@ -132,7 +132,7 @@ public class ServerPluginJarsInstaller {
   private void copyBundledPlugins() {
     if (serverUpgradeStatus.isFreshInstall()) {
       for (File sourceFile : fs.getBundledPlugins()) {
-        PluginMetadata metadata = installer.fileToPlugin(false).apply(sourceFile);
+        PluginMetadata metadata = installer.fileToPlugin().apply(sourceFile);
         // lib/bundled-plugins should be copied only if the plugin is not already
         // available in extensions/plugins
         if (!pluginByKeys.containsKey(metadata.getKey())) {
@@ -161,7 +161,7 @@ public class ServerPluginJarsInstaller {
         sourceFile.getAbsolutePath(), destFile.getAbsolutePath()), e);
     }
 
-    PluginMetadata metadata = installer.fileToPlugin(false).apply(destFile);
+    PluginMetadata metadata = installer.fileToPlugin().apply(destFile);
     if (isNotBlank(metadata.getKey())) {
       PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
       if (existing != null) {
@@ -175,7 +175,7 @@ public class ServerPluginJarsInstaller {
 
   private void loadCorePlugins() {
     for (File file : fs.getCorePlugins()) {
-      PluginMetadata metadata = installer.fileToPlugin(true).apply(file);
+      PluginMetadata metadata = installer.fileToCorePlugin().apply(file);
       PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
       if (existing != null) {
         throw new IllegalStateException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
@@ -218,7 +218,7 @@ public class ServerPluginJarsInstaller {
       return Collections.emptyList();
     }
 
-    return newArrayList(transform(listJarFiles(fs.getTrashPluginsDir()), installer.fileToPlugin(false)));
+    return newArrayList(transform(listJarFiles(fs.getTrashPluginsDir()), installer.fileToPlugin()));
   }
 
   public void cancelUninstalls() {
