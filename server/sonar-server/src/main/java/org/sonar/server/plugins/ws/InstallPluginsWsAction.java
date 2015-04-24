@@ -21,6 +21,7 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,8 +30,6 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
-
-import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 
@@ -56,6 +55,8 @@ public class InstallPluginsWsAction implements PluginsWsAction {
     WebService.NewAction action = controller.createAction("install")
       .setPost(true)
       .setDescription("Installs the latest version of a plugin specified by its key." +
+        "<br/>" +
+        "Plugin information is retrieved from Update Center." +
         "<br/>" +
         "Requires user to be authenticated with Administer System permissions")
       .setHandler(this);

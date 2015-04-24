@@ -20,6 +20,7 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Predicate;
+import javax.annotation.Nullable;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.server.ws.Request;
@@ -28,8 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.ServerPluginJarsInstaller;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
 
 import static com.google.common.collect.Iterables.find;
 import static java.lang.String.format;
@@ -53,6 +52,8 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
     WebService.NewAction action = controller.createAction("uninstall")
       .setPost(true)
       .setDescription("Uninstalls the plugin specified by its key." +
+        "<br/>" +
+        "Plugin information is retrieved from Update Center." +
         "<br/>" +
         "Requires user to be authenticated with Administer System permissions")
       .setHandler(this);
