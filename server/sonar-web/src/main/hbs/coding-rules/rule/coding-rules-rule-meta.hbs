@@ -1,10 +1,18 @@
-<h3 class="coding-rules-detail-header">
-  {{name}}
-  <a class="coding-rules-detail-permalink icon-link" target="_blank" href="{{permalink}}"
-     data-toggle="tooltip" data-placement="left" title="Rule permalink"></a>
-</h3>
+<header class="page-header">
+  <h3 class="page-title coding-rules-detail-header">
+    <big>{{name}}</big>
+  </h3>
+  <div class="page-actions">
+    <a class="coding-rules-detail-permalink icon-link" target="_blank" href="{{permalink}}"
+       data-toggle="tooltip" data-placement="left" title="Rule permalink"></a>
 
-<span class="note">{{key}}</span>
+    <a class="js-rule-filter link-no-underline spacer-left" href="#">
+      <i class="icon-filter icon-half-transparent"></i>&nbsp;<i class="icon-dropdown"></i>
+    </a>
+  </div>
+</header>
+
+<p class="note">{{key}}</p>
 
 <ul class="coding-rules-detail-properties">
   {{#unless isManual}}

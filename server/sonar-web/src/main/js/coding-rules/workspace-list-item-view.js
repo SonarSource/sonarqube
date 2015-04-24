@@ -20,13 +20,13 @@
 define([
   'components/navigator/workspace-list-item-view',
   'coding-rules/rule/profile-activation-view',
-  'coding-rules/rule-filter-view',
+  'coding-rules/rule/rule-filter-mixin',
   'templates/coding-rules'
-], function (WorkspaceListItemView, ProfileActivationView, RuleFilterView) {
+], function (WorkspaceListItemView, ProfileActivationView, RuleFilterMixin) {
 
   var $ = jQuery;
 
-  return WorkspaceListItemView.extend({
+  return WorkspaceListItemView.extend(RuleFilterMixin).extend({
     className: 'coding-rule',
     template: Templates['coding-rules-workspace-list-item'],
 
@@ -94,25 +94,6 @@ define([
           });
         }
       });
-    },
-
-    onRuleFilterClick: function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      $('body').click();
-      var that = this,
-          popup = new RuleFilterView({
-        triggerEl: $(e.currentTarget),
-        bottomRight: true,
-        model: this.model
-      });
-      popup.on('select', function (property, value) {
-        var obj = {};
-        obj[property] = '' + value;
-        that.options.app.state.updateFilter(obj);
-        popup.close();
-      });
-      popup.render();
     },
 
     serializeData: function () {

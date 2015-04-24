@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'coding-rules/rule/rule-filter-mixin',
   'templates/coding-rules'
-], function () {
+], function (RuleFilterMixin) {
 
-  return Marionette.ItemView.extend({
+  return Marionette.ItemView.extend(RuleFilterMixin).extend({
     template: Templates['coding-rules-rule-meta'],
 
     modelEvents: {
@@ -40,7 +41,8 @@ define([
     events: {
       'click @ui.tagsChange': 'changeTags',
       'click @ui.tagsEditDone': 'editDone',
-      'click @ui.tagsEditCancel': 'cancelEdit'
+      'click @ui.tagsEditCancel': 'cancelEdit',
+      'click .js-rule-filter': 'onRuleFilterClick'
     },
 
     onRender: function () {
