@@ -69,4 +69,6 @@ public interface PluginMetadata {
   List<String> getRequiredPlugins();
 
   boolean isCore();
+
+  String getImplementationBuild();
 }

@@ -263,6 +263,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getImplementationBuild() {
     return implementationBuild;
   }

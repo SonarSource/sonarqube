@@ -22,6 +22,8 @@ package org.sonar.server.plugins.ws;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
+import java.util.Comparator;
+import javax.annotation.Nonnull;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.updatecenter.common.Artifact;
@@ -29,9 +31,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
-
-import javax.annotation.Nonnull;
-import java.util.Comparator;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
@@ -57,6 +56,7 @@ public class PluginWSCommons {
   static final String OBJECT_RELEASE = "release";
   static final String ARRAY_REQUIRES = "requires";
   static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
+  static final String PROPERTY_IMPLEMENTATION_BUILD = "implementationBuild";
 
   public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
@@ -89,6 +89,7 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
     jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
+    jsonWriter.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginMetadata.getImplementationBuild());
   }
 
   public void writeArtifact(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {

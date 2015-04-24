@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -26,8 +27,6 @@ import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginJarsInstaller;
 import org.sonar.server.ws.WsTester;
-
-import java.io.File;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +46,8 @@ public class PendingPluginsWsActionTest {
     .setOrganizationUrl("http://www.sonarsource.com")
     .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
     .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
-    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
+    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"))
+    .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
   public static final DefaultPluginMetadata PLUGIN_2_2 = create("key2").setName("name2");
   public static final DefaultPluginMetadata PLUGIN_2_1 = create("key1").setName("name2");
@@ -109,6 +109,7 @@ public class PendingPluginsWsActionTest {
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"," +
         "      \"artifact\": {" +
         "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +
@@ -140,6 +141,7 @@ public class PendingPluginsWsActionTest {
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"," +
         "      \"artifact\": {" +
         "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
         "      }" +

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -26,8 +27,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.ws.WsTester;
-
-import java.io.File;
 
 import static com.google.common.collect.ImmutableList.of;
 import static java.lang.String.valueOf;
@@ -109,6 +108,7 @@ public class InstalledPluginsWsActionTest {
         .setHomepage("homepage_url")
         .setIssueTrackerUrl("issueTracker_url")
         .setFile(new File(getClass().getResource(jarFilename).toURI()))
+        .setImplementationBuild("sou_rev_sha1")
       )
       );
 
@@ -128,6 +128,7 @@ public class InstalledPluginsWsActionTest {
         "      \"organizationUrl\": \"org_url\"," +
         "      \"homepage\": \"homepage_url\"," +
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
+        "      \"implementationBuild\": \"sou_rev_sha1\"," +
         "      \"artifact\":" +
         "      {" +
         "        \"name\": \"some.jar\"" +
