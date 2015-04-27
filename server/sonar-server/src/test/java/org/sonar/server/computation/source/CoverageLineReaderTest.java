@@ -56,15 +56,28 @@ public class CoverageLineReaderTest {
   }
 
   @Test
+  public void set_coverage_on_uncovered_lines() throws Exception {
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+      .setLine(1)
+      .setUtHits(false)
+      .setItHits(false)
+      .build()).iterator());
+
+    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    computeCoverageLine.read(lineBuilder);
+
+    assertThat(lineBuilder.hasUtLineHits()).isTrue();
+    assertThat(lineBuilder.getUtLineHits()).isEqualTo(0);
+    assertThat(lineBuilder.hasItLineHits()).isTrue();
+    assertThat(lineBuilder.getItLineHits()).isEqualTo(0);
+    assertThat(lineBuilder.hasOverallLineHits()).isTrue();
+    assertThat(lineBuilder.getOverallLineHits()).isEqualTo(0);
+  }
+
+  @Test
   public void set_coverage_without_line_hits() throws Exception {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
-      .setConditions(10)
-      .setUtHits(false)
-      .setUtCoveredConditions(2)
-      .setItHits(false)
-      .setItCoveredConditions(3)
-      .setOverallCoveredConditions(4)
       .build()).iterator());
 
     FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);

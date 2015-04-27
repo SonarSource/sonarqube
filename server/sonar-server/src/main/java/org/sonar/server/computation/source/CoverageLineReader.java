@@ -48,8 +48,8 @@ public class CoverageLineReader implements LineReader {
   }
 
   private static void processUnitTest(FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
-    if (hasUnitTests(reportCoverage)) {
-      lineBuilder.setUtLineHits(1);
+    if (reportCoverage.hasUtHits()) {
+      lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
     }
     if (reportCoverage.hasConditions() && reportCoverage.hasUtCoveredConditions()) {
       lineBuilder.setUtConditions(reportCoverage.getConditions());
@@ -57,13 +57,9 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static boolean hasUnitTests(BatchReport.Coverage reportCoverage){
-    return reportCoverage.hasUtHits() && reportCoverage.getUtHits();
-  }
-
   private static void processIntegrationTest(FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
-    if (hasIntegrationTests(reportCoverage)) {
-      lineBuilder.setItLineHits(1);
+    if (reportCoverage.hasItHits()) {
+      lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
     }
     if (reportCoverage.hasConditions() && reportCoverage.hasItCoveredConditions()) {
       lineBuilder.setItConditions(reportCoverage.getConditions());
@@ -71,13 +67,9 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static boolean hasIntegrationTests(BatchReport.Coverage reportCoverage){
-    return reportCoverage.hasItHits() && reportCoverage.getItHits();
-  }
-
   private static void processOverallTest(FileSourceDb.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
-    if (hasUnitTests(reportCoverage) || hasIntegrationTests(reportCoverage)) {
-      lineBuilder.setOverallLineHits(1);
+    if (reportCoverage.hasUtHits() || reportCoverage.hasItHits()) {
+      lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
     }
     if (reportCoverage.hasConditions() && reportCoverage.hasOverallCoveredConditions()) {
       lineBuilder.setOverallConditions(reportCoverage.getConditions());
