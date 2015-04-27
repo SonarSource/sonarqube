@@ -22,9 +22,7 @@ package org.sonar.batch.report;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.StoppingException;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -72,13 +70,13 @@ public class ReportPublisher implements BatchComponent, Startable {
   }
 
   @Override
-  public void start() throws StartingException {
+  public void start() {
     reportDir = new File(projectReactor.getRoot().getWorkDir(), "batch-report");
     writer = new BatchReportWriter(reportDir);
   }
 
   @Override
-  public void stop() throws StoppingException {
+  public void stop() {
     if (!settings.getBoolean(KEEP_REPORT_PROP_KEY)) {
       FileUtils.deleteQuietly(reportDir);
     } else {
