@@ -114,6 +114,15 @@ public class GlobalNavigationActionTest {
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "user.json");
   }
 
+  @Test
+  public void nominal_call_for_user_without_configured_dashboards() throws Exception {
+    nominalSetup();
+
+    MockUserSession.set().setLogin("anakin");
+
+    wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "anonymous.json");
+  }
+
   private void nominalSetup() {
     createAndConfigureDashboardForUser();
     createAndConfigureDashboardForAnonymous();

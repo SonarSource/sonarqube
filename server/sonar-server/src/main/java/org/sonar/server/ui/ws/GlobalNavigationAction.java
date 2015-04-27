@@ -36,6 +36,8 @@ import java.util.List;
 
 public class GlobalNavigationAction implements NavigationAction {
 
+  private static final String ANONYMOUS = null;
+
   private final ActiveDashboardDao activeDashboardDao;
   private final Views views;
   private final Settings settings;
@@ -61,6 +63,9 @@ public class GlobalNavigationAction implements NavigationAction {
     UserSession userSession = UserSession.get();
 
     List<DashboardDto> dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(userSession.login());
+    if (dashboards.isEmpty()) {
+      dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(ANONYMOUS);
+    }
 
     JsonWriter json = response.newJsonWriter().beginObject();
     writeDashboards(json, dashboards);
