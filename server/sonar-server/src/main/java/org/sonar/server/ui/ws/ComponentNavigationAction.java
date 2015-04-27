@@ -182,7 +182,10 @@ public class ComponentNavigationAction implements NavigationAction {
 
     json.name("configuration").beginArray();
     for (ConfigPage page : projectConfiguration.getConfigPages(component, userSession)) {
-      page.write(json);
+      json.beginObject()
+        .prop("url", page.url())
+        .prop("name", page.name())
+        .endObject();
     }
 
     if (isAdmin) {

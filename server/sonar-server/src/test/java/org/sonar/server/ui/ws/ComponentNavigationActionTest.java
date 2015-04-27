@@ -421,8 +421,7 @@ public class ComponentNavigationActionTest {
     @Override
     List<ConfigPage> getConfigPages(ComponentDto component, UserSession userSession) {
       return Arrays.asList(
-        new ConfigPage(true, "/visible/page", "Visible Config Page"),
-        new ConfigPage(false, "/invisible/page", "Invisible Config Page"));
+        new ConfigPage(true, "/visible/page", "Visible Config Page"));
     }
   }
 }

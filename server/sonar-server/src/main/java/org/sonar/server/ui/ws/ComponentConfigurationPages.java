@@ -20,19 +20,21 @@
 package org.sonar.server.ui.ws;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,7 +55,7 @@ public class ComponentConfigurationPages implements ServerComponent {
     this.resourceTypes = resourceTypes;
   }
 
-  List<ConfigPage> getConfigPages(ComponentDto component, UserSession userSession) {
+  Collection<ConfigPage> getConfigPages(ComponentDto component, UserSession userSession) {
     boolean isAdmin = userSession.hasProjectPermissionByUuid(UserRole.ADMIN, component.projectUuid());
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
     Locale locale = userSession.locale();
@@ -89,7 +91,7 @@ public class ComponentConfigurationPages implements ServerComponent {
     configPages.add(new ConfigPage(
       isAdmin && isProject,
       String.format("/project/links?id=%s", componentKey),
-      i18n.message(locale, "action_plans.page", null)));
+      i18n.message(locale, "project_links.page", null)));
 
     configPages.add(new ConfigPage(
       componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY),
@@ -111,7 +113,12 @@ public class ComponentConfigurationPages implements ServerComponent {
       String.format("/project/deletion?id=%s", componentKey),
       i18n.message(locale, "deletion.page", null)));
 
-    return configPages;
+    return Collections2.filter(configPages, new Predicate<ConfigPage>() {
+      @Override
+      public boolean apply(ConfigPage input) {
+        return input.visible;
+      }
+    });
   }
 
   static String encodeComponentKey(ComponentDto component) {
@@ -143,13 +150,12 @@ public class ComponentConfigurationPages implements ServerComponent {
       this.name = name;
     }
 
-    void write(JsonWriter json) {
-      if (visible) {
-        json.beginObject()
-          .prop("url", url)
-          .prop("name", name)
-          .endObject();
-      }
+    String url() {
+      return url;
+    }
+
+    String name() {
+      return name;
     }
   }
 

@@ -37,7 +37,7 @@ import org.sonar.server.ui.ws.ComponentConfigurationPages.ConfigPage;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,20 +68,20 @@ public class ComponentConfigurationPagesTest {
     ComponentDto component = ComponentTesting.newProjectDto(uuid).setKey("org.codehaus.sonar:sonar");
     UserSession userSession = MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.ADMIN, uuid);
 
-    List<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(component, userSession);
-    assertThat(pages).extracting("visible").containsExactly(
-      false, true, true, true, true, true, false, false, false, false);
+    Collection<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(component, userSession);
+    assertThat(pages).extracting("name").containsExactly(
+      "project_quality_profiles.page",
+      "project_quality_gate.page",
+      "manual_measures.page",
+      "action_plans.page",
+      "project_links.page"
+      );
     assertThat(pages).extracting("url").containsExactly(
-        "/project/settings?id=org.codehaus.sonar%3Asonar",
         "/project/profile?id=org.codehaus.sonar%3Asonar",
         "/project/qualitygate?id=org.codehaus.sonar%3Asonar",
         "/manual_measures/index?id=org.codehaus.sonar%3Asonar",
         "/action_plans/index?id=org.codehaus.sonar%3Asonar",
-        "/project/links?id=org.codehaus.sonar%3Asonar",
-        "/project_roles/index?id=org.codehaus.sonar%3Asonar",
-        "/project/history?id=org.codehaus.sonar%3Asonar",
-        "/project/key?id=org.codehaus.sonar%3Asonar",
-        "/project/deletion?id=org.codehaus.sonar%3Asonar"
+        "/project/links?id=org.codehaus.sonar%3Asonar"
       );
   }
 
@@ -93,9 +93,15 @@ public class ComponentConfigurationPagesTest {
     when(resourceTypes.get(component.qualifier())).thenReturn(
       ResourceType.builder(component.qualifier()).setProperty("configurable", true).build());
 
-    List<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(component, userSession);
-    assertThat(pages).extracting("visible").containsExactly(
-      true, true, true, true, true, true, false, false, false, false);
+    Collection<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(component, userSession);
+    assertThat(pages).extracting("name").containsExactly(
+      "project_settings.page",
+      "project_quality_profiles.page",
+      "project_quality_gate.page",
+      "manual_measures.page",
+      "action_plans.page",
+      "project_links.page"
+      );
   }
 
   @Test
@@ -105,9 +111,8 @@ public class ComponentConfigurationPagesTest {
     ComponentDto module = ComponentTesting.newModuleDto(project);
     UserSession userSession = MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.ADMIN, uuid);
 
-    List<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(module, userSession);
-    assertThat(pages).extracting("visible").containsExactly(
-      false, false, false, true, false, false, false, false, false, false);
+    Collection<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(module, userSession);
+    assertThat(pages).extracting("name").containsExactly("manual_measures.page");
   }
 
   @Test
@@ -116,8 +121,39 @@ public class ComponentConfigurationPagesTest {
     ComponentDto project = ComponentTesting.newProjectDto(uuid);
     UserSession userSession = MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.USER, uuid);
 
-    List<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(project, userSession);
-    assertThat(pages).extracting("visible").containsExactly(
-      false, true, true, false, false, false, false, false, false, false);
+    Collection<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(project, userSession);
+    assertThat(pages).extracting("name").containsExactly(
+      "project_quality_profiles.page",
+      "project_quality_gate.page"
+      );
+  }
+
+  @Test
+  public void pages_for_project_with_all_resource_type_properties() throws Exception {
+    String uuid = "abcd";
+    ComponentDto component = ComponentTesting.newProjectDto(uuid);
+    UserSession userSession = MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.ADMIN, uuid);
+    when(resourceTypes.get(component.qualifier())).thenReturn(
+      ResourceType.builder(component.qualifier())
+        .setProperty("configurable", true)
+        .setProperty("hasRolePolicy", true)
+        .setProperty("modifiable_history", true)
+        .setProperty("updatable_key", true)
+        .setProperty("deletable", true)
+        .build());
+
+    Collection<ConfigPage> pages = new ComponentConfigurationPages(i18n, resourceTypes).getConfigPages(component, userSession);
+    assertThat(pages).extracting("name").containsExactly(
+      "project_settings.page",
+      "project_quality_profiles.page",
+      "project_quality_gate.page",
+      "manual_measures.page",
+      "action_plans.page",
+      "project_links.page",
+      "permissions.page",
+      "project_history.page",
+      "update_key.page",
+      "deletion.page"
+      );
   }
 }

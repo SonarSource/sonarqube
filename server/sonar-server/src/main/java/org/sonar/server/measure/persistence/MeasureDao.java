@@ -56,7 +56,7 @@ public class MeasureDao implements ServerComponent, DaoComponent {
     mapper(session).insert(measureDto);
   }
 
-  public List<String> selectMetricKeysForSnapshot(DbSession session, Long snapshotId) {
+  public List<String> selectMetricKeysForSnapshot(DbSession session, long snapshotId) {
     return mapper(session).selectMetricKeysForSnapshot(snapshotId);
   }
 
