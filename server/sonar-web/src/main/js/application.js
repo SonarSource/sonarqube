@@ -122,7 +122,7 @@ function dashboardParameters (urlHasSomething) {
   var matchPeriod = queryString.match(/period=\d+/);
   if (matchPeriod) {
     // If we have a match for period, check that it is not project-specific
-    var period = parseInt(/period=(\d+)/.exec(queryString)[1]);
+    var period = parseInt(/period=(\d+)/.exec(queryString)[1], 10);
     if (period <= 3) {
       parameters.push(matchPeriod[0]);
     }
