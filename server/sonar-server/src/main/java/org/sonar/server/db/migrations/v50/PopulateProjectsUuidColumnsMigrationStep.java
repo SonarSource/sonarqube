@@ -51,8 +51,6 @@ public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
 
   private static final Logger LOG = Loggers.get(PopulateProjectsUuidColumnsMigrationStep.class);
 
-  private static final Logger LOG = Loggers.get(PopulateProjectsUuidColumnsMigration.class);
-
   private final DbClient db;
   private final AtomicLong counter = new AtomicLong(0L);
 
