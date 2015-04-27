@@ -20,17 +20,14 @@
 
 package org.sonar.server.db.migrations.v50;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
@@ -38,8 +35,12 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.util.ProgressLogger;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used in the Active Record Migration 705
@@ -47,6 +48,8 @@ import com.google.common.base.Strings;
  * @since 5.0
  */
 public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
+
+  private static final Logger LOG = Loggers.get(PopulateProjectsUuidColumnsMigrationStep.class);
 
   private final DbClient db;
   private final AtomicLong counter = new AtomicLong(0L);
@@ -67,9 +70,10 @@ public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
         @Override
         public void handleResult(ResultContext context) {
           Component project = (Component) context.getResultObject();
-          Map<Long, String> uuidByComponentId = newHashMap();
-          migrateEnabledComponents(readSession, writeSession, project, uuidByComponentId);
-          migrateDisabledComponents(readSession, writeSession, project, uuidByComponentId);
+          List<Component> components = readSession.getMapper(Migration50Mapper.class).selectComponentChildrenForProjects(project.getId());
+          MigrationContext migrationContext = new MigrationContext(readSession, writeSession, project, components);
+          migrateEnabledComponents(migrationContext);
+          migrateDisabledComponents(migrationContext);
         }
       });
       writeSession.commit(true);
@@ -87,74 +91,28 @@ public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
     }
   }
 
-  private void migrateEnabledComponents(DbSession readSession, DbSession writeSession, Component project, Map<Long, String> uuidByComponentId) {
-    Map<Long, Component> componentsBySnapshotId = newHashMap();
-
-    List<Component> components = readSession.getMapper(Migration50Mapper.class).selectComponentChildrenForProjects(project.getId());
-    components.add(project);
-    List<Component> componentsToMigrate = newArrayList();
-    for (Component component : components) {
-      componentsBySnapshotId.put(component.getSnapshotId(), component);
-
-      // Not migrate components already having an UUID
-      if (component.getUuid() == null) {
-        component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-        component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
-        component.setModuleUuidPath("");
-        componentsToMigrate.add(component);
+  private void migrateEnabledComponents(MigrationContext migrationContext) {
+    saveComponent(migrationContext.writeSession, migrationContext.project);
+    for (Component component : migrationContext.componentsToMigrate) {
+      migrationContext.updateComponent(component);
+      if (Strings.isNullOrEmpty(component.getModuleUuidPath())) {
+        LOG.warn(String.format("Ignoring component id '%s' because the module uuid path could not be created", component.getId()));
+      } else {
+        migrationContext.updateComponent(component);
+        saveComponent(migrationContext.writeSession, component);
       }
-    }
-
-    for (Component component : componentsToMigrate) {
-      updateComponent(component, project, componentsBySnapshotId, uuidByComponentId);
-      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
-      counter.getAndIncrement();
     }
   }
 
-  private void migrateDisabledComponents(DbSession readSession, DbSession writeSession, Component project, Map<Long, String> uuidByComponentId) {
-    String projectUuid = getOrCreateUuid(project, uuidByComponentId);
-    for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledDirectComponentChildrenForProjects(project.getId())) {
-      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(projectUuid);
-      component.setModuleUuidPath("");
-
-      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
-      counter.getAndIncrement();
+  private void migrateDisabledComponents(MigrationContext migrationContext) {
+    for (Component component : migrationContext.readSession.getMapper(Migration50Mapper.class).selectDisabledDirectComponentChildrenForProjects(migrationContext.project.getId())) {
+      migrationContext.updateComponent(component);
+      saveComponent(migrationContext.writeSession, component);
     }
-    for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledNoneDirectComponentChildrenForProjects(project.getId())) {
-      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(projectUuid);
-      component.setModuleUuidPath("");
-
-      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
-      counter.getAndIncrement();
-    }
-  }
-
-  private void updateComponent(Component component, Component project, Map<Long, Component> componentsBySnapshotId, Map<Long, String> uuidByComponentId) {
-    String snapshotPath = component.getSnapshotPath();
-    StringBuilder moduleUuidPath = new StringBuilder();
-    Component lastModule = null;
-    if (!Strings.isNullOrEmpty(snapshotPath)) {
-      for (String s : Splitter.on(".").omitEmptyStrings().split(snapshotPath)) {
-        Long snapshotId = Long.valueOf(s);
-        Component currentComponent = componentsBySnapshotId.get(snapshotId);
-        if (currentComponent.getScope().equals(Scopes.PROJECT)) {
-          lastModule = currentComponent;
-          moduleUuidPath.append(currentComponent.getUuid()).append(".");
-        }
-      }
-    }
-    if (moduleUuidPath.length() > 0) {
-      // Remove last '.'
-      moduleUuidPath.deleteCharAt(moduleUuidPath.length() - 1);
-      component.setModuleUuidPath(moduleUuidPath.toString());
-    }
-
-    // Module UUID contains direct module of a component
-    if (lastModule != null) {
-      component.setModuleUuid(getOrCreateUuid(lastModule, uuidByComponentId));
+    for (Component component : migrationContext.readSession.getMapper(Migration50Mapper.class).selectDisabledNoneDirectComponentChildrenForProjects(
+      migrationContext.project.getId())) {
+      migrationContext.updateComponent(component);
+      saveComponent(migrationContext.writeSession, component);
     }
   }
 
@@ -163,22 +121,77 @@ public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
       String uuid = Uuids.create();
       component.setUuid(uuid);
       component.setProjectUuid(uuid);
-      component.setModuleUuidPath("");
-
-      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
-      counter.getAndIncrement();
+      saveComponent(writeSession, component);
     }
   }
 
-  private static String getOrCreateUuid(Component component, Map<Long, String> uuidByComponentId) {
-    String existingUuid = component.getUuid();
-    String uuid = existingUuid == null ? uuidByComponentId.get(component.getId()) : existingUuid;
-    if (uuid == null) {
-      String newUuid = Uuids.create();
-      uuidByComponentId.put(component.getId(), newUuid);
-      return newUuid;
+  private void saveComponent(DbSession writeSession, Component component) {
+    writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
+    counter.getAndIncrement();
+  }
+
+  private static class MigrationContext {
+    private final DbSession readSession;
+    private final DbSession writeSession;
+    private final Component project;
+    private final Map<Long, Component> componentsBySnapshotId = newHashMap();
+    private final Map<Long, String> uuidByComponentId = newHashMap();
+    private final List<Component> componentsToMigrate = newArrayList();
+
+    private MigrationContext(DbSession readSession, DbSession writeSession, Component project, List<Component> components) {
+      this.readSession = readSession;
+      this.writeSession = writeSession;
+      this.project = project;
+
+      project.setUuid(getOrCreateUuid(project));
+      project.setProjectUuid(project.getUuid());
+
+      componentsBySnapshotId.put(project.getSnapshotId(), project);
+      for (Component component : components) {
+        componentsBySnapshotId.put(component.getSnapshotId(), component);
+        if (component.getUuid() == null) {
+          componentsToMigrate.add(component);
+        }
+      }
     }
-    return uuid;
+
+    public void updateComponent(Component component) {
+      component.setUuid(getOrCreateUuid(component));
+      component.setProjectUuid(getOrCreateUuid(project));
+
+      String snapshotPath = component.getSnapshotPath();
+      StringBuilder moduleUuidPath = new StringBuilder();
+      String lastModuleUuid = null;
+      if (!Strings.isNullOrEmpty(snapshotPath)) {
+        for (String s : Splitter.on(".").omitEmptyStrings().split(snapshotPath)) {
+          Long snapshotId = Long.valueOf(s);
+          Component currentComponent = componentsBySnapshotId.get(snapshotId);
+          if (currentComponent != null && currentComponent.getScope().equals(Scopes.PROJECT)) {
+            lastModuleUuid = getOrCreateUuid(currentComponent);
+            moduleUuidPath.append(lastModuleUuid).append(".");
+          }
+        }
+      }
+
+      if (moduleUuidPath.length() > 0 && lastModuleUuid != null) {
+        // Remove last '.'
+        moduleUuidPath.deleteCharAt(moduleUuidPath.length() - 1);
+
+        component.setModuleUuidPath(moduleUuidPath.toString());
+        component.setModuleUuid(lastModuleUuid);
+      }
+    }
+
+    private String getOrCreateUuid(Component component) {
+      String existingUuid = component.getUuid();
+      String uuid = existingUuid == null ? uuidByComponentId.get(component.getId()) : existingUuid;
+      if (uuid == null) {
+        String newUuid = Uuids.create();
+        uuidByComponentId.put(component.getId(), newUuid);
+        return newUuid;
+      }
+      return uuid;
+    }
   }
 
 }

@@ -34,7 +34,7 @@ public class Component {
   private String uuid;
   private String projectUuid;
   private String moduleUuid;
-  private String moduleUuidPath;
+  private String moduleUuidPath = "";
 
   public Long getId() {
     return id;
