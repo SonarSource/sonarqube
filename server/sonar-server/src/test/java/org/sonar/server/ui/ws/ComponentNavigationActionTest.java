@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui.ws;
 
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.BooleanUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,6 +27,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -58,15 +58,11 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -91,7 +87,7 @@ public class ComponentNavigationActionTest {
 
   private I18n i18n;
 
-  private ProjectConfigurationPagesStub projectConfigurationPages;
+  private ResourceTypes resourceTypes;
 
   @Before
   public void before() throws Exception {
@@ -115,7 +111,7 @@ public class ComponentNavigationActionTest {
         }
       });
 
-    projectConfigurationPages = new ProjectConfigurationPagesStub();
+    resourceTypes = mock(ResourceTypes.class);
 
     session = dbClient.openSession(false);
   }
@@ -158,7 +154,7 @@ public class ComponentNavigationActionTest {
 
     MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, projectConfigurationPages)));
+      new Views(), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "no_snapshot.json");
   }
@@ -174,7 +170,7 @@ public class ComponentNavigationActionTest {
     MockUserSession.set().setLogin("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, projectConfigurationPages)));
+      new Views(), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "no_snapshot_user_favourite.json");
   }
@@ -193,7 +189,7 @@ public class ComponentNavigationActionTest {
     MockUserSession.set().setLogin("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, projectConfigurationPages)));
+      new Views(), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_snapshot_and_connected_user.json");
   }
@@ -210,7 +206,7 @@ public class ComponentNavigationActionTest {
     MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, projectConfigurationPages)));
+      new Views(), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_dashboards.json");
   }
@@ -261,7 +257,7 @@ public class ComponentNavigationActionTest {
     Page page2 = new SecondPage();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page1, page2}), i18n, projectConfigurationPages)));
+      new Views(new Page[] {page1, page2}), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_extensions.json");
   }
@@ -313,9 +309,58 @@ public class ComponentNavigationActionTest {
     Page page2 = new SecondPage();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page1, page2}), i18n, projectConfigurationPages)));
+      new Views(new Page[] {page1, page2}), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_admin_rights.json");
+  }
+
+  @Test
+  public void with_component_which_has_all_properties() throws Exception {
+    int userId = 42;
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop");
+    dbClient.componentDao().insert(session, project);
+    session.commit();
+
+    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+      .addProjectUuidPermissions(UserRole.USER, "abcd")
+      .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
+
+    ResourceType projectResourceType = ResourceType.builder(project.qualifier())
+      .setProperty("comparable", true)
+      .setProperty("configurable", true)
+      .setProperty("hasRolePolicy", true)
+      .setProperty("modifiable_history", true)
+      .setProperty("updatable_key", true)
+      .setProperty("deletable", true)
+      .build();
+    when(resourceTypes.get(project.qualifier()))
+      .thenReturn(projectResourceType);
+
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
+      new Views(), i18n, resourceTypes)));
+
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_all_properties.json");
+  }
+
+  @Test
+  public void on_module() throws Exception {
+    int userId = 42;
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop");
+    ComponentDto module = ComponentTesting.newModuleDto("bcde", project)
+      .setKey("palap").setName("Palap");
+    dbClient.componentDao().insert(session, project, module);
+    session.commit();
+
+    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+      .addProjectUuidPermissions(UserRole.USER, "abcd")
+      .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
+
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
+      new Views(), i18n, resourceTypes)));
+
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap").execute().assertJson(getClass(), "on_module.json");
   }
 
   @Test
@@ -345,7 +390,7 @@ public class ComponentNavigationActionTest {
     Page page = new FirstPage();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page}), i18n, projectConfigurationPages)));
+      new Views(new Page[] {page}), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "quality_profile_admin.json");
   }
@@ -395,33 +440,8 @@ public class ComponentNavigationActionTest {
     MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, projectConfigurationPages)));
+      new Views(), i18n, resourceTypes)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
-  }
-
-  class ProjectConfigurationPagesStub extends ComponentConfigurationPages {
-
-    private Map<String, Boolean> resourceTypeHasProperty;
-
-    public ProjectConfigurationPagesStub() {
-      super(i18n, null);
-      resourceTypeHasProperty = Maps.newHashMap();
-    }
-
-    void setComponentTypeProperty(String resourceTypeProperty, boolean value) {
-      resourceTypeHasProperty.put(resourceTypeProperty, value);
-    }
-
-    @Override
-    boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
-      return BooleanUtils.isTrue(resourceTypeHasProperty.get(resourceTypeProperty));
-    }
-
-    @Override
-    List<ConfigPage> getConfigPages(ComponentDto component, UserSession userSession) {
-      return Arrays.asList(
-        new ConfigPage(true, "/visible/page", "Visible Config Page"));
-    }
   }
 }

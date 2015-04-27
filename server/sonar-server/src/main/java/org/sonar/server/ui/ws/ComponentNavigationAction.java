@@ -19,8 +19,12 @@
  */
 package org.sonar.server.ui.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -41,11 +45,12 @@ import org.sonar.core.properties.PropertyQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
-import org.sonar.server.ui.ws.ComponentConfigurationPages.ConfigPage;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -54,19 +59,25 @@ public class ComponentNavigationAction implements NavigationAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 
+  private static final String PROPERTY_COMPARABLE = "comparable";
+  private static final String PROPERTY_CONFIGURABLE = "configurable";
+  private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
+  private static final String PROPERTY_MODIFIABLE_HISTORY = "modifiable_history";
+  private static final String PROPERTY_UPDATABLE_KEY = "updatable_key";
+  private static final String PROPERTY_DELETABLE = "deletable";
+
   private final DbClient dbClient;
   private final ActiveDashboardDao activeDashboardDao;
   private final Views views;
   private final I18n i18n;
-  private final ComponentConfigurationPages projectConfiguration;
+  private final ResourceTypes resourceTypes;
 
-  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n,
-    ComponentConfigurationPages projectConfiguration) {
+  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.activeDashboardDao = activeDashboardDao;
     this.views = views;
     this.i18n = i18n;
-    this.projectConfiguration = projectConfiguration;
+    this.resourceTypes = resourceTypes;
   }
 
   @Override
@@ -120,7 +131,7 @@ public class ComponentNavigationAction implements NavigationAction {
     json.prop("key", component.key())
       .prop("uuid", component.uuid())
       .prop("name", component.name())
-      .prop("isComparable", projectConfiguration.componentTypeHasProperty(component, ComponentConfigurationPages.PROPERTY_COMPARABLE))
+      .prop("isComparable", componentTypeHasProperty(component, PROPERTY_COMPARABLE))
       .prop("canBeFavorite", userSession.isLoggedIn())
       .prop("isFavorite", isFavourite(session, component, userSession));
 
@@ -156,13 +167,23 @@ public class ComponentNavigationAction implements NavigationAction {
 
   private String getPageUrl(ViewProxy<Page> page, ComponentDto component) {
     String result = null;
-    String componentKey = ComponentConfigurationPages.encodeComponentKey(component);
+    String componentKey = encodeComponentKey(component);
     if (page.isController()) {
       result = String.format("%s?id=%s", page.getId(), componentKey);
     } else {
       result = String.format("/plugins/resource/%s?page=%s", componentKey, page.getId());
     }
     return result;
+  }
+
+  private static String encodeComponentKey(ComponentDto component) {
+    String componentKey = component.getKey();
+    try {
+      componentKey = URLEncoder.encode(componentKey, Charsets.UTF_8.name());
+    } catch (UnsupportedEncodingException unknownEncoding) {
+      throw new IllegalStateException(unknownEncoding);
+    }
+    return componentKey;
   }
 
   private void writeDashboards(JsonWriter json, ComponentDto component, List<DashboardDto> dashboards, Locale locale) {
@@ -180,21 +201,41 @@ public class ComponentNavigationAction implements NavigationAction {
     boolean isAdmin = userSession.hasProjectPermissionByUuid(UserRole.ADMIN, component.projectUuid());
     Locale locale = userSession.locale();
 
-    json.name("configuration").beginArray();
-    for (ConfigPage page : projectConfiguration.getConfigPages(component, userSession)) {
-      json.beginObject()
-        .prop("url", page.url())
-        .prop("name", page.name())
-        .endObject();
-    }
+    json.name("configuration").beginObject();
+    writeConfigPageAccess(json, isAdmin, component, userSession);
 
     if (isAdmin) {
+      json.name("extensions").beginArray();
       List<ViewProxy<Page>> configPages = views.getPages(NavigationSection.RESOURCE_CONFIGURATION, component.scope(), component.qualifier(), component.language(), null);
       for (ViewProxy<Page> page : configPages) {
         writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
       }
+      json.endArray();
     }
-    json.endArray();
+    json.endObject();
+  }
+
+  private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component, UserSession userSession) {
+    boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
+
+    json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE))
+      .prop("showQualityProfiles", isProject)
+      .prop("showQualityGates", isProject)
+      .prop("showManualMeasures", isAdmin)
+      .prop("showActionPlans", isAdmin && isProject)
+      .prop("showLinks", isAdmin && isProject)
+      .prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY))
+      .prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY))
+      .prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY))
+      .prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
+  }
+
+  private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {
+    ResourceType resourceType = resourceTypes.get(component.qualifier());
+    if (resourceType != null) {
+      return resourceType.getBooleanProperty(resourceTypeProperty);
+    }
+    return false;
   }
 
   private void writePage(JsonWriter json, String url, String name) {
