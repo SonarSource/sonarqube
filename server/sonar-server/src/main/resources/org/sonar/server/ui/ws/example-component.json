@@ -19,16 +19,28 @@
       "url": "/plugins/resource/2865?page=my-resource-plugin"
     }
   ],
-  "configuration": [
-    {
-      "name": "General Settings",
-      "url": "/project/settings/2865"
-    },
-    {
-      "name": "Action Plans",
-      "url": "/action_plans/index/2865"
-    }
-  ],
+  "configuration": {
+    "showSettings": true,
+    "showQualityProfiles": true,
+    "showQualityGates": true,
+    "showManualMeasures": true,
+    "showActionPlans": true,
+    "showLinks": true,
+    "showPermissions": true,
+    "showHistory": true,
+    "showUpdateKey": true,
+    "showDeletion": true,
+    "extensions": [
+      {
+        "name": "General Settings",
+        "url": "/project/settings/2865"
+      },
+      {
+        "name": "Action Plans",
+        "url": "/action_plans/index/2865"
+      }
+    ]
+  },
   "breadcrumbs": [
     {
       "name": "SonarQube",

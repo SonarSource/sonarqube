@@ -1,28 +1,29 @@
 {
-  "key": "polop",
-  "uuid": "abcd",
-  "name": "Polop",
+  "key": "palap",
+  "uuid": "bcde",
+  "name": "Palap",
   "isComparable": false,
   "canBeFavorite": true,
   "isFavorite": false,
   "dashboards": [],
   "configuration": {
     "showSettings": false,
-    "showQualityProfiles": true,
-    "showQualityGates": true,
-    "showManualMeasures": false,
+    "showQualityProfiles": false,
+    "showQualityGates": false,
+    "showManualMeasures": true,
     "showActionPlans": false,
     "showLinks": false,
     "showPermissions": false,
     "showHistory": false,
     "showUpdateKey": false,
-    "showDeletion": false
+    "showDeletion": false,
+    "extensions": []
   },
   "breadcrumbs": [
     {
-      "key": "polop",
-      "name": "Polop",
-      "qualifier": "TRK"
+      "key": "palap",
+      "name": "Palap",
+      "qualifier": "BRC"
     }
   ]
 }

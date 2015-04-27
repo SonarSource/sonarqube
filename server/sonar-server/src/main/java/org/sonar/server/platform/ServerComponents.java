@@ -354,7 +354,6 @@ import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
-import org.sonar.server.ui.ws.ComponentConfigurationPages;
 import org.sonar.server.ui.ws.ComponentNavigationAction;
 import org.sonar.server.ui.ws.GlobalNavigationAction;
 import org.sonar.server.ui.ws.NavigationWs;
@@ -925,7 +924,6 @@ class ServerComponents {
     // UI
     pico.addSingleton(GlobalNavigationAction.class);
     pico.addSingleton(SettingsNavigationAction.class);
-    pico.addSingleton(ComponentConfigurationPages.class);
     pico.addSingleton(ComponentNavigationAction.class);
     pico.addSingleton(NavigationWs.class);
 
