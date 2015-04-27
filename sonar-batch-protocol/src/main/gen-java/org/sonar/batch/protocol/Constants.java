@@ -685,88 +685,6 @@ public final class Constants {
   }
 
   /**
-   * Protobuf enum {@code TestType}
-   */
-  public enum TestType
-      implements com.google.protobuf.ProtocolMessageEnum {
-    /**
-     * <code>UT = 1;</code>
-     */
-    UT(0, 1),
-    /**
-     * <code>IT = 2;</code>
-     */
-    IT(1, 2),
-    ;
-
-    /**
-     * <code>UT = 1;</code>
-     */
-    public static final int UT_VALUE = 1;
-    /**
-     * <code>IT = 2;</code>
-     */
-    public static final int IT_VALUE = 2;
-
-
-    public final int getNumber() { return value; }
-
-    public static TestType valueOf(int value) {
-      switch (value) {
-        case 1: return UT;
-        case 2: return IT;
-        default: return null;
-      }
-    }
-
-    public static com.google.protobuf.Internal.EnumLiteMap<TestType>
-        internalGetValueMap() {
-      return internalValueMap;
-    }
-    private static com.google.protobuf.Internal.EnumLiteMap<TestType>
-        internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<TestType>() {
-            public TestType findValueByNumber(int number) {
-              return TestType.valueOf(number);
-            }
-          };
-
-    public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-      return getDescriptor().getValues().get(index);
-    }
-    public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-      return getDescriptor();
-    }
-    public static final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptor() {
-      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(6);
-    }
-
-    private static final TestType[] VALUES = values();
-
-    public static TestType valueOf(
-        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-      if (desc.getType() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "EnumValueDescriptor is not for this type.");
-      }
-      return VALUES[desc.getIndex()];
-    }
-
-    private final int index;
-    private final int value;
-
-    private TestType(int index, int value) {
-      this.index = index;
-      this.value = value;
-    }
-
-    // @@protoc_insertion_point(enum_scope:TestType)
-  }
-
-  /**
    * Protobuf enum {@code TestStatus}
    */
   public enum TestStatus
@@ -841,7 +759,7 @@ public final class Constants {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(7);
+      return org.sonar.batch.protocol.Constants.getDescriptor().getEnumTypes().get(6);
     }
 
     private static final TestStatus[] VALUES = values();
@@ -888,19 +806,18 @@ public final class Constants {
       "ON\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007COMMENT\020\002\022\013\n\007CPP_D" +
       "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
       "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
-      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010*\032\n\010TestT" +
-      "ype\022\006\n\002UT\020\001\022\006\n\002IT\020\002*9\n\nTestStatus\022\006\n\002OK\020" +
-      "\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n\007SKIPPED\020\004B\034" +
-      "\n\030org.sonar.batch.protocolH\001"
+      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010*9\n\nTestS" +
+      "tatus\022\006\n\002OK\020\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n" +
+      "\007SKIPPED\020\004B\034\n\030org.sonar.batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {

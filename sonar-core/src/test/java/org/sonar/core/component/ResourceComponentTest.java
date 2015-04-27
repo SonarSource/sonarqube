@@ -21,7 +21,6 @@ package org.sonar.core.component;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
@@ -36,26 +35,6 @@ public class ResourceComponentTest {
   public void prepare() {
     file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     file.setKey("path/to/foo.c");
-  }
-
-  @Test
-  public void db_ids_should_be_optional() {
-    ResourceComponent component = new ResourceComponent(file, new Snapshot());
-
-    assertThat(component.snapshotId()).isNull();
-    assertThat(component.resourceId()).isNull();
-  }
-
-  @Test
-  public void db_ids_should_be_set() {
-    Snapshot snapshot = new Snapshot();
-    snapshot.setId(123);
-    file.setId(456);
-    snapshot.setResourceId(456);
-    ResourceComponent component = new ResourceComponent(file, snapshot);
-
-    assertThat(component.snapshotId()).isEqualTo(123);
-    assertThat(component.resourceId()).isEqualTo(456);
   }
 
   @Test

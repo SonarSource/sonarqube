@@ -23,6 +23,14 @@ import org.sonar.api.component.MutablePerspective;
 
 public interface MutableTestPlan extends TestPlan<MutableTestCase>, MutablePerspective {
 
+  /**
+   * Add a {@link TestCase} to this test file.
+   * Note that a same physical test (for example in Java a single method annotated with @Test)
+   * can be executed several times (parameterized tests, different test suites, ...). As a result it is perfectly valid to register several
+   * tests with the same name. Anyway in this situation the coverage per test.
+   * @param name
+   * @return
+   */
   MutableTestCase addTestCase(String name);
 
 }

@@ -30,8 +30,6 @@ import org.sonar.core.graph.BeanGraph;
 import org.sonar.core.graph.BeanIterable;
 import org.sonar.core.graph.GraphUtil;
 
-import javax.annotation.Nullable;
-
 public class ScanGraph extends BeanGraph implements BatchComponent {
 
   private static final String COMPONENT = "component";
@@ -58,8 +56,14 @@ public class ScanGraph extends BeanGraph implements BatchComponent {
     return vertex != null ? wrapComponent(vertex) : null;
   }
 
-  public ComponentVertex addComponent(Resource resource, @Nullable Integer snapshotId) {
-    return addComponent(new ResourceComponent(resource, snapshotId));
+  public ComponentVertex addComponent(Resource resource) {
+    return addComponent(new ResourceComponent(resource));
+  }
+
+  public void completeComponent(String key, long resourceId, long snapshotId) {
+    ComponentVertex component = getComponent(key);
+    component.setProperty("sid", snapshotId);
+    component.setProperty("rid", resourceId);
   }
 
   public Iterable<ComponentVertex> getComponents() {

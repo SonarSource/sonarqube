@@ -27,8 +27,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.graph.BeanGraph;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ComponentVertexTest {
   @Test
@@ -44,19 +42,5 @@ public class ComponentVertexTest {
     assertThat(vertex.name()).isEqualTo("Foo.java");
     assertThat(vertex.qualifier()).isEqualTo(Qualifiers.FILE);
     assertThat(vertex.path()).isEqualTo("src/org/Foo.java");
-  }
-
-  @Test
-  public void should_copy_db_ids() {
-    BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
-    ComponentVertex vertex = beanGraph.createVertex(ComponentVertex.class);
-    ResourceComponent component = mock(ResourceComponent.class);
-    when(component.resourceId()).thenReturn(123L);
-    when(component.snapshotId()).thenReturn(456L);
-
-    vertex.copyFrom(component);
-
-    assertThat(vertex.element().getProperty("rid")).isEqualTo(123L);
-    assertThat(vertex.element().getProperty("sid")).isEqualTo(456L);
   }
 }

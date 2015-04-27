@@ -19,10 +19,6 @@
  */
 package org.sonar.batch.deprecated.perspectives;
 
-import org.sonar.core.component.PerspectiveBuilder;
-import org.sonar.core.component.PerspectiveNotFoundException;
-import org.sonar.core.component.ResourceComponent;
-
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
@@ -34,6 +30,9 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
+import org.sonar.core.component.PerspectiveBuilder;
+import org.sonar.core.component.PerspectiveNotFoundException;
+import org.sonar.core.component.ResourceComponent;
 
 import javax.annotation.CheckForNull;
 

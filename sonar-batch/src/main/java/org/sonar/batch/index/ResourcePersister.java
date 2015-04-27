@@ -54,15 +54,15 @@ public class ResourcePersister implements ScanPersister {
   private final DatabaseSession session;
   private final ResourcePermissions permissions;
   private final ResourceCache resourceCache;
-  private final ScanGraph graph;
   private final ProjectTree projectTree;
+  private final ScanGraph scanGraph;
 
-  public ResourcePersister(ProjectTree projectTree, DatabaseSession session, ResourcePermissions permissions, ResourceCache resourceCache, ScanGraph graph) {
+  public ResourcePersister(ProjectTree projectTree, DatabaseSession session, ResourcePermissions permissions, ResourceCache resourceCache, ScanGraph scanGraph) {
     this.projectTree = projectTree;
     this.session = session;
     this.permissions = permissions;
     this.resourceCache = resourceCache;
-    this.graph = graph;
+    this.scanGraph = scanGraph;
   }
 
   @Override
@@ -101,7 +101,7 @@ public class ResourcePersister implements ScanPersister {
     }
     batchResource.setSnapshot(s);
     if (ResourceUtils.isPersistable(batchResource.resource())) {
-      graph.addComponent(batchResource.resource(), batchResource.snapshotId());
+      scanGraph.completeComponent(batchResource.key(), batchResource.resource().getId(), s.getId());
     }
   }
 

@@ -29,6 +29,8 @@ import org.sonar.xoo.lang.*;
 import org.sonar.xoo.rule.*;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
+import org.sonar.xoo.test.CoveragePerTestSensor;
+import org.sonar.xoo.test.TestExecutionSensor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +79,10 @@ public class XooPlugin extends SonarPlugin {
       UtCoverageSensor.class,
       ItCoverageSensor.class,
       OverallCoverageSensor.class,
+
+      // Tests
+      TestExecutionSensor.class,
+      CoveragePerTestSensor.class,
 
       // Other
       XooProjectBuilder.class,

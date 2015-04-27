@@ -19,8 +19,12 @@
  */
 package org.sonar.api.test;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * Represents a simple test execution result.
+ */
 public interface TestCase {
   enum Status {
     OK, FAILURE, ERROR, SKIPPED;
@@ -44,16 +48,23 @@ public interface TestCase {
   /**
    * Duration in milliseconds
    */
+  @CheckForNull
   Long durationInMs();
 
+  /**
+   * @deprecated since 5.2 not used
+   */
+  @Deprecated
   String type();
 
   Status status();
 
   String name();
 
+  @CheckForNull
   String message();
 
+  @CheckForNull
   String stackTrace();
 
   TestPlan testPlan();

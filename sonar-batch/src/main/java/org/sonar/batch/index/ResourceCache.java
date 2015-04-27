@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -27,6 +28,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.core.component.ScanGraph;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,6 +44,16 @@ public class ResourceCache implements BatchComponent {
   private final Map<Library, BatchResource> libraries = Maps.newLinkedHashMap();
 
   private BatchResource root;
+  private final ScanGraph scanGraph;
+
+  public ResourceCache(ScanGraph scanGraph) {
+    this.scanGraph = scanGraph;
+  }
+
+  @VisibleForTesting
+  public ResourceCache() {
+    this.scanGraph = null;
+  }
 
   @CheckForNull
   public BatchResource get(String componentKey) {
@@ -72,6 +85,9 @@ public class ResourceCache implements BatchComponent {
       }
     } else {
       libraries.put((Library) resource, batchResource);
+    }
+    if (scanGraph != null && ResourceUtils.isPersistable(batchResource.resource())) {
+      scanGraph.addComponent(batchResource.resource());
     }
     return batchResource;
   }
