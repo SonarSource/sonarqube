@@ -75,6 +75,7 @@ message Data {
 }
 
 message Test {
+  optional string uuid = 1;
   optional string name = 2;
   optional TestStatus status = 3;
   optional int64 execution_time_ms = 4;

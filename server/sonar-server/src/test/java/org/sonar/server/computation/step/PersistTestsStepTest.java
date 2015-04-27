@@ -27,9 +27,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.TestStatus;
-import org.sonar.batch.protocol.Constants.TestType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -38,7 +39,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -50,8 +50,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
 
 public class PersistTestsStepTest extends BaseStepTest {
   private static final String PROJECT_UUID = "PROJECT";
@@ -63,6 +65,8 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_UUID_2 = "TEST-FILE-2";
   private static final String MAIN_FILE_UUID_1 = "MAIN-FILE-1";
   private static final String MAIN_FILE_UUID_2 = "MAIN-FILE-2";
+  private static final String TEST_FILE_PATH_1 = "TEST-PATH-1";
+  private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
   PersistTestsStep sut;
 
@@ -71,6 +75,9 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
+  @Rule
+  public LogTester log = new LogTester();
 
   File reportDir;
   DbSession session;
@@ -106,9 +113,10 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void no_test_in_database_and_batch_report() throws Exception {
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto()));
 
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNull();
+    assertThat(log.logs()).isEmpty();
   }
 
   @Test
@@ -120,10 +128,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(
       newCoverageDetail(1, MAIN_FILE_REF_1)
-      );
+    );
     writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -132,29 +140,20 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     assertThat(dto.getTestData()).hasSize(2);
 
-    FileSourceDb.Test test1 = dto.getTestData().get(0);
-    assertThat(test1.getName()).isEqualTo("name#1");
-    assertThat(test1.getCoveredFileCount()).isEqualTo(1);
-    assertThat(test1.getCoveredFile(0).getFileUuid()).isEqualTo(MAIN_FILE_UUID_1);
+    assertThat(dto.getTestData()).extracting("name", "coveredFileCount").containsOnly(
+      tuple("name#1", 1),
+      tuple("name#2", 0));
 
-    FileSourceDb.Test test2 = dto.getTestData().get(1);
-    assertThat(test2.getName()).isEqualTo("name#2");
-    assertThat(test2.getCoveredFileList()).isEmpty();
+    assertThat(log.logs()).isEmpty();
   }
 
   @Test
   public void insert_all_data_of_a_test() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    List<BatchReport.Test> batchTests = Arrays.asList(
-      newTest(1)
-    );
-    writer.writeTests(TEST_FILE_REF_1, batchTests);
-    List<CoverageDetail> coverageDetails = Arrays.asList(
-      newCoverageDetail(1, MAIN_FILE_REF_1)
-    );
-    writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
+    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
+    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1)));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -164,99 +163,134 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getTestData()).hasSize(1);
 
     FileSourceDb.Test test1 = dto.getTestData().get(0);
+    assertThat(test1.getUuid()).isNotEmpty();
     assertThat(test1.getName()).isEqualTo("name#1");
     assertThat(test1.getMsg()).isEqualTo("message#1");
     assertThat(test1.getStacktrace()).isEqualTo("stacktrace#1");
     assertThat(test1.getStatus()).isEqualTo(TestStatus.FAILURE);
-    assertThat(test1.getType()).isEqualTo(TestType.UT);
     assertThat(test1.getExecutionTimeMs()).isEqualTo(1_000);
     assertThat(test1.getCoveredFileCount()).isEqualTo(1);
-    assertThat(test1.getCoveredFile(0).getCoveredLineList()).containsExactly(1, 2, 3);
+    assertThat(test1.getCoveredFile(0).getCoveredLineList()).containsOnly(1, 2, 3);
     assertThat(test1.getCoveredFile(0).getFileUuid()).isEqualTo(MAIN_FILE_UUID_1);
   }
 
   @Test
   public void insert_tests_without_coverage_details() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    List<BatchReport.Test> batchTests = Arrays.asList(
-      newTest(1), newTest(2)
-      );
+    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1), newTest(2));
     writer.writeTests(TEST_FILE_REF_1, batchTests);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     List<FileSourceDb.Test> tests = dto.getTestData();
     assertThat(tests).hasSize(2);
     assertThat(tests.get(0).getCoveredFileList()).isEmpty();
+    assertThat(tests.get(0).getMsg()).isEqualTo("message#1");
+    assertThat(tests.get(1).getCoveredFileList()).isEmpty();
   }
 
   @Test
-  public void update_one_test() throws Exception {
+  public void insert_coverage_details_not_taken_into_account() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
+    writer.writeTests(TEST_FILE_REF_1, batchTests);
+    List<CoverageDetail> coverageDetails = Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1), newCoverageDetail(2, MAIN_FILE_REF_2));
+    writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
+    writer.writeCoverageDetails(TEST_FILE_REF_2, coverageDetails);
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
+
+    assertThat(log.logs(LoggerLevel.WARN)).hasSize(1);
+    assertThat(log.logs(LoggerLevel.WARN).get(0)).isEqualTo("Some coverage tests are not taken into account during analysis of project 'KEY_PROJECT'");
+    assertThat(log.logs(LoggerLevel.TRACE)).hasSize(2);
+    assertThat(log.logs(LoggerLevel.TRACE).get(0)).isEqualTo("The following test coverages for file 'TEST-PATH-1' have not been taken into account: name#2");
+    assertThat(log.logs(LoggerLevel.TRACE).get(1)).startsWith("The following test coverages for file 'TEST-PATH-2' have not been taken into account: ");
+    assertThat(log.logs(LoggerLevel.TRACE).get(1)).contains("name#1", "name#2");
+  }
+
+  @Test
+  public void aggregate_coverage_details() throws Exception {
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
+    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(
+      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
+      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
+
+    FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
+    List<Integer> coveredLines = dto.getTestData().get(0).getCoveredFile(0).getCoveredLineList();
+    assertThat(coveredLines).containsOnly(1, 2, 3, 4);
+  }
+
+  @Test
+  public void update_existing_test() throws Exception {
     // ARRANGE
     dbClient.fileSourceDao().insert(session, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(TEST_FILE_UUID_1)
-      .setTestData(Arrays.asList(newDbTest(1)))
+      .setTestData(Arrays.asList(FileSourceDb.Test.newBuilder()
+        .setUuid("test-uuid-1")
+        .setName("name#1")
+        .setStatus(TestStatus.ERROR)
+        .setStacktrace("old-stacktrace#1")
+        .setMsg("old-message#1")
+        .setExecutionTimeMs(987_654_321L)
+        .build()))
       .setCreatedAt(100_000)
       .setUpdatedAt(100_000));
     session.commit();
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNotNull();
+
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    List<BatchReport.Test> batchTests = Arrays.asList(
-      newTest(1), newTest(2)
-      );
-    writer.writeTests(TEST_FILE_REF_1, batchTests);
-    List<CoverageDetail> coverageDetails = Arrays.asList(
-      newCoverageDetail(1, MAIN_FILE_REF_1)
-      );
-    writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
+    BatchReport.Test newBatchTest = newTest(1);
+    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newBatchTest));
+
+    CoverageDetail newCoverageDetail = newCoverageDetail(1, MAIN_FILE_REF_1);
+    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail));
 
     // ACT
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
 
     // ASSERT
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(100_000);
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
-    assertThat(dto.getTestData()).hasSize(2);
+    assertThat(dto.getTestData()).hasSize(1);
 
     FileSourceDb.Test test = dto.getTestData().get(0);
+    assertThat(test.getUuid()).isNotEqualTo("test-uuid-1");
     assertThat(test.getName()).isEqualTo("name#1");
-    assertThat(test.getMsg()).isEqualTo("message#1");
+    assertThat(test.getStatus()).isEqualTo(newBatchTest.getStatus());
+    assertThat(test.getMsg()).isEqualTo(newBatchTest.getMsg());
+    assertThat(test.getStacktrace()).isEqualTo(newBatchTest.getStacktrace());
+    assertThat(test.getExecutionTimeMs()).isEqualTo(newBatchTest.getDurationInMs());
     assertThat(test.getCoveredFileCount()).isEqualTo(1);
-    assertThat(test.getCoveredFile(0).getCoveredLineList()).containsExactly(1, 2, 3);
+    assertThat(test.getCoveredFile(0).getCoveredLineList()).containsOnly(1, 2, 3);
     assertThat(test.getCoveredFile(0).getFileUuid()).isEqualTo(MAIN_FILE_UUID_1);
-  }
-
-  private FileSourceDb.Test newDbTest(int id) {
-    return FileSourceDb.Test.newBuilder()
-      .setName("name#" + id)
-      .setType(TestType.IT)
-      .setStatus(TestStatus.ERROR)
-      .setStacktrace("old-stacktrace#" + id)
-      .setMsg("old-message#" + id)
-      .setExecutionTimeMs(123_456_789L)
-      .build();
   }
 
   private BatchReport.Test newTest(int id) {
     return BatchReport.Test.newBuilder()
-      .setType(TestType.UT)
       .setStatus(TestStatus.FAILURE)
       .setName("name#" + id)
       .setStacktrace("stacktrace#" + id)
       .setMsg("message#" + id)
-      .setExecutionTimeMs(1_000)
+      .setDurationInMs(1_000)
       .build();
   }
 
   private BatchReport.CoverageDetail newCoverageDetail(int id, int covered_file_ref) {
+    return newCoverageDetailWithLines(id, covered_file_ref, 1, 2, 3);
+  }
+
+  private BatchReport.CoverageDetail newCoverageDetailWithLines(int id, int covered_file_ref, Integer... lines) {
     return CoverageDetail.newBuilder()
       .setTestName("name#" + id)
       .addCoveredFile(CoverageDetail.CoveredFile.newBuilder()
-        .addAllCoveredLine(Arrays.asList(1, 2, 3))
+        .addAllCoveredLine(Arrays.asList(lines))
         .setFileRef(covered_file_ref)
         .build()
       )
@@ -287,12 +321,14 @@ public class PersistTestsStepTest extends BaseStepTest {
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
       .setUuid(TEST_FILE_UUID_1)
+      .setPath(TEST_FILE_PATH_1)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(TEST_FILE_REF_2)
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
       .setUuid(TEST_FILE_UUID_2)
+      .setPath(TEST_FILE_PATH_2)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(MAIN_FILE_REF_1)

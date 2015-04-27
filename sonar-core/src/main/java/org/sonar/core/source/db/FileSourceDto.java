@@ -271,5 +271,9 @@ public class FileSourceDto {
   public static class Type {
     public static final String SOURCE = "SOURCE";
     public static final String TEST = "TEST";
+
+    private Type() {
+      // utility class
+    }
   }
 }
