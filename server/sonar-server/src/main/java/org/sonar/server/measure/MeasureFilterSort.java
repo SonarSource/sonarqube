@@ -123,7 +123,7 @@ class MeasureFilterSort {
 
   private String getMetricColumn() {
     if (metric.isNumericType()) {
-      return period != null ? "pmsort.variation_value_" + period : "pmsort.value";
+      return (period != null) ? ("pmsort.variation_value_" + period) : "pmsort.value";
     } else {
       return "pmsort.text_value";
     }

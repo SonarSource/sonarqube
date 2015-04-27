@@ -79,7 +79,7 @@ public class DuplicationLineReader implements LineReader {
   }
 
   private static int length(BatchReport.Range range) {
-    return range.getEndLine() - range.getStartLine() + 1;
+    return (range.getEndLine() - range.getStartLine()) + 1;
   }
 
   private Map<BatchReport.Range, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {

@@ -163,7 +163,7 @@ public class ActionPlanDto {
     }
 
     ActionPlanDto actionPlanDto = (ActionPlanDto) o;
-    return !(id != null ? !id.equals(actionPlanDto.id) : actionPlanDto.id != null);
+    return !((id != null) ? !id.equals(actionPlanDto.id) : (actionPlanDto.id != null));
   }
 
   @Override

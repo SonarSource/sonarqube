@@ -328,7 +328,7 @@ public class DefaultCharacteristic implements Characteristic {
 
     DefaultCharacteristic that = (DefaultCharacteristic) o;
 
-    if (key != null ? !key.equals(that.key) : that.key != null) {
+    if ((key != null) ? !key.equals(that.key) : (that.key != null)) {
       return false;
     }
     return !(ruleKey != null ? !ruleKey.equals(that.ruleKey) : that.ruleKey != null);
@@ -337,8 +337,8 @@ public class DefaultCharacteristic implements Characteristic {
 
   @Override
   public int hashCode() {
-    int result = key != null ? key.hashCode() : 0;
-    result = 31 * result + (ruleKey != null ? ruleKey.hashCode() : 0);
+    int result = (key != null) ? key.hashCode() : 0;
+    result = 31 * result + ((ruleKey != null) ? ruleKey.hashCode() : 0);
     return result;
   }
 
