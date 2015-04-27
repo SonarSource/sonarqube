@@ -1,7 +1,7 @@
 {
   "sources": [
     {
-      "code": "<span class=\"h1 sym-palap\">class Polop {</span>",
+      "code": "<span class=\"k\">package</span> <span class=\"sym-42 sym\">org.polop</span>;",
       "line": 1,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",
@@ -13,7 +13,7 @@
       "itCoveredConditions": 1
     },
     {
-      "code": "<span class=\"h2 sym-pulup\">  // Empty</span>",
+      "code": "<span class=\"c\">abc</span>",
       "line": 2,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",
@@ -23,7 +23,7 @@
       "duplicated": true
     },
     {
-      "code": "<span class=\"h3 sym-pylyp\">}</span>",
+      "code": "}",
       "line": 3,
       "scmAuthor": "polop",
       "scmRevision": "cafebabe",

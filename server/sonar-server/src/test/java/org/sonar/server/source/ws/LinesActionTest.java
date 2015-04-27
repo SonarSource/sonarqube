@@ -17,21 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.sonar.api.config.Settings;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.server.component.ComponentService;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -43,54 +45,67 @@ import org.sonar.server.ws.WsTester;
 
 import java.util.Date;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LinesActionTest {
 
-  @Mock
+  private static final String PROJECT_UUID = "abcd";
+  private static final String FILE_UUID = "efgh";
+  private static final String FILE_KEY = "Foo.java";
+
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
   SourceLineIndex sourceLineIndex;
 
-  @Mock
   HtmlSourceDecorator htmlSourceDecorator;
 
-  @Mock
-  ComponentService componentService;
+  ComponentDao componentDao;
 
-  WsTester tester;
+  DbSession session;
+
+  WsTester wsTester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new LinesAction(sourceLineIndex, htmlSourceDecorator, componentService)));
-    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).thenAnswer(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return "<span class=\"" + invocation.getArguments()[1] + " sym-" + invocation.getArguments()[2] + "\">" +
-          StringEscapeUtils.escapeHtml((String) invocation.getArguments()[0]) +
-          "</span>";
-      }
-    });
+    dbTester.truncateTables();
+    esTester.truncateIndices();
+
+    htmlSourceDecorator = new HtmlSourceDecorator();
+    sourceLineIndex = new SourceLineIndex(esTester.client());
+    componentDao = new ComponentDao();
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), componentDao);
+    session = dbClient.openSession(false);
+    wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator)));
+
+    MockUserSession.set();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void show_source() throws Exception {
-    String projectUuid = "abcd";
-    String componentUuid = "efgh";
+    newFile();
+
     Date updatedAt = new Date();
     String scmDate = "2014-01-01T12:34:56.789Z";
     SourceLineDoc line1 = new SourceLineDoc()
-      .setProjectUuid(projectUuid)
-      .setFileUuid(componentUuid)
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
       .setLine(1)
       .setScmRevision("cafebabe")
       .setScmAuthor("polop")
-      .setSource("class Polop {")
-      .setHighlighting("h1")
-      .setSymbols("palap")
+      .setSource("package org.polop;")
+      .setHighlighting("0,7,k")
+      .setSymbols("8,17,42")
       .setUtLineHits(3)
       .setUtConditions(2)
       .setUtCoveredConditions(1)
@@ -102,33 +117,33 @@ public class LinesActionTest {
     line1.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
 
     SourceLineDoc line2 = new SourceLineDoc()
-      .setProjectUuid(projectUuid)
-      .setFileUuid(componentUuid)
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
       .setLine(2)
       .setScmRevision("cafebabe")
       .setScmAuthor("polop")
-      .setSource("  // Empty")
-      .setHighlighting("h2")
-      .setSymbols("pulup")
+      .setSource("abc")
+      .setHighlighting("0,5,c")
+      .setSymbols("")
       .setUtLineHits(3)
       .setUtConditions(2)
       .setUtCoveredConditions(1)
       .setItLineHits(null)
       .setItConditions(null)
       .setItCoveredConditions(null)
-      .setDuplications(ImmutableList.<Integer>of(1))
+      .setDuplications(ImmutableList.of(1))
       .setUpdateDate(updatedAt);
     line2.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
 
     SourceLineDoc line3 = new SourceLineDoc()
-      .setProjectUuid(projectUuid)
-      .setFileUuid(componentUuid)
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
       .setLine(3)
       .setScmRevision("cafebabe")
       .setScmAuthor("polop")
       .setSource("}")
-      .setHighlighting("h3")
-      .setSymbols("pylyp")
+      .setHighlighting(null)
+      .setSymbols(null)
       .setUtLineHits(null)
       .setUtConditions(null)
       .setUtCoveredConditions(null)
@@ -139,33 +154,22 @@ public class LinesActionTest {
       .setUpdateDate(updatedAt);
     line3.setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
 
-    when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
-      line1,
-      line2,
-      line3
-      ));
+    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, line1, line2, line3);
 
-    String componentKey = "componentKey";
-    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
-    // Using non-strict match b/c of dates
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "show_source.json");
   }
 
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
-    String componentUuid = "abcd";
-    String projectUuid = "efgh";
-    when(sourceLineIndex.getLines(anyString(), anyInt(), anyInt())).thenReturn(Lists.<SourceLineDoc>newArrayList());
+    newFile();
 
-    String componentKey = "componentKey";
-    when(componentService.getByUuid(componentUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
+      WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
       request.execute();
       fail();
     } catch (Exception e) {
@@ -175,17 +179,14 @@ public class LinesActionTest {
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
-    String projectUuid = "abcd";
-    String fileUuid = "efgh";
+    newFile();
 
-    String componentKey = "componentKey";
-    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey).setProjectUuid(projectUuid));
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, projectUuid);
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
-    when(sourceLineIndex.getLines(fileUuid, 3, 3)).thenReturn(newArrayList(
+    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       new SourceLineDoc()
-        .setProjectUuid(projectUuid)
-        .setFileUuid(fileUuid)
+        .setProjectUuid(PROJECT_UUID)
+        .setFileUuid(FILE_UUID)
         .setLine(3)
         .setScmRevision("cafebabe")
         .setScmDate(null)
@@ -201,25 +202,76 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-      ));
-    WsTester.TestRequest request = tester
+    );
+
+    WsTester.TestRequest request = wsTester
       .newGetRequest("api/sources", "lines")
-      .setParam("uuid", fileUuid)
+      .setParam("uuid", FILE_UUID)
       .setParam("from", "3")
       .setParam("to", "3");
     request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
   }
 
+  @Test
+  public void show_source_by_file_key() throws Exception {
+    newFile();
+
+    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+      new SourceLineDoc()
+        .setProjectUuid(PROJECT_UUID)
+        .setFileUuid(FILE_UUID)
+        .setLine(3)
+        .setScmRevision("cafebabe")
+        .setScmDate(null)
+        .setScmAuthor("polop")
+        .setSource("}")
+        .setHighlighting("")
+        .setSymbols("")
+        .setUtLineHits(null)
+        .setUtConditions(null)
+        .setUtCoveredConditions(null)
+        .setItLineHits(null)
+        .setItConditions(null)
+        .setItCoveredConditions(null)
+        .setDuplications(null)
+        .setUpdateDate(new Date())
+    );
+
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
+    request.execute().assertJson(getClass(), "show_source_by_file_key.json");
+  }
+
+  @Test
+  public void fail_when_no_uuid_or_key_param() throws Exception {
+    newFile();
+    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
+
+    try {
+      request.execute();
+      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Param uuid or param key is missing");
+    }
+  }
+
   @Test(expected = ForbiddenException.class)
   public void should_check_permission() throws Exception {
-    String fileUuid = "efgh";
+    newFile();
 
-    String componentKey = "componentKey";
-    when(componentService.getByUuid(fileUuid)).thenReturn(new ComponentDto().setKey(componentKey));
     MockUserSession.set().setLogin("login");
 
-    tester.newGetRequest("api/sources", "lines")
-      .setParam("uuid", fileUuid)
+    wsTester.newGetRequest("api/sources", "lines")
+      .setParam("uuid", FILE_UUID)
       .execute();
+  }
+
+  private void newFile(){
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
+    ComponentDto file = ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY);
+    componentDao.insert(session, project, file);
+    session.commit();
   }
 }

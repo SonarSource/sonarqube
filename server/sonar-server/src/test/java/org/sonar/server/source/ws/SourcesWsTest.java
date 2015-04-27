@@ -22,7 +22,6 @@ package org.sonar.server.source.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -36,7 +35,7 @@ public class SourcesWsTest {
 
   ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
-  LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), mock(ComponentService.class));
+  LinesAction linesAction = new LinesAction(mock(DbClient.class), mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class));
   HashAction hashAction = new HashAction(mock(DbClient.class));
   IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class));
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, indexAction));
@@ -71,7 +70,7 @@ public class SourcesWsTest {
     assertThat(lines.since()).isEqualTo("5.0");
     assertThat(lines.isInternal()).isTrue();
     assertThat(lines.responseExampleAsString()).isNotEmpty();
-    assertThat(lines.params()).hasSize(3);
+    assertThat(lines.params()).hasSize(4);
 
     WebService.Action hash = controller.action("hash");
     assertThat(hash).isNotNull();

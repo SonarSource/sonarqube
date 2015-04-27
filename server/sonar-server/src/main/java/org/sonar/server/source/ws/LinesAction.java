@@ -28,7 +28,9 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.server.component.ComponentService;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -40,14 +42,17 @@ import java.util.List;
 
 public class LinesAction implements SourcesAction {
 
+  private static final String PARAM_UUID = "uuid";
+  private static final String PARAM_KEY = "key";
+
   private final SourceLineIndex sourceLineIndex;
   private final HtmlSourceDecorator htmlSourceDecorator;
-  private final ComponentService componentService;
+  private final DbClient dbClient;
 
-  public LinesAction(SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator, ComponentService componentService) {
+  public LinesAction(DbClient dbClient, SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator) {
     this.sourceLineIndex = sourceLineIndex;
     this.htmlSourceDecorator = htmlSourceDecorator;
-    this.componentService = componentService;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -74,10 +79,14 @@ public class LinesAction implements SourcesAction {
       .setHandler(this);
 
     action
-      .createParam("uuid")
-      .setRequired(true)
-      .setDescription("File uuid")
+      .createParam(PARAM_UUID)
+      .setDescription("File uuid. Mandatory if param 'key' is not set")
       .setExampleValue("f333aab4-7e3a-4d70-87e1-f4c491f05e5c");
+
+    action
+      .createParam(PARAM_KEY)
+      .setDescription("File key. Mandatory if param 'uuid' is not set. Available since 5.2")
+      .setExampleValue("org.sample:src/main/java/Foo.java");
 
     action
       .createParam("from")
@@ -93,16 +102,15 @@ public class LinesAction implements SourcesAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String fileUuid = request.mandatoryParam("uuid");
-    ComponentDto component = componentService.getByUuid(fileUuid);
+    ComponentDto component = loadComponent(request);
     UserSession.get().checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
 
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
-    List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(fileUuid, from, to);
+    List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(component.uuid(), from, to);
     if (sourceLines.isEmpty()) {
-      throw new NotFoundException("File '" + fileUuid + "' has no sources");
+      throw new NotFoundException("File '" + component.key() + "' has no sources");
     }
 
     JsonWriter json = response.newJsonWriter().beginObject();
@@ -113,7 +121,7 @@ public class LinesAction implements SourcesAction {
 
   private void writeSource(List<SourceLineDoc> lines, JsonWriter json) {
     json.name("sources").beginArray();
-    for (SourceLineDoc line: lines) {
+    for (SourceLineDoc line : lines) {
       json.beginObject()
         .prop("line", line.line())
         .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.source(), line.highlighting(), line.symbols()))
@@ -127,11 +135,29 @@ public class LinesAction implements SourcesAction {
         .prop("itLineHits", line.itLineHits())
         .prop("itConditions", line.itConditions())
         .prop("itCoveredConditions", line.itCoveredConditions());
-      if (! line.duplications().isEmpty()) {
+      if (!line.duplications().isEmpty()) {
         json.prop("duplicated", true);
       }
       json.endObject();
     }
     json.endArray();
   }
+
+  private ComponentDto loadComponent(Request request) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      String fileUuid = request.param(PARAM_UUID);
+      if (fileUuid != null) {
+        return dbClient.componentDao().getByUuid(session, fileUuid);
+      }
+      String fileKey = request.param(PARAM_KEY);
+      if (fileKey != null) {
+        return dbClient.componentDao().getByKey(session, fileKey);
+      }
+      throw new IllegalArgumentException(String.format("Param %s or param %s is missing", PARAM_UUID, PARAM_KEY));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
 }
