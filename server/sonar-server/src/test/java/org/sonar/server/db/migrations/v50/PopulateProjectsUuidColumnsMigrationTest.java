@@ -289,4 +289,48 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(file.getModuleUuidPath()).isEmpty();
   }
 
+  @Test
+  public void not_fail_when_module_has_no_root_id() throws Exception {
+    db.prepareDbUnit(getClass(), "not_fail_when_module_has_no_root_id.xml");
+
+    migration.execute();
+    session.commit();
+
+    // Root project migrated
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    assertThat(root.getUuid()).isNotNull();
+    assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
+    assertThat(root.getModuleUuid()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
+
+    // The module without uuid will be migrated as a standalone component
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    assertThat(module.getUuid()).isNotNull();
+    assertThat(module.getProjectUuid()).isEqualTo(module.getUuid());
+    assertThat(module.getModuleUuid()).isNull();
+    assertThat(module.getModuleUuidPath()).isEmpty();
+  }
+
+  @Test
+  public void not_fail_when_project_has_two_active_snapshots() throws Exception {
+    db.prepareDbUnit(getClass(), "not_fail_when_project_has_two_active_snapshots.xml");
+
+    migration.execute();
+    session.commit();
+
+    // Root project migrated
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    assertThat(root.getUuid()).isNotNull();
+    assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
+    assertThat(root.getModuleUuid()).isNull();
+    assertThat(root.getModuleUuidPath()).isEmpty();
+
+    // The module linked on second active snapshot should be migrated a standalone component
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    assertThat(module.getUuid()).isNotNull();
+    assertThat(module.getProjectUuid()).isEqualTo(module.getUuid());
+    assertThat(module.getModuleUuid()).isNull();
+    assertThat(module.getModuleUuidPath()).isEmpty();
+  }
+
 }
