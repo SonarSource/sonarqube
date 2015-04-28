@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import org.apache.commons.collections.CollectionUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
@@ -45,7 +44,12 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -202,8 +206,10 @@ public class ComponentService implements ServerComponent {
             return component.key();
           }
         });
+        Set<String> missingKeys = Sets.newHashSet(componentKeys);
+        missingKeys.removeAll(foundKeys);
         throw new NotFoundException("The following component keys do not match any component:\n" +
-          Joiner.on('\n').join(CollectionUtils.subtract(componentKeys, foundKeys)));
+          Joiner.on('\n').join(missingKeys));
       }
 
       for (ComponentDto component : components) {

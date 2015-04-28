@@ -223,16 +223,16 @@ public class ComponentNavigationAction implements NavigationAction {
   private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component, UserSession userSession) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
 
-    json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE))
-      .prop("showQualityProfiles", isProject)
-      .prop("showQualityGates", isProject)
-      .prop("showManualMeasures", isAdmin)
-      .prop("showActionPlans", isAdmin && isProject)
-      .prop("showLinks", isAdmin && isProject)
-      .prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY))
-      .prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY))
-      .prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY))
-      .prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
+    json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
+    json.prop("showQualityProfiles", isProject);
+    json.prop("showQualityGates", isProject);
+    json.prop("showManualMeasures", isAdmin);
+    json.prop("showActionPlans", isAdmin && isProject);
+    json.prop("showLinks", isAdmin && isProject);
+    json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
+    json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
+    json.prop("showUpdateKey", isAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
+    json.prop("showDeletion", isAdmin && componentTypeHasProperty(component, PROPERTY_DELETABLE));
   }
 
   private boolean componentTypeHasProperty(ComponentDto component, String resourceTypeProperty) {

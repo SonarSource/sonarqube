@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
@@ -110,7 +111,7 @@ public class QProfileExportAction implements BaseQProfileWsAction {
     DbSession dbSession = dbClient.openSession(false);
     Stream stream = response.stream();
     OutputStream output = stream.output();
-    Writer writer = new OutputStreamWriter(output);
+    Writer writer = new OutputStreamWriter(output, Charsets.UTF_8);
 
     try {
       QualityProfileDto profile = null;

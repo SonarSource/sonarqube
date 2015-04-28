@@ -24,7 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.BatchComponent;
@@ -42,6 +42,7 @@ import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.
@@ -274,7 +275,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
   }
 
   public boolean setTags(DefaultIssue issue, Collection<String> tags, IssueChangeContext context) {
-    Collection<String> newTags = Collections2.transform(
+    Set<String> newTags = Sets.newHashSet(Collections2.transform(
       Collections2.filter(tags, new Predicate<String>() {
         @Override
         public boolean apply(String tag) {
@@ -287,10 +288,11 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
           RuleTagFormat.validate(lowerCaseTag);
           return lowerCaseTag;
         }
-      });
+      }));
 
-    Collection<String> oldTags = issue.tags();
-    if (!CollectionUtils.isEqualCollection(oldTags, newTags)) {
+    Set<String> oldTags = Sets.newHashSet(issue.tags());
+    
+    if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
         oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),
         newTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(newTags));

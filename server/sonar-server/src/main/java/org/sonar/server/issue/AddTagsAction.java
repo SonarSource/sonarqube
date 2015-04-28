@@ -20,11 +20,12 @@
 
 package org.sonar.server.issue;
 
-import org.apache.commons.collections.CollectionUtils;
+import com.google.common.collect.Sets;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Collection;
+import java.util.Set;
 
 
 public class AddTagsAction extends AbstractChangeTagsAction implements ServerComponent {
@@ -36,8 +37,9 @@ public class AddTagsAction extends AbstractChangeTagsAction implements ServerCom
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected Collection<String> getTagsToSet(Context context, Collection<String> tagsFromParams) {
-    return CollectionUtils.union(context.issue().tags(), tagsFromParams);
+    Set<String> allTags = Sets.newHashSet(context.issue().tags());
+    allTags.addAll(tagsFromParams);
+    return allTags;
   }
 }
