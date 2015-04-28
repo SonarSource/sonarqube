@@ -17,10 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.dependency;
+package org.sonar.core.design;
 
-import org.apache.ibatis.session.ResultHandler;
+public final class DependencyDto {
+  private Long id;
+  private Long fromSnapshotId;
+  private Long toSnapshotId;
+  private String usage;
 
-public interface DependencyMapper {
-  void selectAll(ResultHandler handler);
+  public Long getId() {
+    return id;
+  }
+
+  public DependencyDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
+
+  public Long getFromSnapshotId() {
+    return fromSnapshotId;
+  }
+
+  public DependencyDto setFromSnapshotId(Long fromSnapshotId) {
+    this.fromSnapshotId = fromSnapshotId;
+    return this;
+  }
+
+  public Long getToSnapshotId() {
+    return toSnapshotId;
+  }
+
+  public DependencyDto setToSnapshotId(Long toSnapshotId) {
+    this.toSnapshotId = toSnapshotId;
+    return this;
+  }
+
+  public String getUsage() {
+    return usage;
+  }
+
+  public DependencyDto setUsage(String usage) {
+    this.usage = usage;
+    return this;
+  }
 }

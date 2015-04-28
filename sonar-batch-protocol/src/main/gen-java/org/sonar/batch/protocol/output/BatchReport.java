@@ -19508,7 +19508,7 @@ public final class BatchReport {
      * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * Number of conditions to cover (never 0)
+     * Number of conditions to cover (if set, the value must be greater than 0)
      * </pre>
      */
     boolean hasConditions();
@@ -19516,53 +19516,93 @@ public final class BatchReport {
      * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * Number of conditions to cover (never 0)
+     * Number of conditions to cover (if set, the value must be greater than 0)
      * </pre>
      */
     int getConditions();
 
     /**
      * <code>optional bool ut_hits = 3;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     boolean hasUtHits();
     /**
      * <code>optional bool ut_hits = 3;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     boolean getUtHits();
 
     /**
      * <code>optional bool it_hits = 4;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     boolean hasItHits();
     /**
      * <code>optional bool it_hits = 4;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     boolean getItHits();
 
     /**
      * <code>optional int32 ut_covered_conditions = 5;</code>
+     *
+     * <pre>
+     * Number of conditions covered by unit tests
+     * </pre>
      */
     boolean hasUtCoveredConditions();
     /**
      * <code>optional int32 ut_covered_conditions = 5;</code>
+     *
+     * <pre>
+     * Number of conditions covered by unit tests
+     * </pre>
      */
     int getUtCoveredConditions();
 
     /**
      * <code>optional int32 it_covered_conditions = 6;</code>
+     *
+     * <pre>
+     * Number of conditions covered by integration tests
+     * </pre>
      */
     boolean hasItCoveredConditions();
     /**
      * <code>optional int32 it_covered_conditions = 6;</code>
+     *
+     * <pre>
+     * Number of conditions covered by integration tests
+     * </pre>
      */
     int getItCoveredConditions();
 
     /**
      * <code>optional int32 overall_covered_conditions = 7;</code>
+     *
+     * <pre>
+     * Number of conditions covered by overall tests
+     * </pre>
      */
     boolean hasOverallCoveredConditions();
     /**
      * <code>optional int32 overall_covered_conditions = 7;</code>
+     *
+     * <pre>
+     * Number of conditions covered by overall tests
+     * </pre>
      */
     int getOverallCoveredConditions();
   }
@@ -19570,7 +19610,7 @@ public final class BatchReport {
    * Protobuf type {@code Coverage}
    *
    * <pre>
-   * Only FILE component has coverage information
+   * Only FILE component has coverage information, and only executable lines should contains this information.
    * TODO rename it LineCoverage ?
    * </pre>
    */
@@ -19719,7 +19759,7 @@ public final class BatchReport {
      * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * Number of conditions to cover (never 0)
+     * Number of conditions to cover (if set, the value must be greater than 0)
      * </pre>
      */
     public boolean hasConditions() {
@@ -19729,7 +19769,7 @@ public final class BatchReport {
      * <code>optional int32 conditions = 2;</code>
      *
      * <pre>
-     * Number of conditions to cover (never 0)
+     * Number of conditions to cover (if set, the value must be greater than 0)
      * </pre>
      */
     public int getConditions() {
@@ -19740,12 +19780,20 @@ public final class BatchReport {
     private boolean utHits_;
     /**
      * <code>optional bool ut_hits = 3;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     public boolean hasUtHits() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional bool ut_hits = 3;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     public boolean getUtHits() {
       return utHits_;
@@ -19755,12 +19803,20 @@ public final class BatchReport {
     private boolean itHits_;
     /**
      * <code>optional bool it_hits = 4;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     public boolean hasItHits() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional bool it_hits = 4;</code>
+     *
+     * <pre>
+     * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+     * </pre>
      */
     public boolean getItHits() {
       return itHits_;
@@ -19770,12 +19826,20 @@ public final class BatchReport {
     private int utCoveredConditions_;
     /**
      * <code>optional int32 ut_covered_conditions = 5;</code>
+     *
+     * <pre>
+     * Number of conditions covered by unit tests
+     * </pre>
      */
     public boolean hasUtCoveredConditions() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional int32 ut_covered_conditions = 5;</code>
+     *
+     * <pre>
+     * Number of conditions covered by unit tests
+     * </pre>
      */
     public int getUtCoveredConditions() {
       return utCoveredConditions_;
@@ -19785,12 +19849,20 @@ public final class BatchReport {
     private int itCoveredConditions_;
     /**
      * <code>optional int32 it_covered_conditions = 6;</code>
+     *
+     * <pre>
+     * Number of conditions covered by integration tests
+     * </pre>
      */
     public boolean hasItCoveredConditions() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional int32 it_covered_conditions = 6;</code>
+     *
+     * <pre>
+     * Number of conditions covered by integration tests
+     * </pre>
      */
     public int getItCoveredConditions() {
       return itCoveredConditions_;
@@ -19800,12 +19872,20 @@ public final class BatchReport {
     private int overallCoveredConditions_;
     /**
      * <code>optional int32 overall_covered_conditions = 7;</code>
+     *
+     * <pre>
+     * Number of conditions covered by overall tests
+     * </pre>
      */
     public boolean hasOverallCoveredConditions() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional int32 overall_covered_conditions = 7;</code>
+     *
+     * <pre>
+     * Number of conditions covered by overall tests
+     * </pre>
      */
     public int getOverallCoveredConditions() {
       return overallCoveredConditions_;
@@ -19973,7 +20053,7 @@ public final class BatchReport {
      * Protobuf type {@code Coverage}
      *
      * <pre>
-     * Only FILE component has coverage information
+     * Only FILE component has coverage information, and only executable lines should contains this information.
      * TODO rename it LineCoverage ?
      * </pre>
      */
@@ -20184,7 +20264,7 @@ public final class BatchReport {
        * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * Number of conditions to cover (never 0)
+       * Number of conditions to cover (if set, the value must be greater than 0)
        * </pre>
        */
       public boolean hasConditions() {
@@ -20194,7 +20274,7 @@ public final class BatchReport {
        * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * Number of conditions to cover (never 0)
+       * Number of conditions to cover (if set, the value must be greater than 0)
        * </pre>
        */
       public int getConditions() {
@@ -20204,7 +20284,7 @@ public final class BatchReport {
        * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * Number of conditions to cover (never 0)
+       * Number of conditions to cover (if set, the value must be greater than 0)
        * </pre>
        */
       public Builder setConditions(int value) {
@@ -20217,7 +20297,7 @@ public final class BatchReport {
        * <code>optional int32 conditions = 2;</code>
        *
        * <pre>
-       * Number of conditions to cover (never 0)
+       * Number of conditions to cover (if set, the value must be greater than 0)
        * </pre>
        */
       public Builder clearConditions() {
@@ -20230,18 +20310,30 @@ public final class BatchReport {
       private boolean utHits_ ;
       /**
        * <code>optional bool ut_hits = 3;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public boolean hasUtHits() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional bool ut_hits = 3;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public boolean getUtHits() {
         return utHits_;
       }
       /**
        * <code>optional bool ut_hits = 3;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public Builder setUtHits(boolean value) {
         bitField0_ |= 0x00000004;
@@ -20251,6 +20343,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional bool ut_hits = 3;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public Builder clearUtHits() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -20262,18 +20358,30 @@ public final class BatchReport {
       private boolean itHits_ ;
       /**
        * <code>optional bool it_hits = 4;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public boolean hasItHits() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional bool it_hits = 4;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public boolean getItHits() {
         return itHits_;
       }
       /**
        * <code>optional bool it_hits = 4;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public Builder setItHits(boolean value) {
         bitField0_ |= 0x00000008;
@@ -20283,6 +20391,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional bool it_hits = 4;</code>
+       *
+       * <pre>
+       * Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+       * </pre>
        */
       public Builder clearItHits() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -20294,18 +20406,30 @@ public final class BatchReport {
       private int utCoveredConditions_ ;
       /**
        * <code>optional int32 ut_covered_conditions = 5;</code>
+       *
+       * <pre>
+       * Number of conditions covered by unit tests
+       * </pre>
        */
       public boolean hasUtCoveredConditions() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional int32 ut_covered_conditions = 5;</code>
+       *
+       * <pre>
+       * Number of conditions covered by unit tests
+       * </pre>
        */
       public int getUtCoveredConditions() {
         return utCoveredConditions_;
       }
       /**
        * <code>optional int32 ut_covered_conditions = 5;</code>
+       *
+       * <pre>
+       * Number of conditions covered by unit tests
+       * </pre>
        */
       public Builder setUtCoveredConditions(int value) {
         bitField0_ |= 0x00000010;
@@ -20315,6 +20439,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional int32 ut_covered_conditions = 5;</code>
+       *
+       * <pre>
+       * Number of conditions covered by unit tests
+       * </pre>
        */
       public Builder clearUtCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -20326,18 +20454,30 @@ public final class BatchReport {
       private int itCoveredConditions_ ;
       /**
        * <code>optional int32 it_covered_conditions = 6;</code>
+       *
+       * <pre>
+       * Number of conditions covered by integration tests
+       * </pre>
        */
       public boolean hasItCoveredConditions() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional int32 it_covered_conditions = 6;</code>
+       *
+       * <pre>
+       * Number of conditions covered by integration tests
+       * </pre>
        */
       public int getItCoveredConditions() {
         return itCoveredConditions_;
       }
       /**
        * <code>optional int32 it_covered_conditions = 6;</code>
+       *
+       * <pre>
+       * Number of conditions covered by integration tests
+       * </pre>
        */
       public Builder setItCoveredConditions(int value) {
         bitField0_ |= 0x00000020;
@@ -20347,6 +20487,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional int32 it_covered_conditions = 6;</code>
+       *
+       * <pre>
+       * Number of conditions covered by integration tests
+       * </pre>
        */
       public Builder clearItCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -20358,18 +20502,30 @@ public final class BatchReport {
       private int overallCoveredConditions_ ;
       /**
        * <code>optional int32 overall_covered_conditions = 7;</code>
+       *
+       * <pre>
+       * Number of conditions covered by overall tests
+       * </pre>
        */
       public boolean hasOverallCoveredConditions() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional int32 overall_covered_conditions = 7;</code>
+       *
+       * <pre>
+       * Number of conditions covered by overall tests
+       * </pre>
        */
       public int getOverallCoveredConditions() {
         return overallCoveredConditions_;
       }
       /**
        * <code>optional int32 overall_covered_conditions = 7;</code>
+       *
+       * <pre>
+       * Number of conditions covered by overall tests
+       * </pre>
        */
       public Builder setOverallCoveredConditions(int value) {
         bitField0_ |= 0x00000040;
@@ -20379,6 +20535,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional int32 overall_covered_conditions = 7;</code>
+       *
+       * <pre>
+       * Number of conditions covered by overall tests
+       * </pre>
        */
       public Builder clearOverallCoveredConditions() {
         bitField0_ = (bitField0_ & ~0x00000040);

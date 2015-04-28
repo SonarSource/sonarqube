@@ -17,43 +17,58 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.dependency;
+package org.sonar.core.design;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResourceSnapshotMapperTest extends AbstractDaoTestCase {
+public class DependencyMapperTest {
+
+  @ClassRule
+  public static DbTester dbtester = new DbTester();
+
+  DbSession session;
+
+  @Before
+  public void setUp() throws Exception {
+    dbtester.truncateTables();
+    session = dbtester.myBatis().openSession(false);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
+  }
+
   @Test
-  public void should_find_all() {
-    setupData("fixture");
+  public void select_all_dependencies() {
+    dbtester.prepareDbUnit(getClass(), "fixture.xml");
 
-    final List<ResourceSnapshotDto> snapshots = Lists.newArrayList();
+    final List<DependencyDto> dependencies = Lists.newArrayList();
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      session.getMapper(ResourceSnapshotMapper.class).selectAll(new ResultHandler() {
-        public void handleResult(ResultContext context) {
-          snapshots.add((ResourceSnapshotDto) context.getResultObject());
-        }
-      });
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    session.getMapper(DependencyMapper.class).selectAll(new ResultHandler() {
+      public void handleResult(ResultContext context) {
+        dependencies.add((DependencyDto) context.getResultObject());
+      }
+    });
 
-    assertThat(snapshots).hasSize(2);
+    assertThat(dependencies).hasSize(2);
 
-    ResourceSnapshotDto dep = snapshots.get(0);
+    DependencyDto dep = dependencies.get(0);
     assertThat(dep.getId()).isEqualTo(1L);
-    assertThat(dep.getProjectId()).isEqualTo(1000L);
-    assertThat(dep.getVersion()).isEqualTo("1.0");
+    assertThat(dep.getFromSnapshotId()).isEqualTo(1000L);
+    assertThat(dep.getToSnapshotId()).isEqualTo(1001L);
+    assertThat(dep.getUsage()).isEqualTo("compile");
   }
 }

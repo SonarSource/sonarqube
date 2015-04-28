@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.core.dependency.DependencyMapper">
+<mapper namespace="org.sonar.core.design.DependencyMapper">
 
   <select id="selectAll" resultType="dependency" >
     SELECT id, from_snapshot_id as fromSnapshotId, to_snapshot_id as toSnapshotId, dep_usage as "usage" FROM dependencies
