@@ -43,10 +43,12 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.RubyRailsWebservice;
 import org.sonar.api.web.Widget;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
@@ -374,5 +376,38 @@ public final class JRubyFacade {
 
   public String getPeriodAbbreviation(int periodIndex) {
     return get(Periods.class).abbreviation(periodIndex);
+  }
+
+  /**
+   * Checks whether the SQ instance is up and running (ie. not in safemode and with an up-to-date database).
+   * <p>
+   * This method duplicates most of the logic code written in {@link org.sonar.server.platform.ws.UpgradesSystemWsAction}
+   * class. There is no need to refactor code to avoid this duplication since this method is only used by RoR code
+   * which will soon be replaced by pure JS code based on the {@link org.sonar.server.platform.ws.UpgradesSystemWsAction}
+   * WebService.
+   * </p>
+   */
+  public boolean isSonarAccessAllowed() {
+    ComponentContainer container = Platform.getInstance().getContainer();
+    DatabaseMigration databaseMigration = container.getComponentByType(DatabaseMigration.class);
+    if (databaseMigration.status() == DatabaseMigration.Status.RUNNING
+        || databaseMigration.status() == DatabaseMigration.Status.FAILED) {
+      return false;
+    }
+    if (databaseMigration.status() == DatabaseMigration.Status.SUCCEEDED) {
+      return true;
+    }
+
+    DatabaseVersion databaseVersion = container.getComponentByType(DatabaseVersion.class);
+    Integer currentVersion = databaseVersion.getVersion();
+    if (currentVersion == null) {
+      throw new IllegalStateException("Version can not be retrieved from Database. Database is either blank or corrupted");
+    }
+    if (currentVersion >= DatabaseVersion.LAST_VERSION) {
+      return true;
+    }
+
+    Database database = container.getComponentByType(Database.class);
+    return !database.getDialect().supportsMigration();
   }
 }

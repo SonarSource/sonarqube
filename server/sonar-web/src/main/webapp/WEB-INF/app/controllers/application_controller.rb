@@ -87,7 +87,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def check_database_version
-    unless DatabaseMigrationManager.instance.is_sonar_access_allowed?
+    unless java_facade.isSonarAccessAllowed()
       redirect_to :controller => 'maintenance', :action => 'index'
     end
   end
