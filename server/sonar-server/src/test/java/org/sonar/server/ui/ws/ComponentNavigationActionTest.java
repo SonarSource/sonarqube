@@ -212,6 +212,23 @@ public class ComponentNavigationActionTest {
   }
 
   @Test
+  public void with_default_dashboards() throws Exception {
+    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop"));
+    DashboardDto dashboard = new DashboardDto().setGlobal(false).setName("Anon Dashboard").setShared(true).setColumnLayout("100%");
+    dashboardDao.insert(dashboard);
+    activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
+    session.commit();
+
+    MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
+
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
+      new Views(), i18n, resourceTypes)));
+
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_default_dashboards.json");
+  }
+
+  @Test
   public void with_extensions() throws Exception {
     final String language = "xoo";
     ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")

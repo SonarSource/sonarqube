@@ -59,6 +59,8 @@ public class ComponentNavigationAction implements NavigationAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 
+  private static final String ANONYMOUS = null;
+
   private static final String PROPERTY_COMPARABLE = "comparable";
   private static final String PROPERTY_CONFIGURABLE = "configurable";
   private static final String PROPERTY_HAS_ROLE_POLICY = "hasRolePolicy";
@@ -136,6 +138,9 @@ public class ComponentNavigationAction implements NavigationAction {
       .prop("isFavorite", isFavourite(session, component, userSession));
 
     List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.login());
+    if (dashboards.isEmpty()) {
+      dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, ANONYMOUS);
+    }
     writeDashboards(json, component, dashboards, userSession.locale());
 
     if (snapshot != null) {
