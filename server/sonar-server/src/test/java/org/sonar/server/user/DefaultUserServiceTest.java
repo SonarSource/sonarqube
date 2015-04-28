@@ -42,7 +42,11 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
@@ -50,7 +54,8 @@ public class DefaultUserServiceTest {
   UserService userService = mock(UserService.class);
   UserFinder finder = mock(UserFinder.class);
   UserDao dao = mock(UserDao.class);
-  DefaultUserService service = new DefaultUserService(userService, finder, dao);
+  UserUpdater userUpdater = mock(UserUpdater.class);
+  DefaultUserService service = new DefaultUserService(userService, userUpdater, finder, dao);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -114,8 +119,7 @@ public class DefaultUserServiceTest {
   public void deactivate_user() throws Exception {
     MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
-    verify(dao).deactivateUserByLogin("julien");
-    verify(userService).index();
+    verify(userUpdater).deactivateUserByLogin("julien");
   }
 
   @Test
@@ -140,7 +144,7 @@ public class DefaultUserServiceTest {
     service.create(params);
 
     ArgumentCaptor<NewUser> newUserCaptor = ArgumentCaptor.forClass(NewUser.class);
-    verify(userService).create(newUserCaptor.capture());
+    verify(userUpdater).create(newUserCaptor.capture());
     assertThat(newUserCaptor.getValue().login()).isEqualTo("john");
     assertThat(newUserCaptor.getValue().name()).isEqualTo("John");
     assertThat(newUserCaptor.getValue().email()).isEqualTo("john@email.com");
@@ -160,7 +164,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().login()).isEqualTo("john");
     assertThat(userCaptor.getValue().name()).isEqualTo("John");
     assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
@@ -177,7 +181,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isTrue();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -192,7 +196,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -207,7 +211,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
@@ -223,7 +227,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -239,6 +243,6 @@ public class DefaultUserServiceTest {
   @Test
   public void index() throws Exception {
     service.index();
-    verify(userService).index();
+    verify(userUpdater).index();
   }
 }

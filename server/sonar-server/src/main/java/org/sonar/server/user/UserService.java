@@ -21,36 +21,17 @@
 package org.sonar.server.user;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.index.UserIndexer;
 
 import javax.annotation.CheckForNull;
 
 public class UserService implements ServerComponent {
 
-  private final UserIndexer userIndexer;
   private final UserIndex userIndex;
-  private final UserUpdater userUpdater;
 
-  public UserService(UserIndexer userIndexer, UserIndex userIndex, UserUpdater userUpdater) {
-    this.userIndexer = userIndexer;
+  public UserService(UserIndex userIndex) {
     this.userIndex = userIndex;
-    this.userUpdater = userUpdater;
-  }
-
-  public boolean create(NewUser newUser) {
-    checkPermission();
-    boolean result = userUpdater.create(newUser);
-    userIndexer.index();
-    return result;
-  }
-
-  public void update(UpdateUser updateUser) {
-    checkPermission();
-    userUpdater.update(updateUser);
-    userIndexer.index();
   }
 
   public UserDoc getByLogin(String login) {
@@ -60,15 +41,5 @@ public class UserService implements ServerComponent {
   @CheckForNull
   public UserDoc getNullableByLogin(String login) {
     return userIndex.getNullableByLogin(login);
-  }
-
-  public void index() {
-    userIndexer.index();
-  }
-
-  private void checkPermission() {
-    UserSession userSession = UserSession.get();
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 }

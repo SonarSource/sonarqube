@@ -39,11 +39,13 @@ import java.util.Map;
 public class DefaultUserService implements RubyUserService {
 
   private final UserService userService;
+  private final UserUpdater userUpdater;
   private final UserFinder finder;
   private final UserDao dao;
 
-  public DefaultUserService(UserService userService, UserFinder finder, UserDao dao) {
+  public DefaultUserService(UserService userService, UserUpdater userUpdater, UserFinder finder, UserDao dao) {
     this.userService = userService;
+    this.userUpdater = userUpdater;
     this.finder = finder;
     this.dao = dao;
   }
@@ -83,7 +85,7 @@ public class DefaultUserService implements RubyUserService {
       .setScmAccounts(RubyUtils.toStrings(params.get("scm_accounts")))
       .setPassword((String) params.get("password"))
       .setPasswordConfirmation((String) params.get("password_confirmation"));
-    return userService.create(newUser);
+    return userUpdater.create(newUser);
   }
 
   public void update(Map<String, Object> params) {
@@ -101,7 +103,7 @@ public class DefaultUserService implements RubyUserService {
       updateUser.setPassword((String) params.get("password"));
       updateUser.setPasswordConfirmation((String) params.get("password_confirmation"));
     }
-    userService.update(updateUser);
+    userUpdater.update(updateUser);
   }
 
   public void deactivate(String login) {
@@ -113,11 +115,10 @@ public class DefaultUserService implements RubyUserService {
     if (Objects.equal(userSession.login(), login)) {
       throw new BadRequestException("Self-deactivation is not possible");
     }
-    dao.deactivateUserByLogin(login);
-    userService.index();
+    userUpdater.deactivateUserByLogin(login);
   }
 
   public void index() {
-    userService.index();
+    userUpdater.index();
   }
 }

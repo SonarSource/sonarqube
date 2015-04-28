@@ -19,8 +19,6 @@
  */
 package org.sonar.server.db;
 
-import org.sonar.server.source.db.FileSourceDao;
-
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
@@ -51,8 +49,10 @@ import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
+import org.sonar.server.user.db.UserGroupDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -83,6 +83,7 @@ public class DbClient implements ServerComponent {
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
   private final GroupDao groupDao;
+  private final UserGroupDao userGroupDao;
   private final IssueDao issueDao;
   private final IssueFilterDao issueFilterDao;
   private final IssueChangeDao issueChangeDao;
@@ -120,6 +121,7 @@ public class DbClient implements ServerComponent {
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
     groupDao = getDao(map, GroupDao.class);
+    userGroupDao = getDao(map, UserGroupDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueFilterDao = getDao(map, IssueFilterDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
@@ -213,6 +215,10 @@ public class DbClient implements ServerComponent {
 
   public GroupDao groupDao() {
     return groupDao;
+  }
+
+  public UserGroupDao userGroupDao() {
+    return userGroupDao;
   }
 
   public ActionPlanDao actionPlanDao() {

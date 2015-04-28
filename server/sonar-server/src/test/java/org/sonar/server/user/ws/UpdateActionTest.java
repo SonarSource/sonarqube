@@ -28,8 +28,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserService;
+import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.ws.WsTester;
 
@@ -51,13 +54,17 @@ public class UpdateActionTest {
   @Mock
   UserService service;
 
+  @Mock
+  UserUpdater updater;
+
   @Captor
   ArgumentCaptor<UpdateUser> userCaptor;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new UpdateAction(service)));
+    tester = new WsTester(new UsersWs(new UpdateAction(service, updater)));
     controller = tester.controller("api/users");
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
@@ -82,7 +89,7 @@ public class UpdateActionTest {
       .execute()
       .assertJson(getClass(), "update_user.json");
 
-    verify(service).update(userCaptor.capture());
+    verify(updater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().login()).isEqualTo("john");
     assertThat(userCaptor.getValue().name()).isEqualTo("John");
     assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
@@ -108,7 +115,7 @@ public class UpdateActionTest {
       .setParam("name", "John")
       .execute();
 
-    verify(service).update(userCaptor.capture());
+    verify(updater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isTrue();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -133,7 +140,7 @@ public class UpdateActionTest {
       .setParam("email", "john@email.com")
       .execute();
 
-    verify(service).update(userCaptor.capture());
+    verify(updater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -158,7 +165,7 @@ public class UpdateActionTest {
       .setParam("scm_accounts", "jn")
       .execute();
 
-    verify(service).update(userCaptor.capture());
+    verify(updater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
@@ -184,7 +191,7 @@ public class UpdateActionTest {
       .setParam("password_confirmation", "1234")
       .execute();
 
-    verify(service).update(userCaptor.capture());
+    verify(updater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();

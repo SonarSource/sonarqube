@@ -20,64 +20,102 @@
 
 package org.sonar.server.user.ws;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.UserDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.NewUser;
+import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserService;
+import org.sonar.server.user.UserUpdater;
+import org.sonar.server.user.db.GroupDao;
+import org.sonar.server.user.db.UserDao;
+import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Locale;
-import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateActionTest {
 
+  static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
+
+  @ClassRule
+  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+
   WebService.Controller controller;
 
   WsTester tester;
 
-  @Mock
   UserService service;
+
+  DbClient dbClient;
+
+  UserIndexer userIndexer;
+
+  DbSession session;
 
   @Mock
   I18n i18n;
 
-  @Captor
-  ArgumentCaptor<NewUser> newUserCaptor;
-
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new CreateAction(service, i18n)));
+    dbTester.truncateTables();
+    esTester.truncateIndices();
+
+    System2 system2 = new System2();
+    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
+    UserGroupDao userGroupDao = new UserGroupDao();
+    GroupDao groupDao = new GroupDao();
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
+    session = dbClient.openSession(false);
+    groupDao.insert(session, new GroupDto().setName("sonar-users"));
+    session.commit();
+
+    userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
+    service = new UserService(
+      new UserIndex(esTester.client()));
+    tester = new WsTester(new UsersWs(new CreateAction(service,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2),
+      i18n)));
     controller = tester.controller("api/users");
+
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void create_user() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(service.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -88,29 +126,26 @@ public class CreateActionTest {
       .setParam("password_confirmation", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
-    verify(service).create(newUserCaptor.capture());
-    assertThat(newUserCaptor.getValue().login()).isEqualTo("john");
-    assertThat(newUserCaptor.getValue().name()).isEqualTo("John");
-    assertThat(newUserCaptor.getValue().email()).isEqualTo("john@email.com");
-    assertThat(newUserCaptor.getValue().scmAccounts()).containsOnly("jn");
-    assertThat(newUserCaptor.getValue().password()).isEqualTo("1234");
-    assertThat(newUserCaptor.getValue().passwordConfirmation()).isEqualTo("1234");
+    UserDoc user = service.getByLogin("john");
+    assertThat(user.login()).isEqualTo("john");
+    assertThat(user.name()).isEqualTo("John");
+    assertThat(user.email()).isEqualTo("john@email.com");
+    assertThat(user.scmAccounts()).containsOnly("jn");
   }
 
   @Test
   public void reactivate_user() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(service.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
-    when(service.create(any(NewUser.class))).thenReturn(true);
+    MockUserSession.set().setLogin("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    MockUserSession.set().setLogin("julien").setLocale(Locale.FRENCH);
+    dbClient.userDao().insert(session, new UserDto()
+      .setEmail("john@email.com")
+      .setLogin("john")
+      .setName("John")
+      .setActive(true));
+    session.commit();
+    dbClient.userDao().deactivateUserByLogin("john");
+    userIndexer.index();
+
     when(i18n.message(Locale.FRENCH, "user.reactivated", "user.reactivated", "john")).thenReturn("The user 'john' has been reactivated.");
 
     tester.newPostRequest("api/users", "create")
@@ -121,6 +156,20 @@ public class CreateActionTest {
       .setParam("password", "1234")
       .setParam("password_confirmation", "1234").execute()
       .assertJson(getClass(), "reactivate_user.json");
+
+    assertThat(service.getByLogin("john").login()).isEqualTo("john");
   }
 
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    MockUserSession.set().setLogin("not_admin");
+
+    tester.newPostRequest("api/users", "create")
+      .setParam("login", "john")
+      .setParam("name", "John")
+      .setParam("email", "john@email.com")
+      .setParam("scm_accounts", "jn")
+      .setParam("password", "1234")
+      .setParam("password_confirmation", "1234").execute();
+  }
 }

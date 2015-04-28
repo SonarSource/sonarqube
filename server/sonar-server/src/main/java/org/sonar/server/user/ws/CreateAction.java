@@ -25,9 +25,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserService;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 
 public class CreateAction implements BaseUsersWsAction {
@@ -40,10 +42,12 @@ public class CreateAction implements BaseUsersWsAction {
   private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
 
   private final UserService service;
+  private final UserUpdater userUpdater;
   private final I18n i18n;
 
-  public CreateAction(UserService service, I18n i18n) {
+  public CreateAction(UserService service, UserUpdater userUpdater, I18n i18n) {
     this.service = service;
+    this.userUpdater = userUpdater;
     this.i18n = i18n;
   }
 
@@ -86,6 +90,8 @@ public class CreateAction implements BaseUsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     String login = request.mandatoryParam(PARAM_LOGIN);
     NewUser newUser = NewUser.create()
       .setLogin(login)
@@ -95,7 +101,7 @@ public class CreateAction implements BaseUsersWsAction {
       .setPassword(request.mandatoryParam(PARAM_PASSWORD))
       .setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
 
-    boolean isUserReactivated = service.create(newUser);
+    boolean isUserReactivated = userUpdater.create(newUser);
     writeResponse(response, login, isUserReactivated);
   }
 
