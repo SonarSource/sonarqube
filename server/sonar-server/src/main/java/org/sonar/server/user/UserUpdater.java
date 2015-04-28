@@ -38,7 +38,7 @@ import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.user.db.UserGroupDao;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
@@ -61,15 +61,15 @@ public class UserUpdater implements ServerComponent {
 
   private final NewUserNotifier newUserNotifier;
   private final Settings settings;
-  private final UserGroupDao userGroupDao;
   private final DbClient dbClient;
+  private final UserIndexer userIndexer;
   private final System2 system2;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, UserGroupDao userGroupDao, DbClient dbClient, System2 system2) {
+  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2) {
     this.newUserNotifier = newUserNotifier;
     this.settings = settings;
-    this.userGroupDao = userGroupDao;
     this.dbClient = dbClient;
+    this.userIndexer = userIndexer;
     this.system2 = system2;
   }
 
@@ -102,6 +102,7 @@ public class UserUpdater implements ServerComponent {
       }
       dbSession.commit();
       notifyNewUser(userDto.getLogin(), userDto.getName(), newUser.email());
+      userIndexer.index();
     } finally {
       dbSession.close();
     }
@@ -116,9 +117,15 @@ public class UserUpdater implements ServerComponent {
       updateUser(dbSession, user);
       dbSession.commit();
       notifyNewUser(user.getLogin(), user.getName(), user.getEmail());
+      userIndexer.index();
     } finally {
       dbSession.close();
     }
+  }
+
+  public void deactivateUserByLogin(String login) {
+    dbClient.userDao().deactivateUserByLogin(login);
+    userIndexer.index();
   }
 
   private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {
@@ -305,7 +312,11 @@ public class UserUpdater implements ServerComponent {
       }
     })) {
       GroupDto groupDto = dbClient.groupDao().getByKey(dbSession, defaultGroup);
-      userGroupDao.insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
+      dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
     }
+  }
+
+  public void index() {
+    userIndexer.index();
   }
 }

@@ -21,6 +21,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Strings;
+import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -42,16 +43,22 @@ import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 import org.sonar.test.DbTests;
 
+import java.util.List;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +69,9 @@ public class UserUpdaterTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
   @Mock
   System2 system2;
@@ -77,12 +87,15 @@ public class UserUpdaterTest {
   GroupDao groupDao;
   GroupMembershipFinder groupMembershipFinder;
   DbSession session;
+  UserIndexer userIndexer;
 
   UserUpdater userUpdater;
+
 
   @Before
   public void setUp() throws Exception {
     db.truncateTables();
+    es.truncateIndices();
     settings = new Settings();
     session = db.myBatis().openSession(false);
     userDao = new UserDao(db.myBatis(), system2);
@@ -91,7 +104,10 @@ public class UserUpdaterTest {
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao(db.myBatis());
     groupMembershipFinder = new GroupMembershipFinder(userDao, groupMembershipDao);
 
-    userUpdater = new UserUpdater(newUserNotifier, settings, userGroupDao, new DbClient(db.database(), db.myBatis(), userDao, groupDao), system2);
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), userDao, groupDao, userGroupDao);
+    userIndexer = (UserIndexer) new UserIndexer(dbClient, es.client()).setEnabled(true);
+    userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
+      userIndexer, system2);
   }
 
   @After
@@ -125,6 +141,14 @@ public class UserUpdaterTest {
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735482L);
     assertThat(result).isFalse();
+
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    assertThat(indexUsers).hasSize(1);
+    assertThat(indexUsers.get(0).getSource())
+      .contains(
+        entry("login", "user"),
+        entry("name", "User"),
+        entry("email", "user@mail.com"));
   }
 
   @Test
@@ -568,6 +592,14 @@ public class UserUpdaterTest {
     assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
     assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
+
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    assertThat(indexUsers).hasSize(1);
+    assertThat(indexUsers.get(0).getSource())
+      .contains(
+        entry("login", "marius"),
+        entry("name", "Marius2"),
+        entry("email", "marius2@mail.com"));
   }
 
   @Test

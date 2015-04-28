@@ -24,9 +24,12 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UpdateUser;
-import org.sonar.server.user.UserService;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
 
 public class UpdateAction implements BaseUsersWsAction {
 
@@ -37,10 +40,12 @@ public class UpdateAction implements BaseUsersWsAction {
   private static final String PARAM_EMAIL = "email";
   private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
 
-  private final UserService service;
+  private final UserIndex index;
+  private final UserUpdater userUpdater;
 
-  public UpdateAction(UserService service) {
-    this.service = service;
+  public UpdateAction(UserIndex index, UserUpdater userUpdater) {
+    this.index = index;
+    this.userUpdater = userUpdater;
   }
 
   @Override
@@ -82,6 +87,8 @@ public class UpdateAction implements BaseUsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     String login = request.mandatoryParam(PARAM_LOGIN);
     UpdateUser updateUser = UpdateUser.create(login);
     if (request.hasParam(PARAM_NAME)) {
@@ -100,12 +107,12 @@ public class UpdateAction implements BaseUsersWsAction {
       updateUser.setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
     }
 
-    service.update(updateUser);
+    userUpdater.update(updateUser);
     writeResponse(response, login);
   }
 
   private void writeResponse(Response response, String login) {
-    UserDoc user = service.getByLogin(login);
+    UserDoc user = index.getByLogin(login);
     JsonWriter json = response.newJsonWriter().beginObject();
     writeUser(json, user);
     json.endObject().close();

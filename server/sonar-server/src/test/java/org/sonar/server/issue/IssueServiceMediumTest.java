@@ -64,7 +64,7 @@ import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.NewUser;
-import org.sonar.server.user.UserService;
+import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 
 import java.util.Arrays;
@@ -602,9 +602,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newUser(String login) {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(UserService.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test").setPasswordConfirmation("test"));
-    MockUserSession.set();
+    tester.get(UserUpdater.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test").setPasswordConfirmation("test"));
   }
 
   private void createDefaultGroup() {

@@ -31,9 +31,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.index.UserIndex;
 
 import java.util.Map;
 
@@ -42,15 +42,18 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
 
-  UserService userService = mock(UserService.class);
+  UserIndex userIndex = mock(UserIndex.class);
   UserFinder finder = mock(UserFinder.class);
-  UserDao dao = mock(UserDao.class);
-  DefaultUserService service = new DefaultUserService(userService, finder, dao);
+  UserUpdater userUpdater = mock(UserUpdater.class);
+  DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -95,7 +98,7 @@ public class DefaultUserServiceTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Self-deactivation is not possible");
-      verify(dao, never()).deactivateUserByLogin("simon");
+      verify(userUpdater, never()).deactivateUserByLogin("simon");
     }
   }
 
@@ -106,7 +109,7 @@ public class DefaultUserServiceTest {
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
-      verify(dao, never()).deactivateUserByLogin("simon");
+      verify(userUpdater, never()).deactivateUserByLogin("simon");
     }
   }
 
@@ -114,8 +117,7 @@ public class DefaultUserServiceTest {
   public void deactivate_user() throws Exception {
     MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
-    verify(dao).deactivateUserByLogin("julien");
-    verify(userService).index();
+    verify(userUpdater).deactivateUserByLogin("julien");
   }
 
   @Test
@@ -126,7 +128,6 @@ public class DefaultUserServiceTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Login is missing");
-      verifyZeroInteractions(dao);
     }
   }
 
@@ -140,7 +141,7 @@ public class DefaultUserServiceTest {
     service.create(params);
 
     ArgumentCaptor<NewUser> newUserCaptor = ArgumentCaptor.forClass(NewUser.class);
-    verify(userService).create(newUserCaptor.capture());
+    verify(userUpdater).create(newUserCaptor.capture());
     assertThat(newUserCaptor.getValue().login()).isEqualTo("john");
     assertThat(newUserCaptor.getValue().name()).isEqualTo("John");
     assertThat(newUserCaptor.getValue().email()).isEqualTo("john@email.com");
@@ -160,7 +161,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().login()).isEqualTo("john");
     assertThat(userCaptor.getValue().name()).isEqualTo("John");
     assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
@@ -177,7 +178,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isTrue();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -192,7 +193,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -207,7 +208,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
@@ -223,7 +224,7 @@ public class DefaultUserServiceTest {
     service.update(params);
 
     ArgumentCaptor<UpdateUser> userCaptor = ArgumentCaptor.forClass(UpdateUser.class);
-    verify(userService).update(userCaptor.capture());
+    verify(userUpdater).update(userCaptor.capture());
     assertThat(userCaptor.getValue().isNameChanged()).isFalse();
     assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
     assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
@@ -233,12 +234,12 @@ public class DefaultUserServiceTest {
   @Test
   public void get_by_login() throws Exception {
     service.getByLogin("john");
-    verify(userService).getNullableByLogin("john");
+    verify(userIndex).getNullableByLogin("john");
   }
 
   @Test
   public void index() throws Exception {
     service.index();
-    verify(userService).index();
+    verify(userUpdater).index();
   }
 }
