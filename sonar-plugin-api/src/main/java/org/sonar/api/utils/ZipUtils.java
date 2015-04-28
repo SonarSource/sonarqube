@@ -93,7 +93,7 @@ public final class ZipUtils {
   }
 
   private static void throwExceptionIfDirectoryIsNotCreatable(File to) throws IOException {
-    if (to != null && !to.exists() && !to.mkdirs()) {
+    if (!to.exists() && !to.mkdirs()) {
       throw new IOException(ERROR_CREATING_DIRECTORY + to);
     }
   }
@@ -154,7 +154,7 @@ public final class ZipUtils {
     try {
       out = FileUtils.openOutputStream(zip);
       zout = new ZipOutputStream(out);
-      zip(dir, zout);
+      doZipDir(dir, zout);
 
     } finally {
       IOUtils.closeQuietly(zout);
@@ -176,8 +176,13 @@ public final class ZipUtils {
       out.putNextEntry(entry);
       out.closeEntry();
       File[] files = file.listFiles();
-      for (int i = 0, len = files.length; i < len; i++) {
-        doZip(entryName + files[i].getName(), files[i], out);
+      // java.io.File#listFiles() returns null if object is a directory (not possible here) or if
+      // an I/O error occurs (weird!)
+      if (files == null) {
+        throw new IllegalStateException("Fail to list files of directory " + file.getAbsolutePath());
+      }
+      for (File f : files) {
+        doZip(entryName + f.getName(), f, out);
       }
 
     } else {
@@ -191,10 +196,13 @@ public final class ZipUtils {
     }
   }
 
-  private static void zip(File file, ZipOutputStream out) throws IOException {
-    for (File child : file.listFiles()) {
-      String name = child.getName();
-      doZip(name, child, out);
+  private static void doZipDir(File dir, ZipOutputStream out) throws IOException {
+    File[] children = dir.listFiles();
+    if (children == null) {
+      throw new IllegalStateException("Fail to list files of directory " + dir.getAbsolutePath());
+    }
+    for (File child : children) {
+      doZip(child.getName(), child, out);
     }
   }
 
