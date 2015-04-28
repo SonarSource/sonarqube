@@ -19,22 +19,10 @@
  */
 package org.sonar.server.ruby;
 
-/**
- * This component acts as a bridge between a Ruby runtime and Java. Each method it defines creates a wrapping
- * Java object which an underlying Ruby implementation.
- */
-public interface RubyBridge {
+public interface RubyRailsRoutes {
   /**
-   * Returns a wrapper class that allows calling the database migration in Ruby.
-   *
-   * @return a  {@link RubyDatabaseMigration}
+   * Triggers the (re)creation of web route in Ruby On Rails.
+   * <strong>This is not thread safe!</strong>
    */
-  RubyDatabaseMigration databaseMigration();
-
-  /**
-   * Returns a class that allows calling the (re)creation of web routes in Rails.
-   *
-   * @return a {@link RubyRailsRoutes}
-   */
-  RubyRailsRoutes railsRoutes();
+  void recreate();
 }

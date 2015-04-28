@@ -27,8 +27,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Test;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
+import org.sonar.server.ruby.RubyRailsRoutes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -71,7 +73,9 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
     }
   };
   private RubyBridge rubyBridge = mock(RubyBridge.class);
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService);
+  private Platform platform = mock(Platform.class);
+  private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @After
   public void tearDown() throws Exception {
@@ -81,6 +85,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
   @Test
   public void two_concurrent_calls_to_startit_call_trigger_only_once() throws Exception {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
+    when(rubyBridge.railsRoutes()).thenReturn(railsRoutes);
 
     pool.submit(new CallStartit());
     pool.submit(new CallStartit());

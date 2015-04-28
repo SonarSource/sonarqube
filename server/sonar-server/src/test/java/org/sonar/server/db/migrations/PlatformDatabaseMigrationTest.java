@@ -19,26 +19,26 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.junit.Before;
+import java.util.Date;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.InOrder;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
-
-import java.util.Date;
+import org.sonar.server.ruby.RubyRailsRoutes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Unit test for PlatformDatabaseMigration which does not test any of its concurrency management and asynchronous execution code.
  */
 public class PlatformDatabaseMigrationTest {
-  private static final Throwable AN_ERROR = new RuntimeException();
+  private static final Throwable AN_ERROR = new RuntimeException("runtime exception created on purpose");
 
   /**
    * Implementation of execute runs Runnable synchronously.
@@ -49,17 +49,13 @@ public class PlatformDatabaseMigrationTest {
       command.run();
     }
   };
-  @Mock
-  private RubyDatabaseMigration rubyDatabaseMigration;
-  @Mock
-  private RubyBridge rubyBridge;
-  private PlatformDatabaseMigration underTest;
+  private RubyBridge rubyBridge = mock(RubyBridge.class);
+  private RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
+  private RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
+  private Platform platform = mock(Platform.class);
+  private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-    underTest = new PlatformDatabaseMigration(rubyBridge, executorService);
-  }
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @Test
   public void status_is_NONE_when_component_is_created() throws Exception {
@@ -79,16 +75,22 @@ public class PlatformDatabaseMigrationTest {
   @Test
   public void startit_calls_databasemigration_trigger_in_a_separate_thread() throws Exception {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
+    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
 
     underTest.startIt();
 
-    verify(rubyBridge).databaseMigration();
-    verify(rubyDatabaseMigration).trigger();
+    inOrder.verify(rubyBridge).databaseMigration();
+    inOrder.verify(rubyDatabaseMigration).trigger();
+    inOrder.verify(platform).doStart();
+    inOrder.verify(rubyBridge).railsRoutes();
+    inOrder.verify(rubyRailsRoutes).recreate();
+    inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void status_is_SUCCEEDED_and_failure_is_null_when_trigger_runs_without_an_exception() throws Exception {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
+    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
 
     underTest.startIt();
 
@@ -131,10 +133,12 @@ public class PlatformDatabaseMigrationTest {
   private void mockTriggerThrowsError() {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
     doThrow(AN_ERROR).when(rubyDatabaseMigration).trigger();
+    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
   }
 
   private void mockTriggerDoesNothing() {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
     doNothing().when(rubyDatabaseMigration).trigger();
+    when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
   }
 }

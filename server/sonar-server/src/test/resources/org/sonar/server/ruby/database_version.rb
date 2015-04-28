@@ -3,7 +3,11 @@
 # it would otherwise raise an exception
 class DatabaseVersion
 
-  def self.upgrade_and_start
+  def self.upgrade
+
+  end
+
+  def self.load_java_web_services
 
   end
 

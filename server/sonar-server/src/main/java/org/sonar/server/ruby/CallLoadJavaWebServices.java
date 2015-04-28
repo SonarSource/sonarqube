@@ -20,21 +20,12 @@
 package org.sonar.server.ruby;
 
 /**
- * This component acts as a bridge between a Ruby runtime and Java. Each method it defines creates a wrapping
- * Java object which an underlying Ruby implementation.
+ * Interface which must be a top-level public class to be used by the Ruby engine but that hides name of the Ruby
+ * method in the Ruby script from the rest of the platform (only {@link RubyRailsRoutes} is known to the platform).
  */
-public interface RubyBridge {
+public interface CallLoadJavaWebServices {
   /**
-   * Returns a wrapper class that allows calling the database migration in Ruby.
-   *
-   * @return a  {@link RubyDatabaseMigration}
+   * Java method that calls the call_upgrade_and_start method defined in the {@code call_load_java_web_services.rb} script.
    */
-  RubyDatabaseMigration databaseMigration();
-
-  /**
-   * Returns a class that allows calling the (re)creation of web routes in Rails.
-   *
-   * @return a {@link RubyRailsRoutes}
-   */
-  RubyRailsRoutes railsRoutes();
+  void callLoadJavaWebServices();
 }

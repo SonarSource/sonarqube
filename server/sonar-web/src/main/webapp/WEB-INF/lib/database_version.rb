@@ -58,6 +58,10 @@ class DatabaseVersion
     $uptodate
   end
 
+  def self.upgrade
+    ActiveRecord::Migrator.migrate(migrations_path)
+  end
+
   def self.upgrade_and_start
     ActiveRecord::Migrator.migrate(migrations_path)
     Java::OrgSonarServerPlatform::Platform.getInstance().doStart()

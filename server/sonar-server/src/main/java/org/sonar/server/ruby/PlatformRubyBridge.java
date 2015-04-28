@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ruby;
 
+import java.io.IOException;
+import java.io.InputStream;
+import javax.annotation.Nullable;
 import org.jruby.Ruby;
 import org.jruby.RubyNil;
 import org.jruby.RubyRuntimeAdapter;
@@ -27,11 +30,9 @@ import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 public class PlatformRubyBridge implements RubyBridge {
-  private static final String CALL_UPGRADE_AND_START_RB_FILENAME = "call_upgrade_and_start.rb";
+  private static final String CALL_UPGRADE_AND_START_RB_FILENAME = "call_databaseversion_upgrade.rb";
+  private static final String CALL_LOAD_JAVA_WEB_SERVICES_RB_FILENAME = "call_load_java_web_services.rb";
 
   private final RackBridge rackBridge;
   private final RubyRuntimeAdapter adapter = JavaEmbedUtils.newRuntimeAdapter();
@@ -42,14 +43,28 @@ public class PlatformRubyBridge implements RubyBridge {
 
   @Override
   public RubyDatabaseMigration databaseMigration() {
-    final CallUpgradeAndStart callUpgradeAndStart = parseMethodScriptToInterface(
-      CALL_UPGRADE_AND_START_RB_FILENAME, CallUpgradeAndStart.class
+    final CallDatabaseVersionUpgrade callDatabaseVersionUpgrade = parseMethodScriptToInterface(
+      CALL_UPGRADE_AND_START_RB_FILENAME, CallDatabaseVersionUpgrade.class
       );
 
     return new RubyDatabaseMigration() {
       @Override
       public void trigger() {
-        callUpgradeAndStart.callUpgradeAndStart();
+        callDatabaseVersionUpgrade.callUpgrade();
+      }
+    };
+  }
+
+  @Override
+  public RubyRailsRoutes railsRoutes() {
+    final CallLoadJavaWebServices callLoadJavaWebServices = parseMethodScriptToInterface(
+      CALL_LOAD_JAVA_WEB_SERVICES_RB_FILENAME, CallLoadJavaWebServices.class
+      );
+
+    return new RubyRailsRoutes() {
+      @Override
+      public void recreate() {
+        callLoadJavaWebServices.callLoadJavaWebServices();
       }
     };
   }
@@ -61,7 +76,7 @@ public class PlatformRubyBridge implements RubyBridge {
   private <T> T parseMethodScriptToInterface(String fileName, Class<T> clazz) {
     try (InputStream in = getClass().getResourceAsStream(fileName)) {
       Ruby rubyRuntime = rackBridge.getRubyRuntime();
-      JavaEmbedUtils.EvalUnit evalUnit = adapter.parse(rubyRuntime, in, fileName, 0);
+      JavaEmbedUtils.EvalUnit evalUnit = JavaEmbedUtils.newRuntimeAdapter().parse(rubyRuntime, in, fileName, 0);
       IRubyObject rubyObject = evalUnit.run();
       Object receiver = JavaEmbedUtils.rubyToJava(rubyObject);
       T wrapper = getInstance(rubyRuntime, receiver, clazz);
@@ -75,7 +90,7 @@ public class PlatformRubyBridge implements RubyBridge {
    * Fork of method {@link org.jruby.embed.internal.EmbedRubyInterfaceAdapterImpl#getInstance(Object, Class)}
    */
   @SuppressWarnings("unchecked")
-  public <T> T getInstance(Ruby runtime, Object receiver, Class<T> clazz) {
+  public <T> T getInstance(Ruby runtime, @Nullable Object receiver, @Nullable Class<T> clazz) {
     if (clazz == null || !clazz.isInterface()) {
       return null;
     }
@@ -97,15 +112,4 @@ public class PlatformRubyBridge implements RubyBridge {
     }
   }
 
-  /**
-   * Interface which must be public to be used by the Ruby engine but that hides name of the Ruby method in the Ruby
-   * script from the rest of the platform (only {@link RubyDatabaseMigration} is known to the platform).
-   */
-  public interface CallUpgradeAndStart {
-
-    /**
-     * Java method that calls the upgrade_and_start method defined in the {@code call_upgrade_and_start.rb} script.
-     */
-    void callUpgradeAndStart();
-  }
 }

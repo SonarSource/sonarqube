@@ -20,15 +20,14 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.base.Throwables;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.After;
-import org.junit.Before;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import static org.mockito.Mockito.mock;
 
 public class PlatformDatabaseMigrationAsynchronousTest {
 
@@ -54,17 +53,10 @@ public class PlatformDatabaseMigrationAsynchronousTest {
       });
     }
   };
-  @Mock
-  private RubyDatabaseMigration rubyDatabaseMigration;
-  @Mock
-  private RubyBridge rubyBridge;
-  private PlatformDatabaseMigration underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-    underTest = new PlatformDatabaseMigration(rubyBridge, executorService);
-  }
+  private RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
+  private RubyBridge rubyBridge = mock(RubyBridge.class);
+  private Platform platform = mock(Platform.class);
+  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @After
   public void tearDown() throws Exception {
