@@ -211,17 +211,22 @@ message Symbols {
   }
 }
 
-// Only FILE component has coverage information
+// Only FILE component has coverage information, and only executable lines should contains this information.
 // TODO rename it LineCoverage ?
 message Coverage {
   optional int32 line = 1;
 
-  // Number of conditions to cover (never 0)
+  // Number of conditions to cover (if set, the value must be greater than 0)
   optional int32 conditions = 2;
+  // Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
   optional bool ut_hits = 3;
+  // Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
   optional bool it_hits = 4;
+  // Number of conditions covered by unit tests
   optional int32 ut_covered_conditions = 5;
+  // Number of conditions covered by integration tests
   optional int32 it_covered_conditions = 6;
+  // Number of conditions covered by overall tests
   optional int32 overall_covered_conditions = 7;
 }
 
