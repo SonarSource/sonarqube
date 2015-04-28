@@ -24,6 +24,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
@@ -77,7 +80,7 @@ public class GlobalNavigationActionTest {
 
   @Test
   public void empty_call() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(), new Settings())));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(), new Settings(), new ResourceTypes())));
 
     MockUserSession.set();
 
@@ -85,11 +88,34 @@ public class GlobalNavigationActionTest {
   }
 
   @Test
+  public void with_root_qualifiers() throws Exception {
+    ResourceTypes resourceTypes = new ResourceTypes(
+      new ResourceTypeTree[] {
+        ResourceTypeTree.builder()
+          .addType(ResourceType.builder("POL").build())
+          .addType(ResourceType.builder("LOP").build())
+          .addRelations("POL", "LOP")
+          .build(),
+        ResourceTypeTree.builder()
+          .addType(ResourceType.builder("PAL").build())
+          .addType(ResourceType.builder("LAP").build())
+          .addRelations("PAL", "LAP")
+          .build()
+      });
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(), new Settings(), resourceTypes)));
+
+    MockUserSession.set();
+
+    wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "with_qualifiers.json");
+  }
+
+  @Test
   public void only_logo() throws Exception {
     wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(),
       new Settings()
         .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
-        .setProperty("sonar.lf.logoWidthPx", "123"))));
+        .setProperty("sonar.lf.logoWidthPx", "123"),
+      new ResourceTypes())));
 
     MockUserSession.set();
 
@@ -132,7 +158,7 @@ public class GlobalNavigationActionTest {
     Settings settings = new Settings()
       .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
       .setProperty("sonar.lf.logoWidthPx", "123");
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings)));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings, new ResourceTypes())));
   }
 
   private void createAndConfigureDashboardForUser() {

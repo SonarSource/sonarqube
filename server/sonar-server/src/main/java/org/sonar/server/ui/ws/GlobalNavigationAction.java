@@ -20,6 +20,8 @@
 package org.sonar.server.ui.ws;
 
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
@@ -41,11 +43,13 @@ public class GlobalNavigationAction implements NavigationAction {
   private final ActiveDashboardDao activeDashboardDao;
   private final Views views;
   private final Settings settings;
+  private final ResourceTypes resourceTypes;
 
-  public GlobalNavigationAction(ActiveDashboardDao activeDashboardDao, Views views, Settings settings) {
+  public GlobalNavigationAction(ActiveDashboardDao activeDashboardDao, Views views, Settings settings, ResourceTypes resourceTypes) {
     this.activeDashboardDao = activeDashboardDao;
     this.views = views;
     this.settings = settings;
+    this.resourceTypes = resourceTypes;
   }
 
   @Override
@@ -71,6 +75,7 @@ public class GlobalNavigationAction implements NavigationAction {
     writeDashboards(json, dashboards);
     writePages(json);
     writeLogoProperties(json);
+    writeQualifiers(json);
     json.endObject().close();
   }
 
@@ -101,4 +106,11 @@ public class GlobalNavigationAction implements NavigationAction {
     json.prop("logoWidth", settings.getString("sonar.lf.logoWidthPx"));
   }
 
+  private void writeQualifiers(JsonWriter json) {
+    json.name("rootQualifiers").beginArray();
+    for (ResourceType rootType : resourceTypes.getRoots()) {
+      json.value(rootType.getQualifier());
+    }
+    json.endArray();
+  }
 }
