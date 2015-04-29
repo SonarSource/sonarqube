@@ -128,11 +128,7 @@ public class InstalledPluginsWsActionTest {
         "      \"organizationUrl\": \"org_url\"," +
         "      \"homepage\": \"homepage_url\"," +
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
-        "      \"implementationBuild\": \"sou_rev_sha1\"," +
-        "      \"artifact\":" +
-        "      {" +
-        "        \"name\": \"some.jar\"" +
-        "      }" +
+        "      \"implementationBuild\": \"sou_rev_sha1\"" +
         "    }" +
         "  ]" +
         "}"

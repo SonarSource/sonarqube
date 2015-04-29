@@ -81,10 +81,7 @@ public class PluginWSCommonsTest {
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
       "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-      "  \"artifact\": {" +
-      "    \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-      "  }" +
+      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
       "}");
   }
 
@@ -105,30 +102,6 @@ public class PluginWSCommonsTest {
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
       "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
       "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-      "}");
-  }
-
-  @Test
-  public void writeArtifact_from_pluginMetadata_supports_null_file() {
-    jsonWriter.beginObject();
-    underTest.writeArtifact(jsonWriter, DefaultPluginMetadata.create("key"));
-    jsonWriter.endObject();
-
-    jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{}");
-  }
-
-  @Test
-  public void writeArtifact_from_pluginMetadata_writes_artifact_object_and_file_name() {
-    jsonWriter.beginObject();
-    underTest.writeArtifact(jsonWriter, GIT_PLUGIN_METADATA);
-    jsonWriter.endObject();
-
-    jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-      "  \"artifact\": {" +
-      "     \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-      "  }" +
       "}");
   }
 

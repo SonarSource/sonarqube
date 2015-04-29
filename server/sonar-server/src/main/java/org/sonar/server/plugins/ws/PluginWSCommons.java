@@ -75,8 +75,6 @@ public class PluginWSCommons {
 
     writeMetadata(jsonWriter, pluginMetadata);
 
-    writeArtifact(jsonWriter, pluginMetadata);
-
     jsonWriter.endObject();
   }
 
@@ -91,18 +89,6 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepage());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
     jsonWriter.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginMetadata.getImplementationBuild());
-  }
-
-  public void writeArtifact(JsonWriter jsonWriter, PluginMetadata pluginMetadata) {
-    if (pluginMetadata.getFile() == null) {
-      return;
-    }
-
-    jsonWriter.name(OBJECT_ARTIFACT).beginObject();
-
-    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getFile().getName());
-
-    jsonWriter.endObject();
   }
 
   public void writePluginUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {

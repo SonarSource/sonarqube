@@ -109,10 +109,7 @@ public class PendingPluginsWsActionTest {
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"," +
-        "      \"artifact\": {" +
-        "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-        "      }" +
+        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]," +
         "  \"removing\": []" +
@@ -141,10 +138,7 @@ public class PendingPluginsWsActionTest {
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"," +
-        "      \"artifact\": {" +
-        "        \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-        "      }" +
+        "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]" +
         "}"
