@@ -59,8 +59,7 @@ import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetMapper;
 import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.dashboard.WidgetPropertyMapper;
-import org.sonar.core.design.DependencyDto;
-import org.sonar.core.design.DependencyMapper;
+import org.sonar.core.design.FileDependencyMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.event.EventDto;
@@ -193,7 +192,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Component", ComponentDto.class);
     loadAlias(conf, "ComponentLink", ComponentLinkDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
-    loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
     loadAlias(conf, "Graph", GraphDto.class);
     loadAlias(conf, "Group", GroupDto.class);
@@ -251,7 +249,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
+      FileDependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, RoleMapper.class, RuleMapper.class,

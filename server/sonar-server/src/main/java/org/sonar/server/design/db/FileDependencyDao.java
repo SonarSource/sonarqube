@@ -17,10 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.design;
 
-import org.apache.ibatis.session.ResultHandler;
+package org.sonar.server.design.db;
 
-public interface DependencyMapper {
-  void selectAll(ResultHandler handler);
+import org.sonar.api.ServerComponent;
+import org.sonar.core.design.FileDependencyDto;
+import org.sonar.core.design.FileDependencyMapper;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
+
+import java.util.List;
+
+public class FileDependencyDao implements ServerComponent, DaoComponent {
+
+  public List<FileDependencyDto> selectFromParents(DbSession session, String fromParentUuid, String toParentUuid, Long projectId) {
+    return session.getMapper(FileDependencyMapper.class).selectFromParents(fromParentUuid, toParentUuid, projectId);
+  }
+
+  public void insert(DbSession session, FileDependencyDto dto) {
+    session.getMapper(FileDependencyMapper.class).insert(dto);
+  }
+
 }

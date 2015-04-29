@@ -43,6 +43,7 @@ import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
+import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -97,6 +98,7 @@ public class DbClient implements ServerComponent {
   private final ComponentIndexDao componentIndexDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
+  private final FileDependencyDao fileDependencyDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -135,6 +137,7 @@ public class DbClient implements ServerComponent {
     componentIndexDao = getDao(map, ComponentIndexDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
+    fileDependencyDao = getDao(map, FileDependencyDao.class);
   }
 
   public Database database() {
@@ -259,6 +262,10 @@ public class DbClient implements ServerComponent {
 
   public EventDao eventDao() {
     return eventDao;
+  }
+
+  public FileDependencyDao fileDependencyDao() {
+    return fileDependencyDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

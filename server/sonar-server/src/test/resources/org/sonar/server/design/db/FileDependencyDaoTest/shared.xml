@@ -1,0 +1,19 @@
+<dataset>
+
+  <!-- Two dependencies from current snapshot -->
+  <dependencies id="1" from_component_uuid="EFGH" to_component_uuid="IJKL" from_parent_uuid="MNOP" to_parent_uuid="QRST" dep_weight="2" root_project_snapshot_id="10" created_at="1000"
+                from_snapshot_id="[null]" to_snapshot_id="[null]" parent_dependency_id="[null]" project_snapshot_id="[null]" dep_usage="[null]" from_scope="[null]" to_scope="[null]" />
+
+  <dependencies id="2" from_component_uuid="UVWX" to_component_uuid="YZAB" from_parent_uuid="PONM" to_parent_uuid="TSRQ" dep_weight="3" root_project_snapshot_id="10" created_at="1000"
+                from_snapshot_id="[null]" to_snapshot_id="[null]" parent_dependency_id="[null]" project_snapshot_id="[null]" dep_usage="[null]" from_scope="[null]" to_scope="[null]" />
+
+  <!-- Dependency on previous snapshot -->
+  <dependencies id="3" from_component_uuid="EFGH" to_component_uuid="LKJI" from_parent_uuid="MNOP" to_parent_uuid="QRST" dep_weight="2" root_project_snapshot_id="11" created_at="1000"
+                from_snapshot_id="[null]" to_snapshot_id="[null]" parent_dependency_id="[null]" project_snapshot_id="[null]" dep_usage="[null]" from_scope="[null]" to_scope="[null]" />
+
+  <projects id="1" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."/>
+
+  <snapshots id="10" islast="[true]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"/>
+  <snapshots id="11" islast="[false]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"/>
+
+</dataset>

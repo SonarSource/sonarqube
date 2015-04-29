@@ -46,6 +46,7 @@ public class EventDaoTest {
 
   @Before
   public void setup() throws Exception {
+    dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dao = new EventDao();
   }

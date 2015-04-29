@@ -19,45 +19,14 @@
  */
 package org.sonar.core.design;
 
-public final class DependencyDto {
-  private Long id;
-  private Long fromSnapshotId;
-  private Long toSnapshotId;
-  private String usage;
+import org.apache.ibatis.annotations.Param;
 
-  public Long getId() {
-    return id;
-  }
+import java.util.List;
 
-  public DependencyDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
+public interface FileDependencyMapper {
 
-  public Long getFromSnapshotId() {
-    return fromSnapshotId;
-  }
+  List<FileDependencyDto> selectFromParents(@Param("fromParentUuid") String fromParentUuid, @Param("toParentUuid") String toParentUuid, @Param("projectId") Long projectId);
 
-  public DependencyDto setFromSnapshotId(Long fromSnapshotId) {
-    this.fromSnapshotId = fromSnapshotId;
-    return this;
-  }
+  void insert(FileDependencyDto dto);
 
-  public Long getToSnapshotId() {
-    return toSnapshotId;
-  }
-
-  public DependencyDto setToSnapshotId(Long toSnapshotId) {
-    this.toSnapshotId = toSnapshotId;
-    return this;
-  }
-
-  public String getUsage() {
-    return usage;
-  }
-
-  public DependencyDto setUsage(String usage) {
-    this.usage = usage;
-    return this;
-  }
 }
