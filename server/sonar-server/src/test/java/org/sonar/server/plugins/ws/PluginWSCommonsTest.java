@@ -59,7 +59,9 @@ public class PluginWSCommonsTest {
     .setOrganizationUrl("p_orga_url")
     .setTermsConditionsUrl("p_t_and_c_url");
   private static final Release RELEASE = new Release(PLUGIN, version("1.0")).setDate(parseDate("2015-04-16"))
-    .setDownloadUrl("http://toto.com/file.jar");
+    .setDownloadUrl("http://toto.com/file.jar")
+    .setDescription("release description")
+    .setChangelogUrl("http://change.org/plugin");
 
   private WsTester.TestResponse response = new WsTester.TestResponse();
   private JsonWriter jsonWriter = response.newJsonWriter();
@@ -180,7 +182,9 @@ public class PluginWSCommonsTest {
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
       "  \"release\": {" +
       "     \"version\": \"1.0\"," +
-      "     \"date\": \"2015-04-16\"" +
+      "     \"date\": \"2015-04-16\"," +
+      "     \"description\": \"release description\"," +
+      "     \"changeLogUrl\": \"http://change.org/plugin\"" +
       "  }" +
       "}");
   }

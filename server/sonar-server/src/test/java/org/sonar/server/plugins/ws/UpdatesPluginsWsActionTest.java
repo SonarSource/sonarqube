@@ -47,10 +47,14 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
     .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf");
   private static final Release ABAP_31 = release(ABAP_PLUGIN, "3.1")
     .setDate(DateUtils.parseDate("2014-12-21"))
-    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.1.jar");
+    .setDescription("New rules, several improvements")
+    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.1.jar")
+    .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10054&version=10552");
   private static final Release ABAP_32 = release(ABAP_PLUGIN, "3.2")
     .setDate(DateUtils.parseDate("2015-03-10"))
-    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar");
+    .setDescription("14 new rules, most of them designed to detect potential performance hotspots.")
+    .setDownloadUrl("http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar")
+    .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10054&version=10575");
   private static final Plugin ANDROID_PLUGIN = new Plugin("android")
     .setName("Android")
     .setCategory("Languages")
@@ -60,7 +64,10 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
     .setOrganizationUrl("http://www.sonarsource.com");
   private static final Release ANDROID_10 = release(ANDROID_PLUGIN, "1.0")
     .setDate(DateUtils.parseDate("2014-03-31"))
+    .setDescription("Makes the plugin compatible with multi-language analysis introduced in SonarQube 4.2 and adds support of Emma 2.0 reports")
     .setDownloadUrl("http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar")
+    .setChangelogUrl("http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=13235&version=20187")
+
     .addOutgoingDependency(release(JAVA_PLUGIN, "1.0"));
 
   private UpdatesPluginsWsAction underTest = new UpdatesPluginsWsAction(updateCenterFactory,

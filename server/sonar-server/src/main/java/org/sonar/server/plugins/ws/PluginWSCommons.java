@@ -57,6 +57,7 @@ public class PluginWSCommons {
   static final String ARRAY_REQUIRES = "requires";
   static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
   static final String PROPERTY_IMPLEMENTATION_BUILD = "implementationBuild";
+  static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
 
   public static final Ordering<PluginMetadata> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginMetadataToName.INSTANCE)
@@ -133,6 +134,8 @@ public class PluginWSCommons {
 
     jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
     jsonWriter.propDate(PROPERTY_DATE, release.getDate());
+    jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
+    jsonWriter.prop(PROPERTY_CHANGE_LOG_URL, release.getChangelogUrl());
 
     jsonWriter.endObject();
   }

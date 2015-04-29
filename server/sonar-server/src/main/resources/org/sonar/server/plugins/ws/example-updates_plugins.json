@@ -13,7 +13,9 @@
         {
           "release": {
             "version": "3.1",
-            "date": "2014-12-21"
+            "date": "2014-12-21",
+            "description": "New rules, several improvements",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10054&version=10552"
           },
           "status": "INCOMPATIBLE",
           "requires": []
@@ -21,7 +23,9 @@
         {
           "release": {
             "version": "3.2",
-            "date": "2015-03-10"
+            "date": "2015-03-10",
+            "description": "14 new rules, most of them designed to detect potential performance hotspots.",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10054&version=10575"
           },
           "status": "COMPATIBLE",
           "requires": []
@@ -40,7 +44,9 @@
         {
           "release": {
             "version": "1.0",
-            "date": "2014-03-31"
+            "date": "2014-03-31",
+            "description": "Makes the plugin compatible with multi-language analysis introduced in SonarQube 4.2 and adds support of Emma 2.0 reports",
+            "changeLogUrl": "http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=13235&version=20187"
           },
           "status": "COMPATIBLE",
           "requires": [
