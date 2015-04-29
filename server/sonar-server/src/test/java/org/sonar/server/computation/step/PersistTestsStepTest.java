@@ -177,7 +177,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Test
   public void insert_tests_without_coverage_details() throws Exception {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1), newTest(2));
+    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
     writer.writeTests(TEST_FILE_REF_1, batchTests);
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
@@ -185,10 +185,9 @@ public class PersistTestsStepTest extends BaseStepTest {
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     List<FileSourceDb.Test> tests = dto.getTestData();
-    assertThat(tests).hasSize(2);
+    assertThat(tests).hasSize(1);
     assertThat(tests.get(0).getCoveredFileList()).isEmpty();
     assertThat(tests.get(0).getMsg()).isEqualTo("message#1");
-    assertThat(tests.get(1).getCoveredFileList()).isEmpty();
   }
 
   @Test
