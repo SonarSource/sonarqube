@@ -30,6 +30,8 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -38,9 +40,12 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -49,6 +54,10 @@ import java.util.Map;
 
 public class UserIndex implements ServerComponent {
 
+  /**
+   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
+   * used for {@link org.sonar.server.es.SearchResult}.
+   */
   private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
     @Override
     protected UserDoc doApply(Map<String, Object> input) {
@@ -69,7 +78,7 @@ public class UserIndex implements ServerComponent {
       .setRouting(login);
     GetResponse response = request.get();
     if (response.isExists()) {
-      return new UserDoc(response.getSource());
+      return DOC_CONVERTER.apply(response.getSource());
     }
     return null;
   }
@@ -112,7 +121,7 @@ public class UserIndex implements ServerComponent {
             .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
-        result.add(new UserDoc(hit.sourceAsMap()));
+        result.add(DOC_CONVERTER.apply(hit.sourceAsMap()));
       }
     }
     return result;
@@ -136,5 +145,33 @@ public class UserIndex implements ServerComponent {
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
+  }
+
+  public SearchResult<UserDoc> search(@Nullable String searchText, SearchOptions options) {
+    SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
+      .setTypes(UserIndexDefinition.TYPE_USER)
+      .setSize(options.getLimit())
+      .setFrom(options.getOffset())
+      .addSort(UserIndexDefinition.FIELD_NAME, SortOrder.ASC);
+
+    BoolFilterBuilder userFilter = FilterBuilders.boolFilter()
+      .must(FilterBuilders.termFilter(UserIndexDefinition.FIELD_ACTIVE, true));
+
+    QueryBuilder query = null;
+    if (StringUtils.isEmpty(searchText)) {
+      query = QueryBuilders.matchAllQuery();
+    } else {
+      query = QueryBuilders.multiMatchQuery(searchText,
+        UserIndexDefinition.FIELD_LOGIN,
+        UserIndexDefinition.FIELD_LOGIN + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX,
+        UserIndexDefinition.FIELD_NAME,
+        UserIndexDefinition.FIELD_NAME + "." + UserIndexDefinition.SEARCH_SUB_SUFFIX)
+        .operator(MatchQueryBuilder.Operator.AND);
+    }
+
+    request.setQuery(QueryBuilders.filteredQuery(query,
+      userFilter));
+
+    return new SearchResult<>(request.get(), DOC_CONVERTER);
   }
 }

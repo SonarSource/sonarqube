@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -142,5 +143,17 @@ public class UserIndexTest {
 
     // restrict results to 3 users
     assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1@mail.com")).hasSize(3);
+  }
+
+  @Test
+  public void searchUsers() throws Exception {
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(),
+      "user1.json", "user2.json");
+
+    assertThat(index.search(null, new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search("user", new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search("ser", new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search("user1", new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search("user2", new SearchOptions()).getDocs()).hasSize(1);
   }
 }

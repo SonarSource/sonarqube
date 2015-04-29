@@ -1,0 +1,47 @@
+{
+  "p": 2,
+  "ps": 5,
+  "total": 10,
+  "users": [
+    {
+      "login": "user-5",
+      "name": "User 5",
+      "email": "user-5@mail.com",
+      "scmAccounts": [
+        "user-5"
+      ]
+    },
+    {
+      "login": "user-6",
+      "name": "User 6",
+      "email": "user-6@mail.com",
+      "scmAccounts": [
+        "user-6"
+      ]
+    },
+    {
+      "login": "user-7",
+      "name": "User 7",
+      "email": "user-7@mail.com",
+      "scmAccounts": [
+        "user-7"
+      ]
+    },
+    {
+      "login": "user-8",
+      "name": "User 8",
+      "email": "user-8@mail.com",
+      "scmAccounts": [
+        "user-8"
+      ]
+    },
+    {
+      "login": "user-9",
+      "name": "User 9",
+      "email": "user-9@mail.com",
+      "scmAccounts": [
+        "user-9"
+      ]
+    }
+  ]
+}
