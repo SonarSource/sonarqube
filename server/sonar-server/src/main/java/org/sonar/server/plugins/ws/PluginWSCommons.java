@@ -97,9 +97,10 @@ public class PluginWSCommons {
       return;
     }
 
-    jsonWriter.name(OBJECT_ARTIFACT);
-    jsonWriter.beginObject();
+    jsonWriter.name(OBJECT_ARTIFACT).beginObject();
+
     jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getFile().getName());
+
     jsonWriter.endObject();
   }
 
@@ -128,21 +129,20 @@ public class PluginWSCommons {
   }
 
   public void writeRelease(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_RELEASE);
-    jsonWriter.beginObject();
+    jsonWriter.name(OBJECT_RELEASE).beginObject();
+
     jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
     jsonWriter.propDate(PROPERTY_DATE, release.getDate());
-
-    writeArtifact(jsonWriter, release);
 
     jsonWriter.endObject();
   }
 
   public void writeArtifact(JsonWriter jsonWriter, Release release) {
-    jsonWriter.name(OBJECT_ARTIFACT);
-    jsonWriter.beginObject();
+    jsonWriter.name(OBJECT_ARTIFACT).beginObject();
+
     jsonWriter.prop(PROPERTY_NAME, release.getFilename());
     jsonWriter.prop(PROPERTY_URL, release.getDownloadUrl());
+
     jsonWriter.endObject();
   }
 
@@ -162,8 +162,7 @@ public class PluginWSCommons {
    * </pre>
    */
   public void writeUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
-    jsonWriter.name(OBJECT_UPDATE);
-    jsonWriter.beginObject();
+    jsonWriter.name(OBJECT_UPDATE).beginObject();
 
     writeUpdateProperties(jsonWriter, pluginUpdate);
 
@@ -186,8 +185,7 @@ public class PluginWSCommons {
   public void writeUpdateProperties(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
     jsonWriter.prop(PROPERTY_STATUS, toJSon(pluginUpdate.getStatus()));
 
-    jsonWriter.name(ARRAY_REQUIRES);
-    jsonWriter.beginArray();
+    jsonWriter.name(ARRAY_REQUIRES).beginArray();
     Release release = pluginUpdate.getRelease();
     for (Plugin child : filter(transform(release.getOutgoingDependencies(), ReleaseToArtifact.INSTANCE), Plugin.class)) {
       jsonWriter.beginObject();

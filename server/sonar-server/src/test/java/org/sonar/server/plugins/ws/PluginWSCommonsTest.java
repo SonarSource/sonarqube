@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.plugins.DefaultPluginMetadata;
@@ -27,8 +28,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.Version;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDate;
@@ -42,25 +41,25 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UP
 
 public class PluginWSCommonsTest {
   private static final DefaultPluginMetadata GIT_PLUGIN_METADATA = create("scmgit")
-      .setName("Git")
-      .setDescription("Git SCM Provider.")
-      .setVersion("1.0")
-      .setLicense("GNU LGPL 3")
-      .setOrganization("SonarSource")
-      .setOrganizationUrl("http://www.sonarsource.com")
-      .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
-      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
-      .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
+    .setName("Git")
+    .setDescription("Git SCM Provider.")
+    .setVersion("1.0")
+    .setLicense("GNU LGPL 3")
+    .setOrganization("SonarSource")
+    .setOrganizationUrl("http://www.sonarsource.com")
+    .setHomepage("http://redirect.sonarsource.com/plugins/scmgit.html")
+    .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
+    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
   private static final Plugin PLUGIN = new Plugin("p_key")
-      .setName("p_name")
-      .setCategory("p_category")
-      .setDescription("p_description")
-      .setLicense("p_license")
-      .setOrganization("p_orga_name")
-      .setOrganizationUrl("p_orga_url")
-      .setTermsConditionsUrl("p_t_and_c_url");
+    .setName("p_name")
+    .setCategory("p_category")
+    .setDescription("p_description")
+    .setLicense("p_license")
+    .setOrganization("p_orga_name")
+    .setOrganizationUrl("p_orga_url")
+    .setTermsConditionsUrl("p_t_and_c_url");
   private static final Release RELEASE = new Release(PLUGIN, version("1.0")).setDate(parseDate("2015-04-16"))
-      .setDownloadUrl("http://toto.com/file.jar");
+    .setDownloadUrl("http://toto.com/file.jar");
 
   private WsTester.TestResponse response = new WsTester.TestResponse();
   private JsonWriter jsonWriter = response.newJsonWriter();
@@ -72,19 +71,19 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"key\": \"scmgit\"," +
-        "  \"name\": \"Git\"," +
-        "  \"description\": \"Git SCM Provider.\"," +
-        "  \"version\": \"1.0\"," +
-        "  \"license\": \"GNU LGPL 3\"," +
-        "  \"organizationName\": \"SonarSource\"," +
-        "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-        "  \"artifact\": {" +
-        "    \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-        "  }" +
-        "}");
+      "  \"key\": \"scmgit\"," +
+      "  \"name\": \"Git\"," +
+      "  \"description\": \"Git SCM Provider.\"," +
+      "  \"version\": \"1.0\"," +
+      "  \"license\": \"GNU LGPL 3\"," +
+      "  \"organizationName\": \"SonarSource\"," +
+      "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
+      "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+      "  \"artifact\": {" +
+      "    \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -95,16 +94,16 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"key\": \"scmgit\"," +
-        "  \"name\": \"Git\"," +
-        "  \"description\": \"Git SCM Provider.\"," +
-        "  \"version\": \"1.0\"," +
-        "  \"license\": \"GNU LGPL 3\"," +
-        "  \"organizationName\": \"SonarSource\"," +
-        "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
-        "}");
+      "  \"key\": \"scmgit\"," +
+      "  \"name\": \"Git\"," +
+      "  \"description\": \"Git SCM Provider.\"," +
+      "  \"version\": \"1.0\"," +
+      "  \"license\": \"GNU LGPL 3\"," +
+      "  \"organizationName\": \"SonarSource\"," +
+      "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
+      "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+      "}");
   }
 
   @Test
@@ -125,10 +124,10 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"artifact\": {" +
-        "     \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
-        "  }" +
-        "}");
+      "  \"artifact\": {" +
+      "     \"name\": \"sonar-scm-git-plugin-1.0.jar\"" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -137,23 +136,19 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
-        "  \"key\": \"p_key\"," +
-        "  \"name\": \"p_name\"," +
-        "  \"description\": \"p_description\"," +
-        "  \"category\": \"p_category\"," +
-        "  \"license\": \"p_license\"," +
-        "  \"organizationName\": \"p_orga_name\"," +
-        "  \"organizationUrl\": \"p_orga_url\"," +
-        "  \"termsAndConditionsUrl\": \"p_t_and_c_url\"" +
-        "  \"release\": {" +
-        "     \"version\": \"1.0\"," +
-        "     \"date\": \"2015-04-16\"," +
-        "     \"artifact\": {" +
-        "        \"name\": \"file.jar\"," +
-        "        \"url\": \"http://toto.com/file.jar\"" +
-        "     }" +
-        "  }" +
-        "}");
+      "  \"key\": \"p_key\"," +
+      "  \"name\": \"p_name\"," +
+      "  \"description\": \"p_description\"," +
+      "  \"category\": \"p_category\"," +
+      "  \"license\": \"p_license\"," +
+      "  \"organizationName\": \"p_orga_name\"," +
+      "  \"organizationUrl\": \"p_orga_url\"," +
+      "  \"termsAndConditionsUrl\": \"p_t_and_c_url\"" +
+      "  \"release\": {" +
+      "     \"version\": \"1.0\"," +
+      "     \"date\": \"2015-04-16\"" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -164,34 +159,30 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
-        "  \"key\": \"p_key\"," +
-        "  \"name\": \"p_name\"," +
-        "  \"description\": \"p_description\"," +
-        "  \"category\": \"p_category\"," +
-        "  \"license\": \"p_license\"," +
-        "  \"organizationName\": \"p_orga_name\"," +
-        "  \"organizationUrl\": \"p_orga_url\"," +
-        "  \"termsAndConditionsUrl\": \"p_t_and_c_url\"" +
-        "}");
+      "  \"key\": \"p_key\"," +
+      "  \"name\": \"p_name\"," +
+      "  \"description\": \"p_description\"," +
+      "  \"category\": \"p_category\"," +
+      "  \"license\": \"p_license\"," +
+      "  \"organizationName\": \"p_orga_name\"," +
+      "  \"organizationUrl\": \"p_orga_url\"," +
+      "  \"termsAndConditionsUrl\": \"p_t_and_c_url\"" +
+      "}");
   }
 
   @Test
-  public void writeRelease_writes_artifact_object_and_file_name() {
+  public void writeRelease() {
     jsonWriter.beginObject();
     underTest.writeRelease(jsonWriter, RELEASE);
     jsonWriter.endObject();
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"release\": {" +
-        "     \"version\": \"1.0\"," +
-        "     \"date\": \"2015-04-16\"," +
-        "     \"artifact\": {" +
-        "        \"name\": \"file.jar\"," +
-        "        \"url\": \"http://toto.com/file.jar\"" +
-        "     }" +
-        "  }" +
-        "}");
+      "  \"release\": {" +
+      "     \"version\": \"1.0\"," +
+      "     \"date\": \"2015-04-16\"" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -202,11 +193,11 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
-        "  \"artifact\": {" +
-        "     \"name\": \"file.jar\"," +
-        "     \"url\": \"http://toto.com/file.jar\"" +
-        "  }" +
-        "}");
+      "  \"artifact\": {" +
+      "     \"name\": \"file.jar\"," +
+      "     \"url\": \"http://toto.com/file.jar\"" +
+      "  }" +
+      "}");
   }
 
   @Test
@@ -233,8 +224,8 @@ public class PluginWSCommonsTest {
   public void writeUpdate_renders_key_name_and_description_of_outgoing_dependencies() {
     PluginUpdate pluginUpdate = new PluginUpdate();
     pluginUpdate.setRelease(
-        new Release(PLUGIN, version("1.0")).addOutgoingDependency(RELEASE)
-    );
+      new Release(PLUGIN, version("1.0")).addOutgoingDependency(RELEASE)
+      );
 
     jsonWriter.beginObject();
     underTest.writeUpdate(jsonWriter, pluginUpdate);
@@ -242,16 +233,16 @@ public class PluginWSCommonsTest {
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
-        "  \"update\": {" +
-        "    \"requires\": [" +
-        "      {" +
-        "        \"key\": \"p_key\"," +
-        "        \"name\": \"p_name\"," +
-        "        \"description\": \"p_description\"" +
-        "      }" +
-        "   ]" +
-        "  }" +
-        "}");
+      "  \"update\": {" +
+      "    \"requires\": [" +
+      "      {" +
+      "        \"key\": \"p_key\"," +
+      "        \"name\": \"p_name\"," +
+      "        \"description\": \"p_description\"" +
+      "      }" +
+      "   ]" +
+      "  }" +
+      "}");
   }
 
   private static Version version(String version) {

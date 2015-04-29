@@ -11,11 +11,7 @@
       "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
       "release": {
         "version": "3.2",
-        "date": "2015-03-10",
-        "artifact": {
-          "name": "sonar-abap-plugin-3.2.jar",
-          "url": "http://dist.sonarsource.com/abap/download/sonar-abap-plugin-3.2.jar"
-        }
+        "date": "2015-03-10"
       },
       "update": {
         "status": "COMPATIBLE",
@@ -32,11 +28,7 @@
       "organizationUrl": "http://www.sonarsource.com",
       "release": {
         "version": "1.0",
-        "date": "2014-03-31",
-        "artifact": {
-          "name": "sonar-android-plugin-1.0.jar",
-          "url": "http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar"
-        }
+        "date": "2014-03-31"
       },
       "update": {
         "status": "COMPATIBLE",

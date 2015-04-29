@@ -102,7 +102,7 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
   private void writePlugins(JsonWriter jsonWriter, UpdateCenter updateCenter) {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
-    for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins()) {
+    for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins(updateCenter)) {
       writePluginUpdateAggregate(jsonWriter, aggregate);
     }
     jsonWriter.endArray();
@@ -130,8 +130,8 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
     jsonWriter.endArray();
   }
 
-  private Collection<PluginUpdateAggregate> retrieveUpdatablePlugins() {
-    List<PluginUpdate> pluginUpdates = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH).findPluginUpdates();
+  private Collection<PluginUpdateAggregate> retrieveUpdatablePlugins(UpdateCenter updateCenter) {
+    List<PluginUpdate> pluginUpdates = updateCenter.findPluginUpdates();
     // aggregates updates of the same plugin to a single object and sort these objects by plugin name then key
     return ImmutableSortedSet.copyOf(
       NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING,
