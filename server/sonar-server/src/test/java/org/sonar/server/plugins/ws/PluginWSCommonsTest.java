@@ -221,12 +221,12 @@ public class PluginWSCommonsTest {
 
   @Test
   public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_UPGRADE_in_JSON() {
-    assertThat(toJSon(REQUIRE_SONAR_UPGRADE)).isEqualTo("REQUIRES_UPGRADE");
+    assertThat(toJSon(REQUIRE_SONAR_UPGRADE)).isEqualTo("REQUIRES_SYSTEM_UPGRADE");
   }
 
   @Test
-  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_UPGRADE_in_JSON() {
-    assertThat(toJSon(DEPENDENCIES_REQUIRE_SONAR_UPGRADE)).isEqualTo("DEPS_REQUIRE_UPGRADE");
+  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() {
+    assertThat(toJSon(DEPENDENCIES_REQUIRE_SONAR_UPGRADE)).isEqualTo("DEPS_REQUIRE_SYSTEM_UPGRADE");
   }
 
   @Test

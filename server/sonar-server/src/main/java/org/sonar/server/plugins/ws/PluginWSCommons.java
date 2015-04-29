@@ -207,9 +207,9 @@ public class PluginWSCommons {
       case INCOMPATIBLE:
         return "INCOMPATIBLE";
       case REQUIRE_SONAR_UPGRADE:
-        return "REQUIRES_UPGRADE";
+        return "REQUIRES_SYSTEM_UPGRADE";
       case DEPENDENCIES_REQUIRE_SONAR_UPGRADE:
-        return "DEPS_REQUIRE_UPGRADE";
+        return "DEPS_REQUIRE_SYSTEM_UPGRADE";
       default:
         throw new IllegalArgumentException("Unsupported value of PluginUpdate.Status " + status);
     }

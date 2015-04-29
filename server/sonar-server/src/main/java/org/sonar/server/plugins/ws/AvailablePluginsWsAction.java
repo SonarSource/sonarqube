@@ -52,7 +52,13 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
         "<br/>" +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
         "<br/>" +
-        "Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE]")
+        "Update status values are: " +
+          "<ul>" +
+          "<li>COMPATIBLE: plugin is compatible with current SonarQube instance.</li>" +
+          "<li>INCOMPATIBLE: plugin is not compatible with current SonarQube instance.</li>" +
+          "<li>REQUIRES_SYSTEM_UPGRADE: plugin requires SonarQube to be upgraded before being installed.</li>" +
+          "<li>DEPS_REQUIRE_SYSTEM_UPGRADE: at least plugin on which the plugin is dependent requires SonarQube to be upgraded.</li>" +
+          "</ul>")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-available_plugins.json"));

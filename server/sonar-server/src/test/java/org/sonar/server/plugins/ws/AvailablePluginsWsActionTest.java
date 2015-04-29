@@ -100,13 +100,13 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
   }
 
   @Test
-  public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_UPGRADE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_UPGRADE");
+  public void status_REQUIRE_SONAR_UPGRADE_is_displayed_REQUIRES_SYSTEM_UPGRADE_in_JSON() throws Exception {
+    checkStatusDisplayedInJson(REQUIRE_SONAR_UPGRADE, "REQUIRES_SYSTEM_UPGRADE");
   }
 
   @Test
-  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_UPGRADE_in_JSON() throws Exception {
-    checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_UPGRADE");
+  public void status_DEPENDENCIES_REQUIRE_SONAR_UPGRADE_is_displayed_DEPS_REQUIRE_SYSTEM_UPGRADE_in_JSON() throws Exception {
+    checkStatusDisplayedInJson(DEPENDENCIES_REQUIRE_SONAR_UPGRADE, "DEPS_REQUIRE_SYSTEM_UPGRADE");
   }
 
   private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
