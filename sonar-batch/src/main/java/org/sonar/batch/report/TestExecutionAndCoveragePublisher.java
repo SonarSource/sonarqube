@@ -41,12 +41,47 @@ import java.util.Set;
 
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
-  private final class FunctionImplementation implements Function<String, CoverageDetail> {
+  private final class TestConverter implements Function<MutableTestCase, BatchReport.Test> {
+    private final Set<String> testNamesWithCoverage;
+    private BatchReport.Test.Builder builder = BatchReport.Test.newBuilder();
+
+    private TestConverter(Set<String> testNamesWithCoverage) {
+      this.testNamesWithCoverage = testNamesWithCoverage;
+    }
+
+    @Override
+    public Test apply(MutableTestCase testCase) {
+      builder.clear();
+      builder.setName(testCase.name());
+      if (testCase.doesCover()) {
+        testNamesWithCoverage.add(testCase.name());
+      }
+      Long durationInMs = testCase.durationInMs();
+      if (durationInMs != null) {
+        builder.setDurationInMs(durationInMs);
+      }
+      String msg = testCase.message();
+      if (msg != null) {
+        builder.setMsg(msg);
+      }
+      String stack = testCase.stackTrace();
+      if (stack != null) {
+        builder.setStacktrace(stack);
+      }
+      TestCase.Status status = testCase.status();
+      if (status != null) {
+        builder.setStatus(TestStatus.valueOf(status.name()));
+      }
+      return builder.build();
+    }
+  }
+
+  private final class TestCoverageConverter implements Function<String, CoverageDetail> {
     private final MutableTestPlan testPlan;
     private BatchReport.CoverageDetail.Builder builder = BatchReport.CoverageDetail.newBuilder();
     private BatchReport.CoverageDetail.CoveredFile.Builder coveredBuilder = BatchReport.CoverageDetail.CoveredFile.newBuilder();
 
-    private FunctionImplementation(MutableTestPlan testPlan) {
+    private TestCoverageConverter(MutableTestPlan testPlan) {
       this.testPlan = testPlan;
     }
 
@@ -95,39 +130,9 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
       final Set<String> testNamesWithCoverage = new HashSet<>();
 
-      writer.writeTests(resource.batchId(), Iterables.transform(testPlan.testCases(), new Function<MutableTestCase, BatchReport.Test>() {
+      writer.writeTests(resource.batchId(), Iterables.transform(testPlan.testCases(), new TestConverter(testNamesWithCoverage)));
 
-        private BatchReport.Test.Builder builder = BatchReport.Test.newBuilder();
-
-        @Override
-        public Test apply(MutableTestCase testCase) {
-          builder.clear();
-          builder.setName(testCase.name());
-          if (testCase.doesCover()) {
-            testNamesWithCoverage.add(testCase.name());
-          }
-          Long durationInMs = testCase.durationInMs();
-          if (durationInMs != null) {
-            builder.setDurationInMs(durationInMs);
-          }
-          String msg = testCase.message();
-          if (msg != null) {
-            builder.setMsg(msg);
-          }
-          String stack = testCase.stackTrace();
-          if (stack != null) {
-            builder.setStacktrace(stack);
-          }
-          TestCase.Status status = testCase.status();
-          if (status != null) {
-            builder.setStatus(TestStatus.valueOf(status.name()));
-          }
-          return builder.build();
-        }
-
-      }));
-
-      writer.writeCoverageDetails(resource.batchId(), Iterables.transform(testNamesWithCoverage, new FunctionImplementation(testPlan)));
+      writer.writeCoverageDetails(resource.batchId(), Iterables.transform(testNamesWithCoverage, new TestCoverageConverter(testPlan)));
     }
   }
 }

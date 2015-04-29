@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
@@ -139,9 +138,11 @@ public final class ResourceReport {
 
   private boolean hasIssues(Integer lineId, boolean all) {
     if (all) {
-      return CollectionUtils.isNotEmpty(issuesPerLine.get(lineId));
+      List<Issue> issuesAtLine = issuesPerLine.get(lineId);
+      return issuesAtLine != null && !issuesAtLine.isEmpty();
     }
-    return CollectionUtils.isNotEmpty(newIssuesPerLine.get(lineId));
+    List<Issue> newIssuesAtLine = newIssuesPerLine.get(lineId);
+    return newIssuesAtLine != null && !newIssuesAtLine.isEmpty();
   }
 
   public List<RuleReport> getRuleReports() {
