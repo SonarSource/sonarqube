@@ -94,7 +94,7 @@ public class UpgradesSystemWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true)
-      .isSimilarTo(getClass().getResource("example-updates_plugins.json"));
+      .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
   }
 
   private static SonarUpdate createSonar_51_update() {
