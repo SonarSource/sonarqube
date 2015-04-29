@@ -53,9 +53,7 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
       .setPost(true)
       .setDescription("Uninstalls the plugin specified by its key." +
         "<br/>" +
-        "Plugin information is retrieved from Update Center." +
-        "<br/>" +
-        "Requires user to be authenticated with Administer System permissions")
+        "Requires user to be authenticated with Administer System permissions.")
       .setHandler(this);
 
     action.createParam(PARAM_KEY)
