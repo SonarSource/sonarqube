@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,7 +28,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
+/**
+ * Implementation of the {@code restart} action for the System WebService.
+ */
 public class SystemRestartWsAction implements SystemWsAction {
+
+  private static final Logger LOGGER = Loggers.get(SystemRestartWsAction.class);
 
   private final Settings settings;
   private final Platform platform;
@@ -43,7 +47,7 @@ public class SystemRestartWsAction implements SystemWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("restart")
       .setDescription("Restart server. Available only on development mode (sonar.web.dev=true). " +
-        "Ruby on Rails extensions are not reloaded")
+        "Ruby on Rails extensions are not reloaded.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
@@ -51,15 +55,14 @@ public class SystemRestartWsAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    if (settings.getBoolean("sonar.web.dev")) {
-      Logger logger = Loggers.get(getClass());
-      logger.info("Restart server");
-      platform.restart();
-      logger.info("Server restarted");
-      response.noContent();
-
-    } else {
+    if (!settings.getBoolean("sonar.web.dev")) {
       throw new ForbiddenException();
     }
+
+    LOGGER.info("Restart server");
+    platform.restart();
+    LOGGER.info("Server restarted");
+    response.noContent();
   }
+
 }

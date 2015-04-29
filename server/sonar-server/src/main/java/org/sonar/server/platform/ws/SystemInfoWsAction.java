@@ -20,6 +20,8 @@
 
 package org.sonar.server.platform.ws;
 
+import java.util.Map;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -28,8 +30,9 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.user.UserSession;
 
-import java.util.Map;
-
+/**
+ * Implementation of the {@code info} action for the System WebService.
+ */
 public class SystemInfoWsAction implements SystemWsAction {
 
   private final Monitor[] monitors;
@@ -41,7 +44,9 @@ public class SystemInfoWsAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("info")
-      .setDescription("Detailed information about system configuration")
+      .setDescription("Detailed information about system configuration." +
+        "<br/>" +
+        "Requires user to be authenticated with Administer System permissions.")
       .setSince("5.1")
       .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/example-system-info.json"))
       .setHandler(this);

@@ -19,7 +19,7 @@
 #
 class Api::ServerController < Api::ApiController
 
-  skip_before_filter :check_authentication, :except => 'system'
+  skip_before_filter :check_authentication
 
   # prevent HTTP proxies from caching server status
   before_filter :set_cache_buster, :only => 'index'
