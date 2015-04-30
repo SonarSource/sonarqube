@@ -230,19 +230,47 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void with_extensions() throws Exception {
-    final String language = "xoo";
     ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop").setLanguage(language));
+      .setKey("polop").setName("Polop").setLanguage("xoo"));
     dbClient.snapshotDao().insert(session, new SnapshotDto()
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
     MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
 
+    Views views = createViews();
+
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
+      views, i18n, resourceTypes)));
+
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_extensions.json");
+  }
+
+  @Test
+  public void admin_with_extensions() throws Exception {
+    ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop").setLanguage("xoo"));
+    dbClient.snapshotDao().insert(session, new SnapshotDto()
+      .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+    session.commit();
+
+    MockUserSession.set()
+      .addProjectUuidPermissions(UserRole.USER, "abcd")
+      .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
+
+    Views views = createViews();
+
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
+      views, i18n, resourceTypes)));
+
+    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "admin_with_extensions.json");
+  }
+
+  private Views createViews() {
     @NavigationSection(NavigationSection.RESOURCE)
     @ResourceScope(Scopes.PROJECT)
     @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage(language)
+    @ResourceLanguage("xoo")
     class FirstPage implements Page {
       @Override
       public String getTitle() {
@@ -259,7 +287,7 @@ public class ComponentNavigationActionTest {
     @NavigationSection(NavigationSection.RESOURCE)
     @ResourceScope(Scopes.PROJECT)
     @ResourceQualifier(Qualifiers.PROJECT)
-    @ResourceLanguage(language)
+    @ResourceLanguage("xoo")
     class SecondPage implements Page {
       @Override
       public String getTitle() {
@@ -273,10 +301,25 @@ public class ComponentNavigationActionTest {
     }
     Page page2 = new SecondPage();
 
-    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page1, page2}), i18n, resourceTypes)));
+    @NavigationSection(NavigationSection.RESOURCE)
+    @ResourceScope(Scopes.PROJECT)
+    @ResourceQualifier(Qualifiers.PROJECT)
+    @ResourceLanguage("xoo")
+    @UserRole(UserRole.ADMIN)
+    class AdminPage implements Page {
+      @Override
+      public String getTitle() {
+        return "Admin Page";
+      }
 
-    wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_extensions.json");
+      @Override
+      public String getId() {
+        return "/admin/page";
+      }
+    }
+    Page adminPage = new AdminPage();
+    Views views = new Views(new Page[] {page1, page2, adminPage});
+    return views;
   }
 
   @Test

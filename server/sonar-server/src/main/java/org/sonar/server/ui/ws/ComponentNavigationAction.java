@@ -165,7 +165,9 @@ public class ComponentNavigationAction implements NavigationAction {
   private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages, Locale locale) {
     json.name("extensions").beginArray();
     for (ViewProxy<Page> page: pages) {
-      writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
+      if (page.isUserAuthorized(component)) {
+        writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
+      }
     }
     json.endArray();
   }

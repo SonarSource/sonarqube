@@ -28,12 +28,15 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
+import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.ActiveDashboardDto;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
@@ -141,6 +144,15 @@ public class GlobalNavigationActionTest {
   }
 
   @Test
+  public void nominal_call_for_admin() throws Exception {
+    nominalSetup();
+
+    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "admin.json");
+  }
+
+  @Test
   public void nominal_call_for_user_without_configured_dashboards() throws Exception {
     nominalSetup();
 
@@ -208,6 +220,7 @@ public class GlobalNavigationActionTest {
         return "my_plugin_page";
       }
     };
+
     Page controller = new Page() {
       @Override
       public String getTitle() {
@@ -218,6 +231,20 @@ public class GlobalNavigationActionTest {
         return "/my_rails_app";
       }
     };
-    return new Views(new View[] {page, controller});
+
+    @NavigationSection(NavigationSection.HOME)
+    @UserRole(GlobalPermissions.SYSTEM_ADMIN)
+    class AdminPage implements Page {
+      @Override
+      public String getTitle() {
+        return "Admin Page";
+      }
+
+      @Override
+      public String getId() {
+        return "admin_page";
+      }
+    }
+    return new Views(new View[] {page, controller, new AdminPage()});
   }
 }

@@ -33,16 +33,13 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.api.web.WidgetScope;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertThat;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
 
 public class ViewProxyTest {
 
@@ -51,9 +48,9 @@ public class ViewProxyTest {
 
   @Test
   public void compareTo() {
-    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("bbb"))), lessThan(0));
-    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa"))), is(0));
-    assertThat(new ViewProxy<FakeView>(new FakeView("bbb")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa"))), greaterThan(0));
+    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("bbb")))).isLessThan(0);
+    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa")))).isZero();
+    assertThat(new ViewProxy<FakeView>(new FakeView("bbb")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa")))).isGreaterThan(0);
   }
 
   @Test
@@ -70,9 +67,9 @@ public class ViewProxyTest {
     View view = new MyView();
     ViewProxy proxy = new ViewProxy<View>(view);
 
-    assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.RESOURCE});
-    assertArrayEquals(proxy.getUserRoles(), new String[]{UserRole.ADMIN});
+    assertThat(proxy.getTarget()).isEqualTo(view);
+    assertThat(proxy.getSections()).isEqualTo(new String[] {NavigationSection.RESOURCE});
+    assertThat(proxy.getUserRoles()).isEqualTo(new String[] {UserRole.ADMIN});
   }
 
   @Test
@@ -86,9 +83,9 @@ public class ViewProxyTest {
     View view = new MyView();
     ViewProxy proxy = new ViewProxy<View>(view);
 
-    assertThat(proxy.getTarget(), is(view));
-    assertArrayEquals(proxy.getSections(), new String[]{NavigationSection.HOME});
-    assertThat(proxy.getUserRoles().length, org.hamcrest.Matchers.is(0));
+    assertThat(proxy.getTarget()).isEqualTo(view);
+    assertThat(proxy.getSections()).isEqualTo(new String[] {NavigationSection.HOME});
+    assertThat(proxy.getUserRoles()).isEmpty();
   }
 
   @Test
@@ -102,8 +99,8 @@ public class ViewProxyTest {
 
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.isDefaultTab(), is(true));
-    assertThat(proxy.getDefaultTabForMetrics().length, is(0));
+    assertThat(proxy.isDefaultTab()).isTrue();
+    assertThat(proxy.getDefaultTabForMetrics()).isEmpty();
   }
 
   @Test
@@ -115,8 +112,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.isDefaultTab(), is(false));
-    assertThat(proxy.getDefaultTabForMetrics().length, is(0));
+    assertThat(proxy.isDefaultTab()).isFalse();
+    assertThat(proxy.getDefaultTabForMetrics()).isEmpty();
   }
 
   @Test
@@ -129,8 +126,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.isDefaultTab(), is(false));
-    assertThat(proxy.getDefaultTabForMetrics(), is(new String[]{"ncloc", "coverage"}));
+    assertThat(proxy.isDefaultTab()).isFalse();
+    assertThat(proxy.getDefaultTabForMetrics()).isEqualTo(new String[] {"ncloc", "coverage"});
   }
 
   @Test
@@ -185,13 +182,13 @@ public class ViewProxyTest {
   @Test
   public void widgetShouldRequireMandatoryProperties() {
     ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
-    assertThat(proxy.hasRequiredProperties(), is(true));
+    assertThat(proxy.hasRequiredProperties()).isTrue();
   }
 
   @Test
   public void widgetShouldDefineOnlyOptionalProperties() {
     ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
-    assertThat(proxy.hasRequiredProperties(), is(false));
+    assertThat(proxy.hasRequiredProperties()).isFalse();
   }
 
   @Test
@@ -203,7 +200,7 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
   }
 
   @Test
@@ -216,8 +213,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage"}), is(true));
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isFalse();
   }
 
   @Test
@@ -230,8 +227,8 @@ public class ViewProxyTest {
     }
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage"}), is(true));
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"complexity", "coverage"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isTrue();
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"complexity", "coverage"})).isFalse();
   }
 
   @Test
@@ -245,13 +242,146 @@ public class ViewProxyTest {
     ViewProxy proxy = new ViewProxy<MyView>(new MyView());
 
     // ok, mandatory measures and 1 needed measure
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "ncloc", "coverage", "duplications"}), is(true));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage", "duplications"})).isTrue();
     // ko, one of the needed measures but not all of the mandatory ones
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "coverage", "duplications"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage", "duplications"})).isFalse();
     // ko, mandatory measures but no one of the needed measures
-    assertThat(proxy.acceptsAvailableMeasures(new String[]{"lines", "nloc", "coverage", "dsm"}), is(false));
+    assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "nloc", "coverage", "dsm"})).isFalse();
   }
 
+  @Test
+  public void is_authorized_by_default() {
+
+    @NavigationSection(NavigationSection.HOME)
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set();
+    assertThat(proxy.isUserAuthorized()).isTrue();
+  }
+
+  @Test
+  public void is_authorized_on_any_permission() {
+
+    @NavigationSection(NavigationSection.HOME)
+    @UserRole({"polop", "palap"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set().setGlobalPermissions("palap");
+    assertThat(proxy.isUserAuthorized()).isTrue();
+  }
+
+  @Test
+  public void is_not_authorized() {
+
+    @NavigationSection(NavigationSection.HOME)
+    @UserRole({"polop", "palap"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set().setGlobalPermissions("pilip");
+    assertThat(proxy.isUserAuthorized()).isFalse();
+  }
+
+  @Test
+  public void is_authorized_by_default_on_component() {
+
+    @NavigationSection(NavigationSection.RESOURCE)
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set();
+    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
+  }
+
+  @Test
+  public void is_authorized_on_any_permission_on_component() {
+
+    @NavigationSection(NavigationSection.RESOURCE)
+    @UserRole({"polop", "palap"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set().addProjectUuidPermissions("palap", "abcd");
+    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
+  }
+
+  @Test
+  public void is_not_authorized_on_component() {
+
+    @NavigationSection(NavigationSection.RESOURCE)
+    @UserRole({"polop", "palap"})
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set().addProjectUuidPermissions("pilip", "abcd");
+    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isFalse();
+  }
+
+  @Test
+  public void is_authorized_on_component_viewer_bypass() {
+
+    @NavigationSection(NavigationSection.RESOURCE)
+    @UserRole(UserRole.VIEWER)
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set();
+    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
+  }
+
+  @Test
+  public void is_authorized_on_component_user_bypass() {
+
+    @NavigationSection(NavigationSection.RESOURCE)
+    @UserRole(UserRole.USER)
+    class MyView extends FakeView {
+      MyView() {
+        super("fake");
+      }
+    }
+
+    ViewProxy proxy = new ViewProxy<View>(new MyView());
+
+    MockUserSession.set();
+    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
+  }
 }
 
 class FakeView implements View {

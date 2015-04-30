@@ -1,0 +1,30 @@
+{
+  "key": "polop",
+  "uuid": "abcd",
+  "name": "Polop",
+  "isComparable": false,
+  "canBeFavorite": false,
+  "isFavorite": false,
+  "dashboards": [],
+  "extensions": [
+    {
+      "name": "First Page",
+      "url": "/plugins/resource/polop?page=first_page"
+    },
+    {
+      "name": "Second Page",
+      "url": "/second/page?id=polop"
+    },
+    {
+      "name": "Admin Page",
+      "url": "/admin/page?id=polop"
+    }
+  ],
+  "breadcrumbs": [
+    {
+      "key": "polop",
+      "name": "Polop",
+      "qualifier": "TRK"
+    }
+  ]
+}

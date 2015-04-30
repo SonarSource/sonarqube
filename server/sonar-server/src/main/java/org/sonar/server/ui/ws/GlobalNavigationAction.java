@@ -93,10 +93,12 @@ public class GlobalNavigationAction implements NavigationAction {
   private void writePages(JsonWriter json) {
     json.name("globalPages").beginArray();
     for (ViewProxy<Page> page : views.getPages(NavigationSection.HOME)) {
-      json.beginObject()
-        .prop("name", page.getTitle())
-        .prop("url", page.isController() ? page.getId() : String.format("/plugins/home/%s", page.getId()))
-        .endObject();
+      if (page.isUserAuthorized()) {
+        json.beginObject()
+          .prop("name", page.getTitle())
+          .prop("url", page.isController() ? page.getId() : String.format("/plugins/home/%s", page.getId()))
+          .endObject();
+      }
     }
     json.endArray();
   }

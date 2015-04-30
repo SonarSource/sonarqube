@@ -43,6 +43,8 @@ import org.sonar.api.web.WidgetLayoutType;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetScope;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
 import java.util.Map;
@@ -270,6 +272,24 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
       }
       return false;
     }
+  }
+
+  public boolean isUserAuthorized() {
+    boolean authorized = userRoles.length == 0;
+    for (String userRole : getUserRoles()) {
+      authorized |= UserSession.get().hasGlobalPermission(userRole);
+    }
+    return authorized;
+  }
+
+  public boolean isUserAuthorized(ComponentDto component) {
+    boolean authorized = userRoles.length == 0;
+    for (String userRole : getUserRoles()) {
+      authorized |= (UserRole.VIEWER.equals(userRole)
+        || UserRole.USER.equals(userRole)
+        || UserSession.get().hasProjectPermissionByUuid(userRole, component.uuid()));
+    }
+    return authorized;
   }
 
   public boolean isWidget() {

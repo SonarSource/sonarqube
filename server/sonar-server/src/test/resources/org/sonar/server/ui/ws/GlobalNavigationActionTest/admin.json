@@ -1,0 +1,23 @@
+{
+  "globalDashboards": [
+    {
+      "name": "Default Dashboard for User"
+    }
+  ],
+  "globalPages": [
+    {
+      "name": "My Plugin Page",
+      "url": "/plugins/home/my_plugin_page"
+    },
+    {
+      "name": "My Rails App",
+      "url": "/my_rails_app"
+    },
+    {
+      "name": "Admin Page",
+      "url": "/plugins/home/admin_page"
+    }
+  ],
+  "logoUrl": "http://some-server.tld/logo.png",
+  "logoWidth": "123"
+}
