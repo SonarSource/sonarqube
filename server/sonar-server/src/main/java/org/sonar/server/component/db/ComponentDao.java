@@ -36,6 +36,7 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +75,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   public ComponentDto getByUuid(DbSession session, String uuid) {
     ComponentDto componentDto = getNullableByUuid(session, uuid);
     if (componentDto == null) {
-      throw new NotFoundException(String.format("Project with uuid '%s' not found", uuid));
+      throw new NotFoundException(String.format("Component with uuid '%s' not found", uuid));
     }
     return componentDto;
   }

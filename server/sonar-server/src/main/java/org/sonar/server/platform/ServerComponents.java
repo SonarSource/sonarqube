@@ -134,6 +134,8 @@ import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.design.FileDesignWidget;
+import org.sonar.server.design.db.FileDependencyDao;
+import org.sonar.server.design.ws.DependenciesWs;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
@@ -483,7 +485,8 @@ class ServerComponents {
       EventDao.class,
       ActivityDao.class,
       AnalysisReportDao.class,
-      FileSourceDao.class
+      FileSourceDao.class,
+      FileDependencyDao.class
       ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(MigrationSteps.CLASSES);
@@ -878,6 +881,8 @@ class ServerComponents {
 
     // Design
     pico.addSingleton(FileDesignWidget.class);
+    pico.addSingleton(DependenciesWs.class);
+    pico.addSingleton(org.sonar.server.design.ws.ShowAction.class);
 
     // System
     pico.addSingletons(Arrays.asList(

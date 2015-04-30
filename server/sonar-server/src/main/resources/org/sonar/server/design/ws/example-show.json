@@ -1,0 +1,11 @@
+{
+  "dependencies":[
+    {
+      "fromUuid": "ae8ef766-269e-481e-b89e-0a3cf52f0feb",
+      "fromName": "src/main/java/org/sonar/core/issue/db/ActionPlanDao.java",
+      "toUuid": "5e96f736-1b2d-46d9-a071-b9a44e123438",
+      "toName": "src/main/java/org/sonar/core/persistence/DaoComponent.java",
+      "weight": 1
+    }
+  ]
+}
