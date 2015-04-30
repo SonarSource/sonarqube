@@ -41,7 +41,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.server.user.UserService;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
@@ -73,7 +72,7 @@ public class CreateActionTest {
 
   WsTester tester;
 
-  UserService service;
+  UserIndex index;
 
   DbClient dbClient;
 
@@ -99,9 +98,8 @@ public class CreateActionTest {
     session.commit();
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
-    service = new UserService(
-      new UserIndex(esTester.client()));
-    tester = new WsTester(new UsersWs(new CreateAction(service,
+    index = new UserIndex(esTester.client());
+    tester = new WsTester(new UsersWs(new CreateAction(index,
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2),
       i18n)));
     controller = tester.controller("api/users");
@@ -126,7 +124,7 @@ public class CreateActionTest {
       .setParam("password_confirmation", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
-    UserDoc user = service.getByLogin("john");
+    UserDoc user = index.getByLogin("john");
     assertThat(user.login()).isEqualTo("john");
     assertThat(user.name()).isEqualTo("John");
     assertThat(user.email()).isEqualTo("john@email.com");
@@ -157,7 +155,7 @@ public class CreateActionTest {
       .setParam("password_confirmation", "1234").execute()
       .assertJson(getClass(), "reactivate_user.json");
 
-    assertThat(service.getByLogin("john").login()).isEqualTo("john");
+    assertThat(index.getByLogin("john").active()).isTrue();
   }
 
   @Test(expected = ForbiddenException.class)

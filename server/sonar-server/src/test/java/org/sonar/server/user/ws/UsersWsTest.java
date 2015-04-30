@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.user.UserService;
 import org.sonar.server.user.UserUpdater;
+import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +39,8 @@ public class UsersWsTest {
   @Before
   public void setUp() throws Exception {
     WsTester tester = new WsTester(new UsersWs(
-      new CreateAction(mock(UserService.class), mock(UserUpdater.class), mock(I18n.class)),
-      new UpdateAction(mock(UserService.class), mock(UserUpdater.class)),
+      new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class)),
+      new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class)),
       new CurrentUserAction()));
     controller = tester.controller("api/users");
   }

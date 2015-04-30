@@ -26,9 +26,9 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -38,16 +38,14 @@ import java.util.Map;
 
 public class DefaultUserService implements RubyUserService {
 
-  private final UserService userService;
+  private final UserIndex userIndex;
   private final UserUpdater userUpdater;
   private final UserFinder finder;
-  private final UserDao dao;
 
-  public DefaultUserService(UserService userService, UserUpdater userUpdater, UserFinder finder, UserDao dao) {
-    this.userService = userService;
+  public DefaultUserService(UserIndex userIndex, UserUpdater userUpdater, UserFinder finder) {
+    this.userIndex = userIndex;
     this.userUpdater = userUpdater;
     this.finder = finder;
-    this.dao = dao;
   }
 
   @Override
@@ -74,7 +72,7 @@ public class DefaultUserService implements RubyUserService {
 
   @CheckForNull
   public UserDoc getByLogin(String login) {
-    return userService.getNullableByLogin(login);
+    return userIndex.getNullableByLogin(login);
   }
 
   public boolean create(Map<String, Object> params) {

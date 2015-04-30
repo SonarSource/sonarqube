@@ -365,7 +365,6 @@ import org.sonar.server.user.GroupMembershipFinder;
 import org.sonar.server.user.GroupMembershipService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
-import org.sonar.server.user.UserService;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
@@ -724,7 +723,6 @@ class ServerComponents {
     pico.addSingleton(UserIndexDefinition.class);
     pico.addSingleton(UserIndexer.class);
     pico.addSingleton(UserIndex.class);
-    pico.addSingleton(UserService.class);
     pico.addSingleton(UserUpdater.class);
 
     // groups

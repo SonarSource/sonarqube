@@ -31,9 +31,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.user.index.UserIndex;
 
 import java.util.Map;
 
@@ -46,16 +46,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
 
-  UserService userService = mock(UserService.class);
+  UserIndex userIndex = mock(UserIndex.class);
   UserFinder finder = mock(UserFinder.class);
-  UserDao dao = mock(UserDao.class);
   UserUpdater userUpdater = mock(UserUpdater.class);
-  DefaultUserService service = new DefaultUserService(userService, userUpdater, finder, dao);
+  DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -100,7 +98,7 @@ public class DefaultUserServiceTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Self-deactivation is not possible");
-      verify(dao, never()).deactivateUserByLogin("simon");
+      verify(userUpdater, never()).deactivateUserByLogin("simon");
     }
   }
 
@@ -111,7 +109,7 @@ public class DefaultUserServiceTest {
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
-      verify(dao, never()).deactivateUserByLogin("simon");
+      verify(userUpdater, never()).deactivateUserByLogin("simon");
     }
   }
 
@@ -130,7 +128,6 @@ public class DefaultUserServiceTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Login is missing");
-      verifyZeroInteractions(dao);
     }
   }
 
@@ -237,7 +234,7 @@ public class DefaultUserServiceTest {
   @Test
   public void get_by_login() throws Exception {
     service.getByLogin("john");
-    verify(userService).getNullableByLogin("john");
+    verify(userIndex).getNullableByLogin("john");
   }
 
   @Test

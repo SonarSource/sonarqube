@@ -602,9 +602,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newUser(String login) {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(UserUpdater.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test").setPasswordConfirmation("test"));
-    MockUserSession.set();
   }
 
   private void createDefaultGroup() {

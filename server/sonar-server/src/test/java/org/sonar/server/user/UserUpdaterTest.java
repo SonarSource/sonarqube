@@ -572,7 +572,6 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "update_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setName("Marius2")
@@ -607,7 +606,6 @@ public class UserUpdaterTest {
   public void update_user_with_scm_accounts_containing_blank_entry() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setName("Marius2")
@@ -626,7 +624,6 @@ public class UserUpdaterTest {
   public void update_only_user_name() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setName("Marius2"));
@@ -647,7 +644,6 @@ public class UserUpdaterTest {
   public void update_only_user_email() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setEmail("marius2@mail.com"));
@@ -668,7 +664,6 @@ public class UserUpdaterTest {
   public void update_only_scm_accounts() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setScmAccounts(newArrayList("ma2")));
@@ -689,7 +684,6 @@ public class UserUpdaterTest {
   public void update_scm_accounts_with_same_values() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setScmAccounts(newArrayList("ma", "marius33")));
@@ -704,7 +698,6 @@ public class UserUpdaterTest {
   public void remove_scm_accounts() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setScmAccounts(null));
@@ -719,7 +712,6 @@ public class UserUpdaterTest {
   public void update_only_user_password() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setPassword("password2")
@@ -741,7 +733,6 @@ public class UserUpdaterTest {
   public void associate_default_group_when_updating_user() throws Exception {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_updating_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     userUpdater.update(UpdateUser.create("marius")
       .setName("Marius2")
@@ -762,7 +753,6 @@ public class UserUpdaterTest {
     db.prepareDbUnit(getClass(), "not_associate_default_group_when_updating_user_if_already_existing.xml");
     settings.setProperty(CoreProperties.CORE_DEFAULT_GROUP, "sonar-users");
     session.commit();
-    userIndexer.index();
 
     // User is already associate to the default group
     GroupMembershipFinder.Membership membership = groupMembershipFinder.find(GroupMembershipQuery.builder().login("marius").groupSearch("sonar-users").build());
@@ -789,7 +779,6 @@ public class UserUpdaterTest {
   public void fail_to_update_user_when_scm_account_is_already_used() throws Exception {
     db.prepareDbUnit(getClass(), "fail_to_update_user_when_scm_account_is_already_used.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     try {
       userUpdater.update(UpdateUser.create("marius")
@@ -808,7 +797,6 @@ public class UserUpdaterTest {
   public void fail_to_update_user_when_scm_account_is_user_login() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     try {
       userUpdater.update(UpdateUser.create("marius")
@@ -823,7 +811,6 @@ public class UserUpdaterTest {
   public void fail_to_update_user_when_scm_account_is_existing_user_email() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     try {
       userUpdater.update(UpdateUser.create("marius")
@@ -838,7 +825,6 @@ public class UserUpdaterTest {
   public void fail_to_update_user_when_scm_account_is_new_user_email() throws Exception {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
-    userIndexer.index();
 
     try {
       userUpdater.update(UpdateUser.create("marius")
