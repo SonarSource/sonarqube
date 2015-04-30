@@ -67,7 +67,7 @@ public class UpgradesSystemWsAction implements SystemWsAction {
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed " +
         "is provided in the response.")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-updates_plugins.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"));
   }
 
   @Override
@@ -139,7 +139,6 @@ public class UpgradesSystemWsAction implements SystemWsAction {
   private void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
     jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
     jsonWriter.prop(PROPERTY_NAME, plugin.getName());
-    jsonWriter.prop(PROPERTY_DESCRIPTION, plugin.getDescription());
   }
 
   private void writeIncompatiblePlugins(JsonWriter jsonWriter, List<Plugin> incompatiblePlugins) {
