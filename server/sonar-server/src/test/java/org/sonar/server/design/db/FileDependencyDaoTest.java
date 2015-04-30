@@ -76,6 +76,13 @@ public class FileDependencyDaoTest {
   }
 
   @Test
+  public void select_all() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(dao.selectAll(session)).hasSize(3);
+  }
+
+  @Test
   public void insert() throws Exception {
     dao.insert(session, new FileDependencyDto()
       .setFromComponentUuid("ABCD")

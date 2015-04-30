@@ -24,6 +24,11 @@
     </where>
   </select>
 
+  <select id="selectAll" resultType="org.sonar.core.design.FileDependencyDto" >
+    SELECT <include refid="fileDependenciesColumns"/>
+    FROM dependencies d
+  </select>
+
   <insert id="insert" parameterType="org.sonar.core.design.FileDependencyDto" useGeneratedKeys="false">
     INSERT INTO dependencies (from_component_uuid, to_component_uuid, from_parent_uuid, to_parent_uuid, root_project_snapshot_id, dep_weight, created_at)
     VALUES (#{fromComponentUuid,jdbcType=VARCHAR}, #{toComponentUuid,jdbcType=VARCHAR}, #{fromParentUuid,jdbcType=VARCHAR}, #{toParentUuid,jdbcType=BOOLEAN},

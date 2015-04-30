@@ -21,9 +21,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Joiner;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
@@ -55,7 +52,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -245,7 +241,7 @@ public class PersistTestsStep implements ComputationStep {
     final DbSession session;
     final ComputationContext context;
     final BatchReportReader reader;
-    final Cache<Integer, String> componentRefToUuidCache;
+    final ComponentUuidsCache componentRefToUuidCache;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     boolean hasUnprocessedCoverageDetails = false;
 
@@ -253,16 +249,8 @@ public class PersistTestsStep implements ComputationStep {
       this.session = session;
       this.context = context;
       this.reader = context.getReportReader();
-      this.componentRefToUuidCache = CacheBuilder.newBuilder()
-        .maximumSize(500_000)
-        .build(
-          new CacheLoader<Integer, String>() {
-            @Override
-            public String load(Integer key) {
-              return reader.readComponent(key).getUuid();
-            }
-          });
-      existingFileSourcesByUuid = new HashMap<>();
+      this.componentRefToUuidCache = new ComponentUuidsCache(context.getReportReader());
+      this.existingFileSourcesByUuid = new HashMap<>();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
         ImmutableMap.of("projectUuid", context.getProject().uuid(), "dataType", Type.TEST),
         new ResultHandler() {
@@ -275,11 +263,7 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     public String getUuid(int fileRef) {
-      try {
-        return componentRefToUuidCache.get(fileRef);
-      } catch (ExecutionException e) {
-        throw new IllegalStateException(String.format("Error while retrieving uuid of component file ref '%d'", fileRef), e);
-      }
+      return componentRefToUuidCache.getUuidFromRef(fileRef);
     }
   }
 }

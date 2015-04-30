@@ -17,18 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.design;
 
-import org.apache.ibatis.annotations.Param;
+@ParametersAreNonnullByDefault
+package org.sonar.server.design;
 
-import java.util.List;
-
-public interface FileDependencyMapper {
-
-  List<FileDependencyDto> selectFromParents(@Param("fromParentUuid") String fromParentUuid, @Param("toParentUuid") String toParentUuid, @Param("projectId") Long projectId);
-
-  List<FileDependencyDto> selectAll();
-
-  void insert(FileDependencyDto dto);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

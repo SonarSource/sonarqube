@@ -34,6 +34,11 @@ public class FileDependencyDao implements ServerComponent, DaoComponent {
     return session.getMapper(FileDependencyMapper.class).selectFromParents(fromParentUuid, toParentUuid, projectId);
   }
 
+  public List<FileDependencyDto> selectAll(DbSession session) {
+    return session.getMapper(FileDependencyMapper.class).selectAll();
+  }
+
+
   public void insert(DbSession session, FileDependencyDto dto) {
     session.getMapper(FileDependencyMapper.class).insert(dto);
   }
