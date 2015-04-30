@@ -19,8 +19,6 @@
  */
 package org.sonar.server.benchmark;
 
-import org.sonar.server.source.db.FileSourceDao;
-
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -31,6 +29,7 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.SourceFileResultSetIterator;
 
@@ -112,6 +111,7 @@ public class SourceDbBenchmarkTest {
     dto.setProjectUuid(PROJECT_UUID);
     dto.setFileUuid(Uuids.create());
     dto.setLineHashes(IOUtils.toString(getClass().getResourceAsStream("SourceDbBenchmarkTest/line_hashes.txt")));
+    dto.setDataType(FileSourceDto.Type.SOURCE);
     return dto;
   }
 
