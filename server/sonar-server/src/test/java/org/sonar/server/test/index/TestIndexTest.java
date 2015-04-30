@@ -97,8 +97,7 @@ public class TestIndexTest {
       .setMessage("message-" + id)
       .setStackTrace("stacktrace-" + id)
       .setStatus("status-" + id)
-      .setType("type-" + id)
-      .setUuid("uuid-" + id)
+      .setFileUuid("uuid-" + id)
       .setCoverageBlocks(Arrays.asList(coverageBlocks));
   }
 }

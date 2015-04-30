@@ -44,7 +44,7 @@ public class TestIndex extends BaseIndex {
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(1)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(FIELD_UUID, testFileUuid).cache(false))
+        .must(FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid).cache(false))
         .must(FilterBuilders.termFilter(TestIndexDefinition.FIELD_NAME, methodName).cache(false))))
       .get().getHits().getHits()) {
       coverageBlocks.addAll(new TestDoc(hit.sourceAsMap()).coverageBlocks());
@@ -59,7 +59,7 @@ public class TestIndex extends BaseIndex {
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(10_000)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_UUID, testFileUuid)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid)))
       .get().getHits().getHits()) {
       testDocs.add(new TestDoc(hit.sourceAsMap()));
     }

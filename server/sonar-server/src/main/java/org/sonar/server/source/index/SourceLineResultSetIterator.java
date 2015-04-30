@@ -20,11 +20,9 @@
 package org.sonar.server.source.index;
 
 import org.apache.commons.io.Charsets;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.es.EsUtils;
@@ -38,88 +36,26 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
+import static org.sonar.server.source.index.FileSourcesUpdaterUtil.Row;
 
 /**
  * Scroll over table FILE_SOURCES and directly parse data required to
  * populate the index sourcelines
  */
-public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileResultSetIterator.Row> {
+public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUpdaterUtil.Row> {
 
-  public static class Row {
-    private final String fileUuid, projectUuid;
-    private final long updatedAt;
-    private final List<UpdateRequest> lineUpdateRequests = new ArrayList<>();
-
-    public Row(String projectUuid, String fileUuid, long updatedAt) {
-      this.projectUuid = projectUuid;
-      this.fileUuid = fileUuid;
-      this.updatedAt = updatedAt;
-    }
-
-    public String getProjectUuid() {
-      return projectUuid;
-    }
-
-    public String getFileUuid() {
-      return fileUuid;
-    }
-
-    public long getUpdatedAt() {
-      return updatedAt;
-    }
-
-    public List<UpdateRequest> getLineUpdateRequests() {
-      return lineUpdateRequests;
-    }
-  }
-
-  private static final String[] FIELDS = {
-    "project_uuid",
-    "file_uuid",
-    "updated_at",
-    "binary_data"
-  };
-
-  private static final String SQL_ALL = String.format("SELECT %s FROM file_sources WHERE data_type='%s' ", StringUtils.join(FIELDS, ","), Type.SOURCE);
-  private static final String AFTER_DATE_FILTER = " AND updated_at>?";
-  private static final String PROJECT_FILTER = " AND project_uuid=?";
-
-  public static SourceFileResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
+  public static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
     try {
-      String sql = createSQL(afterDate, projectUuid);
-      // rows are big, so they are scrolled once at a time (one row in memory at a time)
-      PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);
-      int index = 1;
-      if (afterDate > 0L) {
-        stmt.setLong(index, afterDate);
-        index++;
-      }
-      if (projectUuid != null) {
-        stmt.setString(index, projectUuid);
-      }
-      return new SourceFileResultSetIterator(stmt);
+      return new SourceLineResultSetIterator(FileSourcesUpdaterUtil.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.SOURCE, afterDate,
+        projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);
     }
   }
 
-  private static String createSQL(long afterDate, @Nullable String projectUuid) {
-    String sql = SQL_ALL;
-    if (afterDate > 0L || projectUuid != null) {
-      if (afterDate > 0L) {
-        sql += AFTER_DATE_FILTER;
-      }
-      if (projectUuid != null) {
-        sql += PROJECT_FILTER;
-      }
-    }
-    return sql;
-  }
-
-  private SourceFileResultSetIterator(PreparedStatement stmt) throws SQLException {
+  private SourceLineResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);
   }
 
@@ -226,7 +162,7 @@ public class SourceFileResultSetIterator extends ResultSetIterator<SourceFileRes
         .routing(projectUuid)
         .doc(jsonDoc)
         .upsert(jsonDoc);
-      result.lineUpdateRequests.add(updateRequest);
+      result.getUpdateRequests().add(updateRequest);
     }
     return result;
   }
