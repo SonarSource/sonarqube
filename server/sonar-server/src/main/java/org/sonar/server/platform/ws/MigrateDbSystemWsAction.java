@@ -43,6 +43,12 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
   private static final String MESSAGE_STATUS_FAILED = "Migration failed: %s.<br/> Please check logs.";
 
+  private static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
+  private static final String STATUS_NO_MIGRATION = "NO_MIGRATION";
+  private static final String STATUS_MIGRATION_RUNNING = "MIGRATION_RUNNING";
+  private static final String STATUS_MIGRATION_FAILED = "MIGRATION_FAILED";
+  private static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
+
   private final DatabaseVersion databaseVersion;
   private final DatabaseMigration databaseMigration;
   private final Database database;
@@ -65,11 +71,12 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
         "<br/>" +
         "State values are:" +
         "<ul>" +
-        "<li>NO_MIGRATION: DB is up to date with current version of SonarQube</li>" +
-        "<li>MIGRATION_RUNNING: DB migration is under go</li>" +
-        "<li>MIGRATION_SUCCEEDED: DB migration has run and has been successful</li>" +
+        "<li>NO_MIGRATION: DB is up to date with current version of SonarQube.</li>" +
+        "<li>NOT_SUPPORTED: Migration is not supported on embedded databases.</li>" +
+        "<li>MIGRATION_RUNNING: DB migration is under go.</li>" +
+        "<li>MIGRATION_SUCCEEDED: DB migration has run and has been successful.</li>" +
         "<li>MIGRATION_FAILED: DB migration has run and failed. SonarQube must be restarted in order to retry a " +
-        "DB migration (optionally after DB has been restored from backup)</li>" +
+        "DB migration (optionally after DB has been restored from backup).</li>" +
         "</ul>")
       .setSince("5.2")
       .setPost(true)
@@ -109,8 +116,8 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
       .prop("operational", false)
-      .prop("state", statusToJson(NONE))
-      .prop("message", "Upgrade is not supported. Please use a <a href=\"http://redirect.sonarsource.com/doc/requirements.html\">production-ready database</a>.")
+      .prop("state", STATUS_NOT_SUPPORTED)
+      .prop("message", "Upgrade is not supported on embedded database.")
       .endObject();
     jsonWriter.close();
   }
@@ -140,13 +147,13 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private String statusToJson(DatabaseMigration.Status status) {
     switch (status) {
       case NONE:
-        return "NO_MIGRATION";
+        return STATUS_NO_MIGRATION;
       case RUNNING:
-        return "MIGRATION_RUNNING";
+        return STATUS_MIGRATION_RUNNING;
       case FAILED:
-        return "MIGRATION_FAILED";
+        return STATUS_MIGRATION_FAILED;
       case SUCCEEDED:
-        return "MIGRATION_SUCCEEDED";
+        return STATUS_MIGRATION_SUCCEEDED;
       default:
         throw new IllegalArgumentException(
           "Unsupported DatabaseMigration.Status " + status + " can not be converted to JSON value");

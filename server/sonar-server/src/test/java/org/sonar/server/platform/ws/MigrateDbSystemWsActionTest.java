@@ -49,7 +49,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class MigrateDbSystemWsActionTest {
 
   private static final String UPTODATE_MSG = "Database is up-to-date, no migration needed.";
-  private static final String MIG_NOT_SUPPORTED_MSG = "Upgrade is not supported. Please use a <a href=\\\"http://redirect.sonarsource.com/doc/requirements.html\\\">production-ready database</a>.";
+  private static final String MIG_NOT_SUPPORTED_MSG = "Upgrade is not supported on embedded database.";
   private static final String RUNNING_MSG = "Database migration is running.";
   private static final Date SOME_DATE = new Date();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
@@ -59,6 +59,7 @@ public class MigrateDbSystemWsActionTest {
   private static final int OLD_VERSION = CURRENT_VERSION - 1;
   private static final int NEWER_VERSION = CURRENT_VERSION + 1;
   private static final String STATUS_NONE = "NO_MIGRATION";
+  private static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
   private static final String STATUS_RUNNING = "MIGRATION_RUNNING";
   private static final String STATUS_SUCCEEDED = "MIGRATION_SUCCEEDED";
   private static final String STATUS_FAILED = "MIGRATION_FAILED";
@@ -133,7 +134,7 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_NONE, MIG_NOT_SUPPORTED_MSG));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_NOT_SUPPORTED, MIG_NOT_SUPPORTED_MSG));
   }
 
   @Test
