@@ -52,7 +52,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
     String alertName = notification.getFieldValue("alertName");
     String alertText = notification.getFieldValue("alertText");
     String alertLevel = notification.getFieldValue("alertLevel");
-    boolean isNewAlert = Boolean.valueOf(notification.getFieldValue("isNewAlert"));
+    boolean isNewAlert = Boolean.parseBoolean(notification.getFieldValue("isNewAlert"));
 
     // Generate text
     String subject = generateSubject(projectName, alertLevel, isNewAlert);

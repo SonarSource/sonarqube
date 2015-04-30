@@ -42,7 +42,7 @@ public final class LogServerId {
   }
 
   @VisibleForTesting
-  protected void logServerId(Logger logger) {
+  void logServerId(Logger logger) {
     PropertyDto serverIdProp = propertiesDao.selectGlobalProperty(CoreProperties.PERMANENT_SERVER_ID);
     if (serverIdProp != null) {
       // a server ID has been generated, let's print out the other useful informations that can help debugging license issues
