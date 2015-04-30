@@ -40,7 +40,7 @@ public class FileSourceTesting {
   }
 
   public static void updateDataColumn(Connection connection, String fileUuid, byte[] data) throws SQLException {
-    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=?");
+    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=? AND data_type='SOURCE'");
     stmt.setBytes(1, data);
     stmt.setString(2, fileUuid);
     stmt.executeUpdate();

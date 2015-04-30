@@ -140,7 +140,7 @@ public class SourceLineIndexerTest {
       .setSource("new source")
       .addAllDuplication(duplications)
       .build();
-    SourceFileResultSetIterator.Row dbRow = SourceFileResultSetIterator.toRow("P1", "F1", new Date(), dataBuilder.build());
+    FileSourcesUpdaterUtil.Row dbRow = SourceLineResultSetIterator.toRow("P1", "F1", new Date(), dataBuilder.build());
     indexer.index(Iterators.singletonIterator(dbRow));
 
     assertThat(countDocuments()).isEqualTo(2L);
@@ -214,7 +214,7 @@ public class SourceLineIndexerTest {
       .setOverallCoveredConditions(bigValue)
       .build();
 
-    SourceFileResultSetIterator.Row row = SourceFileResultSetIterator.toRow("P1", "F1", new Date(), dataBuilder.build());
+    FileSourcesUpdaterUtil.Row row = SourceLineResultSetIterator.toRow("P1", "F1", new Date(), dataBuilder.build());
     indexer.index(Iterators.singletonIterator(row));
 
     List<SearchHit> hits = getDocuments();
