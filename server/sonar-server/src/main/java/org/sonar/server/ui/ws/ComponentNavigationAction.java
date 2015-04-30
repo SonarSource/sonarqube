@@ -145,7 +145,7 @@ public class ComponentNavigationAction implements NavigationAction {
 
     if (snapshot != null) {
       json.prop("version", snapshot.getVersion())
-        .prop("date", DateUtils.formatDateTime(new Date(snapshot.getCreatedAt())));
+        .prop("snapshotDate", DateUtils.formatDateTime(new Date(snapshot.getCreatedAt())));
       String[] availableMeasures = dbClient.measureDao().selectMetricKeysForSnapshot(session, snapshot.getId()).toArray(new String[0]);
       List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE, component.scope(), component.qualifier(), component.language(), availableMeasures);
       writeExtensions(json, component, pages, userSession.locale());
