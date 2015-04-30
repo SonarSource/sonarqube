@@ -107,7 +107,7 @@ public class GlobalNavigationAction implements NavigationAction {
   }
 
   private void writeQualifiers(JsonWriter json) {
-    json.name("rootQualifiers").beginArray();
+    json.name("qualifiers").beginArray();
     for (ResourceType rootType : resourceTypes.getRoots()) {
       json.value(rootType.getQualifier());
     }

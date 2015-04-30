@@ -12,5 +12,6 @@
     }
   ],
   "logoUrl": "http://example.com/my-custom-logo.png",
-  "logoWidth": 135
+  "logoWidth": 135,
+  "qualifiers": ["TRK", "VW"]
 }
