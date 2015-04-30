@@ -61,10 +61,12 @@ public class SettingsNavigationAction implements NavigationAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    boolean isAdmin = UserSession.get().hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    UserSession userSession = UserSession.get();
+    boolean isAdmin = userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("showUpdateCenter", isAdmin && settings.getBoolean(UpdateCenterClient.ACTIVATION_PROPERTY));
+    json.prop("showProvisioning", userSession.hasGlobalPermission(GlobalPermissions.PROVISIONING));
 
     json.name("plugins").beginArray();
     if (isAdmin) {

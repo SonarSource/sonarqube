@@ -1,5 +1,6 @@
 {
   "showUpdateCenter": false,
+  "showProvisioning": false,
   "plugins": [
     {
       "name": "First Page",

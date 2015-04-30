@@ -71,6 +71,14 @@ public class SettingsNavigationActionTest {
   }
 
   @Test
+  public void with_provisioning() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(), i18n)));
+
+    wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_provisioning.json");
+  }
+
+  @Test
   public void with_views() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n)));
