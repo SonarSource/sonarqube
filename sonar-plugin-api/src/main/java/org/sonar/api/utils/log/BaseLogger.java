@@ -207,6 +207,8 @@ abstract class BaseLogger implements Logger {
       case ERROR:
         error(msg);
         break;
+      default:
+        throw new IllegalArgumentException("Unsupported LoggerLevel value: " + level);
     }
   }
 }
