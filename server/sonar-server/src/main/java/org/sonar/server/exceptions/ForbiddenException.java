@@ -19,6 +19,8 @@
  */
 package org.sonar.server.exceptions;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Permission denied. User does not have the required permissions.
  */
@@ -26,11 +28,7 @@ public class ForbiddenException extends ServerException {
 
   private static final int FORBIDDEN = 403;
 
-  public ForbiddenException() {
-    super(FORBIDDEN);
-  }
-
   public ForbiddenException(String message) {
-    super(FORBIDDEN, message);
+    super(FORBIDDEN, Preconditions.checkNotNull(message));
   }
 }

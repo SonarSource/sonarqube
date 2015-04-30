@@ -56,7 +56,7 @@ public class SystemRestartWsAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) {
     if (!settings.getBoolean("sonar.web.dev")) {
-      throw new ForbiddenException();
+      throw new ForbiddenException("Webservice available only in dev mode");
     }
 
     LOGGER.info("Restart server");
