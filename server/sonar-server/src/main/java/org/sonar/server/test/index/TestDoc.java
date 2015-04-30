@@ -36,15 +36,33 @@ public class TestDoc extends BaseDoc {
 
   @VisibleForTesting
   TestDoc() {
-    super(Maps.<String, Object>newHashMapWithExpectedSize(7));
+    super(Maps.<String, Object>newHashMapWithExpectedSize(10));
   }
 
-  public String uuid() {
-    return getField(FIELD_UUID);
+  public String projectUuid() {
+    return getField(FIELD_PROJECT_UUID);
   }
 
-  public TestDoc setUuid(String uuid) {
-    setField(FIELD_UUID, uuid);
+  public TestDoc setProjectUuid(String projectUuid) {
+    setField(FIELD_PROJECT_UUID, projectUuid);
+    return this;
+  }
+
+  public String fileUuid() {
+    return getField(FIELD_FILE_UUID);
+  }
+
+  public TestDoc setFileUuid(String fileUuid) {
+    setField(FIELD_FILE_UUID, fileUuid);
+    return this;
+  }
+
+  public String testUuid() {
+    return getField(FIELD_TEST_UUID);
+  }
+
+  public TestDoc setUuid(String testUuid) {
+    setField(FIELD_TEST_UUID, testUuid);
     return this;
   }
 
@@ -81,15 +99,6 @@ public class TestDoc extends BaseDoc {
 
   public TestDoc setStackTrace(String stackTrace) {
     setField(FIELD_STACKTRACE, stackTrace);
-    return this;
-  }
-
-  public String type() {
-    return getField(FIELD_TYPE);
-  }
-
-  public TestDoc setType(String type) {
-    setField(FIELD_TYPE, type);
     return this;
   }
 

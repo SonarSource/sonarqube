@@ -27,16 +27,18 @@ import org.sonar.server.es.NewIndex;
 public class TestIndexDefinition implements IndexDefinition {
   public static final String INDEX = "tests";
   public static final String TYPE = "test";
-  public static final String FIELD_UUID = "uuid";
+  public static final String FIELD_PROJECT_UUID = "projectUuid";
+  public static final String FIELD_FILE_UUID = "fileUuid";
+  public static final String FIELD_TEST_UUID = "testUuid";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_STATUS = "status";
-  public static final String FIELD_TYPE = "type";
   public static final String FIELD_DURATION_IN_MS = "durationInMs";
   public static final String FIELD_MESSAGE = "message";
   public static final String FIELD_STACKTRACE = "stacktrace";
   public static final String FIELD_COVERAGE_BLOCKS = "coverageBlocks";
   public static final String FIELD_COVERAGE_BLOCK_UUID = "uuid";
   public static final String FIELD_COVERAGE_BLOCK_LINES = "lines";
+  public static final String FIELD_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
 
@@ -56,13 +58,15 @@ public class TestIndexDefinition implements IndexDefinition {
     nestedMapping.createIntegerField(FIELD_COVERAGE_BLOCK_LINES);
 
     NewIndex.NewIndexType mapping = index.createType(TYPE);
-    mapping.stringFieldBuilder(FIELD_UUID).build();
+    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
+    mapping.stringFieldBuilder(FIELD_FILE_UUID).build();
+    mapping.stringFieldBuilder(FIELD_TEST_UUID).build();
     mapping.stringFieldBuilder(FIELD_NAME).build();
     mapping.stringFieldBuilder(FIELD_STATUS).disableSearch().build();
-    mapping.stringFieldBuilder(FIELD_TYPE).disableSearch().build();
     mapping.createLongField(FIELD_DURATION_IN_MS);
     mapping.stringFieldBuilder(FIELD_MESSAGE).disableSearch().build();
     mapping.stringFieldBuilder(FIELD_STACKTRACE).disableSearch().build();
     mapping.nestedObjectBuilder(FIELD_COVERAGE_BLOCKS, nestedMapping).build();
+    mapping.createDateTimeField(FIELD_UPDATED_AT);
   }
 }

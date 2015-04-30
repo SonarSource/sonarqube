@@ -20,6 +20,7 @@
 
 package org.sonar.server.batch;
 
+import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.source.db.FileSourceDao;
 
 import com.google.common.collect.ImmutableMap;
@@ -843,6 +844,7 @@ public class ProjectRepositoryLoaderMediumTest {
       .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
       .setCreatedAt(System.currentTimeMillis())
       .setUpdatedAt(System.currentTimeMillis())
+      .setDataType(Type.SOURCE)
       .setSrcHash("123456");
   }
 
