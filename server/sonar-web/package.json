@@ -31,9 +31,6 @@
     "phantomjs": "1.9.7-12",
     "serve-static": "1.5.0"
   },
-  "engines": {
-    "node": "~0.8 || ~0.10"
-  },
   "scripts": {
     "build-fast": "./node_modules/.bin/grunt dev",
     "build": "./node_modules/.bin/grunt build",
