@@ -24,19 +24,33 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 
 public class UserIndex implements ServerComponent {
+
+  private static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private final EsClient esClient;
 
@@ -98,6 +112,56 @@ public class UserIndex implements ServerComponent {
       }
     }
     return result;
+  }
+
+  public Iterator<UserDoc> selectUsersForBatch(List<String> logins) {
+    BoolFilterBuilder filter = FilterBuilders.boolFilter()
+      .must(FilterBuilders.termsFilter(UserIndexDefinition.FIELD_LOGIN, logins));
+
+    SearchRequestBuilder requestBuilder = esClient
+      .prepareSearch(UserIndexDefinition.INDEX)
+      .setTypes(UserIndexDefinition.TYPE_USER)
+      .setSearchType(SearchType.SCAN)
+      .addSort(SortBuilders.fieldSort(UserIndexDefinition.FIELD_LOGIN).order(SortOrder.ASC))
+      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
+      .setSize(10000)
+      .setFetchSource(
+        new String[] {UserIndexDefinition.FIELD_LOGIN, UserIndexDefinition.FIELD_NAME},
+        null)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+    SearchResponse response = requestBuilder.get();
+
+    return scroll(response.getScrollId());
+  }
+
+  // Scrolling within the index
+  private Iterator<UserDoc> scroll(final String scrollId) {
+    return new Iterator<UserDoc>() {
+      private final Queue<SearchHit> hits = new ArrayDeque<>();
+
+      @Override
+      public boolean hasNext() {
+        if (hits.isEmpty()) {
+          SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
+            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
+        }
+        return !hits.isEmpty();
+      }
+
+      @Override
+      public UserDoc next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        return new UserDoc(hits.poll().getSource());
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Cannot remove item when scrolling");
+      }
+    };
   }
 
 }

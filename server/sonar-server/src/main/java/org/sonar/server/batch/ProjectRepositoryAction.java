@@ -22,13 +22,12 @@ package org.sonar.server.batch;
 
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.server.plugins.MimeTypes;
 
-public class ProjectRepositoryAction implements RequestHandler {
+public class ProjectRepositoryAction implements BatchAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
@@ -40,7 +39,8 @@ public class ProjectRepositoryAction implements RequestHandler {
     this.projectReferentialsLoader = projectReferentialsLoader;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("project")
       .setDescription("Return project repository")
       .setSince("4.5")

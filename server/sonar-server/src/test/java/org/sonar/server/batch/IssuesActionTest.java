@@ -35,7 +35,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -43,7 +42,12 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.issue.index.*;
+import org.sonar.server.issue.index.IssueAuthorizationDao;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
@@ -94,12 +98,7 @@ public class IssuesActionTest {
     issuesAction = new IssuesAction(dbClient, issueIndex);
     componentDao = new ComponentDao();
 
-    tester = new WsTester(new BatchWs(
-      new BatchIndex(mock(Server.class)),
-      new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class)),
-      new ProjectRepositoryAction(mock(ProjectRepositoryLoader.class)),
-      issuesAction)
-      );
+    tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
   }
 
   @After

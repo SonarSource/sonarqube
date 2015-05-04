@@ -22,7 +22,6 @@ package org.sonar.server.batch;
 
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.GlobalRepositories;
@@ -37,7 +36,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-public class GlobalRepositoryAction implements RequestHandler {
+public class GlobalRepositoryAction implements BatchAction {
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
@@ -47,7 +46,8 @@ public class GlobalRepositoryAction implements RequestHandler {
     this.propertiesDao = propertiesDao;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     controller.createAction("global")
       .setDescription("Return metrics and global properties")
       .setSince("4.5")

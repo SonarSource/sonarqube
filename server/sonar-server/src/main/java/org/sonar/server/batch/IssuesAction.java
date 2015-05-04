@@ -22,7 +22,6 @@ package org.sonar.server.batch;
 
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.BatchInput;
@@ -44,7 +43,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssuesAction implements RequestHandler {
+public class IssuesAction implements BatchAction {
 
   private static final String PARAM_KEY = "key";
 
@@ -57,7 +56,8 @@ public class IssuesAction implements RequestHandler {
     this.issueIndex = issueIndex;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("issues")
       .setDescription("Return open issues")
       .setSince("5.1")

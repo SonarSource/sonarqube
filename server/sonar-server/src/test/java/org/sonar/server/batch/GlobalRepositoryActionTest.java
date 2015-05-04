@@ -65,7 +65,7 @@ public class GlobalRepositoryActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao), mock(ProjectRepositoryAction.class), mock(IssuesAction.class)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao)));
   }
 
   @Test

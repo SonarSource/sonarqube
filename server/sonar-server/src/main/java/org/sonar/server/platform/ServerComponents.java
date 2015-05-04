@@ -95,6 +95,7 @@ import org.sonar.server.batch.GlobalRepositoryAction;
 import org.sonar.server.batch.IssuesAction;
 import org.sonar.server.batch.ProjectRepositoryAction;
 import org.sonar.server.batch.ProjectRepositoryLoader;
+import org.sonar.server.batch.UsersAction;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentService;
@@ -611,6 +612,7 @@ class ServerComponents {
     pico.addSingleton(ProjectRepositoryLoader.class);
     pico.addSingleton(SubmitReportWsAction.class);
     pico.addSingleton(IssuesAction.class);
+    pico.addSingleton(UsersAction.class);
     pico.addSingleton(BatchWs.class);
 
     // Dashboard

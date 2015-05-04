@@ -43,8 +43,7 @@ public class ProjectRepositoryActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalRepositoryAction.class),
-      new ProjectRepositoryAction(projectRepositoryLoader), mock(IssuesAction.class)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new ProjectRepositoryAction(projectRepositoryLoader)));
   }
 
   @Test
