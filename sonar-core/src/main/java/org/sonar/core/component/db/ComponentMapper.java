@@ -71,13 +71,18 @@ public interface ComponentMapper {
    * Return all descendant modules (including itself) from a given component uuid and scope
    */
   List<ComponentDto> selectDescendantModules(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
-                                             @Param(value = "excludeDisabled") boolean excludeDisabled);
+    @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
-   * Return all descendant files from a given component uuid and scope
+   * Return all files from a given project uuid and scope
+   */
+  List<FilePathWithHashDto> selectEnabledFilesFromProject(@Param("projectUuid") String projectUuid);
+
+  /**
+   * Return all descendant files from a given module uuid and scope
    */
   List<FilePathWithHashDto> selectDescendantFiles(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
-                                                  @Param(value = "excludeDisabled") boolean excludeDisabled);
+    @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
    * Return uuids and project uuids from list of qualifiers

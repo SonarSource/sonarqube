@@ -383,7 +383,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_module_files_tree() throws Exception {
+  public void select_enabled_module_files_tree_from_module() throws Exception {
     setupData("select_module_files_tree");
 
     // From root project
@@ -411,6 +411,29 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectEnabledDescendantFiles(session, "GHIJ")).isEmpty();
 
     assertThat(dao.selectEnabledDescendantFiles(session, "unknown")).isEmpty();
+  }
+
+  @Test
+  public void select_enabled_module_files_tree_from_project() throws Exception {
+    setupData("select_module_files_tree");
+
+    // From root project
+    List<FilePathWithHashDto> files = dao.selectEnabledFilesFromProject(session, "ABCD");
+    assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
+    assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
+    assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
+    assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
+
+    // From module
+    assertThat(dao.selectEnabledFilesFromProject(session, "EFGH")).isEmpty();
+
+    // From sub module
+    assertThat(dao.selectEnabledFilesFromProject(session, "FGHI")).isEmpty();
+
+    // From directory
+    assertThat(dao.selectEnabledFilesFromProject(session, "GHIJ")).isEmpty();
+
+    assertThat(dao.selectEnabledFilesFromProject(session, "unknown")).isEmpty();
   }
 
   @Test
