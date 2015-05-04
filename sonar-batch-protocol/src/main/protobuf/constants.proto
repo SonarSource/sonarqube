@@ -35,8 +35,6 @@ enum ComponentType {
   MODULE = 1;
   DIRECTORY = 2;
   FILE = 3;
-  VIEW = 4;
-  SUBVIEW = 5;
 }
 
 enum MeasureValueType {

@@ -31,8 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -42,6 +40,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class CpdMediumTest {
 
@@ -103,8 +102,8 @@ public class CpdMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    // 5 measures per file + quality profile measure
-    assertThat(result.measures()).hasSize(11);
+    assertThat(result.measures("com.foo.project:src/sample1.xoo")).extracting("metric.key", "value").contains(tuple("duplicated_blocks", 1), tuple("duplicated_files", 1),
+      tuple("duplicated_lines", 17));
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
@@ -156,7 +155,7 @@ public class CpdMediumTest {
       .start();
 
     Measure duplicatedBlocks = null;
-    for (Measure m : result.measures()) {
+    for (Measure m : result.allMeasures()) {
       if (m.metric().key().equals("duplicated_blocks")) {
         duplicatedBlocks = m;
       }
@@ -189,8 +188,8 @@ public class CpdMediumTest {
         .build())
       .start();
 
-    // 5 measures per file + QP measure
-    assertThat(result.measures()).hasSize(6);
+    assertThat(result.measures("com.foo.project:src/sample.xoo")).extracting("metric.key", "value").contains(tuple("duplicated_blocks", 2), tuple("duplicated_files", 1),
+      tuple("duplicated_lines", 4));
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group
@@ -204,11 +203,6 @@ public class CpdMediumTest {
     assertThat(cloneGroup.duplicates()).hasSize(1);
     assertThat(cloneGroup.duplicates().get(0).startLine()).isEqualTo(5);
     assertThat(cloneGroup.duplicates().get(0).length()).isEqualTo(2);
-
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
-      .onFile(inputFile)
-      .withValue("1=1;2=1;3=0;4=0;5=1;6=1;7=0"));
   }
 
 }

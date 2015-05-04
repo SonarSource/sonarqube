@@ -112,7 +112,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private void writeEvents(BatchResource batchResource, Builder builder) {
-    if (isRealProjectOrModule(batchResource.resource())) {
+    if (ResourceUtils.isProject(batchResource.resource())) {
       for (Event event : eventCache.getEvents(batchResource.batchId())) {
         builder.addEvent(event);
       }
@@ -120,7 +120,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private void writeVersion(Resource r, BatchReport.Component.Builder builder) {
-    if (isRealProjectOrModule(r)) {
+    if (ResourceUtils.isProject(r)) {
       ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
       String version = getVersion(def);
       builder.setVersion(version);
@@ -133,7 +133,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   private void writeLinks(Resource r, BatchReport.Component.Builder builder) {
-    if (isRealProjectOrModule(r)) {
+    if (ResourceUtils.isProject(r)) {
       ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
@@ -143,11 +143,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES, ComponentLinkType.SCM);
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES_DEV, ComponentLinkType.SCM_DEV);
     }
-  }
-
-  // Exclude views
-  private static boolean isRealProjectOrModule(Resource r) {
-    return ResourceUtils.isProject(r) && !ResourceUtils.isView(r) && !ResourceUtils.isSubview(r);
   }
 
   private ProjectDefinition getProjectDefinition(ProjectReactor reactor, String keyWithBranch) {
@@ -191,10 +186,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
       return Constants.ComponentType.MODULE;
     } else if (ResourceUtils.isRootProject(r)) {
       return Constants.ComponentType.PROJECT;
-    } else if (ResourceUtils.isView(r)) {
-      return Constants.ComponentType.VIEW;
-    } else if (ResourceUtils.isSubview(r)) {
-      return Constants.ComponentType.SUBVIEW;
     }
     throw new IllegalArgumentException("Unknown resource type: " + r);
   }

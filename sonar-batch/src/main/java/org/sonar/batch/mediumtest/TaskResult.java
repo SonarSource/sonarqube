@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.mediumtest;
 
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.*;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
@@ -41,6 +39,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
+import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.*;
 import org.sonar.batch.protocol.output.BatchReport.Component;
@@ -66,7 +65,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   private static final Logger LOG = LoggerFactory.getLogger(TaskResult.class);
 
   private List<Issue> issues = new ArrayList<>();
-  private List<org.sonar.api.batch.sensor.measure.Measure> measures = new ArrayList<>();
+  private Multimap<String, org.sonar.api.batch.sensor.measure.Measure> measures = LinkedHashMultimap.create();
   private Map<String, List<Duplication>> duplications = new HashMap<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
@@ -115,19 +114,24 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   }
 
   private void storeMeasures(ProjectScanContainer container) {
-    InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
+    ResourceCache resourceCache = container.getComponentByType(ResourceCache.class);
     for (Entry<Measure> measureEntry : container.getComponentByType(MeasureCache.class).entries()) {
       String componentKey = measureEntry.key()[0].toString();
-      InputFile file = inputFileCache.getFile(StringUtils.substringBeforeLast(componentKey, ":"), StringUtils.substringAfterLast(componentKey, ":"));
+      InputPath path = resourceCache.get(componentKey).inputPath();
       Measure oldMeasure = measureEntry.value();
       DefaultMeasure<Serializable> newMeasure = new DefaultMeasure<>().forMetric(oldMeasure.getMetric());
-      if (file != null) {
-        newMeasure.onFile(file);
+      if (path != null) {
+        if (path instanceof InputFile) {
+          newMeasure.onFile((InputFile) path);
+        } else {
+          // Ignore measure on directories since this will disappear in target architecture
+          continue;
+        }
       } else {
         newMeasure.onProject();
       }
       newMeasure.withValue(oldMeasure.value());
-      measures.add(newMeasure);
+      measures.put(componentKey, newMeasure);
     }
   }
 
@@ -164,8 +168,12 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return issues;
   }
 
-  public List<org.sonar.api.batch.sensor.measure.Measure> measures() {
-    return measures;
+  public Collection<org.sonar.api.batch.sensor.measure.Measure> allMeasures() {
+    return measures.values();
+  }
+
+  public Collection<org.sonar.api.batch.sensor.measure.Measure> measures(String componentKey) {
+    return measures.get(componentKey);
   }
 
   public Collection<InputFile> inputFiles() {

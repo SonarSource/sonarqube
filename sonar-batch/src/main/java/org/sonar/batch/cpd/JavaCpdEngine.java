@@ -37,7 +37,6 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.cpd.index.IndexFactory;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
@@ -60,17 +59,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class JavaCpdEngine extends CpdEngine {
 
@@ -201,25 +193,12 @@ public class JavaCpdEngine extends CpdEngine {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
-    Set<Integer> duplicatedLines = new HashSet<Integer>();
-    int duplicatedBlocks = computeBlockAndLineCount(duplications, duplicatedLines);
-    Map<Integer, Integer> duplicationByLine = new HashMap<Integer, Integer>();
-    for (int i = 1; i <= inputFile.lines(); i++) {
-      duplicationByLine.put(i, duplicatedLines.contains(i) ? 1 : 0);
-    }
-    saveMeasures(context, inputFile, duplicatedLines, duplicatedBlocks, duplicationByLine);
+    computeBlockAndLineCount(context, inputFile, duplications);
 
     saveDuplications(context, inputFile, duplications);
   }
 
-  private static void saveMeasures(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Set<Integer> duplicatedLines, int duplicatedBlocks,
-    Map<Integer, Integer> duplicationByLine) {
-    ((DefaultMeasure<String>) context.<String>newMeasure()
-      .forMetric(CoreMetrics.DUPLICATION_LINES_DATA)
-      .onFile(inputFile)
-      .withValue(KeyValueFormat.format(duplicationByLine)))
-      .setFromCore()
-      .save();
+  private static void saveMeasures(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, int duplicatedLines, int duplicatedBlocks) {
     // Save
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_FILES)
@@ -230,7 +209,7 @@ public class JavaCpdEngine extends CpdEngine {
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_LINES)
       .onFile(inputFile)
-      .withValue(duplicatedLines.size()))
+      .withValue(duplicatedLines))
       .setFromCore()
       .save();
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
@@ -268,8 +247,9 @@ public class JavaCpdEngine extends CpdEngine {
     }
   }
 
-  private static int computeBlockAndLineCount(Iterable<CloneGroup> duplications, Set<Integer> duplicatedLines) {
+  private static void computeBlockAndLineCount(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, Iterable<CloneGroup> duplications) {
     int duplicatedBlocks = 0;
+    Set<Integer> duplicatedLines = new HashSet<>();
     for (CloneGroup clone : duplications) {
       ClonePart origin = clone.getOriginPart();
       for (ClonePart part : clone.getCloneParts()) {
@@ -281,7 +261,7 @@ public class JavaCpdEngine extends CpdEngine {
         }
       }
     }
-    return duplicatedBlocks;
+    saveMeasures(context, inputFile, duplicatedLines.size(), duplicatedBlocks);
   }
 
 }

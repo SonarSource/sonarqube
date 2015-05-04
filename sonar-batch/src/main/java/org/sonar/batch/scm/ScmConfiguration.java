@@ -23,19 +23,12 @@ import com.google.common.base.Joiner;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
+import org.sonar.api.*;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.phases.Phases;
-
-import javax.annotation.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,38 +55,26 @@ public final class ScmConfiguration implements BatchComponent, Startable {
   private final ProjectReactor projectReactor;
   private final Settings settings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<String, ScmProvider>();
-  private final Phases phases;
   private final AnalysisMode analysisMode;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, @Nullable Phases phases, ScmProvider... providers) {
+  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
     this.projectReactor = projectReactor;
     this.analysisMode = analysisMode;
     this.settings = settings;
-    this.phases = phases;
     for (ScmProvider scmProvider : providers) {
       providerPerKey.put(scmProvider.key(), scmProvider);
     }
   }
 
-  // Scan 2
-  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
-    this(projectReactor, analysisMode, settings, null, providers);
-  }
-
-  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, Phases phases) {
-    this(projectReactor, analysisMode, settings, phases, new ScmProvider[0]);
-  }
-
-  // Scan2
   public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings) {
-    this(projectReactor, analysisMode, settings, null, new ScmProvider[0]);
+    this(projectReactor, analysisMode, settings, new ScmProvider[0]);
   }
 
   @Override
   public void start() {
-    if (analysisMode.isPreview() || (phases != null && !phases.isEnabled(Phases.Phase.SENSOR))) {
+    if (analysisMode.isPreview()) {
       return;
     }
     if (isDisabled()) {

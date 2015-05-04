@@ -59,7 +59,7 @@ public final class DirectoriesDecorator implements Decorator {
     if (Resource.QUALIFIER_DIRECTORY.equals(resource.getQualifier())) {
       context.saveMeasure(CoreMetrics.DIRECTORIES, 1.0);
 
-    } else if (ResourceUtils.isSet(resource) || ResourceUtils.isView(resource) || ResourceUtils.isSubview(resource)) {
+    } else if (ResourceUtils.isSet(resource)) {
       Collection<Measure> childrenMeasures = context.getChildrenMeasures(CoreMetrics.DIRECTORIES);
       Double sum = MeasureUtils.sum(false, childrenMeasures);
       if (sum != null) {

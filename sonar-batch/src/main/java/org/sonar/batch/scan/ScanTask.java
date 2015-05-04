@@ -25,7 +25,6 @@ import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.TaskContainer;
-import org.sonar.batch.phases.Phases;
 
 public class ScanTask implements Task {
   public static final TaskDefinition DEFINITION = TaskDefinition.builder()
@@ -48,7 +47,6 @@ public class ScanTask implements Task {
   // Add components specific to project scan (views will use different ones)
   void scan(ComponentContainer scanContainer) {
     scanContainer.add(
-      new Phases().enable(Phases.Phase.values()),
       DefaultProjectTree.class,
       ProjectExclusions.class,
       ProjectReactorValidator.class,

@@ -72,7 +72,6 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.FILE_TANGLES,
     // Computed by CpdSensor
     CoreMetrics.DUPLICATIONS_DATA,
-    CoreMetrics.DUPLICATION_LINES_DATA,
     CoreMetrics.DUPLICATED_FILES,
     CoreMetrics.DUPLICATED_LINES,
     CoreMetrics.DUPLICATED_BLOCKS,
@@ -175,6 +174,7 @@ public class DefaultIndex extends SonarIndex {
         entry.getValue().clear();
         it.remove();
       }
+
     }
 
     // Keep only inter module dependencies
@@ -226,7 +226,7 @@ public class DefaultIndex extends SonarIndex {
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
-      if (!isViewResource(resource) && !measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
+      if (!measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
         LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
         return measure;
       }
@@ -236,14 +236,6 @@ public class DefaultIndex extends SonarIndex {
       measureCache.put(resource, measure);
     }
     return measure;
-  }
-
-  /**
-   * Views plugin creates copy of technical projects and should be allowed to copy all measures even internal ones
-   */
-  private boolean isViewResource(Resource resource) {
-    boolean isTechnicalProject = Scopes.FILE.equals(resource.getScope()) && Qualifiers.PROJECT.equals(resource.getQualifier());
-    return isTechnicalProject || ResourceUtils.isView(resource) || ResourceUtils.isSubview(resource);
   }
 
   //

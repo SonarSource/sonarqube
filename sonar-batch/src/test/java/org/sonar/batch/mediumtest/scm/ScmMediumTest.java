@@ -291,7 +291,7 @@ public class ScmMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures()).hasSize(2);
+    assertThat(result.allMeasures()).extracting("metric.key").containsOnly("lines", "quality_profiles");
   }
 
 }

@@ -90,22 +90,22 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
     assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES_TO_COVER)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(2));
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.UNCOVERED_LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(0));
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.CONDITIONS_TO_COVER)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(2));
 
-    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+    assertThat(result.allMeasures()).contains(new DefaultMeasure<String>()
       .forMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue("2=1"));
