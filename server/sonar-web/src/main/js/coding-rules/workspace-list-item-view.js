@@ -24,8 +24,6 @@ define([
   'templates/coding-rules'
 ], function (WorkspaceListItemView, ProfileActivationView, RuleFilterMixin) {
 
-  var $ = jQuery;
-
   return WorkspaceListItemView.extend(RuleFilterMixin).extend({
     className: 'coding-rule',
     template: Templates['coding-rules-workspace-list-item'],
