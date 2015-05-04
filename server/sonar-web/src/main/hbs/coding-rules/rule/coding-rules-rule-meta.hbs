@@ -3,7 +3,9 @@
     <big>{{name}}</big>
   </h3>
   <div class="page-actions">
-    <a class="coding-rules-detail-permalink icon-link" target="_blank" href="{{permalink}}"
+    <span class="note">{{key}}</span>
+
+    <a class="coding-rules-detail-permalink icon-link spacer-left" target="_blank" href="{{permalink}}"
        data-toggle="tooltip" data-placement="left" title="Rule permalink"></a>
 
     <a class="js-rule-filter link-no-underline spacer-left" href="#">
@@ -11,8 +13,6 @@
     </a>
   </div>
 </header>
-
-<p class="note">{{key}}</p>
 
 <ul class="coding-rules-detail-properties">
   {{#unless isManual}}
