@@ -174,7 +174,7 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
+    private boolean multiField = false, sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -187,9 +187,18 @@ public class NewIndex {
     }
 
     /**
+     * Prepare the structure to add sub-fields
+     */
+    public StringFieldBuilder enableMultiField() {
+      this.multiField = true;
+      return this;
+    }
+
+    /**
      * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
+      this.enableMultiField();
       this.sortable = true;
       return this;
     }
@@ -198,6 +207,7 @@ public class NewIndex {
      * Create an inner-field named "words" with analyzer "words"
      */
     public StringFieldBuilder enableWordSearch() {
+      this.enableMultiField();
       this.wordSearch = true;
       return this;
     }
@@ -206,6 +216,7 @@ public class NewIndex {
      * Create a inner-field named "grams" with analyzer "grams"
      */
     public StringFieldBuilder enableGramSearch() {
+      this.enableMultiField();
       this.gramSearch = true;
       return this;
     }
@@ -223,7 +234,7 @@ public class NewIndex {
     public void build() {
       validate();
       Map<String, Object> hash = new TreeMap<>();
-      if (wordSearch || sortable || gramSearch) {
+      if (multiField) {
         hash.put("type", "multi_field");
         Map<String, Object> multiFields = new TreeMap<>();
 

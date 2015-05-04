@@ -80,9 +80,9 @@ public class UserIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
 
-    mapping.stringFieldBuilder(FIELD_LOGIN).enableGramSearch().build();
+    mapping.stringFieldBuilder(FIELD_LOGIN).enableMultiField().build();
     addSubSearchField(mapping, FIELD_LOGIN);
-    mapping.stringFieldBuilder(FIELD_NAME).enableGramSearch().build();
+    mapping.stringFieldBuilder(FIELD_NAME).enableMultiField().build();
     addSubSearchField(mapping, FIELD_NAME);
     mapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
     mapping.createDateTimeField(FIELD_CREATED_AT);
