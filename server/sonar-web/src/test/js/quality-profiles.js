@@ -984,7 +984,7 @@ casper.test.begin(testName('Permalink'), 9, function (test) {
 });
 
 
-casper.test.begin(testName('Changelog'), 21, function (test) {
+casper.test.begin(testName('Changelog'), 22, function (test) {
   casper
       .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
         lib.setDefaultViewport();
@@ -1050,6 +1050,11 @@ casper.test.begin(testName('Changelog'), 21, function (test) {
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'System');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'DEACTIVATED');
         test.assertSelectorContains('#quality-profile-changelog tbody tr:nth-child(3)', 'runFinalizersOnExit');
+      })
+
+      .then(function () {
+        casper.click('.js-hide-changelog');
+        test.assertDoesntExist('#quality-profile-changelog tbody tr');
       })
 
       .then(function () {

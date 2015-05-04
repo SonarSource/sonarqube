@@ -1,15 +1,12 @@
 <header class="page-header">
   <h1 class="page-title">{{t 'quality_profiles.page'}}</h1>
 
-  <div class="page-actions">
-    {{#if canWrite}}
+  {{#if canWrite}}
+    <div class="page-actions">
       <div class="button-group dropdown">
         <button id="quality-profiles-create">{{t 'create'}}</button>
         <a class="button dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-dropdown"></i></a>
         <ul class="dropdown-menu dropdown-menu-right">
-          <li>
-            <a id="quality-profiles-compare" href="#">{{t 'quality_profiles.compare_profiles'}}</a>
-          </li>
           <li>
             <a id="quality-profiles-restore" href="#">{{t 'quality_profiles.restore_profile'}}</a>
           </li>
@@ -18,12 +15,8 @@
           </li>
         </ul>
       </div>
-    {{else}}
-      <div class="button-group">
-        <button id="quality-profiles-compare">{{t 'quality_profiles.compare_profiles'}}</button>
-      </div>
-    {{/if}}
-  </div>
+    </div>
+  {{/if}}
 </header>
 
 <div class="dropdown" id="quality-profiles-filter-by-language">

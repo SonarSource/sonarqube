@@ -1,35 +1,55 @@
-<div class="panel panel-vertical" id="quality-profile-rules">
-  <header class="page-header">
-    <h3 class="page-title">{{t 'coding_rules'}}</h3>
-  </header>
-  <p>
-    <a class="big" href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
-    {{tp 'quality_profile.x_active_rules' ''}}
-  </p>
-  {{#notEmpty rulesSeverities}}
-    <div class="abs-width-400 spacer-top">
-      <div class="columns">
-        <div class="column-half">
-          {{#eachEven rulesSeverities}}
-            <p class="spacer-top">
-              {{severityIcon val}}
-              <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
-              <span class="text-lowercase">{{t 'severity' val}}</span>
-            </p>
-          {{/eachEven}}
+<div class="panel panel-vertical">
+  <div class="columns">
+    <div class="column-two-thirds" id="quality-profile-rules">
+      <header class="page-header">
+        <h3 class="page-title">{{t 'coding_rules'}}</h3>
+      </header>
+      <p>
+        <a class="big" href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
+        {{tp 'quality_profile.x_active_rules' ''}}
+      </p>
+      {{#notEmpty rulesSeverities}}
+        <div class="abs-width-400 spacer-top">
+          <div class="columns">
+            <div class="column-half">
+              {{#eachEven rulesSeverities}}
+                <p class="spacer-top">
+                  {{severityIcon val}}
+                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
+                  <span class="text-lowercase">{{t 'severity' val}}</span>
+                </p>
+              {{/eachEven}}
+            </div>
+            <div class="column-half">
+              {{#eachOdd rulesSeverities}}
+                <p class="spacer-top">
+                  {{severityIcon val}}
+                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
+                  <span class="text-lowercase">{{t 'severity' val}}</span>
+                </p>
+              {{/eachOdd}}
+            </div>
+          </div>
         </div>
-        <div class="column-half">
-          {{#eachOdd rulesSeverities}}
-            <p class="spacer-top">
-              {{severityIcon val}}
-              <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
-              <span class="text-lowercase">{{t 'severity' val}}</span>
-            </p>
-          {{/eachOdd}}
-        </div>
-      </div>
+      {{/notEmpty}}
     </div>
-  {{/notEmpty}}
+
+    <div class="column-third" id="quality-profile-permalinks">
+      <header class="page-header">
+        <h3 class="page-title">{{t 'permalinks'}}</h3>
+      </header>
+      <ul class="list-inline">
+        <li>
+          <a href="{{exporterUrl this null}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{t 'quality_profiles.export_all_rules'}}</a>
+        </li>
+        {{#each exporters}}
+          <li>
+            <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
 </div>
 
 <div class="panel panel-vertical" id="quality-profile-projects">
@@ -45,22 +65,6 @@
   {{else}}
     <div id="quality-profile-projects-list"></div>
   {{/if}}
-</div>
-
-<div class="panel panel-vertical" id="quality-profile-permalinks">
-  <header class="page-header">
-    <h3 class="page-title">{{t 'permalinks'}}</h3>
-  </header>
-  <ul class="list-inline">
-    <li>
-      <a href="{{exporterUrl this null}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{t 'quality_profiles.export_all_rules'}}</a>
-    </li>
-    {{#each exporters}}
-      <li>
-        <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
-      </li>
-    {{/each}}
-  </ul>
 </div>
 
 <div class="panel panel-vertical" id="quality-profile-inheritance">

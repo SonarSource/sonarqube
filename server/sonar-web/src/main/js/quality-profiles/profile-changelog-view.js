@@ -26,7 +26,8 @@ define([
 
     events: {
       'submit #quality-profile-changelog-form': 'onFormSubmit',
-      'click .js-show-more-changelog': 'onShowMoreChangelogClick'
+      'click .js-show-more-changelog': 'onShowMoreChangelogClick',
+      'click .js-hide-changelog': 'onHideChangelogClick'
     },
 
     onFormSubmit: function (e) {
@@ -37,6 +38,11 @@ define([
     onShowMoreChangelogClick: function (e) {
       e.preventDefault();
       this.model.fetchMoreChangelog();
+    },
+
+    onHideChangelogClick: function (e) {
+      e.preventDefault();
+      this.model.resetChangelog();
     },
 
     getSearchParameters: function () {

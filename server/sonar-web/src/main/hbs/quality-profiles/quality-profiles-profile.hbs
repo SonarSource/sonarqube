@@ -1,12 +1,12 @@
 <table>
   <tr>
+    <td class="text-top">{{name}}</td>
     {{#if isInherited}}
-      <td class="text-top thin spacer-right">
+      <td class="text-top thin spacer-left">
         <i class="icon-inheritance" title="{{tp 'quality_profiles.inherits' parentName}}"
            data-toggle="tooltip" data-placement="bottom"></i>
       </td>
     {{/if}}
-    <td class="text-top">{{name}}</td>
     <td class="text-top thin nowrap spacer-left">
       {{#if isDefault}}
         <span class="badge pull-right">{{t 'default'}}</span>

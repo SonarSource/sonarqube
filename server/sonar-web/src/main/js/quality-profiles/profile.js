@@ -105,6 +105,13 @@ define(function () {
       });
     },
 
+
+    resetChangelog: function () {
+      this.unset('events', { silent: true });
+      this.unset('eventsPage', { silent: true });
+      this.unset('totalEvents');
+    },
+
     compareWith: function (withKey) {
       var that = this,
           url = baseUrl + '/api/qualityprofiles/compare',

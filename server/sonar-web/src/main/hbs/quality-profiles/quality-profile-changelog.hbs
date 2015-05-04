@@ -48,11 +48,14 @@
     </tbody>
   </table>
 
-  {{#unlessLength events totalEvents}}
-    <p class="spacer-top text-center">
-      <a class="js-show-more-changelog" href="#">{{t 'show_more'}}</a>
-    </p>
-  {{/unlessLength}}
+
+  <p class="spacer-top text-center">
+    {{#unlessLength events totalEvents}}
+      <a class="js-show-more-changelog spacer-right" href="#">{{t 'show_more'}}</a>
+    {{/unlessLength}}
+    <a class="js-hide-changelog" href="#">{{t 'hide'}}</a>
+  </p>
+
 {{else}}
   {{#notNull totalEvents}}
     <div class="alert alert-info">{{t 'quality_profiles.changelog.empty'}}</div>
