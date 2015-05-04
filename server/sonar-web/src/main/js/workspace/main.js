@@ -89,12 +89,15 @@ define([
     showViewer: function (Viewer, model) {
       var that = this;
       if (this.viewerView != null) {
+        this.viewerView.model.trigger('hideViewer');
         this.viewerView.close();
       }
       $('.source-viewer').addClass('with-workspace');
+      model.trigger('showViewer');
       this.viewerView = new Viewer({ model: model });
       this.viewerView
           .on('viewerMinimize', function () {
+            model.trigger('hideViewer');
             that.closeComponentViewer();
           })
           .on('viewerClose', function (m) {

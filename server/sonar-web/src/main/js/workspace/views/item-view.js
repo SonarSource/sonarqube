@@ -27,7 +27,9 @@ define([
     template: Templates['workspace-item'],
 
     modelEvents: {
-      'change': 'render'
+      'change': 'render',
+      'showViewer': 'onViewerShow',
+      'hideViewer': 'onViewerHide'
     },
 
     events: {
@@ -44,6 +46,14 @@ define([
       e.preventDefault();
       e.stopPropagation();
       this.model.destroy();
+    },
+
+    onViewerShow: function () {
+      this.$el.addClass('hidden');
+    },
+
+    onViewerHide: function () {
+      this.$el.removeClass('hidden');
     }
   });
 
