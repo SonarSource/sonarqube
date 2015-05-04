@@ -63,7 +63,14 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -115,7 +122,7 @@ public class SearchAction implements BaseIssuesWsAction {
       .createAction(SEARCH_ACTION)
       .setHandler(this)
       .setDescription(
-        "Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. Requires Browse permission on project(s)")
+        "Get a list of issues. Requires Browse permission on project(s)")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
