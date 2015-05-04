@@ -31,12 +31,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
@@ -50,7 +50,16 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.sonar.server.test.index.TestIndexDefinition.*;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_NAME;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
+import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 @Category(DbTests.class)
 public class TestIndexerTest {
@@ -117,11 +126,11 @@ public class TestIndexerTest {
     indexTest("P1", "F1", "T1", "U111");
     indexTest("P1", "F2", "T1", "U121");
 
-    FileSourcesUpdaterUtil.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
+    FileSourcesUpdaterHelper.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
       FileSourceDb.Test.newBuilder()
         .setUuid("U111")
         .setName("NAME_1")
-        .setStatus(Constants.TestStatus.FAILURE)
+        .setStatus(TestStatus.FAILURE)
         .setMsg("NEW_MESSAGE_1")
         .setStacktrace("NEW_STACKTRACE_1")
         .setExecutionTimeMs(123_456L)

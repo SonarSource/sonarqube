@@ -37,8 +37,6 @@ Notes
 
 package org.sonar.server.source.db;
 
-import "constants.proto";
-
 option optimize_for = SPEED;
 
 message Line {
@@ -86,5 +84,12 @@ message Test {
   message CoveredFile {
     optional string file_uuid = 1;
     repeated int32 covered_line = 2 [packed = true];
+  }
+
+  enum TestStatus {
+    OK = 1;
+    FAILURE = 2;
+    ERROR = 3;
+    SKIPPED = 4;
   }
 }

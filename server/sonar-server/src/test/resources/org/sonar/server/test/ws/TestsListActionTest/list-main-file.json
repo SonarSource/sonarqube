@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "testUuid": "TEST-UUID-1",
+      "fileUuid": "ABCD",
+      "name": "test1",
+      "status": "OK",
+      "durationInMs": 10,
+      "coveredLines": 4,
+      "message": "MESSAGE-1",
+      "stacktrace": "STACKTRACE-1",
+      "fileKey": "org.foo.BarTest.java",
+      "fileLongName": "src/test/java/org/foo/BarTest.java"
+    },
+    {
+      "testUuid": "TEST-UUID-2",
+      "fileUuid": "BCDE",
+      "name": "test2",
+      "status": "ERROR",
+      "durationInMs": 97,
+      "coveredLines": 4,
+      "message": "MESSAGE-2",
+      "stacktrace": "STACKTRACE-2",
+      "fileKey": "org.foo.FileTest.java",
+      "fileLongName": "src/test/java/org/foo/FileTest.java"
+    }
+  ]
+}

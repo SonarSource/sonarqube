@@ -23,9 +23,8 @@ package org.sonar.server.test.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,11 +36,9 @@ public class TestsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
     WsTester tester = new WsTester(new TestsWs(
-      new TestsShowAction(mock(DbClient.class), snapshotPerspectives),
-      new TestsTestCasesAction(snapshotPerspectives, mock(ComponentService.class), mock(DbClient.class)),
-      new TestsCoveredFilesAction(snapshotPerspectives)));
+      new TestsListAction(mock(DbClient.class), mock(TestIndex.class)),
+      new TestsCoveredFilesAction(mock(DbClient.class), mock(TestIndex.class))));
     controller = tester.controller("api/tests");
   }
 
@@ -50,34 +47,23 @@ public class TestsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.4");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
-  public void define_show_action() throws Exception {
-    WebService.Action action = controller.action("show");
+  public void define_list_action() throws Exception {
+    WebService.Action action = controller.action("list");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(7);
   }
 
   @Test
-  public void define_covered_files_action() throws Exception {
+  public void define_covered_files() throws Exception {
     WebService.Action action = controller.action("covered_files");
-    assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isNotNull();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
-  }
-
-  @Test
-  public void define_test_cases_action() throws Exception {
-    WebService.Action action = controller.action("test_cases");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
@@ -85,5 +71,4 @@ public class TestsWsTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(3);
   }
-
 }

@@ -20,76 +20,100 @@
 
 package org.sonar.server.test.ws;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import org.sonar.api.component.Component;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.test.*;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.test.index.CoveredFileDoc;
+import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 
-public class TestsCoveredFilesAction implements RequestHandler {
+import java.util.List;
+import java.util.Map;
 
-  private static final String KEY = "key";
-  private static final String TEST = "test";
+public class TestsCoveredFilesAction implements TestAction {
 
-  private final SnapshotPerspectives snapshotPerspectives;
+  public static final String TEST_UUID = "testUuid";
 
-  public TestsCoveredFilesAction(SnapshotPerspectives snapshotPerspectives) {
-    this.snapshotPerspectives = snapshotPerspectives;
+  private final DbClient dbClient;
+  private final TestIndex index;
+
+  public TestsCoveredFilesAction(DbClient dbClient, TestIndex index) {
+    this.dbClient = dbClient;
+    this.index = index;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("covered_files")
-      .setDescription("Get the list of files covered by a test plan. Require Browse permission on file's project")
+      .setDescription("Get the list of source files covered by a test. Require Browse permission on test file's project")
       .setSince("4.4")
-      .setResponseExample(Resources.getResource(getClass(), "tests-example-plan.json"))
-      .setHandler(this);
+      .setResponseExample(Resources.getResource(getClass(), "tests-example-covered-files.json"))
+      .setHandler(this)
+      .addPagingParams(100);
 
     action
-      .createParam(KEY)
+      .createParam(TEST_UUID)
       .setRequired(true)
-      .setDescription("Test plan key")
-      .setExampleValue("my_project:/src/test/BarTest.java");
-
-    action
-      .createParam(TEST)
-      .setRequired(true)
-      .setDescription("Test case used to list files covered by the test plan")
-      .setExampleValue("my_test");
+      .setDescription("Test uuid")
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam(KEY);
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-    String test = request.mandatoryParam(TEST);
+    String testUuid = request.mandatoryParam(TEST_UUID);
+    UserSession.get().checkComponentUuidPermission(UserRole.CODEVIEWER, index.searchByTestUuid(testUuid).fileUuid());
 
-    MutableTestPlan testPlan = snapshotPerspectives.as(MutableTestPlan.class, fileKey);
+    List<CoveredFileDoc> coveredFiles = index.coveredFiles(testUuid);
+    Map<String, ComponentDto> componentsByUuid = buildComponentsByUuid(coveredFiles);
     JsonWriter json = response.newJsonWriter().beginObject();
-    if (testPlan != null) {
-      writeTests(testPlan, test, json);
+    if (!coveredFiles.isEmpty()) {
+      writeTests(coveredFiles, componentsByUuid, json);
     }
     json.endObject().close();
   }
 
-  private void writeTests(TestPlan<MutableTestCase> testPlan, String test, JsonWriter json) {
+  private void writeTests(List<CoveredFileDoc> coveredFiles, Map<String, ComponentDto> componentsByUuid, JsonWriter json) {
     json.name("files").beginArray();
-    for (TestCase testCase : testPlan.testCasesByName(test)) {
-      for (CoverageBlock coverageBlock : testCase.coverageBlocks()) {
-        json.beginObject();
-        Component file = coverageBlock.testable().component();
-        json.prop("key", file.key());
-        json.prop("longName", file.longName());
-        json.prop("coveredLines", coverageBlock.lines().size());
-        json.endObject();
-      }
+    for (CoveredFileDoc coveredFile : coveredFiles) {
+      json.beginObject();
+      json.prop("key", componentsByUuid.get(coveredFile.fileUuid()).key());
+      json.prop("longName", componentsByUuid.get(coveredFile.fileUuid()).longName());
+      json.prop("coveredLines", coveredFile.coveredLines().size());
+      json.endObject();
     }
     json.endArray();
+  }
+
+  private Map<String, ComponentDto> buildComponentsByUuid(List<CoveredFileDoc> coveredFiles) {
+    List<String> sourceFileUuids = Lists.transform(coveredFiles, new Function<CoveredFileDoc, String>() {
+      @Override
+      public String apply(CoveredFileDoc coveredFile) {
+        return coveredFile.fileUuid();
+      }
+    });
+    DbSession dbSession = dbClient.openSession(false);
+    List<ComponentDto> components;
+    try {
+      components = dbClient.componentDao().getByUuids(dbSession, sourceFileUuids);
+    } finally {
+      MyBatis.closeQuietly(dbSession);
+    }
+    return Maps.uniqueIndex(components, new Function<ComponentDto, String>() {
+      @Override
+      public String apply(ComponentDto component) {
+        return component.uuid();
+      }
+    });
   }
 
 }

@@ -24,10 +24,20 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.sonar.server.search.BaseDoc;
 
+import javax.annotation.CheckForNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.sonar.server.test.index.TestIndexDefinition.*;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_NAME;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestDoc extends BaseDoc {
   public TestDoc(Map<String, Object> fields) {
@@ -35,7 +45,7 @@ public class TestDoc extends BaseDoc {
   }
 
   @VisibleForTesting
-  TestDoc() {
+  public TestDoc() {
     super(Maps.<String, Object>newHashMapWithExpectedSize(10));
   }
 
@@ -84,8 +94,9 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
   public String message() {
-    return getField(FIELD_MESSAGE);
+    return getNullableField(FIELD_MESSAGE);
   }
 
   public TestDoc setMessage(String message) {
@@ -93,8 +104,9 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
   public String stackTrace() {
-    return getField(FIELD_STACKTRACE);
+    return getNullableField(FIELD_STACKTRACE);
   }
 
   public TestDoc setStackTrace(String stackTrace) {
@@ -102,8 +114,10 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
+  @CheckForNull
   public Long durationInMs() {
-    return getField(FIELD_DURATION_IN_MS);
+    Number number =  getNullableField(FIELD_DURATION_IN_MS);
+    return number == null ? null : number.longValue();
   }
 
   public TestDoc setDurationInMs(Long durationInMs) {
@@ -111,13 +125,24 @@ public class TestDoc extends BaseDoc {
     return this;
   }
 
-  // TODO TBE - it should be a CoverageBlockDoc list
-  public List<Map<String, Object>> coverageBlocks() {
-    return getField(FIELD_COVERAGE_BLOCKS);
+  public List<CoveredFileDoc> coveredFiles() {
+    List<Map<String, Object>> coveredFilesAsMaps = getNullableField(FIELD_COVERED_FILES);
+    if (coveredFilesAsMaps == null) {
+      return new ArrayList<>();
+    }
+    List<CoveredFileDoc> coveredFiles = new ArrayList<>();
+    for (Map<String, Object> coveredFileMap : coveredFilesAsMaps) {
+      coveredFiles.add(new CoveredFileDoc(coveredFileMap));
+    }
+    return coveredFiles;
   }
 
-  public TestDoc setCoverageBlocks(List<Map<String, Object>> coverageBlocks) {
-    setField(FIELD_COVERAGE_BLOCKS, coverageBlocks);
+  public TestDoc setCoveredFiles(List<CoveredFileDoc> coveredFiles) {
+    List<Map<String, Object>> coveredFilesAsMaps = new ArrayList<>();
+    for (CoveredFileDoc coveredFile : coveredFiles) {
+      coveredFilesAsMaps.add(coveredFile.getFields());
+    }
+    setField(FIELD_COVERED_FILES, coveredFilesAsMaps);
     return this;
   }
 }

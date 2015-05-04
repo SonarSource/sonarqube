@@ -43,6 +43,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -177,7 +178,7 @@ public class PersistTestsStep implements ComputationStep {
           dbTest.setStacktrace(batchTest.getStacktrace());
         }
         if (batchTest.hasStatus()) {
-          dbTest.setStatus(batchTest.getStatus());
+          dbTest.setStatus(TestStatus.valueOf(batchTest.getStatus().name()));
         }
         if (batchTest.hasMsg()) {
           dbTest.setMsg(batchTest.getMsg());

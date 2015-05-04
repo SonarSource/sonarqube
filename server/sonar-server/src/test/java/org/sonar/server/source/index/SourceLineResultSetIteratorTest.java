@@ -71,7 +71,7 @@ public class SourceLineResultSetIteratorTest {
 
     iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
     assertThat(iterator.hasNext()).isTrue();
-    FileSourcesUpdaterUtil.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -110,7 +110,7 @@ public class SourceLineResultSetIteratorTest {
     FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
 
     iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
-    FileSourcesUpdaterUtil.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -157,7 +157,7 @@ public class SourceLineResultSetIteratorTest {
 
     iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, "P1");
 
-    FileSourcesUpdaterUtil.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
@@ -174,7 +174,7 @@ public class SourceLineResultSetIteratorTest {
 
     iterator = SourceLineResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
 
-    FileSourcesUpdaterUtil.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 

@@ -2988,13 +2988,13 @@ public final class FileSourceDb {
         getNameBytes();
 
     /**
-     * <code>optional .TestStatus status = 3;</code>
+     * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .TestStatus status = 3;</code>
+     * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
-    org.sonar.batch.protocol.Constants.TestStatus getStatus();
+    org.sonar.server.source.db.FileSourceDb.Test.TestStatus getStatus();
 
     /**
      * <code>optional int64 execution_time_ms = 4;</code>
@@ -3123,7 +3123,7 @@ public final class FileSourceDb {
             }
             case 24: {
               int rawValue = input.readEnum();
-              org.sonar.batch.protocol.Constants.TestStatus value = org.sonar.batch.protocol.Constants.TestStatus.valueOf(rawValue);
+              org.sonar.server.source.db.FileSourceDb.Test.TestStatus value = org.sonar.server.source.db.FileSourceDb.Test.TestStatus.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(3, rawValue);
               } else {
@@ -3197,6 +3197,106 @@ public final class FileSourceDb {
     @java.lang.Override
     public com.google.protobuf.Parser<Test> getParserForType() {
       return PARSER;
+    }
+
+    /**
+     * Protobuf enum {@code org.sonar.server.source.db.Test.TestStatus}
+     */
+    public enum TestStatus
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>OK = 1;</code>
+       */
+      OK(0, 1),
+      /**
+       * <code>FAILURE = 2;</code>
+       */
+      FAILURE(1, 2),
+      /**
+       * <code>ERROR = 3;</code>
+       */
+      ERROR(2, 3),
+      /**
+       * <code>SKIPPED = 4;</code>
+       */
+      SKIPPED(3, 4),
+      ;
+
+      /**
+       * <code>OK = 1;</code>
+       */
+      public static final int OK_VALUE = 1;
+      /**
+       * <code>FAILURE = 2;</code>
+       */
+      public static final int FAILURE_VALUE = 2;
+      /**
+       * <code>ERROR = 3;</code>
+       */
+      public static final int ERROR_VALUE = 3;
+      /**
+       * <code>SKIPPED = 4;</code>
+       */
+      public static final int SKIPPED_VALUE = 4;
+
+
+      public final int getNumber() { return value; }
+
+      public static TestStatus valueOf(int value) {
+        switch (value) {
+          case 1: return OK;
+          case 2: return FAILURE;
+          case 3: return ERROR;
+          case 4: return SKIPPED;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<TestStatus>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<TestStatus>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<TestStatus>() {
+              public TestStatus findValueByNumber(int number) {
+                return TestStatus.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return org.sonar.server.source.db.FileSourceDb.Test.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final TestStatus[] VALUES = values();
+
+      public static TestStatus valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private TestStatus(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:org.sonar.server.source.db.Test.TestStatus)
     }
 
     public interface CoveredFileOrBuilder extends
@@ -3926,17 +4026,17 @@ public final class FileSourceDb {
     }
 
     public static final int STATUS_FIELD_NUMBER = 3;
-    private org.sonar.batch.protocol.Constants.TestStatus status_;
+    private org.sonar.server.source.db.FileSourceDb.Test.TestStatus status_;
     /**
-     * <code>optional .TestStatus status = 3;</code>
+     * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
     public boolean hasStatus() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional .TestStatus status = 3;</code>
+     * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
      */
-    public org.sonar.batch.protocol.Constants.TestStatus getStatus() {
+    public org.sonar.server.source.db.FileSourceDb.Test.TestStatus getStatus() {
       return status_;
     }
 
@@ -4077,7 +4177,7 @@ public final class FileSourceDb {
     private void initFields() {
       uuid_ = "";
       name_ = "";
-      status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+      status_ = org.sonar.server.source.db.FileSourceDb.Test.TestStatus.OK;
       executionTimeMs_ = 0L;
       stacktrace_ = "";
       msg_ = "";
@@ -4276,7 +4376,7 @@ public final class FileSourceDb {
         bitField0_ = (bitField0_ & ~0x00000001);
         name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+        status_ = org.sonar.server.source.db.FileSourceDb.Test.TestStatus.OK;
         bitField0_ = (bitField0_ & ~0x00000004);
         executionTimeMs_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -4598,23 +4698,23 @@ public final class FileSourceDb {
         return this;
       }
 
-      private org.sonar.batch.protocol.Constants.TestStatus status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+      private org.sonar.server.source.db.FileSourceDb.Test.TestStatus status_ = org.sonar.server.source.db.FileSourceDb.Test.TestStatus.OK;
       /**
-       * <code>optional .TestStatus status = 3;</code>
+       * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
       public boolean hasStatus() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .TestStatus status = 3;</code>
+       * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
-      public org.sonar.batch.protocol.Constants.TestStatus getStatus() {
+      public org.sonar.server.source.db.FileSourceDb.Test.TestStatus getStatus() {
         return status_;
       }
       /**
-       * <code>optional .TestStatus status = 3;</code>
+       * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
-      public Builder setStatus(org.sonar.batch.protocol.Constants.TestStatus value) {
+      public Builder setStatus(org.sonar.server.source.db.FileSourceDb.Test.TestStatus value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -4624,11 +4724,11 @@ public final class FileSourceDb {
         return this;
       }
       /**
-       * <code>optional .TestStatus status = 3;</code>
+       * <code>optional .org.sonar.server.source.db.Test.TestStatus status = 3;</code>
        */
       public Builder clearStatus() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        status_ = org.sonar.batch.protocol.Constants.TestStatus.OK;
+        status_ = org.sonar.server.source.db.FileSourceDb.Test.TestStatus.OK;
         onChanged();
         return this;
       }
@@ -5098,25 +5198,27 @@ public final class FileSourceDb {
   static {
     java.lang.String[] descriptorData = {
       "\n\024file_source_db.proto\022\032org.sonar.server" +
-      ".source.db\032\017constants.proto\"\223\003\n\004Line\022\014\n\004" +
-      "line\030\001 \001(\005\022\016\n\006source\030\002 \001(\t\022\024\n\014scm_revisi" +
-      "on\030\003 \001(\t\022\022\n\nscm_author\030\004 \001(\t\022\020\n\010scm_date" +
-      "\030\005 \001(\003\022\024\n\014ut_line_hits\030\006 \001(\005\022\025\n\rut_condi" +
-      "tions\030\007 \001(\005\022\035\n\025ut_covered_conditions\030\010 \001" +
-      "(\005\022\024\n\014it_line_hits\030\t \001(\005\022\025\n\rit_condition" +
-      "s\030\n \001(\005\022\035\n\025it_covered_conditions\030\013 \001(\005\022\031" +
-      "\n\021overall_line_hits\030\014 \001(\005\022\032\n\022overall_con" +
-      "ditions\030\r \001(\005\022\"\n\032overall_covered_conditi",
-      "ons\030\016 \001(\005\022\024\n\014highlighting\030\017 \001(\t\022\017\n\007symbo" +
-      "ls\030\020 \001(\t\022\027\n\013duplication\030\021 \003(\005B\002\020\001\"7\n\004Dat" +
-      "a\022/\n\005lines\030\001 \003(\0132 .org.sonar.server.sour" +
-      "ce.db.Line\"\373\001\n\004Test\022\014\n\004uuid\030\001 \001(\t\022\014\n\004nam" +
-      "e\030\002 \001(\t\022\033\n\006status\030\003 \001(\0162\013.TestStatus\022\031\n\021" +
-      "execution_time_ms\030\004 \001(\003\022\022\n\nstacktrace\030\005 " +
-      "\001(\t\022\013\n\003msg\030\006 \001(\t\022B\n\014covered_file\030\007 \003(\0132," +
-      ".org.sonar.server.source.db.Test.Covered" +
-      "File\032:\n\013CoveredFile\022\021\n\tfile_uuid\030\001 \001(\t\022\030" +
-      "\n\014covered_line\030\002 \003(\005B\002\020\001B\002H\001"
+      ".source.db\"\223\003\n\004Line\022\014\n\004line\030\001 \001(\005\022\016\n\006sou" +
+      "rce\030\002 \001(\t\022\024\n\014scm_revision\030\003 \001(\t\022\022\n\nscm_a" +
+      "uthor\030\004 \001(\t\022\020\n\010scm_date\030\005 \001(\003\022\024\n\014ut_line" +
+      "_hits\030\006 \001(\005\022\025\n\rut_conditions\030\007 \001(\005\022\035\n\025ut" +
+      "_covered_conditions\030\010 \001(\005\022\024\n\014it_line_hit" +
+      "s\030\t \001(\005\022\025\n\rit_conditions\030\n \001(\005\022\035\n\025it_cov" +
+      "ered_conditions\030\013 \001(\005\022\031\n\021overall_line_hi" +
+      "ts\030\014 \001(\005\022\032\n\022overall_conditions\030\r \001(\005\022\"\n\032" +
+      "overall_covered_conditions\030\016 \001(\005\022\024\n\014high",
+      "lighting\030\017 \001(\t\022\017\n\007symbols\030\020 \001(\t\022\027\n\013dupli" +
+      "cation\030\021 \003(\005B\002\020\001\"7\n\004Data\022/\n\005lines\030\001 \003(\0132" +
+      " .org.sonar.server.source.db.Line\"\326\002\n\004Te" +
+      "st\022\014\n\004uuid\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022;\n\006status" +
+      "\030\003 \001(\0162+.org.sonar.server.source.db.Test" +
+      ".TestStatus\022\031\n\021execution_time_ms\030\004 \001(\003\022\022" +
+      "\n\nstacktrace\030\005 \001(\t\022\013\n\003msg\030\006 \001(\t\022B\n\014cover" +
+      "ed_file\030\007 \003(\0132,.org.sonar.server.source." +
+      "db.Test.CoveredFile\032:\n\013CoveredFile\022\021\n\tfi" +
+      "le_uuid\030\001 \001(\t\022\030\n\014covered_line\030\002 \003(\005B\002\020\001\"",
+      "9\n\nTestStatus\022\006\n\002OK\020\001\022\013\n\007FAILURE\020\002\022\t\n\005ER" +
+      "ROR\020\003\022\013\n\007SKIPPED\020\004B\002H\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5129,7 +5231,6 @@ public final class FileSourceDb {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          org.sonar.batch.protocol.Constants.getDescriptor(),
         }, assigner);
     internal_static_org_sonar_server_source_db_Line_descriptor =
       getDescriptor().getMessageTypes().get(0);
@@ -5155,7 +5256,6 @@ public final class FileSourceDb {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_org_sonar_server_source_db_Test_CoveredFile_descriptor,
         new java.lang.String[] { "FileUuid", "CoveredLine", });
-    org.sonar.batch.protocol.Constants.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

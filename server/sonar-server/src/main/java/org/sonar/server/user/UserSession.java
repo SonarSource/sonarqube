@@ -36,7 +36,13 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -222,6 +228,16 @@ public class UserSession {
    */
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
     if (!hasComponentPermission(projectPermission, componentKey)) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+    }
+    return this;
+  }
+
+  /**
+   * Ensures that user implies the specified component permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkComponentUuidPermission(String permission, String componentUuid) {
+    if (!hasComponentUuidPermission(permission, componentUuid)) {
       throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
     return this;

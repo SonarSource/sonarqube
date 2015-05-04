@@ -59,7 +59,7 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.tester.ServerTester;
@@ -598,7 +598,7 @@ public class IssueServiceMediumTest {
       .setLine(line)
       .setScmAuthor(scmAuthor)
       .build();
-    FileSourcesUpdaterUtil.Row row = SourceLineResultSetIterator.toRow(file.projectUuid(), file.uuid(), new Date(), dataBuilder.build());
+    FileSourcesUpdaterHelper.Row row = SourceLineResultSetIterator.toRow(file.projectUuid(), file.uuid(), new Date(), dataBuilder.build());
     tester.get(SourceLineIndexer.class).index(Iterators.singletonIterator(row));
   }
 

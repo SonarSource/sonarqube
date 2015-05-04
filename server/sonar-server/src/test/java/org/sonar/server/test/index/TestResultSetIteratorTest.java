@@ -30,12 +30,15 @@ import org.junit.experimental.categories.Category;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIteratorTest;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,10 +75,10 @@ public class TestResultSetIteratorTest {
   @Test
   public void traverse_db() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    TestTesting.updateDataColumn(connection, "F1", TestTesting.newFakeTests(3));
+    TestTesting.updateDataColumn(connection, "F1", newFakeTests(3));
     sut = TestResultSetIterator.create(dbClient, connection, 0L, null);
 
-    FileSourcesUpdaterUtil.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -110,7 +113,7 @@ public class TestResultSetIteratorTest {
     TestTesting.updateDataColumn(connection, "F1", tests);
     sut = TestResultSetIterator.create(dbClient, connection, 0L, null);
 
-    FileSourcesUpdaterUtil.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = sut.next();
 
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
@@ -130,7 +133,7 @@ public class TestResultSetIteratorTest {
       TestIndexDefinition.FIELD_STACKTRACE,
       TestIndexDefinition.FIELD_MESSAGE,
       TestIndexDefinition.FIELD_STATUS,
-      TestIndexDefinition.FIELD_COVERAGE_BLOCKS
+      TestIndexDefinition.FIELD_COVERED_FILES
       );
   }
 
@@ -145,11 +148,11 @@ public class TestResultSetIteratorTest {
   @Test
   public void filter_by_project() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project.xml");
-    TestTesting.updateDataColumn(connection, "F1", TestTesting.newFakeTests(1));
+    TestTesting.updateDataColumn(connection, "F1", newFakeTests(1));
 
     sut = TestResultSetIterator.create(dbClient, connection, 0L, "P1");
 
-    FileSourcesUpdaterUtil.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
@@ -160,11 +163,11 @@ public class TestResultSetIteratorTest {
   @Test
   public void filter_by_project_and_date() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
-    TestTesting.updateDataColumn(connection, "F1", TestTesting.newFakeTests(1));
+    TestTesting.updateDataColumn(connection, "F1", newFakeTests(1));
 
     sut = TestResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
 
-    FileSourcesUpdaterUtil.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
@@ -186,6 +189,28 @@ public class TestResultSetIteratorTest {
     } catch (IllegalStateException e) {
       // ok
     }
+  }
+
+  private static List<FileSourceDb.Test> newFakeTests(int numberOfTests) throws IOException {
+    List<FileSourceDb.Test> tests = new ArrayList<>();
+    for (int i = 1; i <= numberOfTests; i++) {
+      FileSourceDb.Test.Builder test = FileSourceDb.Test.newBuilder()
+        .setUuid("TEST_FILE_UUID_" + i)
+        .setName("NAME_" + i)
+        .setStatus(TestStatus.FAILURE)
+        .setStacktrace("STACKTRACE_" + i)
+        .setMsg("MESSAGE_" + i)
+        .setExecutionTimeMs(i);
+      for (int j = 1; j <= numberOfTests; j++) {
+        test.addCoveredFile(
+          FileSourceDb.Test.CoveredFile.newBuilder()
+            .setFileUuid("MAIN_FILE_UUID_" + j)
+            .addCoveredLine(j)
+          );
+      }
+      tests.add(test.build());
+    }
+    return tests;
   }
 
 }

@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "testUuid": "ce4c03d6-430f-40a9-b777-ad877c00aa4d",
+      "fileUuid": "c526ef20-131b-4486-9357-063fa64b5079",
+      "name": "find_by_params",
+      "status": "OK",
+      "durationInMs": 10,
+      "status": "OK",
+      "durationInMs": 10,
+      "coveredLines": 89,
+      "fileKey": "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java",
+      "fileLongName": "src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java"
+    },
+    {
+      "testUuid": "584a89f2-8037-4f7b-b82c-8b45d2d63fb2",
+      "fileUuid": "c526ef20-131b-4486-9357-063fa64b5079",
+      "name": "find_rules_by_characteristics",
+      "status": "ERROR",
+      "durationInMs": 97,
+      "coveredLines": 0,
+      "message": "expected:<true> but was:<false>",
+      "stackTrace": "java.lang.AssertionError: expected:<true> but was:<false>\n\tat org.junit.Assert.fail(Assert.java:91)\n\tat org.junit.Assert.failNotEquals(Assert.java:645)\n\tat org.junit.Assert.assertEquals(Assert.java:126)\n\tat org.junit.Assert.assertEquals(Assert.java:145)\n\tat sonar.samples.testFailures.moduleA.FailTest.testAWithFailure(FailTest.java:12)\n",
+      "fileKey": "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java",
+      "fileLongName": "src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java"
+    }
+  ]
+}

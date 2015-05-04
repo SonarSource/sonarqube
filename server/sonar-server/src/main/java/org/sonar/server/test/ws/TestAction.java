@@ -18,27 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.test.ws;
 
-import org.junit.Test;
-import org.sonar.server.source.index.SourceLineIndexer;
-import org.sonar.server.test.index.TestIndexer;
+import org.sonar.server.ws.WsAction;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-public class IndexPurgeListenerTest {
-
-  @Test
-  public void call_source_line_indexer() {
-    SourceLineIndexer sourceLineIndexer = mock(SourceLineIndexer.class);
-    TestIndexer testIndexer = mock(TestIndexer.class);
-    IndexPurgeListener sut = new IndexPurgeListener(sourceLineIndexer, testIndexer);
-
-    sut.onComponentDisabling("123456");
-
-    verify(sourceLineIndexer).deleteByFile("123456");
-    verify(testIndexer).deleteByFile("123456");
-  }
-
+public interface TestAction extends WsAction {
+  // marker interface
 }

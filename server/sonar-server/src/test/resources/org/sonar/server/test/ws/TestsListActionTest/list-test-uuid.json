@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "testUuid": "TEST-UUID-1",
+      "fileUuid": "ABCD",
+      "name": "test1",
+      "status": "OK",
+      "durationInMs": 10,
+      "coveredLines": 4,
+      "message": "MESSAGE-1",
+      "stacktrace": "STACKTRACE-1",
+      "fileKey": "org.foo.BarTest.java",
+      "fileLongName": "src/test/java/org/foo/BarTest.java"
+    }
+  ]
+}

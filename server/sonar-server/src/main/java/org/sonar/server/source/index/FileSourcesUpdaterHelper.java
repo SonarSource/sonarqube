@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileSourcesUpdaterUtil {
+public class FileSourcesUpdaterHelper {
 
   private static final String SQL_ALL = "SELECT %s FROM file_sources WHERE data_type='%s' ";
   private static final String AFTER_DATE_FILTER = " AND updated_at>?";
@@ -44,12 +44,14 @@ public class FileSourcesUpdaterUtil {
     "updated_at",
     "binary_data"
   };
+  private static final String FIELDS_ONE_LINE = Joiner.on(",").join(FIELDS);
 
-  private FileSourcesUpdaterUtil() {
+  private FileSourcesUpdaterHelper() {
     // only static stuff
   }
 
-  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, Connection connection, String dataType, long afterDate, @Nullable String projectUuid) throws SQLException {
+  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, Connection connection, String dataType, long afterDate, @Nullable String projectUuid)
+    throws SQLException {
     String sql = createSQL(dataType, afterDate, projectUuid);
     // rows are big, so they are scrolled once at a time (one row in memory at a time)
     PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);
@@ -65,16 +67,16 @@ public class FileSourcesUpdaterUtil {
   }
 
   private static String createSQL(String dataType, long afterDate, @Nullable String projectUuid) {
-    String sql = String.format(SQL_ALL, Joiner.on(",").join(FIELDS), dataType);
+    StringBuilder sql = new StringBuilder(String.format(SQL_ALL, FIELDS_ONE_LINE, dataType));
     if (afterDate > 0L || projectUuid != null) {
       if (afterDate > 0L) {
-        sql += AFTER_DATE_FILTER;
+        sql.append(AFTER_DATE_FILTER);
       }
       if (projectUuid != null) {
-        sql += PROJECT_FILTER;
+        sql.append(PROJECT_FILTER);
       }
     }
-    return sql;
+    return sql.toString();
   }
 
   public static class Row {
