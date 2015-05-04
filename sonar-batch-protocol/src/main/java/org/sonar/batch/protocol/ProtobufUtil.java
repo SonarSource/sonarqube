@@ -45,6 +45,14 @@ public class ProtobufUtil {
     }
   }
 
+  public static void appendToFile(Message message, File toFile) {
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(toFile, true))) {
+      message.writeDelimitedTo(out);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to append protocol buffer data to file " + toFile, e);
+    }
+  }
+
   public static <MESSAGE extends Message> void writeMessagesToFile(Iterable<MESSAGE> messages, File file) {
     try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
       for (MESSAGE message : messages) {

@@ -288,10 +288,12 @@ public class ScmMediumTest {
         .put("sonar.sources", "src")
         .put("sonar.scm.disabled", "true")
         .put("sonar.scm.provider", "xoo")
+        .put("sonar.cpd.xoo.skip", "true")
         .build())
       .start();
 
-    assertThat(result.allMeasures()).extracting("metric.key").containsOnly("lines", "quality_profiles");
+    BatchReport.Changesets changesets = getChangesets(baseDir, 0);
+    assertThat(changesets).isNull();
   }
 
 }

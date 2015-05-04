@@ -29,14 +29,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.*;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Measure;
-import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.ResourceCache;
@@ -70,7 +68,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
   private Map<String, InputDir> inputDirs = new HashMap<>();
-  private Map<String, Map<String, Integer>> dependencies = new HashMap<>();
   private BatchReportReader reader;
 
   @Override
@@ -93,7 +90,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     storeMeasures(container);
 
     storeDuplication(container);
-    storeDependencies(container);
   }
 
   private void storeReportComponents(int componentRef, String parentModuleKey, @Nullable String branch) {
@@ -149,18 +145,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     }
     for (InputDir inputPath : inputFileCache.allDirs()) {
       inputDirs.put(inputPath.relativePath(), inputPath);
-    }
-  }
-
-  private void storeDependencies(ProjectScanContainer container) {
-    DependencyCache dependencyCache = container.getComponentByType(DependencyCache.class);
-    for (Entry<DefaultDependency> entry : dependencyCache.entries()) {
-      String fromKey = entry.key()[1].toString();
-      String toKey = entry.key()[2].toString();
-      if (!dependencies.containsKey(fromKey)) {
-        dependencies.put(fromKey, new HashMap<String, Integer>());
-      }
-      dependencies.get(fromKey).put(toKey, entry.value().weight());
     }
   }
 
@@ -288,6 +272,23 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return null;
   }
 
+  public BatchReport.FileDependency fileDependencyFor(InputFile file, InputFile anotherFile) {
+    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
+    int otherRef = reportComponents.get(((DefaultInputFile) anotherFile).key()).getRef();
+    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readFileDependencies(ref))) {
+      BatchReport.FileDependency dep = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
+      while (dep != null) {
+        if (dep.getToFileRef() == otherRef) {
+          return dep;
+        }
+        dep = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+    return null;
+  }
+
   public BatchReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
     int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
@@ -302,15 +303,5 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       throw new IllegalStateException(e);
     }
     return null;
-  }
-
-  /**
-   * @return null if no dependency else return dependency weight.
-   */
-  @CheckForNull
-  public Integer dependencyWeight(InputFile from, InputFile to) {
-    String fromKey = ((DefaultInputFile) from).key();
-    String toKey = ((DefaultInputFile) to).key();
-    return dependencies.containsKey(fromKey) ? dependencies.get(fromKey).get(toKey) : null;
   }
 }

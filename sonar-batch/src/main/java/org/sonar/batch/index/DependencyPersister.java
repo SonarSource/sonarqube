@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.design.DependencyDto;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.dependency.DependencyCache;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.report.ReportPublisher;
 
 import javax.annotation.Nullable;
 
@@ -32,16 +32,17 @@ public final class DependencyPersister {
 
   private final ResourceCache resourceCache;
   private final DatabaseSession session;
-  private final DependencyCache dependencyCache;
+  private final ReportPublisher reportPublisher;
+  private final BatchReport.FileDependency.Builder builder = BatchReport.FileDependency.newBuilder();
 
-  public DependencyPersister(ResourceCache resourceCache, DependencyCache dependencyCache, @Nullable DatabaseSession session) {
+  public DependencyPersister(ResourceCache resourceCache, ReportPublisher reportPublisher, @Nullable DatabaseSession session) {
     this.resourceCache = resourceCache;
-    this.dependencyCache = dependencyCache;
+    this.reportPublisher = reportPublisher;
     this.session = session;
   }
 
-  public DependencyPersister(ResourceCache resourceCache, DependencyCache dependencyCache) {
-    this(resourceCache, dependencyCache, null);
+  public DependencyPersister(ResourceCache resourceCache, ReportPublisher reportPublisher) {
+    this(resourceCache, reportPublisher, null);
   }
 
   public void saveDependency(Project project, Dependency dependency) {
@@ -50,7 +51,8 @@ public final class DependencyPersister {
     BatchResource projectResource = resourceCache.get(project);
 
     if (fromResource.isFile() && toResource.isFile()) {
-      dependencyCache.put(project.getEffectiveKey(), new DefaultDependency().setFromKey(fromResource.key()).setToKey(toResource.key()).setWeight(dependency.getWeight()));
+      builder.clear();
+      reportPublisher.getWriter().appendFileDependency(fromResource.batchId(), builder.setToFileRef(toResource.batchId()).setWeight(dependency.getWeight()).build());
     }
 
     if (session != null) {

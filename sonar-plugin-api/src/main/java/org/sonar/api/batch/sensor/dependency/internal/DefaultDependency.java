@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch.sensor.dependency.internal;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -29,6 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 
 import javax.annotation.Nullable;
 
@@ -62,7 +61,7 @@ public class DefaultDependency extends DefaultStorable implements Dependency, Ne
 
   @Override
   public DefaultDependency weight(int weight) {
-    Preconditions.checkArgument(weight > 1, "weight should be greater than 1");
+    Preconditions.checkArgument(weight >= 1, "weight should be greater than 0");
     this.weight = weight;
     return this;
   }

@@ -19,22 +19,10 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.batch.components.TimeMachineConfiguration;
-
-import org.sonar.batch.components.PastSnapshot;
-import org.sonar.batch.components.PastMeasuresLoader;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.batch.*;
+import org.sonar.api.measures.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
@@ -42,6 +30,9 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.components.PastSnapshot;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
@@ -50,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
+@RequiresDB
 public class VariationDecorator implements Decorator {
 
   private List<PastSnapshot> projectPastSnapshots;
