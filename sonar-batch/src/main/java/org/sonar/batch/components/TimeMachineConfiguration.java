@@ -19,14 +19,12 @@
  */
 package org.sonar.batch.components;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 
 import javax.annotation.CheckForNull;
@@ -63,7 +61,7 @@ public class TimeMachineConfiguration implements BatchComponent {
       modulePastSnapshots.add(pastSnapshot);
       // When no snapshot is found, date of the period is null
       periods.add(new Period(pastSnapshot.getIndex(), snapshot != null ? longToDate(snapshot.getCreatedAtMs()) : null));
-      log(pastSnapshot);
+      LOG.info(pastSnapshot.toString());
     }
   }
 
@@ -80,16 +78,6 @@ public class TimeMachineConfiguration implements BatchComponent {
       .setMaxResults(1)
       .getResultList();
     return snapshots.isEmpty() ? null : snapshots.get(0);
-  }
-
-  private void log(PastSnapshot pastSnapshot) {
-    String qualifier = pastSnapshot.getQualifier();
-    // hack to avoid too many logs when the views plugin is installed
-    if (StringUtils.equals(Qualifiers.VIEW, qualifier) || StringUtils.equals(Qualifiers.SUBVIEW, qualifier)) {
-      LOG.debug(pastSnapshot.toString());
-    } else {
-      LOG.info(pastSnapshot.toString());
-    }
   }
 
   public List<Period> periods() {

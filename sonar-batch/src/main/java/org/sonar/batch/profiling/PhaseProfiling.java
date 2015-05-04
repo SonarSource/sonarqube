@@ -20,7 +20,6 @@
 package org.sonar.batch.profiling;
 
 import org.sonar.api.utils.System2;
-import org.sonar.batch.phases.Phases.Phase;
 
 import java.util.HashMap;
 import java.util.Map;

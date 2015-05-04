@@ -1391,25 +1391,6 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
-  /**
-   * @since 4.5 used by dev cockpit.
-   */
-  @Beta
-  public static final String DUPLICATION_LINES_DATA_KEY = "duplication_lines_data";
-
-  /**
-   * Information about duplication in file.
-   * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line is duplicated somewhere (1) or not (0).
-   *
-   * @see org.sonar.api.measures.FileLinesContext
-   * @since 4.5 used by dev cockpit
-   */
-  @Beta
-  public static final Metric<String> DUPLICATION_LINES_DATA = new Metric.Builder(DUPLICATION_LINES_DATA_KEY, "duplication_lines_data", Metric.ValueType.DATA)
-    .setHidden(true)
-    .setDomain(DOMAIN_DUPLICATION)
-    .create();
-
   // --------------------------------------------------------------------------------------------------------------------
   //
   // CODING RULES

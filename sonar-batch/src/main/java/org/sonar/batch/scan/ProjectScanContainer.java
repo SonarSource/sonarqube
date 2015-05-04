@@ -153,7 +153,6 @@ public class ProjectScanContainer extends ComponentContainer {
       TestPlanBuilder.class,
       TestableBuilder.class,
       ScanGraph.create(),
-      GraphPersister.class,
 
       // lang
       Languages.class,
@@ -197,6 +196,7 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       ResourcePersister.class,
       ResourceKeyMigration.class,
+      GraphPersister.class,
 
       // Users
       DefaultUserFinder.class,

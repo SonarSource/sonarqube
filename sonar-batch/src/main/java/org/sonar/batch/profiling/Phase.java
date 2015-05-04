@@ -17,45 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.profiling;
 
-import com.google.common.collect.Sets;
+public enum Phase {
 
-import java.util.Arrays;
-import java.util.Set;
+  INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
 
-/**
- * Used by views
- */
-public class Phases {
+  private final String label;
 
-  public enum Phase {
-    INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
-
-    private final String label;
-
-    private Phase(String label) {
-      this.label = label;
-    }
-
-    @Override
-    public String toString() {
-      return label;
-    }
+  private Phase(String label) {
+    this.label = label;
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
-
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
+  @Override
+  public String toString() {
+    return label;
   }
 
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

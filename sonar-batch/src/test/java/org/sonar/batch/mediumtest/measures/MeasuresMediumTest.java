@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class MeasuresMediumTest {
 
@@ -65,7 +66,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.measures()).hasSize(13);
+    assertThat(result.allMeasures()).hasSize(20);
   }
 
   @Test
@@ -92,9 +93,9 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures()).hasSize(2);
+    assertThat(result.allMeasures()).hasSize(4);
 
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(2));
@@ -127,23 +128,8 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    // QP + 2 x lines + 1 x ncloc+ 1 x lines_to_cover
-    assertThat(result.measures()).hasSize(5);
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(3));
-
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.other"))
-      .withValue(3));
-    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.NCLOC)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.other"))
-      .withValue(2));
-
+    assertThat(result.measures("com.foo.project:src/sample.xoo")).extracting("metric.key", "value").contains(tuple("lines", 3));
+    assertThat(result.measures("com.foo.project:src/sample.other")).extracting("metric.key", "value").contains(tuple("lines", 3), tuple("ncloc", 2));
   }
 
 }

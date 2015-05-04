@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +29,7 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -92,7 +91,6 @@ public class JavaCpdEngineTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(3));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATION_LINES_DATA).onFile(inputFile).withValue("1=0;2=1;3=1;4=1;5=0"));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 2, 4)

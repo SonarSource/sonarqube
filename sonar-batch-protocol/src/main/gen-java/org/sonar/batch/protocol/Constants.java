@@ -138,14 +138,6 @@ public final class Constants {
      * <code>FILE = 3;</code>
      */
     FILE(3, 3),
-    /**
-     * <code>VIEW = 4;</code>
-     */
-    VIEW(4, 4),
-    /**
-     * <code>SUBVIEW = 5;</code>
-     */
-    SUBVIEW(5, 5),
     ;
 
     /**
@@ -164,14 +156,6 @@ public final class Constants {
      * <code>FILE = 3;</code>
      */
     public static final int FILE_VALUE = 3;
-    /**
-     * <code>VIEW = 4;</code>
-     */
-    public static final int VIEW_VALUE = 4;
-    /**
-     * <code>SUBVIEW = 5;</code>
-     */
-    public static final int SUBVIEW_VALUE = 5;
 
 
     public final int getNumber() { return value; }
@@ -182,8 +166,6 @@ public final class Constants {
         case 1: return MODULE;
         case 2: return DIRECTORY;
         case 3: return FILE;
-        case 4: return VIEW;
-        case 5: return SUBVIEW;
         default: return null;
       }
     }
@@ -795,29 +777,29 @@ public final class Constants {
     java.lang.String[] descriptorData = {
       "\n\017constants.proto*E\n\010Severity\022\010\n\004INFO\020\000\022" +
       "\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007B" +
-      "LOCKER\020\004*X\n\rComponentType\022\013\n\007PROJECT\020\000\022\n" +
-      "\n\006MODULE\020\001\022\r\n\tDIRECTORY\020\002\022\010\n\004FILE\020\003\022\010\n\004V" +
-      "IEW\020\004\022\013\n\007SUBVIEW\020\005*J\n\020MeasureValueType\022\007" +
-      "\n\003INT\020\000\022\010\n\004LONG\020\001\022\n\n\006DOUBLE\020\002\022\013\n\007BOOLEAN" +
-      "\020\003\022\n\n\006STRING\020\004*\'\n\rEventCategory\022\t\n\005ALERT" +
-      "\020\000\022\013\n\007PROFILE\020\001*F\n\021ComponentLinkType\022\010\n\004" +
-      "HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_DEV\020\002\022\t\n\005ISSUE\020\003\022" +
-      "\006\n\002CI\020\004*\265\001\n\020HighlightingType\022\016\n\nANNOTATI",
-      "ON\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007COMMENT\020\002\022\013\n\007CPP_D" +
-      "OC\020\003\022\026\n\022STRUCTURED_COMMENT\020\004\022\013\n\007KEYWORD\020" +
-      "\005\022\027\n\023HIGHLIGHTING_STRING\020\006\022\021\n\rKEYWORD_LI" +
-      "GHT\020\007\022\030\n\024PREPROCESS_DIRECTIVE\020\010*9\n\nTestS" +
-      "tatus\022\006\n\002OK\020\001\022\013\n\007FAILURE\020\002\022\t\n\005ERROR\020\003\022\013\n" +
-      "\007SKIPPED\020\004B\034\n\030org.sonar.batch.protocolH\001"
+      "LOCKER\020\004*A\n\rComponentType\022\013\n\007PROJECT\020\000\022\n" +
+      "\n\006MODULE\020\001\022\r\n\tDIRECTORY\020\002\022\010\n\004FILE\020\003*J\n\020M" +
+      "easureValueType\022\007\n\003INT\020\000\022\010\n\004LONG\020\001\022\n\n\006DO" +
+      "UBLE\020\002\022\013\n\007BOOLEAN\020\003\022\n\n\006STRING\020\004*\'\n\rEvent" +
+      "Category\022\t\n\005ALERT\020\000\022\013\n\007PROFILE\020\001*F\n\021Comp" +
+      "onentLinkType\022\010\n\004HOME\020\000\022\007\n\003SCM\020\001\022\013\n\007SCM_" +
+      "DEV\020\002\022\t\n\005ISSUE\020\003\022\006\n\002CI\020\004*\265\001\n\020Highlightin" +
+      "gType\022\016\n\nANNOTATION\020\000\022\014\n\010CONSTANT\020\001\022\013\n\007C",
+      "OMMENT\020\002\022\013\n\007CPP_DOC\020\003\022\026\n\022STRUCTURED_COMM" +
+      "ENT\020\004\022\013\n\007KEYWORD\020\005\022\027\n\023HIGHLIGHTING_STRIN" +
+      "G\020\006\022\021\n\rKEYWORD_LIGHT\020\007\022\030\n\024PREPROCESS_DIR" +
+      "ECTIVE\020\010*9\n\nTestStatus\022\006\n\002OK\020\001\022\013\n\007FAILUR" +
+      "E\020\002\022\t\n\005ERROR\020\003\022\013\n\007SKIPPED\020\004B\034\n\030org.sonar" +
+      ".batch.protocolH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {

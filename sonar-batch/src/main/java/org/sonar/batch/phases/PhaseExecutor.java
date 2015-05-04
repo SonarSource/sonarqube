@@ -19,11 +19,149 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
+import org.sonar.batch.events.BatchStepEvent;
+import org.sonar.batch.events.EventBus;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
+import org.sonar.batch.issue.tracking.LocalIssueTracking;
+import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.rule.QProfileVerifier;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.report.IssuesReports;
 
-public interface PhaseExecutor {
+public final class PhaseExecutor {
+
+  private final EventBus eventBus;
+  private final DecoratorsExecutor decoratorsExecutor;
+  private final PostJobsExecutor postJobsExecutor;
+  private final InitializersExecutor initializersExecutor;
+  private final SensorsExecutor sensorsExecutor;
+  private final ReportPublisher reportPublisher;
+  private final SensorContext sensorContext;
+  private final DefaultIndex index;
+  private final ProjectInitializer pi;
+  private final PersistersExecutor persistersExecutor;
+  private final FileSystemLogger fsLogger;
+  private final DefaultModuleFileSystem fs;
+  private final QProfileVerifier profileVerifier;
+  private final IssueExclusionsLoader issueExclusionsLoader;
+  private final IssuesReports issuesReport;
+  private final DefaultAnalysisMode analysisMode;
+  private final LocalIssueTracking localIssueTracking;
+
+  public PhaseExecutor(DecoratorsExecutor decoratorsExecutor,
+    InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+    SensorContext sensorContext, DefaultIndex index,
+    EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
+    PersistersExecutor persistersExecutor, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, LocalIssueTracking localIssueTracking) {
+    this.decoratorsExecutor = decoratorsExecutor;
+    this.postJobsExecutor = postJobsExecutor;
+    this.initializersExecutor = initializersExecutor;
+    this.sensorsExecutor = sensorsExecutor;
+    this.sensorContext = sensorContext;
+    this.index = index;
+    this.eventBus = eventBus;
+    this.reportPublisher = reportPublisher;
+    this.pi = pi;
+    this.persistersExecutor = persistersExecutor;
+    this.fsLogger = fsLogger;
+    this.issuesReport = jsonReport;
+    this.fs = fs;
+    this.profileVerifier = profileVerifier;
+    this.issueExclusionsLoader = issueExclusionsLoader;
+    this.analysisMode = analysisMode;
+    this.localIssueTracking = localIssueTracking;
+  }
+
   /**
    * Executed on each module
    */
-  public void execute(Project module);
+  public void execute(Project module) {
+    pi.execute(module);
+
+    eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
+
+    executeInitializersPhase();
+
+    // Index and lock the filesystem
+    indexFs();
+
+    // Log detected languages and their profiles after FS is indexed and languages detected
+    profileVerifier.execute();
+
+    // Initialize issue exclusions
+    initIssueExclusions();
+
+    sensorsExecutor.execute(sensorContext);
+
+    decoratorsExecutor.execute();
+
+    if (module.isRoot()) {
+      if (analysisMode.isPreview()) {
+        localIssueTracking();
+      }
+      issuesReport();
+
+      if (!analysisMode.isPreview()) {
+        persistersExecutor.execute();
+      }
+
+      publishReportJob();
+      postJobsExecutor.execute(sensorContext);
+    }
+    cleanMemory();
+    eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  private void publishReportJob() {
+    String stepName = "Publish report";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    this.reportPublisher.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void localIssueTracking() {
+    String stepName = "Local Issue Tracking";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    localIssueTracking.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void issuesReport() {
+    String stepName = "Issues Reports";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    issuesReport.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void initIssueExclusions() {
+    String stepName = "Init issue exclusions";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    issueExclusionsLoader.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void indexFs() {
+    String stepName = "Index filesystem and store sources";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    fs.index();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void executeInitializersPhase() {
+    initializersExecutor.execute();
+    fsLogger.log();
+  }
+
+  private void cleanMemory() {
+    String cleanMemory = "Clean memory";
+    eventBus.fireEvent(new BatchStepEvent(cleanMemory, true));
+    index.clear();
+    eventBus.fireEvent(new BatchStepEvent(cleanMemory, false));
+  }
 }

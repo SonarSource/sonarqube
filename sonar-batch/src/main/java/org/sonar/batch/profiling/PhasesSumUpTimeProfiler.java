@@ -26,21 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.DecoratorExecutionHandler;
-import org.sonar.api.batch.events.DecoratorsPhaseHandler;
-import org.sonar.api.batch.events.InitializerExecutionHandler;
-import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.PostJobExecutionHandler;
-import org.sonar.api.batch.events.PostJobsPhaseHandler;
-import org.sonar.api.batch.events.ProjectAnalysisHandler;
-import org.sonar.api.batch.events.SensorExecutionHandler;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
+import org.sonar.api.batch.events.*;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.events.BatchStepHandler;
-import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
 import org.sonar.batch.phases.event.PersistersPhaseHandler;
 import org.sonar.batch.util.BatchUtils;
@@ -49,11 +40,7 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
@@ -161,15 +148,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @Override
   public void onSensorsPhase(SensorsPhaseEvent event) {
     if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.SENSOR);
+      currentModuleProfiling.addPhaseProfiling(Phase.SENSOR);
     } else {
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.SENSOR).stop();
+      currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).stop();
     }
   }
 
   @Override
   public void onSensorExecution(SensorExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.SENSOR);
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR);
     if (event.isStart()) {
       profiling.newItemProfiling(event.getSensor());
     } else {
@@ -180,15 +167,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @Override
   public void onPersistersPhase(PersistersPhaseEvent event) {
     if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.PERSISTER);
+      currentModuleProfiling.addPhaseProfiling(Phase.PERSISTER);
     } else {
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.PERSISTER).stop();
+      currentModuleProfiling.getProfilingPerPhase(Phase.PERSISTER).stop();
     }
   }
 
   @Override
   public void onPersisterExecution(PersisterExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.PERSISTER);
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.PERSISTER);
     if (event.isStart()) {
       profiling.newItemProfiling(event.getPersister());
     } else {
@@ -198,7 +185,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   @Override
   public void onDecoratorExecution(DecoratorExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR);
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR);
     if (event.isStart()) {
       if (profiling.getProfilingPerItem(event.getDecorator()) == null) {
         profiling.newItemProfiling(event.getDecorator());
@@ -212,28 +199,28 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @Override
   public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
     if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.DECORATOR);
+      currentModuleProfiling.addPhaseProfiling(Phase.DECORATOR);
     } else {
       for (Decorator decorator : decoratorsProfiler.getDurations().keySet()) {
-        currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR)
+        currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR)
           .getProfilingPerItem(decorator).setTotalTime(decoratorsProfiler.getDurations().get(decorator));
       }
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR).stop();
+      currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).stop();
     }
   }
 
   @Override
   public void onPostJobsPhase(PostJobsPhaseEvent event) {
     if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.POSTJOB);
+      currentModuleProfiling.addPhaseProfiling(Phase.POSTJOB);
     } else {
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.POSTJOB).stop();
+      currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).stop();
     }
   }
 
   @Override
   public void onPostJobExecution(PostJobExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.POSTJOB);
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB);
     if (event.isStart()) {
       profiling.newItemProfiling(event.getPostJob());
     } else {
@@ -244,15 +231,15 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @Override
   public void onInitializersPhase(InitializersPhaseEvent event) {
     if (event.isStart()) {
-      currentModuleProfiling.addPhaseProfiling(Phases.Phase.INIT);
+      currentModuleProfiling.addPhaseProfiling(Phase.INIT);
     } else {
-      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.INIT).stop();
+      currentModuleProfiling.getProfilingPerPhase(Phase.INIT).stop();
     }
   }
 
   @Override
   public void onInitializerExecution(InitializerExecutionEvent event) {
-    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.INIT);
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phase.INIT);
     if (event.isStart()) {
       profiling.newItemProfiling(event.getInitializer());
     } else {

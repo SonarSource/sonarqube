@@ -101,18 +101,15 @@ public class ModuleScanContainer extends ComponentContainer {
     ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
     module.setSettings(moduleSettings);
 
-    if (analysisMode.isDb()) {
-      add(DatabaseModePhaseExecutor.class);
-    } else {
-      add(RuleFinderCompatibility.class,
-        DatabaseLessPhaseExecutor.class);
-    }
-
     add(
+      PhaseExecutor.class,
+      RuleFinderCompatibility.class,
       EventBus.class,
       PhasesTimeProfiler.class,
       PostJobsExecutor.class,
+      DecoratorsExecutor.class,
       SensorsExecutor.class,
+      PersistersExecutor.class,
       InitializersExecutor.class,
       ProjectInitializer.class,
       moduleDefinition.getContainerExtensions(),
@@ -180,8 +177,7 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addDataBaseComponents() {
-    add(DecoratorsExecutor.class,
-
+    add(
       // Quality Gate
       QualityGateVerifier.class,
       GenerateQualityGateEvents.class,
@@ -226,8 +222,7 @@ public class ModuleScanContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
-    index.setCurrentProject(module,
-      getComponentByType(ModuleIssues.class));
+    index.setCurrentProject(module, getComponentByType(ModuleIssues.class));
 
     getComponentByType(PhaseExecutor.class).execute(module);
 

@@ -22,20 +22,15 @@ package org.sonar.batch.profiling;
 import com.google.common.collect.Maps;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.phases.Phases;
-import org.sonar.batch.phases.Phases.Phase;
 
 import javax.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
-  private Map<Phases.Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phases.Phase, PhaseProfiling>();
+  private Map<Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phase, PhaseProfiling>();
   private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<String, ItemProfiling>();
   private final Project module;
 
@@ -81,7 +76,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
       println(" * " + batchStep.getKey() + " execution time: ", percent, batchStep.getValue());
     }
     // Breakdown per phase
-    for (Phase phase : Phases.Phase.values()) {
+    for (Phase phase : Phase.values()) {
       if (profilingPerPhase.containsKey(phase) && getProfilingPerPhase(phase).hasItems()) {
         println("");
         println(" * " + phase + " execution time breakdown: ", getProfilingPerPhase(phase));
@@ -92,7 +87,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
 
   public void merge(ModuleProfiling other) {
     super.add(other);
-    for (Entry<Phases.Phase, PhaseProfiling> entry : other.profilingPerPhase.entrySet()) {
+    for (Entry<Phase, PhaseProfiling> entry : other.profilingPerPhase.entrySet()) {
       if (!this.profilingPerPhase.containsKey(entry.getKey())) {
         this.addPhaseProfiling(entry.getKey());
       }
