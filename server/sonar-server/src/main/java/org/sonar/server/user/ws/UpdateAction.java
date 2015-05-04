@@ -34,8 +34,6 @@ import org.sonar.server.user.index.UserIndex;
 public class UpdateAction implements BaseUsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
-  private static final String PARAM_PASSWORD = "password";
-  private static final String PARAM_PASSWORD_CONFIRMATION = "password_confirmation";
   private static final String PARAM_NAME = "name";
   private static final String PARAM_EMAIL = "email";
   private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
@@ -51,29 +49,19 @@ public class UpdateAction implements BaseUsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update")
-      .setDescription("Update a user. Requires Administer System permission")
+      .setDescription("Update a user. Requires Administer System permission. Since 5.2, a user's password can only be changed using the 'change_password' action.")
       .setSince("3.7")
       .setPost(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("example-update.json"));
 
     action.createParam(PARAM_LOGIN)
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("myuser");
 
-    action.createParam(PARAM_PASSWORD)
-      .setDescription("User password")
-      .setRequired(true)
-      .setExampleValue("mypassword");
-
-    action.createParam(PARAM_PASSWORD_CONFIRMATION)
-      .setDescription("Must be the same value as \"password\"")
-      .setRequired(true)
-      .setExampleValue("mypassword");
-
     action.createParam(PARAM_NAME)
       .setDescription("User name")
-      .setRequired(true)
       .setExampleValue("My Name");
 
     action.createParam(PARAM_EMAIL)
@@ -99,12 +87,6 @@ public class UpdateAction implements BaseUsersWsAction {
     }
     if (request.hasParam(PARAM_SCM_ACCOUNTS)) {
       updateUser.setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS));
-    }
-    if (request.hasParam(PARAM_PASSWORD)) {
-      updateUser.setPassword(request.mandatoryParam(PARAM_PASSWORD));
-    }
-    if (request.hasParam(PARAM_PASSWORD_CONFIRMATION)) {
-      updateUser.setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
     }
 
     userUpdater.update(updateUser);

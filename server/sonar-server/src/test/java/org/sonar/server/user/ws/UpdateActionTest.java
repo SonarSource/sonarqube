@@ -20,182 +20,149 @@
 
 package org.sonar.server.user.ws;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.UserDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UpdateUser;
+import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.db.GroupDao;
+import org.sonar.server.user.db.UserDao;
+import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Map;
-
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
 public class UpdateActionTest {
+
+  static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
+
+  @ClassRule
+  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
 
   WebService.Controller controller;
 
   WsTester tester;
 
-  @Mock
   UserIndex index;
 
-  @Mock
-  UserUpdater updater;
+  DbClient dbClient;
 
-  @Captor
-  ArgumentCaptor<UpdateUser> userCaptor;
+  UserIndexer userIndexer;
+
+  DbSession session;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new UsersWs(new UpdateAction(index, updater)));
+    dbTester.truncateTables();
+    esTester.truncateIndices();
+
+    System2 system2 = new System2();
+    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
+    UserGroupDao userGroupDao = new UserGroupDao();
+    GroupDao groupDao = new GroupDao();
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
+    session = dbClient.openSession(false);
+    groupDao.insert(session, new GroupDto().setName("sonar-users"));
+    session.commit();
+
+    userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
+    index = new UserIndex(esTester.client());
+    tester = new WsTester(new UsersWs(new UpdateAction(index,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2))));
     controller = tester.controller("api/users");
+
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    createUser();
+
+    MockUserSession.set().setLogin("polop");
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .execute();
   }
 
   @Test
   public void update_user() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(index.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    createUser();
 
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
-      .setParam("name", "John")
-      .setParam("email", "john@email.com")
-      .setParam("scm_accounts", "jn")
-      .setParam("password", "1234")
-      .setParam("password_confirmation", "1234")
+      .setParam("name", "Jon Snow")
+      .setParam("email", "jon.snow@thegreatw.all")
+      .setParam("scm_accounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_user.json");
-
-    verify(updater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().login()).isEqualTo("john");
-    assertThat(userCaptor.getValue().name()).isEqualTo("John");
-    assertThat(userCaptor.getValue().email()).isEqualTo("john@email.com");
-    assertThat(userCaptor.getValue().scmAccounts()).containsOnly("jn");
-    assertThat(userCaptor.getValue().password()).isEqualTo("1234");
-    assertThat(userCaptor.getValue().passwordConfirmation()).isEqualTo("1234");
   }
 
   @Test
   public void update_only_name() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(index.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    createUser();
 
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
-      .setParam("name", "John")
-      .execute();
-
-    verify(updater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isTrue();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+      .setParam("name", "Jon Snow")
+      .execute()
+      .assertJson(getClass(), "update_name.json");
   }
 
   @Test
   public void update_only_email() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(index.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    createUser();
 
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
-      .setParam("email", "john@email.com")
-      .execute();
-
-    verify(updater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isTrue();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+      .setParam("email", "jon.snow@thegreatw.all")
+      .execute()
+      .assertJson(getClass(), "update_email.json");
   }
 
   @Test
   public void update_only_scm_accounts() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(index.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
+    createUser();
 
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
-      .setParam("scm_accounts", "jn")
-      .execute();
-
-    verify(updater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isTrue();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isFalse();
+      .setParam("scm_accounts", "jon.snow")
+      .execute()
+      .assertJson(getClass(), "update_scm_accounts.json");
   }
 
-  @Test
-  public void update_only_password() throws Exception {
-    Map<String, Object> userDocMap = newHashMap();
-    userDocMap.put("login", "john");
-    userDocMap.put("name", "John");
-    userDocMap.put("email", "john@email.com");
-    userDocMap.put("scmAccounts", newArrayList("jn"));
-    userDocMap.put("active", true);
-    userDocMap.put("createdAt", 15000L);
-    userDocMap.put("updatedAt", 15000L);
-    when(index.getByLogin("john")).thenReturn(new UserDoc(userDocMap));
-
-    tester.newPostRequest("api/users", "update")
-      .setParam("login", "john")
-      .setParam("password", "1234")
-      .setParam("password_confirmation", "1234")
-      .execute();
-
-    verify(updater).update(userCaptor.capture());
-    assertThat(userCaptor.getValue().isNameChanged()).isFalse();
-    assertThat(userCaptor.getValue().isEmailChanged()).isFalse();
-    assertThat(userCaptor.getValue().isScmAccountsChanged()).isFalse();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isTrue();
-    assertThat(userCaptor.getValue().isPasswordChanged()).isTrue();
+  private void createUser() {
+    dbClient.userDao().insert(session, new UserDto()
+      .setEmail("john@email.com")
+      .setLogin("john")
+      .setName("John")
+      .setScmAccounts(newArrayList("jn"))
+      .setActive(true));
+    session.commit();
+    userIndexer.index();
   }
 }

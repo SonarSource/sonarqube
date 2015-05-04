@@ -1,0 +1,9 @@
+{
+  "user": {
+    "login": "ada.lovelace",
+    "name": "Ada Lovelace",
+    "email": "ada.lovelace@noteg.com",
+    "scmAccounts": ["ada.lovelace"],
+    "active": true
+  }
+}

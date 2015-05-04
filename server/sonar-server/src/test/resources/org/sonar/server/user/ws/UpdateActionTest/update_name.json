@@ -1,0 +1,11 @@
+{
+  "user": {
+    "login": "john",
+    "name": "Jon Snow",
+    "email": "john@email.com",
+    "active": true,
+    "scmAccounts": [
+      "jn"
+    ]
+  }
+}

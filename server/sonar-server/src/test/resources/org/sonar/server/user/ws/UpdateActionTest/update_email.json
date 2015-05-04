@@ -1,9 +1,11 @@
 {
   "user": {
     "login": "john",
-    "name": "Jon Snow",
+    "name": "John",
     "email": "jon.snow@thegreatw.all",
-    "scmAccounts": ["jon.snow"],
-    "active": true
+    "active": true,
+    "scmAccounts": [
+      "jn"
+    ]
   }
 }
