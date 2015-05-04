@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
-import org.sonar.server.es.NewIndex.NewIndexType;
 
 import java.util.Map;
 
@@ -80,10 +79,8 @@ public class UserIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
 
-    mapping.stringFieldBuilder(FIELD_LOGIN).enableMultiField().build();
-    addSubSearchField(mapping, FIELD_LOGIN);
-    mapping.stringFieldBuilder(FIELD_NAME).enableMultiField().build();
-    addSubSearchField(mapping, FIELD_NAME);
+    mapping.stringFieldBuilder(FIELD_LOGIN).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
+    mapping.stringFieldBuilder(FIELD_NAME).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
     mapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
     mapping.createDateTimeField(FIELD_CREATED_AT);
     mapping.createDateTimeField(FIELD_UPDATED_AT);
@@ -91,16 +88,11 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
   }
 
-  private void addSubSearchField(NewIndexType mapping, String field) {
-    Map<String, Object> hash = (Map<String, Object>) mapping.getProperty(field);
-    if (hash == null) {
-      throw new IllegalStateException(String.format("Field %s is not defined", field));
-    }
-    Map<String, Object> multiField = (Map<String, Object>) hash.get("fields");
-    multiField.put(SEARCH_SUB_SUFFIX, ImmutableSortedMap.of(
+  private Map<String, String> buildGramSearchField() {
+    return ImmutableSortedMap.of(
       "type", "string",
       "index", "analyzed",
       "index_analyzer", "index_ngrams",
-      "search_analyzer", "search_ngrams"));
+      "search_analyzer", "search_ngrams");
   }
 }

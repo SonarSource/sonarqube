@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -174,7 +175,8 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean multiField = false, sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
+    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
+    private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -187,10 +189,10 @@ public class NewIndex {
     }
 
     /**
-     * Prepare the structure to add sub-fields
+     * Add a sub-field
      */
-    public StringFieldBuilder enableMultiField() {
-      this.multiField = true;
+    public StringFieldBuilder addSubField(String fieldName, Map<String, String> fieldDefinition) {
+      subFields.put(fieldName, fieldDefinition);
       return this;
     }
 
@@ -198,8 +200,11 @@ public class NewIndex {
      * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
-      this.enableMultiField();
       this.sortable = true;
+      addSubField(IndexField.SORT_SUFFIX, ImmutableSortedMap.of(
+        "type", "string",
+        "index", "analyzed",
+        "analyzer", "sortable"));
       return this;
     }
 
@@ -207,8 +212,12 @@ public class NewIndex {
      * Create an inner-field named "words" with analyzer "words"
      */
     public StringFieldBuilder enableWordSearch() {
-      this.enableMultiField();
       this.wordSearch = true;
+      addSubField(IndexField.SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
+        "type", "string",
+        "index", "analyzed",
+        "index_analyzer", "index_words",
+        "search_analyzer", "search_words"));
       return this;
     }
 
@@ -216,8 +225,12 @@ public class NewIndex {
      * Create a inner-field named "grams" with analyzer "grams"
      */
     public StringFieldBuilder enableGramSearch() {
-      this.enableMultiField();
       this.gramSearch = true;
+      addSubField(IndexField.SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
+        "type", "string",
+        "index", "analyzed",
+        "index_analyzer", "index_grams",
+        "search_analyzer", "search_grams"));
       return this;
     }
 
@@ -234,30 +247,9 @@ public class NewIndex {
     public void build() {
       validate();
       Map<String, Object> hash = new TreeMap<>();
-      if (multiField) {
+      if (!subFields.isEmpty()) {
         hash.put("type", "multi_field");
-        Map<String, Object> multiFields = new TreeMap<>();
-
-        if (sortable) {
-          multiFields.put(IndexField.SORT_SUFFIX, ImmutableSortedMap.of(
-            "type", "string",
-            "index", "analyzed",
-            "analyzer", "sortable"));
-        }
-        if (wordSearch) {
-          multiFields.put(IndexField.SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
-            "type", "string",
-            "index", "analyzed",
-            "index_analyzer", "index_words",
-            "search_analyzer", "search_words"));
-        }
-        if (gramSearch) {
-          multiFields.put(IndexField.SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
-            "type", "string",
-            "index", "analyzed",
-            "index_analyzer", "index_grams",
-            "search_analyzer", "search_grams"));
-        }
+        Map<String, Object> multiFields = new TreeMap<>(subFields);
         multiFields.put(fieldName, ImmutableMap.of(
           "type", "string",
           "index", "not_analyzed",

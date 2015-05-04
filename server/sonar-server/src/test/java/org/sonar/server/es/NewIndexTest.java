@@ -91,7 +91,6 @@ public class NewIndexTest {
       .enableWordSearch()
       .enableSorting()
       .build();
-    mapping.stringFieldBuilder("just_multi_field").enableMultiField().build();
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
     assertThat(props.get("type")).isEqualTo("string");
@@ -106,10 +105,6 @@ public class NewIndexTest {
     props = (Map) mapping.getProperty("all_capabilities_field");
     assertThat(props.get("type")).isEqualTo("multi_field");
     // no need to test values, it's not the scope of this test
-    assertThat((Map) props.get("fields")).isNotEmpty();
-
-    props = (Map) mapping.getProperty("just_multi_field");
-    assertThat(props.get("type")).isEqualTo("multi_field");
     assertThat((Map) props.get("fields")).isNotEmpty();
   }
 
