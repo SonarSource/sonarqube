@@ -57,7 +57,7 @@ public class AvailablePluginsWsAction implements PluginsWsAction {
           "<li>COMPATIBLE: plugin is compatible with current SonarQube instance.</li>" +
           "<li>INCOMPATIBLE: plugin is not compatible with current SonarQube instance.</li>" +
           "<li>REQUIRES_SYSTEM_UPGRADE: plugin requires SonarQube to be upgraded before being installed.</li>" +
-          "<li>DEPS_REQUIRE_SYSTEM_UPGRADE: at least plugin on which the plugin is dependent requires SonarQube to be upgraded.</li>" +
+          "<li>DEPS_REQUIRE_SYSTEM_UPGRADE: at least one plugin on which the plugin is dependent requires SonarQube to be upgraded.</li>" +
           "</ul>")
       .setSince("5.2")
       .setHandler(this)
