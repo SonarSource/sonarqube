@@ -20,8 +20,10 @@
 
 package org.sonar.core.persistence;
 
-import ch.qos.logback.classic.Level;
-import com.google.common.io.Closeables;
+import java.io.InputStream;
+
+import javax.annotation.Nullable;
+
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
@@ -139,9 +141,9 @@ import org.sonar.core.user.UserGroupMapper;
 import org.sonar.core.user.UserMapper;
 import org.sonar.core.user.UserRoleDto;
 
-import javax.annotation.Nullable;
+import ch.qos.logback.classic.Level;
 
-import java.io.InputStream;
+import com.google.common.io.Closeables;
 
 public class MyBatis implements BatchComponent, ServerComponent {
 
@@ -251,6 +253,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       FileDependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
+      IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,

@@ -23,7 +23,12 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.IsAliveMapper;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.platform.Platform;
 
@@ -34,14 +39,18 @@ import com.google.common.io.Resources;
  */
 public class SystemStatusWsAction implements SystemWsAction {
 
+  private static final Logger LOGGER = Loggers.get(SystemStatusWsAction.class);
+
   private final Server server;
   private final DatabaseMigration databaseMigration;
   private final Platform platform;
+  private final DbClient dbClient;
 
-  public SystemStatusWsAction(Server server, DatabaseMigration databaseMigration, Platform platform) {
+  public SystemStatusWsAction(Server server, DatabaseMigration databaseMigration, Platform platform, DbClient dbClient) {
     this.server = server;
     this.databaseMigration = databaseMigration;
     this.platform = platform;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -98,8 +107,12 @@ public class SystemStatusWsAction implements SystemWsAction {
   }
 
   private boolean isConnectedToDB() {
-    // TODO check DB connection is up
-    return true;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbSession.getMapper(IsAliveMapper.class).isAlive() == IsAliveMapper.IS_ALIVE_RETURNED_VALUE;
+    } catch (RuntimeException e) {
+      LOGGER.error("DB connection is down", e);
+      return false;
+    }
   }
 
   private Status computeFromDbMigrationStatus() {
