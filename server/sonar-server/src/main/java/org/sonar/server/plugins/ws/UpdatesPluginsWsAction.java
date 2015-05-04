@@ -73,7 +73,7 @@ public class UpdatesPluginsWsAction implements PluginsWsAction {
   public void define(WebService.NewController controller) {
     controller.createAction("updates")
       .setDescription("Lists plugins installed on the SonarQube instance for which at least one newer version is available, sorted by plugin name." +
-        "br/>" +
+        "<br/>" +
         "Each newer version is listed, ordered from the oldest to the newest, with its own update/compatibility status." +
         "<br/>" +
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response." +
