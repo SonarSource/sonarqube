@@ -27,8 +27,8 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil.Row;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
 import javax.annotation.Nullable;
 
@@ -41,17 +41,29 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import static org.sonar.server.test.index.TestIndexDefinition.*;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_NAME;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
+import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 /**
- * Scroll over table FILE_SOURCES and directly parse data required to
+ * Scroll over table FILE_SOURCES of test type and directly parse data required to
  * populate the index sourcelines
  */
 public class TestResultSetIterator extends ResultSetIterator<Row> {
 
   public static TestResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
     try {
-      return new TestResultSetIterator(FileSourcesUpdaterUtil.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.TEST, afterDate, projectUuid));
+      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.TEST, afterDate, projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all tests", e);
     }

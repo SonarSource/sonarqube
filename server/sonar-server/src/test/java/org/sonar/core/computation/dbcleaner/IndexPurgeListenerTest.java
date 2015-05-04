@@ -22,6 +22,7 @@ package org.sonar.core.computation.dbcleaner;
 
 import org.junit.Test;
 import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.test.index.TestIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,12 +31,14 @@ public class IndexPurgeListenerTest {
 
   @Test
   public void call_source_line_indexer() {
-    SourceLineIndexer indexer = mock(SourceLineIndexer.class);
-    IndexPurgeListener sut = new IndexPurgeListener(indexer);
+    SourceLineIndexer sourceLineIndexer = mock(SourceLineIndexer.class);
+    TestIndexer testIndexer = mock(TestIndexer.class);
+    IndexPurgeListener sut = new IndexPurgeListener(sourceLineIndexer, testIndexer);
 
     sut.onComponentDisabling("123456");
 
-    verify(indexer).deleteByFile("123456");
+    verify(sourceLineIndexer).deleteByFile("123456");
+    verify(testIndexer).deleteByFile("123456");
   }
 
 }

@@ -737,7 +737,8 @@ public class IssueIndex extends BaseIndex {
       @Override
       public boolean hasNext() {
         if (hits.isEmpty()) {
-          SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
+          SearchScrollRequestBuilder esRequest = getClient()
+            .prepareSearchScroll(scrollId)
             .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
           Collections.addAll(hits, esRequest.get().getHits().getHits());
         }

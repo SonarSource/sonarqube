@@ -32,7 +32,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileSourcesUpdaterUtil {
+public class FileSourcesUpdaterHelper {
 
   private static final String SQL_ALL = "SELECT %s FROM file_sources WHERE data_type='%s' ";
   private static final String AFTER_DATE_FILTER = " AND updated_at>?";
@@ -45,11 +45,12 @@ public class FileSourcesUpdaterUtil {
     "binary_data"
   };
 
-  private FileSourcesUpdaterUtil() {
+  private FileSourcesUpdaterHelper() {
     // only static stuff
   }
 
-  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, Connection connection, String dataType, long afterDate, @Nullable String projectUuid) throws SQLException {
+  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, Connection connection, String dataType, long afterDate, @Nullable String projectUuid)
+    throws SQLException {
     String sql = createSQL(dataType, afterDate, projectUuid);
     // rows are big, so they are scrolled once at a time (one row in memory at a time)
     PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);

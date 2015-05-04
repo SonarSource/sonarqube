@@ -38,17 +38,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-import static org.sonar.server.source.index.FileSourcesUpdaterUtil.Row;
+import static org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
 /**
- * Scroll over table FILE_SOURCES and directly parse data required to
+ * Scroll over table FILE_SOURCES of type SOURCE and directly parse data required to
  * populate the index sourcelines
  */
-public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUpdaterUtil.Row> {
+public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUpdaterHelper.Row> {
 
   public static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
     try {
-      return new SourceLineResultSetIterator(FileSourcesUpdaterUtil.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.SOURCE, afterDate,
+      return new SourceLineResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.SOURCE, afterDate,
         projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);

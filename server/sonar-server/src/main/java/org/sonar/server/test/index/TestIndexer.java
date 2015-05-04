@@ -29,7 +29,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -40,7 +40,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.*;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
- * db table FILE_SOURCES that are not indexed yet
+ * db table FILE_SOURCES of type TEST that are not indexed yet
  */
 public class TestIndexer extends BaseIndexer {
 
@@ -82,16 +82,16 @@ public class TestIndexer extends BaseIndexer {
     }
   }
 
-  public long index(Iterator<FileSourcesUpdaterUtil.Row> dbRows) {
+  public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
     return doIndex(bulk, dbRows);
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterUtil.Row> dbRows) {
+  private long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
     long maxUpdatedAt = 0L;
     bulk.start();
     while (dbRows.hasNext()) {
-      FileSourcesUpdaterUtil.Row row = dbRows.next();
+      FileSourcesUpdaterHelper.Row row = dbRows.next();
       for (UpdateRequest updateRequest : row.getUpdateRequests()) {
         bulk.add(updateRequest);
       }

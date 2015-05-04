@@ -39,7 +39,7 @@ import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJ
 
 /**
  * Add to Elasticsearch index {@link SourceLineIndexDefinition} the rows of
- * db table FILE_SOURCES that are not indexed yet
+ * db table FILE_SOURCES of type SOURCE that are not indexed yet
  */
 public class SourceLineIndexer extends BaseIndexer {
 
@@ -81,16 +81,16 @@ public class SourceLineIndexer extends BaseIndexer {
     }
   }
 
-  public long index(Iterator<FileSourcesUpdaterUtil.Row> dbRows) {
+  public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
     BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
     return doIndex(bulk, dbRows);
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterUtil.Row> dbRows) {
+  private long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
     long maxUpdatedAt = 0L;
     bulk.start();
     while (dbRows.hasNext()) {
-      FileSourcesUpdaterUtil.Row row = dbRows.next();
+      FileSourcesUpdaterHelper.Row row = dbRows.next();
       addDeleteRequestsForLinesGreaterThan(bulk, row);
       for (UpdateRequest updateRequest : row.getUpdateRequests()) {
         bulk.add(updateRequest);
@@ -107,7 +107,7 @@ public class SourceLineIndexer extends BaseIndexer {
    * - same file has now 5 lines
    * Lines 6 to 10 must be removed from index.
    */
-  private void addDeleteRequestsForLinesGreaterThan(BulkIndexer bulk, FileSourcesUpdaterUtil.Row fileRow) {
+  private void addDeleteRequestsForLinesGreaterThan(BulkIndexer bulk, FileSourcesUpdaterHelper.Row fileRow) {
     int numberOfLines = fileRow.getUpdateRequests().size();
     SearchRequestBuilder searchRequest = esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
       .setTypes(SourceLineIndexDefinition.TYPE)

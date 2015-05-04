@@ -112,7 +112,8 @@ public class TestDoc extends BaseDoc {
   }
 
   public Long durationInMs() {
-    return getField(FIELD_DURATION_IN_MS);
+    Number number =  getField(FIELD_DURATION_IN_MS);
+    return number.longValue();
   }
 
   public TestDoc setDurationInMs(Long durationInMs) {

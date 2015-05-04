@@ -32,7 +32,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
 
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class SourceDbBenchmarkTest {
       long start = System.currentTimeMillis();
       SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
       while (it.hasNext()) {
-        FileSourcesUpdaterUtil.Row row = it.next();
+        FileSourcesUpdaterHelper.Row row = it.next();
         assertThat(row.getUpdateRequests().size()).isEqualTo(NUMBER_OF_LINES);
         assertThat(row.getFileUuid()).isNotEmpty();
         counter.incrementAndGet();

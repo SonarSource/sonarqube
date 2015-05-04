@@ -36,7 +36,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterUtil;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
@@ -117,7 +117,7 @@ public class TestIndexerTest {
     indexTest("P1", "F1", "T1", "U111");
     indexTest("P1", "F2", "T1", "U121");
 
-    FileSourcesUpdaterUtil.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
+    FileSourcesUpdaterHelper.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
       FileSourceDb.Test.newBuilder()
         .setUuid("U111")
         .setName("NAME_1")

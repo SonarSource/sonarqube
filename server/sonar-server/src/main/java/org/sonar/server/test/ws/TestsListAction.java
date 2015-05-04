@@ -34,13 +34,14 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ import static org.elasticsearch.common.base.MoreObjects.firstNonNull;
 public class TestsListAction implements TestAction {
   public static final String TEST_UUID = "testUuid";
   public static final String TEST_FILE_UUID = "testFileUuid";
+  public static final String TEST_FILE_KEY = "testFileKey";
   public static final String SOURCE_FILE_UUID = "sourceFileUuid";
   public static final String SOURCE_FILE_LINE_NUMBER = "sourceFileLineNumber";
 
@@ -75,12 +77,18 @@ public class TestsListAction implements TestAction {
         "</ul>")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .addPagingParams(100);
 
     action
       .createParam(TEST_FILE_UUID)
       .setDescription("Test file UUID")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+
+    action
+      .createParam(TEST_FILE_KEY)
+      .setDescription("Test file key")
+      .setExampleValue("org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java");
 
     action
       .createParam(TEST_UUID)
@@ -102,16 +110,22 @@ public class TestsListAction implements TestAction {
   public void handle(Request request, Response response) {
     String testUuid = request.param(TEST_UUID);
     String testFileUuid = request.param(TEST_FILE_UUID);
+    String testFileKey = request.param(TEST_FILE_KEY);
     String sourceFileUuid = request.param(SOURCE_FILE_UUID);
     Integer sourceFileLineNumber = request.paramAsInt(SOURCE_FILE_LINE_NUMBER);
+    SearchOptions searchOptions = new SearchOptions().setPage(
+      request.mandatoryParamAsInt(WebService.Param.PAGE),
+      request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE)
+      );
 
-    checkArguments(testUuid, testFileUuid, sourceFileUuid, sourceFileLineNumber);
-    checkPermissions(testUuid, testFileUuid, sourceFileUuid);
-    List<TestDoc> tests = searchTests(testUuid, testFileUuid, sourceFileUuid, sourceFileLineNumber);
-    Map<String, ComponentDto> componentsByTestFileUuid = buildComponentsByTestFileUuid(tests);
+    checkArguments(testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileLineNumber);
+    checkPermissions(testUuid, testFileUuid, testFileKey, sourceFileUuid);
+    SearchResult<TestDoc> tests = searchTests(testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileLineNumber, searchOptions);
+    Map<String, ComponentDto> componentsByTestFileUuid = buildComponentsByTestFileUuid(tests.getDocs());
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeTests(tests, componentsByTestFileUuid, json);
+    writeTests(tests.getDocs(), componentsByTestFileUuid, json);
+    searchOptions.writeJson(json, tests.getTotal());
     json.endObject().close();
   }
 
@@ -157,26 +171,39 @@ public class TestsListAction implements TestAction {
     });
   }
 
-  private List<TestDoc> searchTests(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber) {
+  private SearchResult<TestDoc> searchTests(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey, @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber,
+                                            SearchOptions searchOptions) {
     if (testUuid != null) {
-      return Arrays.asList(testIndex.searchByTestUuid(testUuid));
+      return testIndex.searchByTestUuid(testUuid, searchOptions);
     } else if (testFileUuid != null) {
-      return testIndex.searchByTestFileUuid(testFileUuid);
+      return testIndex.searchByTestFileUuid(testFileUuid, searchOptions);
+    } else if (testFileKey != null) {
+      ComponentDto testFile;
+      DbSession dbSession = dbClient.openSession(false);
+      try {
+        testFile = dbClient.componentDao().getByKey(dbSession, testFileKey);
+      } finally {
+        MyBatis.closeQuietly(dbSession);
+      }
+      return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
     } else {
-      return testIndex.searchBySourceFileUuidAndLineNumber(sourceFileUuid, sourceFileLineNumber);
+      return testIndex.searchBySourceFileUuidAndLineNumber(sourceFileUuid, sourceFileLineNumber, searchOptions);
     }
   }
 
-  private void checkPermissions(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String sourceFileUuid) {
+  private void checkPermissions(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey, @Nullable String sourceFileUuid) {
     if (testUuid != null) {
       UserSession.get().checkComponentUuidPermission(UserRole.CODEVIEWER, testIndex.searchByTestUuid(testUuid).fileUuid());
+    } else if (testFileKey != null) {
+      UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, testFileKey);
     } else {
       UserSession.get().checkComponentUuidPermission(UserRole.CODEVIEWER, firstNonNull(testFileUuid, sourceFileUuid));
     }
   }
 
-  private void checkArguments(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber) {
-    checkArgument(testUuid != null || testFileUuid != null || sourceFileUuid != null && sourceFileLineNumber != null,
-      "At least one of the following combination must be provided: test UUID; test file UUID; source file UUID and its line number.");
+  private void checkArguments(@Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey, @Nullable String sourceFileUuid,
+    @Nullable Integer sourceFileLineNumber) {
+    checkArgument(testUuid != null ^ testFileUuid != null ^ testFileKey != null ^ (sourceFileUuid != null && sourceFileLineNumber != null),
+      "One of the following combination must be provided: test UUID; test file UUID; test file key; source file UUID and its line number.");
   }
 }

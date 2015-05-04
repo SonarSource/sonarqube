@@ -86,5 +86,6 @@ public class IndexTestsStepTest extends BaseStepTest {
     TestDoc doc = new TestDoc(docs.get(0).sourceAsMap());
     assertThat(doc.projectUuid()).isEqualTo("ABCD");
     assertThat(doc.fileUuid()).isEqualTo("FILE1_UUID");
+    assertThat(doc.coveredFiles()).isNotEmpty();
   }
 }

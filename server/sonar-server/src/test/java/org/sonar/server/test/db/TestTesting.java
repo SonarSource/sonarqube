@@ -52,28 +52,6 @@ public class TestTesting {
     stmt.close();
   }
 
-  public static List<FileSourceDb.Test> newFakeTests(int numberOfTests) throws IOException {
-    List<FileSourceDb.Test> tests = new ArrayList<>();
-    for (int i = 1; i <= numberOfTests; i++) {
-      FileSourceDb.Test.Builder test = FileSourceDb.Test.newBuilder()
-        .setUuid("TEST_FILE_UUID_" + i)
-        .setName("NAME_" + i)
-        .setStatus(Constants.TestStatus.FAILURE)
-        .setStacktrace("STACKTRACE_" + i)
-        .setMsg("MESSAGE_" + i)
-        .setExecutionTimeMs(i);
-      for (int j = 1; j <= numberOfTests; j++) {
-        test.addCoveredFile(
-          FileSourceDb.Test.CoveredFile.newBuilder()
-            .setFileUuid("MAIN_FILE_UUID_" + j)
-            .addCoveredLine(j)
-        );
-      }
-      tests.add(test.build());
-    }
-    return tests;
-  }
-
   /**
    * Generate random data.
    */
@@ -93,7 +71,7 @@ public class TestTesting {
           FileSourceDb.Test.CoveredFile.newBuilder()
             .setFileUuid(Uuids.create())
             .addCoveredLine(RandomUtils.nextInt(500))
-        );
+          );
       }
       tests.add(test.build());
     }

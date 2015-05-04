@@ -20,14 +20,20 @@
 
 package org.sonar.server.test.index;
 
+import com.google.common.base.Function;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
@@ -36,6 +42,13 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestIndex extends BaseIndex {
+  private static final Function<Map<String, Object>, TestDoc> CONVERTER = new NonNullInputFunction<Map<String, Object>, TestDoc>() {
+    @Override
+    protected TestDoc doApply(Map<String, Object> fields) {
+      return new TestDoc(fields);
+    }
+  };
+
   public TestIndex(EsClient client) {
     super(client);
   }
@@ -54,37 +67,28 @@ public class TestIndex extends BaseIndex {
     return coveredFiles;
   }
 
-  public List<TestDoc> searchByTestFileUuid(String testFileUuid) {
-    List<TestDoc> testDocs = new ArrayList<>();
-
-    for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
+  public SearchResult<TestDoc> searchByTestFileUuid(String testFileUuid, SearchOptions searchOptions) {
+    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
-      .setSize(10_000)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid)))
-      .get().getHits().getHits()) {
-      testDocs.add(new TestDoc(hit.sourceAsMap()));
-    }
+      .setSize(searchOptions.getLimit())
+      .setFrom(searchOptions.getOffset())
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid)));
 
-    return testDocs;
+    return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
 
-  public List<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber) {
-    List<TestDoc> testDocs = new ArrayList<>();
-
-    for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
+  public SearchResult<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber, SearchOptions searchOptions) {
+    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
-      .setSize(10_000)
+      .setSize(searchOptions.getLimit())
+      .setFrom(searchOptions.getOffset())
       .setQuery(QueryBuilders.nestedQuery(FIELD_COVERED_FILES, FilterBuilders.boolFilter()
         .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid).cache(false))
-        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber).cache(false))))
-      .get().getHits().getHits()) {
-      testDocs.add(new TestDoc(hit.sourceAsMap()));
-    }
+        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber).cache(false))));
 
-    return testDocs;
+    return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
 
-  // TODO to test
   public TestDoc searchByTestUuid(String testUuid) {
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
@@ -95,5 +99,15 @@ public class TestIndex extends BaseIndex {
     }
 
     throw new IllegalStateException(String.format("Test uuid '%s' not found", testUuid));
+  }
+
+  public SearchResult<TestDoc> searchByTestUuid(String testUuid, SearchOptions searchOptions) {
+    SearchRequestBuilder searchRequest = getClient().prepareSearch(TestIndexDefinition.INDEX)
+      .setTypes(TestIndexDefinition.TYPE)
+      .setSize(searchOptions.getLimit())
+      .setFrom(searchOptions.getOffset())
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid).cache(false)));
+
+    return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
 }

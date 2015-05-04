@@ -26,6 +26,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollectionOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,28 +51,30 @@ public class TestsListActionTest {
   @Before
   public void setUp() throws Exception {
     dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
-    testIndex = mock(TestIndex.class);
+    testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
     ws = new WsTester(new TestsWs(new TestsListAction(dbClient, testIndex)));
   }
 
   @Test
   public void list_based_on_test_uuid() throws Exception {
     MockUserSession.set().addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "ABCD");
+
     when(dbClient.componentDao().getByUuids(any(DbSession.class), anyCollectionOf(String.class))).thenReturn(Arrays.asList(
       new ComponentDto()
         .setUuid(File1.FILE_UUID)
         .setLongName(File1.LONG_NAME)
         .setKey(File1.KEY)
       ));
-    when(testIndex.searchByTestUuid(File1.UUID)).thenReturn(new TestDoc()
+    TestDoc test = new TestDoc()
       .setUuid(File1.UUID)
       .setName(File1.NAME)
       .setFileUuid(File1.FILE_UUID)
       .setDurationInMs(File1.DURATION_IN_MS)
       .setStatus(File1.STATUS)
       .setMessage(File1.MESSAGE)
-      .setStackTrace(File1.STACKTRACE)
-      );
+      .setStackTrace(File1.STACKTRACE);
+    when(testIndex.searchByTestUuid(File1.UUID)).thenReturn(test);
+    when(testIndex.searchByTestUuid(eq(File1.UUID), any(SearchOptions.class)).getDocs()).thenReturn(Arrays.asList(test));
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_UUID, File1.UUID);
 
@@ -85,8 +89,8 @@ public class TestsListActionTest {
         .setUuid(File1.FILE_UUID)
         .setLongName(File1.LONG_NAME)
         .setKey(File1.KEY)
-      ));
-    when(testIndex.searchByTestFileUuid(File1.FILE_UUID)).thenReturn(
+    ));
+    when(testIndex.searchByTestFileUuid(eq(File1.FILE_UUID), any(SearchOptions.class)).getDocs()).thenReturn(
       Arrays.asList(
         new TestDoc()
           .setUuid(File1.UUID)
@@ -105,6 +109,34 @@ public class TestsListActionTest {
   }
 
   @Test
+  public void list_based_on_test_file_key() throws Exception {
+    MockUserSession.set().addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", File1.FILE_UUID);
+    when(dbClient.componentDao().getByKey(any(DbSession.class), eq("FILE-KEY"))).thenReturn(new ComponentDto().setUuid(File1.UUID));
+    when(dbClient.componentDao().getByUuids(any(DbSession.class), anyCollectionOf(String.class))).thenReturn(Arrays.asList(
+      new ComponentDto()
+        .setUuid(File1.FILE_UUID)
+        .setLongName(File1.LONG_NAME)
+        .setKey(File1.KEY)
+    ));
+    when(testIndex.searchByTestFileUuid(eq(File1.FILE_UUID), any(SearchOptions.class)).getDocs()).thenReturn(
+      Arrays.asList(
+        new TestDoc()
+          .setUuid(File1.UUID)
+          .setName(File1.NAME)
+          .setFileUuid(File1.FILE_UUID)
+          .setDurationInMs(File1.DURATION_IN_MS)
+          .setStatus(File1.STATUS)
+          .setMessage(File1.MESSAGE)
+          .setStackTrace(File1.STACKTRACE)
+      )
+    );
+
+    WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_KEY, "FILE-KEY");
+
+    request.execute().assertJson(getClass(), "list-test-uuid.json");
+  }
+
+  @Test
   public void list_based_on_main_file_and_line_number() throws Exception {
     String mainFileUuid = "MAIN-FILE-UUID";
     MockUserSession.set().addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", mainFileUuid);
@@ -118,7 +150,7 @@ public class TestsListActionTest {
         .setLongName(File2.LONG_NAME)
         .setKey(File2.KEY)
       ));
-    when(testIndex.searchBySourceFileUuidAndLineNumber(mainFileUuid, 10)).thenReturn(
+    when(testIndex.searchBySourceFileUuidAndLineNumber(eq(mainFileUuid), eq(10), any(SearchOptions.class)).getDocs()).thenReturn(
       Arrays.asList(
         new TestDoc()
           .setUuid(File1.UUID)
@@ -167,6 +199,12 @@ public class TestsListActionTest {
   public void fail_when_no_sufficent_privilege_on_test_uuid() throws Exception {
     MockUserSession.set().addComponentUuidPermission(UserRole.USER, "SonarQube", File1.FILE_UUID);
     ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_UUID, File1.FILE_UUID).execute();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_when_no_sufficent_privilege_on_file_key() throws Exception {
+    MockUserSession.set().addComponentUuidPermission(UserRole.USER, "SonarQube", "FILE-KEY");
+    ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_KEY, "FILE-KEY").execute();
   }
 
   @Test(expected = ForbiddenException.class)

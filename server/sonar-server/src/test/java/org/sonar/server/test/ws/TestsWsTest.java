@@ -60,7 +60,7 @@ public class TestsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(6);
   }
 
   @Test
@@ -71,6 +71,6 @@ public class TestsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(3);
   }
 }

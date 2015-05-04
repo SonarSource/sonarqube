@@ -58,7 +58,8 @@ public class TestsCoveredFilesAction implements TestAction {
       .setDescription("Get the list of source files covered by a test. Require Browse permission on test file's project")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-covered-files.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .addPagingParams(100);
 
     action
       .createParam(TEST_UUID)
