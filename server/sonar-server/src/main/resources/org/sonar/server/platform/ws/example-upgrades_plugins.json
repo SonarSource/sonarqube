@@ -11,7 +11,12 @@
           {
             "key": "views",
             "name": "Views",
+            "category": "Governance",
             "description": "Create aggregation trees to group projects. Projects can for instance be grouped by applications,   applications by team, teams by department.",
+            "license": "Commercial",
+            "organizationName": "SonarSource",
+            "organizationUrl": "http://www.sonarsource.com",
+            "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
             "version": "2.8"
           }
         ],
@@ -19,7 +24,11 @@
           {
             "key": "branding",
             "name": "Branding",
-            "description": "Allows to add your own logo to the SonarQube UI."
+            "category": "Integration",
+            "description": "Allows to add your own logo to the SonarQube UI.",
+            "license": "GNU LGPL 3",
+            "organizationName": "SonarSource",
+            "organizationUrl": "http://www.sonarsource.com"
           }
         ]
       }

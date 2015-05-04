@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -49,7 +50,7 @@ public class UpgradesSystemWsActionTest {
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
-  private UpgradesSystemWsAction underTest = new UpgradesSystemWsAction(updateCenterFactory);
+  private UpgradesSystemWsAction underTest = new UpgradesSystemWsAction(updateCenterFactory, new PluginWSCommons());
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
@@ -94,7 +95,7 @@ public class UpgradesSystemWsActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true)
-      .isSimilarTo(getClass().getResource("example-updates_plugins.json"));
+      .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
   }
 
   private static SonarUpdate createSonar_51_update() {
@@ -115,7 +116,7 @@ public class UpgradesSystemWsActionTest {
       .setHomepageUrl("http://redirect.sonarsource.com/plugins/views.html")
       .setLicense("Commercial")
       .setOrganization("SonarSource")
-      .setOrganizationUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
+      .setOrganizationUrl("http://www.sonarsource.com")
       .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/VIEWS");
 

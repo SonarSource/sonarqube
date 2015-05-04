@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
@@ -39,8 +40,8 @@ import com.google.common.io.Resources;
 public class UpgradesSystemWsAction implements SystemWsAction {
 
   private static final boolean DO_NOT_FORCE_REFRESH = false;
+
   private static final String ARRAY_UPGRADES = "upgrades";
-  private static final String PROPERTY_NAME = "name";
   private static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
   private static final String PROPERTY_VERSION = "version";
   private static final String PROPERTY_DESCRIPTION = "description";
@@ -49,13 +50,14 @@ public class UpgradesSystemWsAction implements SystemWsAction {
   private static final String PROPERTY_DOWNLOAD_URL = "downloadUrl";
   private static final String OBJECT_PLUGINS = "plugins";
   private static final String ARRAY_REQUIRE_UPDATE = "requireUpdate";
-  private static final String PROPERTY_KEY = "key";
   private static final String ARRAY_INCOMPATIBLE = "incompatible";
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
+  private final PluginWSCommons pluginWSCommons;
 
-  public UpgradesSystemWsAction(UpdateCenterMatrixFactory updateCenterFactory) {
+  public UpgradesSystemWsAction(UpdateCenterMatrixFactory updateCenterFactory, PluginWSCommons pluginWSCommons) {
     this.updateCenterFactory = updateCenterFactory;
+    this.pluginWSCommons = pluginWSCommons;
   }
 
   @Override
@@ -67,20 +69,26 @@ public class UpgradesSystemWsAction implements SystemWsAction {
         "Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed " +
         "is provided in the response.")
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-updates_plugins.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "example-upgrades_plugins.json"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     JsonWriter jsonWriter = response.newJsonWriter().setSerializeEmptys(false);
 
+    writeResponse(jsonWriter);
+
+    jsonWriter.close();
+  }
+
+  private void writeResponse(JsonWriter jsonWriter) {
     jsonWriter.beginObject();
+
     UpdateCenter updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
     writeUpgrades(jsonWriter, updateCenter);
     jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
-    jsonWriter.endObject();
 
-    jsonWriter.close();
+    jsonWriter.endObject();
   }
 
   private void writeUpgrades(JsonWriter jsonWriter, UpdateCenter updateCenter) {
@@ -126,8 +134,7 @@ public class UpgradesSystemWsAction implements SystemWsAction {
     for (Release release : pluginsToUpgrade) {
       jsonWriter.beginObject();
 
-      Plugin plugin = (Plugin) release.getArtifact();
-      writePlugin(jsonWriter, plugin);
+      pluginWSCommons.writeMetadata(jsonWriter, (Plugin) release.getArtifact());
       jsonWriter.prop(PROPERTY_VERSION, release.getVersion().toString());
 
       jsonWriter.endObject();
@@ -136,18 +143,14 @@ public class UpgradesSystemWsAction implements SystemWsAction {
     jsonWriter.endArray();
   }
 
-  private void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
-    jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
-    jsonWriter.prop(PROPERTY_NAME, plugin.getName());
-    jsonWriter.prop(PROPERTY_DESCRIPTION, plugin.getDescription());
-  }
-
   private void writeIncompatiblePlugins(JsonWriter jsonWriter, List<Plugin> incompatiblePlugins) {
     jsonWriter.name(ARRAY_INCOMPATIBLE).beginArray();
 
     for (Plugin incompatiblePlugin : incompatiblePlugins) {
       jsonWriter.beginObject();
-      writePlugin(jsonWriter, incompatiblePlugin);
+
+      pluginWSCommons.writeMetadata(jsonWriter, incompatiblePlugin);
+
       jsonWriter.endObject();
     }
 
