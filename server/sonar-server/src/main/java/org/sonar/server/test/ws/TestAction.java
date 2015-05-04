@@ -20,27 +20,8 @@
 
 package org.sonar.server.test.ws;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
-public class TestsWs implements WebService {
-
-  private final TestAction[] actions;
-
-  public TestsWs(TestAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/tests")
-      .setSince("4.4")
-      .setDescription("Tests management");
-
-    for (TestAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
-  }
-
+public interface TestAction extends WsAction {
+  // marker interface
 }

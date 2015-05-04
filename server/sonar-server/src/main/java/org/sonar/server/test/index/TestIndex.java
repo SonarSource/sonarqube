@@ -28,32 +28,33 @@ import org.sonar.server.es.EsClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static org.sonar.server.test.index.TestIndexDefinition.*;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestIndex extends BaseIndex {
   public TestIndex(EsClient client) {
     super(client);
   }
 
-  public List<Map<String, Object>> coveredLines(String testFileUuid, String methodName) {
-    List<Map<String, Object>> coverageBlocks = new ArrayList<>();
+  public List<CoveredFileDoc> coveredFiles(String testUuid) {
+    List<CoveredFileDoc> coveredFiles = new ArrayList<>();
 
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(1)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid).cache(false))
-        .must(FilterBuilders.termFilter(TestIndexDefinition.FIELD_NAME, methodName).cache(false))))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid).cache(false)))
       .get().getHits().getHits()) {
-      coverageBlocks.addAll(new TestDoc(hit.sourceAsMap()).coverageBlocks());
+      coveredFiles.addAll(new TestDoc(hit.sourceAsMap()).coveredFiles());
     }
 
-    return coverageBlocks;
+    return coveredFiles;
   }
 
-  public List<TestDoc> testMethods(String testFileUuid) {
+  public List<TestDoc> searchByTestFileUuid(String testFileUuid) {
     List<TestDoc> testDocs = new ArrayList<>();
 
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
@@ -67,19 +68,32 @@ public class TestIndex extends BaseIndex {
     return testDocs;
   }
 
-  public List<TestDoc> testsCovering(String mainFileUuid, int line) {
+  public List<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber) {
     List<TestDoc> testDocs = new ArrayList<>();
 
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(10_000)
-      .setQuery(QueryBuilders.nestedQuery(FIELD_COVERAGE_BLOCKS, FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(FIELD_COVERAGE_BLOCKS + "." + FIELD_COVERAGE_BLOCK_UUID, mainFileUuid).cache(false))
-        .must(FilterBuilders.termFilter(FIELD_COVERAGE_BLOCKS + "." + FIELD_COVERAGE_BLOCK_LINES, line).cache(false))))
+      .setQuery(QueryBuilders.nestedQuery(FIELD_COVERED_FILES, FilterBuilders.boolFilter()
+        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid).cache(false))
+        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber).cache(false))))
       .get().getHits().getHits()) {
       testDocs.add(new TestDoc(hit.sourceAsMap()));
     }
 
     return testDocs;
+  }
+
+  // TODO to test
+  public TestDoc searchByTestUuid(String testUuid) {
+    for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
+      .setTypes(TestIndexDefinition.TYPE)
+      .setSize(1)
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid).cache(false)))
+      .get().getHits().getHits()) {
+      return new TestDoc(hit.sourceAsMap());
+    }
+
+    throw new IllegalStateException(String.format("Test uuid '%s' not found", testUuid));
   }
 }

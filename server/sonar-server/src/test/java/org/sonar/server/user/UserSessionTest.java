@@ -31,7 +31,6 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -209,6 +208,34 @@ public class UserSessionTest {
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
 
     session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+  }
+
+  @Test
+  public void check_component_uuid_permission_ok() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao,resourceDao).setUserId(1);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
+    when(resourceDao.getResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
+    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
+
+    session.checkComponentUuidPermission(UserRole.USER, file.uuid());
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void check_component_uuid_permission_ko() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao,resourceDao).setUserId(1);
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
+    when(resourceDao.getResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
+    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
+
+    session.checkComponentUuidPermission(UserRole.USER, "another-uuid");
   }
 
   @Test(expected = ForbiddenException.class)

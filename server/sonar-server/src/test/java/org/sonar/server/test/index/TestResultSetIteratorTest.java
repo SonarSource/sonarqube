@@ -130,7 +130,7 @@ public class TestResultSetIteratorTest {
       TestIndexDefinition.FIELD_STACKTRACE,
       TestIndexDefinition.FIELD_MESSAGE,
       TestIndexDefinition.FIELD_STATUS,
-      TestIndexDefinition.FIELD_COVERAGE_BLOCKS
+      TestIndexDefinition.FIELD_COVERED_FILES
       );
   }
 

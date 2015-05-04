@@ -26,7 +26,8 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,62 +43,57 @@ public class TestIndexTest {
   }
 
   @Test
-  public void lines_covered_a_test_method() throws Exception {
+  public void coveredFiles() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<Map<String, Object>> result = sut.coveredLines("uuid-1", "name-1");
+    List<CoveredFileDoc> result = sut.coveredFiles("uuid-1");
 
     assertThat(result).hasSize(3);
-    assertThat(result.get(0).get("uuid")).isEqualTo("main-uuid-3");
-    assertThat((List<Integer>)result.get(0).get("lines")).containsOnly(25, 33, 82);
+    assertThat(result).extractingResultOf("fileUuid").containsOnly("main-uuid-3", "main-uuid-4", "main-uuid-5");
+    assertThat(result.get(0).coveredLines()).containsOnly(25, 33, 82);
   }
 
   @Test
-  public void test_methods() throws Exception {
+  public void searchByTestFileUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = sut.testMethods("uuid-1");
+    List<TestDoc> result = sut.searchByTestFileUuid("file-uuid-1");
 
     assertThat(result).hasSize(2);
   }
 
   @Test
-  public void test_covering() throws Exception {
-    List<Map<String, Object>> coverageBlocks = new ArrayList<>();
-    coverageBlocks.add(newCoverageBlock("1"));
-    coverageBlocks.add(newCoverageBlock("2"));
-    coverageBlocks.add(newCoverageBlock("3"));
-
+  public void searchBySourceFileUuidAndLineNumber() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", newCoverageBlock("10"), newCoverageBlock("11"), newCoverageBlock("12")),
+      newTestDoc("2", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("3", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = sut.testsCovering("main-uuid-5", 82);
+    List<TestDoc> result = sut.searchBySourceFileUuidAndLineNumber("main-uuid-5", 82);
 
     assertThat(result).hasSize(2);
-    assertThat(result.get(0).name()).isEqualTo("name-1");
-    assertThat(result.get(0).coverageBlocks().get(0).get("uuid")).isEqualTo("main-uuid-3");
+    assertThat(result).extractingResultOf("name").containsOnly("name-2", "name-3");
   }
 
-  private Map<String, Object> newCoverageBlock(String id) {
-    Map<String, Object> coverageBlock = new HashMap<>();
-    coverageBlock.put("key", "project:file-" + id);
-    coverageBlock.put("uuid", "main-uuid-" + id);
-    coverageBlock.put("lines", Arrays.asList(25, 33, 82));
-    return coverageBlock;
+  private CoveredFileDoc newCoverageBlock(String id) {
+    return new CoveredFileDoc()
+      .setFileUuid("main-uuid-" + id)
+      .setCoveredLines(Arrays.asList(25, 33, 82));
   }
 
-  private TestDoc newTestDoc(String id, Map<String, Object>... coverageBlocks) {
+  private TestDoc newTestDoc(String id, CoveredFileDoc... coveredFiles) {
     return new TestDoc()
+      .setUuid("uuid-" + id)
       .setName("name-" + id)
       .setMessage("message-" + id)
       .setStackTrace("stacktrace-" + id)
       .setStatus("status-" + id)
-      .setFileUuid("uuid-" + id)
-      .setCoverageBlocks(Arrays.asList(coverageBlocks));
+      .setFileUuid("file-uuid-" + id)
+      .setProjectUuid("project-uuid-" + id)
+      .setCoveredFiles(Arrays.asList(coveredFiles));
   }
 }

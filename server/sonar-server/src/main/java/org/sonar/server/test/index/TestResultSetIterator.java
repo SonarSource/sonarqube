@@ -89,12 +89,12 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       writer.prop(FIELD_DURATION_IN_MS, test.hasExecutionTimeMs() ? test.getExecutionTimeMs() : null);
       writer.prop(FIELD_MESSAGE, test.hasMsg() ? test.getMsg() : null);
       writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
-      writer.name(FIELD_COVERAGE_BLOCKS);
+      writer.name(FIELD_COVERED_FILES);
       writer.beginArray();
       for (FileSourceDb.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
         writer.beginObject();
-        writer.prop(FIELD_COVERAGE_BLOCK_UUID, coveredFile.getFileUuid());
-        writer.name(FIELD_COVERAGE_BLOCK_LINES).valueObject(coveredFile.getCoveredLineList());
+        writer.prop(FIELD_COVERED_FILE_UUID, coveredFile.getFileUuid());
+        writer.name(FIELD_COVERED_FILE_LINES).valueObject(coveredFile.getCoveredLineList());
         writer.endObject();
       }
       writer.endArray();
