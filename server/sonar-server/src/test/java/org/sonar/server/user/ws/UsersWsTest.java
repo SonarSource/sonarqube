@@ -42,7 +42,9 @@ public class UsersWsTest {
       new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class)),
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class)),
       new CurrentUserAction(),
-      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class))));
+      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class)),
+      new ChangePasswordAction(mock(UserUpdater.class)),
+      new CurrentUserAction()));
     controller = tester.controller("api/users");
   }
 
@@ -51,7 +53,7 @@ public class UsersWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(7);
   }
 
   @Test
@@ -78,6 +80,14 @@ public class UsersWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.params()).hasSize(4);
+  }
+
+  @Test
+  public void define_change_password_action() throws Exception {
+    WebService.Action action = controller.action("change_password");
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test

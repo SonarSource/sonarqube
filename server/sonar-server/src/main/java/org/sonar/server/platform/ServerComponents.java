@@ -759,6 +759,7 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.user.ws.CreateAction.class);
     pico.addSingleton(org.sonar.server.user.ws.UpdateAction.class);
     pico.addSingleton(org.sonar.server.user.ws.DeactivateAction.class);
+    pico.addSingleton(org.sonar.server.user.ws.ChangePasswordAction.class);
     pico.addSingleton(org.sonar.server.user.ws.CurrentUserAction.class);
     pico.addSingleton(org.sonar.server.user.ws.SearchAction.class);
     pico.addSingleton(org.sonar.server.issue.ws.AuthorsAction.class);
