@@ -103,7 +103,7 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(true, STATUS_NONE, UPTODATE_MSG));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NONE, UPTODATE_MSG));
   }
 
   // this test will raise a IllegalArgumentException when an unsupported value is added to the Status enum
@@ -118,27 +118,27 @@ public class MigrateDbSystemWsActionTest {
   }
 
   @Test
-  public void msg_is_operational_and_state_from_databasemigration_when_databaseversion_greater_than_currentversion() throws Exception {
+  public void state_from_databasemigration_when_databaseversion_greater_than_currentversion() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(NEWER_VERSION);
     when(databaseMigration.status()).thenReturn(NONE);
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(true, STATUS_NONE, UPTODATE_MSG));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NONE, UPTODATE_MSG));
   }
 
   @Test
-  public void msg_is_not_operational_and_state_is_NONE_with_specific_msg_when_version_is_less_than_current_version_and_dialect_does_not_support_migration() throws Exception {
+  public void state_is_NONE_with_specific_msg_when_version_is_less_than_current_version_and_dialect_does_not_support_migration() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(false);
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_NOT_SUPPORTED, MIG_NOT_SUPPORTED_MSG));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NOT_SUPPORTED, MIG_NOT_SUPPORTED_MSG));
   }
 
   @Test
-  public void msg_is_not_operational_and_state_from_databasemigration_when_dbmigration_status_is_RUNNING() throws Exception {
+  public void state_from_databasemigration_when_dbmigration_status_is_RUNNING() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(RUNNING);
@@ -146,11 +146,11 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_RUNNING, RUNNING_MSG, SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_RUNNING, RUNNING_MSG, SOME_DATE));
   }
 
   @Test
-  public void msg_is_not_operational_and_state_from_databasemigration_and_msg_includes_error_when_dbmigration_status_is_FAILED() throws Exception {
+  public void state_from_databasemigration_and_msg_includes_error_when_dbmigration_status_is_FAILED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(FAILED);
@@ -159,11 +159,11 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_FAILED, failedMsg(SOME_THROWABLE_MSG), SOME_DATE));
   }
 
   @Test
-  public void msg_is_not_operational_and_state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED() throws Exception {
+  public void state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(FAILED);
@@ -172,11 +172,11 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_FAILED, failedMsg(DEFAULT_ERROR_MSG), SOME_DATE));
   }
 
   @Test
-  public void msg_is_operational_and_state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED() throws Exception {
+  public void state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_SUCCEEDED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(SUCCEEDED);
@@ -184,11 +184,11 @@ public class MigrateDbSystemWsActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(true, STATUS_SUCCEEDED, MIG_SUCCESS_MSG, SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_SUCCEEDED, MIG_SUCCESS_MSG, SOME_DATE));
   }
 
   @Test
-  public void start_migration_and_return_msg_is_not_operational_and_state_from_databasemigration_when_dbmigration_status_is_NONE() throws Exception {
+  public void start_migration_and_return_state_from_databasemigration_when_dbmigration_status_is_NONE() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(NONE);
@@ -197,24 +197,22 @@ public class MigrateDbSystemWsActionTest {
     underTest.handle(request, response);
 
     verify(databaseMigration).startIt();
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(false, STATUS_RUNNING, RUNNING_MSG, SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_RUNNING, RUNNING_MSG, SOME_DATE));
   }
 
   private static String failedMsg(@Nullable String t) {
     return "Migration failed: " + t + ".<br/> Please check logs.";
   }
 
-  private static String expectedResponse(boolean operational, String status, String msg) {
+  private static String expectedResponse(String status, String msg) {
     return "{" +
-      "\"operational\":" + operational + "," +
       "\"state\":\"" + status + "\"," +
       "\"message\":\"" + msg + "\"" +
       "}";
   }
 
-  private static String expectedResponse(boolean operational, String status, String msg, Date date) {
+  private static String expectedResponse(String status, String msg, Date date) {
     return "{" +
-      "\"operational\":" + operational + "," +
       "\"state\":\"" + status + "\"," +
       "\"message\":\"" + msg + "\"," +
       "\"startedAt\":\"" + DateUtils.formatDateTime(date) + "\"" +

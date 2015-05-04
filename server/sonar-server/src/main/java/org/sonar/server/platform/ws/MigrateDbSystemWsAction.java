@@ -28,9 +28,7 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.NONE;
 import static org.sonar.server.db.migrations.DatabaseMigration.Status.RUNNING;
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.SUCCEEDED;
 
 /**
  * Implementation of the {@code migrate_db} action for the System WebService.
@@ -43,11 +41,15 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
   private static final String MESSAGE_STATUS_FAILED = "Migration failed: %s.<br/> Please check logs.";
 
-  private static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
   private static final String STATUS_NO_MIGRATION = "NO_MIGRATION";
+  private static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
   private static final String STATUS_MIGRATION_RUNNING = "MIGRATION_RUNNING";
   private static final String STATUS_MIGRATION_FAILED = "MIGRATION_FAILED";
   private static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
+
+  private static final String PROPERTY_STATE = "state";
+  private static final String PROPERTY_MESSAGE = "message";
+  private static final String PROPERTY_STARTED_AT = "startedAt";
 
   private final DatabaseVersion databaseVersion;
   private final DatabaseMigration databaseMigration;
@@ -115,9 +117,8 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private void writeNotSupportedResponse(Response response) {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
-      .prop("operational", false)
-      .prop("state", STATUS_NOT_SUPPORTED)
-      .prop("message", "Upgrade is not supported on embedded database.")
+      .prop(PROPERTY_STATE, STATUS_NOT_SUPPORTED)
+      .prop(PROPERTY_MESSAGE, "Upgrade is not supported on embedded database.")
       .endObject();
     jsonWriter.close();
   }
@@ -125,10 +126,9 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private void writeNoneResponse(Response response, DatabaseMigration databaseMigration) {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
-        .prop("operational", false)
-        .prop("state", statusToJson(RUNNING))
-        .prop("message", MESSAGE_STATUS_RUNNING)
-        .propDateTime("startedAt", databaseMigration.startedAt())
+        .prop(PROPERTY_STATE, statusToJson(RUNNING))
+        .prop(PROPERTY_MESSAGE, MESSAGE_STATUS_RUNNING)
+        .propDateTime(PROPERTY_STARTED_AT, databaseMigration.startedAt())
         .endObject();
     jsonWriter.close();
   }
@@ -136,10 +136,9 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
   private void writeResponse(Response response, DatabaseMigration databaseMigration) {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
-      .prop("operational", isOperational(databaseMigration))
-      .prop("state", statusToJson(databaseMigration.status()))
-      .prop("message", buildMessage(databaseMigration))
-      .propDateTime("startedAt", databaseMigration.startedAt())
+      .prop(PROPERTY_STATE, statusToJson(databaseMigration.status()))
+      .prop(PROPERTY_MESSAGE, buildMessage(databaseMigration))
+      .propDateTime(PROPERTY_STARTED_AT, databaseMigration.startedAt())
       .endObject();
     jsonWriter.close();
   }
@@ -158,10 +157,6 @@ public class MigrateDbSystemWsAction implements SystemWsAction {
         throw new IllegalArgumentException(
           "Unsupported DatabaseMigration.Status " + status + " can not be converted to JSON value");
     }
-  }
-
-  private static boolean isOperational(DatabaseMigration databaseMigration) {
-    return databaseMigration.status() == NONE || databaseMigration.status() == SUCCEEDED;
   }
 
   private static String buildMessage(DatabaseMigration databaseMigration) {
