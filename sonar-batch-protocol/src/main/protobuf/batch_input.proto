@@ -55,3 +55,7 @@ message ServerIssue {
     optional int64 creation_date = 14;
 }
 
+message User {
+    optional string login = 1;
+    optional string name = 2;
+}

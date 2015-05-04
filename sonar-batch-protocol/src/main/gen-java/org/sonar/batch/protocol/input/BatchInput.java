@@ -219,6 +219,7 @@ public final class BatchInput {
       return defaultInstance;
     }
 
+    @Override
     public ServerIssue getDefaultInstanceForType() {
       return defaultInstance;
     }
@@ -345,6 +346,7 @@ public final class BatchInput {
       return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_descriptor;
     }
 
+    @Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_fieldAccessorTable
@@ -374,12 +376,14 @@ public final class BatchInput {
     /**
      * <code>optional string key = 1;</code>
      */
+    @Override
     public boolean hasKey() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
      * <code>optional string key = 1;</code>
      */
+    @Override
     public java.lang.String getKey() {
       java.lang.Object ref = key_;
       if (ref instanceof java.lang.String) {
@@ -397,6 +401,7 @@ public final class BatchInput {
     /**
      * <code>optional string key = 1;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getKeyBytes() {
       java.lang.Object ref = key_;
@@ -417,12 +422,14 @@ public final class BatchInput {
     /**
      * <code>optional string module_key = 2;</code>
      */
+    @Override
     public boolean hasModuleKey() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional string module_key = 2;</code>
      */
+    @Override
     public java.lang.String getModuleKey() {
       java.lang.Object ref = moduleKey_;
       if (ref instanceof java.lang.String) {
@@ -440,6 +447,7 @@ public final class BatchInput {
     /**
      * <code>optional string module_key = 2;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getModuleKeyBytes() {
       java.lang.Object ref = moduleKey_;
@@ -460,12 +468,14 @@ public final class BatchInput {
     /**
      * <code>optional string path = 3;</code>
      */
+    @Override
     public boolean hasPath() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional string path = 3;</code>
      */
+    @Override
     public java.lang.String getPath() {
       java.lang.Object ref = path_;
       if (ref instanceof java.lang.String) {
@@ -483,6 +493,7 @@ public final class BatchInput {
     /**
      * <code>optional string path = 3;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getPathBytes() {
       java.lang.Object ref = path_;
@@ -503,12 +514,14 @@ public final class BatchInput {
     /**
      * <code>optional string rule_repository = 4;</code>
      */
+    @Override
     public boolean hasRuleRepository() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional string rule_repository = 4;</code>
      */
+    @Override
     public java.lang.String getRuleRepository() {
       java.lang.Object ref = ruleRepository_;
       if (ref instanceof java.lang.String) {
@@ -526,6 +539,7 @@ public final class BatchInput {
     /**
      * <code>optional string rule_repository = 4;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getRuleRepositoryBytes() {
       java.lang.Object ref = ruleRepository_;
@@ -546,12 +560,14 @@ public final class BatchInput {
     /**
      * <code>optional string rule_key = 5;</code>
      */
+    @Override
     public boolean hasRuleKey() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional string rule_key = 5;</code>
      */
+    @Override
     public java.lang.String getRuleKey() {
       java.lang.Object ref = ruleKey_;
       if (ref instanceof java.lang.String) {
@@ -569,6 +585,7 @@ public final class BatchInput {
     /**
      * <code>optional string rule_key = 5;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getRuleKeyBytes() {
       java.lang.Object ref = ruleKey_;
@@ -589,12 +606,14 @@ public final class BatchInput {
     /**
      * <code>optional int32 line = 6;</code>
      */
+    @Override
     public boolean hasLine() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional int32 line = 6;</code>
      */
+    @Override
     public int getLine() {
       return line_;
     }
@@ -605,12 +624,14 @@ public final class BatchInput {
     /**
      * <code>optional string msg = 7;</code>
      */
+    @Override
     public boolean hasMsg() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional string msg = 7;</code>
      */
+    @Override
     public java.lang.String getMsg() {
       java.lang.Object ref = msg_;
       if (ref instanceof java.lang.String) {
@@ -628,6 +649,7 @@ public final class BatchInput {
     /**
      * <code>optional string msg = 7;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getMsgBytes() {
       java.lang.Object ref = msg_;
@@ -648,12 +670,14 @@ public final class BatchInput {
     /**
      * <code>optional .Severity severity = 8;</code>
      */
+    @Override
     public boolean hasSeverity() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <code>optional .Severity severity = 8;</code>
      */
+    @Override
     public org.sonar.batch.protocol.Constants.Severity getSeverity() {
       return severity_;
     }
@@ -664,12 +688,14 @@ public final class BatchInput {
     /**
      * <code>optional bool manual_severity = 9;</code>
      */
+    @Override
     public boolean hasManualSeverity() {
       return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>optional bool manual_severity = 9;</code>
      */
+    @Override
     public boolean getManualSeverity() {
       return manualSeverity_;
     }
@@ -680,12 +706,14 @@ public final class BatchInput {
     /**
      * <code>optional string resolution = 10;</code>
      */
+    @Override
     public boolean hasResolution() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional string resolution = 10;</code>
      */
+    @Override
     public java.lang.String getResolution() {
       java.lang.Object ref = resolution_;
       if (ref instanceof java.lang.String) {
@@ -703,6 +731,7 @@ public final class BatchInput {
     /**
      * <code>optional string resolution = 10;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getResolutionBytes() {
       java.lang.Object ref = resolution_;
@@ -723,12 +752,14 @@ public final class BatchInput {
     /**
      * <code>optional string status = 11;</code>
      */
+    @Override
     public boolean hasStatus() {
       return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional string status = 11;</code>
      */
+    @Override
     public java.lang.String getStatus() {
       java.lang.Object ref = status_;
       if (ref instanceof java.lang.String) {
@@ -746,6 +777,7 @@ public final class BatchInput {
     /**
      * <code>optional string status = 11;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getStatusBytes() {
       java.lang.Object ref = status_;
@@ -766,12 +798,14 @@ public final class BatchInput {
     /**
      * <code>optional string checksum = 12;</code>
      */
+    @Override
     public boolean hasChecksum() {
       return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
      * <code>optional string checksum = 12;</code>
      */
+    @Override
     public java.lang.String getChecksum() {
       java.lang.Object ref = checksum_;
       if (ref instanceof java.lang.String) {
@@ -789,6 +823,7 @@ public final class BatchInput {
     /**
      * <code>optional string checksum = 12;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getChecksumBytes() {
       java.lang.Object ref = checksum_;
@@ -809,12 +844,14 @@ public final class BatchInput {
     /**
      * <code>optional string assignee_login = 13;</code>
      */
+    @Override
     public boolean hasAssigneeLogin() {
       return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
      * <code>optional string assignee_login = 13;</code>
      */
+    @Override
     public java.lang.String getAssigneeLogin() {
       java.lang.Object ref = assigneeLogin_;
       if (ref instanceof java.lang.String) {
@@ -832,6 +869,7 @@ public final class BatchInput {
     /**
      * <code>optional string assignee_login = 13;</code>
      */
+    @Override
     public com.google.protobuf.ByteString
         getAssigneeLoginBytes() {
       java.lang.Object ref = assigneeLogin_;
@@ -852,12 +890,14 @@ public final class BatchInput {
     /**
      * <code>optional int64 creation_date = 14;</code>
      */
+    @Override
     public boolean hasCreationDate() {
       return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
      * <code>optional int64 creation_date = 14;</code>
      */
+    @Override
     public long getCreationDate() {
       return creationDate_;
     }
@@ -879,6 +919,7 @@ public final class BatchInput {
       creationDate_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
+    @Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
@@ -887,6 +928,7 @@ public final class BatchInput {
       return true;
     }
 
+    @Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
@@ -936,6 +978,7 @@ public final class BatchInput {
     }
 
     private int memoizedSerializedSize = -1;
+    @Override
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
@@ -1063,10 +1106,12 @@ public final class BatchInput {
     }
 
     public static Builder newBuilder() { return Builder.create(); }
+    @Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder(org.sonar.batch.protocol.input.BatchInput.ServerIssue prototype) {
       return newBuilder().mergeFrom(prototype);
     }
+    @Override
     public Builder toBuilder() { return newBuilder(this); }
 
     @java.lang.Override
@@ -1086,6 +1131,7 @@ public final class BatchInput {
         return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_descriptor;
       }
 
+      @Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_fieldAccessorTable
@@ -1111,6 +1157,7 @@ public final class BatchInput {
         return new Builder();
       }
 
+      @Override
       public Builder clear() {
         super.clear();
         key_ = "";
@@ -1144,19 +1191,23 @@ public final class BatchInput {
         return this;
       }
 
+      @Override
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
 
+      @Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return org.sonar.batch.protocol.input.BatchInput.internal_static_ServerIssue_descriptor;
       }
 
+      @Override
       public org.sonar.batch.protocol.input.BatchInput.ServerIssue getDefaultInstanceForType() {
         return org.sonar.batch.protocol.input.BatchInput.ServerIssue.getDefaultInstance();
       }
 
+      @Override
       public org.sonar.batch.protocol.input.BatchInput.ServerIssue build() {
         org.sonar.batch.protocol.input.BatchInput.ServerIssue result = buildPartial();
         if (!result.isInitialized()) {
@@ -1165,6 +1216,7 @@ public final class BatchInput {
         return result;
       }
 
+      @Override
       public org.sonar.batch.protocol.input.BatchInput.ServerIssue buildPartial() {
         org.sonar.batch.protocol.input.BatchInput.ServerIssue result = new org.sonar.batch.protocol.input.BatchInput.ServerIssue(this);
         int from_bitField0_ = bitField0_;
@@ -1230,6 +1282,7 @@ public final class BatchInput {
         return result;
       }
 
+      @Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof org.sonar.batch.protocol.input.BatchInput.ServerIssue) {
           return mergeFrom((org.sonar.batch.protocol.input.BatchInput.ServerIssue)other);
@@ -1307,10 +1360,12 @@ public final class BatchInput {
         return this;
       }
 
+      @Override
       public final boolean isInitialized() {
         return true;
       }
 
+      @Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1335,12 +1390,14 @@ public final class BatchInput {
       /**
        * <code>optional string key = 1;</code>
        */
+      @Override
       public boolean hasKey() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
        * <code>optional string key = 1;</code>
        */
+      @Override
       public java.lang.String getKey() {
         java.lang.Object ref = key_;
         if (!(ref instanceof java.lang.String)) {
@@ -1355,6 +1412,7 @@ public final class BatchInput {
       /**
        * <code>optional string key = 1;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getKeyBytes() {
         java.lang.Object ref = key_;
@@ -1409,12 +1467,14 @@ public final class BatchInput {
       /**
        * <code>optional string module_key = 2;</code>
        */
+      @Override
       public boolean hasModuleKey() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional string module_key = 2;</code>
        */
+      @Override
       public java.lang.String getModuleKey() {
         java.lang.Object ref = moduleKey_;
         if (!(ref instanceof java.lang.String)) {
@@ -1429,6 +1489,7 @@ public final class BatchInput {
       /**
        * <code>optional string module_key = 2;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getModuleKeyBytes() {
         java.lang.Object ref = moduleKey_;
@@ -1483,12 +1544,14 @@ public final class BatchInput {
       /**
        * <code>optional string path = 3;</code>
        */
+      @Override
       public boolean hasPath() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional string path = 3;</code>
        */
+      @Override
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
         if (!(ref instanceof java.lang.String)) {
@@ -1503,6 +1566,7 @@ public final class BatchInput {
       /**
        * <code>optional string path = 3;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getPathBytes() {
         java.lang.Object ref = path_;
@@ -1557,12 +1621,14 @@ public final class BatchInput {
       /**
        * <code>optional string rule_repository = 4;</code>
        */
+      @Override
       public boolean hasRuleRepository() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional string rule_repository = 4;</code>
        */
+      @Override
       public java.lang.String getRuleRepository() {
         java.lang.Object ref = ruleRepository_;
         if (!(ref instanceof java.lang.String)) {
@@ -1577,6 +1643,7 @@ public final class BatchInput {
       /**
        * <code>optional string rule_repository = 4;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getRuleRepositoryBytes() {
         java.lang.Object ref = ruleRepository_;
@@ -1631,12 +1698,14 @@ public final class BatchInput {
       /**
        * <code>optional string rule_key = 5;</code>
        */
+      @Override
       public boolean hasRuleKey() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional string rule_key = 5;</code>
        */
+      @Override
       public java.lang.String getRuleKey() {
         java.lang.Object ref = ruleKey_;
         if (!(ref instanceof java.lang.String)) {
@@ -1651,6 +1720,7 @@ public final class BatchInput {
       /**
        * <code>optional string rule_key = 5;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getRuleKeyBytes() {
         java.lang.Object ref = ruleKey_;
@@ -1705,12 +1775,14 @@ public final class BatchInput {
       /**
        * <code>optional int32 line = 6;</code>
        */
+      @Override
       public boolean hasLine() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional int32 line = 6;</code>
        */
+      @Override
       public int getLine() {
         return line_;
       }
@@ -1738,12 +1810,14 @@ public final class BatchInput {
       /**
        * <code>optional string msg = 7;</code>
        */
+      @Override
       public boolean hasMsg() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional string msg = 7;</code>
        */
+      @Override
       public java.lang.String getMsg() {
         java.lang.Object ref = msg_;
         if (!(ref instanceof java.lang.String)) {
@@ -1758,6 +1832,7 @@ public final class BatchInput {
       /**
        * <code>optional string msg = 7;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getMsgBytes() {
         java.lang.Object ref = msg_;
@@ -1812,12 +1887,14 @@ public final class BatchInput {
       /**
        * <code>optional .Severity severity = 8;</code>
        */
+      @Override
       public boolean hasSeverity() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>optional .Severity severity = 8;</code>
        */
+      @Override
       public org.sonar.batch.protocol.Constants.Severity getSeverity() {
         return severity_;
       }
@@ -1848,12 +1925,14 @@ public final class BatchInput {
       /**
        * <code>optional bool manual_severity = 9;</code>
        */
+      @Override
       public boolean hasManualSeverity() {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional bool manual_severity = 9;</code>
        */
+      @Override
       public boolean getManualSeverity() {
         return manualSeverity_;
       }
@@ -1881,12 +1960,14 @@ public final class BatchInput {
       /**
        * <code>optional string resolution = 10;</code>
        */
+      @Override
       public boolean hasResolution() {
         return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional string resolution = 10;</code>
        */
+      @Override
       public java.lang.String getResolution() {
         java.lang.Object ref = resolution_;
         if (!(ref instanceof java.lang.String)) {
@@ -1901,6 +1982,7 @@ public final class BatchInput {
       /**
        * <code>optional string resolution = 10;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getResolutionBytes() {
         java.lang.Object ref = resolution_;
@@ -1955,12 +2037,14 @@ public final class BatchInput {
       /**
        * <code>optional string status = 11;</code>
        */
+      @Override
       public boolean hasStatus() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional string status = 11;</code>
        */
+      @Override
       public java.lang.String getStatus() {
         java.lang.Object ref = status_;
         if (!(ref instanceof java.lang.String)) {
@@ -1975,6 +2059,7 @@ public final class BatchInput {
       /**
        * <code>optional string status = 11;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getStatusBytes() {
         java.lang.Object ref = status_;
@@ -2029,12 +2114,14 @@ public final class BatchInput {
       /**
        * <code>optional string checksum = 12;</code>
        */
+      @Override
       public boolean hasChecksum() {
         return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional string checksum = 12;</code>
        */
+      @Override
       public java.lang.String getChecksum() {
         java.lang.Object ref = checksum_;
         if (!(ref instanceof java.lang.String)) {
@@ -2049,6 +2136,7 @@ public final class BatchInput {
       /**
        * <code>optional string checksum = 12;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getChecksumBytes() {
         java.lang.Object ref = checksum_;
@@ -2103,12 +2191,14 @@ public final class BatchInput {
       /**
        * <code>optional string assignee_login = 13;</code>
        */
+      @Override
       public boolean hasAssigneeLogin() {
         return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
        * <code>optional string assignee_login = 13;</code>
        */
+      @Override
       public java.lang.String getAssigneeLogin() {
         java.lang.Object ref = assigneeLogin_;
         if (!(ref instanceof java.lang.String)) {
@@ -2123,6 +2213,7 @@ public final class BatchInput {
       /**
        * <code>optional string assignee_login = 13;</code>
        */
+      @Override
       public com.google.protobuf.ByteString
           getAssigneeLoginBytes() {
         java.lang.Object ref = assigneeLogin_;
@@ -2177,12 +2268,14 @@ public final class BatchInput {
       /**
        * <code>optional int64 creation_date = 14;</code>
        */
+      @Override
       public boolean hasCreationDate() {
         return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
        * <code>optional int64 creation_date = 14;</code>
        */
+      @Override
       public long getCreationDate() {
         return creationDate_;
       }
@@ -2216,11 +2309,681 @@ public final class BatchInput {
     // @@protoc_insertion_point(class_scope:ServerIssue)
   }
 
+<<<<<<< HEAD
   private static com.google.protobuf.Descriptors.Descriptor
+=======
+  public interface UserOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:User)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    boolean hasLogin();
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    java.lang.String getLogin();
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getLoginBytes();
+
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+  }
+  /**
+   * Protobuf type {@code User}
+   */
+  public static final class User extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:User)
+      UserOrBuilder {
+    // Use User.newBuilder() to construct.
+    private User(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private User(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final User defaultInstance;
+    public static User getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    @Override
+    public User getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private User(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              login_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              name_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.batch.protocol.input.BatchInput.internal_static_User_descriptor;
+    }
+
+    @Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.batch.protocol.input.BatchInput.internal_static_User_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.batch.protocol.input.BatchInput.User.class, org.sonar.batch.protocol.input.BatchInput.User.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<User> PARSER =
+        new com.google.protobuf.AbstractParser<User>() {
+      public User parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new User(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<User> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int LOGIN_FIELD_NUMBER = 1;
+    private java.lang.Object login_;
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    @Override
+    public boolean hasLogin() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    @Override
+    public java.lang.String getLogin() {
+      java.lang.Object ref = login_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          login_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string login = 1;</code>
+     */
+    @Override
+    public com.google.protobuf.ByteString
+        getLoginBytes() {
+      java.lang.Object ref = login_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        login_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 2;
+    private java.lang.Object name_;
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    @Override
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    @Override
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    @Override
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      login_ = "";
+      name_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    @Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getLoginBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getNameBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    @Override
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getLoginBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getNameBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.batch.protocol.input.BatchInput.User parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    @Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonar.batch.protocol.input.BatchInput.User prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    @Override
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code User}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:User)
+        org.sonar.batch.protocol.input.BatchInput.UserOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.batch.protocol.input.BatchInput.internal_static_User_descriptor;
+      }
+
+      @Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.batch.protocol.input.BatchInput.internal_static_User_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.batch.protocol.input.BatchInput.User.class, org.sonar.batch.protocol.input.BatchInput.User.Builder.class);
+      }
+
+      // Construct using org.sonar.batch.protocol.input.BatchInput.User.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      @Override
+      public Builder clear() {
+        super.clear();
+        login_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      @Override
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      @Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.batch.protocol.input.BatchInput.internal_static_User_descriptor;
+      }
+
+      @Override
+      public org.sonar.batch.protocol.input.BatchInput.User getDefaultInstanceForType() {
+        return org.sonar.batch.protocol.input.BatchInput.User.getDefaultInstance();
+      }
+
+      @Override
+      public org.sonar.batch.protocol.input.BatchInput.User build() {
+        org.sonar.batch.protocol.input.BatchInput.User result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @Override
+      public org.sonar.batch.protocol.input.BatchInput.User buildPartial() {
+        org.sonar.batch.protocol.input.BatchInput.User result = new org.sonar.batch.protocol.input.BatchInput.User(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.login_ = login_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.name_ = name_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      @Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.batch.protocol.input.BatchInput.User) {
+          return mergeFrom((org.sonar.batch.protocol.input.BatchInput.User)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.batch.protocol.input.BatchInput.User other) {
+        if (other == org.sonar.batch.protocol.input.BatchInput.User.getDefaultInstance()) return this;
+        if (other.hasLogin()) {
+          bitField0_ |= 0x00000001;
+          login_ = other.login_;
+          onChanged();
+        }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000002;
+          name_ = other.name_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      @Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.batch.protocol.input.BatchInput.User parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.batch.protocol.input.BatchInput.User) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object login_ = "";
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      @Override
+      public boolean hasLogin() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      @Override
+      public java.lang.String getLogin() {
+        java.lang.Object ref = login_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            login_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      @Override
+      public com.google.protobuf.ByteString
+          getLoginBytes() {
+        java.lang.Object ref = login_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          login_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      public Builder setLogin(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        login_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      public Builder clearLogin() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        login_ = getDefaultInstance().getLogin();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string login = 1;</code>
+       */
+      public Builder setLoginBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        login_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      @Override
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      @Override
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      @Override
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:User)
+    }
+
+    static {
+      defaultInstance = new User(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:User)
+  }
+
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_ServerIssue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_ServerIssue_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_User_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_User_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -2238,10 +3001,12 @@ public final class BatchInput {
       "\n\017manual_severity\030\t \001(\010\022\022\n\nresolution\030\n " +
       "\001(\t\022\016\n\006status\030\013 \001(\t\022\020\n\010checksum\030\014 \001(\t\022\026\n" +
       "\016assignee_login\030\r \001(\t\022\025\n\rcreation_date\030\016" +
-      " \001(\003B\"\n\036org.sonar.batch.protocol.inputH\001"
+      " \001(\003\"#\n\004User\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(" +
+      "\tB\"\n\036org.sonar.batch.protocol.inputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        @Override
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
             com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
@@ -2259,6 +3024,19 @@ public final class BatchInput {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           org.sonar.batch.protocol.Constants.getDescriptor(),
         }, assigner);
+    internal_static_ServerIssue_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_ServerIssue_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_ServerIssue_descriptor,
+        new java.lang.String[] { "Key", "ModuleKey", "Path", "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "ManualSeverity", "Resolution", "Status", "Checksum", "AssigneeLogin", "CreationDate", });
+    internal_static_User_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_User_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_User_descriptor,
+        new java.lang.String[] { "Login", "Name", });
+    org.sonar.batch.protocol.Constants.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
