@@ -56,7 +56,11 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -110,7 +114,10 @@ public class ProjectRepositoryLoader implements ServerComponent {
         TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings, module);
 
         addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
-        addFileData(session, ref, modulesTree, module.uuid());
+        List<FilePathWithHashDto> files = module.isRootProject() ?
+          dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid()) :
+          dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
+        addFileData(session, ref, modulesTree, files);
 
         // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
         // ok
@@ -282,13 +289,13 @@ public class ProjectRepositoryLoader implements ServerComponent {
     }
   }
 
-  private void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, String moduleKey) {
+  private void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.key());
     }
 
-    for (FilePathWithHashDto file : dbClient.componentDao().selectEnabledDescendantFiles(session, moduleKey)) {
+    for (FilePathWithHashDto file : files) {
       // TODO should query E/S to know if blame is missing on this file
       FileData fileData = new FileData(file.getSrcHash(), true);
       ref.addFileData(moduleKeysByUuid.get(file.getModuleUuid()), file.getPath(), fileData);

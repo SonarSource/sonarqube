@@ -143,8 +143,7 @@
   </select>
 
   <sql id="modulesTreeQuery">
-    INNER JOIN projects root_project ON root_project.uuid = p.project_uuid AND root_project.enabled = ${_true}
-    INNER JOIN projects module ON module.project_uuid = root_project.uuid AND module.uuid = #{moduleUuid} AND module.scope='PRJ' AND module.enabled = ${_true}
+    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND module.scope='PRJ' AND module.enabled = ${_true}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -164,6 +163,17 @@
       </choose>
     </where>
   </sql>
+
+  <select id="selectEnabledFilesFromProject" parameterType="map" resultType="FilePathWithHash">
+    SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash
+    FROM projects p
+    INNER JOIN file_sources fs ON fs.file_uuid=p.uuid
+    <where>
+      AND p.project_uuid=#{projectUuid}
+      AND p.enabled=${_true}
+      AND p.scope='FIL'
+    </where>
+  </select>
 
   <select id="selectDescendantFiles" parameterType="map" resultType="FilePathWithHash">
     SELECT p.uuid, p.path, p.module_uuid as moduleUuid, fs.src_hash as srcHash

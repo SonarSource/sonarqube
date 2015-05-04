@@ -107,6 +107,10 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectDescendantFiles(rootComponentUuid, Scopes.FILE, true);
   }
 
+  public List<FilePathWithHashDto> selectEnabledFilesFromProject(DbSession session, String rootComponentUuid) {
+    return mapper(session).selectEnabledFilesFromProject(rootComponentUuid);
+  }
+
   public List<ComponentDto> getByIds(final DbSession session, Collection<Long> ids) {
     return DaoUtils.executeLargeInputs(ids, new Function<List<Long>, List<ComponentDto>>() {
       @Override
