@@ -815,7 +815,7 @@ casper.test.begin(testName('Importers'), 6, function (test) {
 });
 
 
-casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
+casper.test.begin(testName('Restore Built-in Profiles'), 3, function (test) {
   casper
       .start(lib.buildUrl('profiles'), function () {
         lib.setDefaultViewport();
@@ -861,6 +861,7 @@ casper.test.begin(testName('Restore Built-in Profiles'), 2, function (test) {
 
       .then(function () {
         test.assertSelectorContains('.js-list .list-group-item', 'Sonar way');
+        test.assertDoesntExist('.search-navigator-header-component');
       })
 
       .then(function () {
