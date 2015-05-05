@@ -124,11 +124,24 @@ public class Platform {
   }
 
   public boolean isStarted() {
-    return started && !isInSafeMode();
+    return status() == Status.UP;
   }
 
   public boolean isInSafeMode() {
-    return started && safeModeContainer != null && currentContainer == safeModeContainer;
+    return status() == Status.SAFEMODE;
+  }
+
+  public Status status() {
+    if (!started) {
+      return Status.BOOTING;
+    }
+    if (safeModeContainer != null && currentContainer == safeModeContainer) {
+      return Status.SAFEMODE;
+    }
+    if (currentContainer == level4Container) {
+      return Status.UP;
+    }
+    return Status.BOOTING;
   }
 
   /**
@@ -238,5 +251,9 @@ public class Platform {
 
   public Object getComponent(Object key) {
     return getContainer().getComponentByKey(key);
+  }
+
+  public static enum Status {
+    BOOTING, SAFEMODE, UP;
   }
 }
