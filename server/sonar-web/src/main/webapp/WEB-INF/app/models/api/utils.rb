@@ -266,7 +266,12 @@ class Api::Utils
   # Prevent CSRF
   def self.absolute_to_relative_url(url)
     begin
-      URI(url).request_uri
+      u = URI(url)
+      #prevent xss
+      if u.scheme = "javascript"
+      	return "#"
+      end
+      u.request_uri
     rescue
       url
     end
