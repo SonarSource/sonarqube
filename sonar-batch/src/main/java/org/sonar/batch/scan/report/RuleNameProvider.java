@@ -47,7 +47,7 @@ public class RuleNameProvider implements BatchComponent {
 
   public String nameForJS(String ruleKey) {
     String name = nameFromDB(RuleKey.parse(ruleKey));
-    return StringEscapeUtils.escapeJavaScript(name != null ? name : ruleKey.toString());
+    return StringEscapeUtils.escapeJavaScript(name != null ? name : ruleKey);
   }
 
   public String nameForHTML(Rule rule) {

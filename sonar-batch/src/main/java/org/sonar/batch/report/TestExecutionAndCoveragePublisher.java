@@ -41,7 +41,7 @@ import java.util.Set;
 
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
-  private final class TestConverter implements Function<MutableTestCase, BatchReport.Test> {
+  private static final class TestConverter implements Function<MutableTestCase, BatchReport.Test> {
     private final Set<String> testNamesWithCoverage;
     private BatchReport.Test.Builder builder = BatchReport.Test.newBuilder();
 
