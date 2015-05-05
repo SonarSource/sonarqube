@@ -87,7 +87,7 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
   }
 
   /**
-   * This method is not thread safe and must be external protected from concurrent executions.
+   * This method is not thread safe and must be externally protected from concurrent executions.
    */
   private void startAsynchronousDBMigration() {
     if (this.running.get()) {
@@ -98,50 +98,52 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
     executorService.execute(new Runnable() {
       @Override
       public void run() {
-        status = Status.RUNNING;
-        startDate = new Date();
-        failureError = null;
-        Profiler profiler = Profiler.create(LOGGER);
-        try {
-          profiler.startInfo("Starting DB Migration");
-          upgradeDb();
-          restartContainer();
-          recreateWebRoutes();
-          status = Status.SUCCEEDED;
-          profiler.stopInfo("DB Migration ended successfully");
-        } catch (Throwable t) {
-          profiler.stopInfo("DB migration failed");
-          LOGGER.error(
-            "DB Migration or container restart failed. Process ended with an exception", t
-            );
-          status = Status.FAILED;
-          failureError = t;
-        } finally {
-          running.getAndSet(false);
-        }
-      }
-
-      private void upgradeDb() {
-        Profiler profiler = Profiler.createIfTrace(LOGGER);
-        profiler.startTrace("Starting DB Migration");
-        rubyBridge.databaseMigration().trigger();
-        profiler.stopTrace("DB Migration ended");
-      }
-
-      private void restartContainer() {
-        Profiler profiler = Profiler.createIfTrace(LOGGER);
-        profiler.startTrace("Restarting container");
-        platform.doStart();
-        profiler.stopTrace("Container restarted successfully");
-      }
-
-      private void recreateWebRoutes() {
-        Profiler profiler = Profiler.createIfTrace(LOGGER);
-        profiler.startTrace("Recreating web routes");
-        rubyBridge.railsRoutes().recreate();
-        profiler.startTrace("Routes recreated successfully");
+        doDatabaseMigration();
       }
     });
+  }
+
+  private void doDatabaseMigration() {
+    status = Status.RUNNING;
+    startDate = new Date();
+    failureError = null;
+    Profiler profiler = Profiler.create(LOGGER);
+    try {
+      profiler.startInfo("Starting DB Migration");
+      doUpgradeDb();
+      doRestartContainer();
+      doRecreateWebRoutes();
+      status = Status.SUCCEEDED;
+      profiler.stopInfo("DB Migration ended successfully");
+    } catch (Throwable t) {
+      profiler.stopInfo("DB migration failed");
+      LOGGER.error("DB Migration or container restart failed. Process ended with an exception", t);
+      status = Status.FAILED;
+      failureError = t;
+    } finally {
+      running.getAndSet(false);
+    }
+  }
+
+  private void doUpgradeDb() {
+    Profiler profiler = Profiler.createIfTrace(LOGGER);
+    profiler.startTrace("Starting DB Migration");
+    rubyBridge.databaseMigration().trigger();
+    profiler.stopTrace("DB Migration ended");
+  }
+
+  private void doRestartContainer() {
+    Profiler profiler = Profiler.createIfTrace(LOGGER);
+    profiler.startTrace("Restarting container");
+    platform.doStart();
+    profiler.stopTrace("Container restarted successfully");
+  }
+
+  private void doRecreateWebRoutes() {
+    Profiler profiler = Profiler.createIfTrace(LOGGER);
+    profiler.startTrace("Recreating web routes");
+    rubyBridge.railsRoutes().recreate();
+    profiler.startTrace("Routes recreated successfully");
   }
 
   @Override

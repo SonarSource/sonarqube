@@ -24,7 +24,6 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 import org.jruby.Ruby;
 import org.jruby.RubyNil;
-import org.jruby.RubyRuntimeAdapter;
 import org.jruby.embed.InvokeFailedException;
 import org.jruby.javasupport.JavaEmbedUtils;
 import org.jruby.javasupport.JavaUtil;
@@ -35,7 +34,6 @@ public class PlatformRubyBridge implements RubyBridge {
   private static final String CALL_LOAD_JAVA_WEB_SERVICES_RB_FILENAME = "call_load_java_web_services.rb";
 
   private final RackBridge rackBridge;
-  private final RubyRuntimeAdapter adapter = JavaEmbedUtils.newRuntimeAdapter();
 
   public PlatformRubyBridge(RackBridge rackBridge) {
     this.rackBridge = rackBridge;
