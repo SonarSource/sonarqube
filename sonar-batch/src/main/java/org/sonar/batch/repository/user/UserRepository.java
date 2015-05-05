@@ -19,10 +19,16 @@
  */
 package org.sonar.batch.repository.user;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.io.InputSupplier;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.protocol.GsonHelper;
+import org.sonar.batch.protocol.input.BatchInput;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,23 +42,29 @@ public class UserRepository {
     this.serverClient = serverClient;
   }
 
-  private static class Users {
-
-    private List<User> users = new ArrayList<>();
-
-    public List<User> getUsers() {
-      return users;
-    }
-  }
-
-  public Collection<User> loadFromWs(List<String> userLogins) {
+  public Collection<BatchInput.User> loadFromWs(List<String> userLogins) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    String url = "/api/users/search?format=json&includeDeactivated=true&logins=" + Joiner.on(',').join(userLogins);
-    String json = serverClient.request(url);
-    Users users = GsonHelper.create().fromJson(json, Users.class);
-    return users.getUsers();
+    InputSupplier<InputStream> request = serverClient.doRequest("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return ServerClient.encodeForUrl(input);
+      }
+    })), "GET", null);
+    List<BatchInput.User> users = new ArrayList<>();
+    try (InputStream is = request.getInput()) {
+      BatchInput.User user = BatchInput.User.parseDelimitedFrom(is);
+      while (user != null) {
+        users.add(user);
+        user = BatchInput.User.parseDelimitedFrom(is);
+      }
+    } catch (HttpDownloader.HttpException e) {
+      throw serverClient.handleHttpException(e);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to get user details from server", e);
+    }
+    return users;
   }
 
 }

@@ -19,26 +19,39 @@
  */
 package org.sonar.batch.repository.user;
 
+import com.google.common.io.InputSupplier;
 import org.junit.Test;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.protocol.input.BatchInput;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UserRepositoryTest {
 
   @Test
-  public void testLoad() {
+  public void testLoad() throws IOException {
     ServerClient serverClient = mock(ServerClient.class);
     UserRepository userRepo = new UserRepository(serverClient);
 
-    when(serverClient.request("/api/users/search?format=json&includeDeactivated=true&logins=fmallet,sbrandhof"))
-      .thenReturn(
-        "{ \"users\": [ { \"login\": \"fmallet\", \"name\": \"Freddy Mallet\", \"active\": true, \"email\": \"f@m.com\" }, { \"login\": \"sbrandhof\", \"name\": \"Simon\", \"active\": true } ] }");
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    BatchInput.User.Builder builder = BatchInput.User.newBuilder();
+    builder.setLogin("fmallet").setName("Freddy Mallet").build().writeDelimitedTo(out);
+    builder.setLogin("sbrandhof").setName("Simon").build().writeDelimitedTo(out);
 
-    assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).containsOnly(new User("fmallet", "Freddy Mallet"), new User("sbrandhof", "Simon"));
+    InputSupplier<InputStream> is = mock(InputSupplier.class);
+    when(serverClient.doRequest("/batch/users?logins=fmallet,sbrandhof", "GET", null))
+      .thenReturn(is);
+    when(is.getInput()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+
+    assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }
 }
