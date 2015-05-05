@@ -21,16 +21,23 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -48,7 +55,12 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.es.*;
+import org.sonar.server.es.BaseIndex;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsUtils;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
+import org.sonar.server.es.Sorting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -61,7 +73,15 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -71,9 +91,6 @@ import static com.google.common.collect.Lists.newArrayList;
  * All the requests are listed here.
  */
 public class IssueIndex extends BaseIndex {
-
-
-  private static final int SCROLL_TIME_IN_MINUTES = 3;
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
@@ -714,7 +731,7 @@ public class IssueIndex extends BaseIndex {
       .prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
+      .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
       .setSize(10000)
       .setFetchSource(
         new String[] {IssueIndexDefinition.FIELD_ISSUE_KEY, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID,
@@ -726,36 +743,6 @@ public class IssueIndex extends BaseIndex {
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
     SearchResponse response = requestBuilder.get();
 
-    return scroll(response.getScrollId());
-  }
-
-  // Scrolling within the index
-  private Iterator<IssueDoc> scroll(final String scrollId) {
-    return new Iterator<IssueDoc>() {
-      private final Queue<SearchHit> hits = new ArrayDeque<>();
-
-      @Override
-      public boolean hasNext() {
-        if (hits.isEmpty()) {
-          SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
-            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-          Collections.addAll(hits, esRequest.get().getHits().getHits());
-        }
-        return !hits.isEmpty();
-      }
-
-      @Override
-      public IssueDoc next() {
-        if(!hasNext()){
-          throw new NoSuchElementException();
-        }
-        return new IssueDoc(hits.poll().getSource());
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("Cannot remove item when scrolling");
-      }
-    };
+    return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);
   }
 }
