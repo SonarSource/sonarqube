@@ -1,4 +1,4 @@
-<form id="rename-profile-form" method="post" action="profiles/rename">
+<% form_tag("profiles/rename", :id=>"rename-profile-form") %>
   <input type="hidden" name="id" value="<%= @profile.id -%>"/>
   <fieldset>
 

@@ -12,6 +12,7 @@
          action='#'
          autocomplete="off"
   >
+  	<%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
     <% subcategories = @subcategories_per_categories[@category] || [] -%>
     <ul class="tabs">
       <% subcategories.each do |subcategory| -%>

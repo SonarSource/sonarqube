@@ -22,7 +22,7 @@
      end
      plan_options = options_for_select(options, first_plan.key)
 %>
-  <form method="POST">
+  <% form_tag("") %>
     <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
     <input type="hidden" id="action-<%= plans_select_box_id %>" name="id" value="plan"/>
 

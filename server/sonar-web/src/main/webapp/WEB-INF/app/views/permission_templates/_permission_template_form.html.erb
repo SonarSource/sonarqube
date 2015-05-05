@@ -1,4 +1,4 @@
-<form id="permission-template-form" method="post" action="<%= ApplicationController.root_context -%>/permission_templates/<%= form_action %>">
+<% form_tag(ApplicationController.root_context + "/permission_templates/" + form_action, :id=>"permission-template-form") %>
   <% if form_action == 'edit' %>
     <input type="hidden" name="id" value="<%= @permission_template.id -%>">
   <% end %>

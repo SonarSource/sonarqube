@@ -2,7 +2,7 @@
   <tr>
     <td align="center">
       <div id="login_form">
-        <form action="<%= url_for :controller => 'users', :action => 'signup' -%>" method="post">
+        <% form_tag(url_for :controller => 'users', :action => 'signup') %>
           <h3><%= label_tag 'user_login', message('login') %></h3>
           <p>
             <input id="user_login" name="user[login]" size="30" type="text"/>

@@ -1,4 +1,4 @@
-<form id="delete-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/delete">
+<% form_tag(ApplicationController.root_context + "/dashboards/delete", :id=>"delete-dashboard-form") %>
   <input type="hidden" name="id" value="<%= @dashboard.id -%>">
   <% if @dashboard.global %>
     <input type="hidden" name="global" value="true" />

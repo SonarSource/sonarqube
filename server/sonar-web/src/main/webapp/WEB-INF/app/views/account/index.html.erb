@@ -34,7 +34,7 @@
     <div class="admin marginbottom10">
       <h2><%= message('my_profile.password.title') -%></h2>
 
-      <form id="pass_form_tag" name="pass_form_tag" method="post" action="<%= ApplicationController.root_context -%>/account/change_password">
+      <% form_tag(ApplicationController.root_context + '/account/change_password', :id=>"pass_form_tag", :name=>"pass_form_tag") do -%>
         <table class="form">
           <tr>
             <td class="keyCell"><label for="old_password"><%= message('my_profile.password.old') -%>:</label></td>
@@ -53,7 +53,7 @@
             <td><%= submit_tag message('my_profile.password.submit') %></td>
           </tr>
         </table>
-      </form>
+      <% end %>
 
       <script>
         //<![CDATA[
@@ -64,7 +64,7 @@
   <% end -%>
 
   <div class="admin marginbottom10">
-    <form id="notif_form" method="post" action="<%= ApplicationController.root_context -%>/account/update_notifications">
+    <% form_tag(ApplicationController.root_context + '/account/update_notifications', :id=>"notif_form") do -%>
       <% unless @global_dispatchers.empty? -%>
         <%= render "account/global_notifications" -%>
         <br/><br/>
@@ -76,7 +76,7 @@
       
       <br/><br/>
       <input type="submit" value="<%= message('my_profile.notifications.submit') -%>" name="commit">
-    </form>
+    <% end %>
   </div>
   
 </div>

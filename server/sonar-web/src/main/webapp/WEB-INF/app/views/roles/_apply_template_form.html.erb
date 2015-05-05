@@ -1,4 +1,4 @@
-<form id="apply-template-form" method="post" action="<%= ApplicationController.root_context -%>/roles/apply_template">
+<% form_tag(ApplicationController.root_context + "/roles/apply_template", :id=>"apply-template-form") %>
   <input type="hidden" name="names" id="apply-template-names" value="<%= @names %>"/>
   <input type="hidden" name="keys" id="apply-template-keys" value="<%= @keys %>"/>
   <input type="hidden" name="qualifiers" id="apply-template-qualifiers" value="<%= @qualifiers %>"/>

@@ -1,4 +1,4 @@
-<form id="default-templates-form" method="post" action="<%= ApplicationController.root_context -%>/permission_templates/update_default_templates">
+<% form_tag(ApplicationController.root_context + "/permission_templates/update_default_templates", :id=>"default-templates-form") %>
   <fieldset>
     <div class="modal-head">
       <h2><%= message('permission_template.set_default_templates') -%></h2>

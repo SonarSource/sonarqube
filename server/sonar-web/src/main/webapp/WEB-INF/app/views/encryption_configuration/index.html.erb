@@ -32,7 +32,8 @@
                    return false;"
                method="post"
                action="<%=ApplicationController.root_context-%>/encryption_configuration/encrypt"	>
-        <input type="text" name="text" id="clear_text"/>
+        <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value => form_authenticity_token) %>
+  		<input type="text" name="text" id="clear_text"/>
         <input type="submit" value="Encrypt" id="submit_encrypt"/>
       </form>
 

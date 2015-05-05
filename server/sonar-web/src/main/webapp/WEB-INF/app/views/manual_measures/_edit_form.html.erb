@@ -1,4 +1,4 @@
-<form action="<%= url_for :action => 'edit' -%>" method="POST" id="measure_edit_form">
+<% form_tag(url_for :action => 'edit', :id=>"measure_edit_form") %>
     <fieldset>
         <div class="modal-head">
             <h2><%= message('manual_measures.edit_measure', :params => [h(@metric.short_name)]) -%></h2>

@@ -1,7 +1,7 @@
 <h1 class="admin-page-title"><%= message('project_quality_gate.page') -%></h1>
 <p class="admin-page-description"><%= message('project_quality_gate.page.description') -%></p>
 
-<form id="select-quality-gate" method="POST" action="<%= ApplicationController.root_context -%>/project/set_qualitygate">
+<% form_tag(ApplicationController.root_context + "/project/set_qualitygate", :id=>"select-quality-gate") %>
   <input type="hidden" name="id" value="<%= @project_id -%>"/>
   <input type="hidden" name="previous_qgate_id" value="<%= @selected_qgate -%>"/>
 

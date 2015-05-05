@@ -3,7 +3,7 @@
 
 <div class="tabs-panel">
   <% if profiles_administrator? %>
-    <form method="POST" action="<%= ApplicationController.root_context -%>/profiles/add_project" id="add_project_form">
+    <% form_tag(ApplicationController.root_context + "/profiles/add_project", :id=>"add_project_form") %>
       <input type="hidden" name="id" value="<%= @profile.id -%>"/>
 
       Add project: <%= resource_select_tag 'project', {

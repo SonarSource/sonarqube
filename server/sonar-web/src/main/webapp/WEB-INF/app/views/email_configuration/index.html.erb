@@ -1,4 +1,4 @@
-<form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/save" class="marginbottom10">
+<% form_tag(ApplicationController.root_context + "/email_configuration/save", :class=>"marginbottom10") %>
   <table class="marginbottom10">
     <tbody>
     <tr class="property">
@@ -62,7 +62,7 @@
   </table>
 </form>
 
-<form method="post" action="<%= ApplicationController.root_context -%>/email_configuration/send_test_email">
+<% form_tag(ApplicationController.root_context + "/email_configuration/send_test_email") %>
   <table class="data marginbottom10">
     <thead>
     <tr>
