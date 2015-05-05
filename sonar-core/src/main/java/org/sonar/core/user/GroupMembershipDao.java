@@ -24,12 +24,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
 import java.util.Map;
 
-public class GroupMembershipDao {
+public class GroupMembershipDao implements DaoComponent {
 
   private final MyBatis mybatis;
 
@@ -37,14 +38,24 @@ public class GroupMembershipDao {
     this.mybatis = mybatis;
   }
 
+  // TODO Remove this method and associated client code when the UI is migrated to Backbone
   public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId, int offset, int limit) {
     SqlSession session = mybatis.openSession(false);
     try {
-      Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
-      return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));
+      return selectGroups(session, query, userId, offset, limit);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<GroupMembershipDto> selectGroups(SqlSession session, GroupMembershipQuery query, Long userId, int offset, int limit) {
+    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
+    return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));
+  }
+
+  public int countGroups(SqlSession session, GroupMembershipQuery query, Long userId) {
+    Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
+    return session.selectOne("org.sonar.core.user.GroupMembershipMapper.countGroups", params);
   }
 
   @VisibleForTesting
