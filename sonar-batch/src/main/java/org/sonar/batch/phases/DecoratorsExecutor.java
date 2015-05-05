@@ -19,11 +19,9 @@
  */
 package org.sonar.batch.phases;
 
-import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
-
-import org.sonar.batch.deprecated.decorator.DecoratorsSelector;
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -33,6 +31,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.batch.deprecated.decorator.DecoratorsSelector;
+import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -43,21 +43,23 @@ import java.util.List;
 
 public class DecoratorsExecutor implements BatchComponent {
 
-  private DecoratorsSelector decoratorsSelector;
-  private SonarIndex index;
-  private EventBus eventBus;
-  private Project project;
-  private CoverageExclusions coverageFilter;
-  private MeasureCache measureCache;
-  private MetricFinder metricFinder;
+  private final DecoratorsSelector decoratorsSelector;
+  private final SonarIndex index;
+  private final EventBus eventBus;
+  private final Project project;
+  private final CoverageExclusions coverageFilter;
+  private final MeasureCache measureCache;
+  private final MetricFinder metricFinder;
   private final DuplicationCache duplicationCache;
+  private final AnalysisMode analysisMode;
 
   public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
     Project project, SonarIndex index, EventBus eventBus, CoverageExclusions coverageFilter, MeasureCache measureCache, MetricFinder metricFinder,
-    DuplicationCache duplicationCache) {
+    DuplicationCache duplicationCache, AnalysisMode analysisMode) {
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
     this.duplicationCache = duplicationCache;
+    this.analysisMode = analysisMode;
     this.decoratorsSelector = new DecoratorsSelector(batchExtDictionnary);
     this.index = index;
     this.eventBus = eventBus;
@@ -66,6 +68,10 @@ public class DecoratorsExecutor implements BatchComponent {
   }
 
   public void execute() {
+    if (analysisMode.isPreview()) {
+      // Decorators are not executed in preview mode
+      return;
+    }
     Collection<Decorator> decorators = decoratorsSelector.select(project);
     eventBus.fireEvent(new DecoratorsPhaseEvent(Lists.newArrayList(decorators), true));
     ((DefaultDecoratorContext) decorateResource(project, decorators, true)).end();

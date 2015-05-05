@@ -25,7 +25,6 @@ import org.sonar.api.resources.Resource;
 /**
  * @since 1.10
  */
-@RequiresDB
 public interface Decorator extends BatchExtension, CheckProject {
 
   /**

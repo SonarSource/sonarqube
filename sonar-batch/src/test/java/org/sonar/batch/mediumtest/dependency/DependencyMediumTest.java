@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.mediumtest.dependency;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -87,8 +88,42 @@ public class DependencyMediumTest {
         .build())
       .start();
 
-    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/sample2.xoo"))).isEqualTo(3);
-    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/foo/sample3.xoo"))).isEqualTo(6);
+    assertThat(result.fileDependencyFor(result.inputFile("src/sample.xoo"), result.inputFile("src/sample2.xoo")).getWeight()).isEqualTo(3);
+    assertThat(result.fileDependencyFor(result.inputFile("src/sample.xoo"), result.inputFile("src/foo/sample3.xoo")).getWeight()).isEqualTo(6);
   }
 
+  @Test
+  public void manyDependenciesNoCycle() throws IOException {
+
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    int nbFiles = 100;
+    for (int nb = 1; nb <= nbFiles; nb++) {
+      File xooFile = new File(srcDir, "dir1/sample" + nb + ".xoo");
+      FileUtils.write(xooFile, "foo");
+      File xooFile2 = new File(srcDir, "dir2/sample" + nb + ".xoo");
+      FileUtils.write(xooFile2, "foo");
+      File xooDepFile = new File(srcDir, "dir1/sample" + nb + ".xoo.deps");
+      for (int otherId = 1; otherId <= nbFiles; otherId++) {
+        FileUtils.write(xooDepFile, "src/dir2/sample" + otherId + ".xoo:1\n", Charsets.UTF_8, true);
+      }
+    }
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(result.fileDependencyFor(result.inputFile("src/dir1/sample1.xoo"), result.inputFile("src/dir2/sample1.xoo")).getWeight()).isEqualTo(1);
+
+  }
 }

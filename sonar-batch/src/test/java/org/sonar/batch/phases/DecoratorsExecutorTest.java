@@ -20,6 +20,7 @@
 package org.sonar.batch.phases;
 
 import org.junit.Test;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -67,7 +68,7 @@ public class DecoratorsExecutorTest {
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
-      mock(EventBus.class), mock(CoverageExclusions.class), mock(MeasureCache.class), mock(MetricFinder.class), mock(DuplicationCache.class));
+      mock(EventBus.class), mock(CoverageExclusions.class), mock(MeasureCache.class), mock(MetricFinder.class), mock(DuplicationCache.class), mock(AnalysisMode.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", null, false));
       fail("Exception has not been thrown");

@@ -37,7 +37,6 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.bootstrap.*;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -169,7 +168,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Dependencies
       DependencyPersister.class,
-      DependencyCache.class,
 
       // Quality Gate
       new QualityGateProvider(),

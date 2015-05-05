@@ -19,10 +19,7 @@
  */
 package org.sonar.plugins.core.timemachine;
 
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
@@ -37,6 +34,7 @@ import java.util.List;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
+@RequiresDB
 public final class TimeMachineConfigurationPersister implements Decorator {
 
   private final TimeMachineConfiguration timeMachineConfiguration;

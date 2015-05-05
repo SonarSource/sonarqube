@@ -22,6 +22,7 @@ package org.sonar.plugins.core.sensors;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -35,6 +36,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkState;
 
 @Phase(name = Phase.Name.PRE)
+@RequiresDB
 public class ManualMeasureDecorator implements Decorator {
 
   private DatabaseSession session;

@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * requires database access. As a result such extension will be disabled in preview mode.
  *
  *
- * @since 3.4
+ * @since 5.1
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
