@@ -44,6 +44,7 @@ class UsersController < ApplicationController
       end
     else
       user=prepare_user
+      user.active = true
       if user.save
         # case user: don't exist, no errors when create
         user.notify_creation_handlers
@@ -51,7 +52,7 @@ class UsersController < ApplicationController
         render :text => 'ok', :status => 200
       else
         # case user: don't exist, WITH ERRORS when create
-        # case user: exist and ACTIVE, whith or without errors when create
+        # case user: exist and ACTIVE, with or without errors when create
         @user = user
         user.errors.full_messages.each { |msg| @errors<<msg }
         render :partial => 'users/create_form', :status => 400
