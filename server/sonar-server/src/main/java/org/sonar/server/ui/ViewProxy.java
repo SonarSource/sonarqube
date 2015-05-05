@@ -285,9 +285,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean isUserAuthorized(ComponentDto component) {
     boolean authorized = userRoles.length == 0;
     for (String userRole : getUserRoles()) {
-      authorized |= (UserRole.VIEWER.equals(userRole)
-        || UserRole.USER.equals(userRole)
-        || UserSession.get().hasProjectPermissionByUuid(userRole, component.uuid()));
+      authorized |= UserSession.get().hasProjectPermissionByUuid(userRole, component.uuid());
     }
     return authorized;
   }

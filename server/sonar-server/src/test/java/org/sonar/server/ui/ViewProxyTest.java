@@ -348,40 +348,6 @@ public class ViewProxyTest {
     MockUserSession.set().addProjectUuidPermissions("pilip", "abcd");
     assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isFalse();
   }
-
-  @Test
-  public void is_authorized_on_component_viewer_bypass() {
-
-    @NavigationSection(NavigationSection.RESOURCE)
-    @UserRole(UserRole.VIEWER)
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
-
-    MockUserSession.set();
-    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
-  }
-
-  @Test
-  public void is_authorized_on_component_user_bypass() {
-
-    @NavigationSection(NavigationSection.RESOURCE)
-    @UserRole(UserRole.USER)
-    class MyView extends FakeView {
-      MyView() {
-        super("fake");
-      }
-    }
-
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
-
-    MockUserSession.set();
-    assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
-  }
 }
 
 class FakeView implements View {
@@ -392,10 +358,12 @@ class FakeView implements View {
     this.id = id;
   }
 
+  @Override
   public String getId() {
     return id;
   }
 
+  @Override
   public String getTitle() {
     return id;
   }
@@ -407,10 +375,12 @@ class FakeView implements View {
   @WidgetProperty(key = "third_prop", type = WidgetPropertyType.INTEGER)
 })
 class EditableWidget implements Widget {
+  @Override
   public String getId() {
     return "w1";
   }
 
+  @Override
   public String getTitle() {
     return "W1";
   }
@@ -418,10 +388,12 @@ class EditableWidget implements Widget {
 
 @WidgetProperties(@WidgetProperty(key = "message", defaultValue = "", type = WidgetPropertyType.TEXT))
 class TextWidget implements Widget {
+  @Override
   public String getId() {
     return "text";
   }
 
+  @Override
   public String getTitle() {
     return "TEXT";
   }
@@ -429,10 +401,12 @@ class TextWidget implements Widget {
 
 @WidgetScope("GLOBAL")
 class GlobalWidget implements Widget {
+  @Override
   public String getId() {
     return "global";
   }
 
+  @Override
   public String getTitle() {
     return "Global";
   }
@@ -440,10 +414,12 @@ class GlobalWidget implements Widget {
 
 @WidgetScope("INVALID")
 class WidgetWithInvalidScope implements Widget {
+  @Override
   public String getId() {
     return "invalidScope";
   }
 
+  @Override
   public String getTitle() {
     return "InvalidScope";
   }
@@ -454,10 +430,12 @@ class WidgetWithInvalidScope implements Widget {
   @WidgetProperty(key = "bar")
 })
 class WidgetWithOptionalProperties implements Widget {
+  @Override
   public String getId() {
     return "w2";
   }
 
+  @Override
   public String getTitle() {
     return "W2";
   }
