@@ -18,27 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+package org.sonar.server.computation.step;
 
-import org.junit.Test;
-import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.test.index.TestIndexer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+public class IndexTestsStep implements ComputationStep {
 
-public class IndexPurgeListenerTest {
+  private final TestIndexer indexer;
 
-  @Test
-  public void call_source_line_indexer() {
-    SourceLineIndexer sourceLineIndexer = mock(SourceLineIndexer.class);
-    TestIndexer testIndexer = mock(TestIndexer.class);
-    IndexPurgeListener sut = new IndexPurgeListener(sourceLineIndexer, testIndexer);
+  public IndexTestsStep(TestIndexer indexer) {
+    this.indexer = indexer;
+  }
 
-    sut.onComponentDisabling("123456");
+  @Override
+  public String[] supportedProjectQualifiers() {
+    return new String[] {Qualifiers.PROJECT};
+  }
 
-    verify(sourceLineIndexer).deleteByFile("123456");
-    verify(testIndexer).deleteByFile("123456");
+  @Override
+  public void execute(ComputationContext context) {
+    indexer.index(context.getProject().uuid());
+  }
+
+  @Override
+  public String getDescription() {
+    return "Index tests";
   }
 
 }

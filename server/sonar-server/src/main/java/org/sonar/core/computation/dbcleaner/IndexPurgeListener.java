@@ -23,16 +23,20 @@ package org.sonar.core.computation.dbcleaner;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.purge.PurgeListener;
 import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.test.index.TestIndexer;
 
 public class IndexPurgeListener implements PurgeListener, ServerComponent {
   private final SourceLineIndexer sourceLineIndexer;
+  private final TestIndexer testIndexer;
 
-  public IndexPurgeListener(SourceLineIndexer sourceLineIndexer) {
+  public IndexPurgeListener(SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer) {
     this.sourceLineIndexer = sourceLineIndexer;
+    this.testIndexer = testIndexer;
   }
 
   @Override
   public void onComponentDisabling(String uuid) {
     sourceLineIndexer.deleteByFile(uuid);
+    testIndexer.deleteByFile(uuid);
   }
 }

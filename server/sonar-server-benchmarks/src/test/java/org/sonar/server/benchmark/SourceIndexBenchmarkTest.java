@@ -102,7 +102,7 @@ public class SourceIndexBenchmarkTest {
     // TODO assertions
   }
 
-  private static class SourceIterator implements Iterator<SourceFileResultSetIterator.Row> {
+  private static class SourceIterator implements Iterator<FileSourcesUpdaterHelper.Row> {
     private final long nbFiles;
     private final int nbLinesPerFile;
     private int currentProject = 0;
@@ -125,7 +125,7 @@ public class SourceIndexBenchmarkTest {
     }
 
     @Override
-    public SourceFileResultSetIterator.Row next() {
+    public FileSourcesUpdaterHelper.Row next() {
       String projectUuid = "P" + currentProject;
       String fileUuid = "FILE" + count.get();
       dataBuilder.clear();
@@ -155,7 +155,7 @@ public class SourceIndexBenchmarkTest {
       if (count.get() % 500 == 0) {
         currentProject++;
       }
-      return SourceFileResultSetIterator.toRow(projectUuid, fileUuid, new Date(), dataBuilder.build());
+      return SourceLineResultSetIterator.toRow(projectUuid, fileUuid, new Date(), dataBuilder.build());
     }
 
     @Override

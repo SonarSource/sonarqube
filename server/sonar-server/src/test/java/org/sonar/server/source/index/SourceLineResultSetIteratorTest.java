@@ -39,16 +39,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(DbTests.class)
-public class SourceFileResultSetIteratorTest {
+public class SourceLineResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(SourceFileResultSetIteratorTest.class, "schema.sql");
+  public static DbTester db = new DbTester().schema(SourceLineResultSetIteratorTest.class, "schema.sql");
 
   DbClient dbClient;
 
   Connection connection;
 
-  SourceFileResultSetIterator iterator;
+  SourceLineResultSetIterator iterator;
 
   @Before
   public void setUp() throws Exception {
@@ -69,15 +69,15 @@ public class SourceFileResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "shared.xml");
     FileSourceTesting.updateDataColumn(connection, "F1", FileSourceTesting.newFakeData(3).build());
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
     assertThat(iterator.hasNext()).isTrue();
-    SourceFileResultSetIterator.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
-    assertThat(row.getLineUpdateRequests()).hasSize(3);
+    assertThat(row.getUpdateRequests()).hasSize(3);
 
-    UpdateRequest firstRequest = row.getLineUpdateRequests().get(0);
+    UpdateRequest firstRequest = row.getUpdateRequests().get(0);
     Map<String, Object> doc = firstRequest.doc().sourceAsMap();
     assertThat(doc).contains(
       MapEntry.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "P1"),
@@ -109,13 +109,13 @@ public class SourceFileResultSetIteratorTest {
     dataBuilder.addLinesBuilder().setLine(1).build();
     FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
-    SourceFileResultSetIterator.Row row = iterator.next();
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
-    assertThat(row.getLineUpdateRequests()).hasSize(1);
-    UpdateRequest firstRequest = row.getLineUpdateRequests().get(0);
+    assertThat(row.getUpdateRequests()).hasSize(1);
+    UpdateRequest firstRequest = row.getUpdateRequests().get(0);
     Map<String, Object> doc = firstRequest.doc().sourceAsMap();
     assertThat(doc).contains(
       MapEntry.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "P1"),
@@ -144,7 +144,7 @@ public class SourceFileResultSetIteratorTest {
   public void filter_by_date() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 2000000000000L, null);
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 2000000000000L, null);
     assertThat(iterator.hasNext()).isFalse();
   }
 
@@ -155,9 +155,9 @@ public class SourceFileResultSetIteratorTest {
     dataBuilder.addLinesBuilder().setLine(1).build();
     FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, "P1");
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, "P1");
 
-    SourceFileResultSetIterator.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
@@ -172,9 +172,9 @@ public class SourceFileResultSetIteratorTest {
     dataBuilder.addLinesBuilder().setLine(1).build();
     FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
 
-    SourceFileResultSetIterator.Row row = iterator.next();
+    FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
@@ -188,7 +188,7 @@ public class SourceFileResultSetIteratorTest {
 
     FileSourceTesting.updateDataColumn(connection, "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
-    iterator = SourceFileResultSetIterator.create(dbClient, connection, 0L, null);
+    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
     try {
       assertThat(iterator.hasNext()).isTrue();
       iterator.next();

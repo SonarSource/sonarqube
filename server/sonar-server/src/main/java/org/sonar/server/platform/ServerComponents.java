@@ -354,9 +354,11 @@ import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.test.CoverageService;
+import org.sonar.server.test.index.TestIndex;
+import org.sonar.server.test.index.TestIndexDefinition;
+import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.test.ws.TestsCoveredFilesAction;
-import org.sonar.server.test.ws.TestsShowAction;
-import org.sonar.server.test.ws.TestsTestCasesAction;
+import org.sonar.server.test.ws.TestsListAction;
 import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
@@ -894,9 +896,11 @@ class ServerComponents {
     // Tests
     pico.addSingleton(CoverageService.class);
     pico.addSingleton(TestsWs.class);
-    pico.addSingleton(TestsTestCasesAction.class);
     pico.addSingleton(TestsCoveredFilesAction.class);
-    pico.addSingleton(TestsShowAction.class);
+    pico.addSingleton(TestsListAction.class);
+    pico.addSingleton(TestIndexDefinition.class);
+    pico.addSingleton(TestIndex.class);
+    pico.addSingleton(TestIndexer.class);
 
     // Properties
     pico.addSingleton(PropertiesWs.class);

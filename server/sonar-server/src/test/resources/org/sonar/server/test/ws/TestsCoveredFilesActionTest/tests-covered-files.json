@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "key": "org.foo.Bar.java",
+      "longName": "src/main/java/org/foo/Bar.java",
+      "coveredLines": 10
+    },
+    {
+      "key": "org.foo.File.java",
+      "longName": "src/main/java/org/foo/File.java",
+      "coveredLines": 3
+    }
+  ]
+}

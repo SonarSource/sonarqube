@@ -31,6 +31,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.test.index.TestIndexer;
 
 public class ComponentCleanerService implements ServerComponent {
 
@@ -39,14 +40,16 @@ public class ComponentCleanerService implements ServerComponent {
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final SourceLineIndexer sourceLineIndexer;
+  private final TestIndexer testIndexer;
 
   public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    SourceLineIndexer sourceLineIndexer) {
+                                 SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer) {
     this.dbClient = dbClient;
     this.purgeDao = purgeDao;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.sourceLineIndexer = sourceLineIndexer;
+    this.testIndexer = testIndexer;
   }
 
   public void delete(String projectKey) {
@@ -70,6 +73,7 @@ public class ComponentCleanerService implements ServerComponent {
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
     issueIndexer.deleteProject(projectUuid, true);
     sourceLineIndexer.deleteByProject(projectUuid);
+    testIndexer.deleteByProject(projectUuid);
   }
 
 }

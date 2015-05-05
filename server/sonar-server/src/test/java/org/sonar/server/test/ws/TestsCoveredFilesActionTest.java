@@ -22,79 +22,57 @@ package org.sonar.server.test.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.test.CoverageBlock;
-import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.Testable;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.test.index.CoveredFileDoc;
+import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Arrays;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.component.ComponentTesting.newFileDto;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.test.ws.TestsCoveredFilesAction.TEST_UUID;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TestsCoveredFilesActionTest {
 
   static final String TEST_PLAN_KEY = "src/test/java/org/foo/BarTest.java";
 
-  @Mock
-  MutableTestPlan testPlan;
-
-  WsTester tester;
+  WsTester ws;
+  private DbClient dbClient;
+  private TestIndex testIndex;
 
   @Before
   public void setUp() throws Exception {
-    SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
-    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), mock(TestsTestCasesAction.class), new TestsCoveredFilesAction(snapshotPerspectives)));
+    dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
+    testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
+    ws = new WsTester(new TestsWs(new TestsCoveredFilesAction(dbClient, testIndex)));
   }
 
   @Test
-  public void plan() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
+  public void covered_files() throws Exception {
+    MockUserSession.set().addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "test-file-uuid");
 
-    MutableTestCase testCase1 = testCase("org.foo.Bar.java", "src/main/java/org/foo/Bar.java", 10);
-    MutableTestCase testCase2 = testCase("org.foo.File.java", "src/main/java/org/foo/File.java", 3);
-    when(testPlan.testCasesByName("my_test")).thenReturn(newArrayList(testCase1, testCase2));
+    when(testIndex.searchByTestUuid(anyString()).fileUuid()).thenReturn("test-file-uuid");
+    when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
+      new CoveredFileDoc().setFileUuid("bar-uuid").setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
+      new CoveredFileDoc().setFileUuid("file-uuid").setCoveredLines(Arrays.asList(1, 2, 3))
+      ));
+    when(dbClient.componentDao().getByUuids(any(DbSession.class), anyList())).thenReturn(
+      Arrays.asList(
+        newFileDto(newProjectDto(), "bar-uuid").setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(), "file-uuid").setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "covered_files").setParam("key", TEST_PLAN_KEY).setParam("test", "my_test");
+    WsTester.TestRequest request = ws.newGetRequest("api/tests", "covered_files").setParam(TEST_UUID, "test-uuid");
 
-    request.execute().assertJson("{\n" +
-      "  \"files\": [\n" +
-      "    {\n" +
-      "      \"key\": \"org.foo.Bar.java\",\n" +
-      "      \"longName\": \"src/main/java/org/foo/Bar.java\",\n" +
-      "      \"coveredLines\" : 10\n" +
-      "    },\n" +
-      "    {\n" +
-      "      \"key\": \"org.foo.File.java\",\n" +
-      "      \"longName\": \"src/main/java/org/foo/File.java\",\n" +
-      "      \"coveredLines\" : 3\n" +
-      "    }\n" +
-      "  ]\n" +
-      "}\n");
+    request.execute().assertJson(getClass(), "tests-covered-files.json");
   }
-
-  private MutableTestCase testCase(String fileKey, String fileLongName, int coveredLines) {
-    Testable testable = mock(Testable.class);
-    when(testable.component()).thenReturn(new ComponentDto().setKey(fileKey).setLongName(fileLongName));
-
-    CoverageBlock block = mock(CoverageBlock.class);
-    when(block.testable()).thenReturn(testable);
-    when(block.lines()).thenReturn(Arrays.asList(new Integer[coveredLines]));
-
-    MutableTestCase testCase = mock(MutableTestCase.class);
-    when(testCase.coverageBlocks()).thenReturn(newArrayList(block));
-    return testCase;
-  }
-
 }
