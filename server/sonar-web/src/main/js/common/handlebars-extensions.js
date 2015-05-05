@@ -30,6 +30,23 @@
     return baseUrl + url;
   });
 
+  Handlebars.registerHelper('componentPermalink', function (componentKey) {
+    return baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
+  });
+
+  Handlebars.registerHelper('componentDashboardPermalink', function (componentKey, dashboardKey) {
+    return baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey) +
+        '&did=' + encodeURIComponent(dashboardKey);
+  });
+
+  Handlebars.registerHelper('componentBrowsePermalink', function (componentKey) {
+    return baseUrl + '/components/index?id=' + encodeURIComponent(componentKey);
+  });
+
+  Handlebars.registerHelper('componentIssuesPermalink', function (componentKey) {
+    return baseUrl + '/component_issues/index?id=' + encodeURIComponent(componentKey);
+  });
+
   Handlebars.registerHelper('rulePermalink', function (ruleKey) {
     return baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(ruleKey);
   });

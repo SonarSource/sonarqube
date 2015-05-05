@@ -18,55 +18,55 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'nav/state',
   'nav/global-navbar-view',
   'nav/context-navbar-view',
   'nav/settings-navbar-view',
   'workspace/main'
-], function (GlobalNavbarView, ContextNavbarView, SettingsNavbarView) {
+], function (State, GlobalNavbarView, ContextNavbarView, SettingsNavbarView) {
 
   var $ = jQuery,
       App = new Marionette.Application(),
-      model = window.navbarOptions;
+      state = new State();
 
-  App.addInitializer(function () {
+  state.set(window.navbarOptions.toJSON());
+
+  App.on('start', function () {
+    state.fetchGlobal();
+
     this.navbarView = new GlobalNavbarView({
       app: App,
       el: $('.navbar-global'),
-      model: model
+      model: state
     });
     this.navbarView.render();
-  });
 
-  if (model.has('contextBreadcrumbs')) {
-    App.addInitializer(function () {
+    if (state.get('space') === 'component') {
+      state.fetchComponent();
       this.contextNavbarView = new ContextNavbarView({
         app: App,
         el: $('.navbar-context'),
-        model: model
+        model: state
       });
       this.contextNavbarView.render();
-    });
-  }
+    }
 
-  if (model.get('space') === 'settings') {
-    App.addInitializer(function () {
+    if (state.get('space') === 'settings') {
+      state.fetchSettings();
       this.settingsNavbarView = new SettingsNavbarView({
         app: App,
         el: $('.navbar-context'),
-        model: model
+        model: state
       });
       this.settingsNavbarView.render();
-    });
-  }
+    }
 
-  App.addInitializer(function () {
-    var that = this;
     $(window).on('keypress', function (e) {
       var tagName = e.target.tagName;
       if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
         var code = e.keyCode || e.which;
         if (code === 63) {
-          that.navbarView.showShortcutsHelp();
+          App.navbarView.showShortcutsHelp();
         }
       }
     });

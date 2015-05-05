@@ -18,7 +18,7 @@
       <ul class="dropdown-menu">
         {{#each globalDashboards}}
           <li>
-            <a href="{{link url}}">{{name}}</a>
+            <a href="{{link '/dashboard/index?did=' key}}">{{name}}</a>
           </li>
         {{/each}}
         {{#if canManageGlobalDashboards}}

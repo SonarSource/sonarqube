@@ -1,0 +1,39 @@
+{
+  "globalDashboards": [
+    {
+      "key": 1,
+      "name": "First Global Dashboard"
+    },
+    {
+      "key": 2,
+      "name": "Second Global Dashboard"
+    },
+    {
+      "key": 3,
+      "name": "Third Global Dashboard"
+    },
+    {
+      "key": 50,
+      "name": "Quality"
+    }
+  ],
+  "globalPages": [
+    {
+      "url": "/page/1",
+      "name": "First Global Page"
+    },
+    {
+      "url": "/page/2",
+      "name": "Second Global Page"
+    },
+    {
+      "url": "/page/3",
+      "name": "Third Global Page"
+    }
+  ],
+  "qualifiers": [
+    "TRK",
+    "VW",
+    "DEV"
+  ]
+}

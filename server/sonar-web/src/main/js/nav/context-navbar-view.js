@@ -35,7 +35,7 @@ define([
     template: Templates['nav-context-navbar'],
 
     modelEvents: {
-      'change': 'render'
+      'change:component': 'render'
     },
 
     events: {
@@ -70,7 +70,7 @@ define([
           isOverviewActive = !isMoreActive && href.indexOf('/dashboard') !== -1 && search.indexOf('did=') === -1;
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
         canManageContextDashboards: !!window.SS.user,
-        contextKeyEncoded: encodeURIComponent(this.model.get('contextKey')),
+        contextKeyEncoded: encodeURIComponent(this.model.get('componentKey')),
 
         isOverviewActive: isOverviewActive,
         isSettingsActive: isSettingsActive,

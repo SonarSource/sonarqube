@@ -1,40 +1,89 @@
 <div class="container">
-  {{# if canFavoriteContext}}
+  {{#if component.canBeFavorite}}
     <div class="navbar-context-favorite">
-      <a class="js-favorite {{#if isContextFavorite}}icon-favorite{{else}}icon-not-favorite{{/if}}"></a>
+      <a class="js-favorite {{#if component.isFavorite}}icon-favorite{{else}}icon-not-favorite{{/if}}"></a>
     </div>
   {{/if}}
   <ul class="nav navbar-nav nav-crumbs">
-    {{#each contextBreadcrumbs}}
+    {{#each component.breadcrumbs}}
       <li>
-        <a href="{{link url}}">
-          {{qualifierIcon q}}&nbsp;{{name}}
+        <a href="{{componentPermalink key}}">
+          {{qualifierIcon qualifier}}&nbsp;{{name}}
         </a>
       </li>
     {{/each}}
   </ul>
 
   <div class="navbar-right navbar-context-meta">
-    {{#if contextVersion}}Version {{contextVersion}}{{/if}}
-    {{#all contextVersion contextDate}}/{{/all}}
-    {{#if contextDate}}{{dt contextDate}}{{/if}}
+    {{#if component.version}}Version {{component.version}}{{/if}}
+    {{#all component.version component.snapshotDate}}/{{/all}}
+    {{#if component.snapshotDate}}{{dt component.snapshotDate}}{{/if}}
   </div>
 
   <ul class="nav navbar-nav nav-tabs">
     <li {{#if isOverviewActive}}class="active"{{/if}}>
-      <a href="{{link '/dashboard/index?id=' contextKeyEncoded }}">{{t 'overview.page'}}</a>
+      <a href="{{componentPermalink component.key}}">{{t 'overview.page'}}</a>
     </li>
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
-      <a href="{{link '/components/index/' contextId }}">{{t 'components.page'}}</a>
+      <a href="{{componentBrowsePermalink component.key}}">{{t 'components.page'}}</a>
     </li>
     <li {{#isActiveLink '/component_issues'}}class="active"{{/isActiveLink}}>
-      <a href="{{link '/component_issues/index?id=' contextKeyEncoded }}">{{t 'issues.page'}}</a>
+      <a href="{{componentIssuesPermalink component.key}}">{{t 'issues.page'}}</a>
     </li>
-    {{#if contextConfiguration}}
+    {{#if component.configuration.showSettings}}
       <li class="dropdown {{#if isSettingsActive}}active{{/if}}">
-        <a class="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">{{t 'layout.settings'}}&nbsp;<i class="icon-dropdown"></i></a>
+        <a class="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">{{t 'layout.settings'}}&nbsp;<i
+            class="icon-dropdown"></i></a>
         <ul class="dropdown-menu">
-          {{#each contextConfiguration}}
+          <li>
+            <a href="{{link '/project/settings?id=' contextKeyEncoded}}">{{t 'project_settings.page'}}</a>
+          </li>
+          {{#if component.configuration.showQualityProfiles}}
+            <li>
+              <a href="{{link '/project/profile?id=' contextKeyEncoded}}">{{t 'project_quality_profiles.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showQualityGates}}
+            <li>
+              <a href="{{link '/project/qualitygate?id=' contextKeyEncoded}}">{{t 'project_quality_gate.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showManualMeasures}}
+            <li>
+              <a href="{{link '/manual_measures/index?id=' contextKeyEncoded}}">{{t 'manual_measures.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showActionPlans}}
+            <li>
+              <a href="{{link '/action_plans/index?id=' contextKeyEncoded}}">{{t 'action_plans.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showLinks}}
+            <li>
+              <a href="{{link '/project/links?id=' contextKeyEncoded}}">{{t 'project_links.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showPermissions}}
+            <li>
+              <a href="{{link '/project_roles/index?id=' contextKeyEncoded}}">{{t 'permissions.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showHistory}}
+            <li>
+              <a href="{{link '/project/history?id=' contextKeyEncoded}}">{{t 'project_history.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showUpdateKey}}
+            <li>
+              <a href="{{link '/project/key?id=' contextKeyEncoded}}">{{t 'update_key.page'}}</a>
+            </li>
+          {{/if}}
+          {{#if component.configuration.showDeletion}}
+            <li>
+              <a href="{{link '/project/deletion?id=' contextKeyEncoded}}">{{t 'deletion.page'}}</a>
+            </li>
+          {{/if}}
+          {{#each component.configuration.extensions}}
             <li>
               <a href="{{link url}}">{{name}}</a>
             </li>
@@ -46,33 +95,33 @@
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
-        {{#withoutFirst contextDashboards}}
+        {{#withoutFirst component.dashboards}}
           <li>
-            <a href="{{link url}}">{{name}}</a>
+            <a href="{{componentDashboardPermalink ../component.key key}}">{{name}}</a>
           </li>
         {{/withoutFirst}}
         {{#if canManageContextDashboards}}
           <li class="small-divider"></li>
           <li>
-            <a href="{{link '/dashboards?resource=' contextId}}">{{t 'dashboard.manage_dashboards'}}</a>
+            <a href="{{link '/dashboards?resource=' contextKeyEncoded}}">{{t 'dashboard.manage_dashboards'}}</a>
           </li>
         {{/if}}
         <li class="divider"></li>
         <li class="dropdown-header">Tools</li>
         <li>
-          <a href="{{link '/design/index/' contextId }}">{{t 'design.page'}}</a>
+          <a href="{{link '/design/index?id=' contextKeyEncoded}}">{{t 'design.page'}}</a>
         </li>
         <li>
-          <a href="{{link '/libraries/index/' contextId }}">{{t 'libraries.page'}}</a>
+          <a href="{{link '/libraries/index?id=' contextKeyEncoded}}">{{t 'libraries.page'}}</a>
         </li>
-        {{#if contextComparable}}
+        {{#if component.isComparable}}
           <li>
-            <a href="{{link '/comparison/index?resource=' contextKey}}">{{t 'comparison.page'}}</a>
+            <a href="{{link '/comparison/index?resource=' contextKeyEncoded}}">{{t 'comparison.page'}}</a>
           </li>
         {{/if}}
-        {{#each contextExtensions}}
+        {{#each component.extensions}}
           <li>
-            <a href="{{link url}}">{{label}}</a>
+            <a href="{{link url}}">{{name}}</a>
           </li>
         {{/each}}
       </ul>

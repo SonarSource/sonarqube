@@ -225,7 +225,7 @@ define([
     getGlobalDashboardFindings: function (q) {
       var dashboards = this.model.get('globalDashboards') || [],
           items = dashboards.map(function (d) {
-            return { name: d.name, url: baseUrl + d.url };
+            return { name: d.name, url: baseUrl + '/dashboard/index?did=' + encodeURIComponent(d.key) };
           });
       var findings = items.filter(function (f) {
         return f.name.match(new RegExp(q, 'i'));

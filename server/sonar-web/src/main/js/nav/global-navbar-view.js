@@ -26,6 +26,10 @@ define([
   return Marionette.Layout.extend({
     template: Templates['nav-global-navbar'],
 
+    modelEvents: {
+      'change': 'render'
+    },
+
     regions: {
       searchRegion: '.js-search-region'
     },

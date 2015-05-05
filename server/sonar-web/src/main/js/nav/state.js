@@ -17,16 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-define([
-  'templates/nav'
-], function () {
+define(function () {
 
-  return Marionette.ItemView.extend({
-    template: Templates['nav-settings-navbar'],
+  var $ = jQuery;
 
-    modelEvents: {
-      'change:settings': 'render'
+  return Backbone.Model.extend({
+
+    fetchGlobal: function () {
+      var that = this;
+      return $.get(baseUrl + '/api/navigation/global').done(function (r) {
+        that.set(r);
+      });
+    },
+
+    fetchComponent: function () {
+      var that = this,
+          url = baseUrl + '/api/navigation/component',
+          data = { componentKey: this.get('componentKey') };
+      return $.get(url, data).done(function (r) {
+        that.set({ component: r });
+      });
+    },
+
+    fetchSettings: function () {
+      var that = this;
+      return $.get(baseUrl + '/api/navigation/settings').done(function (r) {
+        that.set({ settings: r });
+      });
     }
+
   });
 
 });

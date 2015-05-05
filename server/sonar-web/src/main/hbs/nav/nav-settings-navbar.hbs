@@ -20,7 +20,7 @@
         <li>
           <a href="{{link '/admin_dashboards/index'}}">{{t 'default_dashboards.page'}}</a>
         </li>
-        {{#each settingsPages}}
+        {{#each settings.extensions}}
           <li>
             <a href="{{link url}}">{{name}}</a>
           </li>
@@ -53,7 +53,7 @@
         {{t 'sidebar.projects'}}&nbsp;<i class="icon-dropdown"></i>
       </a>
       <ul class="dropdown-menu">
-        {{#if settingsProvisioning}}
+        {{#if settings.showProvisioning}}
           <li>
             <a href="{{link '/provisioning'}}">{{t 'provisioning.page'}}</a>
           </li>
@@ -72,7 +72,7 @@
         {{t 'sidebar.system'}}&nbsp;<i class="icon-dropdown"></i>
       </a>
       <ul class="dropdown-menu">
-        {{#if settingsUpdateCenter}}
+        {{#if settings.showUpdateCenter}}
           <li>
             <a href="{{link '/updatecenter'}}">{{t 'update_center.page'}}</a>
           </li>

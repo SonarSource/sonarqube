@@ -32,6 +32,8 @@ casper.test.begin(testName('Global Spaces'), 8, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/navigation/global', 'global.json');
       })
 
       .then(function () {
@@ -76,49 +78,44 @@ casper.test.begin(testName('Global Dashboards'), 12, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/navigation/global', 'global.json');
       })
 
       .then(function () {
         casper.evaluate(function () {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          window.navbarOptions.set({
-            globalDashboards: [
-              { url: '/dashboard/?did=1', name: 'First Global Dashboard' },
-              { url: '/dashboard/?did=2', name: 'Second Global Dashboard' },
-              { url: '/dashboard/?did=3', name: 'Third Global Dashboard' }
-            ]
-          });
 
           require(['/js/nav/app.js']);
         });
       })
 
       .then(function () {
-        casper.waitForSelector('.navbar-global .nav');
+        casper.waitForSelector('.navbar-global a[href*="/dashboard/index?did=1"]');
       })
 
       .then(function () {
         // check links existence
-        test.assertExists('.navbar-global a[href*="/dashboard/?did=1"]');
-        test.assertSelectorContains('.navbar-global a[href*="/dashboard/?did=1"]', 'First Global Dashboard');
-        test.assertExists('.navbar-global a[href*="/dashboard/?did=2"]');
-        test.assertSelectorContains('.navbar-global a[href*="/dashboard/?did=2"]', 'Second Global Dashboard');
-        test.assertExists('.navbar-global a[href*="/dashboard/?did=3"]');
-        test.assertSelectorContains('.navbar-global a[href*="/dashboard/?did=3"]', 'Third Global Dashboard');
+        test.assertExists('.navbar-global a[href*="/dashboard/index?did=1"]');
+        test.assertSelectorContains('.navbar-global a[href*="/dashboard/index?did=1"]', 'First Global Dashboard');
+        test.assertExists('.navbar-global a[href*="/dashboard/index?did=2"]');
+        test.assertSelectorContains('.navbar-global a[href*="/dashboard/index?did=2"]', 'Second Global Dashboard');
+        test.assertExists('.navbar-global a[href*="/dashboard/index?did=3"]');
+        test.assertSelectorContains('.navbar-global a[href*="/dashboard/index?did=3"]', 'Third Global Dashboard');
       })
 
       .then(function () {
         // check that dashboards are not visible by default
-        test.assertNotVisible('.navbar-global a[href*="/dashboard/?did=1"]');
-        test.assertNotVisible('.navbar-global a[href*="/dashboard/?did=2"]');
-        test.assertNotVisible('.navbar-global a[href*="/dashboard/?did=3"]');
+        test.assertNotVisible('.navbar-global a[href*="/dashboard/index?did=1"]');
+        test.assertNotVisible('.navbar-global a[href*="/dashboard/index?did=2"]');
+        test.assertNotVisible('.navbar-global a[href*="/dashboard/index?did=3"]');
 
         // check dropdown
         casper.click('.navbar-global .t-dashboards [data-toggle="dropdown"]');
-        test.assertVisible('.navbar-global a[href*="/dashboard/?did=1"]');
-        test.assertVisible('.navbar-global a[href*="/dashboard/?did=2"]');
-        test.assertVisible('.navbar-global a[href*="/dashboard/?did=3"]');
+        test.assertVisible('.navbar-global a[href*="/dashboard/index?did=1"]');
+        test.assertVisible('.navbar-global a[href*="/dashboard/index?did=2"]');
+        test.assertVisible('.navbar-global a[href*="/dashboard/index?did=3"]');
       })
 
       .then(function () {
@@ -135,26 +132,21 @@ casper.test.begin(testName('Global Plugin Pages'), 12, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/navigation/global', 'global.json');
       })
 
       .then(function () {
         casper.evaluate(function () {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          window.navbarOptions.set({
-            globalPages: [
-              { url: '/page/1', name: 'First Global Page' },
-              { url: '/page/2', name: 'Second Global Page' },
-              { url: '/page/3', name: 'Third Global Page' }
-            ]
-          });
 
           require(['/js/nav/app.js']);
         });
       })
 
       .then(function () {
-        casper.waitForSelector('.navbar-global .nav');
+        casper.waitForSelector('.navbar-global a[href*="/page/1"]');
       })
 
       .then(function () {
@@ -233,6 +225,7 @@ casper.test.begin(testName('Search'), 24, function (test) {
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
 
+        lib.mockRequestFromFile('/api/navigation/global', 'global.json');
         lib.mockRequestFromFile('/api/components/suggestions', 'search.json');
         lib.mockRequestFromFile('/api/favourites', 'favorite.json');
       })
@@ -242,8 +235,6 @@ casper.test.begin(testName('Search'), 24, function (test) {
           window.SS.user = 'user';
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          window.navbarOptions.set({ qualifiers: ['TRK', 'VW', 'DEV'] });
-          window.navbarOptions.set({ globalDashboards: [{ name: 'Quality', url: '/dashboard/?did=50' }] });
           window.localStorage.setItem('sonar_recent_history',
               '[{"key":"localhistoryproject","name":"Local History Project","icon":"trk"}]');
 
@@ -252,7 +243,7 @@ casper.test.begin(testName('Search'), 24, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.navbar-global .nav');
+        casper.waitForSelector('.navbar-global a[href*="/page/1"]');
       })
 
       .then(function () {
@@ -292,7 +283,7 @@ casper.test.begin(testName('Search'), 24, function (test) {
         test.assertElementCount('.js-search-results a', 7);
         test.assertExists('.js-search-results a[href*="/profiles"]');
         test.assertExists('.js-search-results a[href*="/quality_gates"]');
-        test.assertExists('.js-search-results a[href*="/dashboard/?did=50"]');
+        test.assertExists('.js-search-results a[href*="/dashboard/index?did=50"]');
         test.assertExists('.js-search-results a[href*="quality-project"]');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java');
         test.assertSelectorContains('.js-search-results a', 'SonarQube Java :: Squid');
@@ -331,38 +322,23 @@ casper.test.begin(testName('Context'), function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/navigation/component', 'component.json',
+            { data: { componentKey: 'org.codehaus.sonar-plugins.java:java' } });
       })
 
       .then(function () {
         casper.evaluate(function () {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          window.navbarOptions.set({
-            contextId: '1',
-            contextKey: 'org.codehaus.sonar-plugins.java:java',
-            contextUuid: 'acfc6a2d-d28c-4302-987c-697544fb096e',
-            contextComparable: true,
-            canFavoriteContext: false,
-            isContextFavorite: false,
-            contextVersion: '2.9-SNAPSHOT',
-            contextDate: '2015-03-03T09:43:37+01:00'
-          });
-          window.navbarOptions.set({
-            contextBreadcrumbs: [
-              {
-                q: 'TRK',
-                url: '/dashboard/index?id=org.codehaus.sonar-plugins.java%3Ajava',
-                name: 'SonarQube Java'
-              }
-            ]
-          });
+          window.navbarOptions.set({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
 
           require(['/js/nav/app.js']);
         });
       })
 
       .then(function () {
-        casper.waitForSelector('.navbar-context .nav');
+        casper.waitForText('SonarQube Java');
       })
 
       .then(function () {
