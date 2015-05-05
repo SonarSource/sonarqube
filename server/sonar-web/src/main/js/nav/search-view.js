@@ -136,15 +136,15 @@ define([
     fetchFavorite: function () {
       var that = this;
       return $.get(baseUrl + '/api/favourites').done(function (r) {
-        that.favorite = r.map(function (f, index) {
+        that.favorite = r.map(function (f) {
           var isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
           return {
             url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + dashboardParameters(true),
             name: isFile ? window.collapsedDirFromPath(f.lname) + window.fileFromPath(f.lname) : f.name,
-            icon: 'favorite',
-            extra: index === 0 ? t('favorite') : null
+            icon: 'favorite'
           };
         });
+        that.favorite = _.sortBy(that.favorite, 'name');
       });
     },
 
@@ -158,6 +158,9 @@ define([
               extra: index === 0 ? t('browsed_recently') : null
             };
           }),
+          favorite = _.first(this.favorite, 6).map(function (f, index) {
+            return _.extend(f, { extra: index === 0 ? t('favorite') : null });
+          }),
           qualifiers = this.model.get('qualifiers').map(function (q, index) {
             return {
               url: baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
@@ -165,7 +168,7 @@ define([
               extra: index === 0 ? '' : null
             };
           });
-      this.results.reset([].concat(history, _.first(this.favorite, 6), qualifiers));
+      this.results.reset([].concat(history, favorite, qualifiers));
     },
 
     search: function (q) {
