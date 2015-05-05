@@ -1,5 +1,5 @@
 <div class="modal-head">
-  <h2><%= "Edit Permission #{message("projects_role.#{@permission}")} For: " + @permission_template.name -%></h2>
+  <h2><%= "Edit Permission #{message("projects_role.#{h @permission}")} For: " + h(@permission_template.name) -%></h2>
 </div>
 
 <div class="modal-body">
@@ -15,11 +15,11 @@
     el: '#select-list-user',
     width: '100%',
     format: function (item) { return item.name + ' <div class="subtitle">' + item.login + '</div>'; },
-    searchUrl: baseUrl + '/permission_templates/search_users?permission=<%= @permission -%>&template=<%= @permission_template.key -%>',
+    searchUrl: baseUrl + '/permission_templates/search_users?permission=<%= u @permission -%>&template=<%= u(@permission_template.key) -%>',
     selectUrl: baseUrl + '/permission_templates/add_user_permission',
     deselectUrl: baseUrl + '/permission_templates/remove_user_permission',
     extra: {
-      permission: '<%= @permission -%>',
+      permission: '<%= escape_javascript @permission -%>',
       template: '<%= @permission_template.key -%>'
     },
     selectParameter: 'user',
