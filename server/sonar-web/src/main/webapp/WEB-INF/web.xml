@@ -140,6 +140,10 @@
     <mime-type>image/jpeg</mime-type>
   </mime-mapping>
   <mime-mapping>
+    <extension>woff</extension>
+    <mime-type>application/x-font-woff</mime-type>
+  </mime-mapping>
+  <mime-mapping>
     <extension>htm</extension>
     <mime-type>text/html</mime-type>
   </mime-mapping>
