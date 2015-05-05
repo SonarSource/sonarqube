@@ -19,17 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.home.cache.FileCache;
-import org.sonar.home.cache.FileCacheBuilder;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,63 +29,57 @@ import static org.mockito.Mockito.when;
 
 public class BatchPluginPredicateTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
+  Settings settings = new Settings();
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
-  FileCache cache;
-  File userHome;
-
-  @Before
-  public void before() throws IOException {
-    userHome = temp.newFolder();
-    cache = new FileCacheBuilder().setUserHome(userHome).build();
-  }
 
   @Test
-  public void shouldAlwaysAcceptIfNoWhiteListAndBlackList() {
-    BatchPluginPredicate predicate = new BatchPluginPredicate(new Settings(), mode);
+  public void accept_if_no_inclusions_nor_exclusions() {
+    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    assertThat(predicate.getWhites()).isEmpty();
+    assertThat(predicate.getBlacks()).isEmpty();
     assertThat(predicate.apply("pmd")).isTrue();
     assertThat(predicate.apply("buildbreaker")).isTrue();
   }
 
   @Test
-  public void shouldBlackListBuildBreakerInPreviewMode() {
+  public void exclude_buildbreaker_in_preview_mode() {
     when(mode.isPreview()).thenReturn(true);
-    BatchPluginPredicate predicate = new BatchPluginPredicate(new Settings(), mode);
+    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("buildbreaker")).isFalse();
   }
 
   @Test
-  public void whiteListShouldTakePrecedenceOverBlackList() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura,pmd");
+  public void inclusions_take_precedence_over_exclusions() {
+    when(mode.isPreview()).thenReturn(true);
+    settings
+      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura,pmd");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }
 
   @Test
-  public void corePluginShouldAlwaysBeInWhiteList() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+  public void accept_core_plugin_even_if_not_in_inclusions() {
+    when(mode.isPreview()).thenReturn(true);
+    settings.setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("core")).isTrue();
   }
 
   @Test
-  public void corePluginShouldNeverBeInBlackList() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "core,findbugs");
+  public void accept_core_plugin_even_if_in_exclusions() {
+    when(mode.isPreview()).thenReturn(true);
+    settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "core,findbugs");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("core")).isTrue();
   }
 
   @Test
-  public void check_white_list_with_black_list() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura");
+  public void both_inclusions_and_exclusions() {
+    when(mode.isPreview()).thenReturn(true);
+    settings
+      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("checkstyle")).isTrue();
     assertThat(predicate.apply("pmd")).isTrue();
@@ -101,20 +87,9 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void check_white_list_when_plugin_is_in_both_list() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "cobertura,checkstyle,pmd,findbugs")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
-    assertThat(predicate.apply("checkstyle")).isTrue();
-    assertThat(predicate.apply("pmd")).isTrue();
-    assertThat(predicate.apply("cobertura")).isTrue();
-  }
-
-  @Test
-  public void check_black_list_if_no_white_list() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
+  public void only_exclusions() {
+    when(mode.isPreview()).thenReturn(true);
+    settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("checkstyle")).isFalse();
     assertThat(predicate.apply("pmd")).isFalse();
@@ -122,34 +97,22 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void should_concatenate_preview_predicates() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "cockpit")
-      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "views")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd");
+  public void deprecated_dry_run_settings() {
     when(mode.isPreview()).thenReturn(true);
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
-    assertThat(predicate.getWhites()).containsOnly("cockpit");
-    assertThat(predicate.getBlacks()).containsOnly("views", "checkstyle", "pmd");
-  }
-
-  @Test
-  public void should_concatenate_deprecated_dry_run_predicates() {
-    Settings settings = new Settings()
+    settings
       .setProperty(CoreProperties.DRY_RUN_INCLUDE_PLUGINS, "cockpit")
-      .setProperty(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, "views")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "checkstyle,pmd");
-    when(mode.isPreview()).thenReturn(true);
+      .setProperty(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, "views,pmd");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+
     assertThat(predicate.getWhites()).containsOnly("cockpit");
-    assertThat(predicate.getBlacks()).containsOnly("views", "checkstyle", "pmd");
+    assertThat(predicate.getBlacks()).containsOnly("views", "pmd");
   }
 
   @Test
-  public void inclusions_and_exclusions_should_be_trimmed() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle, pmd, findbugs")
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura, pmd");
+  public void trim_inclusions_and_exclusions() {
+    settings
+      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle, pmd, findbugs")
+      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura, pmd");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
     assertThat(predicate.apply("pmd")).isTrue();
   }

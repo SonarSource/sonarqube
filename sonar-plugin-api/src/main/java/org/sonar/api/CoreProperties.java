@@ -465,9 +465,6 @@ public interface CoreProperties {
   String WORKING_DIRECTORY = "sonar.working.directory";
   String WORKING_DIRECTORY_DEFAULT_VALUE = ".sonar";
 
-  String BATCH_INCLUDE_PLUGINS = "sonar.includePlugins";
-  String BATCH_EXCLUDE_PLUGINS = "sonar.excludePlugins";
-
   /**
    * @since 3.4
    * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}

@@ -31,12 +31,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nonnull;
+
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -55,12 +54,6 @@ public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
 
   public BatchPluginPredicate(Settings settings, DefaultAnalysisMode mode) {
     this.mode = mode;
-    if (settings.hasKey(CoreProperties.BATCH_INCLUDE_PLUGINS)) {
-      whites.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_INCLUDE_PLUGINS)));
-    }
-    if (settings.hasKey(CoreProperties.BATCH_EXCLUDE_PLUGINS)) {
-      blacks.addAll(Arrays.asList(settings.getStringArray(CoreProperties.BATCH_EXCLUDE_PLUGINS)));
-    }
     if (mode.isPreview()) {
       // These default values are not supported by Settings because the class CorePlugin
       // is not loaded yet.
@@ -100,10 +93,10 @@ public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
       return false;
     }
 
-    // FIXME what happens if there are only white-listed plugins ?
-    List<String> mergeList = newArrayList(blacks);
-    mergeList.removeAll(whites);
-    return mergeList.isEmpty() || !mergeList.contains(pluginKey);
+    if (whites.isEmpty()) {
+      return blacks.isEmpty() || !blacks.contains(pluginKey);
+    }
+    return whites.contains(pluginKey);
   }
 
   Set<String> getWhites() {
@@ -114,8 +107,8 @@ public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
     return blacks;
   }
 
-  static List<String> propertyValues(Settings settings, String key, String defaultValue) {
+  private static List<String> propertyValues(Settings settings, String key, String defaultValue) {
     String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
-    return Lists.newArrayList(Splitter.on(",").trimResults().split(s));
+    return Lists.newArrayList(Splitter.on(",").trimResults().omitEmptyStrings().split(s));
   }
 }
