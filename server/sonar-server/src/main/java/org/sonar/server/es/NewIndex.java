@@ -175,7 +175,7 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean sortable = false, wordSearch = false, gramSearch = false, docValues = false, disableSearch = false;
+    private boolean docValues = false, disableSearch = false, hasAnalyzedField = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
@@ -189,10 +189,12 @@ public class NewIndex {
     }
 
     /**
-     * Add a sub-field
+     * Add a sub-field. A {@code SortedMap} is required for consistency of the index settings hash.
+     * @see IndexDefinitionHash
      */
-    public StringFieldBuilder addSubField(String fieldName, Map<String, String> fieldDefinition) {
+    public StringFieldBuilder addSubField(String fieldName, SortedMap<String, String> fieldDefinition) {
       subFields.put(fieldName, fieldDefinition);
+      hasAnalyzedField |= "analyzed".equals(fieldDefinition.get("index"));
       return this;
     }
 
@@ -200,7 +202,6 @@ public class NewIndex {
      * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
-      this.sortable = true;
       addSubField(IndexField.SORT_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
@@ -212,7 +213,6 @@ public class NewIndex {
      * Create an inner-field named "words" with analyzer "words"
      */
     public StringFieldBuilder enableWordSearch() {
-      this.wordSearch = true;
       addSubField(IndexField.SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
@@ -225,7 +225,6 @@ public class NewIndex {
      * Create a inner-field named "grams" with analyzer "grams"
      */
     public StringFieldBuilder enableGramSearch() {
-      this.gramSearch = true;
       addSubField(IndexField.SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
@@ -268,10 +267,10 @@ public class NewIndex {
     }
 
     private void validate() {
-      if (docValues && (gramSearch || wordSearch || sortable)) {
+      if (docValues && hasAnalyzedField) {
         throw new IllegalStateException("Doc values are not supported on analyzed strings of field: " + fieldName);
       }
-      if (disableSearch && (gramSearch || wordSearch || sortable)) {
+      if (disableSearch && hasAnalyzedField) {
         throw new IllegalStateException("Can't mix searchable and non-searchable arguments on field: " + fieldName);
       }
     }

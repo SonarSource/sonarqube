@@ -25,7 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
-import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * Definition of ES index "users", including settings and fields.
@@ -88,7 +88,7 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
   }
 
-  private Map<String, String> buildGramSearchField() {
+  private SortedMap<String, String> buildGramSearchField() {
     return ImmutableSortedMap.of(
       "type", "string",
       "index", "analyzed",
