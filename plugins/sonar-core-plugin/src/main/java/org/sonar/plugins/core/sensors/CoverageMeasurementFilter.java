@@ -22,11 +22,11 @@ package org.sonar.plugins.core.sensors;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.ImmutableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
@@ -34,14 +34,16 @@ import org.sonar.api.utils.WildcardPattern;
 import org.sonar.core.measure.MeasurementFilter;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 public class CoverageMeasurementFilter implements MeasurementFilter {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageMeasurementFilter.class);
 
   private final Settings settings;
-  private final ImmutableSet<Metric> coverageMetrics;
+  private final Set<Metric> coverageMetrics;
   private Collection<WildcardPattern> resourcePatterns;
 
   public CoverageMeasurementFilter(Settings settings,
@@ -49,14 +51,49 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
     LineCoverageDecorator lineCoverageDecorator,
     BranchCoverageDecorator branchCoverageDecorator) {
     this.settings = settings;
-    this.coverageMetrics = ImmutableSet.<Metric>builder()
-      .addAll(coverageDecorator.generatedMetrics())
-      .addAll(coverageDecorator.usedMetrics())
-      .addAll(lineCoverageDecorator.generatedMetrics())
-      .addAll(lineCoverageDecorator.dependsUponMetrics())
-      .addAll(branchCoverageDecorator.generatedMetrics())
-      .addAll(branchCoverageDecorator.dependsUponMetrics())
-      .build();
+    this.coverageMetrics = new HashSet<Metric>();
+    // UT
+    coverageMetrics.add(CoreMetrics.COVERAGE);
+    coverageMetrics.add(CoreMetrics.LINE_COVERAGE);
+    coverageMetrics.add(CoreMetrics.BRANCH_COVERAGE);
+    coverageMetrics.add(CoreMetrics.UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.UNCOVERED_CONDITIONS);
+    coverageMetrics.add(CoreMetrics.CONDITIONS_TO_COVER);
+    coverageMetrics.add(CoreMetrics.CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.COVERED_CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.COVERAGE_LINE_HITS_DATA);
+    coverageMetrics.add(CoreMetrics.NEW_LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.NEW_UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.NEW_UNCOVERED_CONDITIONS);
+    // IT
+    coverageMetrics.add(CoreMetrics.IT_COVERAGE);
+    coverageMetrics.add(CoreMetrics.IT_LINE_COVERAGE);
+    coverageMetrics.add(CoreMetrics.IT_BRANCH_COVERAGE);
+    coverageMetrics.add(CoreMetrics.IT_UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.IT_LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.IT_UNCOVERED_CONDITIONS);
+    coverageMetrics.add(CoreMetrics.IT_CONDITIONS_TO_COVER);
+    coverageMetrics.add(CoreMetrics.IT_CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA);
+    coverageMetrics.add(CoreMetrics.NEW_IT_LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.NEW_IT_UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS);
+    // OVERALL
+    coverageMetrics.add(CoreMetrics.OVERALL_COVERAGE);
+    coverageMetrics.add(CoreMetrics.OVERALL_LINE_COVERAGE);
+    coverageMetrics.add(CoreMetrics.OVERALL_BRANCH_COVERAGE);
+    coverageMetrics.add(CoreMetrics.OVERALL_UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.OVERALL_LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.OVERALL_UNCOVERED_CONDITIONS);
+    coverageMetrics.add(CoreMetrics.OVERALL_CONDITIONS_TO_COVER);
+    coverageMetrics.add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE);
+    coverageMetrics.add(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA);
+    coverageMetrics.add(CoreMetrics.NEW_OVERALL_LINES_TO_COVER);
+    coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES);
+    coverageMetrics.add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
 
     initPatterns();
   }
