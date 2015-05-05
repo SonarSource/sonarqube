@@ -5,6 +5,26 @@
     {{langName}}
   </a>
 
+  {{#if severity}}
+    <a href="#" class="issue-action-option" data-property="severities" data-value="{{severity}}">
+      {{severityHelper severity}}
+    </a>
+  {{/if}}
+
+  {{#if debtChar}}
+    <hr>
+
+    <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtChar}}">
+      {{debtCharName}}
+    </a>
+
+    {{#if debtSubChar}}
+      <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtSubChar}}">
+        {{debtSubCharName}}
+      </a>
+    {{/if}}
+  {{/if}}
+
   {{#notEmpty tags}}
     <hr>
     {{#each tags}}

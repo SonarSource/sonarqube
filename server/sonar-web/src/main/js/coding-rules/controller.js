@@ -27,7 +27,8 @@ define([
 
   return Controller.extend({
     pageSize: 200,
-    ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status'],
+    ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity',
+                 'debtChar', 'debtCharName', 'debtSubChar', 'debtSubCharName'],
 
 
     _searchParameters: function () {

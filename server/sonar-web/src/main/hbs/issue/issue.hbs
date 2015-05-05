@@ -35,10 +35,10 @@
           <div class="issue-meta">
             {{#inArray actions "set_severity"}}
               <a class="issue-action issue-action-with-options js-issue-set-severity">
-                <span class="issue-meta-label">{{severity severity}}</span>&nbsp;<i class="icon-dropdown"></i>
+                <span class="issue-meta-label">{{severityHelper severity}}</span>&nbsp;<i class="icon-dropdown"></i>
               </a>
             {{else}}
-              {{severity severity}}
+              {{severityHelper severity}}
             {{/inArray}}
           </div>
 

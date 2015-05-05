@@ -53,7 +53,7 @@
     );
   });
 
-  Handlebars.registerHelper('severity', function (severity) {
+  Handlebars.registerHelper('severityHelper', function (severity) {
     return new Handlebars.SafeString(
         '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
     );

@@ -93,7 +93,6 @@ casper.test.begin(testName('Filter Similar Rules'), 3, function (test) {
       .start(lib.buildUrl('coding-rules'), function () {
         lib.setDefaultViewport();
 
-
         lib.mockRequestFromFile('/api/rules/app', 'app.json');
         lib.mockRequestFromFile('/api/rules/search', 'search-sql-tag.json', { data: { tags: 'sql' } });
         lib.mockRequestFromFile('/api/rules/search', 'search.json');
@@ -120,7 +119,6 @@ casper.test.begin(testName('Filter Similar Rules'), 3, function (test) {
         test.assertExists('.bubble-popup [data-property="languages"][data-value="java"]');
 
         casper.click('.bubble-popup [data-property="tags"][data-value="sql"]');
-        casper.wait(1000, function () { lib.capture(); });
         casper.waitForSelectorTextChange('#coding-rules-total');
       })
 
