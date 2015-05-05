@@ -39,7 +39,6 @@ public class UsersWs implements WebService {
       .setDescription("Users management");
 
     defineSearchAction(controller);
-    defineDeactivateAction(controller);
     for (BaseUsersWsAction action : actions) {
       action.define(controller);
     }
@@ -69,20 +68,4 @@ public class UsersWs implements WebService {
 
     RailsHandler.addFormatParam(action);
   }
-
-  private void defineDeactivateAction(NewController controller) {
-    NewAction action = controller.createAction("deactivate")
-      .setDescription("Deactivate a user. Requires Administer System permission")
-      .setSince("3.7")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("login")
-      .setDescription("User login")
-      .setRequired(true)
-      .setExampleValue("myuser");
-
-    RailsHandler.addFormatParam(action);
-  }
-
 }

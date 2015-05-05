@@ -41,7 +41,8 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class)),
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class)),
-      new CurrentUserAction()));
+      new CurrentUserAction(),
+      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class))));
     controller = tester.controller("api/users");
   }
 
@@ -84,8 +85,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("deactivate");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(1);
   }
 
   @Test
