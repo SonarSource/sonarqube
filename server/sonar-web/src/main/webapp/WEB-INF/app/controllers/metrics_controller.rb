@@ -92,6 +92,7 @@ class MetricsController < ApplicationController
       metric.domain = params[:newdomain]
     end
     metric.direction = 0
+    metric.qualitative = false
     metric.user_managed = true
     metric.origin = Metric::ORIGIN_GUI
     metric.enabled = true unless @reactivate_metric
