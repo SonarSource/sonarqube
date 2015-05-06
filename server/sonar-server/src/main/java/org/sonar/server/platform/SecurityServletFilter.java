@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * This servlet filter sets response headers that enable browser protection against several classes if Web attacks.
+ * The list of headers is mirrored in environment.rb as a workaround to Rack swallowing the headers..
+ */
 public class SecurityServletFilter implements Filter {
 
   @Override
@@ -44,6 +48,14 @@ public class SecurityServletFilter implements Filter {
     // See https://www.owasp.org/index.php/Clickjacking_Protection_for_Java_EE
     HttpServletResponse httpResponse = (HttpServletResponse) resp;
     httpResponse.addHeader("X-Frame-Options", "SAMEORIGIN");
+
+    // Cross-site scripting
+    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    httpResponse.addHeader("X-XSS-Protection", "1; mode=block");
+
+    // MIME-sniffing
+    // See https://www.owasp.org/index.php/List_of_useful_HTTP_headers
+    httpResponse.addHeader("X-Content-Type-Options", "nosniff");
   }
 
   @Override

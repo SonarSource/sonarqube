@@ -26,7 +26,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class SecurityServletFilterTest {
@@ -41,8 +44,7 @@ public class SecurityServletFilterTest {
     FilterChain chain = mock(FilterChain.class);
     filter.doFilter(request, response, chain);
 
-    // Clickjacking
-    verify(response).addHeader("X-Frame-Options", "SAMEORIGIN");
+    verify(response, times(3)).addHeader(startsWith("X-"), anyString());
 
     filter.destroy();
   }
