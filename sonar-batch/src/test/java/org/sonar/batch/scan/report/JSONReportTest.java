@@ -39,7 +39,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.repository.user.User;
+import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.test.JsonAssert;
@@ -115,8 +115,8 @@ public class JSONReportTest {
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
     when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
-    User user1 = new User("julien", "Julien");
-    User user2 = new User("simon", "Simon");
+    BatchInput.User user1 = BatchInput.User.newBuilder().setLogin("julien").setName("Julien").build();
+    BatchInput.User user2 = BatchInput.User.newBuilder().setLogin("simon").setName("Simon").build();
     when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
