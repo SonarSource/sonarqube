@@ -48,7 +48,7 @@ public class PluginWSCommons {
   static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
   static final String PROPERTY_DATE = "date";
   static final String PROPERTY_STATUS = "status";
-  static final String PROPERTY_HOMEPAGE = "homepage";
+  static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
   static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
   static final String OBJECT_ARTIFACT = "artifact";
   static final String PROPERTY_URL = "url";
@@ -90,7 +90,7 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
     jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganizationName());
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
-    jsonWriter.prop(PROPERTY_HOMEPAGE, pluginMetadata.getHomepageUrl());
+    jsonWriter.prop(PROPERTY_HOMEPAGE_URL, pluginMetadata.getHomepageUrl());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
     jsonWriter.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginMetadata.getImplementationBuild());
   }

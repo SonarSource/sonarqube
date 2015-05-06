@@ -132,7 +132,7 @@ public class InstalledPluginsWsActionTest {
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\"," +
-        "      \"homepage\": \"homepage_url\"," +
+        "      \"homepageUrl\": \"homepage_url\"," +
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"" +
         "    }" +

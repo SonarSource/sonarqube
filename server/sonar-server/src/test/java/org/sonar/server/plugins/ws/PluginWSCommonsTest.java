@@ -56,7 +56,7 @@ public class PluginWSCommonsTest {
       "  \"license\": \"GNU LGPL 3\"," +
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-      "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
       "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
       "}");
   }
@@ -76,7 +76,7 @@ public class PluginWSCommonsTest {
       "  \"license\": \"GNU LGPL 3\"," +
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
-      "  \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
       "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
       "}");
   }

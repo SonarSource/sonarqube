@@ -93,7 +93,7 @@ public class PendingPluginsWsActionTest {
         "      \"license\": \"GNU LGPL 3\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
@@ -122,7 +122,7 @@ public class PendingPluginsWsActionTest {
         "      \"license\": \"GNU LGPL 3\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
-        "      \"homepage\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
+        "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
         "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
