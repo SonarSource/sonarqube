@@ -1,0 +1,49 @@
+/*
+    SonarQube, open source software quality management tool.
+    Copyright (C) 2008-2015 SonarSource
+    mailto:contact AT sonarsource DOT com
+
+    SonarQube is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    SonarQube is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - the related Java files are not generated during build. Indeed the existing protoc maven
+    plugins require protobuf to be installed on boxes. That means that generated Java files
+    are updated and committed for each change (see src/main/gen-java).
+*/
+
+// structure of DSM measure
+
+// Temporarily in sonar-batch-protocol but it should be move to server/sonar-server
+
+package org.sonar.server.design.db;
+
+option optimize_for = SPEED;
+
+message Data {
+  repeated string uuid = 1;
+  repeated Cell cell = 2;
+
+  message Cell {
+    optional int32 offset = 1;
+    optional int32 weight = 2;
+  }
+}
+

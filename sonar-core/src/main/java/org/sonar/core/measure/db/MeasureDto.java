@@ -86,13 +86,23 @@ public class MeasureDto {
       this.dataValue = null;
     } else if (data.length() > MAX_TEXT_VALUE_LENGTH) {
       this.textValue = null;
-      this.dataValue = data.getBytes(Charsets.UTF_8);
+      setByteData(data.getBytes(Charsets.UTF_8));
     } else {
       this.textValue = data;
       this.dataValue = null;
     }
 
     return this;
+  }
+
+  public MeasureDto setByteData(@Nullable byte[] data){
+    this.dataValue = data;
+    return this;
+  }
+
+  @CheckForNull
+  public byte[] getByteData() {
+    return dataValue;
   }
 
   @CheckForNull

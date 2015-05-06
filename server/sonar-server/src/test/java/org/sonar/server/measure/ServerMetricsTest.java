@@ -17,28 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.issue;
 
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCache;
+package org.sonar.server.measure;
 
-import java.io.File;
+import org.junit.Test;
 
-/**
- * Cache of all the issues involved in the analysis. Their state is as it will be
- * persisted in database (after issue tracking, auto-assignment, ...)
- *
- */
-public class IssueCache extends DiskCache<DefaultIssue> {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  // this constructor is used by picocontainer
-  public IssueCache(TempFolder tempFolder, System2 system2) {
-    super(tempFolder.newFile("issues", ".dat"), system2);
-  }
+public class ServerMetricsTest {
 
-  public IssueCache(File file, System2 system2) {
-    super(file, system2);
+  @Test
+  public void read_metrics() throws Exception {
+    assertThat(ServerMetrics.getMetrics()).hasSize(1);
   }
 }
