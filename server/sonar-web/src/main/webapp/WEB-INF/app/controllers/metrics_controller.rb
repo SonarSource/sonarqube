@@ -93,6 +93,7 @@ class MetricsController < ApplicationController
     end
     metric.direction = 0
     metric.user_managed = true
+    metric.qualitative = false
     metric.origin = Metric::ORIGIN_GUI
     metric.enabled = true unless @reactivate_metric
 
