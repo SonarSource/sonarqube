@@ -20,10 +20,12 @@
 
 package org.sonar.server.issue.notification;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -32,6 +34,10 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.user.index.UserIndex;
 
 import java.util.Date;
@@ -42,15 +48,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.DEBT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesNotificationTest {
 
   NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats();
   UserIndex userIndex = mock(UserIndex.class);
+  RuleIndex ruleIndex = mock(RuleIndex.class);
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   Durations durations = mock(Durations.class);
-  NewIssuesNotification sut = new NewIssuesNotification(userIndex, dbClient, durations);
+  NewIssuesNotification sut = new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
 
   @Test
   public void set_project() throws Exception {
@@ -83,6 +95,8 @@ public class NewIssuesNotificationTest {
     addIssueNTimes(newIssue2(), 3);
     when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
     when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
+    when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
+    when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
 
     sut.setStatistics(component, stats);
 
@@ -92,14 +106,18 @@ public class NewIssuesNotificationTest {
     assertThat(sut.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
     assertThat(sut.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
     assertThat(sut.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
-    assertThat(sut.getFieldValue(TAGS + ".1.label")).isEqualTo("owasp");
-    assertThat(sut.getFieldValue(TAGS + ".1.count")).isEqualTo("8");
-    assertThat(sut.getFieldValue(TAGS + ".2.label")).isEqualTo("bug");
-    assertThat(sut.getFieldValue(TAGS + ".2.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(TAG + ".1.label")).isEqualTo("owasp");
+    assertThat(sut.getFieldValue(TAG + ".1.count")).isEqualTo("8");
+    assertThat(sut.getFieldValue(TAG + ".2.label")).isEqualTo("bug");
+    assertThat(sut.getFieldValue(TAG + ".2.count")).isEqualTo("5");
     assertThat(sut.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-name");
     assertThat(sut.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
     assertThat(sut.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-name");
     assertThat(sut.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
+    assertThat(sut.getFieldValue(RULE + ".1.label")).isEqualTo("Rule the World (Java)");
+    assertThat(sut.getFieldValue(RULE + ".1.count")).isEqualTo("5");
+    assertThat(sut.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
+    assertThat(sut.getFieldValue(RULE + ".2.count")).isEqualTo("3");
     assertThat(sut.getDefaultMessage()).startsWith("8 new issues on project-long-name");
   }
 
@@ -124,6 +142,7 @@ public class NewIssuesNotificationTest {
       .setComponentUuid("file-uuid")
       .setSeverity(Severity.INFO)
       .setTags(Lists.newArrayList("bug", "owasp"))
+      .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
       .setDebt(Duration.create(5L));
   }
 
@@ -133,6 +152,14 @@ public class NewIssuesNotificationTest {
       .setComponentUuid("directory-uuid")
       .setSeverity(Severity.BLOCKER)
       .setTags(Lists.newArrayList("owasp"))
+      .setRuleKey(RuleKey.of("SonarQube", "rule-the-universe"))
       .setDebt(Duration.create(10L));
+  }
+
+  private Rule newRule(String name, String language) {
+    return new RuleDoc(ImmutableMap.<String, Object>of(
+      RuleNormalizer.RuleField.NAME.field(), name,
+      RuleNormalizer.RuleField.LANGUAGE.field(), language
+      ));
   }
 }

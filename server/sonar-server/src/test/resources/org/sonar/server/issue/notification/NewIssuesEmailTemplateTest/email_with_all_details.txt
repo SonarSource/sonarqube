@@ -9,6 +9,10 @@ Project: Struts
         robin.williams: 5
         al.pacino: 7
 
+    Rules
+        Rule the Universe (Clojure): 42
+        Rule the World (Java): 5
+
     Tags
         oscar: 3
         cesar: 10

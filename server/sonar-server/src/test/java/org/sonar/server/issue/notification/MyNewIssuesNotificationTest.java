@@ -23,6 +23,7 @@ package org.sonar.server.issue.notification;
 import org.junit.Test;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 
 public class MyNewIssuesNotificationTest {
 
-  MyNewIssuesNotification sut = new MyNewIssuesNotification(mock(UserIndex.class), mock(DbClient.class), mock(Durations.class));
+  MyNewIssuesNotification sut = new MyNewIssuesNotification(mock(UserIndex.class), mock(RuleIndex.class), mock(DbClient.class), mock(Durations.class));
 
   @Test
   public void set_assignee() throws Exception {

@@ -23,9 +23,10 @@ package org.sonar.server.issue.notification;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
-import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
+import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,16 +42,18 @@ public class NewIssuesStatisticsTest {
     sut.add(issue.setAssignee("james"));
     sut.add(issue.setAssignee("keenan"));
 
-    assertThat(countDistribution(METRIC.ASSIGNEE, "maynard")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.ASSIGNEE, "james")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.ASSIGNEE, "keenan")).isEqualTo(1);
-    assertThat(countDistribution(METRIC.ASSIGNEE, "wrong.login")).isEqualTo(0);
-    assertThat(countDistribution(METRIC.COMPONENT, "file-uuid")).isEqualTo(3);
-    assertThat(countDistribution(METRIC.COMPONENT, "wrong-uuid")).isEqualTo(0);
-    assertThat(countDistribution(METRIC.SEVERITY, Severity.INFO)).isEqualTo(3);
-    assertThat(countDistribution(METRIC.SEVERITY, Severity.CRITICAL)).isEqualTo(0);
-    assertThat(countDistribution(METRIC.TAGS, "owasp")).isEqualTo(3);
-    assertThat(countDistribution(METRIC.TAGS, "wrong-tag")).isEqualTo(0);
+    assertThat(countDistribution(Metric.ASSIGNEE, "maynard")).isEqualTo(1);
+    assertThat(countDistribution(Metric.ASSIGNEE, "james")).isEqualTo(1);
+    assertThat(countDistribution(Metric.ASSIGNEE, "keenan")).isEqualTo(1);
+    assertThat(countDistribution(Metric.ASSIGNEE, "wrong.login")).isEqualTo(0);
+    assertThat(countDistribution(Metric.COMPONENT, "file-uuid")).isEqualTo(3);
+    assertThat(countDistribution(Metric.COMPONENT, "wrong-uuid")).isEqualTo(0);
+    assertThat(countDistribution(Metric.SEVERITY, Severity.INFO)).isEqualTo(3);
+    assertThat(countDistribution(Metric.SEVERITY, Severity.CRITICAL)).isEqualTo(0);
+    assertThat(countDistribution(Metric.TAG, "owasp")).isEqualTo(3);
+    assertThat(countDistribution(Metric.TAG, "wrong-tag")).isEqualTo(0);
+    assertThat(countDistribution(Metric.RULE, "SonarQube:rule-the-world")).isEqualTo(3);
+    assertThat(countDistribution(Metric.RULE, "SonarQube:has-a-fake-rule")).isEqualTo(0);
     assertThat(sut.globalStatistics().debt().toMinutes()).isEqualTo(15L);
     assertThat(sut.globalStatistics().hasIssues()).isTrue();
     assertThat(sut.hasIssues()).isTrue();
@@ -62,7 +65,7 @@ public class NewIssuesStatisticsTest {
     assertThat(sut.globalStatistics().hasIssues()).isFalse();
   }
 
-  private int countDistribution(METRIC metric, String label) {
+  private int countDistribution(Metric metric, String label) {
     return sut.globalStatistics().countForMetric(metric, label);
   }
 
@@ -72,6 +75,7 @@ public class NewIssuesStatisticsTest {
       .setComponentUuid("file-uuid")
       .setNew(true)
       .setSeverity(Severity.INFO)
+      .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
       .setTags(Lists.newArrayList("bug", "owasp"))
       .setDebt(Duration.create(5L));
   }

@@ -23,6 +23,7 @@ package org.sonar.server.issue.notification;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.util.MultiSets;
 
@@ -32,7 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesStatistics {
   private Map<String, Stats> assigneesStatistics = new LinkedHashMap<>();
@@ -65,11 +70,11 @@ public class NewIssuesStatistics {
     return globalStatistics.hasIssues();
   }
 
-  enum METRIC {
-    SEVERITY(true), TAGS(true), COMPONENT(true), ASSIGNEE(true), DEBT(false);
+  enum Metric {
+    SEVERITY(true), TAG(true), COMPONENT(true), ASSIGNEE(true), DEBT(false), RULE(true);
     private final boolean isComputedByDistribution;
 
-    METRIC(boolean isComputedByDistribution) {
+    Metric(boolean isComputedByDistribution) {
       this.isComputedByDistribution = isComputedByDistribution;
     }
 
@@ -79,11 +84,11 @@ public class NewIssuesStatistics {
   }
 
   public static class Stats {
-    private final Map<METRIC, Multiset<String>> distributions = new EnumMap<>(METRIC.class);
+    private final Map<Metric, Multiset<String>> distributions = new EnumMap<>(Metric.class);
     private long debtInMinutes = 0L;
 
     public Stats() {
-      for (METRIC metric : METRIC.values()) {
+      for (Metric metric : Metric.values()) {
         if (metric.isComputedByDistribution()) {
           distributions.put(metric, HashMultiset.<String>create());
         }
@@ -93,11 +98,15 @@ public class NewIssuesStatistics {
     public void add(Issue issue) {
       distributions.get(SEVERITY).add(issue.severity());
       distributions.get(COMPONENT).add(issue.componentUuid());
+      RuleKey ruleKey = issue.ruleKey();
+      if (ruleKey != null) {
+        distributions.get(RULE).add(ruleKey.toString());
+      }
       if (issue.assignee() != null) {
         distributions.get(ASSIGNEE).add(issue.assignee());
       }
       for (String tag : issue.tags()) {
-        distributions.get(TAGS).add(tag);
+        distributions.get(TAG).add(tag);
       }
       Duration debt = issue.debt();
       if (debt != null) {
@@ -105,11 +114,11 @@ public class NewIssuesStatistics {
       }
     }
 
-    public int countForMetric(METRIC metric) {
+    public int countForMetric(Metric metric) {
       return distributionFor(metric).size();
     }
 
-    public int countForMetric(METRIC metric, String label) {
+    public int countForMetric(Metric metric, String label) {
       return distributionFor(metric).count(label);
     }
 
@@ -121,11 +130,11 @@ public class NewIssuesStatistics {
       return !distributionFor(SEVERITY).isEmpty();
     }
 
-    public List<Multiset.Entry<String>> statsForMetric(METRIC metric) {
+    public List<Multiset.Entry<String>> statsForMetric(Metric metric) {
       return MultiSets.listOrderedByHighestCounts(distributionFor(metric));
     }
 
-    private Multiset<String> distributionFor(METRIC metric) {
+    private Multiset<String> distributionFor(Metric metric) {
       checkArgument(metric.isComputedByDistribution());
       return distributions.get(metric);
     }

@@ -37,10 +37,16 @@ import java.util.Date;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.DEBT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class MyNewIssuesEmailTemplateTest {
 
@@ -83,6 +89,7 @@ public class MyNewIssuesEmailTemplateTest {
   public void format_email_with_all_fields_filled() throws Exception {
     Notification notification = newNotification();
     addTags(notification);
+    addRules(notification);
     addComponents(notification);
 
     EmailMessage message = sut.format(notification);
@@ -149,10 +156,10 @@ public class MyNewIssuesEmailTemplateTest {
 
   private void addTags(Notification notification) {
     notification
-      .setFieldValue(TAGS + ".1.label", "oscar")
-      .setFieldValue(TAGS + ".1.count", "3")
-      .setFieldValue(TAGS + ".2.label", "cesar")
-      .setFieldValue(TAGS + ".2.count", "10");
+      .setFieldValue(TAG + ".1.label", "oscar")
+      .setFieldValue(TAG + ".1.count", "3")
+      .setFieldValue(TAG + ".2.label", "cesar")
+      .setFieldValue(TAG + ".2.count", "10");
   }
 
   private void addComponents(Notification notification) {
@@ -161,5 +168,13 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue(COMPONENT + ".1.count", "3")
       .setFieldValue(COMPONENT + ".2.label", "/path/to/directory")
       .setFieldValue(COMPONENT + ".2.count", "7");
+  }
+
+  private void addRules(Notification notification) {
+    notification
+      .setFieldValue(RULE + ".1.label", "Rule the Universe (Clojure)")
+      .setFieldValue(RULE + ".1.count", "42")
+      .setFieldValue(RULE + ".2.label", "Rule the World (Java)")
+      .setFieldValue(RULE + ".2.count", "5");
   }
 }

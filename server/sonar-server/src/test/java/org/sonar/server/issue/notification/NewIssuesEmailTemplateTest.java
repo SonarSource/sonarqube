@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.*;
 
 public class NewIssuesEmailTemplateTest {
 
@@ -97,6 +97,7 @@ public class NewIssuesEmailTemplateTest {
   public void format_email_with_all_fields_filled() throws Exception {
     Notification notification = newNotification();
     addAssignees(notification);
+    addRules(notification);
     addTags(notification);
     addComponents(notification);
 
@@ -154,10 +155,10 @@ public class NewIssuesEmailTemplateTest {
 
   private void addTags(Notification notification) {
     notification
-      .setFieldValue(TAGS + ".1.label", "oscar")
-      .setFieldValue(TAGS + ".1.count", "3")
-      .setFieldValue(TAGS + ".2.label", "cesar")
-      .setFieldValue(TAGS + ".2.count", "10");
+      .setFieldValue(TAG + ".1.label", "oscar")
+      .setFieldValue(TAG + ".1.count", "3")
+      .setFieldValue(TAG + ".2.label", "cesar")
+      .setFieldValue(TAG + ".2.count", "10");
   }
 
   private void addComponents(Notification notification) {
@@ -166,5 +167,13 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue(COMPONENT + ".1.count", "3")
       .setFieldValue(COMPONENT + ".2.label", "/path/to/directory")
       .setFieldValue(COMPONENT + ".2.count", "7");
+  }
+
+  private void addRules(Notification notification) {
+    notification
+      .setFieldValue(RULE + ".1.label", "Rule the Universe (Clojure)")
+      .setFieldValue(RULE + ".1.count", "42")
+      .setFieldValue(RULE + ".2.label", "Rule the World (Java)")
+      .setFieldValue(RULE + ".2.count", "5");
   }
 }

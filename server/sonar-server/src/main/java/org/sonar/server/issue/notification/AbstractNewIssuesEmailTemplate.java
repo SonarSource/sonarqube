@@ -28,7 +28,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
-import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
+import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -82,6 +82,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     message.append("Project: ").append(projectName).append(NEW_LINE).append(NEW_LINE);
     appendSeverity(message, notification);
     appendAssignees(message, notification);
+    appendRules(message, notification);
     appendTags(message, notification);
     appendComponents(message, notification);
     appendFooter(message, notification);
@@ -97,15 +98,15 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   protected String subject(Notification notification, String projectName) {
     return String.format("%s: %s new issues (new debt: %s)",
       projectName,
-      notification.getFieldValue(METRIC.SEVERITY + COUNT),
-      notification.getFieldValue(METRIC.DEBT + COUNT));
+      notification.getFieldValue(Metric.SEVERITY + COUNT),
+      notification.getFieldValue(Metric.DEBT + COUNT));
   }
 
-  private boolean doNotHaveValue(Notification notification, METRIC metric) {
+  private boolean doNotHaveValue(Notification notification, Metric metric) {
     return notification.getFieldValue(metric + DOT + "1" + LABEL) == null;
   }
 
-  private void genericAppendOfMetric(METRIC metric, String label, StringBuilder message, Notification notification) {
+  private void genericAppendOfMetric(Metric metric, String label, StringBuilder message, Notification notification) {
     if (doNotHaveValue(notification, metric)) {
       return;
     }
@@ -130,22 +131,26 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   }
 
   protected void appendAssignees(StringBuilder message, Notification notification) {
-    genericAppendOfMetric(METRIC.ASSIGNEE, "Assignees", message, notification);
+    genericAppendOfMetric(Metric.ASSIGNEE, "Assignees", message, notification);
   }
 
   protected void appendComponents(StringBuilder message, Notification notification) {
-    genericAppendOfMetric(METRIC.COMPONENT, "Most impacted files", message, notification);
+    genericAppendOfMetric(Metric.COMPONENT, "Most impacted files", message, notification);
   }
 
   protected void appendTags(StringBuilder message, Notification notification) {
-    genericAppendOfMetric(METRIC.TAGS, "Tags", message, notification);
+    genericAppendOfMetric(Metric.TAG, "Tags", message, notification);
+  }
+
+  protected void appendRules(StringBuilder message, Notification notification) {
+    genericAppendOfMetric(Metric.RULE, "Rules", message, notification);
   }
 
   protected void appendSeverity(StringBuilder message, Notification notification) {
     message
       .append(String.format("%s new issues (new debt: %s)",
-        notification.getFieldValue(METRIC.SEVERITY + COUNT),
-        notification.getFieldValue(METRIC.DEBT + COUNT)))
+        notification.getFieldValue(Metric.SEVERITY + COUNT),
+        notification.getFieldValue(Metric.DEBT + COUNT)))
       .append(NEW_LINE).append(NEW_LINE)
       .append(TAB)
       .append("Severity")
@@ -153,10 +158,10 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       .append(TAB)
       .append(TAB);
 
-    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext();) {
+    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext(); ) {
       String severity = severityIterator.next();
       String severityLabel = i18n.message(getLocale(), "severity." + severity, severity);
-      message.append(severityLabel).append(": ").append(notification.getFieldValue(METRIC.SEVERITY + DOT + severity + COUNT));
+      message.append(severityLabel).append(": ").append(notification.getFieldValue(Metric.SEVERITY + DOT + severity + COUNT));
       if (severityIterator.hasNext()) {
         message.append(TAB);
       }

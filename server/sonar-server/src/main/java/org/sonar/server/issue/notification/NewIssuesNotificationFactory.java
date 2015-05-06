@@ -23,24 +23,27 @@ package org.sonar.server.issue.notification;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserIndex;
 
 public class NewIssuesNotificationFactory implements ServerComponent {
   private final UserIndex userIndex;
+  private final RuleIndex ruleIndex;
   private final DbClient dbClient;
   private final Durations durations;
 
-  public NewIssuesNotificationFactory(UserIndex userIndex, DbClient dbClient, Durations durations) {
+  public NewIssuesNotificationFactory(UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
     this.userIndex = userIndex;
+    this.ruleIndex = ruleIndex;
     this.dbClient = dbClient;
     this.durations = durations;
   }
 
   public MyNewIssuesNotification newMyNewIssuesNotification() {
-    return new MyNewIssuesNotification(userIndex, dbClient, durations);
+    return new MyNewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
   }
 
   public NewIssuesNotification newNewIssuesNotication() {
-    return new NewIssuesNotification(userIndex, dbClient, durations);
+    return new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
   }
 }

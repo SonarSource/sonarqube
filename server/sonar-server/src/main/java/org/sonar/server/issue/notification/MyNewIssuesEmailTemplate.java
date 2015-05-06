@@ -24,7 +24,7 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
+import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import java.util.Date;
 
@@ -50,7 +50,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
   @Override
   protected String subject(Notification notification, String projectName) {
     return String.format("You have %s new issues on project %s",
-      notification.getFieldValue(METRIC.SEVERITY + COUNT),
+      notification.getFieldValue(Metric.SEVERITY + COUNT),
       projectName);
   }
 

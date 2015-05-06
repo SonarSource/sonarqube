@@ -22,6 +22,7 @@ package org.sonar.server.issue.notification;
 import com.google.common.collect.Multiset;
 import org.sonar.api.component.Component;
 import org.sonar.api.notifications.Notification;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -30,7 +31,9 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.notification.NewIssuesStatistics.METRIC;
+import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -38,8 +41,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.*;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.METRIC.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
+import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
+import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
+import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_UUID;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
 
 public class NewIssuesNotification extends Notification {
 
@@ -47,18 +53,21 @@ public class NewIssuesNotification extends Notification {
   private static final long serialVersionUID = -6305871981920103093L;
   private static final String COUNT = ".count";
   private static final String LABEL = ".label";
+  private static final String DOT = ".";
 
   private final transient UserIndex userIndex;
+  private final transient RuleIndex ruleIndex;
   private final transient DbClient dbClient;
   private final transient Durations durations;
 
-  NewIssuesNotification(UserIndex userIndex, DbClient dbClient, Durations durations) {
-    this(TYPE, userIndex, dbClient, durations);
+  NewIssuesNotification(UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
+    this(TYPE, userIndex, ruleIndex, dbClient, durations);
   }
 
-  protected NewIssuesNotification(String type, UserIndex userIndex, DbClient dbClient, Durations durations) {
+  protected NewIssuesNotification(String type, UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
     super(type);
     this.userIndex = userIndex;
+    this.ruleIndex = ruleIndex;
     this.dbClient = dbClient;
     this.durations = durations;
   }
@@ -82,20 +91,33 @@ public class NewIssuesNotification extends Notification {
     setAssigneesStatistics(stats);
     setTagsStatistics(stats);
     setComponentsStatistics(stats);
+    setRuleStatistics(stats);
 
     return this;
   }
 
+  protected void setRuleStatistics(NewIssuesStatistics.Stats stats) {
+    Metric metric = Metric.RULE;
+    List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
+    for (int i = 0; i < 5 && i < metricStats.size(); i++) {
+      String ruleKey = metricStats.get(i).getElement();
+      Rule rule = ruleIndex.getByKey(RuleKey.parse(ruleKey));
+      String name = rule.name() + " (" + rule.language() + ")";
+      setFieldValue(metric + DOT + (i + 1) + LABEL, name);
+      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
+    }
+  }
+
   protected void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
-    METRIC metric = METRIC.COMPONENT;
+    Metric metric = Metric.COMPONENT;
     List<Multiset.Entry<String>> componentStats = stats.statsForMetric(metric);
     DbSession dbSession = dbClient.openSession(false);
     try {
       for (int i = 0; i < 5 && i < componentStats.size(); i++) {
         String uuid = componentStats.get(i).getElement();
         String componentName = dbClient.componentDao().getByUuid(dbSession, uuid).name();
-        setFieldValue(metric + "." + (i + 1) + LABEL, componentName);
-        setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
+        setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
+        setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
       }
     } finally {
       MyBatis.closeQuietly(dbSession);
@@ -103,35 +125,35 @@ public class NewIssuesNotification extends Notification {
   }
 
   protected void setTagsStatistics(NewIssuesStatistics.Stats stats) {
-    METRIC metric = METRIC.TAGS;
+    Metric metric = Metric.TAG;
     List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
     for (int i = 0; i < 5 && i < metricStats.size(); i++) {
-      setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
-      setFieldValue(metric + "." + (i + 1) + ".label", metricStats.get(i).getElement());
+      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
+      setFieldValue(metric + DOT + (i + 1) + ".label", metricStats.get(i).getElement());
     }
   }
 
   protected void setAssigneesStatistics(NewIssuesStatistics.Stats stats) {
-    METRIC metric = METRIC.ASSIGNEE;
+    Metric metric = Metric.ASSIGNEE;
     List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
     for (int i = 0; i < 5 && i < metricStats.size(); i++) {
       String login = metricStats.get(i).getElement();
       UserDoc user = userIndex.getNullableByLogin(login);
       String name = user == null ? login : user.name();
-      setFieldValue(metric + "." + (i + 1) + LABEL, name);
-      setFieldValue(metric + "." + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
+      setFieldValue(metric + DOT + (i + 1) + LABEL, name);
+      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
     }
   }
 
   public NewIssuesNotification setDebt(Duration debt) {
-    setFieldValue(METRIC.DEBT + COUNT, durations.format(Locale.ENGLISH, debt));
+    setFieldValue(Metric.DEBT + COUNT, durations.format(Locale.ENGLISH, debt));
     return this;
   }
 
   protected void setSeverityStatistics(NewIssuesStatistics.Stats stats) {
     setFieldValue(SEVERITY + COUNT, String.valueOf(stats.countForMetric(SEVERITY)));
     for (String severity : Severity.ALL) {
-      setFieldValue(SEVERITY + "." + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
+      setFieldValue(SEVERITY + DOT + severity + COUNT, String.valueOf(stats.countForMetric(SEVERITY, severity)));
     }
   }
 
