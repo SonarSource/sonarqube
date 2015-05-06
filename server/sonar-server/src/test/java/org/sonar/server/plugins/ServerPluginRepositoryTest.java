@@ -215,14 +215,16 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void plugin_is_ignored_at_startup_if_unsupported_sq() throws Exception {
+  public void fail_if_plugin_does_not_support_sq_version() throws Exception {
     when(server.getVersion()).thenReturn("1.0");
     copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
 
-    underTest.start();
-
-    // plugin requires SQ 4.5.1 but SQ 1.0 is installed
-    assertThat(underTest.getPluginInfos()).isEmpty();
+    try {
+      underTest.start();
+      fail();
+    } catch (MessageException e) {
+      assertThat(e).hasMessage("Plugin Base Plugin [testbase] requires at least SonarQube 4.5.4");
+    }
   }
 
   @Test

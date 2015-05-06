@@ -226,14 +226,14 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     do {
       removedKeys.clear();
       for (PluginInfo plugin : pluginInfosByKeys.values()) {
+        if (!plugin.isCompatibleWith(server.getVersion())) {
+          throw MessageException.of(String.format(
+            "Plugin %s [%s] requires at least SonarQube %s", plugin.getName(), plugin.getKey(), plugin.getMinimalSqVersion()));
+        }
+
         if (!Strings.isNullOrEmpty(plugin.getBasePlugin()) && !pluginInfosByKeys.containsKey(plugin.getBasePlugin())) {
           // this plugin extends a plugin that is not installed
           LOG.warn("Plugin {} [{}] is ignored because its base plugin [{}] is not installed", plugin.getName(), plugin.getKey(), plugin.getBasePlugin());
-          removedKeys.add(plugin.getKey());
-        }
-
-        if (!plugin.isCompatibleWith(server.getVersion())) {
-          LOG.warn("Plugin {} [{}] is ignored because it requires at least SonarQube {}", plugin.getName(), plugin.getKey(), plugin.getMinimalSqVersion());
           removedKeys.add(plugin.getKey());
         }
 
