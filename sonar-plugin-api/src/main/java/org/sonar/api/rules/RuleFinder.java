@@ -30,7 +30,7 @@ import java.util.Collection;
 
 /**
  * @since 2.3
- * @deprecated since 5.1 DB access will soon be removed from batch side. Use {@link ActiveRules} instead.
+ * @deprecated since 5.1. Use {@link ActiveRules} on batch side.
  */
 @Deprecated
 public interface RuleFinder extends TaskComponent, ServerComponent {
@@ -50,7 +50,7 @@ public interface RuleFinder extends TaskComponent, ServerComponent {
   Rule findByKey(RuleKey key);
 
   /**
-   * @throw NonUniqueResultException if more than one result
+   * @throw IllegalArgumentException if more than one result
    */
   @CheckForNull
   Rule find(RuleQuery query);
