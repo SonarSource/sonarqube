@@ -115,7 +115,6 @@ public class ChangePasswordActionTest {
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "polop")
       .setParam("password", "polop")
-      .setParam("password_confirmation", "polop")
       .execute();
   }
 
@@ -128,7 +127,6 @@ public class ChangePasswordActionTest {
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .setParam("password", "Valar Morghulis")
-      .setParam("password_confirmation", "Valar Morghulis")
       .execute()
       .assertNoContent();
 

@@ -32,7 +32,6 @@ public class ChangePasswordAction implements BaseUsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
-  private static final String PARAM_PASSWORD_CONFIRMATION = "password_confirmation";
 
   private final UserUpdater userUpdater;
 
@@ -57,11 +56,6 @@ public class ChangePasswordAction implements BaseUsersWsAction {
       .setDescription("New password")
       .setRequired(true)
       .setExampleValue("mypassword");
-
-    action.createParam(PARAM_PASSWORD_CONFIRMATION)
-      .setDescription("Must be the same value as \"password\"")
-      .setRequired(true)
-      .setExampleValue("mypassword");
   }
 
   @Override
@@ -69,9 +63,10 @@ public class ChangePasswordAction implements BaseUsersWsAction {
     UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
+    String password = request.mandatoryParam(PARAM_PASSWORD);
     UpdateUser updateUser = UpdateUser.create(login)
-      .setPassword(request.mandatoryParam(PARAM_PASSWORD))
-      .setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
+      .setPassword(password)
+      .setPasswordConfirmation(password);
 
     userUpdater.update(updateUser);
     response.noContent();
