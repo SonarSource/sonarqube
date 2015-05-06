@@ -218,7 +218,7 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.plugins.ServerPluginUnzipper;
+import org.sonar.server.plugins.ServerPluginExploder;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
@@ -520,7 +520,7 @@ class ServerComponents {
 
       // plugins
       ServerPluginRepository.class,
-      ServerPluginUnzipper.class,
+      ServerPluginExploder.class,
       PluginLoader.class,
       InstalledPluginReferentialFactory.class,
       ServerExtensionInstaller.class,

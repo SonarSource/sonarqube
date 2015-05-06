@@ -49,7 +49,7 @@ public class DebtModelPluginRepositoryTest {
 
   private static final String TEST_XML_PREFIX_PATH = "org/sonar/server/debt/DebtModelPluginRepositoryTest/";
 
-  private DebtModelPluginRepository modelFinder;
+  DebtModelPluginRepository underTest;
 
   @Test
   public void test_component_initialization() throws Exception {
@@ -63,13 +63,13 @@ public class DebtModelPluginRepositoryTest {
     when(repository.getPluginInfos()).thenReturn(Lists.newArrayList(csharpPluginMetadata, phpPluginMetadata));
     FakePlugin fakePlugin = new FakePlugin();
     when(repository.getPluginInstance(anyString())).thenReturn(fakePlugin);
-    modelFinder = new DebtModelPluginRepository(repository, TEST_XML_PREFIX_PATH);
+    underTest = new DebtModelPluginRepository(repository, TEST_XML_PREFIX_PATH);
 
     // when
-    modelFinder.start();
+    underTest.start();
 
     // assert
-    Collection<String> contributingPluginList = modelFinder.getContributingPluginList();
+    Collection<String> contributingPluginList = underTest.getContributingPluginList();
     assertThat(contributingPluginList.size()).isEqualTo(2);
     assertThat(contributingPluginList).containsOnly("technical-debt", "csharp");
   }
@@ -77,7 +77,7 @@ public class DebtModelPluginRepositoryTest {
   @Test
   public void contributing_plugin_list() {
     initModel();
-    Collection<String> contributingPluginList = modelFinder.getContributingPluginList();
+    Collection<String> contributingPluginList = underTest.getContributingPluginList();
     assertThat(contributingPluginList.size()).isEqualTo(2);
     assertThat(contributingPluginList).contains("csharp", "java");
   }
@@ -87,7 +87,7 @@ public class DebtModelPluginRepositoryTest {
     initModel();
     Reader xmlFileReader = null;
     try {
-      xmlFileReader = modelFinder.createReaderForXMLFile("csharp");
+      xmlFileReader = underTest.createReaderForXMLFile("csharp");
       assertNotNull(xmlFileReader);
       List<String> lines = IOUtils.readLines(xmlFileReader);
       assertThat(lines.size()).isEqualTo(25);
@@ -102,21 +102,28 @@ public class DebtModelPluginRepositoryTest {
   @Test
   public void return_xml_file_path_for_plugin() {
     initModel();
-    assertThat(modelFinder.getXMLFilePath("foo")).isEqualTo(TEST_XML_PREFIX_PATH + "foo-model.xml");
+    assertThat(underTest.getXMLFilePath("foo")).isEqualTo(TEST_XML_PREFIX_PATH + "foo-model.xml");
   }
 
   @Test
+<<<<<<< HEAD
   public void contain_default_model() {
     modelFinder = new DebtModelPluginRepository(mock(PluginRepository.class));
     modelFinder.start();
     assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
+=======
+  public void contain_default_model() throws Exception {
+    underTest = new DebtModelPluginRepository(mock(PluginRepository.class));
+    underTest.start();
+    assertThat(underTest.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
+>>>>>>> SONAR-6517 apply feedback
   }
 
   private void initModel() {
     Map<String, ClassLoader> contributingPluginKeyToClassLoader = Maps.newHashMap();
     contributingPluginKeyToClassLoader.put("csharp", newClassLoader());
     contributingPluginKeyToClassLoader.put("java", newClassLoader());
-    modelFinder = new DebtModelPluginRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
+    underTest = new DebtModelPluginRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
   }
 
   private ClassLoader newClassLoader() {

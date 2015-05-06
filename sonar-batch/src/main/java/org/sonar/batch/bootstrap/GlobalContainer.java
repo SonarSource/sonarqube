@@ -98,7 +98,7 @@ public class GlobalContainer extends ComponentContainer {
       // plugins
       BatchPluginRepository.class,
       PluginLoader.class,
-      BatchPluginUnzipper.class,
+      BatchPluginExploder.class,
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 

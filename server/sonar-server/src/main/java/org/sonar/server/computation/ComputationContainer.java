@@ -19,9 +19,15 @@
  */
 package org.sonar.server.computation;
 
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.issue.db.UpdateConflictResolver;
-import org.sonar.server.computation.issue.*;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.issue.IssueCache;
+import org.sonar.server.computation.issue.IssueComputation;
+import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.issue.ScmAccountCache;
+import org.sonar.server.computation.issue.ScmAccountCacheLoader;
+import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.platform.Platform;

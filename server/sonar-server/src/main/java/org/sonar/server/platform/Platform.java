@@ -19,14 +19,15 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.platform.ComponentContainer;
 
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
+
 import java.util.Collection;
 import java.util.Properties;
 

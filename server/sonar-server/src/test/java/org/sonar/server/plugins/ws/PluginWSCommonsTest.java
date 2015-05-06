@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.ws;
 
-import java.io.File;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
@@ -39,36 +38,14 @@ import static org.sonar.updatecenter.common.PluginUpdate.Status.INCOMPATIBLE;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.REQUIRE_SONAR_UPGRADE;
 
 public class PluginWSCommonsTest {
-  private static final PluginInfo GIT_PLUGIN_METADATA = new PluginInfo("scmgit")
-    .setName("Git")
-    .setDescription("Git SCM Provider.")
-    .setVersion(Version.create("1.0"))
-    .setLicense("GNU LGPL 3")
-    .setOrganizationName("SonarSource")
-    .setOrganizationUrl("http://www.sonarsource.com")
-    .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
-    .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
-    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"));
-  private static final Plugin PLUGIN = new Plugin("p_key")
-    .setName("p_name")
-    .setCategory("p_category")
-    .setDescription("p_description")
-    .setLicense("p_license")
-    .setOrganization("p_orga_name")
-    .setOrganizationUrl("p_orga_url")
-    .setTermsConditionsUrl("p_t_and_c_url");
-  private static final Release RELEASE = new Release(PLUGIN, version("1.0")).setDate(parseDate("2015-04-16"))
-    .setDownloadUrl("http://toto.com/file.jar")
-    .setDescription("release description")
-    .setChangelogUrl("http://change.org/plugin");
 
-  private WsTester.TestResponse response = new WsTester.TestResponse();
-  private JsonWriter jsonWriter = response.newJsonWriter();
-  private PluginWSCommons underTest = new PluginWSCommons();
+  WsTester.TestResponse response = new WsTester.TestResponse();
+  JsonWriter jsonWriter = response.newJsonWriter();
+  PluginWSCommons underTest = new PluginWSCommons();
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
-    underTest.writePluginMetadata(jsonWriter, GIT_PLUGIN_METADATA);
+    underTest.writePluginMetadata(jsonWriter, gitPluginInfo());
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
@@ -87,7 +64,7 @@ public class PluginWSCommonsTest {
   @Test
   public void verify_properties_written_by_writeMetadata() {
     jsonWriter.beginObject();
-    underTest.writeMetadata(jsonWriter, GIT_PLUGIN_METADATA);
+    underTest.writeMetadata(jsonWriter, gitPluginInfo());
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -106,7 +83,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginUpdate() {
-    underTest.writePluginUpdate(jsonWriter, PluginUpdate.createForPluginRelease(RELEASE, version("1.0")));
+    underTest.writePluginUpdate(jsonWriter, PluginUpdate.createForPluginRelease(newRelease(), version("1.0")));
 
     jsonWriter.close();
     assertJson(response.outputAsString()).isSimilarTo("{" +
@@ -128,7 +105,7 @@ public class PluginWSCommonsTest {
   @Test
   public void verify_properties_written_by_writeMetadata_from_plugin() {
     jsonWriter.beginObject();
-    underTest.writeMetadata(jsonWriter, PLUGIN);
+    underTest.writeMetadata(jsonWriter, newPlugin());
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -147,7 +124,7 @@ public class PluginWSCommonsTest {
   @Test
   public void writeRelease() {
     jsonWriter.beginObject();
-    underTest.writeRelease(jsonWriter, RELEASE);
+    underTest.writeRelease(jsonWriter, newRelease());
     jsonWriter.endObject();
 
     jsonWriter.close();
@@ -197,11 +174,11 @@ public class PluginWSCommonsTest {
   }
 
   @Test
-  public void writeUpdate_renders_key_name_and_description_of_outgoing_dependencies() {
+  public void writeUpdate_renders_key_name_and_description_of_requirements() {
     PluginUpdate pluginUpdate = new PluginUpdate();
     pluginUpdate.setRelease(
-      new Release(PLUGIN, version("1.0")).addOutgoingDependency(RELEASE)
-    );
+      new Release(newPlugin(), version("1.0")).addOutgoingDependency(newRelease())
+      );
 
     jsonWriter.beginObject();
     underTest.writeUpdate(jsonWriter, pluginUpdate);
@@ -228,4 +205,35 @@ public class PluginWSCommonsTest {
   private static Release release(String key) {
     return new Release(new Plugin(key), version("1.0"));
   }
+
+  private PluginInfo gitPluginInfo() {
+    return new PluginInfo("scmgit")
+      .setName("Git")
+      .setDescription("Git SCM Provider.")
+      .setVersion(Version.create("1.0"))
+      .setLicense("GNU LGPL 3")
+      .setOrganizationName("SonarSource")
+      .setOrganizationUrl("http://www.sonarsource.com")
+      .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
+      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT");
+  }
+
+  private Plugin newPlugin() {
+    return new Plugin("p_key")
+      .setName("p_name")
+      .setCategory("p_category")
+      .setDescription("p_description")
+      .setLicense("p_license")
+      .setOrganization("p_orga_name")
+      .setOrganizationUrl("p_orga_url")
+      .setTermsConditionsUrl("p_t_and_c_url");
+  }
+
+  private Release newRelease() {
+    return new Release(newPlugin(), version("1.0")).setDate(parseDate("2015-04-16"))
+      .setDownloadUrl("http://toto.com/file.jar")
+      .setDescription("release description")
+      .setChangelogUrl("http://change.org/plugin");
+  }
+
 }

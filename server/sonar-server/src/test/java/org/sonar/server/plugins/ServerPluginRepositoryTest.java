@@ -19,7 +19,10 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +33,8 @@ import org.mockito.Mockito;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Version;
@@ -47,10 +52,13 @@ public class ServerPluginRepositoryTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  @Rule
+  public LogTester logs = new LogTester();
+
   Server server = mock(Server.class);
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
   DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
-  PluginLoader pluginLoader = new PluginLoader(new ServerPluginUnzipper(fs));
+  PluginLoader pluginLoader = new PluginLoader(new ServerPluginExploder(fs));
   ServerPluginRepository underTest = new ServerPluginRepository(server, upgradeStatus, fs, pluginLoader);
 
   @Before
@@ -293,7 +301,7 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void fail_is_missing_required_plugin() throws Exception {
+  public void fail_to_get_missing_plugins() throws Exception {
     try {
       underTest.getPluginInfo("unknown");
       fail();
@@ -307,6 +315,25 @@ public class ServerPluginRepositoryTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Plugin [unknown] does not exist");
     }
+  }
+
+  @Test
+  public void plugin_is_incompatible_if_no_entry_point_class() throws Exception {
+    PluginInfo plugin = new PluginInfo("foo").setName("Foo");
+    assertThat(ServerPluginRepository.isCompatible(plugin, server, Collections.<String, PluginInfo>emptyMap())).isFalse();
+    assertThat(logs.logs()).contains("Plugin Foo [foo] is ignored because entry point class is not defined");
+  }
+
+  /**
+   * Some plugins can only extend the classloader of base plugin, without declaring new extensions.
+   */
+  @Test
+  public void plugin_is_compatible_if_no_entry_point_class_but_extend_other_plugin() throws Exception {
+    PluginInfo basePlugin = new PluginInfo("base").setMainClass("org.bar.Bar");
+    PluginInfo plugin = new PluginInfo("foo").setBasePlugin("base");
+    Map<String, PluginInfo> plugins = ImmutableMap.of("base", basePlugin, "foo", plugin);
+
+    assertThat(ServerPluginRepository.isCompatible(plugin, server, plugins)).isTrue();
   }
 
   private File copyTestPluginTo(String testPluginName, File toDir) throws IOException {

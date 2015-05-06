@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.ws;
 
-import java.io.File;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -29,6 +28,8 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Version;
 
+import java.io.IOException;
+
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,28 +38,13 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class PendingPluginsWsActionTest {
 
-  public static final PluginInfo GIT_PLUGIN_INFO = new PluginInfo("scmgit")
-    .setName("Git")
-    .setDescription("Git SCM Provider.")
-    .setVersion(Version.create("1.0"))
-    .setLicense("GNU LGPL 3")
-    .setOrganizationName("SonarSource")
-    .setOrganizationUrl("http://www.sonarsource.com")
-    .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
-    .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
-    .setFile(new File("/home/user/sonar-scm-git-plugin-1.0.jar"))
-    .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
-  public static final PluginInfo PLUGIN_2_2 = new PluginInfo("key2").setName("name2");
-  public static final PluginInfo PLUGIN_2_1 = new PluginInfo("key1").setName("name2");
-  public static final PluginInfo PLUGIN_0_0 = new PluginInfo("key0").setName("name0");
 
-  private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
-  private PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginRepository, new PluginWSCommons());
-
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  PluginDownloader pluginDownloader = mock(PluginDownloader.class);
+  ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
+  PendingPluginsWsAction underTest = new PendingPluginsWsAction(pluginDownloader, serverPluginRepository, new PluginWSCommons());
+  Request request = mock(Request.class);
+  WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Test
   public void action_pending_is_defined() {
@@ -91,7 +77,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(GIT_PLUGIN_INFO));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(gitPluginInfo()));
 
     underTest.handle(request, response);
 
@@ -119,7 +105,7 @@ public class PendingPluginsWsActionTest {
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(GIT_PLUGIN_INFO));
+    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(gitPluginInfo()));
 
     underTest.handle(request, response);
 
@@ -146,12 +132,11 @@ public class PendingPluginsWsActionTest {
   }
 
   @Test
-  public void installing_plugin_are_sorted_by_name_then_key_and_are_unique() throws Exception {
+  public void installing_plugins_are_sorted_by_name_then_key_and_are_unique() throws Exception {
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(
-      PLUGIN_2_2,
-      PLUGIN_2_1,
-      PLUGIN_2_2,
-      PLUGIN_0_0
+      newPluginInfo(0).setName("Foo"),
+      newPluginInfo(3).setName("Bar"),
+      newPluginInfo(2).setName("Bar")
       ));
 
     underTest.handle(request, response);
@@ -161,16 +146,16 @@ public class PendingPluginsWsActionTest {
         "  \"installing\": " +
         "  [" +
         "    {" +
-        "      \"key\": \"key0\"," +
-        "      \"name\": \"name0\"," +
-        "    }," +
-        "    {" +
-        "      \"key\": \"key1\"," +
-        "      \"name\": \"name2\"," +
-        "    }," +
-        "    {" +
         "      \"key\": \"key2\"," +
-        "      \"name\": \"name2\"," +
+        "      \"name\": \"Bar\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key3\"," +
+        "      \"name\": \"Bar\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key0\"," +
+        "      \"name\": \"Foo\"," +
         "    }" +
         "  ]," +
         "  \"removing\": []" +
@@ -179,12 +164,11 @@ public class PendingPluginsWsActionTest {
   }
 
   @Test
-  public void removing_plugin_are_sorted_and_unique() throws Exception {
+  public void removing_plugins_are_sorted_and_unique() throws Exception {
     when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
-      PLUGIN_2_2,
-      PLUGIN_2_1,
-      PLUGIN_2_2,
-      PLUGIN_0_0
+      newPluginInfo(0).setName("Foo"),
+      newPluginInfo(3).setName("Bar"),
+      newPluginInfo(2).setName("Bar")
       ));
 
     underTest.handle(request, response);
@@ -195,19 +179,36 @@ public class PendingPluginsWsActionTest {
         "  \"removing\": " +
         "  [" +
         "    {" +
-        "      \"key\": \"key0\"," +
-        "      \"name\": \"name0\"," +
-        "    }," +
-        "    {" +
-        "      \"key\": \"key1\"," +
-        "      \"name\": \"name2\"," +
-        "    }," +
-        "    {" +
         "      \"key\": \"key2\"," +
-        "      \"name\": \"name2\"," +
+        "      \"name\": \"Bar\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key3\"," +
+        "      \"name\": \"Bar\"," +
+        "    }," +
+        "    {" +
+        "      \"key\": \"key0\"," +
+        "      \"name\": \"Foo\"," +
         "    }" +
         "  ]" +
         "}"
       );
+  }
+
+  public PluginInfo gitPluginInfo() {
+    return new PluginInfo("scmgit")
+      .setName("Git")
+      .setDescription("Git SCM Provider.")
+      .setVersion(Version.create("1.0"))
+      .setLicense("GNU LGPL 3")
+      .setOrganizationName("SonarSource")
+      .setOrganizationUrl("http://www.sonarsource.com")
+      .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
+      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
+      .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
+  }
+
+  public PluginInfo newPluginInfo(int id) throws IOException {
+    return new PluginInfo("key" + id).setName("name" + id);
   }
 }

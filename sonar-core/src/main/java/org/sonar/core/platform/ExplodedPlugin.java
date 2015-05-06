@@ -19,22 +19,30 @@
  */
 package org.sonar.core.platform;
 
-import org.sonar.api.utils.ZipUtils;
+import java.io.File;
+import java.util.Collection;
 
-import java.util.zip.ZipEntry;
+public class ExplodedPlugin {
 
-public abstract class PluginUnzipper {
+  private final String key;
+  private final File main;
+  private final Collection<File> libs;
 
-  protected static final String LIB_RELATIVE_PATH_IN_JAR = "META-INF/lib";
+  public ExplodedPlugin(String key, File main, Collection<File> libs) {
+    this.key = key;
+    this.main = main;
+    this.libs = libs;
+  }
 
-  public abstract UnzippedPlugin unzip(PluginInfo info);
+  public String getKey() {
+    return key;
+  }
 
-  protected ZipUtils.ZipEntryFilter newLibFilter() {
-    return new ZipUtils.ZipEntryFilter() {
-      @Override
-      public boolean accept(ZipEntry entry) {
-        return entry.getName().startsWith(LIB_RELATIVE_PATH_IN_JAR);
-      }
-    };
+  public File getMain() {
+    return main;
+  }
+
+  public Collection<File> getLibs() {
+    return libs;
   }
 }

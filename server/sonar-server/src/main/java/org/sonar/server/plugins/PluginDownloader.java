@@ -47,6 +47,7 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 
 /**
  * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then
@@ -115,7 +116,7 @@ public class PluginDownloader implements Startable {
    * @return the list of download plugins as {@link PluginInfo} instances
    */
   public Collection<PluginInfo> getDownloadedPlugins() {
-    return newArrayList(transform(listPlugins(this.downloadDir), PluginInfo.JarToPluginInfo.INSTANCE));
+    return newArrayList(transform(listPlugins(this.downloadDir), jarToPluginInfo()));
   }
 
   public void download(String pluginKey, Version version) {

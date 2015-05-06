@@ -22,30 +22,30 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.ZipUtils;
+import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginExploder;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginUnzipper;
-import org.sonar.core.platform.UnzippedPlugin;
 import org.sonar.home.cache.FileCache;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class BatchPluginUnzipper extends PluginUnzipper implements BatchComponent {
+public class BatchPluginExploder extends PluginExploder implements BatchComponent {
 
   private final FileCache fileCache;
 
-  public BatchPluginUnzipper(FileCache fileCache) {
+  public BatchPluginExploder(FileCache fileCache) {
     this.fileCache = fileCache;
   }
 
   @Override
-  public UnzippedPlugin unzip(PluginInfo info) {
+  public ExplodedPlugin explode(PluginInfo info) {
     try {
-      File dir = unzipFile(info.getFile());
-      return UnzippedPlugin.createFromUnzippedDir(info.getKey(), info.getFile(), dir);
+      File dir = unzipFile(info.getNonNullJarFile());
+      return explodeFromUnzippedDir(info.getKey(), info.getNonNullJarFile(), dir);
     } catch (Exception e) {
-      throw new IllegalStateException(String.format("Fail to open plugin [%s]: %s", info.getKey(), info.getFile().getAbsolutePath()), e);
+      throw new IllegalStateException(String.format("Fail to open plugin [%s]: %s", info.getKey(), info.getNonNullJarFile().getAbsolutePath()), e);
     }
   }
 

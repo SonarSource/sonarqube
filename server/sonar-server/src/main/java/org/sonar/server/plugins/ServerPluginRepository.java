@@ -25,6 +25,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import java.util.HashSet;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -42,7 +43,6 @@ import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,6 +57,7 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
+import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 
 /**
  * Manages installation and loading of plugins:
@@ -71,7 +72,7 @@ import static org.apache.commons.io.FileUtils.moveFileToDirectory;
 public class ServerPluginRepository implements PluginRepository, Startable {
 
   private static final Logger LOG = Loggers.get(ServerPluginRepository.class);
-  private static final String FILE_EXTENSION_JAR = "jar";
+  private static final String[] JAR_FILE_EXTENSIONS = new String[]{"jar"};
   private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport");
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 
@@ -160,13 +161,13 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private void registerPluginInfo(PluginInfo info) {
     if (blacklistedPluginKeys.contains(info.getKey())) {
       LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled.", info.getName(), info.getKey());
-      deleteQuietly(info.getFile());
+      deleteQuietly(info.getNonNullJarFile());
       return;
     }
     PluginInfo existing = pluginInfosByKeys.put(info.getKey(), info);
     if (existing != null) {
       throw MessageException.of(format("Found two files for the same plugin [%s]: %s and %s",
-        info.getKey(), info.getFile().getName(), existing.getFile().getName()));
+        info.getKey(), info.getNonNullJarFile().getName(), existing.getNonNullJarFile().getName()));
     }
 
   }
@@ -190,15 +191,15 @@ public class ServerPluginRepository implements PluginRepository, Startable {
         copyFile(sourceFile, destFile, true);
       }
     } catch (IOException e) {
-      LOG.error(format("Fail to move or copy plugin: %s to %s",
+      throw new IllegalStateException(format("Fail to move or copy plugin: %s to %s",
         sourceFile.getAbsolutePath(), destFile.getAbsolutePath()), e);
     }
 
     PluginInfo info = PluginInfo.create(destFile);
     PluginInfo existing = pluginInfosByKeys.put(info.getKey(), info);
     if (existing != null) {
-      if (!existing.getFile().getName().equals(destFile.getName())) {
-        deleteQuietly(existing.getFile());
+      if (!existing.getNonNullJarFile().getName().equals(destFile.getName())) {
+        deleteQuietly(existing.getNonNullJarFile());
       }
       LOG.info("Plugin {} [{}] updated to version {}", info.getName(), info.getKey(), info.getVersion());
     } else {
@@ -214,46 +215,60 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   /**
-   * Removes the plugins that are not compatible with current environment. In some cases
-   * plugin files can be deleted.
+   * Removes the plugins that are not compatible with current environment.
    */
   private void unloadIncompatiblePlugins() {
     // loop as long as the previous loop ignored some plugins. That allows to support dependencies
     // on many levels, for example D extends C, which extends B, which requires A. If A is not installed,
     // then B, C and D must be ignored. That's not possible to achieve this algorithm with a single
     // iteration over plugins.
-    List<String> removedKeys = new ArrayList<>();
+    Set<String> removedKeys = new HashSet<>();
     do {
       removedKeys.clear();
       for (PluginInfo plugin : pluginInfosByKeys.values()) {
-        if (!plugin.isCompatibleWith(server.getVersion())) {
-          throw MessageException.of(String.format(
-            "Plugin %s [%s] requires at least SonarQube %s", plugin.getName(), plugin.getKey(), plugin.getMinimalSqVersion()));
-        }
-
-        if (!Strings.isNullOrEmpty(plugin.getBasePlugin()) && !pluginInfosByKeys.containsKey(plugin.getBasePlugin())) {
-          // this plugin extends a plugin that is not installed
-          LOG.warn("Plugin {} [{}] is ignored because its base plugin [{}] is not installed", plugin.getName(), plugin.getKey(), plugin.getBasePlugin());
+        if (!isCompatible(plugin, server, pluginInfosByKeys)) {
           removedKeys.add(plugin.getKey());
-        }
-
-        for (PluginInfo.RequiredPlugin requiredPlugin : plugin.getRequiredPlugins()) {
-          PluginInfo available = pluginInfosByKeys.get(requiredPlugin.getKey());
-          if (available == null) {
-            // this plugin requires a plugin that is not installed
-            LOG.warn("Plugin {} [{}] is ignored because the required plugin [{}] is not installed", plugin.getName(), plugin.getKey(), requiredPlugin.getKey());
-            removedKeys.add(plugin.getKey());
-          } else if (requiredPlugin.getMinimalVersion().compareToIgnoreQualifier(available.getVersion()) > 0) {
-            LOG.warn("Plugin {} [{}] is ignored because the version {} of required plugin [{}] is not supported", plugin.getName(), plugin.getKey(),
-              requiredPlugin.getKey(), requiredPlugin.getMinimalVersion());
-            removedKeys.add(plugin.getKey());
-          }
         }
       }
       for (String removedKey : removedKeys) {
         pluginInfosByKeys.remove(removedKey);
       }
     } while (!removedKeys.isEmpty());
+  }
+
+  @VisibleForTesting
+  static boolean isCompatible(PluginInfo plugin, Server server, Map<String, PluginInfo> allPluginsByKeys) {
+    if (Strings.isNullOrEmpty(plugin.getMainClass()) && Strings.isNullOrEmpty(plugin.getBasePlugin())) {
+      LOG.warn("Plugin {} [{}] is ignored because entry point class is not defined", plugin.getName(), plugin.getKey());
+      return false;
+    }
+
+    if (!plugin.isCompatibleWith(server.getVersion())) {
+      throw MessageException.of(format(
+        "Plugin %s [%s] requires at least SonarQube %s", plugin.getName(), plugin.getKey(), plugin.getMinimalSqVersion()));
+    }
+
+    if (!Strings.isNullOrEmpty(plugin.getBasePlugin()) && !allPluginsByKeys.containsKey(plugin.getBasePlugin())) {
+      // it extends a plugin that is not installed
+      LOG.warn("Plugin {} [{}] is ignored because its base plugin [{}] is not installed", plugin.getName(), plugin.getKey(), plugin.getBasePlugin());
+      return false;
+    }
+
+    for (PluginInfo.RequiredPlugin requiredPlugin : plugin.getRequiredPlugins()) {
+      PluginInfo available = allPluginsByKeys.get(requiredPlugin.getKey());
+      if (available == null) {
+        // it requires a plugin that is not installed
+        LOG.warn("Plugin {} [{}] is ignored because the required plugin [{}] is not installed", plugin.getName(), plugin.getKey(), requiredPlugin.getKey());
+        return false;
+      }
+      if (requiredPlugin.getMinimalVersion().compareToIgnoreQualifier(available.getVersion()) > 0) {
+        // it requires a more recent version
+        LOG.warn("Plugin {} [{}] is ignored because the version {} of required plugin [{}] is not supported", plugin.getName(), plugin.getKey(),
+          requiredPlugin.getKey(), requiredPlugin.getMinimalVersion());
+        return false;
+      }
+    }
+    return true;
   }
 
   private void logInstalledPlugins() {
@@ -264,32 +279,41 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   private void loadInstances() {
-    pluginInstancesByKeys.clear();
     pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
   }
 
   /**
-   * Uninstall a plugin and its dependents (the plugins that require the plugin to be uninstalled)
+   * Uninstall a plugin and its dependents
    */
   public void uninstall(String pluginKey) {
-    for (PluginInfo otherPlugin : pluginInfosByKeys.values()) {
-      if (!otherPlugin.getKey().equals(pluginKey)) {
-        for (PluginInfo.RequiredPlugin requiredPlugin : otherPlugin.getRequiredPlugins()) {
-          if (requiredPlugin.getKey().equals(pluginKey)) {
-            uninstall(otherPlugin.getKey());
-          }
+    Set<String> uninstallKeys = new HashSet<>();
+    uninstallKeys.add(pluginKey);
+    appendDependentPluginKeys(pluginKey, uninstallKeys);
+
+    for (String uninstallKey : uninstallKeys) {
+      PluginInfo info = pluginInfosByKeys.get(uninstallKey);
+      if (!info.isCore()) {
+        try {
+          LOG.info("Uninstalling plugin {} [{}]", info.getName(), info.getKey());
+          // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
+          File masterFile = new File(fs.getInstalledPluginsDir(), info.getNonNullJarFile().getName());
+          moveFileToDirectory(masterFile, uninstalledPluginsDir(), true);
+        } catch (IOException e) {
+          throw new IllegalStateException(format("Fail to uninstall plugin %s [%s]", info.getName(), info.getKey()), e);
         }
       }
     }
+  }
 
-    PluginInfo info = pluginInfosByKeys.get(pluginKey);
-    if (!info.isCore()) {
-      try {
-        // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
-        File masterFile = new File(fs.getInstalledPluginsDir(), info.getFile().getName());
-        moveFileToDirectory(masterFile, uninstalledPluginsDir(), true);
-      } catch (IOException e) {
-        throw new IllegalStateException("Fail to uninstall plugin [" + pluginKey + "]", e);
+  private void appendDependentPluginKeys(String pluginKey, Set<String> appendTo) {
+    for (PluginInfo otherPlugin : pluginInfosByKeys.values()) {
+      if (!otherPlugin.getKey().equals(pluginKey)) {
+        for (PluginInfo.RequiredPlugin requirement : otherPlugin.getRequiredPlugins()) {
+          if (requirement.getKey().equals(pluginKey)) {
+            appendTo.add(otherPlugin.getKey());
+            appendDependentPluginKeys(otherPlugin.getKey(), appendTo);
+          }
+        }
       }
     }
   }
@@ -302,7 +326,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
    * @return the list of plugins to be uninstalled as {@link PluginInfo} instances
    */
   public Collection<PluginInfo> getUninstalledPlugins() {
-    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), PluginInfo.JarToPluginInfo.INSTANCE));
+    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), jarToPluginInfo()));
   }
 
   public void cancelUninstalls() {
@@ -328,7 +352,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public PluginInfo getPluginInfo(String key) {
     PluginInfo info = pluginInfosByKeys.get(key);
     if (info == null) {
-      throw new IllegalArgumentException(String.format("Plugin [%s] does not exist", key));
+      throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
     }
     return info;
   }
@@ -337,7 +361,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   public Plugin getPluginInstance(String key) {
     Plugin plugin = pluginInstancesByKeys.get(key);
     if (plugin == null) {
-      throw new IllegalArgumentException(String.format("Plugin [%s] does not exist", key));
+      throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
     }
     return plugin;
   }
@@ -372,7 +396,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   private static Collection<File> listJarFiles(File dir) {
     if (dir.exists()) {
-      return FileUtils.listFiles(dir, new String[] {FILE_EXTENSION_JAR}, false);
+      return FileUtils.listFiles(dir, JAR_FILE_EXTENSIONS, false);
     }
     return Collections.emptyList();
   }

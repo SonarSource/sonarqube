@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.UnzippedPlugin;
+import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
 
@@ -34,29 +34,29 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchPluginUnzipperTest {
+public class BatchPluginExploderTest {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
   File userHome;
-  BatchPluginUnzipper underTest;
+  BatchPluginExploder underTest;
 
   @Before
   public void setUp() throws IOException {
     userHome = temp.newFolder();
     FileCache fileCache = new FileCacheBuilder().setUserHome(userHome).build();
-    underTest = new BatchPluginUnzipper(fileCache);
+    underTest = new BatchPluginExploder(fileCache);
   }
 
   @Test
   public void copy_and_extract_libs() throws IOException {
     File fileFromCache = getFileFromCache("sonar-checkstyle-plugin-2.8.jar");
-    UnzippedPlugin unzipped = underTest.unzip(PluginInfo.create(fileFromCache));
+    ExplodedPlugin exploded = underTest.explode(PluginInfo.create(fileFromCache));
 
-    assertThat(unzipped.getKey()).isEqualTo("checkstyle");
-    assertThat(unzipped.getMain()).isFile().exists();
-    assertThat(unzipped.getLibs()).extracting("name").containsOnly("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
+    assertThat(exploded.getKey()).isEqualTo("checkstyle");
+    assertThat(exploded.getMain()).isFile().exists();
+    assertThat(exploded.getLibs()).extracting("name").containsOnly("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/lib/checkstyle-5.1.jar")).exists();
   }
@@ -64,7 +64,7 @@ public class BatchPluginUnzipperTest {
   @Test
   public void extract_only_libs() throws IOException {
     File fileFromCache = getFileFromCache("sonar-checkstyle-plugin-2.8.jar");
-    underTest.unzip(PluginInfo.create(fileFromCache));
+    underTest.explode(PluginInfo.create(fileFromCache));
 
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar")).exists();
     assertThat(new File(fileFromCache.getParent(), "sonar-checkstyle-plugin-2.8.jar_unzip/META-INF/MANIFEST.MF")).doesNotExist();
@@ -72,7 +72,7 @@ public class BatchPluginUnzipperTest {
   }
 
   File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(BatchPluginUnzipperTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginUnzipperTest/" + filename));
+    File src = FileUtils.toFile(BatchPluginExploderTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginUnzipperTest/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);
     return destFile;

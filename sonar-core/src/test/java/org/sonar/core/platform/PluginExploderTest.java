@@ -29,7 +29,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PluginUnzipperTest {
+public class PluginExploderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -38,41 +38,41 @@ public class PluginUnzipperTest {
   public void unzip_plugin_with_libs() throws Exception {
     final File jarFile = getFile("sonar-checkstyle-plugin-2.8.jar");
     final File toDir = temp.newFolder();
-    PluginInfo pluginInfo = new PluginInfo().setKey("checkstyle").setFile(jarFile);
+    PluginInfo pluginInfo = new PluginInfo("checkstyle").setJarFile(jarFile);
 
-    PluginUnzipper unzipper = new PluginUnzipper() {
+    PluginExploder exploder = new PluginExploder() {
       @Override
-      public UnzippedPlugin unzip(PluginInfo info) {
+      public ExplodedPlugin explode(PluginInfo info) {
         try {
           ZipUtils.unzip(jarFile, toDir, newLibFilter());
-          return UnzippedPlugin.createFromUnzippedDir(info.getKey(), info.getFile(), toDir);
+          return explodeFromUnzippedDir(info.getKey(), info.getNonNullJarFile(), toDir);
         } catch (Exception e) {
           throw new IllegalStateException(e);
         }
       }
     };
-    UnzippedPlugin unzipped = unzipper.unzip(pluginInfo);
-    assertThat(unzipped.getKey()).isEqualTo("checkstyle");
-    assertThat(unzipped.getLibs()).extracting("name").containsOnly("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
-    assertThat(unzipped.getMain()).isSameAs(jarFile);
+    ExplodedPlugin exploded = exploder.explode(pluginInfo);
+    assertThat(exploded.getKey()).isEqualTo("checkstyle");
+    assertThat(exploded.getLibs()).extracting("name").containsOnly("antlr-2.7.6.jar", "checkstyle-5.1.jar", "commons-cli-1.0.jar");
+    assertThat(exploded.getMain()).isSameAs(jarFile);
   }
 
   @Test
   public void unzip_plugin_without_libs() throws Exception {
     File jarFile = temp.newFile();
     final File toDir = temp.newFolder();
-    PluginInfo pluginInfo = new PluginInfo().setFile(jarFile);
+    PluginInfo pluginInfo = new PluginInfo("foo").setJarFile(jarFile);
 
-    PluginUnzipper unzipper = new PluginUnzipper() {
+    PluginExploder exploder = new PluginExploder() {
       @Override
-      public UnzippedPlugin unzip(PluginInfo info) {
-        return UnzippedPlugin.createFromUnzippedDir("foo", info.getFile(), toDir);
+      public ExplodedPlugin explode(PluginInfo info) {
+        return explodeFromUnzippedDir("foo", info.getNonNullJarFile(), toDir);
       }
     };
-    UnzippedPlugin unzipped = unzipper.unzip(pluginInfo);
-    assertThat(unzipped.getKey()).isEqualTo("foo");
-    assertThat(unzipped.getLibs()).isEmpty();
-    assertThat(unzipped.getMain()).isSameAs(jarFile);
+    ExplodedPlugin exploded = exploder.explode(pluginInfo);
+    assertThat(exploded.getKey()).isEqualTo("foo");
+    assertThat(exploded.getLibs()).isEmpty();
+    assertThat(exploded.getMain()).isSameAs(jarFile);
   }
 
   private File getFile(String filename) {

@@ -46,7 +46,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   /**
-   * ServerPluginInstaller is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
+   * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
   public DatabaseMigrator(DbClient dbClient, MigrationStep[] migrations, ServerUpgradeStatus serverUpgradeStatus,
                           ServerPluginRepository unused) {

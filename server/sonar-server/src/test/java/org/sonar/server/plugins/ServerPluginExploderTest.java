@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.UnzippedPlugin;
+import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerPluginUnzipperTest {
+public class ServerPluginExploderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
-  ServerPluginUnzipper underTest = new ServerPluginUnzipper(fs);
+  ServerPluginExploder underTest = new ServerPluginExploder(fs);
 
   @Test
   public void copy_all_classloader_files_to_dedicated_directory() throws Exception {
@@ -47,16 +47,16 @@ public class ServerPluginUnzipperTest {
     File jar = TestProjectUtils.jarOf("test-libs-plugin");
     PluginInfo info = PluginInfo.create(jar);
 
-    UnzippedPlugin unzipped = underTest.unzip(info);
+    ExplodedPlugin exploded = underTest.explode(info);
 
     // all the files loaded by classloaders (JAR + META-INF/libs/*.jar) are copied to the dedicated directory
     // web/deploy/{pluginKey}
     File pluginDeployDir = new File(deployDir, "testlibs");
 
-    assertThat(unzipped.getKey()).isEqualTo("testlibs");
-    assertThat(unzipped.getMain()).isFile().exists().hasParent(pluginDeployDir);
-    assertThat(unzipped.getLibs()).extracting("name").containsOnly("commons-daemon-1.0.15.jar", "commons-email-20030310.165926.jar");
-    for (File lib : unzipped.getLibs()) {
+    assertThat(exploded.getKey()).isEqualTo("testlibs");
+    assertThat(exploded.getMain()).isFile().exists().hasParent(pluginDeployDir);
+    assertThat(exploded.getLibs()).extracting("name").containsOnly("commons-daemon-1.0.15.jar", "commons-email-20030310.165926.jar");
+    for (File lib : exploded.getLibs()) {
       assertThat(lib).exists().isFile();
       assertThat(lib.getCanonicalPath()).startsWith(pluginDeployDir.getCanonicalPath());
     }

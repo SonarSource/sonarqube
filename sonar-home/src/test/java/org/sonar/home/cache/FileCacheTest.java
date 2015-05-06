@@ -118,5 +118,4 @@ public class FileCacheTest {
     assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
     assertThat(FileUtils.readFileToString(cachedFile)).contains("downloaded by");
   }
-
 }

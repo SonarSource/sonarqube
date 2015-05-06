@@ -70,6 +70,6 @@ public class GeneratePluginIndexTest {
   }
 
   private PluginInfo newInfo(String pluginKey) throws IOException {
-    return new PluginInfo(pluginKey).setFile(temp.newFile(pluginKey + ".jar"));
+    return new PluginInfo(pluginKey).setJarFile(temp.newFile(pluginKey + ".jar"));
   }
 }

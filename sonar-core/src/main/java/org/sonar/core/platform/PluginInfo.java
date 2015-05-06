@@ -22,6 +22,8 @@ package org.sonar.core.platform;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
@@ -31,12 +33,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class PluginInfo implements Comparable<PluginInfo> {
 
+  private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
+
   public static class RequiredPlugin {
+
+    private static final Pattern PARSER = Pattern.compile("\\w+:.+");
+
     private final String key;
     private final Version minimalVersion;
 
@@ -54,44 +62,94 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
 
     public static RequiredPlugin parse(String s) {
-      if (!s.matches("\\w+:.+")) {
+      if (!PARSER.matcher(s).matches()) {
         throw new IllegalArgumentException("Manifest field does not have correct format: " + s);
       }
       String[] fields = StringUtils.split(s, ':');
       return new RequiredPlugin(fields[0], Version.create(fields[1]).removeQualifier());
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      RequiredPlugin that = (RequiredPlugin) o;
+      return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+      return key.hashCode();
+    }
   }
 
-  private File file;
   private String key;
   private String name;
-  private Version version;
-  private Version minimalSqVersion;
+
+  @CheckForNull
+  private File jarFile;
+
+  @CheckForNull
   private String mainClass;
+
+  @CheckForNull
+  private Version version;
+
+  @CheckForNull
+  private Version minimalSqVersion;
+
+  @CheckForNull
   private String description;
+
+  @CheckForNull
   private String organizationName;
+
+  @CheckForNull
   private String organizationUrl;
+
+  @CheckForNull
   private String license;
+
+  @CheckForNull
   private String homepageUrl;
+
+  @CheckForNull
   private String issueTrackerUrl;
+
   private boolean useChildFirstClassLoader;
+
+  @CheckForNull
   private String basePlugin;
-  private boolean core;
+
+  private boolean core = false;
+
+  @CheckForNull
   private String implementationBuild;
-  private final List<RequiredPlugin> requiredPlugins = new ArrayList<>();
 
-  public PluginInfo() {
-  }
+  private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
-  /**
-   * For tests only
-   */
   public PluginInfo(String key) {
     this.key = key;
+    this.name = key;
   }
 
-  public File getFile() {
-    return file;
+  public PluginInfo setJarFile(@Nullable File f) {
+    this.jarFile = f;
+    return this;
+  }
+
+  @CheckForNull
+  public File getJarFile2() {
+    return jarFile;
+  }
+
+  public File getNonNullJarFile() {
+    Preconditions.checkNotNull(jarFile);
+    return jarFile;
   }
 
   public String getKey() {
@@ -112,6 +170,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return minimalSqVersion;
   }
 
+  @CheckForNull
   public String getMainClass() {
     return mainClass;
   }
@@ -164,37 +223,15 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return implementationBuild;
   }
 
-  public List<RequiredPlugin> getRequiredPlugins() {
+  public Set<RequiredPlugin> getRequiredPlugins() {
     return requiredPlugins;
   }
 
-  /**
-   * Required
-   */
-  public PluginInfo setFile(File file) {
-    this.file = file;
+  public PluginInfo setName(@Nullable String name) {
+    this.name = Objects.firstNonNull(name, this.key);
     return this;
   }
 
-  /**
-   * Required
-   */
-  public PluginInfo setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  /**
-   * Required
-   */
-  public PluginInfo setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * Required
-   */
   public PluginInfo setVersion(Version version) {
     this.version = version;
     return this;
@@ -286,7 +323,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   @Override
   public String toString() {
-    return String.format("[%s]", Joiner.on(" / ").skipNulls().join(key, version, implementationBuild));
+    return String.format("[%s]", SLASH_JOINER.join(key, version, implementationBuild));
   }
 
   @Override
@@ -310,11 +347,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   @VisibleForTesting
   static PluginInfo create(File jarFile, PluginManifest manifest) {
-    PluginInfo info = new PluginInfo();
+    PluginInfo info = new PluginInfo(manifest.getKey());
 
-    // required fields
-    info.setKey(manifest.getKey());
-    info.setFile(jarFile);
+    info.setJarFile(jarFile);
     info.setName(manifest.getName());
     info.setMainClass(manifest.getMainClass());
     info.setVersion(Version.create(manifest.getVersion()));
@@ -342,12 +377,16 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return info;
   }
 
-  public enum JarToPluginInfo implements Function<File, PluginInfo> {
+  private enum JarToPluginInfo implements Function<File, PluginInfo> {
     INSTANCE;
 
     @Override
     public PluginInfo apply(@Nonnull File jarFile) {
       return create(jarFile);
     }
-  };
+  }
+
+  public static Function<File, PluginInfo>  jarToPluginInfo() {
+    return JarToPluginInfo.INSTANCE;
+  }
 }

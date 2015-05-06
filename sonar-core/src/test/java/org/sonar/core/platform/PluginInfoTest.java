@@ -23,17 +23,16 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.ManifestUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.Manifest;
 
 import static com.google.common.collect.Ordering.natural;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,21 +58,23 @@ public class PluginInfoTest {
   }
 
   @Test
-  public void test_compare() {
-    PluginInfo java1 = new PluginInfo("java").setName("Java").setVersion(Version.create("1.0"));
-    PluginInfo java2 = new PluginInfo("java").setName("Java").setVersion(Version.create("2.0"));
-    PluginInfo cobol = new PluginInfo("cobol").setName("Cobol").setVersion(Version.create("1.0"));
-    List<PluginInfo> plugins = Arrays.asList(java1, java2, cobol);
+  public void test_comparison() {
+    PluginInfo java1 = new PluginInfo("java").setVersion(Version.create("1.0"));
+    PluginInfo java2 = new PluginInfo("java").setVersion(Version.create("2.0"));
+    PluginInfo cobol = new PluginInfo("cobol").setVersion(Version.create("1.0"));
+    PluginInfo noVersion = new PluginInfo("noVersion");
+    List<PluginInfo> plugins = Arrays.asList(java1, java2, cobol, noVersion);
     Collections.shuffle(plugins);
 
     List<PluginInfo> ordered = natural().sortedCopy(plugins);
     assertThat(ordered.get(0)).isSameAs(cobol);
     assertThat(ordered.get(1)).isSameAs(java1);
     assertThat(ordered.get(2)).isSameAs(java2);
+    assertThat(ordered.get(3)).isSameAs(noVersion);
   }
 
   @Test
-  public void test_compatibility_with_sq_version() {
+  public void test_compatibility_with_sq_version() throws IOException {
     assertThat(withMinSqVersion("1.1").isCompatibleWith("1.1")).isTrue();
     assertThat(withMinSqVersion("1.1").isCompatibleWith("1.1.0")).isTrue();
     assertThat(withMinSqVersion("1.0").isCompatibleWith("1.0.0")).isTrue();
@@ -117,10 +118,9 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getKey()).isEqualTo("java");
     assertThat(pluginInfo.getName()).isEqualTo("Java");
     assertThat(pluginInfo.getVersion().getName()).isEqualTo("1.0");
-    assertThat(pluginInfo.getFile()).isSameAs(jarFile);
+    assertThat(pluginInfo.getJarFile2()).isSameAs(jarFile);
     assertThat(pluginInfo.getMainClass()).isEqualTo("org.foo.FooPlugin");
-
-    // optional fields
+    assertThat(pluginInfo.isCore()).isFalse();
     assertThat(pluginInfo.getBasePlugin()).isNull();
     assertThat(pluginInfo.getDescription()).isNull();
     assertThat(pluginInfo.getHomepageUrl()).isNull();
@@ -152,7 +152,7 @@ public class PluginInfoTest {
     manifest.setRequirePlugins(new String[]{"java:2.0", "pmd:1.3"});
 
     File jarFile = temp.newFile();
-    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
+    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest).setCore(true);
 
     assertThat(pluginInfo.getBasePlugin()).isEqualTo("findbugs");
     assertThat(pluginInfo.getDescription()).isEqualTo("the desc");
@@ -164,6 +164,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getOrganizationUrl()).isEqualTo("http://sonarsource.com");
     assertThat(pluginInfo.getMinimalSqVersion().getName()).isEqualTo("4.5.1");
     assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsExactly("java", "pmd");
+    assertThat(pluginInfo.isCore()).isTrue();
   }
 
   @Test
@@ -177,23 +178,14 @@ public class PluginInfoTest {
 
   @Test
   public void test_toString() throws Exception {
-    PluginInfo pluginInfo = new PluginInfo().setKey("java").setVersion(Version.create("1.1"));
+    PluginInfo pluginInfo = new PluginInfo("java").setVersion(Version.create("1.1"));
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1]");
 
     pluginInfo.setImplementationBuild("SHA1");
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1 / SHA1]");
   }
 
-  @Test
-  public void isCore() throws Exception {
-    PluginInfo pluginInfo = new PluginInfo();
-    assertThat(pluginInfo.isCore()).isFalse();
-
-    pluginInfo.setCore(true);
-    assertThat(pluginInfo.isCore()).isTrue();
-  }
-
-  static PluginInfo withMinSqVersion(@Nullable String version) {
+  PluginInfo withMinSqVersion(@Nullable String version) throws IOException {
     PluginInfo pluginInfo = new PluginInfo("foo");
     if (version != null) {
       pluginInfo.setMinimalSqVersion(Version.create(version));

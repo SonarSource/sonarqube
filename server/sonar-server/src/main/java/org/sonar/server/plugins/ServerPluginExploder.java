@@ -23,8 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginUnzipper;
-import org.sonar.core.platform.UnzippedPlugin;
+import org.sonar.core.platform.PluginExploder;
+import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -32,11 +32,11 @@ import java.io.File;
 import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
-public class ServerPluginUnzipper extends PluginUnzipper implements ServerComponent {
+public class ServerPluginExploder extends PluginExploder implements ServerComponent {
 
   private final DefaultServerFileSystem fs;
 
-  public ServerPluginUnzipper(DefaultServerFileSystem fs) {
+  public ServerPluginExploder(DefaultServerFileSystem fs) {
     this.fs = fs;
   }
 
@@ -46,20 +46,20 @@ public class ServerPluginUnzipper extends PluginUnzipper implements ServerCompon
    * web/deploy/plugins in order to be loaded by {@link org.sonar.core.platform.PluginLoader}.
    */
   @Override
-  public UnzippedPlugin unzip(PluginInfo pluginInfo) {
+  public ExplodedPlugin explode(PluginInfo pluginInfo) {
     File toDir = new File(fs.getDeployedPluginsDir(), pluginInfo.getKey());
     try {
       forceMkdir(toDir);
       cleanDirectory(toDir);
 
-      File jarSource = pluginInfo.getFile();
+      File jarSource = pluginInfo.getNonNullJarFile();
       File jarTarget = new File(toDir, jarSource.getName());
       FileUtils.copyFile(jarSource, jarTarget);
       ZipUtils.unzip(jarSource, toDir, newLibFilter());
-      return UnzippedPlugin.createFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
+      return explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
     } catch (Exception e) {
       throw new IllegalStateException(String.format(
-        "Fail to unzip plugin [%s] %s to %s", pluginInfo.getKey(), pluginInfo.getFile().getAbsolutePath(), toDir.getAbsolutePath()), e);
+        "Fail to unzip plugin [%s] %s to %s", pluginInfo.getKey(), pluginInfo.getNonNullJarFile().getAbsolutePath(), toDir.getAbsolutePath()), e);
     }
   }
 }

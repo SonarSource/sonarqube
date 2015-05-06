@@ -67,7 +67,7 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void accept_core_plugin_even_if_in_exclusions() {
+  public void accept_core_plugin_even_if_declared_in_exclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "core,findbugs");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
@@ -75,7 +75,7 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void both_inclusions_and_exclusions() {
+  public void verify_both_inclusions_and_exclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings
       .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
@@ -87,7 +87,7 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void only_exclusions() {
+  public void test_exclusions_without_any_inclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
     BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
@@ -96,8 +96,13 @@ public class BatchPluginPredicateTest {
     assertThat(predicate.apply("cobertura")).isTrue();
   }
 
+  /**
+   * The properties sonar.dryRun.includePlugins and sonar.dryRun.excludePlugins
+   * are deprecated. They are replaced by sonar.preview.includePlugins and
+   * sonar.preview.excludePlugins.
+   */
   @Test
-  public void deprecated_dry_run_settings() {
+  public void support_deprecated_dry_run_settings() {
     when(mode.isPreview()).thenReturn(true);
     settings
       .setProperty(CoreProperties.DRY_RUN_INCLUDE_PLUGINS, "cockpit")

@@ -35,9 +35,9 @@ public class RemotePlugin {
     this.core = core;
   }
 
-  public static RemotePlugin create(PluginInfo metadata) {
-    RemotePlugin result = new RemotePlugin(metadata.getKey(), metadata.isCore());
-    result.setFile(metadata.getFile());
+  public static RemotePlugin create(PluginInfo pluginInfo) {
+    RemotePlugin result = new RemotePlugin(pluginInfo.getKey(), pluginInfo.isCore());
+    result.setFile(pluginInfo.getNonNullJarFile());
     return result;
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.core.platform;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.BatchComponent;
@@ -27,24 +28,26 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.classloader.ClassloaderBuilder;
 import org.sonar.classloader.ClassloaderBuilder.LoadingOrder;
-import org.sonar.classloader.Mask;
 
 import java.io.Closeable;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
 
 /**
  * Loads the plugin JAR files by creating the appropriate classloaders and by instantiating
  * the entry point classes as defined in manifests. It assumes that JAR files are compatible with current
- * environment (minimal sonarqube version, compatibility between plugins, ...).
+ * environment (minimal sonarqube version, compatibility between plugins, ...):
+ * <ul>
+ *   <li>server verifies compatibility of JARs before deploying them at startup (see ServerPluginRepository)</li>
+ *   <li>batch loads only the plugins deployed on server</li>
+ * </ul>
  * <p/>
  * Standard plugins have their own isolated classloader. Some others can extend a "base" plugin.
  * In this case they share the same classloader then the base plugin.
@@ -55,30 +58,14 @@ public class PluginLoader implements BatchComponent, ServerComponent {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins/", "com/sonar/plugins/", "com/sonarsource/plugins/"};
 
-  /**
-   * Information about the classloader to be created for a set of plugins.
-   */
-  static class ClassloaderDef {
-    final String basePluginKey;
-    final Map<String, String> mainClassesByPluginKey = new HashMap<>();
-    final List<File> files = new ArrayList<>();
-    final Mask mask = new Mask();
-    boolean selfFirstStrategy = false;
-    ClassLoader classloader = null;
+  private final PluginExploder exploder;
 
-    public ClassloaderDef(String basePluginKey) {
-      this.basePluginKey = basePluginKey;
-    }
-  }
-
-  private final PluginUnzipper unzipper;
-
-  public PluginLoader(PluginUnzipper unzipper) {
-    this.unzipper = unzipper;
+  public PluginLoader(PluginExploder exploder) {
+    this.exploder = exploder;
   }
 
   public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
-    Collection<ClassloaderDef> defs = defineClassloaders(infoByKeys).values();
+    Collection<ClassloaderDef> defs = defineClassloaders(infoByKeys);
     buildClassloaders(defs);
     return instantiatePluginInstances(defs);
   }
@@ -87,7 +74,8 @@ public class PluginLoader implements BatchComponent, ServerComponent {
    * Step 1 - define the different classloaders to be created. Number of classloaders can be
    * different than number of plugins.
    */
-  Map<String, ClassloaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
+  @VisibleForTesting
+  Collection<ClassloaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
     Map<String, ClassloaderDef> classloadersByBasePlugin = new HashMap<>();
 
     for (PluginInfo info : infoByKeys.values()) {
@@ -97,39 +85,44 @@ public class PluginLoader implements BatchComponent, ServerComponent {
         def = new ClassloaderDef(baseKey);
         classloadersByBasePlugin.put(baseKey, def);
       }
-      UnzippedPlugin unzippedPlugin = unzipper.unzip(info);
-      def.files.add(unzippedPlugin.getMain());
-      def.files.addAll(unzippedPlugin.getLibs());
-      def.mainClassesByPluginKey.put(info.getKey(), info.getMainClass());
+      ExplodedPlugin explodedPlugin = exploder.explode(info);
+      def.addFiles(asList(explodedPlugin.getMain()));
+      def.addFiles(explodedPlugin.getLibs());
+      def.addMainClass(info.getKey(), info.getMainClass());
+
       for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-        def.mask.addInclusion(defaultSharedResource + info.getKey() + "/");
+        def.getMask().addInclusion(defaultSharedResource + info.getKey() + "/");
       }
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
         // The plugins that extend other plugins can only add some files to classloader.
         // They can't change ordering strategy.
-        def.selfFirstStrategy = info.isUseChildFirstClassLoader();
+        def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
       }
     }
-    return classloadersByBasePlugin;
+    return classloadersByBasePlugin.values();
   }
 
   /**
    * Step 2 - create classloaders with appropriate constituents and metadata
    */
-  void buildClassloaders(Collection<ClassloaderDef> defs) {
+  private void buildClassloaders(Collection<ClassloaderDef> defs) {
     ClassloaderBuilder builder = new ClassloaderBuilder();
     for (ClassloaderDef def : defs) {
       builder
-        .newClassloader(def.basePluginKey, getClass().getClassLoader())
-        .setExportMask(def.basePluginKey, def.mask)
-        .setLoadingOrder(def.basePluginKey, def.selfFirstStrategy ? SELF_FIRST : LoadingOrder.PARENT_FIRST);
-      for (File file : def.files) {
-        builder.addURL(def.basePluginKey, fileToUrl(file));
+        .newClassloader(def.getBasePluginKey(), getClass().getClassLoader())
+        .setExportMask(def.getBasePluginKey(), def.getMask())
+        .setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : LoadingOrder.PARENT_FIRST);
+      for (File file : def.getFiles()) {
+        builder.addURL(def.getBasePluginKey(), fileToUrl(file));
       }
     }
     Map<String, ClassLoader> classloadersByBasePluginKey = builder.build();
     for (ClassloaderDef def : defs) {
-      def.classloader = classloadersByBasePluginKey.get(def.basePluginKey);
+      ClassLoader builtClassloader = classloadersByBasePluginKey.get(def.getBasePluginKey());
+      if (builtClassloader == null) {
+        throw new IllegalStateException(String.format("Fail to create classloader for plugin [%s]", def.getBasePluginKey()));
+      }
+      def.setBuiltClassloader(builtClassloader);
     }
   }
 
@@ -139,16 +132,16 @@ public class PluginLoader implements BatchComponent, ServerComponent {
    * @return the instances grouped by plugin key
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
-  Map<String, Plugin> instantiatePluginInstances(Collection<ClassloaderDef> defs) {
+  private Map<String, Plugin> instantiatePluginInstances(Collection<ClassloaderDef> defs) {
     // instantiate plugins
     Map<String, Plugin> instancesByPluginKey = new HashMap<>();
     for (ClassloaderDef def : defs) {
       // the same classloader can be used by multiple plugins
-      for (Map.Entry<String, String> entry : def.mainClassesByPluginKey.entrySet()) {
+      for (Map.Entry<String, String> entry : def.getMainClassesByPluginKey().entrySet()) {
         String pluginKey = entry.getKey();
         String mainClass = entry.getValue();
         try {
-          instancesByPluginKey.put(pluginKey, (Plugin) def.classloader.loadClass(mainClass).newInstance());
+          instancesByPluginKey.put(pluginKey, (Plugin) def.getBuiltClassloader().loadClass(mainClass).newInstance());
         } catch (UnsupportedClassVersionError e) {
           throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
             pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
@@ -189,7 +182,7 @@ public class PluginLoader implements BatchComponent, ServerComponent {
     return base;
   }
 
-  private URL fileToUrl(File file) {
+  private static URL fileToUrl(File file) {
     try {
       return file.toURI().toURL();
     } catch (MalformedURLException e) {

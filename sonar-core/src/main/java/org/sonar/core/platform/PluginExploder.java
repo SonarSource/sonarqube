@@ -22,41 +22,39 @@ package org.sonar.core.platform;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import org.sonar.api.utils.ZipUtils;
+
+import java.util.zip.ZipEntry;
 
 import static org.apache.commons.io.FileUtils.listFiles;
 
-public class UnzippedPlugin {
+public abstract class PluginExploder {
 
-  private final String key;
-  private final File main;
-  private final Collection<File> libs;
+  protected static final String LIB_RELATIVE_PATH_IN_JAR = "META-INF/lib";
 
-  public UnzippedPlugin(String key, File main, Collection<File> libs) {
-    this.key = key;
-    this.main = main;
-    this.libs = libs;
+  public abstract ExplodedPlugin explode(PluginInfo info);
+
+  protected ZipUtils.ZipEntryFilter newLibFilter() {
+    return ZipLibFilter.INSTANCE;
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public File getMain() {
-    return main;
-  }
-
-  public Collection<File> getLibs() {
-    return libs;
-  }
-
-  public static UnzippedPlugin createFromUnzippedDir(String pluginKey, File jarFile, File unzippedDir) {
-    File libDir = new File(unzippedDir, PluginUnzipper.LIB_RELATIVE_PATH_IN_JAR);
+  protected ExplodedPlugin explodeFromUnzippedDir(String pluginKey, File jarFile, File unzippedDir) {
+    File libDir = new File(unzippedDir, PluginExploder.LIB_RELATIVE_PATH_IN_JAR);
     Collection<File> libs;
     if (libDir.isDirectory() && libDir.exists()) {
       libs = listFiles(libDir, null, false);
     } else {
       libs = Collections.emptyList();
     }
-    return new UnzippedPlugin(pluginKey, jarFile, libs);
+    return new ExplodedPlugin(pluginKey, jarFile, libs);
+  }
+
+  private enum ZipLibFilter implements ZipUtils.ZipEntryFilter {
+    INSTANCE;
+
+    @Override
+    public boolean accept(ZipEntry entry) {
+      return entry.getName().startsWith(LIB_RELATIVE_PATH_IN_JAR);
+    }
   }
 }

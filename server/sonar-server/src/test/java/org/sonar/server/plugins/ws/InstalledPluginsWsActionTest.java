@@ -19,7 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
@@ -42,12 +44,14 @@ public class InstalledPluginsWsActionTest {
       "  \"plugins\":" + "[]" +
       "}";
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   private InstalledPluginsWsAction underTest = new InstalledPluginsWsAction(pluginRepository, new PluginWSCommons());
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
-  private PluginInfo corePlugin = corePlugin("core1", "1.0");
 
   @Test
   public void action_installed_is_defined() {
@@ -75,7 +79,7 @@ public class InstalledPluginsWsActionTest {
 
   @Test
   public void core_plugin_are_not_returned() throws Exception {
-    when(pluginRepository.getPluginInfos()).thenReturn(of(corePlugin));
+    when(pluginRepository.getPluginInfos()).thenReturn(of(corePlugin("core1", "1.0")));
 
     underTest.handle(request, response);
 
@@ -99,7 +103,9 @@ public class InstalledPluginsWsActionTest {
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
     when(pluginRepository.getPluginInfos()).thenReturn(of(
-      new PluginInfo("plugKey").setName("plugName").setCore(false)
+      new PluginInfo("plugKey")
+        .setName("plugName")
+        .setCore(false)
         .setDescription("desc_it")
         .setVersion(Version.create("1.0"))
         .setLicense("license_hey")
@@ -107,8 +113,8 @@ public class InstalledPluginsWsActionTest {
         .setOrganizationUrl("org_url")
         .setHomepageUrl("homepage_url")
         .setIssueTrackerUrl("issueTracker_url")
-        .setFile(new File(getClass().getResource(jarFilename).toURI()))
         .setImplementationBuild("sou_rev_sha1")
+        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))
       )
       );
 
@@ -183,15 +189,11 @@ public class InstalledPluginsWsActionTest {
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
   }
 
-  private static PluginInfo corePlugin(String key, String version) {
+  private PluginInfo corePlugin(String key, String version) {
     return new PluginInfo(key).setName(key).setCore(true).setVersion(Version.create(version));
   }
 
-  private static PluginInfo plugin(String key, String name, String version) {
-    return new PluginInfo(key).setName(name).setCore(false).setVersion(Version.create(version));
-  }
-
-  private static PluginInfo plugin(String key, String name) {
+  private PluginInfo plugin(String key, String name) {
     return new PluginInfo(key).setName(name).setCore(false).setVersion(Version.create("1.0"));
   }
 }

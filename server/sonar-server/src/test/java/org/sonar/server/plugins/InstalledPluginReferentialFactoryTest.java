@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
+import java.io.IOException;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -31,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class InstalledPluginReferentialFactoryTest {
 
   @Test
-  public void should_create_plugin_referential() {
+  public void should_create_plugin_referential() throws IOException {
     PluginInfo info = new PluginInfo("foo");
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.getPluginInfos()).thenReturn(newArrayList(info));

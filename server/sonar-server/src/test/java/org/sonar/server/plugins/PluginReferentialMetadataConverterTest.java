@@ -23,13 +23,15 @@ import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.PluginReferential;
 
+import java.io.IOException;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginReferentialMetadataConverterTest {
 
   @Test
-  public void should_convert_info_to_plugin_referential() {
+  public void should_convert_info_to_plugin_referential() throws IOException {
     PluginInfo info = new PluginInfo("foo");
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));
@@ -39,7 +41,7 @@ public class PluginReferentialMetadataConverterTest {
   }
 
   @Test
-  public void should_not_add_core_plugin() {
+  public void should_not_add_core_plugin() throws IOException {
     PluginInfo info = new PluginInfo("foo").setCore(true);
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));

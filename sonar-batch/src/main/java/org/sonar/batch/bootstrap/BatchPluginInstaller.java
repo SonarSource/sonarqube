@@ -45,6 +45,7 @@ import java.util.Map;
 public class BatchPluginInstaller implements PluginInstaller {
 
   private static final Logger LOG = Loggers.get(BatchPluginInstaller.class);
+  private static final String PLUGINS_INDEX_URL = "/deploy/plugins/index.txt";
 
   private final ServerClient server;
   private final FileCache fileCache;
@@ -105,10 +106,9 @@ public class BatchPluginInstaller implements PluginInstaller {
    */
   @VisibleForTesting
   List<RemotePlugin> listRemotePlugins() {
-    String url = "/deploy/plugins/index.txt";
     try {
       LOG.debug("Download index of plugins");
-      String indexContent = server.request(url);
+      String indexContent = server.request(PLUGINS_INDEX_URL);
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
       List<RemotePlugin> result = Lists.newArrayList();
       for (String row : rows) {
@@ -117,7 +117,7 @@ public class BatchPluginInstaller implements PluginInstaller {
       return result;
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to download list of plugins: " + url, e);
+      throw new IllegalStateException("Fail to download list of plugins: " + PLUGINS_INDEX_URL, e);
     }
   }
 }

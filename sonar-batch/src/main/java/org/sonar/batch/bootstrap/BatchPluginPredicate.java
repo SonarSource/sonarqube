@@ -48,6 +48,7 @@ public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
   private static final String CORE_PLUGIN_KEY = "core";
   private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
   private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Set<String> whites = newHashSet(), blacks = newHashSet();
   private final DefaultAnalysisMode mode;
@@ -75,10 +76,10 @@ public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
       }
     }
     if (!whites.isEmpty()) {
-      LOG.info("Include plugins: " + Joiner.on(", ").join(whites));
+      LOG.info("Include plugins: " + COMMA_JOINER.join(whites));
     }
     if (!blacks.isEmpty()) {
-      LOG.info("Exclude plugins: " + Joiner.on(", ").join(blacks));
+      LOG.info("Exclude plugins: " + COMMA_JOINER.join(blacks));
     }
   }
 
