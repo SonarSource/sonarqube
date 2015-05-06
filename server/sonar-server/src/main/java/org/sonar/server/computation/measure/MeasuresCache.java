@@ -20,29 +20,24 @@
 
 package org.sonar.server.computation.measure;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.server.util.cache.DiskCacheById;
 
-import java.util.Collection;
+import java.io.File;
 
 /**
  * Cache of all measures involved in the analysis.
- * TODO Use a cache on disk
  */
-public class MeasuresCache {
+public class MeasuresCache extends DiskCacheById<Measure> {
 
-  private Multimap<Integer, Measure> measuresByRef;
-
-  public MeasuresCache() {
-    this.measuresByRef = ArrayListMultimap.create();
+  // this constructor is used by picocontainer
+  public MeasuresCache(TempFolder tempFolder, System2 system2) {
+    super(tempFolder.newDir("measures"), system2);
   }
 
-  public void addMeasure(int ref, Measure measure) {
-    measuresByRef.put(ref, measure);
-  }
-
-  public Collection<Measure> getMeasures(int ref) {
-    return measuresByRef.get(ref);
+  public MeasuresCache(File folder, System2 system2) {
+    super(folder, system2);
   }
 
 }

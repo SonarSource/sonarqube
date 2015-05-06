@@ -23,7 +23,9 @@ package org.sonar.server.computation.measure;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class Measure {
+import java.io.Serializable;
+
+public class Measure implements Serializable {
 
   private String metricKey;
   private String componentUuid;

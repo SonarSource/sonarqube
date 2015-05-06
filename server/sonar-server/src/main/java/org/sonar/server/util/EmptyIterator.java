@@ -18,26 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.design;
+package org.sonar.server.util;
 
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCacheById;
+public class EmptyIterator<O> extends CloseableIterator<O> {
 
-import java.io.File;
-
-/**
- * Cache of all the file dependencies involved in the analysis.
- */
-public class FileDependenciesCache extends DiskCacheById<FileDependency> {
-
-  // this constructor is used by picocontainer
-  public FileDependenciesCache(TempFolder tempFolder, System2 system2) {
-    super(tempFolder.newDir("fileDependencies"), system2);
+  @Override
+  protected O doNext() {
+    return null;
   }
 
-  public FileDependenciesCache(File folder, System2 system2) {
-    super(folder, system2);
+  @Override
+  protected void doClose() throws Exception {
+    // Nothing to do
   }
-
 }

@@ -40,6 +40,9 @@ public class ComputationSteps {
       // Read report
       ParseReportStep.class,
 
+      // Compute data
+      ComputeFileDependenciesStep.class,
+
       // Persist data
       PersistNumberOfDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,

@@ -18,26 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.design;
+package org.sonar.server.util;
 
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCacheById;
+import org.junit.Test;
 
-import java.io.File;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Cache of all the file dependencies involved in the analysis.
- */
-public class FileDependenciesCache extends DiskCacheById<FileDependency> {
+public class EmptyIteratorTest {
 
-  // this constructor is used by picocontainer
-  public FileDependenciesCache(TempFolder tempFolder, System2 system2) {
-    super(tempFolder.newDir("fileDependencies"), system2);
-  }
-
-  public FileDependenciesCache(File folder, System2 system2) {
-    super(folder, system2);
+  @Test
+  public void nothing_to_read() throws Exception {
+    EmptyIterator emptyIterator = new EmptyIterator();
+    assertThat(emptyIterator.hasNext()).isFalse();
+    emptyIterator.close();
   }
 
 }

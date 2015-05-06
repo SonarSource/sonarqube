@@ -45,6 +45,8 @@ import org.sonar.server.computation.measure.MeasuresCache;
 import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.design.db.DsmDb;
 import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.util.CloseableIterator;
+import org.sonar.server.util.cache.DiskCacheById;
 
 import javax.annotation.CheckForNull;
 
@@ -64,7 +66,6 @@ public class ComputeFileDependenciesStep implements ComputationStep {
 
   private static final int MAX_DSM_DIMENSION = 200;
 
-  // TODO use disk caches
   private final FileDependenciesCache fileDependenciesCache;
   private final MeasuresCache measuresCache;
 
@@ -103,9 +104,10 @@ public class ComputeFileDependenciesStep implements ComputationStep {
     if (fileDependencyReport != null) {
       ReportIterator<BatchReport.FileDependency> fileDependenciesIterator = new ReportIterator<>(fileDependencyReport, BatchReport.FileDependency.PARSER);
       try {
+        DiskCacheById<FileDependency>.DiskAppender fileDependencyAppender = fileDependenciesCache.newAppender(component.getRef());
         while (fileDependenciesIterator.hasNext()) {
           BatchReport.FileDependency fileDependency = fileDependenciesIterator.next();
-          fileDependenciesCache.addFileDependency(component.getRef(),
+          fileDependencyAppender.append(
             new FileDependency(component.getRef(), fileDependency.getToFileRef(), fileDependency.getWeight())
             );
         }
@@ -118,15 +120,8 @@ public class ComputeFileDependenciesStep implements ComputationStep {
   private void processDependencies(ComputationContext context, ComponentUuidsCache uuidsByRef, Map<Integer, Integer> directoryByFile, BatchReport.Component component) {
     Collection<FileDependency> fileDependencies = getDependenciesFromChildren(context, component.getRef());
     if (!fileDependencies.isEmpty()) {
-      Bag directoryBag = new HashBag();
-
       DependenciesGraph dependenciesGraph = new DependenciesGraph();
       for (FileDependency fileDependency : fileDependencies) {
-        Integer directoryRef = directoryByFile.get(fileDependency.getTo());
-        if (directoryRef != null) {
-          int toDirectoryRef = context.getReportReader().readComponent(directoryRef).getRef();
-          directoryBag.add(toDirectoryRef);
-        }
         dependenciesGraph.addDependency(fileDependency);
       }
 
@@ -141,25 +136,55 @@ public class ComputeFileDependenciesStep implements ComputationStep {
       measure.setMetricKey(ServerMetrics.DEPENDENCY_MATRIX_KEY);
       measure.setComponentUuid(component.getUuid());
       measure.setByteValue(DsmDataEncoder.encodeSourceData(dsmData));
-      measuresCache.addMeasure(component.getRef(), measure);
 
-      for (Object dirRef : directoryBag.uniqueSet()) {
-        fileDependenciesCache.addFileDependency(component.getRef(),
-          new FileDependency(component.getRef(), (Integer) dirRef, directoryBag.getCount(dirRef))
+      DiskCacheById<Measure>.DiskAppender measureAppender = measuresCache.newAppender(component.getRef());
+      try {
+        measureAppender.append(measure);
+      } finally {
+        measureAppender.close();
+      }
+      feedParentDependencies(context, fileDependencies, directoryByFile, component.getRef());
+    }
+  }
+
+  private void feedParentDependencies(ComputationContext context, Collection<FileDependency> fileDependencies, Map<Integer, Integer> directoryByFile, int ref) {
+    Bag parentDependenciesBag = new HashBag();
+    for (FileDependency fileDependency : fileDependencies) {
+      Integer directoryRef = directoryByFile.get(fileDependency.getTo());
+      if (directoryRef != null) {
+        int toDirectoryRef = context.getReportReader().readComponent(directoryRef).getRef();
+        parentDependenciesBag.add(toDirectoryRef);
+      }
+    }
+
+    DiskCacheById<FileDependency>.DiskAppender fileDependencyAppender = fileDependenciesCache.newAppender(ref);
+    try {
+      for (Object dirRef : parentDependenciesBag.uniqueSet()) {
+        fileDependencyAppender.append(
+          new FileDependency(ref, (Integer) dirRef, parentDependenciesBag.getCount(dirRef))
           );
       }
+    } finally {
+      fileDependencyAppender.close();
     }
   }
 
   private Collection<FileDependency> getDependenciesFromChildren(ComputationContext context, int ref) {
     Collection<FileDependency> dependencies = new ArrayList<>();
     for (Integer child : context.getReportReader().readComponent(ref).getChildRefList()) {
-      dependencies.addAll(fileDependenciesCache.getFileDependencies(child));
+      CloseableIterator<FileDependency> fileDependencies = fileDependenciesCache.traverse(child);
+      try {
+        while (fileDependencies.hasNext()) {
+          dependencies.add(fileDependencies.next());
+        }
+      } finally {
+        fileDependencies.close();
+      }
     }
     return dependencies;
   }
 
-  private DsmDb.Data computeDsmData(DependenciesGraph dependenciesGraph, ComponentUuidsCache uuidsByRef){
+  private static DsmDb.Data computeDsmData(DependenciesGraph dependenciesGraph, ComponentUuidsCache uuidsByRef) {
     IncrementalCyclesAndFESSolver<Integer> cycleDetector = new IncrementalCyclesAndFESSolver<>(dependenciesGraph, dependenciesGraph.getVertices());
     Set<Cycle> cycles = cycleDetector.getCycles();
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
@@ -169,6 +194,9 @@ public class ComputeFileDependenciesStep implements ComputationStep {
     return DsmDataBuilder.build(dsm, uuidsByRef);
   }
 
+  /**
+   * Browse all components of the report to create a map of directory ref by file ref
+   */
   private static Map<Integer, Integer> directoryByFile(ComputationContext context) {
     Map<Integer, Integer> directoryByFile = new HashMap<>();
     int rootComponentRef = context.getReportMetadata().getRootComponentRef();

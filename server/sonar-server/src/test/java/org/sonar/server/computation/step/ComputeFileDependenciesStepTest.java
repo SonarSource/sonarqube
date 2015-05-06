@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -70,8 +71,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
       .build());
     context = new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID));
 
-    fileDependenciesCache = new FileDependenciesCache();
-    measuresCache = new MeasuresCache();
+    fileDependenciesCache = new FileDependenciesCache(temp.newFolder("fileDependencies"), System2.INSTANCE);
+    measuresCache = new MeasuresCache(temp.newFolder("measures"), System2.INSTANCE);
     sut = new ComputeFileDependenciesStep(fileDependenciesCache, measuresCache);
   }
 
@@ -134,8 +135,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // Dependencies on file FILE_A
-    assertThat(fileDependenciesCache.getFileDependencies(3)).hasSize(2);
-    Iterator<FileDependency> fileDependencies = fileDependenciesCache.getFileDependencies(3).iterator();
+    assertThat(fileDependenciesCache.traverse(3)).hasSize(2);
+    Iterator<FileDependency> fileDependencies = fileDependenciesCache.traverse(3);
     FileDependency fileDependency = fileDependencies.next();
     assertThat(fileDependency.getFrom()).isEqualTo(3);
     assertThat(fileDependency.getTo()).isEqualTo(5);
@@ -147,14 +148,14 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(fileDependency.getWeight()).isEqualTo(1);
 
     // Dependency on directory DIRECTORY_A
-    assertThat(fileDependenciesCache.getFileDependencies(2)).hasSize(1);
-    FileDependency directorDependency = fileDependenciesCache.getFileDependencies(2).iterator().next();
+    assertThat(fileDependenciesCache.traverse(2)).hasSize(1);
+    FileDependency directorDependency = fileDependenciesCache.traverse(2).next();
     assertThat(directorDependency.getFrom()).isEqualTo(2);
     assertThat(directorDependency.getTo()).isEqualTo(4);
     assertThat(directorDependency.getWeight()).isEqualTo(2);
 
     // No dependency on project
-    assertThat(fileDependenciesCache.getFileDependencies(1)).isEmpty();
+    assertThat(fileDependenciesCache.traverse(1)).isEmpty();
   }
 
   @Test
@@ -199,9 +200,9 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // On project
-    assertThat(measuresCache.getMeasures(1)).hasSize(1);
+    assertThat(measuresCache.traverse(1)).hasSize(1);
 
-    Measure projectMeasure = measuresCache.getMeasures(1).iterator().next();
+    Measure projectMeasure = measuresCache.traverse(1).next();
     assertThat(projectMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getComponentUuid()).isEqualTo(PROJECT_UUID);
     assertThat(projectMeasure.getByteValue()).isNotNull();
@@ -214,9 +215,9 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(projectDsmData.getUuid(1)).isEqualTo("DIRECTORY_B");
 
     // On directory
-    assertThat(measuresCache.getMeasures(2)).hasSize(1);
+    assertThat(measuresCache.traverse(2)).hasSize(1);
 
-    Measure directoryMeasure = measuresCache.getMeasures(2).iterator().next();
+    Measure directoryMeasure = measuresCache.traverse(2).next();
     assertThat(directoryMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(directoryMeasure.getComponentUuid()).isEqualTo("DIRECTORY_A");
     assertThat(directoryMeasure.getByteValue()).isNotNull();
@@ -229,8 +230,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(directoryDsmData.getUuid(1)).isEqualTo("FILE_B");
 
     // Nothing on file
-    assertThat(measuresCache.getMeasures(3)).isEmpty();
-    assertThat(measuresCache.getMeasures(5)).isEmpty();
+    assertThat(measuresCache.traverse(3)).isEmpty();
+    assertThat(measuresCache.traverse(5)).isEmpty();
   }
 
   @Test
@@ -281,12 +282,12 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // Nothing on project
-    assertThat(measuresCache.getMeasures(1)).isEmpty();
+    assertThat(measuresCache.traverse(1)).isEmpty();
 
     // On sub project
-    assertThat(measuresCache.getMeasures(2)).hasSize(1);
+    assertThat(measuresCache.traverse(2)).hasSize(1);
 
-    Measure projectMeasure = measuresCache.getMeasures(2).iterator().next();
+    Measure projectMeasure = measuresCache.traverse(2).next();
     assertThat(projectMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getComponentUuid()).isEqualTo("MODULE");
     assertThat(projectMeasure.getByteValue()).isNotNull();
@@ -340,7 +341,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // No measure
-    assertThat(measuresCache.getMeasures(1)).isEmpty();
-    assertThat(measuresCache.getMeasures(2)).isEmpty();
+    assertThat(measuresCache.traverse(1)).isEmpty();
+    assertThat(measuresCache.traverse(2)).isEmpty();
   }
 }
