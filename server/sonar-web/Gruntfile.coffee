@@ -13,24 +13,8 @@ module.exports = (grunt) ->
     pkg: grunt.file.readJSON('package.json')
 
     less:
-      dev:
-        files:
-          '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
-            '<%= pkg.sources %>less/jquery-ui.less'
-            '<%= pkg.sources %>less/select2.less'
-            '<%= pkg.sources %>less/select2-sonar.less'
-
-            '<%= pkg.sources %>less/init.less'
-            '<%= pkg.sources %>less/components.less'
-            '<%= pkg.sources %>less/pages.less'
-
-            '<%= pkg.sources %>less/style.less'
-
-            '<%= pkg.sources %>less/*.less'
-          ]
       build:
-        options:
-          cleancss: true
+        options: cleancss: true
         files:
           '<%= grunt.option("assetsDir") || pkg.assets %>css/sonar.css': [
             '<%= pkg.sources %>less/jquery-ui.less'
@@ -253,6 +237,32 @@ module.exports = (grunt) ->
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/markdown/app.js'
 
 
+    parallel:
+      compile:
+        options: grunt: true
+        tasks: ['less:build', 'coffee:build', 'handlebars:build']
+      requirejs:
+        options: grunt: true
+        tasks: [
+          'requirejs:qualityGate'
+          'requirejs:qualityProfiles'
+          'requirejs:codingRules'
+          'requirejs:issues'
+          'requirejs:issuesContext'
+          'requirejs:measures'
+          'requirejs:selectList'
+          'requirejs:apiDocumentation'
+          'requirejs:drilldown'
+          'requirejs:sourceViewer'
+          'requirejs:design'
+          'requirejs:libraries'
+          'requirejs:monitoring'
+          'requirejs:nav'
+          'requirejs:issueFilterWidget'
+          'requirejs:markdown'
+        ]
+
+
     handlebars:
       options:
         namespace: 'Templates'
@@ -464,11 +474,11 @@ module.exports = (grunt) ->
 
   # Define tasks
   grunt.registerTask 'dev',
-      ['clean:css', 'clean:js', 'less:dev', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev']
+      ['clean:css', 'clean:js', 'parallel:compile', 'copy:js', 'concat:dev']
 
   grunt.registerTask 'build',
-      ['clean:css', 'clean:js', 'less:build', 'cssUrlRewrite:build', 'coffee:build', 'handlebars:build', 'copy:js',
-       'concat:build', 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify_parallel:build', 'clean:build']
+      ['clean:css', 'clean:js', 'parallel:compile', 'cssUrlRewrite:build', 'copy:js',
+       'concat:build', 'parallel:requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'uglify_parallel:build', 'clean:build']
 
   grunt.registerTask 'default',
       ['build']
