@@ -19,16 +19,11 @@
  */
 package org.sonar.process;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import static org.mockito.Mockito.*;
 
 public class StopWatcherTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test(timeout = 1000L)
   public void stop_if_receive_command() throws Exception {

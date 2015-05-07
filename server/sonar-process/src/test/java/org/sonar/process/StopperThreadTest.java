@@ -19,18 +19,13 @@
  */
 package org.sonar.process;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 
 public class StopperThreadTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test(timeout = 3000L)
   public void stop_in_a_timely_fashion() throws Exception {
