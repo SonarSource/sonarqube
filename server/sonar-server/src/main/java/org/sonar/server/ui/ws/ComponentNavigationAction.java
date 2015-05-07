@@ -198,7 +198,7 @@ public class ComponentNavigationAction implements NavigationAction {
     for (DashboardDto dashboard : dashboards) {
       json.beginObject()
         .prop("key", dashboard.getId())
-        .prop("name", i18n.message(locale, String.format("dashboard.%s.name", dashboard.getName()), dashboard.getName()))
+        .prop("name", dashboard.getName())
         .endObject();
     }
     json.endArray();
