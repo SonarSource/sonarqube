@@ -31,7 +31,7 @@ public class StopWatcherTest {
     when(commands.askedForStop()).thenReturn(false).thenReturn(true);
     Stoppable stoppable = mock(Stoppable.class);
 
-    StopWatcher watcher = new StopWatcher(commands, stoppable, 10L);
+    StopWatcher watcher = new StopWatcher(commands, stoppable, 1L);
     watcher.start();
     watcher.join();
 
