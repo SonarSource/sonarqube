@@ -111,6 +111,7 @@ define([
       this.options.app.router.navigate('');
       this.options.app.layout.headerRegion.reset();
       this.options.app.layout.detailsRegion.reset();
+      this.options.app.layout.renderIntro();
       this.options.app.profilesView.highlight(null);
     },
 

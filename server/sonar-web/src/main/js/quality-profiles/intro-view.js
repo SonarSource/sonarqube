@@ -18,34 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-  'quality-profiles/intro-view',
   'templates/quality-profiles'
-], function (IntroView) {
+], function () {
 
-  var $ = jQuery;
-
-  return Marionette.Layout.extend({
-    template: Templates['quality-profiles-layout'],
-
-    regions: {
-      headerRegion: '.search-navigator-workspace-header',
-      actionsRegion: '.search-navigator-filters',
-      resultsRegion: '.quality-profiles-results',
-      detailsRegion: '.search-navigator-workspace-details'
-    },
-
-    onRender: function () {
-      var navigator = $('.search-navigator');
-      navigator.addClass('sticky search-navigator-extended-view');
-      var top = navigator.offset().top;
-      this.$('.search-navigator-workspace-header').css({ top: top });
-      this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
-      this.renderIntro();
-    },
-
-    renderIntro: function () {
-      this.detailsRegion.show(new IntroView());
-    }
+  return Marionette.ItemView.extend({
+    template: Templates['quality-profiles-intro']
   });
 
 });
