@@ -69,7 +69,7 @@ public class RuleDeleterMediumTest {
   }
 
   @Test
-  public void delete_custom_rule() throws Exception {
+  public void delete_custom_rule() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("xoo", "T1")).setLanguage("xoo");
     dao.insert(dbSession, templateRule);
@@ -101,7 +101,7 @@ public class RuleDeleterMediumTest {
   }
 
   @Test
-  public void delete_manual_rule() throws Exception {
+  public void delete_manual_rule() {
     // Create manual rule
     RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule");
     dao.insert(dbSession, manualRule);
@@ -118,7 +118,7 @@ public class RuleDeleterMediumTest {
   }
 
   @Test
-  public void fail_to_delete_if_not_custom_or_not_manual() throws Exception {
+  public void fail_to_delete_if_not_custom_or_not_manual() {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
     dao.insert(dbSession, RuleTesting.newDto(ruleKey));

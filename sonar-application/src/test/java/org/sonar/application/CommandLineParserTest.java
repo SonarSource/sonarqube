@@ -31,7 +31,7 @@ public class CommandLineParserTest {
   CommandLineParser parser = new CommandLineParser();
 
   @Test
-  public void parseArguments() throws Exception {
+  public void parseArguments() {
     System.setProperty("CommandLineParserTest.unused", "unused");
     System.setProperty("sonar.CommandLineParserTest.used", "used");
 
@@ -46,7 +46,7 @@ public class CommandLineParserTest {
   }
 
   @Test
-  public void argumentsToProperties() throws Exception {
+  public void argumentsToProperties() {
     Properties p = parser.argumentsToProperties(new String[] {"-Dsonar.foo=bar", "-Dsonar.whitespace=foo bar"});
     assertThat(p).hasSize(2);
     assertThat(p.getProperty("sonar.foo")).isEqualTo("bar");

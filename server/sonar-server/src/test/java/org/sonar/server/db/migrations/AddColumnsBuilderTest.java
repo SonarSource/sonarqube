@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 public class AddColumnsBuilderTest {
 
   @Test
-  public void add_columns_on_h2() throws Exception {
+  public void add_columns_on_h2() {
     assertThat(new AddColumnsBuilder(new H2(), "issues")
       .addColumn(new AddColumnsBuilder.ColumnDef()
         .setName("date_in_ms")
@@ -43,7 +43,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void add_columns_on_mysql() throws Exception {
+  public void add_columns_on_mysql() {
     assertThat(new AddColumnsBuilder(new MySql(), "issues")
       .addColumn(new AddColumnsBuilder.ColumnDef()
         .setName("date_in_ms")
@@ -58,7 +58,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void add_columns_on_oracle() throws Exception {
+  public void add_columns_on_oracle() {
     assertThat(new AddColumnsBuilder(new Oracle(), "issues")
       .addColumn(new AddColumnsBuilder.ColumnDef()
         .setName("date_in_ms")
@@ -73,7 +73,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void add_columns_on_postgresql() throws Exception {
+  public void add_columns_on_postgresql() {
     assertThat(new AddColumnsBuilder(new PostgreSql(), "issues")
       .addColumn(new AddColumnsBuilder.ColumnDef()
         .setName("date_in_ms")
@@ -88,7 +88,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void add_columns_on_mssql() throws Exception {
+  public void add_columns_on_mssql() {
     assertThat(new AddColumnsBuilder(new MsSql(), "issues")
       .addColumn(new AddColumnsBuilder.ColumnDef()
         .setName("date_in_ms")
@@ -103,7 +103,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void fail_when_column_name_is_in_upper_case() throws Exception {
+  public void fail_when_column_name_is_in_upper_case() {
     try {
       new AddColumnsBuilder.ColumnDef()
         .setName("DATE_IN_MS")
@@ -116,7 +116,7 @@ public class AddColumnsBuilderTest {
   }
 
   @Test
-  public void fail_when_column_name_contains_invalid_character() throws Exception {
+  public void fail_when_column_name_contains_invalid_character() {
     try {
       new AddColumnsBuilder.ColumnDef()
         .setName("date-in/ms")

@@ -51,7 +51,7 @@ public class MsSqlTest {
   }
 
   @Test
-  public void msSql_does_supportMigration() throws Exception {
+  public void msSql_does_supportMigration() {
     assertThat(msSql.supportsMigration()).isTrue();
   }
 }

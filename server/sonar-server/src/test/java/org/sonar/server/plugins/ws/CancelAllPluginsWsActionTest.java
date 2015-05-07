@@ -51,12 +51,12 @@ public class CancelAllPluginsWsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
-  public void action_cancel_all_is_defined() throws Exception {
+  public void action_cancel_all_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

@@ -32,7 +32,7 @@ public class ViolationMigrationTest {
   public static DbTester db = new DbTester().schema(ViolationMigrationTest.class, "schema.sql");
 
   @Test
-  public void migrate_violations() throws Exception {
+  public void migrate_violations() {
     db.prepareDbUnit(getClass(), "migrate_violations.xml");
 
     new ViolationMigrationStep(db.database(), new Settings()).execute();
@@ -42,7 +42,7 @@ public class ViolationMigrationTest {
   }
 
   @Test
-  public void no_violations_to_migrate() throws Exception {
+  public void no_violations_to_migrate() {
     db.prepareDbUnit(getClass(), "no_violations_to_migrate.xml");
 
     new ViolationMigrationStep(db.database(), new Settings()).execute();

@@ -63,7 +63,7 @@ public class ProxyRefreshRequestBuilderTest {
   }
 
   @Test
-  public void fail_to_refresh() throws Exception {
+  public void fail_to_refresh() {
     try {
       esTester.client().prepareRefresh("unknown").get();
       fail();
@@ -74,7 +74,7 @@ public class ProxyRefreshRequestBuilderTest {
   }
 
   @Test
-  public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_string_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get("1");
       fail();
@@ -84,7 +84,7 @@ public class ProxyRefreshRequestBuilderTest {
   }
 
   @Test
-  public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
@@ -94,7 +94,7 @@ public class ProxyRefreshRequestBuilderTest {
   }
 
   @Test
-  public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
+  public void execute_should_throw_an_unsupported_operation_exception() {
     try {
       esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).execute();
       fail();

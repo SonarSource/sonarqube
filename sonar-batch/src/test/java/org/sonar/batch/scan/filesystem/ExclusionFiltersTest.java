@@ -123,7 +123,7 @@ public class ExclusionFiltersTest {
   }
 
   @Test
-  public void trim_pattern() throws IOException {
+  public void trim_pattern() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY, "   **/*Dao.java   ");
     ExclusionFilters filter = new ExclusionFilters(new FileExclusions(settings));

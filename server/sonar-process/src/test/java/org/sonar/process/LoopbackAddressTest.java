@@ -33,14 +33,14 @@ import static org.junit.Assert.fail;
 public class LoopbackAddressTest {
 
   @Test
-  public void get() throws Exception {
+  public void get() {
     assertThat(LoopbackAddress.get()).isNotNull();
     assertThat(LoopbackAddress.get().isLoopbackAddress()).isTrue();
     assertThat(LoopbackAddress.get().getHostAddress()).isNotNull();
   }
 
   @Test
-  public void fail_to_get_loopback_address() throws Exception {
+  public void fail_to_get_loopback_address() {
     Enumeration<NetworkInterface> ifaces = Iterators.asEnumeration(Collections.<NetworkInterface>emptyList().iterator());
     try {
       LoopbackAddress.doGet(ifaces);
@@ -51,7 +51,7 @@ public class LoopbackAddressTest {
   }
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(LoopbackAddress.class)).isTrue();
   }
 }

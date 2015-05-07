@@ -31,7 +31,7 @@ import static org.sonar.server.source.HtmlTextDecorator.LF_END_OF_LINE;
 public class HtmlTextDecoratorTest {
 
   @Test
-  public void should_decorate_simple_character_range() throws Exception {
+  public void should_decorate_simple_character_range() {
 
     String packageDeclaration = "package org.sonar.core.source;";
 
@@ -45,7 +45,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_decorate_multiple_lines_characters_range() throws Exception {
+  public void should_decorate_multiple_lines_characters_range() {
 
     String firstCommentLine = "/*";
     String secondCommentLine = " * Test";
@@ -70,7 +70,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_highlight_multiple_words_in_one_line() throws Exception {
+  public void should_highlight_multiple_words_in_one_line() {
 
     String classDeclaration = "public class MyClass implements MyInterface {";
 
@@ -87,7 +87,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_allow_multiple_levels_highlighting() throws Exception {
+  public void should_allow_multiple_levels_highlighting() {
 
     String javaDocSample =
       "/**" + LF_END_OF_LINE +
@@ -117,7 +117,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_support_crlf_line_breaks() throws Exception {
+  public void should_support_crlf_line_breaks() {
 
     String crlfCodeSample =
       "/**" + CR_END_OF_LINE + LF_END_OF_LINE +
@@ -147,7 +147,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_close_tags_at_end_of_file() throws Exception {
+  public void should_close_tags_at_end_of_file() {
 
     String classDeclarationSample =
       "/*" + LF_END_OF_LINE +
@@ -174,7 +174,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_escape_markup_chars() throws Exception {
+  public void should_escape_markup_chars() {
 
     String javadocWithHtml =
       "/**\n" +
@@ -211,7 +211,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_escape_ampersand_char() throws Exception {
+  public void should_escape_ampersand_char() {
 
     String javadocWithAmpersandChar =
       "/**\n" +
@@ -242,7 +242,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_support_cr_line_breaks() throws Exception {
+  public void should_support_cr_line_breaks() {
 
     String crCodeSample =
       "/**" + CR_END_OF_LINE +
@@ -273,7 +273,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void should_support_multiple_empty_lines_at_end_of_file() throws Exception {
+  public void should_support_multiple_empty_lines_at_end_of_file() {
 
     String classDeclarationSample =
       "/*" + LF_END_OF_LINE +
@@ -303,7 +303,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void returned_code_begin_from_given_param() throws Exception {
+  public void returned_code_begin_from_given_param() {
 
     String javadocWithHtml =
       "/**\n" +
@@ -339,7 +339,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void returned_code_end_to_given_param() throws Exception {
+  public void returned_code_end_to_given_param() {
 
     String javadocWithHtml =
       "/**\n" +
@@ -370,7 +370,7 @@ public class HtmlTextDecoratorTest {
   }
 
   @Test
-  public void returned_code_is_between_from_and_to_params() throws Exception {
+  public void returned_code_is_between_from_and_to_params() {
 
     String javadocWithHtml =
       "/**\n" +

@@ -78,7 +78,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldDoNothingIfNoScmData() throws ParseException {
+  public void shouldDoNothingIfNoScmData() {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA))
       .thenReturn(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=10"));
 
@@ -87,7 +87,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldDoNothingIfNoCoverageData() throws ParseException {
+  public void shouldDoNothingIfNoCoverageData() {
     writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(1)
       .addChangeset(Changeset.newBuilder()
@@ -102,7 +102,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldGetNewLines() throws ParseException {
+  public void shouldGetNewLines() {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
       new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     writer.writeComponentChangesets(BatchReport.Changesets.newBuilder()
@@ -148,7 +148,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldGetNewConditions() throws ParseException {
+  public void shouldGetNewConditions() {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
       new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     when(context.getMeasure(CoreMetrics.CONDITIONS_BY_LINE)).thenReturn(
@@ -198,7 +198,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldNotGetNewConditionsWhenNewLineHasNoConditions() throws ParseException {
+  public void shouldNotGetNewConditionsWhenNewLineHasNoConditions() {
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
       new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "10=2;11=3"));
     when(context.getMeasure(CoreMetrics.CONDITIONS_BY_LINE)).thenReturn(
@@ -236,7 +236,7 @@ public class NewCoverageFileAnalyzerTest {
   }
 
   @Test
-  public void shouldLeaveNullValueWhenNothingHasChanged() throws Exception {
+  public void shouldLeaveNullValueWhenNothingHasChanged() {
 
     when(context.getMeasure(CoreMetrics.COVERAGE_LINE_HITS_DATA)).thenReturn(
       new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "2=1;3=1"));

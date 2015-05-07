@@ -64,7 +64,7 @@ public class QProfileCreateActionMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 

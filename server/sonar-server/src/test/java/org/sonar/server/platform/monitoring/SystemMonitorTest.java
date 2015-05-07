@@ -30,12 +30,12 @@ public class SystemMonitorTest {
   SystemMonitor sut = new SystemMonitor();
 
   @Test
-  public void name() throws Exception {
+  public void name() {
     assertThat(sut.name()).isEqualTo("System");
   }
 
   @Test
-  public void system_properties() throws Exception {
+  public void system_properties() {
     LinkedHashMap<String, Object> attributes = sut.attributes();
 
     assertThat(attributes).containsKeys("System Date", "Processors");

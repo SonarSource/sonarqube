@@ -42,7 +42,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_diff() throws Exception {
+  public void insert_diff() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey(null /* no key on field changes */);
     dto.setUserLogin("emmerik");
@@ -59,7 +59,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_comment() throws Exception {
+  public void insert_comment() {
     IssueChangeDto dto = new IssueChangeDto();
     dto.setKey("COMMENT-1234");
     dto.setUserLogin("emmerik");

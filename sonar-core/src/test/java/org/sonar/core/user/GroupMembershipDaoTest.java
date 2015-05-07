@@ -47,7 +47,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void select_all_groups_by_query() throws Exception {
+  public void select_all_groups_by_query() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
@@ -56,7 +56,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void select_user_group() throws Exception {
+  public void select_user_group() {
     dbTester.prepareDbUnit(getClass(), "select_user_group.xml");
 
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
@@ -71,7 +71,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void select_user_groups_by_query() throws Exception {
+  public void select_user_groups_by_query() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     // 200 is member of 3 groups
@@ -83,7 +83,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void select_groups_not_affected_to_a_user_by_query() throws Exception {
+  public void select_groups_not_affected_to_a_user_by_query() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     // 200 is member of 3 groups
@@ -95,7 +95,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void search_by_group_name() throws Exception {
+  public void search_by_group_name() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").groupSearch("user").build(), 200L);
@@ -108,7 +108,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void search_by_group_name_with_capitalization() throws Exception {
+  public void search_by_group_name_with_capitalization() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").groupSearch("UsER").build(), 200L);
@@ -121,7 +121,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void should_be_sorted_by_group_name() throws Exception {
+  public void should_be_sorted_by_group_name() {
     dbTester.prepareDbUnit(getClass(), "should_be_sorted_by_group_name.xml");
 
     List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L);
@@ -132,7 +132,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void should_be_paginated() throws Exception {
+  public void should_be_paginated() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<GroupMembershipDto> result = dao.selectGroups(GroupMembershipQuery.builder().login("arthur").build(), 200L, 0, 2);
@@ -151,7 +151,7 @@ public class GroupMembershipDaoTest {
   }
 
   @Test
-  public void count_groups() throws Exception {
+  public void count_groups() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     DbSession session = dbTester.myBatis().openSession(false);
 

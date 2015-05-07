@@ -43,7 +43,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
   GroupMembershipService service;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     GroupMembershipDao membershipDao = new GroupMembershipDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis(), System2.INSTANCE);
     GroupMembershipFinder finder = new GroupMembershipFinder(userDao, membershipDao);

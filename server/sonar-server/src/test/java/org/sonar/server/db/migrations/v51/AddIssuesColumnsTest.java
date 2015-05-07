@@ -35,7 +35,7 @@ public class AddIssuesColumnsTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new AddIssuesColumns(db.database());
   }
 

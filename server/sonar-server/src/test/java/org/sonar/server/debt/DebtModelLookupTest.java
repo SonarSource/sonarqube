@@ -49,7 +49,7 @@ public class DebtModelLookupTest {
   DebtModelLookup service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     service = new DebtModelLookup(dao);
   }
 

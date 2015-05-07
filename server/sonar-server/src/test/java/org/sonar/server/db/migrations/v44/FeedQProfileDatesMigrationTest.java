@@ -42,7 +42,7 @@ public class FeedQProfileDatesMigrationTest {
   FeedQProfileDatesMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table active_rule_changes");
     db.executeUpdateSql("truncate table active_rule_param_changes");
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
@@ -52,7 +52,7 @@ public class FeedQProfileDatesMigrationTest {
   }
 
   @Test
-  public void feed_created_at_and_updated_at() throws Exception {
+  public void feed_created_at_and_updated_at() {
     db.prepareDbUnit(getClass(), "feed_created_at_and_updated_at.xml");
 
     migration.execute();
@@ -63,7 +63,7 @@ public class FeedQProfileDatesMigrationTest {
   }
 
   @Test
-  public void use_default_dates_when_no_changes() throws Exception {
+  public void use_default_dates_when_no_changes() {
     db.prepareDbUnit(getClass(), "use_default_dates_when_no_changes.xml");
 
     migration.execute();

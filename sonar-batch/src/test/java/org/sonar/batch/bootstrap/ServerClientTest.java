@@ -64,7 +64,7 @@ public class ServerClientTest {
   }
 
   @Test
-  public void should_remove_url_ending_slash() throws Exception {
+  public void should_remove_url_ending_slash() {
     BootstrapProperties settings = mock(BootstrapProperties.class);
     when(settings.property("sonar.host.url")).thenReturn("http://localhost:8080/sonar/");
 

@@ -45,7 +45,7 @@ public class UserSessionTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void getSession_get_anonymous_by_default() throws Exception {
+  public void getSession_get_anonymous_by_default() {
     UserSession.remove();
 
     UserSession session = UserSession.get();
@@ -59,7 +59,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void get_session() throws Exception {
+  public void get_session() {
     UserSession.set(new UserSession().setUserId(123).setLogin("karadoc").setLocale(Locale.FRENCH));
 
     UserSession session = UserSession.get();
@@ -71,14 +71,14 @@ public class UserSessionTest {
   }
 
   @Test
-  public void login_should_not_be_empty() throws Exception {
+  public void login_should_not_be_empty() {
     UserSession session = new UserSession().setLogin("");
     assertThat(session.login()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
   }
 
   @Test
-  public void has_global_permission() throws Exception {
+  public void has_global_permission() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
@@ -90,7 +90,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void check_global_Permission_ok() throws Exception {
+  public void check_global_Permission_ok() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
@@ -100,7 +100,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_global_Permission_ko() throws Exception {
+  public void check_global_Permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao);
 
@@ -110,7 +110,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void has_project_permission() throws Exception {
+  public void has_project_permission() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
@@ -121,7 +121,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void has_project_permission_by_uuid() throws Exception {
+  public void has_project_permission_by_uuid() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
     when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList("ABCD"));
@@ -132,7 +132,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void check_project_permission_ok() throws Exception {
+  public void check_project_permission_ok() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
@@ -141,7 +141,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_project_permission_ko() throws Exception {
+  public void check_project_permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
     when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar2"));
@@ -150,7 +150,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void check_project_uuid_permission_ok() throws Exception {
+  public void check_project_uuid_permission_ok() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
 
@@ -161,7 +161,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_project_uuid_permission_ko() throws Exception {
+  public void check_project_uuid_permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
 
@@ -172,7 +172,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void has_component_permission() throws Exception {
+  public void has_component_permission() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
@@ -187,7 +187,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void check_component_key_permission_ok() throws Exception {
+  public void check_component_key_permission_ok() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
@@ -199,7 +199,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_component_key_permission_ko() throws Exception {
+  public void check_component_key_permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
@@ -211,7 +211,7 @@ public class UserSessionTest {
   }
 
   @Test
-  public void check_component_uuid_permission_ok() throws Exception {
+  public void check_component_uuid_permission_ok() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao,resourceDao).setUserId(1);
@@ -225,7 +225,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_component_uuid_permission_ko() throws Exception {
+  public void check_component_uuid_permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao,resourceDao).setUserId(1);
@@ -239,7 +239,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_component_key_permission_when_project_not_found() throws Exception {
+  public void check_component_key_permission_when_project_not_found() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
@@ -250,7 +250,7 @@ public class UserSessionTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void check_component_dto_permission_ko() throws Exception {
+  public void check_component_dto_permission_ko() {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);

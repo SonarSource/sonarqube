@@ -38,7 +38,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all_projects_by_query() throws Exception {
+  public void select_all_projects_by_query() {
     setupData("shared");
 
     ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId("42").build();
@@ -47,7 +47,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_projects_by_query() throws Exception {
+  public void select_projects_by_query() {
     setupData("shared");
 
     assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.IN).build(), 42L)).hasSize(3);
@@ -55,7 +55,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void search_by_project_name() throws Exception {
+  public void search_by_project_name() {
     setupData("shared");
 
     List<ProjectQgateAssociationDto> result = dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("one").build(), 42L);
@@ -70,7 +70,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_be_sorted_by_project_name() throws Exception {
+  public void should_be_sorted_by_project_name() {
     setupData("shared");
 
     List<ProjectQgateAssociationDto> result = dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").build(), 42L);

@@ -63,7 +63,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
   }
 
   @Test
-  public void should_not_dispatch_if_other_notification_type() throws Exception {
+  public void should_not_dispatch_if_other_notification_type() {
     Notification notification = new Notification("other-notif");
     dispatcher.performDispatch(notification, context);
 

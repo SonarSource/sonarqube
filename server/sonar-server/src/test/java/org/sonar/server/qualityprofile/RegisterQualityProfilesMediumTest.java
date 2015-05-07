@@ -52,7 +52,7 @@ public class RegisterQualityProfilesMediumTest {
   DbSession dbSession;
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (dbSession != null) {
       dbSession.close();
     }
@@ -62,7 +62,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void register_existing_profile_definitions() throws Exception {
+  public void register_existing_profile_definitions() {
     tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
@@ -105,7 +105,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void register_profile_definitions() throws Exception {
+  public void register_profile_definitions() {
     tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
@@ -140,7 +140,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void do_not_register_profile_if_missing_language() throws Exception {
+  public void do_not_register_profile_if_missing_language() {
     // xoo language is not installed
     tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
@@ -152,7 +152,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() throws Exception {
+  public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() {
     tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
 
     try {
@@ -163,7 +163,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void mark_profile_as_default() throws Exception {
+  public void mark_profile_as_default() {
     tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
 
     tester.start();
@@ -171,7 +171,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() throws Exception {
+  public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() {
     tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
 
     tester.start();
@@ -179,7 +179,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void do_not_reset_default_profile_if_still_valid() throws Exception {
+  public void do_not_reset_default_profile_if_still_valid() {
     tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
 
@@ -200,7 +200,7 @@ public class RegisterQualityProfilesMediumTest {
    * Probably for db migration
    */
   @Test
-  public void clean_up_profiles_if_missing_loaded_template() throws Exception {
+  public void clean_up_profiles_if_missing_loaded_template() {
     tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
 

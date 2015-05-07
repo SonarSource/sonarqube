@@ -54,7 +54,7 @@ public class ActivityResultSetIteratorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     DbUtils.closeQuietly(connection);
   }
 
@@ -62,7 +62,7 @@ public class ActivityResultSetIteratorTest {
    * Iterate over two rows in table.
    */
   @Test
-  public void traverse() throws Exception {
+  public void traverse() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
     ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, 0L);
 
@@ -84,7 +84,7 @@ public class ActivityResultSetIteratorTest {
   }
 
   @Test
-  public void traverse_after_date() throws Exception {
+  public void traverse_after_date() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
     ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2014-12-01").getTime());
 
@@ -101,7 +101,7 @@ public class ActivityResultSetIteratorTest {
   }
 
   @Test
-  public void nothing_to_traverse() throws Exception {
+  public void nothing_to_traverse() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
     ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2030-01-01").getTime());
 

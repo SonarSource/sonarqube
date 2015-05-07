@@ -69,7 +69,7 @@ public class RuleOperationsTest {
   RuleOperations operations;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(characteristicDao);
@@ -77,7 +77,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void update_rule() throws Exception {
+  public void update_rule() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -111,7 +111,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void update_rule_set_overridden_values_to_null_when_new_values_are_equals_to_default_values() throws Exception {
+  public void update_rule_set_overridden_values_to_null_when_new_values_are_equals_to_default_values() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min")
       .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
@@ -145,7 +145,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void not_update_rule_if_same_sub_characteristic_and_function() throws Exception {
+  public void not_update_rule_if_same_sub_characteristic_and_function() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -166,7 +166,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void update_rule_set_characteristic_if_different_from_default_one() throws Exception {
+  public void update_rule_set_characteristic_if_different_from_default_one() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -199,7 +199,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void update_rule_set_remediation_function_if_different_from_default_one() throws Exception {
+  public void update_rule_set_remediation_function_if_different_from_default_one() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -232,7 +232,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void disable_rule_debt_when_update_rule_with_no_sub_characteristic() throws Exception {
+  public void disable_rule_debt_when_update_rule_with_no_sub_characteristic() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("10min")
       .setSubCharacteristicId(6)
@@ -257,7 +257,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void disable_rule_debt_when_update_rule_with_no_function() throws Exception {
+  public void disable_rule_debt_when_update_rule_with_no_function() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -285,7 +285,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void disable_characteristic_on_rule_having_no_debt_info() throws Exception {
+  public void disable_characteristic_on_rule_having_no_debt_info() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
@@ -306,7 +306,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void not_disable_characteristic_when_update_rule_if_already_disabled() throws Exception {
+  public void not_disable_characteristic_when_update_rule_if_already_disabled() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setSubCharacteristicId(-1);
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
@@ -322,7 +322,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void fail_to_update_rule_on_unknown_rule() throws Exception {
+  public void fail_to_update_rule_on_unknown_rule() {
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(null);
@@ -342,7 +342,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void fail_to_update_rule_on_unknown_sub_characteristic() throws Exception {
+  public void fail_to_update_rule_on_unknown_sub_characteristic() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
@@ -366,7 +366,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void fail_to_update_rule_on_invalid_coefficient() throws Exception {
+  public void fail_to_update_rule_on_invalid_coefficient() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(2).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");

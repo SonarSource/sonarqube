@@ -39,7 +39,7 @@ public class BulkIndexerTest {
   public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
 
   @Test
-  public void index_nothing() throws Exception {
+  public void index_nothing() {
     esTester.truncateIndices();
 
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
@@ -50,7 +50,7 @@ public class BulkIndexerTest {
   }
 
   @Test
-  public void index_documents() throws Exception {
+  public void index_documents() {
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
     indexer.start();
     indexer.add(newIndexRequest(42));
@@ -65,7 +65,7 @@ public class BulkIndexerTest {
   }
 
   @Test
-  public void large_indexing() throws Exception {
+  public void large_indexing() {
     // index has one replica
     assertThat(replicas()).isEqualTo(1);
 
@@ -110,7 +110,7 @@ public class BulkIndexerTest {
   }
 
   @Test
-  public void disable_refresh() throws Exception {
+  public void disable_refresh() {
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX)
       .setDisableRefresh(true);
     indexer.start();

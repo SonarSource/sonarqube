@@ -74,7 +74,7 @@ public class IssueBulkChangeServiceMediumTest {
   UserSession userSession;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
@@ -108,7 +108,7 @@ public class IssueBulkChangeServiceMediumTest {
   }
 
   @Test
-  public void bulk_change() throws Exception {
+  public void bulk_change() {
     UserDto user = new UserDto().setLogin("fred").setName("Fred");
     db.userDao().insert(session, user);
 
@@ -130,7 +130,7 @@ public class IssueBulkChangeServiceMediumTest {
   }
 
   @Test
-  public void bulk_change_on_500_issues() throws Exception {
+  public void bulk_change_on_500_issues() {
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < 500; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN);
@@ -152,7 +152,7 @@ public class IssueBulkChangeServiceMediumTest {
   }
 
   @Test
-  public void fail_if_bulk_change_on_more_than_500_issues() throws Exception {
+  public void fail_if_bulk_change_on_more_than_500_issues() {
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < 510; i++) {
       issueKeys.add("issue-" + i);

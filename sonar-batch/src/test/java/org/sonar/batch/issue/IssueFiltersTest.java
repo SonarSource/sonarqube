@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class IssueFiltersTest {
 
   @Test
-  public void accept_when_filter_chain_is_empty() throws Exception {
+  public void accept_when_filter_chain_is_empty() {
     org.sonar.api.issue.IssueFilter ok = mock(org.sonar.api.issue.IssueFilter.class);
     when(ok.accept(any(Issue.class))).thenReturn(true);
 

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 public class ScmLineReaderTest {
 
   @Test
-  public void set_scm() throws Exception {
+  public void set_scm() {
     BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
       .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -51,7 +51,7 @@ public class ScmLineReaderTest {
   }
 
   @Test
-  public void set_only_author() throws Exception {
+  public void set_only_author() {
     BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
       .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
@@ -70,7 +70,7 @@ public class ScmLineReaderTest {
   }
 
   @Test
-  public void set_only_date() throws Exception {
+  public void set_only_date() {
     BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
       .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setDate(123456789L)
@@ -89,7 +89,7 @@ public class ScmLineReaderTest {
   }
 
   @Test
-  public void set_only_revision() throws Exception {
+  public void set_only_revision() {
     BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
       .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .setRevision("rev-1")
@@ -108,7 +108,7 @@ public class ScmLineReaderTest {
   }
 
   @Test
-  public void fail_when_changeset_is_empty() throws Exception {
+  public void fail_when_changeset_is_empty() {
     BatchReport.Changesets scmReport = BatchReport.Changesets.newBuilder()
       .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
         .build())

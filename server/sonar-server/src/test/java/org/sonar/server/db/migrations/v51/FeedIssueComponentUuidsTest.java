@@ -32,7 +32,7 @@ public class FeedIssueComponentUuidsTest {
   FeedIssueComponentUuids sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.truncateTables();
 
     sut = new FeedIssueComponentUuids(db.database());

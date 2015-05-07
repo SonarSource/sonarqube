@@ -39,7 +39,7 @@ public class ReplaceIssueFiltersProjectKeyByUuidTest {
   System2 system = mock(System2.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table issue_filters");
     migration = new ReplaceIssueFiltersProjectKeyByUuid(db.database(), system);
     when(system.now()).thenReturn(DateUtils.parseDate("2014-10-29").getTime());

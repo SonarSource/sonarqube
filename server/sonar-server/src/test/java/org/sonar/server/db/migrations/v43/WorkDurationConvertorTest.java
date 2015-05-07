@@ -41,7 +41,7 @@ public class WorkDurationConvertorTest {
   WorkDurationConvertor convertor = new WorkDurationConvertor(propertiesDao);
 
   @Test
-  public void convert_from_long() throws Exception {
+  public void convert_from_long() {
     convertor.init();
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
@@ -52,13 +52,13 @@ public class WorkDurationConvertorTest {
   }
 
   @Test
-  public void convert_from_long_use_default_value_for_hours_in_day_when_no_property() throws Exception {
+  public void convert_from_long_use_default_value_for_hours_in_day_when_no_property() {
     convertor.init();
     assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
   }
 
   @Test
-  public void fail_convert_from_long_on_bad_hours_in_day_property() throws Exception {
+  public void fail_convert_from_long_on_bad_hours_in_day_property() {
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("-2"));
     WorkDurationConvertor workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     try {
@@ -70,7 +70,7 @@ public class WorkDurationConvertorTest {
   }
 
   @Test
-  public void convert_from_days() throws Exception {
+  public void convert_from_days() {
     convertor.init();
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
@@ -82,7 +82,7 @@ public class WorkDurationConvertorTest {
   }
 
   @Test
-  public void fail_it_init_has_not_been_called() throws Exception {
+  public void fail_it_init_has_not_been_called() {
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
     try {

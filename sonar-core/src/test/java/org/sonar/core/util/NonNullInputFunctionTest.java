@@ -29,7 +29,7 @@ public class NonNullInputFunctionTest {
   NonNullInputFunction<String, Integer> sut = new TestFunction();
 
   @Test
-  public void fail_if_null_input() throws Exception {
+  public void fail_if_null_input() {
     try {
       sut.apply(null);
       fail();
@@ -39,7 +39,7 @@ public class NonNullInputFunctionTest {
   }
 
   @Test
-  public void apply() throws Exception {
+  public void apply() {
     assertThat(sut.apply("foo")).isEqualTo(3);
   }
 

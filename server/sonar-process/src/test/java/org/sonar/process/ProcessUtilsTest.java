@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessUtilsTest {
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ProcessUtils.class)).isTrue();
   }
 }

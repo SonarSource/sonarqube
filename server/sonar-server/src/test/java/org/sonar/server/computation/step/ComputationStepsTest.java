@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 public class ComputationStepsTest {
 
   @Test
-  public void ordered_steps() throws Exception {
+  public void ordered_steps() {
     ComputationSteps registry = new ComputationSteps(
       // unordered
       mock(ApplyPermissionsStep.class),
@@ -60,7 +60,7 @@ public class ComputationStepsTest {
   }
 
   @Test
-  public void fail_if_a_step_is_not_registered_in_picocontainer() throws Exception {
+  public void fail_if_a_step_is_not_registered_in_picocontainer() {
     try {
       new ComputationSteps(mock(ParseReportStep.class));
       fail();

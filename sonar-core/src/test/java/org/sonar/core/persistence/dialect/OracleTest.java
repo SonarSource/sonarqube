@@ -54,7 +54,7 @@ public class OracleTest {
   }
 
   @Test
-  public void oracle_does_supportMigration() throws Exception {
+  public void oracle_does_supportMigration() {
     assertThat(dialect.supportsMigration()).isTrue();
   }
 }

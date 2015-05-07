@@ -48,7 +48,7 @@ public class DebtModelProviderTest {
   }
 
   @Test
-  public void provide_model() throws Exception {
+  public void provide_model() {
     CharacteristicDto rootCharacteristicDto = new CharacteristicDto()
       .setId(1)
       .setKey("MEMORY_EFFICIENCY")

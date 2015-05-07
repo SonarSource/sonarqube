@@ -38,12 +38,12 @@ public class RuleCacheLoaderTest {
   public static DbTester dbTester = new DbTester();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 
   @Test
-  public void load_by_key() throws Exception {
+  public void load_by_key() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao());
     RuleCacheLoader loader = new RuleCacheLoader(dbClient);
@@ -53,7 +53,7 @@ public class RuleCacheLoaderTest {
   }
 
   @Test
-  public void load_by_keys_is_not_supported() throws Exception {
+  public void load_by_keys_is_not_supported() {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao());
     RuleCacheLoader loader = new RuleCacheLoader(dbClient);
     try {

@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SlugTest {
 
   @Test
-  public void slugify() throws Exception {
+  public void slugify() {
     assertThat(Slug.slugify("foo")).isEqualTo("foo");
     assertThat(Slug.slugify("  FOO ")).isEqualTo("foo");
     assertThat(Slug.slugify("he's here")).isEqualTo("he-s-here");

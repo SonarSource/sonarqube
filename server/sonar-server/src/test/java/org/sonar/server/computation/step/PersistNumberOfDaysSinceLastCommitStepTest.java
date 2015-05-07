@@ -75,12 +75,12 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return sut;
   }
 
   @Test
-  public void persist_number_of_days_since_last_commit_from_report() throws Exception {
+  public void persist_number_of_days_since_last_commit_from_report() {
     long threeDaysAgo = DateUtils.addDays(new Date(), -3).getTime();
     BatchReportWriter reportWriter = initReportWithProjectAndFile();
     reportWriter.writeComponentChangesets(
@@ -100,7 +100,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_number_of_days_since_last_commit_from_index() throws Exception {
+  public void persist_number_of_days_since_last_commit_from_index() {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
@@ -112,7 +112,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_scm_information_in_report_and_index() throws Exception {
+  public void no_scm_information_in_report_and_index() {
     initReportWithProjectAndFile();
     ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
 
@@ -121,7 +121,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     db.assertDbUnit(getClass(), "empty.xml");
   }
 
-  private BatchReportWriter initReportWithProjectAndFile() throws IOException {
+  private BatchReportWriter initReportWithProjectAndFile() {
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

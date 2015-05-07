@@ -27,7 +27,7 @@ import static org.sonar.process.Lifecycle.State;
 public class LifecycleTest {
 
   @Test
-  public void equals_and_hashcode() throws Exception {
+  public void equals_and_hashcode() {
     Lifecycle init = new Lifecycle();
     assertThat(init.equals(init)).isTrue();
     assertThat(init.equals(new Lifecycle())).isTrue();
@@ -42,7 +42,7 @@ public class LifecycleTest {
   }
 
   @Test
-  public void try_to_move() throws Exception {
+  public void try_to_move() {
     Lifecycle lifecycle = new Lifecycle();
     assertThat(lifecycle.getState()).isEqualTo(State.INIT);
 

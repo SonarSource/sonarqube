@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IndexDefinitionHashTest {
 
   @Test
-  public void of() throws Exception {
+  public void of() {
     IndexDefinitions.Index indexV1 = new IndexDefinitions.Index(createIndex());
     String hashV1 = new IndexDefinitionHash().of(indexV1);
     assertThat(hashV1).isNotEmpty();

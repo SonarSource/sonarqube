@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 public class ProgressTest {
   @Test
-  public void log_progress() throws Exception {
+  public void log_progress() {
     Logger logger = mock(Logger.class);
     ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 
@@ -47,7 +47,7 @@ public class ProgressTest {
   }
 
   @Test
-  public void log_remaining_time() throws Exception {
+  public void log_remaining_time() {
     Logger logger = mock(Logger.class);
     ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 

@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SimpleGetRequestTest {
 
   @Test
-  public void method() throws Exception {
+  public void method() {
     SimpleGetRequest request = new SimpleGetRequest();
     assertThat(request.method()).isEqualTo("GET");
 
@@ -36,7 +36,7 @@ public class SimpleGetRequestTest {
   }
 
   @Test
-  public void has_param() throws Exception {
+  public void has_param() {
     SimpleGetRequest request = new SimpleGetRequest();
     assertThat(request.method()).isEqualTo("GET");
 

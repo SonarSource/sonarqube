@@ -62,7 +62,7 @@ public class IndexActionTest {
   ComponentDto file = ComponentTesting.newFileDto(project);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
     tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService)));

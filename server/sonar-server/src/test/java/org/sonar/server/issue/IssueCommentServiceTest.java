@@ -91,19 +91,19 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void find_comments() throws Exception {
+  public void find_comments() {
     issueCommentService.findComments("ABCD");
     verify(changeDao).selectCommentsByIssues(session, newArrayList("ABCD"));
   }
 
   @Test
-  public void should_find_comment() throws Exception {
+  public void should_find_comment() {
     issueCommentService.findComment("ABCD");
     verify(changeDao).selectCommentByKey("ABCD");
   }
 
   @Test
-  public void should_add_comment() throws Exception {
+  public void should_add_comment() {
     IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
     when(issueCommentService.findComments(session, "ABCD")).thenReturn(newArrayList(new DefaultIssueComment()));
@@ -115,7 +115,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_be_logged_when_adding_comment() throws Exception {
+  public void should_be_logged_when_adding_comment() {
     throwable.expect(UnauthorizedException.class);
 
     MockUserSession.set().setLogin(null);
@@ -127,7 +127,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_adding_empty_comment() throws Exception {
+  public void should_prevent_adding_empty_comment() {
     throwable.expect(BadRequestException.class);
 
     issueCommentService.addComment("myIssue", " ", MockUserSession.get());
@@ -137,7 +137,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_adding_null_comment() throws Exception {
+  public void should_prevent_adding_null_comment() {
     throwable.expect(BadRequestException.class);
 
     issueCommentService.addComment("myIssue", null, MockUserSession.get());
@@ -147,7 +147,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void fail_if_comment_not_inserted_in_db() throws Exception {
+  public void fail_if_comment_not_inserted_in_db() {
     IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
     // Comment has not be inserted in db
@@ -162,7 +162,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_delete_comment() throws Exception {
+  public void should_delete_comment() {
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("admin").setIssueKey("EFGH"));
 
     issueCommentService.deleteComment("ABCD", MockUserSession.get());
@@ -172,7 +172,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_not_delete_not_found_comment() throws Exception {
+  public void should_not_delete_not_found_comment() {
     throwable.expect(NotFoundException.class);
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
@@ -183,7 +183,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_delete_others_comment() throws Exception {
+  public void should_prevent_delete_others_comment() {
     throwable.expect(ForbiddenException.class);
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
@@ -194,7 +194,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_update_comment() throws Exception {
+  public void should_update_comment() {
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setIssueKey("EFGH").setUserLogin("admin"));
 
     issueCommentService.editComment("ABCD", "updated comment", MockUserSession.get());
@@ -204,7 +204,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_not_update_not_found_comment() throws Exception {
+  public void should_not_update_not_found_comment() {
     throwable.expect(NotFoundException.class);
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
@@ -215,7 +215,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_updating_empty_comment() throws Exception {
+  public void should_prevent_updating_empty_comment() {
     throwable.expect(BadRequestException.class);
 
     issueCommentService.editComment("ABCD", "", MockUserSession.get());
@@ -224,7 +224,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_updating_null_comment() throws Exception {
+  public void should_prevent_updating_null_comment() {
     throwable.expect(BadRequestException.class);
 
     issueCommentService.editComment("ABCD", null, MockUserSession.get());
@@ -233,7 +233,7 @@ public class IssueCommentServiceTest {
   }
 
   @Test
-  public void should_prevent_updating_others_comment() throws Exception {
+  public void should_prevent_updating_others_comment() {
     throwable.expect(ForbiddenException.class);
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));

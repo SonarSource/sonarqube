@@ -73,7 +73,7 @@ public class QProfileBackuperMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
@@ -110,7 +110,7 @@ public class QProfileBackuperMediumTest {
   }
 
   @Test
-  public void fail_to_backup_unknown_profile() throws Exception {
+  public void fail_to_backup_unknown_profile() {
     try {
       tester.get(QProfileBackuper.class).backup("unknown", new StringWriter());
       fail();

@@ -72,7 +72,7 @@ public class LinesActionTest {
   WsTester wsTester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
@@ -87,7 +87,7 @@ public class LinesActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -163,7 +163,7 @@ public class LinesActionTest {
   }
 
   @Test
-  public void fail_to_show_source_if_no_source_found() throws Exception {
+  public void fail_to_show_source_if_no_source_found() {
     newFile();
 
     MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);

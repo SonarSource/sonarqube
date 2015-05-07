@@ -52,13 +52,13 @@ public class UriReaderTest {
   }
 
   @Test
-  public void file_readString() throws Exception {
+  public void file_readString() {
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
     assertThat(uriReader.readString(testFile, Charsets.UTF_8)).isEqualTo("in foo");
   }
 
   @Test
-  public void file_readBytes() throws Exception {
+  public void file_readBytes() {
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
     assertThat(new String(uriReader.readBytes(testFile))).isEqualTo("in foo");
   }

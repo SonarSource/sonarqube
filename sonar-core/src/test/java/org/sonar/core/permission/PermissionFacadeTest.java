@@ -64,12 +64,12 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void should_apply_permission_template() throws Exception {
+  public void should_apply_permission_template() {
     setupData("should_apply_permission_template");
 
     assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", 123L)).isEmpty();
@@ -89,14 +89,14 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_count_component_permissions() throws Exception {
+  public void should_count_component_permissions() {
     setupData("should_count_component_permissions");
 
     assertThat(permissionFacade.countComponentPermissions(session, 123L)).isEqualTo(2);
   }
 
   @Test
-  public void should_add_user_permission() throws Exception {
+  public void should_add_user_permission() {
     setupData("should_add_user_permission");
 
     permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN, session);
@@ -107,7 +107,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_delete_user_permission() throws Exception {
+  public void should_delete_user_permission() {
     setupData("should_delete_user_permission");
 
     permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN, session);
@@ -118,7 +118,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_group_permission() throws Exception {
+  public void should_insert_group_permission() {
     setupData("should_insert_group_permission");
 
     permissionFacade.insertGroupPermission(123L, 100L, UserRole.USER, session);
@@ -129,7 +129,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_group_name_permission() throws Exception {
+  public void should_insert_group_name_permission() {
     setupData("should_insert_group_permission");
 
     permissionFacade.insertGroupPermission(123L, "devs", UserRole.USER, session);
@@ -140,7 +140,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_anyone_group_permission() throws Exception {
+  public void should_insert_anyone_group_permission() {
     setupData("should_insert_anyone_group_permission");
 
     permissionFacade.insertGroupPermission(123L, "Anyone", UserRole.USER, session);
@@ -151,7 +151,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_delete_group_permission() throws Exception {
+  public void should_delete_group_permission() {
     setupData("should_delete_group_permission");
 
     permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER, session);
@@ -162,7 +162,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_delete_group_name_permission() throws Exception {
+  public void should_delete_group_name_permission() {
     setupData("should_delete_group_permission");
 
     permissionFacade.deleteGroupPermission(123L, "devs", UserRole.USER, session);
@@ -173,7 +173,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_retrieve_permission_template() throws Exception {
+  public void should_retrieve_permission_template() {
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     permissionTemplateDao = mock(PermissionTemplateDao.class);
@@ -188,7 +188,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_fail_on_unmatched_template() throws Exception {
+  public void should_fail_on_unmatched_template() {
     throwable.expect(IllegalArgumentException.class);
 
     permissionTemplateDao = mock(PermissionTemplateDao.class);
@@ -198,7 +198,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_remove_all_permissions() throws Exception {
+  public void should_remove_all_permissions() {
     setupData("should_remove_all_permissions");
 
     assertThat(permissionFacade.selectGroupPermissions(session, "devs", 123L)).hasSize(1);

@@ -85,7 +85,7 @@ public class DatabaseCompatibilityTest {
   }
 
   @Test
-  public void shouldFailIfNotSameServerId() throws Exception {
+  public void shouldFailIfNotSameServerId() {
     when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("11111111"));
 
     thrown.expect(MessageException.class);
@@ -97,7 +97,7 @@ public class DatabaseCompatibilityTest {
   }
 
   @Test
-  public void shouldUseDefaultUserNameWhenFaillingIfNotSameServerIdAndNoUserNameFound() throws Exception {
+  public void shouldUseDefaultUserNameWhenFaillingIfNotSameServerIdAndNoUserNameFound() {
     when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("11111111"));
 
     settings.removeProperty(DatabaseProperties.PROP_USER);
@@ -109,7 +109,7 @@ public class DatabaseCompatibilityTest {
   }
 
   @Test
-  public void shouldFailIfCantGetServerId() throws Exception {
+  public void shouldFailIfCantGetServerId() {
     when(server.request("/api/server")).thenThrow(new IllegalStateException());
 
     thrown.expect(IllegalStateException.class);

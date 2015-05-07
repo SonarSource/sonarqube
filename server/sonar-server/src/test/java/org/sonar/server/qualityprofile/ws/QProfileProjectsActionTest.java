@@ -66,7 +66,7 @@ public class QProfileProjectsActionTest {
   private RoleDao roleDao;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new QualityProfileDao(dbTester.myBatis(), mock(System2.class)),

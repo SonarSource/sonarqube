@@ -53,7 +53,7 @@ public class ConvertIssueDebtToMinutesMigrationStepTest {
   ConvertIssueDebtToMinutesMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 

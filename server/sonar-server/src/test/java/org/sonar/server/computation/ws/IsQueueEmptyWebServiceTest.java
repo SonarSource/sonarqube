@@ -43,7 +43,7 @@ public class IsQueueEmptyWebServiceTest {
   Response response;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     queue = mock(ReportQueue.class);
     sut = new IsQueueEmptyWebService.IsQueueEmptyWsAction(queue);
 

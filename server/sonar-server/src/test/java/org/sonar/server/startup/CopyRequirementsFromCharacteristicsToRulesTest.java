@@ -53,14 +53,14 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   CopyRequirementsFromCharacteristicsToRules service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
     dbClient = new DbClient(db.database(), db.myBatis(), new RuleDao(system2), new LoadedTemplateDao(db.myBatis()));
     service = new CopyRequirementsFromCharacteristicsToRules(dbClient, null);
   }
 
   @Test
-  public void copy_requirements_from_characteristics_to_rules() throws Exception {
+  public void copy_requirements_from_characteristics_to_rules() {
     db.prepareDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules.xml");
 
     service.start();
@@ -72,7 +72,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
    * SONAR-5335
    */
   @Test
-  public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() throws Exception {
+  public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() {
     db.prepareDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset.xml");
 
     service.start();
@@ -81,7 +81,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   }
 
   @Test
-  public void remove_requirements_data_from_characteristics() throws Exception {
+  public void remove_requirements_data_from_characteristics() {
     db.prepareDbUnit(getClass(), "remove_requirements_data_from_characteristics.xml");
 
     service.start();
@@ -90,7 +90,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   }
 
   @Test
-  public void do_nothing_when_already_executed() throws Exception {
+  public void do_nothing_when_already_executed() {
     db.prepareDbUnit(getClass(), "do_nothing_when_already_executed.xml");
 
     service.start();
@@ -99,7 +99,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   }
 
   @Test
-  public void convert_duration() throws Exception {
+  public void convert_duration() {
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.0, "h")).isEqualTo("1h");
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(15.0, "d")).isEqualTo("15d");
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(5.0, "min")).isEqualTo("5min");
@@ -115,7 +115,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   }
 
   @Test
-  public void is_debt_default_values_same_as_overridden_values() throws Exception {
+  public void is_debt_default_values_same_as_overridden_values() {
     assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new RuleDto()
         .setDefaultSubCharacteristicId(1).setSubCharacteristicId(1)
         .setDefaultRemediationFunction("LINEAR_OFFSET").setRemediationFunction("LINEAR_OFFSET")

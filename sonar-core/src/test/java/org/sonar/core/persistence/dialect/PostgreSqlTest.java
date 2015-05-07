@@ -59,7 +59,7 @@ public class PostgreSqlTest {
   }
 
   @Test
-  public void postgres_does_supportMigration() throws Exception {
+  public void postgres_does_supportMigration() {
     assertThat(dialect.supportsMigration()).isTrue();
   }
 }

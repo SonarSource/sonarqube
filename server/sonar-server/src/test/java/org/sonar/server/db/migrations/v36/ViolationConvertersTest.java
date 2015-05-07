@@ -36,19 +36,19 @@ import static org.mockito.Mockito.when;
 public class ViolationConvertersTest {
 
   @Test
-  public void default_number_of_threads() throws Exception {
+  public void default_number_of_threads() {
     assertThat(new ViolationConverters(new Settings()).numberOfThreads()).isEqualTo(ViolationConverters.DEFAULT_THREADS);
   }
 
   @Test
-  public void configure_number_of_threads() throws Exception {
+  public void configure_number_of_threads() {
     Settings settings = new Settings();
     settings.setProperty(ViolationConverters.THREADS_PROPERTY, 2);
     assertThat(new ViolationConverters(settings).numberOfThreads()).isEqualTo(2);
   }
 
   @Test
-  public void number_of_threads_should_not_be_negative() throws Exception {
+  public void number_of_threads_should_not_be_negative() {
     try {
       Settings settings = new Settings();
       settings.setProperty(ViolationConverters.THREADS_PROPERTY, -2);

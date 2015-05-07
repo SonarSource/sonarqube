@@ -83,7 +83,7 @@ public class IssueExclusionsLoaderTest {
   }
 
   @Test
-  public void shouldExecute() throws IOException {
+  public void shouldExecute() {
     when(exclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
     when(inclusionPatternInitializer.hasConfiguredPatterns()).thenReturn(true);
     assertThat(scanner.shouldExecuteOnProject(null)).isTrue();
@@ -124,7 +124,7 @@ public class IssueExclusionsLoaderTest {
   }
 
   @Test
-  public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
+  public void shouldAnalyseFilesOnlyWhenRegexConfigured() {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
     fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
       .setType(InputFile.Type.MAIN));

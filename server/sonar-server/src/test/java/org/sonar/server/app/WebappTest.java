@@ -74,7 +74,7 @@ public class WebappTest {
   }
 
   @Test
-  public void configure_rails_dev_mode() throws Exception {
+  public void configure_rails_dev_mode() {
     props.set("sonar.web.dev", "true");
     Context context = mock(Context.class);
 
@@ -85,7 +85,7 @@ public class WebappTest {
   }
 
   @Test
-  public void configure_production_mode() throws Exception {
+  public void configure_production_mode() {
     props.set("sonar.web.dev", "false");
     Context context = mock(Context.class);
 
@@ -96,7 +96,7 @@ public class WebappTest {
   }
 
   @Test
-  public void context_path_must_start_with_slash() throws Exception {
+  public void context_path_must_start_with_slash() {
     Properties p = new Properties();
     p.setProperty("sonar.web.context", "foo");
 
@@ -109,7 +109,7 @@ public class WebappTest {
   }
 
   @Test
-  public void root_context_path_must_be_blank() throws Exception {
+  public void root_context_path_must_be_blank() {
     Properties p = new Properties();
     p.setProperty("sonar.web.context", "/");
 
@@ -117,7 +117,7 @@ public class WebappTest {
   }
 
   @Test
-  public void default_context_path_is_root() throws Exception {
+  public void default_context_path_is_root() {
     String context = Webapp.getContextPath(new Props(new Properties()));
     assertThat(context).isEqualTo("");
   }

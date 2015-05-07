@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PermissionQueryParserTest {
 
   @Test
-  public void to_query_with_all_params() throws Exception {
+  public void to_query_with_all_params() {
     Map<String, Object> params = newHashMap();
     params.put("permission", "admin");
     params.put("template", "my_template_key");
@@ -52,7 +52,7 @@ public class PermissionQueryParserTest {
   }
 
   @Test
-  public void to_query_with_include_membership_parameter() throws Exception {
+  public void to_query_with_include_membership_parameter() {
     Map<String, Object> params = newHashMap();
     params.put("permission", "admin");
     params.put("selected", "selected");
@@ -61,7 +61,7 @@ public class PermissionQueryParserTest {
   }
 
   @Test
-  public void to_query_with_exclude_membership_parameter() throws Exception {
+  public void to_query_with_exclude_membership_parameter() {
     Map<String, Object> params = newHashMap();
     params.put("permission", "admin");
     params.put("selected", "deselected");
@@ -70,7 +70,7 @@ public class PermissionQueryParserTest {
   }
 
   @Test
-  public void to_query_with_any_membership_parameter() throws Exception {
+  public void to_query_with_any_membership_parameter() {
     Map<String, Object> params = newHashMap();
     params.put("permission", "admin");
     params.put("selected", "all");

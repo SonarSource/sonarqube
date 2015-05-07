@@ -32,7 +32,7 @@ import static org.sonar.test.JsonAssert.assertJson;
 public class JsonAssertTest {
 
   @Test
-  public void isSimilarAs_strings() throws Exception {
+  public void isSimilarAs_strings() {
     assertJson("{}").isSimilarTo("{}");
 
     try {
@@ -46,7 +46,7 @@ public class JsonAssertTest {
   }
 
   @Test
-  public void isSimilarAs_urls() throws Exception {
+  public void isSimilarAs_urls() {
     URL url1 = getClass().getResource("JsonAssertTest/sample1.json");
     URL url2 = getClass().getResource("JsonAssertTest/sample2.json");
     assertJson(url1).isSimilarTo(url1);
@@ -60,7 +60,7 @@ public class JsonAssertTest {
   }
 
   @Test
-  public void actual_can_be_superset_of_expected() throws Exception {
+  public void actual_can_be_superset_of_expected() {
     assertJson("{\"foo\": \"bar\"}").isSimilarTo("{}");
     try {
       assertJson("{}").isSimilarTo("{\"foo\": \"bar\"}");
@@ -76,7 +76,7 @@ public class JsonAssertTest {
   }
 
   @Test
-  public void enable_strict_order_of_arrays() throws Exception {
+  public void enable_strict_order_of_arrays() {
     try {
       assertJson("[1,2]").setStrictArrayOrder(true).isSimilarTo("[2, 1]");
       fail();
@@ -86,7 +86,7 @@ public class JsonAssertTest {
   }
 
   @Test
-  public void enable_strict_timezone() throws Exception {
+  public void enable_strict_timezone() {
     try {
       assertJson("[\"2010-05-18T15:50:45+0100\"]").setStrictTimezone(true).isSimilarTo("[\"2010-05-18T16:50:45+0200\"]");
       fail();

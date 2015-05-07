@@ -27,13 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NetworkUtilsTest {
 
   @Test
-  public void find_free_port() throws Exception {
+  public void find_free_port() {
     int port = NetworkUtils.freePort();
     assertThat(port).isGreaterThan(0);
   }
 
   @Test
-  public void find_multiple_free_port() throws Exception {
+  public void find_multiple_free_port() {
     int port1 = NetworkUtils.freePort();
     int port2 = NetworkUtils.freePort();
 
@@ -41,7 +41,7 @@ public class NetworkUtilsTest {
   }
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(NetworkUtils.class)).isTrue();
   }
 }

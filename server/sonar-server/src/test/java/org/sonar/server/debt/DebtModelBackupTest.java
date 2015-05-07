@@ -121,7 +121,7 @@ public class DebtModelBackupTest {
   DebtModelBackup debtModelBackup;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     when(system2.now()).thenReturn(now.getTime());
@@ -149,7 +149,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void backup() throws Exception {
+  public void backup() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1)
@@ -195,7 +195,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void backup_with_disabled_rules() throws Exception {
+  public void backup_with_disabled_rules() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1)
@@ -217,7 +217,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void backup_with_rule_having_default_linear_and_overridden_offset() throws Exception {
+  public void backup_with_rule_having_default_linear_and_overridden_offset() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1)
@@ -255,7 +255,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void backup_from_language() throws Exception {
+  public void backup_from_language() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1)
@@ -293,7 +293,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void create_characteristics_when_restoring_characteristics() throws Exception {
+  public void create_characteristics_when_restoring_characteristics() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(Collections.<CharacteristicDto>emptyList());
 
     debtModelBackup.restoreCharacteristics(
@@ -326,7 +326,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void update_characteristics_when_restoring_characteristics() throws Exception {
+  public void update_characteristics_when_restoring_characteristics() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       // Order and name have changed
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate).setUpdatedAt(oldDate),
@@ -363,7 +363,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void update_parent_when_restoring_characteristics() throws Exception {
+  public void update_parent_when_restoring_characteristics() {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       // Parent has changed
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setParentId(1).setOrder(1).setCreatedAt(oldDate).setUpdatedAt(oldDate),
@@ -394,7 +394,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void disable_no_more_existing_characteristics_when_restoring_characteristics() throws Exception {
+  public void disable_no_more_existing_characteristics_when_restoring_characteristics() {
     CharacteristicDto dto1 = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1);
     CharacteristicDto dto2 = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
 
@@ -407,7 +407,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void reset_model() throws Exception {
+  public void reset_model() {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -468,7 +468,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void reset_model_when_no_default_value() throws Exception {
+  public void reset_model_when_no_default_value() {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -520,7 +520,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void reset_model_on_custom_rules() throws Exception {
+  public void reset_model_on_custom_rules() {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -582,7 +582,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void reset_model_do_not_load_rule_definitions_if_no_rule() throws Exception {
+  public void reset_model_do_not_load_rule_definitions_if_no_rule() {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -608,7 +608,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml() throws Exception {
+  public void restore_from_xml() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -639,7 +639,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_disable_rule_debt_when_not_in_xml_and_rule_have_default_debt_values() throws Exception {
+  public void restore_from_xml_disable_rule_debt_when_not_in_xml_and_rule_have_default_debt_values() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -663,7 +663,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_and_language() throws Exception {
+  public void restore_from_xml_and_language() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -697,7 +697,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_and_language_disable_no_more_existing_characteristics() throws Exception {
+  public void restore_from_xml_and_language_disable_no_more_existing_characteristics() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1)));
 
@@ -713,7 +713,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_and_language_with_rule_not_in_xml() throws Exception {
+  public void restore_from_xml_and_language_with_rule_not_in_xml() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -743,7 +743,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_add_warning_message_when_rule_from_xml_is_not_found() throws Exception {
+  public void restore_from_xml_add_warning_message_when_rule_from_xml_is_not_found() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -766,7 +766,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_add_error_message_when_illegal_argument_exception() throws Exception {
+  public void restore_from_xml_add_error_message_when_illegal_argument_exception() {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));

@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConsoleFormatterTest {
 
   @Test
-  public void format() throws Exception {
+  public void format() {
     assertThat(ConsoleFormatter.format("foo")).isEqualTo("foo");
     assertThat(ConsoleFormatter.format("arg: {}", "foo")).isEqualTo("arg: foo");
     assertThat(ConsoleFormatter.format("two args: {} and {}", "foo", 42)).isEqualTo("two args: foo and 42");
@@ -36,7 +36,7 @@ public class ConsoleFormatterTest {
   }
 
   @Test
-  public void only_static_methods() throws Exception {
+  public void only_static_methods() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ConsoleFormatter.class)).isTrue();
   }
 }

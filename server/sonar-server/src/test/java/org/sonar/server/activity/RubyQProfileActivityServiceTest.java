@@ -57,12 +57,12 @@ public class RubyQProfileActivityServiceTest {
   RubyQProfileActivityService rubyQProfileActivityService;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     rubyQProfileActivityService = new RubyQProfileActivityService(service);
   }
 
   @Test
-  public void search() throws Exception {
+  public void search() {
     Date since = DateUtils.parseDate("2014-05-19");
     Date to = DateUtils.parseDate("2014-06-19");
 
@@ -84,7 +84,7 @@ public class RubyQProfileActivityServiceTest {
   }
 
   @Test
-  public void search_with_empty_fields() throws Exception {
+  public void search_with_empty_fields() {
     Result<QProfileActivity> result = mock(Result.class);
     when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
     when(result.getTotal()).thenReturn(10L);

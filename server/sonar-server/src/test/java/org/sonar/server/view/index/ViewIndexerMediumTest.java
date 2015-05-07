@@ -70,7 +70,7 @@ public class ViewIndexerMediumTest {
   IssueIndex index;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
     index = tester.get(IssueIndex.class);
@@ -83,7 +83,7 @@ public class ViewIndexerMediumTest {
   }
 
   @Test
-  public void clear_views_lookup_cache_on_index_view_uuid() throws Exception {
+  public void clear_views_lookup_cache_on_index_view_uuid() {
     String viewUuid = "ABCD";
 
     RuleDto rule = RuleTesting.newXooX1();

@@ -59,7 +59,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   @Test
-  public void should_insert_and_register_default_permission_template() throws Exception {
+  public void should_insert_and_register_default_permission_template() {
     LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
     PermissionTemplateDto permissionTemplate = PermissionTemplateDto.DEFAULT.setId(1L);
@@ -85,7 +85,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   @Test
-  public void should_skip_insertion_and_registration() throws Exception {
+  public void should_skip_insertion_and_registration() {
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
       .thenReturn(1);
 
@@ -97,7 +97,7 @@ public class RegisterPermissionTemplatesTest {
   }
 
   @Test
-  public void should_reference_TRK_template_as_default_when_present() throws Exception {
+  public void should_reference_TRK_template_as_default_when_present() {
     when(settings.getString(RegisterPermissionTemplates.DEFAULT_PROJECTS_TEMPLATE_PROPERTY)).thenReturn("my_projects_template");
 
     LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())

@@ -29,13 +29,13 @@ public class ProfilerTest {
   public LogTester tester = new LogTester();
 
   @Test
-  public void create() throws Exception {
+  public void create() {
     Profiler profiler = Profiler.create(Loggers.get("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);
   }
 
   @Test
-  public void create_null_profiler_if_trace_level_is_disabled() throws Exception {
+  public void create_null_profiler_if_trace_level_is_disabled() {
     tester.setLevel(LoggerLevel.TRACE);
     Profiler profiler = Profiler.createIfTrace(Loggers.get("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);
@@ -46,7 +46,7 @@ public class ProfilerTest {
   }
 
   @Test
-  public void create_null_profiler_if_debug_level_is_disabled() throws Exception {
+  public void create_null_profiler_if_debug_level_is_disabled() {
     tester.setLevel(LoggerLevel.TRACE);
     Profiler profiler = Profiler.createIfDebug(Loggers.get("foo"));
     assertThat(profiler).isInstanceOf(DefaultProfiler.class);

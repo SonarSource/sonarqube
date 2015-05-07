@@ -62,13 +62,13 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, mock(AnalysisMode.class));
     assertThat(sensor.toString()).isEqualTo("QProfileSensor");
   }
 
   @Test
-  public void no_execution_in_preview() throws Exception {
+  public void no_execution_in_preview() {
     AnalysisMode analysisMode = mock(AnalysisMode.class);
     when(analysisMode.isPreview()).thenReturn(true);
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, analysisMode);
@@ -77,7 +77,7 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void no_qprofiles() throws Exception {
+  public void no_qprofiles() {
     when(moduleQProfiles.findAll()).thenReturn(Collections.<QProfile>emptyList());
 
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, mock(AnalysisMode.class));
@@ -89,7 +89,7 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void mark_profiles_as_used() throws Exception {
+  public void mark_profiles_as_used() {
     when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
     when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
@@ -101,7 +101,7 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void store_measures_on_single_lang_module() throws Exception {
+  public void store_measures_on_single_lang_module() {
     when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
     when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
@@ -117,7 +117,7 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void store_measures_on_multi_lang_module() throws Exception {
+  public void store_measures_on_multi_lang_module() {
     when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
     when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);

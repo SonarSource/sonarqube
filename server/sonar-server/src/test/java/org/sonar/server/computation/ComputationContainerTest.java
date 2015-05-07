@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComputationContainerTest {
 
   @Test
-  public void componentClasses() throws Exception {
+  public void componentClasses() {
     assertThat(ComputationContainer.componentClasses()).isNotEmpty();
   }
 }

@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 
 public class ResourceCacheTest {
   @Test
-  public void should_cache_resource() throws Exception {
+  public void should_cache_resource() {
     ResourceCache cache = new ResourceCache();
     String componentKey = "struts:src/org/struts/Action.java";
     Resource resource = File.create("org/struts/Action.java").setEffectiveKey(componentKey);
@@ -39,7 +39,7 @@ public class ResourceCacheTest {
   }
 
   @Test
-  public void should_fail_if_missing_component_key() throws Exception {
+  public void should_fail_if_missing_component_key() {
     ResourceCache cache = new ResourceCache();
     Resource resource = File.create("org/struts/Action.java").setEffectiveKey(null);
     try {

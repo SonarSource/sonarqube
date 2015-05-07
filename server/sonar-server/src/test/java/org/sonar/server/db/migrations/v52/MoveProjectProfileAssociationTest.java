@@ -34,7 +34,7 @@ public class MoveProjectProfileAssociationTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table projects");
     db.executeUpdateSql("truncate table project_qprofiles");
     db.executeUpdateSql("truncate table properties");

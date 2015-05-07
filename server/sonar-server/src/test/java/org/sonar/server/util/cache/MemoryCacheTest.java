@@ -38,7 +38,7 @@ public class MemoryCacheTest {
   MemoryCache<String, String> cache = new MemoryCache<>(loader);
 
   @Test
-  public void getNullable() throws Exception {
+  public void getNullable() {
     when(loader.load("foo")).thenReturn("bar");
     assertThat(cache.getNullable("foo")).isEqualTo("bar");
     assertThat(cache.getNullable("foo")).isEqualTo("bar");
@@ -54,7 +54,7 @@ public class MemoryCacheTest {
   }
 
   @Test
-  public void get_throws_exception_if_not_exists() throws Exception {
+  public void get_throws_exception_if_not_exists() {
     when(loader.load("foo")).thenReturn("bar");
     assertThat(cache.get("foo")).isEqualTo("bar");
     assertThat(cache.get("foo")).isEqualTo("bar");
@@ -69,7 +69,7 @@ public class MemoryCacheTest {
   }
 
   @Test
-  public void getAllNullable() throws Exception {
+  public void getAllNullable() {
     // ask for 3 keys but only 2 are available in backed (third key is missing)
     List<String> keys = Arrays.asList("one", "two", "three");
     Map<String, String> values = new HashMap<>();

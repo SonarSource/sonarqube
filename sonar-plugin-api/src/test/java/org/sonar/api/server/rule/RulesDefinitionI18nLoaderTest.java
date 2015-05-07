@@ -32,7 +32,7 @@ public class RulesDefinitionI18nLoaderTest {
   RulesDefinitionI18nLoader loader = new RulesDefinitionI18nLoader(i18n);
 
   @Test
-  public void complete_rule_name_and_description() throws Exception {
+  public void complete_rule_name_and_description() {
     when(i18n.getName("squid", "S0001")).thenReturn("SOne");
     when(i18n.getDescription("squid", "S0001")).thenReturn("S One");
 
@@ -50,7 +50,7 @@ public class RulesDefinitionI18nLoaderTest {
   }
 
   @Test
-  public void do_not_override_if_no_bundle() throws Exception {
+  public void do_not_override_if_no_bundle() {
     // i18n returns null values
 
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -66,7 +66,7 @@ public class RulesDefinitionI18nLoaderTest {
   }
 
   @Test
-  public void override_existing() throws Exception {
+  public void override_existing() {
     when(i18n.getName("squid", "S0001")).thenReturn("SOne");
     when(i18n.getDescription("squid", "S0001")).thenReturn("S One");
 
@@ -83,7 +83,7 @@ public class RulesDefinitionI18nLoaderTest {
   }
 
   @Test
-  public void complete_param_description() throws Exception {
+  public void complete_param_description() {
     when(i18n.getParamDescription("squid", "S0001", "max")).thenReturn("Maximum");
 
     RulesDefinition.Context context = new RulesDefinition.Context();

@@ -69,7 +69,7 @@ public class NoSonarFilterTest {
   }
 
   @Test
-  public void should_accept_issues_on_no_sonar_rules() throws Exception {
+  public void should_accept_issues_on_no_sonar_rules() {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
     Issue issue = mock(Issue.class);
     when(issue.componentKey()).thenReturn("struts:org.apache.Action");

@@ -45,7 +45,7 @@ public class WidgetDaoTest {
   private DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dao = new WidgetDao(dbTester.myBatis());
     session = dbTester.myBatis().openSession(false);
   }
@@ -56,7 +56,7 @@ public class WidgetDaoTest {
   }
 
   @Test
-  public void should_select_all() throws Exception {
+  public void should_select_all() {
     dbTester.prepareDbUnit(this.getClass(), "before.xml");
     session.commit();
 

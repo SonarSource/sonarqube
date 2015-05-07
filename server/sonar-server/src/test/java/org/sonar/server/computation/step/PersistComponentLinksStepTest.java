@@ -63,7 +63,7 @@ public class PersistComponentLinksStepTest extends BaseStepTest {
   PersistComponentLinksStep step;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     session = dbTester.myBatis().openSession(false);
     dao = new ComponentLinkDao();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), dao);
@@ -79,17 +79,17 @@ public class PersistComponentLinksStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return step;
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void execute_only_on_projects() throws Exception {
+  public void execute_only_on_projects() {
     assertThat(step.supportedProjectQualifiers()).containsOnly("TRK");
   }
 

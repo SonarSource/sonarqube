@@ -34,7 +34,7 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
   private static QualityGateConditionDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new QualityGateConditionDao(getMyBatis());
   }
 
@@ -84,7 +84,7 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
     checkTable("update", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
-  public void shouldCleanConditions() throws Exception {
+  public void shouldCleanConditions() {
     setupData("shouldCleanConditions");
     dao.deleteConditionsWithInvalidMetrics();
     checkTables("shouldCleanConditions", "quality_gate_conditions");

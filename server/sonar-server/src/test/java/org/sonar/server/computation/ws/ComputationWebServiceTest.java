@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 public class ComputationWebServiceTest {
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     ComputationWebService ws = new ComputationWebService(new ComputationWsAction() {
       @Override
       public void define(WebService.NewController controller) {

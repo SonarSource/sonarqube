@@ -39,12 +39,12 @@ public class CategoryTest {
   }
 
   @Test
-  public void should_normalize_key() throws Exception {
+  public void should_normalize_key() {
     assertThat(new Category("Licenses").key()).isEqualTo("licenses");
   }
 
   @Test
-  public void should_use_original_key() throws Exception {
+  public void should_use_original_key() {
     assertThat(new Category("Licenses").toString()).isEqualTo("Licenses");
   }
 

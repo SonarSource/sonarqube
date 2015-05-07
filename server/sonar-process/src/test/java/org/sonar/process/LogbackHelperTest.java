@@ -79,7 +79,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void newConsoleAppender() throws Exception {
+  public void newConsoleAppender() {
     LoggerContext ctx = sut.getRootContext();
     ConsoleAppender appender = sut.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
 
@@ -90,7 +90,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void configureLogger() throws Exception {
+  public void configureLogger() {
     LoggerContext ctx = sut.getRootContext();
 
     Logger logger = sut.configureLogger(ctx, "my_logger", Level.WARN);
@@ -100,7 +100,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_defaults() throws Exception {
+  public void createRollingPolicy_defaults() {
     LoggerContext ctx = sut.getRootContext();
     LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
     FileAppender appender = policy.createAppender("SONAR_FILE");
@@ -114,7 +114,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_none() throws Exception {
+  public void createRollingPolicy_none() {
     props.set("sonar.log.rollingPolicy", "none");
     LoggerContext ctx = sut.getRootContext();
     LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
@@ -124,7 +124,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_size() throws Exception {
+  public void createRollingPolicy_size() {
     props.set("sonar.log.rollingPolicy", "size:1MB");
     props.set("sonar.log.maxFiles", "20");
     LoggerContext ctx = sut.getRootContext();
@@ -143,7 +143,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_time() throws Exception {
+  public void createRollingPolicy_time() {
     props.set("sonar.log.rollingPolicy", "time:yyyy-MM");
     props.set("sonar.log.maxFiles", "20");
 
@@ -159,7 +159,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_fail_if_unknown_policy() throws Exception {
+  public void createRollingPolicy_fail_if_unknown_policy() {
     props.set("sonar.log.rollingPolicy", "unknown:foo");
     try {
       LoggerContext ctx = sut.getRootContext();

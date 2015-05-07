@@ -32,7 +32,7 @@ public class ServerWsTest {
   WsTester tester = new WsTester(new ServerWs());
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     WebService.Controller controller = tester.controller("api/server");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
@@ -41,7 +41,7 @@ public class ServerWsTest {
   }
 
   @Test
-  public void define_index_action() throws Exception {
+  public void define_index_action() {
     WebService.Controller controller = tester.controller("api/server");
 
     WebService.Action action = controller.action("index");
@@ -52,7 +52,7 @@ public class ServerWsTest {
   }
 
   @Test
-  public void define_setup_action() throws Exception {
+  public void define_setup_action() {
     WebService.Controller controller = tester.controller("api/server");
 
     WebService.Action action = controller.action("setup");

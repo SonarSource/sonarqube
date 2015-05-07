@@ -34,19 +34,19 @@ public class PluginUpdateAggregateBuilderTest {
   private static final PluginUpdate.Status SOME_STATUS = PluginUpdate.Status.COMPATIBLE;
 
   @Test(expected = NullPointerException.class)
-  public void plugin_can_not_be_null_and_builderFor_enforces_it_with_NPE() throws Exception {
+  public void plugin_can_not_be_null_and_builderFor_enforces_it_with_NPE() {
     PluginUpdateAggregateBuilder.builderFor(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void add_throws_IAE_when_plugin_is_not_equal_to_the_one_of_the_builder() throws Exception {
+  public void add_throws_IAE_when_plugin_is_not_equal_to_the_one_of_the_builder() {
     PluginUpdateAggregateBuilder builder = PluginUpdateAggregateBuilder.builderFor(PLUGIN_1);
 
     builder.add(createPluginUpdate(PLUGIN_2));
   }
 
   @Test
-  public void add_uses_equals_which_takes_only_key_into_account() throws Exception {
+  public void add_uses_equals_which_takes_only_key_into_account() {
     PluginUpdateAggregateBuilder builder = PluginUpdateAggregateBuilder.builderFor(PLUGIN_1);
 
     builder.add(createPluginUpdate(new Plugin(PLUGIN_1.getKey())));

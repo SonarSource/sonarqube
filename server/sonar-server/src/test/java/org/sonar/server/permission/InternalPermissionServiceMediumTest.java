@@ -62,7 +62,7 @@ public class InternalPermissionServiceMediumTest {
   ComponentDto project;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
@@ -79,7 +79,7 @@ public class InternalPermissionServiceMediumTest {
   }
 
   @Test
-  public void add_project_permission_to_user() throws Exception {
+  public void add_project_permission_to_user() {
     // init
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     UserDto user = new UserDto().setLogin("john").setName("John");
@@ -100,7 +100,7 @@ public class InternalPermissionServiceMediumTest {
   }
 
   @Test
-  public void remove_project_permission_to_user() throws Exception {
+  public void remove_project_permission_to_user() {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user1 = new UserDto().setLogin("user1").setName("User1");
@@ -124,7 +124,7 @@ public class InternalPermissionServiceMediumTest {
   }
 
   @Test
-  public void remove_all_component_user_permissions() throws Exception {
+  public void remove_all_component_user_permissions() {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user = new UserDto().setLogin("user1").setName("User1");
@@ -151,7 +151,7 @@ public class InternalPermissionServiceMediumTest {
   }
 
   @Test
-  public void add_and_remove_permission_to_group() throws Exception {
+  public void add_and_remove_permission_to_group() {
     // init
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     GroupDto group = new GroupDto().setName("group1");

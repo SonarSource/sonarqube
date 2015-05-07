@@ -34,12 +34,12 @@ public class DuplicationDaoTest extends AbstractDaoTestCase {
   private DuplicationDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new DuplicationDao(getMyBatis());
   }
 
   @Test
-  public void shouldGetByHash() throws Exception {
+  public void shouldGetByHash() {
     setupData("shouldGetByHash");
 
     List<DuplicationUnitDto> blocks = dao.selectCandidates(10, 7, "java");
@@ -58,7 +58,7 @@ public class DuplicationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsert() throws Exception {
+  public void shouldInsert() {
     setupData("shouldInsert");
 
     dao.insert(Arrays.asList(new DuplicationUnitDto(1, 2, "bb", 0, 1, 2)));

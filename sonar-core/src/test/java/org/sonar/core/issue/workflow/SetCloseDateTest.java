@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 
 public class SetCloseDateTest {
   @Test
-  public void should_set_close_date() throws Exception {
+  public void should_set_close_date() {
     SetCloseDate function = new SetCloseDate(true);
     Function.Context context = mock(Function.Context.class);
     function.execute(context);

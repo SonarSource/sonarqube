@@ -145,7 +145,7 @@ public class PhasesSumUpTimeProfilerTest {
     return project;
   }
 
-  private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) throws InterruptedException {
+  private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) {
     // Start of moduleA
     profiler.onProjectAnalysis(projectEvent(module, true));
     initializerPhase(profiler);
@@ -158,7 +158,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onProjectAnalysis(projectEvent(module, false));
   }
 
-  private void decoratorPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void decoratorPhase(PhasesSumUpTimeProfiler profiler) {
     Decorator decorator1 = new FakeDecorator1();
     Decorator decorator2 = new FakeDecorator2();
     // Start of decorator phase
@@ -187,7 +187,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onDecoratorsPhase(decoratorsEvent(false));
   }
 
-  private void batchStep(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void batchStep(PhasesSumUpTimeProfiler profiler) {
     // Start of batch step
     profiler.onBatchStep(new BatchStepEvent("Free memory", true));
     clock.sleep(9);
@@ -195,7 +195,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onBatchStep(new BatchStepEvent("Free memory", false));
   }
 
-  private void initializerPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void initializerPhase(PhasesSumUpTimeProfiler profiler) {
     Initializer initializer = new FakeInitializer();
     // Start of initializer phase
     profiler.onInitializersPhase(initializersEvent(true));
@@ -208,7 +208,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onInitializersPhase(initializersEvent(false));
   }
 
-  private void sensorPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void sensorPhase(PhasesSumUpTimeProfiler profiler) {
     Sensor sensor = new FakeSensor();
     // Start of sensor phase
     profiler.onSensorsPhase(sensorsEvent(true));
@@ -221,7 +221,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onSensorsPhase(sensorsEvent(false));
   }
 
-  private void persistersPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void persistersPhase(PhasesSumUpTimeProfiler profiler) {
     ScanPersister persister = new FakeScanPersister();
     // Start of persister phase
     profiler.onPersistersPhase(persistersEvent(true));
@@ -234,7 +234,7 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onPersistersPhase(persistersEvent(false));
   }
 
-  private void postJobPhase(PhasesSumUpTimeProfiler profiler) throws InterruptedException {
+  private void postJobPhase(PhasesSumUpTimeProfiler profiler) {
     PostJob postJob = new FakePostJob();
     // Start of sensor phase
     profiler.onPostJobsPhase(postJobsEvent(true));

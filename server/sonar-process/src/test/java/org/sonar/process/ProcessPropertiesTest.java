@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessPropertiesTest {
 
   @Test
-  public void init_defaults() throws Exception {
+  public void init_defaults() {
     Props props = new Props(new Properties());
     ProcessProperties.completeDefaults(props);
 
@@ -39,7 +39,7 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void do_not_override_existing_properties() throws Exception {
+  public void do_not_override_existing_properties() {
     Properties p = new Properties();
     p.setProperty("sonar.jdbc.username", "angela");
     Props props = new Props(p);
@@ -49,7 +49,7 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void use_random_port_if_zero() throws Exception {
+  public void use_random_port_if_zero() {
     Properties p = new Properties();
     p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
@@ -59,7 +59,7 @@ public class ProcessPropertiesTest {
   }
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ProcessProperties.class)).isTrue();
   }
 }

@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 public class JavaProcessLauncherTest {
 
   @Test
-  public void fail_to_launch() throws Exception {
+  public void fail_to_launch() {
     JavaCommand command = new JavaCommand("test");
     JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts());
     try {

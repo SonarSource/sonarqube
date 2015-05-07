@@ -97,7 +97,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void getByKey() throws InterruptedException {
+  public void getByKey() {
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("javascript", "S001"));
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
@@ -115,7 +115,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void getByKey_null_if_not_found() throws InterruptedException {
+  public void getByKey_null_if_not_found() {
     Rule rule = index.getNullableByKey(RuleKey.of("javascript", "unknown"));
 
     assertThat(rule).isNull();
@@ -269,7 +269,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_all_rules() throws InterruptedException {
+  public void search_all_rules() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
     dbSession.commit();
@@ -281,7 +281,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void scroll_all_rules() throws InterruptedException {
+  public void scroll_all_rules() {
     int max = 100;
     for (int i = 0; i < max; i++) {
       dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "scroll_" + i)));
@@ -304,7 +304,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_has_debt_characteristic() throws InterruptedException {
+  public void search_by_has_debt_characteristic() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
@@ -349,7 +349,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void facet_on_debt_characteristic() throws InterruptedException {
+  public void facet_on_debt_characteristic() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
@@ -460,7 +460,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_any_of_languages() throws InterruptedException {
+  public void search_by_any_of_languages() {
     dao.insert(dbSession,
       RuleTesting.newDto(RuleKey.of("java", "S001")).setLanguage("java"),
       RuleTesting.newDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
@@ -486,7 +486,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_characteristics() throws InterruptedException {
+  public void search_by_characteristics() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(char1, dbSession);
 
@@ -540,7 +540,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_characteristics_with_default_and_overridden_char() throws InterruptedException {
+  public void search_by_characteristics_with_default_and_overridden_char() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(char1, dbSession);
 
@@ -608,7 +608,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_any_of_severities() throws InterruptedException {
+  public void search_by_any_of_severities() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
     dbSession.commit();
@@ -632,7 +632,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_any_of_statuses() throws InterruptedException {
+  public void search_by_any_of_statuses() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY));
     dbSession.commit();
@@ -678,7 +678,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void fail_sort_by_language() throws InterruptedException {
+  public void fail_sort_by_language() {
     try {
       // Sorting on a field not tagged as sortable
       new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
@@ -689,7 +689,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_profile() throws InterruptedException {
+  public void search_by_profile() {
     QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
     QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
@@ -734,7 +734,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_profile_and_inheritance() throws InterruptedException {
+  public void search_by_profile_and_inheritance() {
     QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
     QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
@@ -835,7 +835,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_profile_and_active_severity() throws InterruptedException {
+  public void search_by_profile_and_active_severity() {
     QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
     QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
@@ -874,7 +874,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void complex_param_value() throws InterruptedException {
+  public void complex_param_value() {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
     QualityProfileDto profile = QProfileTesting.newXooP1();
@@ -896,7 +896,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_tag() throws InterruptedException {
+  public void search_by_tag() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")));
     dbSession.commit();
@@ -938,7 +938,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_is_template() throws InterruptedException {
+  public void search_by_is_template() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setIsTemplate(true));
     dbSession.commit();
@@ -968,7 +968,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_template_key() throws InterruptedException {
+  public void search_by_template_key() {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
@@ -992,7 +992,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_template_key_with_params() throws InterruptedException {
+  public void search_by_template_key_with_params() {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insert(dbSession, templateRule);
@@ -1015,7 +1015,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void show_custom_rule() throws InterruptedException {
+  public void show_custom_rule() {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
@@ -1089,7 +1089,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void scroll_byIds() throws Exception {
+  public void scroll_byIds() {
     Set<Integer> ids = new HashSet<Integer>();
     for (int i = 0; i < 150; i++) {
       RuleDto rule = RuleTesting.newDto(RuleKey.of("scroll", "r_" + i));
@@ -1102,7 +1102,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_protected_chars() throws InterruptedException {
+  public void search_protected_chars() {
     String nameWithProtectedChars = "ja#va&sc\"r:ipt";
 
     RuleDto ruleDto = RuleTesting.newXooX1().setName(nameWithProtectedChars);

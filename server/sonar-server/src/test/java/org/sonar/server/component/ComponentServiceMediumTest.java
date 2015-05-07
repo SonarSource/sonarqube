@@ -62,7 +62,7 @@ public class ComponentServiceMediumTest {
   ComponentService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
@@ -75,33 +75,33 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void get_by_key() throws Exception {
+  public void get_by_key() {
     ComponentDto project = createProject("sample:root");
     assertThat(service.getByKey(project.getKey())).isNotNull();
   }
 
   @Test
-  public void get_nullable_by_key() throws Exception {
+  public void get_nullable_by_key() {
     ComponentDto project = createProject("sample:root");
     assertThat(service.getNullableByKey(project.getKey())).isNotNull();
     assertThat(service.getNullableByKey("unknown")).isNull();
   }
 
   @Test
-  public void get_by_uuid() throws Exception {
+  public void get_by_uuid() {
     ComponentDto project = createProject("sample:root");
     assertThat(service.getByUuid(project.uuid())).isNotNull();
   }
 
   @Test
-  public void get_nullable_by_uuid() throws Exception {
+  public void get_nullable_by_uuid() {
     ComponentDto project = createProject("sample:root");
     assertThat(service.getNullableByUuid(project.uuid())).isNotNull();
     assertThat(service.getNullableByUuid("unknown")).isNull();
   }
 
   @Test
-  public void update_project_key() throws Exception {
+  public void update_project_key() {
     ComponentDto project = createProject("sample:root");
     ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
@@ -122,7 +122,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void update_module_key() throws Exception {
+  public void update_module_key() {
     ComponentDto project = createProject("sample:root");
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
@@ -149,7 +149,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void update_provisioned_project_key() throws Exception {
+  public void update_provisioned_project_key() {
     ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
     tester.get(ComponentDao.class).insert(session, provisionedProject);
 
@@ -165,14 +165,14 @@ public class ComponentServiceMediumTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void fail_to_update_project_key_without_admin_permission() throws Exception {
+  public void fail_to_update_project_key_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
     MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.updateKey(project.key(), "sample2:root");
   }
 
   @Test
-  public void check_module_keys_before_renaming() throws Exception {
+  public void check_module_keys_before_renaming() {
     ComponentDto project = createProject("sample:root");
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
@@ -191,7 +191,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void check_module_keys_before_renaming_return_duplicate_key() throws Exception {
+  public void check_module_keys_before_renaming_return_duplicate_key() {
     ComponentDto project = createProject("sample:root");
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
@@ -210,14 +210,14 @@ public class ComponentServiceMediumTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void fail_to_check_module_keys_before_renaming_without_admin_permission() throws Exception {
+  public void fail_to_check_module_keys_before_renaming_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
     MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
   @Test
-  public void bulk_update_project_key() throws Exception {
+  public void bulk_update_project_key() {
     ComponentDto project = createProject("sample:root");
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
@@ -245,7 +245,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void bulk_update_provisioned_project_key() throws Exception {
+  public void bulk_update_provisioned_project_key() {
     ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
     tester.get(ComponentDao.class).insert(session, provisionedProject);
 
@@ -261,14 +261,14 @@ public class ComponentServiceMediumTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void fail_to_bulk_update_project_key_without_admin_permission() throws Exception {
+  public void fail_to_bulk_update_project_key_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
     MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
     service.bulkUpdateKey("sample:root", "sample", "sample2");
   }
 
   @Test
-  public void create_project() throws Exception {
+  public void create_project() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
@@ -289,7 +289,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void create_new_project_with_branch() throws Exception {
+  public void create_new_project_with_branch() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
@@ -301,7 +301,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void create_view() throws Exception {
+  public void create_view() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
@@ -322,7 +322,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void fail_to_create_new_component_on_invalid_key() throws Exception {
+  public void fail_to_create_new_component_on_invalid_key() {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     try {
@@ -335,7 +335,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void fail_to_create_new_component_on_invalid_branch() throws Exception {
+  public void fail_to_create_new_component_on_invalid_branch() {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     try {
@@ -348,7 +348,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void fail_to_create_new_component_if_key_already_exists() throws Exception {
+  public void fail_to_create_new_component_if_key_already_exists() {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     ComponentDto project = ComponentTesting.newProjectDto().setKey("struts");
@@ -364,7 +364,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void should_return_project_uuids() throws Exception {
+  public void should_return_project_uuids() {
     ComponentDto project = createProject("sample:root");
     String moduleKey = "sample:root:module";
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
@@ -380,7 +380,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void should_fail_on_components_not_found() throws Exception {
+  public void should_fail_on_components_not_found() {
     String moduleKey = "sample:root:module";
     String fileKey = "sample:root:module:Foo.xoo";
 
@@ -393,7 +393,7 @@ public class ComponentServiceMediumTest {
   }
 
   @Test
-  public void should_fail_silently_on_components_not_found_if_told_so() throws Exception {
+  public void should_fail_silently_on_components_not_found_if_told_so() {
     String moduleKey = "sample:root:module";
     String fileKey = "sample:root:module:Foo.xoo";
 

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultIssueBuilderTest {
 
   @Test
-  public void build_new_issue() throws Exception {
+  public void build_new_issue() {
     String componentKey = "org.apache.struts:struts-core:Action.java";
     String projectKey = "org.apache.struts";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()

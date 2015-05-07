@@ -39,7 +39,7 @@ public class PlatformRubyBridgeTest {
   private PlatformRubyBridge underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(rackBridge.getRubyRuntime()).thenReturn(container.getProvider().getRuntime());
     underTest = new PlatformRubyBridge(rackBridge);
   }

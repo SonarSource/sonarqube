@@ -38,19 +38,19 @@ public class MetricCacheTest {
   MetricCache sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.prepareDbUnit(getClass(), "metrics.xml");
     sut = new MetricCache(new DbClient(db.database(), db.myBatis(), new MetricDao()));
   }
 
   @Test
-  public void cache_give_access_to_enabled_metrics() throws Exception {
+  public void cache_give_access_to_enabled_metrics() {
     assertThat(sut.get("ncloc").getId()).isEqualTo(1);
     assertThat(sut.get("coverage").getId()).isEqualTo(2);
   }
 
   @Test(expected = NotFoundException.class)
-  public void fail_when_metric_not_found() throws Exception {
+  public void fail_when_metric_not_found() {
     sut.get("complexity");
   }
 }

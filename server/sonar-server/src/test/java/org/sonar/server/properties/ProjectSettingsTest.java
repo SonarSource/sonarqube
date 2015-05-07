@@ -38,12 +38,12 @@ public class ProjectSettingsTest {
   private Settings settings;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     this.settings = mock(Settings.class);
   }
 
   @Test
-  public void call_global_settings_method_when_no_project_specific_settings() throws Exception {
+  public void call_global_settings_method_when_no_project_specific_settings() {
     this.sut = new ProjectSettings(settings, Maps.<String, String>newHashMap());
 
     sut.getInt("anyKey");
@@ -56,7 +56,7 @@ public class ProjectSettingsTest {
   }
 
   @Test(expected = NumberFormatException.class)
-  public void getInt_property_throws_exception_when_value_is_not_formatted_correctly() throws Exception {
+  public void getInt_property_throws_exception_when_value_is_not_formatted_correctly() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "wrongIntValue");
     this.sut = new ProjectSettings(settings, properties);
@@ -65,7 +65,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getInt_property_return_0_when_empty_property() throws Exception {
+  public void getInt_property_return_0_when_empty_property() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "");
     this.sut = new ProjectSettings(settings, properties);
@@ -76,7 +76,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getInt_property_return_the_int_value() throws Exception {
+  public void getInt_property_return_the_int_value() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "123");
     this.sut = new ProjectSettings(settings, properties);
@@ -87,7 +87,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getString_returns_String_property() throws Exception {
+  public void getString_returns_String_property() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("stringKey", "stringValue");
     this.sut = new ProjectSettings(settings, properties);
@@ -98,7 +98,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getBoolean_returns_exception_when_value_is_not_formatted_correctly() throws Exception {
+  public void getBoolean_returns_exception_when_value_is_not_formatted_correctly() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey", "wronglyFormattedBoolean");
     this.sut = new ProjectSettings(settings, properties);
@@ -109,7 +109,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getBoolean_returns_false_when_value_is_empty() throws Exception {
+  public void getBoolean_returns_false_when_value_is_empty() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey", "");
     this.sut = new ProjectSettings(settings, properties);
@@ -120,7 +120,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void getBoolean_returns_true_when_value_is_true_ignoring_case() throws Exception {
+  public void getBoolean_returns_true_when_value_is_true_ignoring_case() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey1", "true");
     properties.put("boolKey2", "True");

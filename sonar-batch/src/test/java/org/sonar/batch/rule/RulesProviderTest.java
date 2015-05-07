@@ -55,7 +55,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   RulesProvider provider;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     debtModel = new DefaultDebtModel()
       .addCharacteristic(new DefaultDebtCharacteristic()
         .setId(100)
@@ -86,7 +86,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules() throws Exception {
+  public void build_rules() {
     setupData("shared");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -110,7 +110,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_default_debt_definitions() throws Exception {
+  public void build_rules_with_default_debt_definitions() {
     setupData("build_rules_with_default_debt_definitions");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -121,7 +121,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_overridden_debt_definitions() throws Exception {
+  public void build_rules_with_overridden_debt_definitions() {
     setupData("build_rules_with_overridden_debt_definitions");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -132,7 +132,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_default_and_overridden_debt_definitions() throws Exception {
+  public void build_rules_with_default_and_overridden_debt_definitions() {
     setupData("build_rules_with_default_and_overridden_debt_definitions");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -144,7 +144,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_default_characteristic_and_overridden_function() throws Exception {
+  public void build_rules_with_default_characteristic_and_overridden_function() {
     setupData("build_rules_with_default_characteristic_and_overridden_function");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -156,7 +156,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_overridden_characteristic_and_default_function() throws Exception {
+  public void build_rules_with_overridden_characteristic_and_default_function() {
     setupData("build_rules_with_overridden_characteristic_and_default_function");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -168,7 +168,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_disable_characteristic() throws Exception {
+  public void build_rules_with_disable_characteristic() {
     setupData("build_rules_with_disable_characteristic");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -179,7 +179,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void build_rules_with_default_characteristic_and_disable_characteristic() throws Exception {
+  public void build_rules_with_default_characteristic_and_disable_characteristic() {
     setupData("build_rules_with_default_characteristic_and_disable_characteristic");
 
     Rules rules = provider.provide(ruleDao, debtModel, durations);
@@ -190,7 +190,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_if_characteristic_not_found() throws Exception {
+  public void fail_if_characteristic_not_found() {
     setupData("fail_if_characteristic_not_found");
 
     try {
@@ -202,7 +202,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_if_no_function() throws Exception {
+  public void fail_if_no_function() {
     setupData("fail_if_no_function");
 
     try {

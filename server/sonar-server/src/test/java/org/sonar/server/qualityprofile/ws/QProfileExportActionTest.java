@@ -71,7 +71,7 @@ public class QProfileExportActionTest {
   QProfileExporters exporters;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     qualityProfileDao = new QualityProfileDao(db.myBatis(), mock(System2.class));
     dbClient = new DbClient(db.database(), db.myBatis(), qualityProfileDao);
     session = dbClient.openSession(false);
@@ -95,7 +95,7 @@ public class QProfileExportActionTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     session.close();
   }
 

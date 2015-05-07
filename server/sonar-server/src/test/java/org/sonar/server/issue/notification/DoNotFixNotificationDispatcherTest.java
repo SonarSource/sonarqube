@@ -49,7 +49,7 @@ public class DoNotFixNotificationDispatcherTest {
   }
 
   @Test
-  public void should_not_dispatch_if_other_notification_type() throws Exception {
+  public void should_not_dispatch_if_other_notification_type() {
     Notification notification = new Notification("other");
     sut.performDispatch(notification, context);
 

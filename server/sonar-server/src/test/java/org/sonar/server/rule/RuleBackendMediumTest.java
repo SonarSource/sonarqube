@@ -72,7 +72,7 @@ public class RuleBackendMediumTest {
   }
 
   @Test
-  public void insert_in_db_and_multiget_in_es() throws InterruptedException {
+  public void insert_in_db_and_multiget_in_es() {
     // insert db
     RuleDto ruleDto = RuleTesting.newXooX1();
     RuleDto ruleDto2 = RuleTesting.newXooX2();
@@ -85,7 +85,7 @@ public class RuleBackendMediumTest {
   }
 
   @Test
-  public void insert_in_db_and_index_in_es() throws InterruptedException {
+  public void insert_in_db_and_index_in_es() {
     // insert db
     RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
@@ -128,7 +128,7 @@ public class RuleBackendMediumTest {
   }
 
   @Test
-  public void insert_rule_tags_in_db_and_index_in_es() throws InterruptedException {
+  public void insert_rule_tags_in_db_and_index_in_es() {
     // insert db
     RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
@@ -250,7 +250,7 @@ public class RuleBackendMediumTest {
   }
 
   @Test
-  public void insert_and_update_rule_param() throws InterruptedException {
+  public void insert_and_update_rule_param() {
 
     // insert db
     RuleDto ruleDto = RuleTesting.newXooX1();
@@ -309,7 +309,7 @@ public class RuleBackendMediumTest {
 
   @Test
   @Deprecated
-  public void has_id() throws Exception {
+  public void has_id() {
 
     RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
@@ -320,7 +320,7 @@ public class RuleBackendMediumTest {
 
 
   @Test
-  public void insert_update_characteristics() throws Exception {
+  public void insert_update_characteristics() {
 
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1");
     db.debtCharacteristicDao().insert(char1, dbSession);
@@ -382,7 +382,7 @@ public class RuleBackendMediumTest {
   }
 
   @Test
-  public void insert_update_debt_overload() throws Exception {
+  public void insert_update_debt_overload() {
 
     RuleDto ruleDto = RuleTesting.newXooX1()
       .setRemediationFunction(null)

@@ -58,7 +58,7 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void extend_classloader_with_jdbc_driver() throws Exception {
+  public void extend_classloader_with_jdbc_driver() {
     FileCache cache = mock(FileCache.class);
 
     File fakeDriver = new File(Resources.getResource(JdbcDriverHolderTest.class, "JdbcDriverHolderTest/jdbc-driver.jar").getFile());
@@ -84,7 +84,7 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void do_nothing_when_jdbc_driver_file_is_empty() throws Exception {
+  public void do_nothing_when_jdbc_driver_file_is_empty() {
     FileCache cache = mock(FileCache.class);
 
     ServerClient server = mock(ServerClient.class);

@@ -83,7 +83,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void add_report_to_queue() throws Exception {
+  public void add_report_to_queue() {
     // must:
     // 1. insert metadata in db
     // 2. copy report content to directory /data/analysis
@@ -112,7 +112,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void find_by_project_key() throws Exception {
+  public void find_by_project_key() {
     sut.add("P1", generateData());
     assertThat(sut.selectByProjectKey("P1")).hasSize(1).extracting("projectKey").containsExactly("P1");
     assertThat(sut.selectByProjectKey("P2")).isEmpty();
@@ -154,7 +154,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void do_not_pop_corrupted_item() throws Exception {
+  public void do_not_pop_corrupted_item() {
     ReportQueue.Item item = sut.add("P1", generateData());
 
     // emulate corruption: file is missing on FS
@@ -167,7 +167,7 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void clear() throws Exception {
+  public void clear() {
     sut.add("P1", generateData());
     sut.add("P2", generateData());
     assertThat(analysisDir()).exists().isDirectory();
@@ -179,18 +179,18 @@ public class ReportQueueTest {
   }
 
   @Test
-  public void clear_do_not_fail_when_directory_do_not_exist() throws Exception {
+  public void clear_do_not_fail_when_directory_do_not_exist() {
     sut.clear();
     sut.clear();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void add_on_non_existent_project() throws Exception {
+  public void add_on_non_existent_project() {
     sut.add("UNKNOWN_PROJECT_KEY", generateData());
   }
 
   @Test
-  public void reset_to_pending_status() throws Exception {
+  public void reset_to_pending_status() {
     // 2 pending
     sut.add("P1", generateData());
     sut.add("P2", generateData());

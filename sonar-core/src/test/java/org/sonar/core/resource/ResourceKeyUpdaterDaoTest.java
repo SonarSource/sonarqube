@@ -89,7 +89,7 @@ public class ResourceKeyUpdaterDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotUpdateAllSubmodules() throws Exception {
+  public void shouldNotUpdateAllSubmodules() {
     setupData("shouldNotUpdateAllSubmodules");
 
     dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");

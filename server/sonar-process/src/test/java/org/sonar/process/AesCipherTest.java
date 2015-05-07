@@ -52,7 +52,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void encrypt() throws Exception {
+  public void encrypt() {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
     String encryptedText = cipher.encrypt("this is a secret");
@@ -62,7 +62,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void encrypt_bad_key() throws Exception {
+  public void encrypt_bad_key() {
     thrown.expect(RuntimeException.class);
     thrown.expectMessage("Invalid AES key");
 
@@ -72,7 +72,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void decrypt() throws Exception {
+  public void decrypt() {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
     // the following value has been encrypted with the key /org/sonar/api/config/AesCipherTest/aes_secret_key.txt
@@ -82,7 +82,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void decrypt_bad_key() throws Exception {
+  public void decrypt_bad_key() {
     AesCipher cipher = new AesCipher(getPath("bad_secret_key.txt"));
 
     try {
@@ -95,7 +95,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void decrypt_other_key() throws Exception {
+  public void decrypt_other_key() {
     AesCipher cipher = new AesCipher(getPath("other_secret_key.txt"));
 
     try {
@@ -109,7 +109,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void encryptThenDecrypt() throws Exception {
+  public void encryptThenDecrypt() {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
     assertThat(cipher.decrypt(cipher.encrypt("foo"))).isEqualTo("foo");
@@ -161,14 +161,14 @@ public class AesCipherTest {
   }
 
   @Test
-  public void hasSecretKey() throws Exception {
+  public void hasSecretKey() {
     AesCipher cipher = new AesCipher(pathToSecretKey());
 
     assertThat(cipher.hasSecretKey()).isTrue();
   }
 
   @Test
-  public void doesNotHaveSecretKey() throws Exception {
+  public void doesNotHaveSecretKey() {
     AesCipher cipher = new AesCipher("/my/twitter/id/is/SimonBrandhof");
 
     assertThat(cipher.hasSecretKey()).isFalse();
@@ -178,7 +178,7 @@ public class AesCipherTest {
     return Resources.getResource(AesCipherTest.class, "AesCipherTest/" + file).getPath();
   }
 
-  private static String pathToSecretKey() throws Exception {
+  private static String pathToSecretKey() {
     return getPath("aes_secret_key.txt");
   }
 

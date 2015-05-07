@@ -52,7 +52,7 @@ public class TimeMachineUnmarshallerTest extends UnmarshallerTestCase {
   }
 
   @Test
-  public void should_accept_null_values() throws Exception {
+  public void should_accept_null_values() {
     TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/null-values.json"));
 
     assertThat(timeMachine.getCells()[0].getValues().length).isEqualTo(2);
@@ -64,7 +64,7 @@ public class TimeMachineUnmarshallerTest extends UnmarshallerTestCase {
   }
 
   @Test
-  public void should_cast_values() throws Exception {
+  public void should_cast_values() {
     TimeMachine timeMachine = new TimeMachineUnmarshaller().toModel(loadFile("/timemachine/typed-values.json"));
 
     assertThat(timeMachine.getCells()[0].getValues().length).isEqualTo(2);

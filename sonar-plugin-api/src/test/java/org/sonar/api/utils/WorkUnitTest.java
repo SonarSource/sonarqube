@@ -27,14 +27,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WorkUnitTest {
 
   @Test
-  public void create() throws Exception {
+  public void create() {
     WorkUnit workUnit = WorkUnit.create(2.0, "mn");
     assertThat(workUnit.getUnit()).isEqualTo("mn");
     assertThat(workUnit.getValue()).isEqualTo(2.0);
   }
 
   @Test
-  public void create_default() throws Exception {
+  public void create_default() {
     WorkUnit workUnit = WorkUnit.create();
     assertThat(workUnit.getUnit()).isEqualTo("d");
     assertThat(workUnit.getValue()).isEqualTo(0.0);
@@ -48,7 +48,7 @@ public class WorkUnitTest {
   }
 
   @Test
-  public void fail_with_bad_unit() throws Exception {
+  public void fail_with_bad_unit() {
     try {
       WorkUnit.create(2.0, "z");
     } catch (Exception e) {
@@ -57,7 +57,7 @@ public class WorkUnitTest {
   }
 
   @Test
-  public void fail_with_bad_value() throws Exception {
+  public void fail_with_bad_value() {
     try {
       WorkUnit.create(-2.0, "mn");
     } catch (Exception e) {

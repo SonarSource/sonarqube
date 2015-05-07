@@ -45,7 +45,7 @@ public class AuthorsActionTest {
   IssueService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester = new WsTester(new IssuesWs(new AuthorsAction(service)));
     controller = tester.controller("api/issues");
   }

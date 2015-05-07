@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 public class GroupMembershipQueryTest {
 
   @Test
-  public void fail_on_null_login() throws Exception {
+  public void fail_on_null_login() {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
     builder.login(null);
 
@@ -41,7 +41,7 @@ public class GroupMembershipQueryTest {
   }
 
   @Test
-  public void fail_on_invalid_membership() throws Exception {
+  public void fail_on_invalid_membership() {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
     builder.login("nelson");
     builder.membership("unknwown");

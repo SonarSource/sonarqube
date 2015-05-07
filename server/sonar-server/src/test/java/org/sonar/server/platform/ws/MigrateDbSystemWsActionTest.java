@@ -74,7 +74,7 @@ public class MigrateDbSystemWsActionTest {
   WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Before
-  public void wireMocksTogether() throws Exception {
+  public void wireMocksTogether() {
     when(database.getDialect()).thenReturn(dialect);
   }
 

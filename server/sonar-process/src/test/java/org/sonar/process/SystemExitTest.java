@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SystemExitTest {
 
   @Test
-  public void do_not_exit_if_in_shutdown_hook() throws Exception {
+  public void do_not_exit_if_in_shutdown_hook() {
     SystemExit systemExit = new SystemExit();
 
     systemExit.setInShutdownHook();
@@ -39,7 +39,7 @@ public class SystemExitTest {
   }
 
   @Test
-  public void exit_if_not_in_shutdown_hook() throws Exception {
+  public void exit_if_not_in_shutdown_hook() {
     final AtomicInteger got = new AtomicInteger();
     SystemExit systemExit = new SystemExit() {
       @Override

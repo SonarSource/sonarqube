@@ -36,7 +36,7 @@ public class ServerSettingsTest {
   ServerSettings settings;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     properties = new Properties();
     properties.put("hello", "world");
     properties.put("in_file", "true");

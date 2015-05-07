@@ -44,7 +44,7 @@ public class DevelopmentCostMeasuresMigrationStepTest {
   DevelopmentCostMeasuresMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
     migration = new DevelopmentCostMeasuresMigrationStep(db.database(), propertiesDao);

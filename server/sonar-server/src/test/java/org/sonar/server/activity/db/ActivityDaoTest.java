@@ -44,12 +44,12 @@ public class ActivityDaoTest {
   ActivityDao sut;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     sut = new ActivityDao(dbTester.myBatis(), system);
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     when(system.now()).thenReturn(1_500_000_000_000L);
     ActivityDto dto = new ActivityDto()
       .setKey("UUID_1").setAction("THE_ACTION").setType("THE_TYPE")

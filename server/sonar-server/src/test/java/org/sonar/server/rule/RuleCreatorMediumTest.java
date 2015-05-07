@@ -70,7 +70,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule() throws Exception {
+  public void create_custom_rule() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -116,7 +116,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule_with_empty_parameter_value() throws Exception {
+  public void create_custom_rule_with_empty_parameter_value() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -141,7 +141,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule_with_no_parameter_value() throws Exception {
+  public void create_custom_rule_with_no_parameter_value() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
@@ -165,7 +165,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule_with_multiple_parameter_values() throws Exception {
+  public void create_custom_rule_with_multiple_parameter_values() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
@@ -190,7 +190,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule_with_invalid_parameter() throws Exception {
+  public void create_custom_rule_with_invalid_parameter() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
@@ -212,7 +212,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_custom_rule_with_invalid_parameters() throws Exception {
+  public void create_custom_rule_with_invalid_parameters() {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithTwoIntParams();
 
@@ -235,7 +235,7 @@ public class RuleCreatorMediumTest {
 
 
   @Test
-  public void reactivate_custom_rule_if_already_exists_in_removed_status() throws Exception {
+  public void reactivate_custom_rule_if_already_exists_in_removed_status() {
     String key = "CUSTOM_RULE";
 
     // insert template rule
@@ -279,7 +279,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void generate_reactivation_exception_when_rule_exists_in_removed_status_and_prevent_reactivation_parameter_is_true() throws Exception {
+  public void generate_reactivation_exception_when_rule_exists_in_removed_status_and_prevent_reactivation_parameter_is_true() {
     String key = "CUSTOM_RULE";
 
     // insert template rule
@@ -316,7 +316,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_invalid_key() throws Exception {
+  public void fail_to_create_custom_rule_when_invalid_key() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -336,7 +336,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_rule_key_already_exists() throws Exception {
+  public void fail_to_create_custom_rule_when_rule_key_already_exists() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -365,7 +365,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_name() throws Exception {
+  public void fail_to_create_custom_rule_when_missing_name() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -384,7 +384,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_description() throws Exception {
+  public void fail_to_create_custom_rule_when_missing_description() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -403,7 +403,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_severity() throws Exception {
+  public void fail_to_create_custom_rule_when_missing_severity() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -422,7 +422,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_invalid_severity() throws Exception {
+  public void fail_to_create_custom_rule_when_invalid_severity() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -442,7 +442,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_missing_status() throws Exception {
+  public void fail_to_create_custom_rule_when_missing_status() {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -461,7 +461,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_wrong_rule_template() throws Exception {
+  public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
     RuleDto rule = dao.insert(dbSession,
       RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false));
@@ -484,7 +484,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_manual_rule() throws Exception {
+  public void create_manual_rule() {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
       .setMarkdownDescription("Some description");
@@ -509,7 +509,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void create_manual_rule_with_severity() throws Exception {
+  public void create_manual_rule_with_severity() {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
       .setMarkdownDescription("Some description")
@@ -535,7 +535,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void reactivate_manual_rule_if_already_exists_in_removed_status() throws Exception {
+  public void reactivate_manual_rule_if_already_exists_in_removed_status() {
     String key = "MANUAL_RULE";
 
     // insert a removed rule
@@ -569,7 +569,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_missing_key() throws Exception {
+  public void fail_to_create_manual_rule_when_missing_key() {
     try {
       NewRule.createForManualRule("")
         .setName("My manual")
@@ -581,7 +581,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_invalid_key() throws Exception {
+  public void fail_to_create_manual_rule_when_invalid_key() {
     NewRule newRule = NewRule.createForManualRule("*INVALID*")
       .setName("My custom")
       .setHtmlDescription("Some description");
@@ -595,7 +595,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_rule_key_already_exists() throws Exception {
+  public void fail_to_create_manual_rule_when_rule_key_already_exists() {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
       .setHtmlDescription("Some description");
@@ -614,7 +614,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_missing_name() throws Exception {
+  public void fail_to_create_manual_rule_when_missing_name() {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setHtmlDescription("Some description");
 
@@ -627,7 +627,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_missing_description() throws Exception {
+  public void fail_to_create_manual_rule_when_missing_description() {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual");
 
@@ -640,7 +640,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_with_status() throws Exception {
+  public void fail_to_create_manual_rule_with_status() {
     try {
       NewRule.createForManualRule("MANUAL_RULE")
         .setName("My manual")
@@ -653,7 +653,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_with_parameters() throws Exception {
+  public void fail_to_create_manual_rule_with_parameters() {
     try {
       NewRule.createForManualRule("MANUAL_RULE")
         .setName("My manual")

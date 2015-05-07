@@ -79,7 +79,7 @@ public class DefaultActionPlanClientTest {
   }
 
   @Test
-  public void should_create_action_plan() throws Exception {
+  public void should_create_action_plan() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.stubResponseBody("{\"actionPlan\": {\"key\": \"382f6f2e-ad9d-424a-b973-9b065e04348a\"}}");
 

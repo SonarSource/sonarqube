@@ -31,17 +31,17 @@ public class ComponentKeysTest {
   ComponentKeys keys = new ComponentKeys();
 
   @Test
-  public void generate_key_of_class() throws Exception {
+  public void generate_key_of_class() {
     assertThat(keys.of(FakeComponent.class)).isEqualTo(FakeComponent.class);
   }
 
   @Test
-  public void generate_key_of_object() throws Exception {
+  public void generate_key_of_object() {
     assertThat(keys.of(new FakeComponent())).isEqualTo("org.sonar.api.platform.ComponentKeysTest.FakeComponent-fake");
   }
 
   @Test
-  public void should_log_warning_if_toString_is_not_overridden() throws Exception {
+  public void should_log_warning_if_toString_is_not_overridden() {
     Logger log = mock(Logger.class);
     keys.of(new Object(), log);
     verifyZeroInteractions(log);
@@ -52,7 +52,7 @@ public class ComponentKeysTest {
   }
 
   @Test
-  public void should_generate_unique_key_when_toString_is_not_overridden() throws Exception {
+  public void should_generate_unique_key_when_toString_is_not_overridden() {
     Object key = keys.of(new WrongToStringImpl());
     assertThat(key).isNotEqualTo(WrongToStringImpl.KEY);
 

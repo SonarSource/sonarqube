@@ -33,7 +33,7 @@ public class ViewIndexDefinitionTest {
   IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     ViewIndexDefinition def = new ViewIndexDefinition(new Settings());
     def.define(context);
 
@@ -48,7 +48,7 @@ public class ViewIndexDefinitionTest {
   }
 
   @Test
-  public void enable_cluster() throws Exception {
+  public void enable_cluster() {
     Settings settings = new Settings();
     settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     ViewIndexDefinition def = new ViewIndexDefinition(settings);

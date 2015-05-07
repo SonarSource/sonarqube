@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 public class SystemWsTest {
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     SystemRestartWsAction action1 = new SystemRestartWsAction(mock(Settings.class), mock(Platform.class));
     SystemInfoWsAction action2 = new SystemInfoWsAction();
     SystemWs ws = new SystemWs(action1, action2);

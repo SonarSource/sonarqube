@@ -33,7 +33,7 @@ public class QualityGateDaoTest extends AbstractDaoTestCase {
   private static QualityGateDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new QualityGateDao(getMyBatis());
   }
 

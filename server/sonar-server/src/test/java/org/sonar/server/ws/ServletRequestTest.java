@@ -36,34 +36,34 @@ public class ServletRequestTest {
   HttpServletRequest source = mock(HttpServletRequest.class);
 
   @Test
-  public void call_method() throws Exception {
+  public void call_method() {
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     request.method();
     verify(source).getMethod();
   }
 
   @Test
-  public void has_param_from_source() throws Exception {
+  public void has_param_from_source() {
     when(source.getParameterMap()).thenReturn(ImmutableMap.of("param", new String[]{"value"}));
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     assertThat(request.hasParam("param")).isTrue();
   }
 
   @Test
-  public void has_param_from_params() throws Exception {
+  public void has_param_from_params() {
     ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param", "value"));
     assertThat(request.hasParam("param")).isTrue();
   }
 
   @Test
-  public void read_param_from_source() throws Exception {
+  public void read_param_from_source() {
     when(source.getParameter("param")).thenReturn("value");
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     assertThat(request.readParam("param")).isEqualTo("value");
   }
 
   @Test
-  public void read_param_from_param() throws Exception {
+  public void read_param_from_param() {
     ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param1", "value", "param2", 1));
     assertThat(request.readParam("param1")).isEqualTo("value");
     assertThat(request.readParam("param2")).isNull();
@@ -71,7 +71,7 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void read_input_stream() throws Exception {
+  public void read_input_stream() {
     RubyFile file = mock(RubyFile.class);
     ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param1", file, "param2", "value"));
     request.readInputStreamParam("param1");
@@ -81,7 +81,7 @@ public class ServletRequestTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     when(source.getRequestURL()).thenReturn(new StringBuffer("http:localhost:9000/api/issues"));
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     assertThat(request.toString()).isEqualTo("http:localhost:9000/api/issues");

@@ -43,13 +43,13 @@ public class IssueFilterWsTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ws = new IssueFilterWs(new AppAction(service, issueFilterWriter), new ShowAction(service, issueFilterWriter), new FavoritesAction(service));
     tester = new WsTester(ws);
   }
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/issue_filters");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

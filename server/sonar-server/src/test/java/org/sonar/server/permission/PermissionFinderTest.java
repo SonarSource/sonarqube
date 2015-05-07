@@ -55,13 +55,13 @@ public class PermissionFinderTest {
   PermissionFinder finder;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(100L).setName("org.sample.Sample"));
     finder = new PermissionFinder(permissionDao, resourceDao, permissionTemplateDao);
   }
 
   @Test
-  public void find_users() throws Exception {
+  public void find_users() {
     when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
     );
@@ -72,7 +72,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void fail_to_find_users_when_component_not_found() throws Exception {
+  public void fail_to_find_users_when_component_not_found() {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
 
     try {
@@ -84,7 +84,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_users_with_paging() throws Exception {
+  public void find_users_with_paging() {
     finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(3).pageSize(10).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
@@ -96,7 +96,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_users_with_paging_having_more_results() throws Exception {
+  public void find_users_with_paging_having_more_results() {
     when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new UserWithPermissionDto().setName("user1").setPermission("user"),
       new UserWithPermissionDto().setName("user2").setPermission("user"),
@@ -114,7 +114,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_users_with_paging_having_no_more_results() throws Exception {
+  public void find_users_with_paging_having_no_more_results() {
     when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new UserWithPermissionDto().setName("user1").setPermission("user"),
       new UserWithPermissionDto().setName("user2").setPermission("user"),
@@ -133,7 +133,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups() throws Exception {
+  public void find_groups() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
     );
@@ -145,7 +145,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_should_be_paginated() throws Exception {
+  public void find_groups_should_be_paginated() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
       new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
       new GroupWithPermissionDto().setName("Admin").setPermission("user"),
@@ -176,7 +176,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_should_filter_membership() throws Exception {
+  public void find_groups_should_filter_membership() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
       new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
       new GroupWithPermissionDto().setName("Admin").setPermission("user"),
@@ -194,7 +194,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_with_added_anyone_group() throws Exception {
+  public void find_groups_with_added_anyone_group() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
     );
@@ -208,7 +208,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_without_adding_anyone_group_when_search_text_do_not_matched() throws Exception {
+  public void find_groups_without_adding_anyone_group_when_search_text_do_not_matched() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
     );
@@ -220,7 +220,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_with_added_anyone_group_when_search_text_matched() throws Exception {
+  public void find_groups_with_added_anyone_group_when_search_text_matched() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("MyAnyGroup").setPermission("user"))
     );
@@ -231,7 +231,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_without_adding_anyone_group_when_out_membership_selected() throws Exception {
+  public void find_groups_without_adding_anyone_group_when_out_membership_selected() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
     );
@@ -244,7 +244,7 @@ public class PermissionFinderTest {
 
 
   @Test
-  public void find_users_from_permission_template() throws Exception {
+  public void find_users_from_permission_template() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
 
     when(permissionTemplateDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
@@ -257,7 +257,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void fail_to_find_users_from_permission_template_when_template_not_found() throws Exception {
+  public void fail_to_find_users_from_permission_template_when_template_not_found() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(null);
 
     try {
@@ -269,7 +269,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void find_groups_from_permission_template() throws Exception {
+  public void find_groups_from_permission_template() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
 
     when(permissionTemplateDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
@@ -283,7 +283,7 @@ public class PermissionFinderTest {
   }
 
   @Test
-  public void fail_to_find_groups_from_permission_template_when_template_not_found() throws Exception {
+  public void fail_to_find_groups_from_permission_template_when_template_not_found() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(null);
 
     try {

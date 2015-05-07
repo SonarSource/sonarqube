@@ -38,18 +38,18 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   RoleDao dao;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     session = getMyBatis().openSession(false);
     dao = new RoleDao();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void retrieve_global_user_permissions() throws Exception {
+  public void retrieve_global_user_permissions() {
     setupData("globalUserPermissions");
 
     assertThat(dao.selectUserPermissions(session, "admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -57,7 +57,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void retrieve_resource_user_permissions() throws Exception {
+  public void retrieve_resource_user_permissions() {
     setupData("resourceUserPermissions");
 
     assertThat(dao.selectUserPermissions(session, "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
@@ -65,7 +65,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void retrieve_global_group_permissions() throws Exception {
+  public void retrieve_global_group_permissions() {
     setupData("globalGroupPermissions");
 
     assertThat(dao.selectGroupPermissions(session, "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
@@ -77,7 +77,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void retrieve_resource_group_permissions() throws Exception {
+  public void retrieve_resource_group_permissions() {
     setupData("resourceGroupPermissions");
 
     assertThat(dao.selectGroupPermissions(session, "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
@@ -85,7 +85,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void delete_global_user_permission() throws Exception {
+  public void delete_global_user_permission() {
     setupData("globalUserPermissions");
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -97,7 +97,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void delete_resource_user_permission() throws Exception {
+  public void delete_resource_user_permission() {
     setupData("resourceUserPermissions");
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(UserRole.USER).setResourceId(1L);
@@ -109,7 +109,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void delete_global_group_permission() throws Exception {
+  public void delete_global_group_permission() {
     setupData("globalGroupPermissions");
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -121,7 +121,7 @@ public class RoleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void delete_resource_group_permission() throws Exception {
+  public void delete_resource_group_permission() {
     setupData("resourceGroupPermissions");
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);

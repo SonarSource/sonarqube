@@ -33,7 +33,7 @@ public class ListingWsTest {
   ListingWs ws = new ListingWs();
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WsTester tester = new WsTester(ws);
     WebService.Controller controller = tester.controller("api/webservices");
     assertThat(controller).isNotNull();

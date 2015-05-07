@@ -99,7 +99,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void set_empty_dates() throws Exception {
+  public void set_empty_dates() {
     issue
       .setCreationDate(null)
       .setUpdateDate(null)
@@ -124,7 +124,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void setAttributes_should_not_clear_existing_values() throws Exception {
+  public void setAttributes_should_not_clear_existing_values() {
     issue.setAttributes(ImmutableMap.of("1", "one"));
     assertThat(issue.attribute("1")).isEqualTo("one");
 
@@ -193,7 +193,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void comments_should_not_be_modifiable() throws Exception {
+  public void comments_should_not_be_modifiable() {
     DefaultIssue issue = new DefaultIssue().setKey("AAA");
 
     List<IssueComment> comments = issue.comments();
@@ -210,7 +210,7 @@ public class DefaultIssueTest {
   }
 
   @Test
-  public void all_changes_contain_current_change() throws Exception {
+  public void all_changes_contain_current_change() {
     IssueChangeContext issueChangeContext = mock(IssueChangeContext.class);
     DefaultIssue issue = new DefaultIssue().setKey("AAA").setFieldChange(issueChangeContext, "actionPlan", "1.0", "1.1");
 

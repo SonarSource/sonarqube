@@ -31,7 +31,7 @@ public class PluginsWsTest {
   private WsTester tester = new WsTester(new PluginsWs(new DummyPluginsWsAction()));
 
   @Test
-  public void defines_controller_and_binds_PluginsWsActions() throws Exception {
+  public void defines_controller_and_binds_PluginsWsActions() {
     WebService.Controller controller = tester.controller("api/plugins");
 
     assertThat(controller).isNotNull();

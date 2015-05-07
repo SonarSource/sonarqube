@@ -40,7 +40,7 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_groups_for_project_permission() throws Exception {
+  public void select_groups_for_project_permission() {
     setupData("groups_with_permissions");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
@@ -69,7 +69,7 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void anyone_group_is_not_returned_when_it_has_no_permission() throws Exception {
+  public void anyone_group_is_not_returned_when_it_has_no_permission() {
     setupData("groups_with_permissions");
 
     // Anyone group has not the permission 'admin', so it's not returned
@@ -91,7 +91,7 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_groups_for_global_permission() throws Exception {
+  public void select_groups_for_global_permission() {
     setupData("groups_with_permissions");
 
     PermissionQuery query = PermissionQuery.builder().permission("admin").build();
@@ -112,7 +112,7 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void search_by_groups_name() throws Exception {
+  public void search_by_groups_name() {
     setupData("groups_with_permissions");
 
     List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").search("aDMini").build(), COMPONENT_ID);
@@ -124,7 +124,7 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void search_groups_should_be_sorted_by_group_name() throws Exception {
+  public void search_groups_should_be_sorted_by_group_name() {
     setupData("groups_with_permissions_should_be_sorted_by_group_name");
 
     List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").build(), COMPONENT_ID);

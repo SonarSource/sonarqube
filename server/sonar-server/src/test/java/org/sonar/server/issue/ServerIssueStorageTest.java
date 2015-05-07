@@ -69,12 +69,12 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void load_component_id_from_db() throws Exception {
+  public void load_component_id_from_db() {
     setupData("load_component_id_from_db");
     session.commit();
 
@@ -84,7 +84,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void load_project_id_from_db() throws Exception {
+  public void load_project_id_from_db() {
     setupData("load_project_id_from_db");
     session.commit();
 
@@ -94,7 +94,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_new_issues() throws Exception {
+  public void should_insert_new_issues() {
     setupData("should_insert_new_issues");
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -128,7 +128,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_update_issues() throws Exception {
+  public void should_update_issues() {
     setupData("should_update_issues");
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");

@@ -70,7 +70,7 @@ public class DefaultFileSystemTest {
   }
 
   @Test
-  public void add_languages() throws Exception {
+  public void add_languages() {
     assertThat(fs.languages()).isEmpty();
 
     fs.addLanguages("java", "php", "cobol");
@@ -78,7 +78,7 @@ public class DefaultFileSystemTest {
   }
 
   @Test
-  public void files() throws Exception {
+  public void files() {
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
     fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php"));
@@ -108,13 +108,13 @@ public class DefaultFileSystemTest {
   }
 
   @Test
-  public void input_file_returns_null_if_file_not_found() throws Exception {
+  public void input_file_returns_null_if_file_not_found() {
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNull();
     assertThat(fs.inputFile(fs.predicates().hasLanguage("cobol"))).isNull();
   }
 
   @Test
-  public void input_file_fails_if_too_many_results() throws Exception {
+  public void input_file_fails_if_too_many_results() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("expected one element");
 
@@ -125,7 +125,7 @@ public class DefaultFileSystemTest {
   }
 
   @Test
-  public void input_file_supports_non_indexed_predicates() throws Exception {
+  public void input_file_supports_non_indexed_predicates() {
     fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java"));
 
     // it would fail if more than one java file

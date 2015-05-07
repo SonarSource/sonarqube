@@ -38,7 +38,7 @@ public class MeasuresDaoTest extends AbstractDbUnitTestCase {
   private ResourceModel project;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     service = new MeasuresDao(getSession());
     project = new ResourceModel(ResourceModel.SCOPE_PROJECT, "foo:bar", ResourceModel.QUALIFIER_PROJECT_TRUNK, null, "Foo");
     project.setName("project name");

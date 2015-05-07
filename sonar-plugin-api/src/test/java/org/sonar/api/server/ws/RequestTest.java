@@ -112,14 +112,14 @@ public class RequestTest {
   SimpleRequest request = new SimpleRequest();
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     WebService.Context context = new WebService.Context();
     new SimpleWebService().define(context);
     request.setAction(context.controller("my_controller").action("my_action"));
   }
 
   @Test
-  public void has_param() throws Exception {
+  public void has_param() {
     request.setParam("a_required_string", "foo");
 
     assertThat(request.hasParam("a_required_string")).isTrue();
@@ -127,7 +127,7 @@ public class RequestTest {
   }
 
   @Test
-  public void required_param_is_missing() throws Exception {
+  public void required_param_is_missing() {
     try {
       request.mandatoryParam("required_param");
       fail();
@@ -137,7 +137,7 @@ public class RequestTest {
   }
 
   @Test
-  public void required_param() throws Exception {
+  public void required_param() {
     request.setParam("a_required_string", "foo");
     request.setParam("a_required_number", "42");
     request.setParam("a_required_boolean", "true");
@@ -151,7 +151,7 @@ public class RequestTest {
   }
 
   @Test
-  public void required_param_as_strings() throws Exception {
+  public void required_param_as_strings() {
     try {
       request.mandatoryParamAsStrings("a_required_string");
     } catch (IllegalArgumentException e) {
@@ -163,17 +163,17 @@ public class RequestTest {
   }
 
   @Test
-  public void default_value_of_optional_param() throws Exception {
+  public void default_value_of_optional_param() {
     assertThat(request.param("has_default_string")).isEqualTo("the_default_string");
   }
 
   @Test
-  public void param_as_string() throws Exception {
+  public void param_as_string() {
     assertThat(request.setParam("a_string", "foo").param("a_string")).isEqualTo("foo");
   }
 
   @Test
-  public void null_param() throws Exception {
+  public void null_param() {
     assertThat(request.param("a_string")).isNull();
     assertThat(request.paramAsBoolean("a_boolean")).isNull();
     assertThat(request.paramAsInt("a_number")).isNull();
@@ -181,19 +181,19 @@ public class RequestTest {
   }
 
   @Test
-  public void param_as_int() throws Exception {
+  public void param_as_int() {
     assertThat(request.setParam("a_number", "123").paramAsInt("a_number")).isEqualTo(123);
   }
 
   @Test
-  public void param_as_long() throws Exception {
+  public void param_as_long() {
     assertThat(request.setParam("a_number", "123").paramAsLong("a_number")).isEqualTo(123L);
     assertThat(request.setParam("a_number", "123").paramAsLong("a_number", 42L)).isEqualTo(123L);
     assertThat(request.setParam("a_number", null).paramAsLong("a_number", 42L)).isEqualTo(123L);
   }
 
   @Test
-  public void param_as_boolean() throws Exception {
+  public void param_as_boolean() {
     assertThat(request.setParam("a_boolean", "true").paramAsBoolean("a_boolean")).isTrue();
     assertThat(request.setParam("a_boolean", "yes").paramAsBoolean("a_boolean")).isTrue();
     assertThat(request.setParam("a_boolean", "false").paramAsBoolean("a_boolean")).isFalse();
@@ -207,23 +207,23 @@ public class RequestTest {
   }
 
   @Test
-  public void param_as_enum() throws Exception {
+  public void param_as_enum() {
     assertThat(request.setParam("a_enum", "BETA").paramAsEnum("a_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
   }
 
   @Test
-  public void param_as_enums() throws Exception {
+  public void param_as_enums() {
     assertThat(request.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
       RuleStatus.BETA, RuleStatus.READY);
   }
 
   @Test
-  public void param_as_date() throws Exception {
+  public void param_as_date() {
     assertThat(request.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
   }
 
   @Test
-  public void param_as_datetime() throws Exception {
+  public void param_as_datetime() {
     assertThat(request.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
     assertThat(request.setParam("a_datetime", "2014-05-27").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDate("2014-05-27"));
     try {
@@ -234,7 +234,7 @@ public class RequestTest {
   }
 
   @Test
-  public void param_as_strings() throws Exception {
+  public void param_as_strings() {
     assertThat(request.paramAsStrings("a_string")).isNull();
     assertThat(request.setParam("a_string", "").paramAsStrings("a_string")).isEmpty();
     assertThat(request.setParam("a_string", "bar").paramAsStrings("a_string")).containsExactly("bar");
@@ -243,12 +243,12 @@ public class RequestTest {
   }
 
   @Test
-  public void deprecated_key() throws Exception {
+  public void deprecated_key() {
     assertThat(request.setParam("deprecated_param", "bar").param("new_param")).isEqualTo("bar");
   }
 
   @Test
-  public void fail_if_param_is_not_defined() throws Exception {
+  public void fail_if_param_is_not_defined() {
     try {
       request.param("unknown");
     } catch (IllegalArgumentException e) {
@@ -257,7 +257,7 @@ public class RequestTest {
   }
 
   @Test
-  public void verify_possible_values() throws Exception {
+  public void verify_possible_values() {
     request.setParam("has_possible_values", "foo");
     assertThat(request.param("has_possible_values")).isEqualTo("foo");
 

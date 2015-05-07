@@ -73,7 +73,7 @@ public class PlanActionTest {
   }
 
   @Test
-  public void should_fail_on_unverified_action_plan() throws Exception {
+  public void should_fail_on_unverified_action_plan() {
     throwable.expect(IllegalArgumentException.class);
     throwable.expectMessage("Action plan is missing from the execution parameters");
 
@@ -124,7 +124,7 @@ public class PlanActionTest {
   }
 
   @Test
-  public void should_unplan_if_action_plan_is_empty() throws Exception {
+  public void should_unplan_if_action_plan_is_empty() {
     String planKey = "";
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);

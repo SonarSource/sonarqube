@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class SearchOptionsTest {
 
   @Test
-  public void create_from_http_request() throws Exception {
+  public void create_from_http_request() {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "3");
     request.setParam("ps", "10");
@@ -53,7 +53,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void hasField() throws Exception {
+  public void hasField() {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "3");
     request.setParam("ps", "10");
@@ -65,7 +65,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void hasField_always_true_by_default() throws Exception {
+  public void hasField_always_true_by_default() {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "3");
     request.setParam("ps", "10");
@@ -75,7 +75,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void hasField_no_if_empty_value() throws Exception {
+  public void hasField_no_if_empty_value() {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "3");
     request.setParam("ps", "10");
@@ -86,7 +86,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void write_statistics_to_json_response() throws Exception {
+  public void write_statistics_to_json_response() {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "3");
     request.setParam("ps", "10");
@@ -105,7 +105,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void defineFieldsParam() throws Exception {
+  public void defineFieldsParam() {
     WebService.Context context = new WebService.Context();
     new WebService() {
       @Override
@@ -125,7 +125,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void definePageParams() throws Exception {
+  public void definePageParams() {
     WebService.Context context = new WebService.Context();
     new WebService() {
       @Override

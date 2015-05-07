@@ -48,7 +48,7 @@ public class UserDaoTest {
   private DbSession session;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     db.truncateTables();
 
     this.session = db.myBatis().openSession(false);

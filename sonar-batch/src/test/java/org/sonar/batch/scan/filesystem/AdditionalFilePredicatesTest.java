@@ -34,7 +34,7 @@ public class AdditionalFilePredicatesTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void key() throws Exception {
+  public void key() {
     FilePredicate predicate = new AdditionalFilePredicates.KeyPredicate("struts:Action.java");
 
     DefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "Action.java");

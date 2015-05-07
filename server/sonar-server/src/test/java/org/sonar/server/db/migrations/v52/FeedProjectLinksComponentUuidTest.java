@@ -34,7 +34,7 @@ public class FeedProjectLinksComponentUuidTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table project_links");
 
     migration = new FeedProjectLinksComponentUuid(db.database());

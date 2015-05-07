@@ -36,7 +36,7 @@ public class StaticResourcesServletTest {
   private HttpServletRequest request;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     servlet = new StaticResourcesServlet();
     request = mock(HttpServletRequest.class);
   }

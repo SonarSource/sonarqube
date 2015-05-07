@@ -82,7 +82,7 @@ public class IssueQueryServiceTest {
   IssueQueryService issueQueryService;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.authorDao()).thenReturn(authorDao);
@@ -242,7 +242,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_component_root_uuids_but_unknown_qualifiers() throws Exception {
+  public void should_search_in_tree_with_component_root_uuids_but_unknown_qualifiers() {
     Map<String, Object> map = newHashMap();
     map.put("componentRootUuids", newArrayList("ABCD"));
 
@@ -254,7 +254,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_component_roots_but_different_qualifiers() throws Exception {
+  public void should_search_in_tree_with_component_roots_but_different_qualifiers() {
     Map<String, Object> map = newHashMap();
     map.put("componentRoots", newArrayList("org.apache.struts:struts", "org.codehaus.sonar:sonar-server"));
 
@@ -270,7 +270,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_view() throws Exception {
+  public void should_search_in_tree_with_view() {
     String viewUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentRootUuids", newArrayList(viewUuid));
@@ -285,7 +285,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_subview_but_bad_permissions() throws Exception {
+  public void should_search_in_tree_with_subview_but_bad_permissions() {
     String subViewUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentRootUuids", newArrayList(subViewUuid));
@@ -299,7 +299,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_project_uuid() throws Exception {
+  public void should_search_in_tree_with_project_uuid() {
     String projectUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(projectUuid));
@@ -312,7 +312,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_on_component_only_with_project_key() throws Exception {
+  public void should_search_on_component_only_with_project_key() {
     String projectKey = "org.apache.struts:struts";
     String projectUuid = "ABCD";
     Map<String, Object> map = newHashMap();
@@ -329,7 +329,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_on_developer() throws Exception {
+  public void should_search_on_developer() {
     String devUuid = "DEV:anakin.skywalker";
     String login1 = "anakin@skywalker.name";
     String login2 = "darth.vader";
@@ -344,7 +344,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_override_authors_when_searching_on_developer() throws Exception {
+  public void should_override_authors_when_searching_on_developer() {
     String devUuid = "DEV:anakin.skywalker";
     String login = "anakin@skywalker.name";
     Map<String, Object> map = newHashMap();
@@ -358,7 +358,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_on_developer_technical_project() throws Exception {
+  public void should_search_on_developer_technical_project() {
     String projectUuid = "sample1";
     String devUuid = "DEV:anakin.skywalker";
     String login1 = "anakin@skywalker.name";
@@ -383,7 +383,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_module_uuid() throws Exception {
+  public void should_search_in_tree_with_module_uuid() {
     String moduleUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(moduleUuid));
@@ -396,7 +396,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_in_tree_with_directory_uuid() throws Exception {
+  public void should_search_in_tree_with_directory_uuid() {
     String directoryUuid = "ABCD";
     String directoryPath = "/some/module/relative/path";
     String moduleUuid = "BCDE";
@@ -413,7 +413,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_on_source_file() throws Exception {
+  public void should_search_on_source_file() {
     String fileUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(fileUuid));
@@ -425,7 +425,7 @@ public class IssueQueryServiceTest {
   }
 
   @Test
-  public void should_search_on_test_file() throws Exception {
+  public void should_search_on_test_file() {
     String fileUuid = "ABCD";
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(fileUuid));

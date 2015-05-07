@@ -35,7 +35,7 @@ public class IndexViewsStepTest extends BaseStepTest {
   IndexViewsStep sut = new IndexViewsStep(indexer);
 
   @Test
-  public void index_views() throws Exception {
+  public void index_views() {
     when(context.getProject()).thenReturn(ComponentTesting.newProjectDto("ABCD").setQualifier(Qualifiers.VIEW));
 
     sut.execute(context);

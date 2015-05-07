@@ -94,22 +94,22 @@ public class PersistFileDependenciesStepTest extends BaseStepTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return new PersistFileDependenciesStep(dbClient, system2);
   }
 
   @Test
-  public void supported_project_qualifiers() throws Exception {
+  public void supported_project_qualifiers() {
     assertThat(step().supportedProjectQualifiers()).containsOnly(Qualifiers.PROJECT);
   }
 
   @Test
-  public void persist_file_dependencies() throws Exception {
+  public void persist_file_dependencies() {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -164,7 +164,7 @@ public class PersistFileDependenciesStepTest extends BaseStepTest {
   }
 
   @Test
-  public void nothing_to_persist() throws Exception {
+  public void nothing_to_persist() {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)

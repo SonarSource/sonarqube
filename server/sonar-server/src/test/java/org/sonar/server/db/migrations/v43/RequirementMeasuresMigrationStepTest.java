@@ -33,7 +33,7 @@ public class RequirementMeasuresMigrationStepTest {
   RequirementMeasuresMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new RequirementMeasuresMigrationStep(db.database());
   }
 

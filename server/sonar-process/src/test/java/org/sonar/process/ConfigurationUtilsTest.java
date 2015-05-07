@@ -62,7 +62,7 @@ public class ConfigurationUtilsTest {
   }
 
   @Test
-  public void loadPropsFromCommandLineArgs_missing_argument() throws Exception {
+  public void loadPropsFromCommandLineArgs_missing_argument() {
     try {
       ConfigurationUtils.loadPropsFromCommandLineArgs(new String[0]);
       fail();
@@ -95,7 +95,7 @@ public class ConfigurationUtilsTest {
   }
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ConfigurationUtils.class)).isTrue();
   }
 }

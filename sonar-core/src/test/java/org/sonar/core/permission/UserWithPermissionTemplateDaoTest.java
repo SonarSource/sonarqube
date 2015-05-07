@@ -45,7 +45,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all_users() throws Exception {
+  public void select_all_users() {
     setupData("users_with_permissions");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
@@ -69,7 +69,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void return_nothing_on_unknown_template_key() throws Exception {
+  public void return_nothing_on_unknown_template_key() {
     setupData("users_with_permissions");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
@@ -87,7 +87,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_only_user_with_permission() throws Exception {
+  public void select_only_user_with_permission() {
     setupData("users_with_permissions");
 
     // user1 and user2 have permission user
@@ -95,7 +95,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_only_user_without_permission() throws Exception {
+  public void select_only_user_without_permission() {
     setupData("users_with_permissions");
 
     // Only user3 has not the user permission
@@ -103,7 +103,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_only_enable_users() throws Exception {
+  public void select_only_enable_users() {
     setupData("select_only_enable_users");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
@@ -120,7 +120,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void search_by_user_name() throws Exception {
+  public void search_by_user_name() {
     setupData("users_with_permissions");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").search("SEr1").build(), TEMPLATE_ID);
@@ -132,7 +132,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_be_sorted_by_user_name() throws Exception {
+  public void should_be_sorted_by_user_name() {
     setupData("users_with_permissions_should_be_sorted_by_user_name");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
@@ -143,7 +143,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_be_paginated() throws Exception {
+  public void should_be_paginated() {
     setupData("users_with_permissions");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), TEMPLATE_ID, 0, 2);

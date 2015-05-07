@@ -45,17 +45,17 @@ public class PlatformRackBridgeTest {
   PlatformRackBridge underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
   }
 
   @Test(expected = RuntimeException.class)
-  public void getRubyRuntime_throws_RE_when_RackApplicationFactory_is_not_in_ServletContext() throws Exception {
+  public void getRubyRuntime_throws_RE_when_RackApplicationFactory_is_not_in_ServletContext() {
     underTest.getRubyRuntime();
   }
 
   @Test
-  public void getRubyRuntime_returns_Ruby_instance_from_rack_application() throws Exception {
+  public void getRubyRuntime_returns_Ruby_instance_from_rack_application() {
     when(servletContext.getAttribute("rack.factory")).thenReturn(rackApplicationFactory);
     when(rackApplicationFactory.getApplication()).thenReturn(rackApplication);
 

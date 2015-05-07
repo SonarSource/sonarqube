@@ -168,7 +168,7 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void helper_parse_methods() throws Exception {
+  public void helper_parse_methods() {
     assertThat(KeyValueFormat.parseIntDate("1=2014-01-15")).hasSize(1);
     assertThat(KeyValueFormat.parseIntDateTime("1=2014-01-15T15:50:45+0100")).hasSize(1);
     assertThat(KeyValueFormat.parseIntDouble("1=3.14")).hasSize(1);
@@ -180,7 +180,7 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void helper_format_methods() throws Exception {
+  public void helper_format_methods() {
     assertThat(KeyValueFormat.formatIntDateTime(ImmutableMap.of(1, new Date()))).startsWith("1=");
     assertThat(KeyValueFormat.formatIntDate(ImmutableMap.of(1, new Date()))).startsWith("1=");
     assertThat(KeyValueFormat.formatIntDouble(ImmutableMap.of(1, 3.14))).startsWith("1=");
@@ -230,7 +230,7 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void escape_strings() throws Exception {
+  public void escape_strings() {
     Map<String, String> input = Maps.newLinkedHashMap();
     input.put("foo", "a=b=c");
     input.put("bar", "a;b;c");
@@ -245,7 +245,7 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void not_instantiable() throws Exception {
+  public void not_instantiable() {
     // only static methods. Bad pattern, should be improved.
     TestUtils.hasOnlyPrivateConstructors(KeyValueFormat.class);
   }

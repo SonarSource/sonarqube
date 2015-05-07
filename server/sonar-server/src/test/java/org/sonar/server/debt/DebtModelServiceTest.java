@@ -42,7 +42,7 @@ public class DebtModelServiceTest {
   DebtModelService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     service = new DebtModelService(debtModelOperations, debtModelLookup, debtModelBackup);
   }
 

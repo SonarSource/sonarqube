@@ -65,7 +65,7 @@ public class SearchActionMediumTest {
   WsTester wsTester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     wsTester = tester.get(WsTester.class);
@@ -78,7 +78,7 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void define_action() throws Exception {
+  public void define_action() {
     WebService.Controller controller = wsTester.controller("api/issues");
 
     WebService.Action show = controller.action("search");

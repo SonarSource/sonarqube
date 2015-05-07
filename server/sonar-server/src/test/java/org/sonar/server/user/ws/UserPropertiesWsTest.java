@@ -31,7 +31,7 @@ public class UserPropertiesWsTest {
   WsTester tester = new WsTester(new UserPropertiesWs());
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/user_properties");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

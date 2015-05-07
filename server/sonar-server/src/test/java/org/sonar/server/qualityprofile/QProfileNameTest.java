@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QProfileNameTest {
 
   @Test
-  public void equals_and_hashcode() throws Exception {
+  public void equals_and_hashcode() {
     QProfileName xooP1 = new QProfileName("xoo", "p1");
     assertThat(xooP1).isEqualTo(xooP1);
     assertThat(xooP1).isNotEqualTo(new QProfileName("xoo", "p2"));
@@ -40,7 +40,7 @@ public class QProfileNameTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     assertThat(new QProfileName("xoo", "p1").toString()).isEqualTo("{lang=xoo, name=p1}");
   }
 }

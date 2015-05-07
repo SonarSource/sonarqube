@@ -38,7 +38,7 @@ public class IssuableFactoryTest {
   ProjectTree projectTree = mock(ProjectTree.class);
 
   @Test
-  public void file_should_be_issuable() throws Exception {
+  public void file_should_be_issuable() {
     IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
     Component component = new ResourceComponent(File.create("foo/bar.c").setEffectiveKey("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
@@ -49,7 +49,7 @@ public class IssuableFactoryTest {
   }
 
   @Test
-  public void project_should_be_issuable() throws Exception {
+  public void project_should_be_issuable() {
     IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
     Component component = new ResourceComponent(new Project("Foo").setEffectiveKey("foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);

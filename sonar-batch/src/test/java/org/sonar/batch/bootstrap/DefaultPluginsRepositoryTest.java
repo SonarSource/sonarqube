@@ -77,7 +77,7 @@ public class DefaultPluginsRepositoryTest {
   }
 
   @Test
-  public void should_fail_to_get_plugin_index() throws Exception {
+  public void should_fail_to_get_plugin_index() {
     thrown.expect(IllegalStateException.class);
 
     ServerClient server = mock(ServerClient.class);

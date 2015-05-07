@@ -45,21 +45,21 @@ public class PostJobOptimizerTest {
   private AnalysisMode analysisMode;
 
   @Before
-  public void prepare() throws Exception {
+  public void prepare() {
     settings = new Settings();
     analysisMode = mock(AnalysisMode.class);
     optimizer = new PostJobOptimizer(settings, analysisMode);
   }
 
   @Test
-  public void should_run_analyzer_with_no_metadata() throws Exception {
+  public void should_run_analyzer_with_no_metadata() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor();
 
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
   @Test
-  public void should_optimize_on_settings() throws Exception {
+  public void should_optimize_on_settings() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor()
       .requireProperty("sonar.foo.reportPath");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -69,7 +69,7 @@ public class PostJobOptimizerTest {
   }
 
   @Test
-  public void should_disabled_in_preview() throws Exception {
+  public void should_disabled_in_preview() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor()
       .disabledInPreview();
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();

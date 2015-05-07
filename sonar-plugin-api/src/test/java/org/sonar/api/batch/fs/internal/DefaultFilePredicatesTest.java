@@ -53,45 +53,45 @@ public class DefaultFilePredicatesTest {
   }
 
   @Test
-  public void all() throws Exception {
+  public void all() {
     Assertions.assertThat(predicates.all().apply(javaFile)).isTrue();
   }
 
   @Test
-  public void none() throws Exception {
+  public void none() {
     assertThat(predicates.none().apply(javaFile)).isFalse();
   }
 
   @Test
-  public void matches_inclusion_pattern() throws Exception {
+  public void matches_inclusion_pattern() {
     assertThat(predicates.matchesPathPattern("src/main/**/Action.java").apply(javaFile)).isTrue();
     assertThat(predicates.matchesPathPattern("Action.java").apply(javaFile)).isFalse();
     assertThat(predicates.matchesPathPattern("src/**/*.php").apply(javaFile)).isFalse();
   }
 
   @Test
-  public void matches_inclusion_patterns() throws Exception {
+  public void matches_inclusion_patterns() {
     assertThat(predicates.matchesPathPatterns(new String[] {"src/other/**.java", "src/main/**/Action.java"}).apply(javaFile)).isTrue();
     assertThat(predicates.matchesPathPatterns(new String[] {}).apply(javaFile)).isTrue();
     assertThat(predicates.matchesPathPatterns(new String[] {"src/other/**.java", "src/**/*.php"}).apply(javaFile)).isFalse();
   }
 
   @Test
-  public void does_not_match_exclusion_pattern() throws Exception {
+  public void does_not_match_exclusion_pattern() {
     assertThat(predicates.doesNotMatchPathPattern("src/main/**/Action.java").apply(javaFile)).isFalse();
     assertThat(predicates.doesNotMatchPathPattern("Action.java").apply(javaFile)).isTrue();
     assertThat(predicates.doesNotMatchPathPattern("src/**/*.php").apply(javaFile)).isTrue();
   }
 
   @Test
-  public void does_not_match_exclusion_patterns() throws Exception {
+  public void does_not_match_exclusion_patterns() {
     assertThat(predicates.doesNotMatchPathPatterns(new String[] {}).apply(javaFile)).isTrue();
     assertThat(predicates.doesNotMatchPathPatterns(new String[] {"src/other/**.java", "src/**/*.php"}).apply(javaFile)).isTrue();
     assertThat(predicates.doesNotMatchPathPatterns(new String[] {"src/other/**.java", "src/main/**/Action.java"}).apply(javaFile)).isFalse();
   }
 
   @Test
-  public void has_relative_path() throws Exception {
+  public void has_relative_path() {
     assertThat(predicates.hasRelativePath("src/main/java/struts/Action.java").apply(javaFile)).isTrue();
     assertThat(predicates.hasRelativePath("src/main/java/struts/Other.java").apply(javaFile)).isFalse();
 
@@ -139,38 +139,38 @@ public class DefaultFilePredicatesTest {
   }
 
   @Test
-  public void has_language() throws Exception {
+  public void has_language() {
     assertThat(predicates.hasLanguage("java").apply(javaFile)).isTrue();
     assertThat(predicates.hasLanguage("php").apply(javaFile)).isFalse();
   }
 
   @Test
-  public void has_languages() throws Exception {
+  public void has_languages() {
     assertThat(predicates.hasLanguages(Arrays.asList("java", "php")).apply(javaFile)).isTrue();
     assertThat(predicates.hasLanguages(Arrays.asList("cobol", "php")).apply(javaFile)).isFalse();
     assertThat(predicates.hasLanguages(Collections.<String>emptyList()).apply(javaFile)).isTrue();
   }
 
   @Test
-  public void has_status() throws Exception {
+  public void has_status() {
     assertThat(predicates.hasStatus(InputFile.Status.ADDED).apply(javaFile)).isTrue();
     assertThat(predicates.hasStatus(InputFile.Status.CHANGED).apply(javaFile)).isFalse();
   }
 
   @Test
-  public void has_type() throws Exception {
+  public void has_type() {
     assertThat(predicates.hasType(InputFile.Type.MAIN).apply(javaFile)).isTrue();
     assertThat(predicates.hasType(InputFile.Type.TEST).apply(javaFile)).isFalse();
   }
 
   @Test
-  public void not() throws Exception {
+  public void not() {
     assertThat(predicates.not(predicates.hasType(InputFile.Type.MAIN)).apply(javaFile)).isFalse();
     assertThat(predicates.not(predicates.hasType(InputFile.Type.TEST)).apply(javaFile)).isTrue();
   }
 
   @Test
-  public void and() throws Exception {
+  public void and() {
     // empty
     assertThat(predicates.and().apply(javaFile)).isTrue();
     assertThat(predicates.and(new FilePredicate[0]).apply(javaFile)).isTrue();
@@ -191,7 +191,7 @@ public class DefaultFilePredicatesTest {
   }
 
   @Test
-  public void or() throws Exception {
+  public void or() {
     // empty
     assertThat(predicates.or().apply(javaFile)).isTrue();
     assertThat(predicates.or(new FilePredicate[0]).apply(javaFile)).isTrue();

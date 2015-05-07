@@ -66,7 +66,7 @@ public class ComputationThreadTest {
   }
 
   @Test
-  public void handle_error_during_queue_pop() throws Exception {
+  public void handle_error_during_queue_pop() {
     when(queue.pop()).thenThrow(new IllegalStateException());
 
     sut.run();

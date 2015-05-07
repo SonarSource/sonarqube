@@ -66,7 +66,7 @@ public class SemaphoreUpdaterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotFailWhenCancelNotExistingSemaphore() throws Exception {
+  public void shouldNotFailWhenCancelNotExistingSemaphore() {
     updater.stopUpdate("foo");
   }
 

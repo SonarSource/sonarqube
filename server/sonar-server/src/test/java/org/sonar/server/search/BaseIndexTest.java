@@ -44,7 +44,7 @@ public class BaseIndexTest {
   SearchClient searchClient;
 
   @Before
-  public void setup() throws IOException {
+  public void setup() {
     EsServerHolder holder = EsServerHolder.get();
     Settings settings = new Settings();
     settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, false);
@@ -56,7 +56,7 @@ public class BaseIndexTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (searchClient != null) {
       searchClient.stop();
     }

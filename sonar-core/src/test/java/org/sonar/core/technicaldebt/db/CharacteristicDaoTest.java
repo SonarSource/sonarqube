@@ -172,7 +172,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_characteristic() throws Exception {
+  public void insert_characteristic() {
     CharacteristicDto dto = new CharacteristicDto()
       .setKey("COMPILER_RELATED_PORTABILITY")
       .setName("Compiler related portability")
@@ -186,7 +186,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update_characteristic() throws Exception {
+  public void update_characteristic() {
     setupData("update_characteristic");
 
     CharacteristicDto dto = new CharacteristicDto()

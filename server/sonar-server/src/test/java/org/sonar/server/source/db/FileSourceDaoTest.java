@@ -49,12 +49,12 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void select() throws Exception {
+  public void select() {
     setupData("shared");
 
     FileSourceDto fileSourceDto = sut.selectSource("FILE1_UUID");
@@ -69,7 +69,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_data() throws Exception {
+  public void select_data() {
     setupData("shared");
 
     InputStreamToStringFunction fn = new InputStreamToStringFunction();
@@ -79,7 +79,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_line_hashes() throws Exception {
+  public void select_line_hashes() {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
@@ -89,7 +89,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void no_line_hashes_on_unknown_file() throws Exception {
+  public void no_line_hashes_on_unknown_file() {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
@@ -99,7 +99,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     setupData("shared");
 
     sut.insert(new FileSourceDto()
@@ -117,7 +117,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update() throws Exception {
+  public void update() {
     setupData("shared");
 
     sut.update(new FileSourceDto()
@@ -135,7 +135,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update_date_when_updated_date_is_zero() throws Exception {
+  public void update_date_when_updated_date_is_zero() {
     setupData("update_date_when_updated_date_is_zero");
 
     sut.updateDateWhenUpdatedDateIsZero(session, "ABCD", 1500000000002L);

@@ -86,7 +86,7 @@ public class UserIndexTest {
   }
 
   @Test
-  public void fail_to_get_by_login_on_unknown_user() throws Exception {
+  public void fail_to_get_by_login_on_unknown_user() {
     try {
       index.getByLogin("unknown");
       fail();

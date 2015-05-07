@@ -39,7 +39,7 @@ public class SearchLoggingTest {
   }
 
   @Test
-  public void log_to_console() throws Exception {
+  public void log_to_console() {
     LoggerContext ctx = sut.configure();
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);

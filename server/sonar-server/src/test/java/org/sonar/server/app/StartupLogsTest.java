@@ -40,7 +40,7 @@ public class StartupLogsTest {
   StartupLogs sut = new StartupLogs(props, logger);
 
   @Test
-  public void logAjp() throws Exception {
+  public void logAjp() {
     Connector connector = newConnector("AJP/1.3", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
@@ -51,7 +51,7 @@ public class StartupLogsTest {
   }
 
   @Test
-  public void logHttp() throws Exception {
+  public void logHttp() {
     Connector connector = newConnector("HTTP/1.1", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
@@ -62,7 +62,7 @@ public class StartupLogsTest {
   }
 
   @Test
-  public void logHttps_default_ciphers() throws Exception {
+  public void logHttps_default_ciphers() {
     Connector connector = newConnector("HTTP/1.1", "https");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
@@ -73,7 +73,7 @@ public class StartupLogsTest {
   }
 
   @Test
-  public void logHttps_overridden_ciphers() throws Exception {
+  public void logHttps_overridden_ciphers() {
     Connector connector = mock(Connector.class);
     when(connector.getScheme()).thenReturn("https");
     when(connector.getPort()).thenReturn(1234);
@@ -89,7 +89,7 @@ public class StartupLogsTest {
   }
 
   @Test
-  public void unsupported_connector() throws Exception {
+  public void unsupported_connector() {
     Connector connector = mock(Connector.class, Mockito.RETURNS_DEEP_STUBS);
     when(connector.getProtocol()).thenReturn("SPDY/1.1");
     when(connector.getScheme()).thenReturn("spdy");

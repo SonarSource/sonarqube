@@ -55,7 +55,7 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
   private AvailablePluginsWsAction underTest = new AvailablePluginsWsAction(updateCenterFactory, new PluginWSCommons());
 
   @Test
-  public void action_available_is_defined() throws Exception {
+  public void action_available_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 
@@ -130,7 +130,7 @@ public class AvailablePluginsWsActionTest extends AbstractUpdateCenterBasedPlugi
   }
 
   @Test
-  public void plugins_are_sorted_by_name_then_key_and_made_unique() throws Exception {
+  public void plugins_are_sorted_by_name_then_key_and_made_unique() {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate("key2", "name2"),
       pluginUpdate("key1", "name2"),

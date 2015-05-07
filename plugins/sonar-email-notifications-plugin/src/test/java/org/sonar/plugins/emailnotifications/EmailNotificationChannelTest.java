@@ -95,7 +95,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldThrowAnExceptionWhenUnableToSendTestEmail() throws Exception {
+  public void shouldThrowAnExceptionWhenUnableToSendTestEmail() {
     configure();
     server.stop();
 
@@ -108,7 +108,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldNotSendEmailWhenHostnameNotConfigured() throws Exception {
+  public void shouldNotSendEmailWhenHostnameNotConfigured() {
     EmailMessage emailMessage = new EmailMessage()
       .setTo("user@nowhere")
       .setSubject("Foo")
@@ -176,7 +176,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldNotThrowAnExceptionWhenUnableToSendEmail() throws Exception {
+  public void shouldNotThrowAnExceptionWhenUnableToSendEmail() {
     configure();
     server.stop();
 
@@ -188,7 +188,7 @@ public class EmailNotificationChannelTest {
   }
 
   @Test
-  public void shouldSendTestEmailWithSTARTTLS() throws Exception {
+  public void shouldSendTestEmailWithSTARTTLS() {
     server.getServer().setEnableTLS(true);
     server.getServer().setRequireTLS(true);
     configure();

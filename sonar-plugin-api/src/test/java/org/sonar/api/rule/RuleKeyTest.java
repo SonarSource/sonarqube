@@ -34,14 +34,14 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void key_can_contain_colons() throws Exception {
+  public void key_can_contain_colons() {
     RuleKey key = RuleKey.of("squid", "Key:With:Some::Colons");
     assertThat(key.repository()).isEqualTo("squid");
     assertThat(key.rule()).isEqualTo("Key:With:Some::Colons");
   }
 
   @Test
-  public void repository_must_not_be_null() throws Exception {
+  public void repository_must_not_be_null() {
     try {
       RuleKey.of(null, "NullDeref");
       fail();
@@ -51,7 +51,7 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void repository_must_not_be_empty() throws Exception {
+  public void repository_must_not_be_empty() {
     try {
       RuleKey.of("", "NullDeref");
       fail();
@@ -61,7 +61,7 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void rule_must_not_be_null() throws Exception {
+  public void rule_must_not_be_null() {
     try {
       RuleKey.of("squid", null);
       fail();
@@ -71,7 +71,7 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void rule_must_not_be_empty() throws Exception {
+  public void rule_must_not_be_empty() {
     try {
       RuleKey.of("squid", "");
       fail();
@@ -81,7 +81,7 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void encode_and_decode_string() throws Exception {
+  public void encode_and_decode_string() {
     RuleKey key = RuleKey.of("squid", "NullDeref");
     String serialized = key.toString();
     assertThat(serialized).isEqualTo("squid:NullDeref");
@@ -92,14 +92,14 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void parse_key_with_colons() throws Exception {
+  public void parse_key_with_colons() {
     RuleKey key = RuleKey.parse("squid:Key:With:Some::Colons");
     assertThat(key.repository()).isEqualTo("squid");
     assertThat(key.rule()).isEqualTo("Key:With:Some::Colons");
   }
 
   @Test
-  public void not_accept_bad_format() throws Exception {
+  public void not_accept_bad_format() {
     try {
       RuleKey.parse("foo");
       fail();

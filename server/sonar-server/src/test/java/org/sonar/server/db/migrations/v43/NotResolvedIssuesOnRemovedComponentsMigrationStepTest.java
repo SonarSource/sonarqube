@@ -44,7 +44,7 @@ public class NotResolvedIssuesOnRemovedComponentsMigrationStepTest {
   NotResolvedIssuesOnRemovedComponentsMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
 
     migration = new NotResolvedIssuesOnRemovedComponentsMigrationStep(db.database(), system2);

@@ -47,7 +47,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void create_dir_if_does_not_exist() throws Exception {
+  public void create_dir_if_does_not_exist() {
     FileUtils.deleteQuietly(dir);
     sut = new BatchReportWriter(dir);
 
@@ -55,7 +55,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_metadata() throws Exception {
+  public void write_metadata() {
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
@@ -69,7 +69,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_component() throws Exception {
+  public void write_component() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isFalse();
 
@@ -97,7 +97,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_issues() throws Exception {
+  public void write_issues() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES, 1)).isFalse();
 
@@ -120,7 +120,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_issues_of_deleted_component() throws Exception {
+  public void write_issues_of_deleted_component() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
 
@@ -143,7 +143,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_measures() throws Exception {
+  public void write_measures() {
     assertThat(sut.hasComponentData(FileStructure.Domain.MEASURES, 1)).isFalse();
 
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
@@ -168,7 +168,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_scm() throws Exception {
+  public void write_scm() {
     assertThat(sut.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isFalse();
 
     BatchReport.Changesets scm = BatchReport.Changesets.newBuilder()
@@ -193,7 +193,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_duplications() throws Exception {
+  public void write_duplications() {
     assertThat(sut.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
@@ -223,7 +223,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_symbols() throws Exception {
+  public void write_symbols() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
 
@@ -257,7 +257,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_syntax_highlighting() throws Exception {
+  public void write_syntax_highlighting() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isFalse();
 
@@ -275,7 +275,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_coverage() throws Exception {
+  public void write_coverage() {
     // no data yet
     assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isFalse();
 
@@ -295,7 +295,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_tests() throws Exception {
+  public void write_tests() {
     assertThat(sut.hasComponentData(FileStructure.Domain.TESTS, 1)).isFalse();
 
     sut.writeTests(1, Arrays.asList(
@@ -307,7 +307,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_coverage_details() throws Exception {
+  public void write_coverage_details() {
     assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isFalse();
 
     sut.writeCoverageDetails(1, Arrays.asList(
@@ -318,7 +318,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_file_dependencies() throws Exception {
+  public void write_file_dependencies() {
     assertThat(sut.hasComponentData(FileStructure.Domain.FILE_DEPENDENCIES, 1)).isFalse();
 
     sut.writeFileDependencies(1, Arrays.asList(BatchReport.FileDependency.getDefaultInstance()));
@@ -327,7 +327,7 @@ public class BatchReportWriterTest {
   }
 
   @Test
-  public void write_module_dependencies() throws Exception {
+  public void write_module_dependencies() {
     assertThat(sut.hasComponentData(FileStructure.Domain.MODULE_DEPENDENCIES, 1)).isFalse();
 
     sut.writeModuleDependencies(1, Arrays.asList(BatchReport.ModuleDependencies.ModuleDependency.getDefaultInstance()));

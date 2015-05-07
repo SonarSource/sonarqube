@@ -33,14 +33,14 @@ import static org.junit.Assert.fail;
 
 public class RulesBuilderTest {
   @Test
-  public void no_rules() throws Exception {
+  public void no_rules() {
     RulesBuilder builder = new RulesBuilder();
     Rules rules = builder.build();
     assertThat(rules.findAll()).isEmpty();
   }
 
   @Test
-  public void build_rules() throws Exception {
+  public void build_rules() {
     RulesBuilder builder = new RulesBuilder();
     NewRule newSquid1 = builder.add(RuleKey.of("squid", "S0001"));
     newSquid1.setName("Detect bug");
@@ -95,7 +95,7 @@ public class RulesBuilderTest {
   }
 
   @Test
-  public void fail_to_add_twice_the_same_rule() throws Exception {
+  public void fail_to_add_twice_the_same_rule() {
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "S0001"));
     try {
@@ -107,7 +107,7 @@ public class RulesBuilderTest {
   }
 
   @Test
-  public void fail_to_add_twice_the_same_param() throws Exception {
+  public void fail_to_add_twice_the_same_param() {
     RulesBuilder builder = new RulesBuilder();
     NewRule newRule = builder.add(RuleKey.of("squid", "S0001"));
     newRule.addParam("min");

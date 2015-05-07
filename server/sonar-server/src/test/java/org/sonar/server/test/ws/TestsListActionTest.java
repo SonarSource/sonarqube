@@ -56,7 +56,7 @@ public class TestsListActionTest {
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
@@ -67,7 +67,7 @@ public class TestsListActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 

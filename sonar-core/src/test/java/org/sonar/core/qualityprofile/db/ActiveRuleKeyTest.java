@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 public class ActiveRuleKeyTest {
 
   @Test
-  public void of() throws Exception {
+  public void of() {
     RuleKey ruleKey = RuleKey.of("xoo", "R1");
     ActiveRuleKey key = ActiveRuleKey.of("P1", ruleKey);
     assertThat(key.qProfile()).isEqualTo("P1");
@@ -37,7 +37,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void rule_key_can_contain_colons() throws Exception {
+  public void rule_key_can_contain_colons() {
     RuleKey ruleKey = RuleKey.of("squid", "Key:With:Some::Colons");
     ActiveRuleKey key = ActiveRuleKey.of("P1", ruleKey);
     assertThat(key.qProfile()).isEqualTo("P1");
@@ -46,7 +46,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void profile_must_not_be_null() throws Exception {
+  public void profile_must_not_be_null() {
     try {
       ActiveRuleKey.of(null, RuleKey.of("xoo", "R1"));
       fail();
@@ -56,7 +56,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void rule_key_must_not_be_null() throws Exception {
+  public void rule_key_must_not_be_null() {
     try {
       ActiveRuleKey.of("P1", null);
       fail();
@@ -66,7 +66,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void parse() throws Exception {
+  public void parse() {
     ActiveRuleKey key = ActiveRuleKey.parse("P1:xoo:R1");
     assertThat(key.qProfile()).isEqualTo("P1");
     assertThat(key.ruleKey().repository()).isEqualTo("xoo");
@@ -74,7 +74,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void parse_fail_when_less_than_three_colons() throws Exception {
+  public void parse_fail_when_less_than_three_colons() {
     try {
       ActiveRuleKey.parse("P1:xoo");
       fail();
@@ -84,7 +84,7 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
-  public void equals_and_hashcode() throws Exception {
+  public void equals_and_hashcode() {
     ActiveRuleKey key1 = ActiveRuleKey.parse("P1:xoo:R1");
     ActiveRuleKey key1b = ActiveRuleKey.parse("P1:xoo:R1");
     ActiveRuleKey key2 = ActiveRuleKey.parse("P1:xoo:R2");

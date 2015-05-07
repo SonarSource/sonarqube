@@ -34,7 +34,7 @@ public class RulesDefinitionTest {
   RulesDefinition.Context context = new RulesDefinition.Context();
 
   @Test
-  public void define_repositories() throws Exception {
+  public void define_repositories() {
     assertThat(context.repositories()).isEmpty();
 
     context.createRepository("findbugs", "java").setName("Findbugs").done();
@@ -221,7 +221,7 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void cant_set_blank_repository_name() throws Exception {
+  public void cant_set_blank_repository_name() {
     context.createRepository("findbugs", "java").setName(null).done();
 
     assertThat(context.repository("findbugs").name()).isEqualTo("findbugs");

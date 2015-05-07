@@ -63,18 +63,18 @@ public class RubyRuleServiceTest {
   RubyRuleService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     service = new RubyRuleService(ruleService, updater);
   }
 
   @Test
-  public void find_by_key() throws Exception {
+  public void find_by_key() {
     service.findByKey("squid:S001");
     verify(ruleService).getByKey(RuleKey.of("squid", "S001"));
   }
 
   @Test
-  public void search_rules() throws Exception {
+  public void search_rules() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
@@ -111,7 +111,7 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void search_rules_activated_on_a_profile() throws Exception {
+  public void search_rules_activated_on_a_profile() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
@@ -125,7 +125,7 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void search_rules_without_page_size_param() throws Exception {
+  public void search_rules_without_page_size_param() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
@@ -139,7 +139,7 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void search_all_rules() throws Exception {
+  public void search_all_rules() {
     List<Rule> rules = newArrayList(mock(Rule.class));
     Result serviceResult = mock(Result.class);
     when(serviceResult.scroll()).thenReturn(rules.iterator());
@@ -157,7 +157,7 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void update_rule() throws Exception {
+  public void update_rule() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     service.updateRule(ImmutableMap.<String, Object>of("ruleKey", "squid:S001"));
@@ -166,7 +166,7 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void search_manual_rules() throws Exception {
+  public void search_manual_rules() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     service.searchManualRules();
@@ -175,21 +175,21 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void create_manual_rules() throws Exception {
+  public void create_manual_rules() {
     service.createManualRule(ImmutableMap.<String, Object>of("manualKey", "MY_MANUAL"));
 
     verify(ruleService).create(any(NewRule.class));
   }
 
   @Test
-  public void update_manual_rules() throws Exception {
+  public void update_manual_rules() {
     service.updateManualRule(ImmutableMap.<String, Object>of("ruleKey", "manual:MY_MANUAL"));
 
     verify(ruleService).update(any(RuleUpdate.class));
   }
 
   @Test
-  public void delete_manual_rules() throws Exception {
+  public void delete_manual_rules() {
     service.deleteManualRule("manual:MY_MANUAL");
 
     verify(ruleService).delete(RuleKey.of("manual", "MY_MANUAL"));

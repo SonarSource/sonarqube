@@ -334,7 +334,7 @@ public class IssueTrackingTest {
   }
 
   @Test
-  public void dont_load_checksum_if_no_new_issue() throws Exception {
+  public void dont_load_checksum_if_no_new_issue() {
     sourceHashHolder = mock(SourceHashHolder.class);
 
     ServerIssue referenceIssue = newReferenceIssue("2 branches need to be covered", null, "squid", "AvoidCycle", null);

@@ -41,7 +41,7 @@ public class ScmAccountCacheLoaderTest {
   public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     esTester.truncateIndices();
   }
 
@@ -67,7 +67,7 @@ public class ScmAccountCacheLoaderTest {
   }
 
   @Test
-  public void load_by_multiple_scm_accounts_is_not_supported_yet() throws Exception {
+  public void load_by_multiple_scm_accounts_is_not_supported_yet() {
     UserIndex index = new UserIndex(esTester.client());
     ScmAccountCacheLoader loader = new ScmAccountCacheLoader(index);
     try {

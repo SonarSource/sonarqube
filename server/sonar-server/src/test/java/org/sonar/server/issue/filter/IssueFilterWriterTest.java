@@ -36,7 +36,7 @@ public class IssueFilterWriterTest {
   IssueFilterWriter writer = new IssueFilterWriter();
 
   @Test
-  public void write_filter() throws Exception {
+  public void write_filter() {
     UserSession userSession = MockUserSession.set();
     test(userSession,
       new IssueFilterDto()
@@ -58,7 +58,7 @@ public class IssueFilterWriterTest {
   }
 
   @Test
-  public void can_modify_if_logged_user_own_filter() throws Exception {
+  public void can_modify_if_logged_user_own_filter() {
     UserSession userSession = MockUserSession.set().setLogin("simon");
     test(userSession,
       new IssueFilterDto()
@@ -80,7 +80,7 @@ public class IssueFilterWriterTest {
   }
 
   @Test
-  public void can_modify_if_logged_user_has_permission() throws Exception {
+  public void can_modify_if_logged_user_has_permission() {
     UserSession userSession = MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     test(userSession,
       new IssueFilterDto()

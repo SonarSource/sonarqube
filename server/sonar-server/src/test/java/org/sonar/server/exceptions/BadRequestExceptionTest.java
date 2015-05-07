@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BadRequestExceptionTest {
 
   @Test
-  public void text_error() throws Exception {
+  public void text_error() {
     BadRequestException exception = new BadRequestException("error");
     assertThat(exception.getMessage()).isEqualTo("error");
   }

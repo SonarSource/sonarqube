@@ -61,7 +61,7 @@ public class PluginClassloadersTest {
   }
 
   @Test
-  public void shouldImport() throws Exception {
+  public void shouldImport() {
     classloaders.add(DefaultPluginMetadata.create("foo").addDeployedFile(getFile("PluginClassloadersTest/foo.jar")));
     classloaders.add(DefaultPluginMetadata.create("bar").addDeployedFile(getFile("PluginClassloadersTest/bar.jar")));
     classloaders.done();

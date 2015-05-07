@@ -111,7 +111,7 @@ public class DefaultComponentFinderTest {
   }
 
   @Test
-  public void should_skip_pagination() throws Exception {
+  public void should_skip_pagination() {
     ComponentQuery query = ComponentQuery.builder().pageSize(ComponentQuery.NO_PAGINATION)
       .pageIndex(ComponentQuery.DEFAULT_PAGE_INDEX).build();
 

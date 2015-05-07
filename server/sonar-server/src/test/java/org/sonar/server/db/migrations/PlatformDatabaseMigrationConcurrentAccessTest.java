@@ -78,7 +78,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
   private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     pool.shutdownNow();
   }
 

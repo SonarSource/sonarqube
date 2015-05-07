@@ -56,19 +56,19 @@ public class IndexTestsStepTest extends BaseStepTest {
   DbClient dbClient;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
     testIndexer.setEnabled(true);
     return new IndexTestsStep(testIndexer);
   }
 
   @Test
-  public void supported_project_qualifiers() throws Exception {
+  public void supported_project_qualifiers() {
     assertThat(step().supportedProjectQualifiers()).containsOnly(Qualifiers.PROJECT);
   }
 

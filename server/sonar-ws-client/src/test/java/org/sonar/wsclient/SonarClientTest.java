@@ -111,7 +111,7 @@ public class SonarClientTest {
   }
 
   @Test
-  public void get() throws Exception {
+  public void get() {
     HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
     SonarClient client = new SonarClient(requestFactory);
 
@@ -126,7 +126,7 @@ public class SonarClientTest {
   }
 
   @Test
-  public void post() throws Exception {
+  public void post() {
     HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
     SonarClient client = new SonarClient(requestFactory);
 
@@ -140,7 +140,7 @@ public class SonarClientTest {
   }
 
   @Test
-  public void fail_if_odd_number_arguments() throws Exception {
+  public void fail_if_odd_number_arguments() {
     HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
     SonarClient client = new SonarClient(requestFactory);
 
@@ -153,7 +153,7 @@ public class SonarClientTest {
   }
 
   @Test
-  public void fail_if_null_property_key() throws Exception {
+  public void fail_if_null_property_key() {
     HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
     SonarClient client = new SonarClient(requestFactory);
 

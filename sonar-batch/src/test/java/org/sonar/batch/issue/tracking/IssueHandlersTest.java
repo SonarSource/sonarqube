@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 public class IssueHandlersTest {
   @Test
-  public void should_execute_handlers() throws Exception {
+  public void should_execute_handlers() {
     IssueHandler h1 = mock(IssueHandler.class);
     IssueHandler h2 = mock(IssueHandler.class);
     IssueUpdater updater = mock(IssueUpdater.class);

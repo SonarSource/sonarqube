@@ -33,7 +33,7 @@ public class PastSnapshotFinderByPreviousVersionTest extends AbstractDbUnitTestC
   private PastSnapshotFinderByPreviousVersion finder;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     finder = new PastSnapshotFinderByPreviousVersion(getSession(), getMyBatis());
   }
 

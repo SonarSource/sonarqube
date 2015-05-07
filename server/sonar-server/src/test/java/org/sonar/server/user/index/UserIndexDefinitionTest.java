@@ -32,7 +32,7 @@ public class UserIndexDefinitionTest {
   IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     UserIndexDefinition def = new UserIndexDefinition(new Settings());
     def.define(context);
 
@@ -47,7 +47,7 @@ public class UserIndexDefinitionTest {
   }
 
   @Test
-  public void enable_cluster() throws Exception {
+  public void enable_cluster() {
     Settings settings = new Settings();
     settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     UserIndexDefinition def = new UserIndexDefinition(settings);

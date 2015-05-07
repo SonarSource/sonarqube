@@ -75,7 +75,7 @@ public class QGatesWsTest {
   }
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     Controller controller = tester.controller("api/qualitygates");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");

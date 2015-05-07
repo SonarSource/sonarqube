@@ -29,7 +29,7 @@ public class StateTest {
   Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
 
   @Test
-  public void key_should_be_set() throws Exception {
+  public void key_should_be_set() {
     try {
       new State("", new Transition[0]);
       fail();
@@ -39,7 +39,7 @@ public class StateTest {
   }
 
   @Test
-  public void key_should_be_upper_case() throws Exception {
+  public void key_should_be_upper_case() {
     try {
       new State("close", new Transition[0]);
       fail();
@@ -49,7 +49,7 @@ public class StateTest {
   }
 
   @Test
-  public void no_duplicated_out_transitions() throws Exception {
+  public void no_duplicated_out_transitions() {
     try {
       new State("CLOSE", new Transition[]{t1, t1});
       fail();

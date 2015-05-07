@@ -111,12 +111,12 @@ public class RuleActivatorMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void activate() throws Exception {
+  public void activate() {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
@@ -133,7 +133,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void activate_with_profile_dto() throws Exception {
+  public void activate_with_profile_dto() {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
@@ -150,7 +150,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void activate_with_default_severity_and_parameter() throws Exception {
+  public void activate_with_default_severity_and_parameter() {
     activate(new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
@@ -162,7 +162,7 @@ public class RuleActivatorMediumTest {
    * SONAR-5841
    */
   @Test
-  public void activate_with_empty_parameter_having_no_default_value() throws Exception {
+  public void activate_with_empty_parameter_having_no_default_value() {
     activate(new RuleActivation(RuleTesting.XOO_X1)
       .setParameter("min", ""),
       XOO_P1_KEY);
@@ -177,7 +177,7 @@ public class RuleActivatorMediumTest {
    * SONAR-5841
    */
   @Test
-  public void activate_with_empty_parameters() throws Exception {
+  public void activate_with_empty_parameters() {
     activate(new RuleActivation(RuleTesting.XOO_X1)
       .setParameters(ImmutableMap.of("max", "", "min", "")),
       XOO_P1_KEY);
@@ -192,7 +192,7 @@ public class RuleActivatorMediumTest {
    * SONAR-5840
    */
   @Test
-  public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() throws Exception {
+  public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() {
     activate(new RuleActivation(RuleTesting.XOO_X1)
       .setParameter("min", "-10"),
       XOO_P1_KEY);
@@ -204,7 +204,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void activation_ignores_unsupported_parameters() throws Exception {
+  public void activation_ignores_unsupported_parameters() {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setParameter("xxx", "yyy");
     activate(activation, XOO_P1_KEY);
@@ -214,7 +214,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void update_activation_severity_and_parameters() throws Exception {
+  public void update_activation_severity_and_parameters() {
     // initial activation
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -233,7 +233,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void update_activation_with_parameter_without_default_value() throws Exception {
+  public void update_activation_with_parameter_without_default_value() {
     // initial activation -> param "max" has a default value
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -253,7 +253,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void update_activation_but_new_parameter() throws Exception {
+  public void update_activation_but_new_parameter() {
     // initial activation
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1);
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -278,7 +278,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void ignore_activation_without_changes() throws Exception {
+  public void ignore_activation_without_changes() {
     // initial activation
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -292,7 +292,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void do_not_change_severity_and_params_if_unset_and_already_activated() throws Exception {
+  public void do_not_change_severity_and_params_if_unset_and_already_activated() {
     // initial activation
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1);
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -309,7 +309,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void revert_activation_to_default_severity_and_parameters() throws Exception {
+  public void revert_activation_to_default_severity_and_parameters() {
     // initial activation
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1);
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
@@ -328,7 +328,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void ignore_parameters_when_activating_custom_rule() throws Exception {
+  public void ignore_parameters_when_activating_custom_rule() {
     // initial activation
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_P1_KEY, CUSTOM_RULE_KEY);
     RuleActivation activation = new RuleActivation(CUSTOM_RULE_KEY);
@@ -344,7 +344,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_template() throws Exception {
+  public void fail_to_activate_if_template() {
     RuleActivation activation = new RuleActivation(TEMPLATE_RULE_KEY);
 
     try {
@@ -357,7 +357,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_different_languages() throws Exception {
+  public void fail_to_activate_if_different_languages() {
     // profile and rule have different languages
     RuleActivation activation = new RuleActivation(RuleKey.of("squid", "j1"));
 
@@ -371,7 +371,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_unknown_rule() throws Exception {
+  public void fail_to_activate_if_unknown_rule() {
     // profile and rule have different languages
     RuleActivation activation = new RuleActivation(RuleKey.of("xoo", "x3"));
 
@@ -385,7 +385,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_rule_with_removed_status() throws Exception {
+  public void fail_to_activate_if_rule_with_removed_status() {
     RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     ruleDto.setStatus(RuleStatus.REMOVED);
     db.ruleDao().update(dbSession, ruleDto);
@@ -404,7 +404,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_manual_rule() throws Exception {
+  public void fail_to_activate_if_manual_rule() {
     RuleActivation activation = new RuleActivation(MANUAL_RULE_KEY);
 
     try {
@@ -417,7 +417,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_unknown_profile() throws Exception {
+  public void fail_to_activate_if_unknown_profile() {
     try {
       activate(new RuleActivation(RuleTesting.XOO_X1), "unknown");
       fail();
@@ -427,7 +427,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void fail_to_activate_if_invalid_parameter() throws Exception {
+  public void fail_to_activate_if_invalid_parameter() {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setParameter("max", "foo");
 
@@ -442,7 +442,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void deactivate() throws Exception {
+  public void deactivate() {
     // activation
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -456,7 +456,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void ignore_deactivation_if_rule_not_activated() throws Exception {
+  public void ignore_deactivation_if_rule_not_activated() {
     // deactivation
     ActiveRuleKey key = ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1);
     ruleActivator.deactivate(key);
@@ -465,7 +465,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void deactivation_fails_if_rule_not_found() throws Exception {
+  public void deactivation_fails_if_rule_not_found() {
     ActiveRuleKey key = ActiveRuleKey.of(XOO_P1_KEY, RuleKey.of("xoo", "x3"));
     try {
       ruleActivator.deactivate(key);
@@ -477,7 +477,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void deactivation_fails_if_profile_not_found() throws Exception {
+  public void deactivation_fails_if_profile_not_found() {
     ActiveRuleKey key = ActiveRuleKey.of("unknown", RuleTesting.XOO_X1);
     try {
       ruleActivator.deactivate(key);
@@ -488,7 +488,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void allow_to_deactivate_removed_rule() throws Exception {
+  public void allow_to_deactivate_removed_rule() {
     // activation
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activate(activation, XOO_P1_KEY);
@@ -508,7 +508,7 @@ public class RuleActivatorMediumTest {
 
   // INHERITANCE OF PROFILES
   @Test
-  public void activate_on_child_profile_but_not_on_parent() throws Exception {
+  public void activate_on_child_profile_but_not_on_parent() {
     createChildProfiles();
 
     // activate on child profile, but not on root
@@ -533,7 +533,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void propagate_activation_on_child_profiles() throws Exception {
+  public void propagate_activation_on_child_profiles() {
     createChildProfiles();
 
     // activate on root profile
@@ -549,7 +549,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void propagate_activation_update_on_child_profiles() throws Exception {
+  public void propagate_activation_update_on_child_profiles() {
     createChildProfiles();
 
     // activate on root profile
@@ -593,7 +593,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void do_not_propagate_activation_update_on_child_overrides() throws Exception {
+  public void do_not_propagate_activation_update_on_child_overrides() {
     createChildProfiles();
 
     // activate on root profile P1
@@ -633,7 +633,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void active_on_parent_a_rule_already_activated_on_child() throws Exception {
+  public void active_on_parent_a_rule_already_activated_on_child() {
     createChildProfiles();
 
     // activate on child profile
@@ -656,7 +656,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void do_not_override_on_child_if_same_values() throws Exception {
+  public void do_not_override_on_child_if_same_values() {
     createChildProfiles();
 
     // activate on root profile
@@ -677,7 +677,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void propagate_deactivation_on_child_profiles() throws Exception {
+  public void propagate_deactivation_on_child_profiles() {
     createChildProfiles();
 
     // activate on root profile
@@ -698,7 +698,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void propagate_deactivation_even_on_child_overrides() throws Exception {
+  public void propagate_deactivation_even_on_child_overrides() {
     createChildProfiles();
 
     // activate on root profile
@@ -728,7 +728,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void do_not_deactivate_inherited_or_overridden_rule() throws Exception {
+  public void do_not_deactivate_inherited_or_overridden_rule() {
     createChildProfiles();
 
     // activate on root profile
@@ -750,7 +750,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void reset_child_profile() throws Exception {
+  public void reset_child_profile() {
     createChildProfiles();
 
     // activate on root profile
@@ -780,7 +780,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void reset_is_not_propagated_to_child_overrides() throws Exception {
+  public void reset_is_not_propagated_to_child_overrides() {
     createChildProfiles();
 
     // activate on root profile
@@ -819,7 +819,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void ignore_reset_if_not_activated() throws Exception {
+  public void ignore_reset_if_not_activated() {
     createChildProfiles();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1).setReset(true);
     activate(activation, XOO_P1_KEY);
@@ -1008,7 +1008,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void bulk_change_severity() throws Exception {
+  public void bulk_change_severity() {
     createChildProfiles();
 
     // activate two rules on root profile P1 (propagated to P2 and P3)

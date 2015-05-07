@@ -30,14 +30,14 @@ import static org.junit.Assert.fail;
 
 public class ActiveRulesBuilderTest {
   @Test
-  public void no_rules() throws Exception {
+  public void no_rules() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     ActiveRules rules = builder.build();
     assertThat(rules.findAll()).isEmpty();
   }
 
   @Test
-  public void build_rules() throws Exception {
+  public void build_rules() {
     ActiveRules activeRules = new ActiveRulesBuilder()
       .create(RuleKey.of("squid", "S0001"))
       .setName("My Rule")
@@ -78,7 +78,7 @@ public class ActiveRulesBuilderTest {
   }
 
   @Test
-  public void fail_to_add_twice_the_same_rule() throws Exception {
+  public void fail_to_add_twice_the_same_rule() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     builder.create(RuleKey.of("squid", "S0001")).activate();
     try {

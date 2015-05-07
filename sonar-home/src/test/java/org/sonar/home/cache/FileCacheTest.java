@@ -122,7 +122,7 @@ public class FileCacheTest {
   }
 
   @Test
-  public void unzip_from_cache() throws IOException, URISyntaxException, InterruptedException, ExecutionException {
+  public void unzip_from_cache() throws IOException, URISyntaxException {
     final File samplePlugin = new File(this.getClass().getResource("/sonar-checkstyle-plugin-2.8.jar").toURI());
     FileHashes hashes = mock(FileHashes.class);
     final FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);

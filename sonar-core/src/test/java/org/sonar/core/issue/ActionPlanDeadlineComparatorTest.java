@@ -36,7 +36,7 @@ public class ActionPlanDeadlineComparatorTest {
   ActionPlan noDeadline = new DefaultActionPlan().setDeadLine(null);
 
   @Test
-  public void compare_plans_with_deadlines() throws Exception {
+  public void compare_plans_with_deadlines() {
     List<ActionPlan> plans = Arrays.asList(shortTerm, longTerm);
     Collections.sort(plans, new ActionPlanDeadlineComparator());
     assertThat(plans).containsSequence(shortTerm, longTerm);
@@ -47,7 +47,7 @@ public class ActionPlanDeadlineComparatorTest {
   }
 
   @Test
-  public void end_with_plans_without_deadline() throws Exception {
+  public void end_with_plans_without_deadline() {
     List<ActionPlan> plans = Arrays.asList(noDeadline, longTerm, shortTerm);
     Collections.sort(plans, new ActionPlanDeadlineComparator());
     assertThat(plans).containsSequence(shortTerm, longTerm, noDeadline);

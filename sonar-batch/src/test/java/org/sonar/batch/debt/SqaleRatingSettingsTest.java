@@ -47,7 +47,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void load_rating_grid() throws Exception {
+  public void load_rating_grid() {
     settings.setProperty(CoreProperties.RATING_GRID, "1,3.4,8,50");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
@@ -60,7 +60,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void load_work_units_for_language() throws Exception {
+  public void load_work_units_for_language() {
     settings.setProperty(CoreProperties.DEVELOPMENT_COST, "50");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
@@ -68,7 +68,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void load_size_metric_for_language() throws Exception {
+  public void load_size_metric_for_language() {
     settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
@@ -76,7 +76,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void load_overridden_values_for_language() throws Exception {
+  public void load_overridden_values_for_language() {
 
     String aLanguage = "aLanguage";
     String anotherLanguage = "anotherLanguage";
@@ -98,7 +98,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void fail_on_invalid_rating_grid_configuration() throws Exception {
+  public void fail_on_invalid_rating_grid_configuration() {
 
     throwable.expect(IllegalArgumentException.class);
     settings.setProperty(CoreProperties.RATING_GRID, "a b c");
@@ -108,7 +108,7 @@ public class SqaleRatingSettingsTest {
   }
   
   @Test
-  public void fail_on_invalid_work_unit_value() throws Exception {
+  public void fail_on_invalid_work_unit_value() {
     throwable.expect(IllegalArgumentException.class);
     settings.setProperty(CoreProperties.DEVELOPMENT_COST, "a");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
@@ -117,7 +117,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void fail_on_unknown_metric_key() throws Exception {
+  public void fail_on_unknown_metric_key() {
     throwable.expect(IllegalArgumentException.class);
     settings.setProperty(CoreProperties.SIZE_METRIC, "unknown");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
@@ -126,7 +126,7 @@ public class SqaleRatingSettingsTest {
   }
 
   @Test
-  public void use_generic_value_when_specific_setting_is_missing() throws Exception {
+  public void use_generic_value_when_specific_setting_is_missing() {
     String aLanguage = "aLanguage";
 
     settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");

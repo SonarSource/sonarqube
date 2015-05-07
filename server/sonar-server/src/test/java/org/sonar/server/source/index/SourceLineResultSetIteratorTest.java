@@ -141,7 +141,7 @@ public class SourceLineResultSetIteratorTest {
   }
 
   @Test
-  public void filter_by_date() throws Exception {
+  public void filter_by_date() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     iterator = SourceLineResultSetIterator.create(dbClient, connection, 2000000000000L, null);

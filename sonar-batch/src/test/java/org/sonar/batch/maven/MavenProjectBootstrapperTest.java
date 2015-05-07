@@ -41,7 +41,7 @@ public class MavenProjectBootstrapperTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void bootstrap() throws Exception {
+  public void bootstrap() {
     ProjectDefinition def = mock(ProjectDefinition.class);
     MavenSession session = mock(MavenSession.class);
     MavenProject rootProject = new MavenProject();
@@ -60,7 +60,7 @@ public class MavenProjectBootstrapperTest {
   }
 
   @Test
-  public void should_fail_if_no_top_level_project() throws Exception {
+  public void should_fail_if_no_top_level_project() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Maven session does not declare a top level project");
 

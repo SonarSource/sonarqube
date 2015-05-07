@@ -33,7 +33,7 @@ public class PathPatternTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void match_relative_path() throws Exception {
+  public void match_relative_path() {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
     assertThat(pattern.toString()).isEqualTo("**/*Foo.java");
 
@@ -91,7 +91,7 @@ public class PathPatternTest {
   }
 
   @Test
-  public void create_array_of_patterns() throws Exception {
+  public void create_array_of_patterns() {
     PathPattern[] patterns = PathPattern.create(new String[] {
       "**/src/main/**Foo.java",
       "file:**/src/main/**Bar.java"

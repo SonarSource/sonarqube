@@ -149,7 +149,7 @@ public class DefaultModuleFileSystemTest {
   }
 
   @Test
-  public void should_index() throws Exception {
+  public void should_index() {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 

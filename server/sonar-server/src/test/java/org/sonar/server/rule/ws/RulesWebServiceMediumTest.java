@@ -74,7 +74,7 @@ public class RulesWebServiceMediumTest {
   int softReliabilityId, hardReliabilityId;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     ruleDao = tester.get(RuleDao.class);
@@ -88,7 +88,7 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 

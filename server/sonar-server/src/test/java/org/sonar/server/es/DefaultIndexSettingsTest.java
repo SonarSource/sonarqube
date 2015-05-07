@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultIndexSettingsTest {
 
   @Test
-  public void defaults() throws Exception {
+  public void defaults() {
     ImmutableMap<String, String> map = DefaultIndexSettings.defaults().build().getAsMap();
     assertThat(map).isNotEmpty();
 
@@ -39,7 +39,7 @@ public class DefaultIndexSettingsTest {
   }
 
   @Test
-  public void only_statics() throws Exception {
+  public void only_statics() {
     TestUtils.hasOnlyPrivateConstructors(DefaultIndexSettings.class);
 
   }

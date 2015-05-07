@@ -52,12 +52,12 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   DatabaseMigrator migrator;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migrator = new DatabaseMigrator(dbClient, migrations, serverUpgradeStatus, null);
   }
 
   @Test
-  public void should_support_only_creation_of_h2_database() throws Exception {
+  public void should_support_only_creation_of_h2_database() {
     when(dbClient.database().getDialect()).thenReturn(new MySql());
 
     assertThat(migrator.createDatabase()).isFalse();
@@ -65,7 +65,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_if_execute_unknown_migration() throws Exception {
+  public void fail_if_execute_unknown_migration() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Database migration not found: org.xxx.UnknownMigration");
 
@@ -73,14 +73,14 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void execute_migration() throws Exception {
+  public void execute_migration() {
     assertThat(FakeMigrationStep.executed).isFalse();
     migrator.executeMigration(FakeMigrationStep.class.getName());
     assertThat(FakeMigrationStep.executed).isTrue();
   }
 
   @Test
-  public void should_create_schema_on_h2() throws Exception {
+  public void should_create_schema_on_h2() {
     Dialect supportedDialect = new H2();
     when(dbClient.database().getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);

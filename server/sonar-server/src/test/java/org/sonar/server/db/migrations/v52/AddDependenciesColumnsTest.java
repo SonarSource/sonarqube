@@ -35,7 +35,7 @@ public class AddDependenciesColumnsTest {
   AddDependenciesColumns migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new AddDependenciesColumns(db.database());
   }
 

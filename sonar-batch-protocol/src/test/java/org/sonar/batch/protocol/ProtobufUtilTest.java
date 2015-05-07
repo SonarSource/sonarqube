@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProtobufUtilTest {
 
   @Test
-  public void only_utils() throws Exception {
+  public void only_utils() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(ProtobufUtil.class));
   }
 

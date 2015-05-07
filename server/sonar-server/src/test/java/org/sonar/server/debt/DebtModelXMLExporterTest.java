@@ -78,7 +78,7 @@ public class DebtModelXMLExporterTest {
   }
 
   @Test
-  public void sort_root_characteristics_by_order_and_sub_characteristics_by_name() throws Exception {
+  public void sort_root_characteristics_by_order_and_sub_characteristics_by_name() {
     DebtModel debtModel = new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("EFFICIENCY").setName("Efficiency").setOrder(4))
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("USABILITY").setName("Usability").setOrder(3))
@@ -100,7 +100,7 @@ public class DebtModelXMLExporterTest {
   }
 
   @Test
-  public void pretty_print_exported_xml() throws Exception {
+  public void pretty_print_exported_xml() {
     DebtModel debtModel = new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setId(1).setKey("USABILITY").setName("Usability").setOrder(1))
       .addRootCharacteristic(new DefaultDebtCharacteristic().setId(2).setKey("EFFICIENCY").setName("Efficiency").setOrder(2))

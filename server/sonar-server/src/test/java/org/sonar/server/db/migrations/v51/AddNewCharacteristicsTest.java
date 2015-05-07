@@ -43,7 +43,7 @@ public class AddNewCharacteristicsTest {
   System2 system = mock(System2.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table characteristics");
 
     when(system.now()).thenReturn(DateUtils.parseDate("2015-02-15").getTime());
@@ -87,7 +87,7 @@ public class AddNewCharacteristicsTest {
   }
 
   @Test
-  public void fail_if_usability_exists_as_sub_characteristic() throws Exception {
+  public void fail_if_usability_exists_as_sub_characteristic() {
     db.prepareDbUnit(getClass(), "fail_if_usability_exists_as_sub_characteristic.xml");
 
     try {
@@ -101,7 +101,7 @@ public class AddNewCharacteristicsTest {
   }
 
   @Test
-  public void fail_if_compliance_already_exists_as_characteristic() throws Exception {
+  public void fail_if_compliance_already_exists_as_characteristic() {
     db.prepareDbUnit(getClass(), "fail_if_compliance_already_exists_as_characteristic.xml");
 
     try {
@@ -115,7 +115,7 @@ public class AddNewCharacteristicsTest {
   }
 
   @Test
-  public void fail_if_compliance_already_exists_under_wrong_characteristic() throws Exception {
+  public void fail_if_compliance_already_exists_under_wrong_characteristic() {
     db.prepareDbUnit(getClass(), "fail_if_compliance_already_exists_under_wrong_characteristic.xml");
 
     try {

@@ -101,7 +101,7 @@ public class QualityGateVerifierTest {
   }
 
   @Test
-  public void should_be_executed_if_quality_gate_is_enabled() throws Exception {
+  public void should_be_executed_if_quality_gate_is_enabled() {
     assertThat(verifier.shouldExecuteOnProject((Project) project)).isTrue();
     when(qualityGate.isEnabled()).thenReturn(false);
     assertThat(verifier.shouldExecuteOnProject((Project) project)).isFalse();

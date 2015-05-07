@@ -38,7 +38,7 @@ public class DatabaseMonitorTest {
   DatabaseMonitor sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DatabaseVersion dbVersion = new DatabaseVersion(dbTester.myBatis());
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     sut = new DatabaseMonitor(dbVersion, dbClient);

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TimeUtilsTest {
   @Test
-  public void formatDuration() throws Exception {
+  public void formatDuration() {
     assertThat(TimeUtils.formatDuration(0)).isEqualTo("0ms");
     assertThat(TimeUtils.formatDuration(100)).isEqualTo("100ms");
     assertThat(TimeUtils.formatDuration(1000)).isEqualTo("1s");

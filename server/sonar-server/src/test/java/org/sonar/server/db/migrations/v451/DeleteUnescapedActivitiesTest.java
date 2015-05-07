@@ -42,7 +42,7 @@ public class DeleteUnescapedActivitiesTest {
   }
 
   @Test
-  public void is_unescaped() throws Exception {
+  public void is_unescaped() {
     assertThat(DeleteUnescapedActivities.isUnescaped(
       "ruleKey=findbugs:PT_RELATIVE_PATH_TRAVERSAL;profileKey=java-findbugs-74105;severity=MAJOR;" +
         "key=java-findbugs-74105:findbugs:PT_RELATIVE_PATH_TRAVERSAL"))

@@ -75,7 +75,7 @@ public class UpdatesPluginsWsActionTest extends AbstractUpdateCenterBasedPlugins
     );
 
   @Test
-  public void action_updatable_is_defined() throws Exception {
+  public void action_updatable_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

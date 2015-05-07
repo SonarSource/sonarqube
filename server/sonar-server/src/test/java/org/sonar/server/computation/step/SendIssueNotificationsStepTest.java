@@ -61,7 +61,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void do_not_send_notifications_if_no_subscribers() throws Exception {
+  public void do_not_send_notifications_if_no_subscribers() {
     when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
     when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
@@ -71,7 +71,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void send_notifications_if_subscribers() throws Exception {
+  public void send_notifications_if_subscribers() {
     issueCache.newAppender().append(new DefaultIssue()
         .setSeverity(Severity.BLOCKER)).close();
 
@@ -86,7 +86,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return sut;
   }
 }

@@ -35,7 +35,7 @@ public class LogbackLoggerTest {
   public LogTester tester = new LogTester();
 
   @Test
-  public void log() throws Exception {
+  public void log() {
     // no assertions. Simply verify that calls do not fail.
     sut.trace("message");
     sut.trace("message {}", "foo");
@@ -65,7 +65,7 @@ public class LogbackLoggerTest {
   }
 
   @Test
-  public void change_level() throws Exception {
+  public void change_level() {
     assertThat(sut.setLevel(LoggerLevel.INFO)).isTrue();
     assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.INFO);
     assertThat(sut.isDebugEnabled()).isFalse();
@@ -83,7 +83,7 @@ public class LogbackLoggerTest {
   }
 
   @Test
-  public void info_level_can_not_be_disabled() throws Exception {
+  public void info_level_can_not_be_disabled() {
     try {
       sut.setLevel(LoggerLevel.ERROR);
       fail();

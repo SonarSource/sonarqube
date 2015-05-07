@@ -293,7 +293,7 @@ public class ComponentContainerTest {
    * are not defined.
    */
   @Test
-  public void should_close_components_without_lifecycle() throws Exception {
+  public void should_close_components_without_lifecycle() {
     ComponentContainer container = new ComponentContainer();
     CloseableComponent component = new CloseableComponent();
     container.add(component);
@@ -307,7 +307,7 @@ public class ComponentContainerTest {
    * Method close() must be executed after stop()
    */
   @Test
-  public void should_close_components_with_lifecycle() throws Exception {
+  public void should_close_components_with_lifecycle() {
     ComponentContainer container = new ComponentContainer();
     StartableCloseableComponent component = new StartableCloseableComponent();
     container.add(component);

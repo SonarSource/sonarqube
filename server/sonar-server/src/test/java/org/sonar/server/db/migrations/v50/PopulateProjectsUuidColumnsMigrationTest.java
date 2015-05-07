@@ -48,7 +48,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table projects");
     db.executeUpdateSql("truncate table snapshots");
     dbClient = new DbClient(db.database(), db.myBatis());
@@ -58,7 +58,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

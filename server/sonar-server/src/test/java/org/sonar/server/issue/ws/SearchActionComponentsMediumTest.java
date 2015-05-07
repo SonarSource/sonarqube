@@ -65,7 +65,7 @@ public class SearchActionComponentsMediumTest {
   WsTester wsTester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     wsTester = tester.get(WsTester.class);

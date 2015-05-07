@@ -67,7 +67,7 @@ public class IssueIndexBenchmarkTest {
   public Benchmark benchmark = new Benchmark();
 
   @Test
-  public void benchmark() throws Exception {
+  public void benchmark() {
     // initialization - feed issues/issueAuthorization with projects and hardcoded users
     indexAuthorizations();
 

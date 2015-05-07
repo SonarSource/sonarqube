@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LoggersTest {
 
   @Test
-  public void factory() throws Exception {
+  public void factory() {
     // logback is used by sonar-plugin-api
     assertThat(Loggers.getFactory()).isInstanceOf(LogbackLoggers.class);
 

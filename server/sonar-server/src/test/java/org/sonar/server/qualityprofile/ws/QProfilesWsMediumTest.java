@@ -64,7 +64,7 @@ public class QProfilesWsMediumTest {
   WsTester wsTester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     ws = tester.get(QProfilesWs.class);

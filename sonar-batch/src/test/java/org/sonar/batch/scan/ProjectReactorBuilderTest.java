@@ -44,7 +44,7 @@ public class ProjectReactorBuilderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void shouldDefineSimpleProject() throws IOException {
+  public void shouldDefineSimpleProject() {
     ProjectDefinition projectDefinition = loadProjectDefinition("simple-project");
 
     assertThat(projectDefinition.getKey()).isEqualTo("com.foo.project");
@@ -57,7 +57,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfUnexistingSourceDirectory() throws IOException {
+  public void shouldFailIfUnexistingSourceDirectory() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
       + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
@@ -66,14 +66,14 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void fail_if_sources_not_set() throws IOException {
+  public void fail_if_sources_not_set() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'com.foo.project': sonar.sources");
     loadProjectDefinition("simple-project-with-missing-source-dir");
   }
 
   @Test
-  public void shouldNotFailIfBlankSourceDirectory() throws IOException {
+  public void shouldNotFailIfBlankSourceDirectory() {
     loadProjectDefinition("simple-project-with-blank-source-dir");
   }
 
@@ -145,7 +145,7 @@ public class ProjectReactorBuilderTest {
 
   // SONAR-4876
   @Test
-  public void shouldDefineMultiModuleProjectWithModuleKey() throws IOException {
+  public void shouldDefineMultiModuleProjectWithModuleKey() {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-definitions-moduleKey");
 
     // CHECK ROOT
@@ -194,7 +194,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldDefineMultiModuleProjectWithBaseDir() throws IOException {
+  public void shouldDefineMultiModuleProjectWithBaseDir() {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-with-basedir");
     List<ProjectDefinition> modules = rootProject.getSubProjects();
     assertThat(modules.size()).isEqualTo(1);
@@ -202,7 +202,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfUnexistingModuleBaseDir() throws IOException {
+  public void shouldFailIfUnexistingModuleBaseDir() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The base directory of the module 'module1' does not exist: "
       + TestUtils.getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
@@ -211,7 +211,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfUnexistingSourceFolderInheritedInMultimodule() throws IOException {
+  public void shouldFailIfUnexistingSourceFolderInheritedInMultimodule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project:module1' (base directory = "
       + TestUtils.getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
@@ -220,12 +220,12 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldNotFailIfUnexistingTestBinLibFolderInheritedInMultimodule() throws IOException {
+  public void shouldNotFailIfUnexistingTestBinLibFolderInheritedInMultimodule() {
     loadProjectDefinition("multi-module-with-unexisting-test-bin-lib-dir");
   }
 
   @Test
-  public void shouldFailIfExplicitUnexistingTestFolder() throws IOException {
+  public void shouldFailIfExplicitUnexistingTestFolder() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'com.foo.project' (base directory = "
       + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
@@ -234,7 +234,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfExplicitUnexistingBinaryFolder() throws IOException {
+  public void shouldFailIfExplicitUnexistingBinaryFolder() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'bin' does not exist for 'com.foo.project' (base directory = "
       + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-binary").getAbsolutePath());
@@ -243,7 +243,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfExplicitUnmatchingLibFolder() throws IOException {
+  public void shouldFailIfExplicitUnmatchingLibFolder() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("No files nor directories matching 'libs/*.txt' in directory "
       + TestUtils.getResource(this.getClass(), "simple-project-with-unexisting-lib").getAbsolutePath());
@@ -252,7 +252,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldGetLibDirectory() throws IOException {
+  public void shouldGetLibDirectory() {
     ProjectDefinition def = loadProjectDefinition("simple-project-with-lib-dir");
     assertThat(def.getLibraries()).hasSize(1);
     File libDir = new File(def.getLibraries().get(0));
@@ -261,7 +261,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfExplicitUnexistingTestFolderOnModule() throws IOException {
+  public void shouldFailIfExplicitUnexistingTestFolderOnModule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'module1' (base directory = "
       + TestUtils.getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
@@ -270,7 +270,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfExplicitUnexistingBinaryFolderOnModule() throws IOException {
+  public void shouldFailIfExplicitUnexistingBinaryFolderOnModule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'bin' does not exist for 'module1' (base directory = "
       + TestUtils.getResource(this.getClass(), "multi-module-with-explicit-unexisting-binary-dir").getAbsolutePath() + File.separator + "module1)");
@@ -279,7 +279,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfExplicitUnmatchingLibFolderOnModule() throws IOException {
+  public void shouldFailIfExplicitUnmatchingLibFolderOnModule() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("No files nor directories matching 'lib/*.jar' in directory "
       + TestUtils.getResource(this.getClass(), "multi-module-with-explicit-unexisting-lib").getAbsolutePath() + File.separator + "module1");
@@ -288,7 +288,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void multiModuleProperties() throws IOException {
+  public void multiModuleProperties() {
     ProjectDefinition projectDefinition = loadProjectDefinition("big-multi-module-definitions-all-in-root");
 
     assertThat(projectDefinition.getProperties().getProperty("module11.property")).isNull();
@@ -375,7 +375,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFilterFiles() throws Exception {
+  public void shouldFilterFiles() {
     File baseDir = TestUtils.getResource(this.getClass(), "shouldFilterFiles");
     assertThat(ProjectReactorBuilder.getLibraries(baseDir, "in*.txt")).hasSize(1);
     assertThat(ProjectReactorBuilder.getLibraries(baseDir, "*.txt")).hasSize(2);
@@ -384,7 +384,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldWorkWithAbsolutePath() throws Exception {
+  public void shouldWorkWithAbsolutePath() {
     File baseDir = new File("not-exists");
     String absolutePattern = TestUtils.getResource(this.getClass(), "shouldFilterFiles").getAbsolutePath() + "/in*.txt";
     assertThat(ProjectReactorBuilder.getLibraries(baseDir.getParentFile(), absolutePattern)).hasSize(1);
@@ -507,14 +507,14 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailToLoadPropertiesFile() throws Exception {
+  public void shouldFailToLoadPropertiesFile() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to read the property file");
 
     ProjectReactorBuilder.toProperties(new File("foo.properties"));
   }
 
-  private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
+  private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     TaskProperties bootstrapProps = new TaskProperties(props, null);
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
@@ -556,7 +556,7 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldDefineProjectWithBuildDir() throws IOException {
+  public void shouldDefineProjectWithBuildDir() {
     ProjectDefinition rootProject = loadProjectDefinition("simple-project-with-build-dir");
     File buildDir = rootProject.getBuildDir();
     assertThat(buildDir).isDirectory().exists();

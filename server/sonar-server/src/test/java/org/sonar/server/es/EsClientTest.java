@@ -48,7 +48,7 @@ public class EsClientTest {
   public EsTester es = new EsTester();
 
   @Test
-  public void proxify_requests() throws Exception {
+  public void proxify_requests() {
     EsClient client = es.client();
     client.start();
     assertThat(client.nativeClient()).isNotNull();

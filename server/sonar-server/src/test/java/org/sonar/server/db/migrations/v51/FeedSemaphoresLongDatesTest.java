@@ -37,7 +37,7 @@ public class FeedSemaphoresLongDatesTest {
   public static DbTester db = new DbTester().schema(FeedSemaphoresLongDatesTest.class, "schema.sql");
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     db.prepareDbUnit(getClass(), "before.xml");
   }
 

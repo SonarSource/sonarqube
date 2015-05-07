@@ -31,7 +31,7 @@ public class FavoritesWsTest {
   WsTester tester = new WsTester(new FavoritesWs());
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/favorites");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

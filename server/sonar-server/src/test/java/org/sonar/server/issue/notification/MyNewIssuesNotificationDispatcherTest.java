@@ -48,7 +48,7 @@ public class MyNewIssuesNotificationDispatcherTest {
   }
 
   @Test
-  public void do_not_dispatch_if_no_new_notification() throws Exception {
+  public void do_not_dispatch_if_no_new_notification() {
     Notification notification = new Notification("other-notif");
     sut.performDispatch(notification, context);
 

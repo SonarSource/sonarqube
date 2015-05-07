@@ -66,7 +66,7 @@ public class UpdatePluginsWsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
@@ -84,7 +84,7 @@ public class UpdatePluginsWsActionTest {
   }
 
   @Test
-  public void action_update_is_defined() throws Exception {
+  public void action_update_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

@@ -47,7 +47,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void call_purge_method_of_the_purge_task() throws IOException {
+  public void call_purge_method_of_the_purge_task() {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     when(project.uuid()).thenReturn("UUID-1234");

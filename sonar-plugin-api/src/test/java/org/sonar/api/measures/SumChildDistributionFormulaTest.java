@@ -96,7 +96,7 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void shouldNotPersistWhenScopeLowerThanMinimun() throws Exception {
+  public void shouldNotPersistWhenScopeLowerThanMinimun() {
     when(context.getResource()).thenReturn(File.create("org/Foo.java"));
 
     initContextWithChildren();
@@ -107,7 +107,7 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void shouldPersistWhenScopeEqualsMinimun() throws Exception {
+  public void shouldPersistWhenScopeEqualsMinimun() {
     when(context.getResource()).thenReturn(File.create("org/Foo.java"));
 
     initContextWithChildren();
@@ -118,7 +118,7 @@ public class SumChildDistributionFormulaTest {
   }
 
   @Test
-  public void shouldPersistWhenScopeHigherThanMinimun() throws Exception {
+  public void shouldPersistWhenScopeHigherThanMinimun() {
     when(context.getResource()).thenReturn(Directory.create("org/foo"));
 
     initContextWithChildren();

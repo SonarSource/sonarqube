@@ -57,7 +57,7 @@ public class ShowActionMediumTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
     ruleService = tester.get(RuleService.class);

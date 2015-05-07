@@ -100,18 +100,18 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     MyBatis.closeQuietly(session);
 
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return sut;
   }
 
   @Test
-  public void no_test_in_database_and_batch_report() throws Exception {
+  public void no_test_in_database_and_batch_report() {
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto()));
 
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNull();
@@ -119,7 +119,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void insert_several_tests_in_a_report() throws Exception {
+  public void insert_several_tests_in_a_report() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     List<BatchReport.Test> batchTests = Arrays.asList(
       newTest(1), newTest(2)
@@ -147,7 +147,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void insert_all_data_of_a_test() throws Exception {
+  public void insert_all_data_of_a_test() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
     writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1)));
@@ -174,7 +174,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void insert_tests_without_coverage_details() throws Exception {
+  public void insert_tests_without_coverage_details() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
     writer.writeTests(TEST_FILE_REF_1, batchTests);
@@ -190,7 +190,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void insert_coverage_details_not_taken_into_account() throws Exception {
+  public void insert_coverage_details_not_taken_into_account() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
     writer.writeTests(TEST_FILE_REF_1, batchTests);
@@ -209,7 +209,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void aggregate_coverage_details() throws Exception {
+  public void aggregate_coverage_details() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
     writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(
@@ -224,7 +224,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void update_existing_test() throws Exception {
+  public void update_existing_test() {
     // ARRANGE
     dbClient.fileSourceDao().insert(session, new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
@@ -295,7 +295,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       .build();
   }
 
-  private BatchReportWriter initBasicReport() throws IOException {
+  private BatchReportWriter initBasicReport() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

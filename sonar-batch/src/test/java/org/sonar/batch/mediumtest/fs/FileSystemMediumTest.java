@@ -226,7 +226,7 @@ public class FileSystemMediumTest {
 
   // SONAR-5330
   @Test
-  public void scanProjectWithSourceSymlink() throws Exception {
+  public void scanProjectWithSourceSymlink() {
     if (!System2.INSTANCE.isOsWindows()) {
       File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
       TaskResult result = tester

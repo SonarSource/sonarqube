@@ -31,13 +31,13 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void syntax_agnostic() throws Exception {
+  public void syntax_agnostic() {
     assertThat(areSimilar("{}", " {  } ")).isTrue();
     assertThat(areSimilar("{\"foo\":\"bar\"}", "{\"foo\":  \"bar\" \n }")).isTrue();
   }
 
   @Test
-  public void object() throws Exception {
+  public void object() {
     assertThat(areSimilar("{}", "{}")).isTrue();
 
     // exactly the same
@@ -54,7 +54,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void strict_order_of_array() throws Exception {
+  public void strict_order_of_array() {
     assertThat(isSimilar_strict_array_order("[]", "[]")).isTrue();
     assertThat(isSimilar_strict_array_order("[1, 2]", "[1, 2]")).isTrue();
 
@@ -66,7 +66,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void lenient_order_of_array() throws Exception {
+  public void lenient_order_of_array() {
     assertThat(areSimilar("[]", "[]")).isTrue();
     assertThat(areSimilar("[1, 2]", "[1, 2]")).isTrue();
     assertThat(areSimilar("[1, 2]", "[1]")).isFalse();
@@ -77,12 +77,12 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void lenient_order_of_arrays_by_default() throws Exception {
+  public void lenient_order_of_arrays_by_default() {
     assertThat(new JsonComparison().isStrictArrayOrder()).isFalse();
   }
 
   @Test
-  public void null_value() throws Exception {
+  public void null_value() {
     assertThat(areSimilar("[null]", "[null]")).isTrue();
     assertThat(areSimilar("[null]", "[]")).isFalse();
 
@@ -99,7 +99,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void maps_and_arrays() throws Exception {
+  public void maps_and_arrays() {
     assertThat(areSimilar("[]", "{}")).isFalse();
     assertThat(areSimilar("{}", "[]")).isFalse();
 
@@ -121,7 +121,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void lenient_timezone() throws Exception {
+  public void lenient_timezone() {
     // lenient mode by default
     assertThat(new JsonComparison().isStrictTimezone()).isFalse();
 
@@ -136,7 +136,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void strict_timezone() throws Exception {
+  public void strict_timezone() {
     assertThat(new JsonComparison().setStrictTimezone(true).isStrictTimezone()).isTrue();
 
     // same instant, same timezone
@@ -151,7 +151,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void compare_doubles() throws Exception {
+  public void compare_doubles() {
     assertThat(areSimilar("{\"foo\": true}", "{\"foo\": false}")).isFalse();
     assertThat(areSimilar("{\"foo\": true}", "{\"foo\": true}")).isTrue();
     assertThat(areSimilar("{\"foo\": true}", "{\"foo\": \"true\"}")).isFalse();
@@ -159,7 +159,7 @@ public class JsonComparisonTest {
   }
 
   @Test
-  public void compare_booleans() throws Exception {
+  public void compare_booleans() {
     assertThat(areSimilar("{\"foo\": 3.14}", "{\"foo\": 3.14000000}")).isTrue();
     assertThat(areSimilar("{\"foo\": 3.14}", "{\"foo\": 3.1400001}")).isTrue();
   }

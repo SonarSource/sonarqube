@@ -78,7 +78,7 @@ public class DebtModelPluginRepositoryTest {
   }
 
   @Test
-  public void contributing_plugin_list() throws Exception {
+  public void contributing_plugin_list() {
     initModel();
     Collection<String> contributingPluginList = modelFinder.getContributingPluginList();
     assertThat(contributingPluginList.size()).isEqualTo(2);
@@ -86,7 +86,7 @@ public class DebtModelPluginRepositoryTest {
   }
 
   @Test
-  public void get_content_for_xml_file() throws Exception {
+  public void get_content_for_xml_file() {
     initModel();
     Reader xmlFileReader = null;
     try {
@@ -103,26 +103,26 @@ public class DebtModelPluginRepositoryTest {
   }
 
   @Test
-  public void return_xml_file_path_for_plugin() throws Exception {
+  public void return_xml_file_path_for_plugin() {
     initModel();
     assertThat(modelFinder.getXMLFilePath("foo")).isEqualTo(TEST_XML_PREFIX_PATH + "foo-model.xml");
   }
 
   @Test
-  public void contain_default_model() throws Exception {
+  public void contain_default_model() {
     modelFinder = new DebtModelPluginRepository(mock(PluginRepository.class));
     modelFinder.start();
     assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
   }
 
-  private void initModel() throws MalformedURLException {
+  private void initModel() {
     Map<String, ClassLoader> contributingPluginKeyToClassLoader = Maps.newHashMap();
     contributingPluginKeyToClassLoader.put("csharp", newClassLoader());
     contributingPluginKeyToClassLoader.put("java", newClassLoader());
     modelFinder = new DebtModelPluginRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
   }
 
-  private ClassLoader newClassLoader() throws MalformedURLException {
+  private ClassLoader newClassLoader() {
     ClassLoader loader = mock(ClassLoader.class);
     when(loader.getResourceAsStream(anyString())).thenAnswer(new Answer<InputStream>() {
       public InputStream answer(InvocationOnMock invocation) throws Throwable {

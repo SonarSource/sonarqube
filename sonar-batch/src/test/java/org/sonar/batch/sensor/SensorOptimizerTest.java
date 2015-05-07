@@ -60,14 +60,14 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_run_analyzer_with_no_metadata() throws Exception {
+  public void should_run_analyzer_with_no_metadata() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
   @Test
-  public void should_optimize_on_language() throws Exception {
+  public void should_optimize_on_language() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .onlyOnLanguages("java", "php");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -77,7 +77,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_optimize_on_type() throws Exception {
+  public void should_optimize_on_type() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .onlyOnFileType(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -90,7 +90,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_optimize_on_both_type_and_language() throws Exception {
+  public void should_optimize_on_both_type_and_language() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .onlyOnLanguages("java", "php")
       .onlyOnFileType(InputFile.Type.MAIN);
@@ -105,7 +105,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_optimize_on_repository() throws Exception {
+  public void should_optimize_on_repository() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .createIssuesForRuleRepositories("squid");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -129,7 +129,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_optimize_on_settings() throws Exception {
+  public void should_optimize_on_settings() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .requireProperty("sonar.foo.reportPath");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -139,7 +139,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_disabled_in_preview() throws Exception {
+  public void should_disabled_in_preview() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .disabledInPreview();
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();

@@ -50,7 +50,7 @@ public class IssueChangelogMigrationStepTest {
   IssueChangelogMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
@@ -69,7 +69,7 @@ public class IssueChangelogMigrationStepTest {
   }
 
   @Test
-  public void convert_data_containing_only_debt_change() throws Exception {
+  public void convert_data_containing_only_debt_change() {
     assertThat(migration.convertChangelog("technicalDebt=1|2")).isEqualTo("technicalDebt=1|2");
     assertThat(migration.convertChangelog("technicalDebt=100|200")).isEqualTo("technicalDebt=60|120");
     assertThat(migration.convertChangelog("technicalDebt=10000|20000")).isEqualTo("technicalDebt=480|960");
@@ -79,21 +79,21 @@ public class IssueChangelogMigrationStepTest {
   }
 
   @Test
-  public void convert_data_beginning_with_debt_change() throws Exception {
+  public void convert_data_beginning_with_debt_change() {
     assertThat(migration.convertChangelog("technicalDebt=100|200,status=RESOLVED|REOPENED")).isEqualTo("technicalDebt=60|120,status=RESOLVED|REOPENED");
     assertThat(migration.convertChangelog("technicalDebt=|200,status=RESOLVED|REOPENED")).isEqualTo("technicalDebt=|120,status=RESOLVED|REOPENED");
     assertThat(migration.convertChangelog("technicalDebt=100|,status=RESOLVED|REOPENED")).isEqualTo("technicalDebt=60|,status=RESOLVED|REOPENED");
   }
 
   @Test
-  public void convert_data_finishing_with_debt_change() throws Exception {
+  public void convert_data_finishing_with_debt_change() {
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=100|200")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=60|120");
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=|200")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=|120");
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=100|")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=60|");
   }
 
   @Test
-  public void convert_data_with_debt_change_in_the_middle() throws Exception {
+  public void convert_data_with_debt_change_in_the_middle() {
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=100|200,resolution=")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=60|120,resolution=");
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=|200,resolution=")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=|120,resolution=");
     assertThat(migration.convertChangelog("status=RESOLVED|REOPENED,technicalDebt=100|,resolution=")).isEqualTo("status=RESOLVED|REOPENED,technicalDebt=60|,resolution=");

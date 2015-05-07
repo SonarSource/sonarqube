@@ -49,7 +49,7 @@ public class IssueCacheTest {
   Caches caches;
 
   @Before
-  public void start() throws Exception {
+  public void start() {
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
@@ -60,7 +60,7 @@ public class IssueCacheTest {
   }
 
   @Test
-  public void should_add_new_issue() throws Exception {
+  public void should_add_new_issue() {
     IssueCache cache = new IssueCache(caches);
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action");
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Action");
@@ -73,7 +73,7 @@ public class IssueCacheTest {
   }
 
   @Test
-  public void should_update_existing_issue() throws Exception {
+  public void should_update_existing_issue() {
     IssueCache cache = new IssueCache(caches);
     DefaultIssue issue = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
     cache.put(issue);
@@ -89,7 +89,7 @@ public class IssueCacheTest {
   }
 
   @Test
-  public void should_get_all_issues() throws Exception {
+  public void should_get_all_issues() {
     IssueCache cache = new IssueCache(caches);
     DefaultIssue issue1 = new DefaultIssue().setKey("111").setComponentKey("org.struts.Action").setSeverity(Severity.BLOCKER);
     DefaultIssue issue2 = new DefaultIssue().setKey("222").setComponentKey("org.struts.Filter").setSeverity(Severity.INFO);

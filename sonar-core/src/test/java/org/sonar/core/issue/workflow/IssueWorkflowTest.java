@@ -47,7 +47,7 @@ public class IssueWorkflowTest {
   IssueWorkflow workflow = new IssueWorkflow(new FunctionExecutor(updater), updater);
 
   @Test
-  public void init_state_machine() throws Exception {
+  public void init_state_machine() {
     assertThat(workflow.machine()).isNull();
     workflow.start();
     assertThat(workflow.machine()).isNotNull();
@@ -60,14 +60,14 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_statuses() throws Exception {
+  public void list_statuses() {
     workflow.start();
     // order is important for UI
     assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
   }
 
   @Test
-  public void list_out_transitions_from_status_open() throws Exception {
+  public void list_out_transitions_from_status_open() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
@@ -76,7 +76,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_confirmed() throws Exception {
+  public void list_out_transitions_from_status_confirmed() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED);
@@ -85,7 +85,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_resolved() throws Exception {
+  public void list_out_transitions_from_status_resolved() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_RESOLVED);
@@ -94,7 +94,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_reopen() throws Exception {
+  public void list_out_transitions_from_status_reopen() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_REOPENED);
@@ -103,7 +103,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_no_out_transition_from_status_closed() throws Exception {
+  public void list_no_out_transition_from_status_closed() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED);
@@ -112,7 +112,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void list_out_transitions_from_status_closed_on_manual_issue() throws Exception {
+  public void list_out_transitions_from_status_closed_on_manual_issue() {
     workflow.start();
 
     // Manual issue because of reporter
@@ -127,7 +127,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void fail_if_unknown_status_when_listing_transitions() throws Exception {
+  public void fail_if_unknown_status_when_listing_transitions() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue().setStatus("xxx");
@@ -141,7 +141,7 @@ public class IssueWorkflowTest {
 
 
   @Test
-  public void do_automatic_transition() throws Exception {
+  public void do_automatic_transition() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -159,7 +159,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void close_open_dead_issue() throws Exception {
+  public void close_open_dead_issue() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -177,7 +177,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void close_reopened_dead_issue() throws Exception {
+  public void close_reopened_dead_issue() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -195,7 +195,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void close_confirmed_dead_issue() throws Exception {
+  public void close_confirmed_dead_issue() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -214,7 +214,7 @@ public class IssueWorkflowTest {
 
 
   @Test
-  public void fail_if_unknown_status_on_automatic_trans() throws Exception {
+  public void fail_if_unknown_status_on_automatic_trans() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -232,7 +232,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void flag_as_false_positive() throws Exception {
+  public void flag_as_false_positive() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
@@ -250,7 +250,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void wont_fix() throws Exception {
+  public void wont_fix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
@@ -268,7 +268,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issues_be_resolved_then_closed() throws Exception {
+  public void manual_issues_be_resolved_then_closed() {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -299,7 +299,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issues_be_confirmed_then_kept_open() throws Exception {
+  public void manual_issues_be_confirmed_then_kept_open() {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -339,7 +339,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issue_on_removed_rule_be_closed() throws Exception {
+  public void manual_issue_on_removed_rule_be_closed() {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
@@ -357,7 +357,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void manual_issue_on_removed_component_be_closed() throws Exception {
+  public void manual_issue_on_removed_component_be_closed() {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")

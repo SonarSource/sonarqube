@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RuleStatusTest {
   @Test
-  public void default_is_ready() throws Exception {
+  public void default_is_ready() {
     assertThat(RuleStatus.defaultStatus()).isEqualTo(RuleStatus.READY);
   }
 }

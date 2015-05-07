@@ -55,7 +55,7 @@ public class UserQueryTest {
   }
 
   @Test
-  public void should_limit_number_of_logins() throws Exception {
+  public void should_limit_number_of_logins() {
     List<String> logins = new ArrayList<String>();
     for (int i = 0; i < 1010; i++) {
       logins.add(String.valueOf(i));
@@ -69,14 +69,14 @@ public class UserQueryTest {
   }
 
   @Test
-  public void searchText() throws Exception {
+  public void searchText() {
     UserQuery query = UserQuery.builder().searchText("sim").build();
     assertThat(query.searchText()).isEqualTo("sim");
     assertThat(query.searchTextSql).isEqualTo("%sim%");
   }
 
   @Test
-  public void searchText_escape_special_characters_in_like() throws Exception {
+  public void searchText_escape_special_characters_in_like() {
     UserQuery query = UserQuery.builder().searchText("%sim_").build();
     assertThat(query.searchText()).isEqualTo("%sim_");
     assertThat(query.searchTextSql).isEqualTo("%/%sim/_%");

@@ -45,18 +45,18 @@ public class ComponentLinkDaoTest {
   ComponentLinkDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     session = dbTester.myBatis().openSession(false);
     dao = new ComponentLinkDao();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void select_by_component_uuid() throws Exception {
+  public void select_by_component_uuid() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<ComponentLinkDto> links = dao.selectByComponentUuid(session, "ABCD");
@@ -74,7 +74,7 @@ public class ComponentLinkDaoTest {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     dao.insert(session, new ComponentLinkDto()
@@ -89,7 +89,7 @@ public class ComponentLinkDaoTest {
   }
 
   @Test
-  public void update() throws Exception {
+  public void update() {
     dbTester.prepareDbUnit(getClass(), "update.xml");
 
     dao.update(session, new ComponentLinkDto()
@@ -105,7 +105,7 @@ public class ComponentLinkDaoTest {
   }
 
   @Test
-  public void delete() throws Exception {
+  public void delete() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 
     dao.delete(session, 1L);

@@ -30,7 +30,7 @@ public class IsUnResolvedTest {
   DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void should_match() throws Exception {
+  public void should_match() {
     IsUnResolved condition = new IsUnResolved();
 
     assertThat(condition.matches(issue)).isTrue();

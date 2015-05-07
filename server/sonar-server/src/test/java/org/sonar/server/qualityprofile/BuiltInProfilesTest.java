@@ -31,12 +31,12 @@ public class BuiltInProfilesTest {
   BuiltInProfiles cache;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     cache = new BuiltInProfiles();
   }
 
   @Test
-  public void add_profiles() throws Exception {
+  public void add_profiles() {
     cache.put("java", "Default");
     cache.put("java", "Sonar Way");
     cache.put("js", "Default");
@@ -46,7 +46,7 @@ public class BuiltInProfilesTest {
   }
 
   @Test
-  public void not_add_same_profile_name() throws Exception {
+  public void not_add_same_profile_name() {
     cache.put("java", "Default");
     cache.put("java", "Default");
 

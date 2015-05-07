@@ -47,7 +47,7 @@ public class DefaultSymbolTableTest {
   }
 
   @Test
-  public void should_order_symbol_and_references() throws Exception {
+  public void should_order_symbol_and_references() {
 
     Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
@@ -62,7 +62,7 @@ public class DefaultSymbolTableTest {
   }
 
   @Test
-  public void should_reject_reference_conflicting_with_declaration() throws Exception {
+  public void should_reject_reference_conflicting_with_declaration() {
     throwable.expect(UnsupportedOperationException.class);
 
     Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);

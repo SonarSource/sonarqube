@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PermissionTemplateTest {
 
   @Test
-  public void should_populate_template_with_permissions() throws Exception {
+  public void should_populate_template_with_permissions() {
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)

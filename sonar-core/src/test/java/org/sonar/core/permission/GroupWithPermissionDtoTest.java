@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GroupWithPermissionDtoTest {
 
   @Test
-  public void to_group_with_permission_having_permission() throws Exception {
+  public void to_group_with_permission_having_permission() {
     GroupWithPermission group = new GroupWithPermissionDto()
       .setName("users")
       .setDescription("desc")
@@ -40,7 +40,7 @@ public class GroupWithPermissionDtoTest {
   }
 
   @Test
-  public void to_group_with_permission_not_having_permission() throws Exception {
+  public void to_group_with_permission_not_having_permission() {
     GroupWithPermission group = new GroupWithPermissionDto()
       .setName("users")
       .setPermission(null)

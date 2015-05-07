@@ -33,7 +33,7 @@ public class SetEndOfLifeTest {
   SetEndOfLife function = new SetEndOfLife();
 
   @Test
-  public void should_resolve_as_fixed() throws Exception {
+  public void should_resolve_as_fixed() {
     Issue issue = new DefaultIssue().setEndOfLife(true).setOnDisabledRule(false);
     when(context.issue()).thenReturn(issue);
     function.execute(context);
@@ -41,7 +41,7 @@ public class SetEndOfLifeTest {
   }
 
   @Test
-  public void should_resolve_as_removed_when_rule_is_disabled() throws Exception {
+  public void should_resolve_as_removed_when_rule_is_disabled() {
     Issue issue = new DefaultIssue().setEndOfLife(true).setOnDisabledRule(true);
     when(context.issue()).thenReturn(issue);
     function.execute(context);
@@ -49,7 +49,7 @@ public class SetEndOfLifeTest {
   }
 
   @Test
-  public void should_fail_if_issue_is_not_resolved() throws Exception {
+  public void should_fail_if_issue_is_not_resolved() {
     Issue issue = new DefaultIssue().setEndOfLife(false);
     when(context.issue()).thenReturn(issue);
     try {
@@ -62,7 +62,7 @@ public class SetEndOfLifeTest {
   }
 
   @Test
-  public void line_number_must_be_unset() throws Exception {
+  public void line_number_must_be_unset() {
     Issue issue = new DefaultIssue().setEndOfLife(true).setLine(10);
     when(context.issue()).thenReturn(issue);
     function.execute(context);

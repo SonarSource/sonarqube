@@ -32,7 +32,7 @@ public class ComputationContextTest {
   ComputationContext sut = new ComputationContext(mock(BatchReportReader.class), mock(ComponentDto.class));
 
   @Test(expected = IllegalStateException.class)
-  public void setProjectSettings() throws Exception {
+  public void setProjectSettings() {
     sut.setProjectSettings(mock(Settings.class));
     sut.setProjectSettings(mock(Settings.class));
   }

@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verify;
 public class DefaultSymbolizableTest {
 
   @Test
-  public void should_update_cache_when_done() throws Exception {
+  public void should_update_cache_when_done() {
 
     DefaultSensorStorage sensorStorage = mock(DefaultSensorStorage.class);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")

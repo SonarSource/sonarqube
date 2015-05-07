@@ -35,7 +35,7 @@ public class TestsWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new TestsWs(
       new TestsListAction(mock(DbClient.class), mock(TestIndex.class)),
       new TestsCoveredFilesAction(mock(DbClient.class), mock(TestIndex.class))));
@@ -43,7 +43,7 @@ public class TestsWsTest {
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.4");
     assertThat(controller.description()).isNotEmpty();
@@ -51,7 +51,7 @@ public class TestsWsTest {
   }
 
   @Test
-  public void define_list_action() throws Exception {
+  public void define_list_action() {
     WebService.Action action = controller.action("list");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
@@ -62,7 +62,7 @@ public class TestsWsTest {
   }
 
   @Test
-  public void define_covered_files() throws Exception {
+  public void define_covered_files() {
     WebService.Action action = controller.action("covered_files");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();

@@ -52,26 +52,26 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void empty_object() throws Exception {
+  public void empty_object() {
     writer.beginObject().endObject().close();
     expect("{}");
   }
 
   @Test
-  public void empty_array() throws Exception {
+  public void empty_array() {
     writer.beginArray().endArray().close();
     expect("[]");
   }
 
   @Test
-  public void stop_while_streaming() throws Exception {
+  public void stop_while_streaming() {
     writer.beginObject().name("foo").value("bar");
     // endObject() and close() are missing
     expect("{\"foo\":\"bar\"");
   }
 
   @Test
-  public void objects_and_arrays() throws Exception {
+  public void objects_and_arrays() {
     writer.beginObject().name("issues")
       .beginArray()
       .beginObject().prop("key", "ABC").endObject()
@@ -82,13 +82,13 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void array_values() throws Exception {
+  public void array_values() {
     writer.beginArray().values(Arrays.asList("foo", "bar", "baz")).endArray().close();
     expect("[\"foo\",\"bar\",\"baz\"]");
   }
 
   @Test
-  public void type_of_values() throws Exception {
+  public void type_of_values() {
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
     writer.beginObject()
       .prop("aBoolean", true)
@@ -103,7 +103,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void ignore_null_values_by_default() throws Exception {
+  public void ignore_null_values_by_default() {
     writer.beginObject()
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
@@ -116,7 +116,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void serialize_null_values() throws Exception {
+  public void serialize_null_values() {
     writer.setSerializeNulls(true);
     writer.beginObject()
       .prop("nullNumber", (Number) null)
@@ -130,7 +130,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void serialize_empty_strings_by_default() throws Exception {
+  public void serialize_empty_strings_by_default() {
     writer.beginObject()
       .prop("emptyString", EMPTY_STRING)
       .name("emptyStringAsObject").valueObject(EMPTY_STRING)
@@ -142,7 +142,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void ignore_empty_strings_when_requested() throws Exception {
+  public void ignore_empty_strings_when_requested() {
     writer.setSerializeEmptys(false)
       .beginObject()
       .prop("emptyString", EMPTY_STRING)
@@ -152,7 +152,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void escape_values() throws Exception {
+  public void escape_values() {
     writer.beginObject()
       .prop("foo", "<hello \"world\">")
       .endObject().close();
@@ -160,7 +160,7 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void valueObject() throws Exception {
+  public void valueObject() {
     writer.beginObject()
       .name("aString").valueObject("stringValue")
       .name("aBoolean").valueObject(true)
@@ -175,14 +175,14 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void valueObject_recursive() throws Exception {
+  public void valueObject_recursive() {
     Map map = ImmutableMap.of("a", ImmutableMap.of("b", "c"));
     writer.valueObject(map).close();
     expect("{\"a\":{\"b\":\"c\"}}");
   }
 
   @Test
-  public void valueObject_unsupported_type() throws Exception {
+  public void valueObject_unsupported_type() {
     try {
       writer.beginObject().valueObject(new StringWriter()).endObject().close();
       fail();
@@ -192,13 +192,13 @@ public class JsonWriterTest {
   }
 
   @Test
-  public void fail_on_NaN_value() throws Exception {
+  public void fail_on_NaN_value() {
     thrown.expect(WriterException.class);
     writer.beginObject().prop("foo", Double.NaN).endObject().close();
   }
 
   @Test
-  public void fail_if_not_valid() throws Exception {
+  public void fail_if_not_valid() {
     thrown.expect(WriterException.class);
     writer.beginObject().endArray().close();
   }

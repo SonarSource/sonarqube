@@ -61,7 +61,7 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void fail_if_bad_query() throws Exception {
+  public void fail_if_bad_query() {
     IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
     try {
       requestBuilder.get();
@@ -73,7 +73,7 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void fail_if_bad_query_with_basic_profiling() throws Exception {
+  public void fail_if_bad_query_with_basic_profiling() {
     IndexRequestBuilder requestBuilder = esTester.client().prepareIndex("unknownIndex", "unknownType");
     try {
       requestBuilder.get();
@@ -85,7 +85,7 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_string_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get("1");
       fail();
@@ -95,7 +95,7 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).get(TimeValue.timeValueMinutes(1));
       fail();
@@ -105,7 +105,7 @@ public class ProxyIndexRequestBuilderTest {
   }
 
   @Test
-  public void do_not_support_execute_method() throws Exception {
+  public void do_not_support_execute_method() {
     try {
       esTester.client().prepareIndex(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE).execute();
       fail();

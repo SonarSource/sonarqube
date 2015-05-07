@@ -63,7 +63,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void key_should_be_set() throws Exception {
+  public void key_should_be_set() {
     try {
       Transition.builder("").from("OPEN").to("CLOSED").build();
       fail();
@@ -73,7 +73,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void key_should_be_lower_case() throws Exception {
+  public void key_should_be_lower_case() {
     try {
       Transition.builder("CLOSE").from("OPEN").to("CLOSED").build();
       fail();
@@ -83,7 +83,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void originating_status_should_be_set() throws Exception {
+  public void originating_status_should_be_set() {
     try {
       Transition.builder("close").from("").to("CLOSED").build();
       fail();
@@ -93,7 +93,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void destination_status_should_be_set() throws Exception {
+  public void destination_status_should_be_set() {
     try {
       Transition.builder("close").from("OPEN").to("").build();
       fail();
@@ -103,7 +103,7 @@ public class TransitionTest {
   }
 
   @Test
-  public void should_verify_conditions() throws Exception {
+  public void should_verify_conditions() {
     DefaultIssue issue = new DefaultIssue();
     Transition transition = Transition.builder("close")
       .from("OPEN").to("CLOSED")

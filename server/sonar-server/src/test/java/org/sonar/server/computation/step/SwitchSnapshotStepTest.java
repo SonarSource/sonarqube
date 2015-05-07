@@ -55,7 +55,7 @@ public class SwitchSnapshotStepTest {
   }
 
   @Test
-  public void one_switch_with_a_snapshot_and_his_children() throws IOException {
+  public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
     BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()

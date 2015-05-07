@@ -91,7 +91,7 @@ public class ComponentAppActionTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
@@ -189,7 +189,7 @@ public class ComponentAppActionTest {
   }
 
   @Test
-  public void fail_on_unknown_component() throws Exception {
+  public void fail_on_unknown_component() {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
 

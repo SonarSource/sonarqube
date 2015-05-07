@@ -80,26 +80,26 @@ public class QProfileProjectOperationsMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void add_project() throws Exception {
+  public void add_project() {
     projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
-  public void add_project_with_only_project_admin_permission() throws Exception {
+  public void add_project_with_only_project_admin_permission() {
     projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProjectAdminUserSession);
 
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
   }
 
   @Test
-  public void remove_project_from_project_id() throws Exception {
+  public void remove_project_from_project_id() {
     projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
@@ -108,7 +108,7 @@ public class QProfileProjectOperationsMediumTest {
   }
 
   @Test
-  public void remove_project_from_language() throws Exception {
+  public void remove_project_from_language() {
     projectOperations.addProject(profile.getKey(), project.uuid(), authorizedProfileAdminUserSession);
     assertThat(factory.getByProjectAndLanguage(PROJECT_KEY, profile.getLanguage())).isNotNull();
 
@@ -117,7 +117,7 @@ public class QProfileProjectOperationsMediumTest {
   }
 
   @Test
-  public void remove_all_projects() throws Exception {
+  public void remove_all_projects() {
     ComponentDto project1 = new ComponentDto()
       .setUuid("BCDE")
       .setKey("project1")

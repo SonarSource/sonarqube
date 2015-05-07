@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 public class IndexDefinitionContextTest {
 
   @Test
-  public void create_indices() throws Exception {
+  public void create_indices() {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
     context.create("issues");
@@ -36,7 +36,7 @@ public class IndexDefinitionContextTest {
   }
 
   @Test
-  public void fail_to_create_twice_the_same_index() throws Exception {
+  public void fail_to_create_twice_the_same_index() {
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
     context.create("issues");

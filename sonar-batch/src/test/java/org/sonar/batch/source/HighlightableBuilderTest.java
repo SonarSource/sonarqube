@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class HighlightableBuilderTest {
 
   @Test
-  public void should_load_default_perspective() throws Exception {
+  public void should_load_default_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     Component component = new ResourceComponent(file);
 

@@ -64,7 +64,7 @@ public class ActivityServiceTest {
   }
 
   @Test
-  public void insert_and_index() throws Exception {
+  public void insert_and_index() {
     when(system.now()).thenReturn(1_500_000_000_000L);
 
     Activity activity = new Activity();

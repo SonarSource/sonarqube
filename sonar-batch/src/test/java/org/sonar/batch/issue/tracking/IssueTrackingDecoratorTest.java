@@ -104,14 +104,14 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void should_not_be_executed_on_classes_not_methods() throws Exception {
+  public void should_not_be_executed_on_classes_not_methods() {
     DecoratorContext context = mock(DecoratorContext.class);
     decorator.decorate(JavaClass.create("org.foo.Bar"), context);
     verifyZeroInteractions(context, issueCache, tracking, handlers, workflow);
   }
 
   @Test
-  public void should_process_open_issues() throws Exception {
+  public void should_process_open_issues() {
     Resource file = File.create("Action.java").setEffectiveKey("struts:Action.java").setId(123);
     final DefaultIssue issue = new DefaultIssue();
 
@@ -136,7 +136,7 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void should_register_unmatched_issues_as_end_of_life() throws Exception {
+  public void should_register_unmatched_issues_as_end_of_life() {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
     Resource file = File.create("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
@@ -487,7 +487,7 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void should_register_issues_on_deleted_components() throws Exception {
+  public void should_register_issues_on_deleted_components() {
     Project project = new Project("struts");
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
@@ -511,7 +511,7 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void merge_matched_issue() throws Exception {
+  public void merge_matched_issue() {
     ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L).setProjectKey("sample"));
     DefaultIssue issue = new DefaultIssue();
@@ -530,7 +530,7 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void merge_matched_issue_on_manual_severity() throws Exception {
+  public void merge_matched_issue_on_manual_severity() {
     ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L));
     DefaultIssue issue = new DefaultIssue();
@@ -546,7 +546,7 @@ public class IssueTrackingDecoratorTest {
   }
 
   @Test
-  public void merge_issue_changelog_with_previous_changelog() throws Exception {
+  public void merge_issue_changelog_with_previous_changelog() {
     when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD").setCreatedAt(System2.INSTANCE.now())));
 
     ServerIssue previousIssue = new ServerIssueFromDb(new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")

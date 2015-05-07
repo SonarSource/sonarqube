@@ -74,7 +74,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void should_fail_if_assignee_is_not_verified() throws Exception {
+  public void should_fail_if_assignee_is_not_verified() {
     throwable.expect(IllegalArgumentException.class);
     throwable.expectMessage("Assignee is missing from the execution parameters");
 

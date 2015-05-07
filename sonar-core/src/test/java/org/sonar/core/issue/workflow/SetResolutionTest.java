@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 
 public class SetResolutionTest {
   @Test
-  public void execute() throws Exception {
+  public void execute() {
     SetResolution function = new SetResolution("FIXED");
     Function.Context context = mock(Function.Context.class);
     function.execute(context);

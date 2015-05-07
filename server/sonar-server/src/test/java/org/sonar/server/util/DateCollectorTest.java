@@ -29,12 +29,12 @@ public class DateCollectorTest {
   DateCollector collector = new DateCollector();
 
   @Test
-  public void max_is_zero_if_no_dates() throws Exception {
+  public void max_is_zero_if_no_dates() {
     assertThat(collector.getMax()).isEqualTo(0L);
   }
 
   @Test
-  public void max() throws Exception {
+  public void max() {
     collector.add(DateUtils.parseDate("2013-06-01"));
     collector.add(null);
     collector.add(DateUtils.parseDate("2014-01-01"));

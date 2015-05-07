@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MigrationStepsTest {
 
   @Test
-  public void check_number_of_migrations() throws Exception {
+  public void check_number_of_migrations() {
     assertThat(MigrationSteps.CLASSES).isNotEmpty();
   }
 }

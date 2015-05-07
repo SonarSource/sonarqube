@@ -84,7 +84,7 @@ public class CreateActionTest {
   I18n i18n;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
@@ -107,7 +107,7 @@ public class CreateActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

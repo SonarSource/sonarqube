@@ -42,19 +42,19 @@ public class ComponentIndexDaoTest {
   ComponentIndexDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dao = new ComponentIndexDao();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void select_project_ids_from_query_and_view_or_sub_view_uuid() throws Exception {
+  public void select_project_ids_from_query_and_view_or_sub_view_uuid() {
     dbTester.prepareDbUnit(getClass(), "select_project_ids_from_query_and_view_or_sub_view_uuid.xml");
     String viewUuid = "EFGH";
 

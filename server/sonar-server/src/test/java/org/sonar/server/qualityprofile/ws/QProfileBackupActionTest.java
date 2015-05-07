@@ -57,7 +57,7 @@ public class QProfileBackupActionTest {
   private WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
 
     tester = new WsTester(new QProfilesWs(

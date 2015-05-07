@@ -48,7 +48,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void stop_reuses_start_message() throws Exception {
+  public void stop_reuses_start_message() {
     tester.setLevel(LoggerLevel.TRACE);
 
     // trace
@@ -76,7 +76,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void different_start_and_stop_messages() throws Exception {
+  public void different_start_and_stop_messages() {
     tester.setLevel(LoggerLevel.TRACE);
 
     // start TRACE and stop DEBUG
@@ -104,7 +104,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void log_on_at_stop() throws Exception {
+  public void log_on_at_stop() {
     tester.setLevel(LoggerLevel.TRACE);
 
     // trace
@@ -129,7 +129,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void add_context() throws Exception {
+  public void add_context() {
     Profiler profiler = Profiler.create(Loggers.get("DefaultProfilerTest"));
     profiler.addContext("a_string", "bar");
     profiler.addContext("null_value", null);
@@ -147,7 +147,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void empty_message() throws Exception {
+  public void empty_message() {
     sut.addContext("foo", "bar");
     sut.startInfo("");
     assertThat(tester.logs()).containsOnly("foo=bar");
@@ -161,7 +161,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void fail_if_stop_without_message() throws Exception {
+  public void fail_if_stop_without_message() {
     sut.start();
     try {
       sut.stopInfo();
@@ -172,7 +172,7 @@ public class DefaultProfilerTest {
   }
 
   @Test
-  public void fail_if_stop_without_start() throws Exception {
+  public void fail_if_stop_without_start() {
     try {
       sut.stopDebug("foo");
       fail();

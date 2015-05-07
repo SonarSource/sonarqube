@@ -83,7 +83,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void do_not_update_rule_with_removed_status() throws Exception {
+  public void do_not_update_rule_with_removed_status() {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
@@ -97,7 +97,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void no_changes() throws Exception {
+  public void no_changes() {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
@@ -125,7 +125,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void set_markdown_note() throws Exception {
+  public void set_markdown_note() {
     MockUserSession.set().setLogin("me");
 
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
@@ -159,7 +159,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void remove_markdown_note() throws Exception {
+  public void remove_markdown_note() {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserLogin("me"));
@@ -177,7 +177,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void set_tags() throws Exception {
+  public void set_tags() {
     // insert db
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
@@ -199,7 +199,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void remove_tags() throws Exception {
+  public void remove_tags() {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
@@ -219,7 +219,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void override_debt() throws Exception {
+  public void override_debt() {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -256,7 +256,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void override_debt_only_offset() throws Exception {
+  public void override_debt_only_offset() {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -290,7 +290,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void override_debt_from_linear_with_offset_to_constant() throws Exception {
+  public void override_debt_from_linear_with_offset_to_constant() {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -324,7 +324,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void reset_debt() throws Exception {
+  public void reset_debt() {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -359,7 +359,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void unset_debt() throws Exception {
+  public void unset_debt() {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -398,7 +398,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void update_custom_rule() throws Exception {
+  public void update_custom_rule() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
@@ -444,7 +444,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void update_custom_rule_with_empty_parameter() throws Exception {
+  public void update_custom_rule_with_empty_parameter() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
@@ -479,7 +479,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void update_active_rule_parameters_when_updating_custom_rule() throws Exception {
+  public void update_active_rule_parameters_when_updating_custom_rule() {
     // Create template rule with 3 parameters
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     ruleDao.insert(dbSession, templateRule);
@@ -540,7 +540,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_custom_rule_when_empty_name() throws Exception {
+  public void fail_to_update_custom_rule_when_empty_name() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
@@ -564,7 +564,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_custom_rule_when_empty_description() throws Exception {
+  public void fail_to_update_custom_rule_when_empty_description() {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
@@ -588,7 +588,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void update_manual_rule() throws Exception {
+  public void update_manual_rule() {
     // Create manual rule
     RuleDto manualRule = RuleTesting.newManualRule("My manual")
       .setName("Old name")
@@ -616,7 +616,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_manual_rule_if_status_is_set() throws Exception {
+  public void fail_to_update_manual_rule_if_status_is_set() {
     // Create manual rule
     RuleDto manualRule = RuleTesting.newManualRule("My manual");
     ruleDao.insert(dbSession, manualRule);
@@ -634,7 +634,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_manual_rule_if_parameters_are_set() throws Exception {
+  public void fail_to_update_manual_rule_if_parameters_are_set() {
     // Create manual rule
     RuleDto manualRule = RuleTesting.newManualRule("My manual");
     ruleDao.insert(dbSession, manualRule);
@@ -653,7 +653,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_name_is_set() throws Exception {
+  public void fail_to_update_plugin_rule_if_name_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
     ruleDao.insert(dbSession, ruleDto);
@@ -671,7 +671,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_description_is_set() throws Exception {
+  public void fail_to_update_plugin_rule_if_description_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
     ruleDao.insert(dbSession, ruleDto);
@@ -689,7 +689,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_plugin_rule_if_severity_is_set() throws Exception {
+  public void fail_to_update_plugin_rule_if_severity_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
     ruleDao.insert(dbSession, ruleDto);

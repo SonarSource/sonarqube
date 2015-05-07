@@ -123,7 +123,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void setProperty_date() throws Exception {
+  public void setProperty_date() {
     Settings settings = new Settings();
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
     settings.setProperty("aDate", date);

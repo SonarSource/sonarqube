@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 
 public class ResourceFiltersTest {
   @Test
-  public void warn_on_resource_filters() throws Exception {
+  public void warn_on_resource_filters() {
     Logger logger = mock(Logger.class);
     ResourceFilter[] filters = {mock(ResourceFilter.class)};
     new ResourceFilters(logger, filters);
@@ -40,7 +40,7 @@ public class ResourceFiltersTest {
   }
 
   @Test
-  public void ok_if_no_resource_filters() throws Exception {
+  public void ok_if_no_resource_filters() {
     // just for verify that it does not fail. Should check that no warning is logged.
     new ResourceFilters();
   }

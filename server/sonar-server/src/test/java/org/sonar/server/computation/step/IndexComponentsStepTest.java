@@ -36,7 +36,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
   IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao);
 
   @Test
-  public void call_indexProject_of_dao() throws IOException {
+  public void call_indexProject_of_dao() {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
     ComputationContext context = new ComputationContext(mock(BatchReportReader.class), project);

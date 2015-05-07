@@ -53,7 +53,7 @@ public class CachesTest {
   Caches caches;
 
   @Before
-  public void prepare() throws Exception {
+  public void prepare() {
     caches = createCacheOnTemp(temp);
   }
 
@@ -63,7 +63,7 @@ public class CachesTest {
   }
 
   @Test
-  public void should_stop_and_clean_temp_dir() throws Exception {
+  public void should_stop_and_clean_temp_dir() {
     File tempDir = caches.tempDir();
     assertThat(tempDir).isDirectory().exists();
     assertThat(caches.persistit()).isNotNull();
@@ -77,14 +77,14 @@ public class CachesTest {
   }
 
   @Test
-  public void should_create_cache() throws Exception {
+  public void should_create_cache() {
     caches.start();
     Cache<Element> cache = caches.createCache("foo");
     assertThat(cache).isNotNull();
   }
 
   @Test
-  public void should_not_create_cache_twice() throws Exception {
+  public void should_not_create_cache_twice() {
     caches.start();
     caches.<Element>createCache("foo");
     try {

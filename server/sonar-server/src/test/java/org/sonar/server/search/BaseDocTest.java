@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 public class BaseDocTest {
 
   @Test
-  public void getField() throws Exception {
+  public void getField() {
     Map<String, Object> fields = Maps.newHashMap();
     fields.put("a_string", "foo");
     fields.put("a_int", 42);
@@ -46,7 +46,7 @@ public class BaseDocTest {
   }
 
   @Test
-  public void getField_fails_if_missing_field() throws Exception {
+  public void getField_fails_if_missing_field() {
     Map<String, Object> fields = Collections.emptyMap();
     BaseDoc doc = new BaseDoc(fields) {
     };
@@ -60,7 +60,7 @@ public class BaseDocTest {
   }
 
   @Test
-  public void getFieldAsDate() throws Exception {
+  public void getFieldAsDate() {
     BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
     };
     long now = System.currentTimeMillis();
@@ -72,7 +72,7 @@ public class BaseDocTest {
   }
 
   @Test
-  public void getNullableFieldAsDate() throws Exception {
+  public void getNullableFieldAsDate() {
     BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
     };
     long now = System.currentTimeMillis();

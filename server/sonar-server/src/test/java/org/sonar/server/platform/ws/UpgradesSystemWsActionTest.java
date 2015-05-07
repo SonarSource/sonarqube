@@ -56,13 +56,13 @@ public class UpgradesSystemWsActionTest {
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Before
-  public void wireMocks() throws Exception {
+  public void wireMocks() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
   }
 
   @Test
-  public void action_updates_is_defined() throws Exception {
+  public void action_updates_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

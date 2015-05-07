@@ -70,7 +70,7 @@ public class InvocationUtilsTest {
   }
 
   @Test
-  public void only_static_methods() throws Exception {
+  public void only_static_methods() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(InvocationUtils.class)).isTrue();
 
   }

@@ -42,7 +42,7 @@ public class FileCacheBuilderTest {
   }
 
   @Test
-  public void user_home_property_can_be_null() throws Exception {
+  public void user_home_property_can_be_null() {
     FileCache cache = new FileCacheBuilder().setUserHome((String) null).build();
 
     // does not fail. It uses default path or env variable
@@ -51,7 +51,7 @@ public class FileCacheBuilderTest {
   }
 
   @Test
-  public void use_default_path_or_env_variable() throws Exception {
+  public void use_default_path_or_env_variable() {
     FileCache cache = new FileCacheBuilder().build();
 
     assertThat(cache.getDir()).isDirectory().exists();

@@ -45,19 +45,19 @@ public class EventDaoTest {
   EventDao dao;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dao = new EventDao();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void select_by_component_uuid() throws Exception {
+  public void select_by_component_uuid() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<EventDto> dtos = dao.selectByComponentUuid(session, "ABCD");
@@ -79,7 +79,7 @@ public class EventDaoTest {
   }
 
   @Test
-  public void return_different_categories() throws Exception {
+  public void return_different_categories() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<EventDto> dtos = dao.selectByComponentUuid(session, "ABCD");
@@ -87,7 +87,7 @@ public class EventDaoTest {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     dao.insert(session, new EventDto()
@@ -106,7 +106,7 @@ public class EventDaoTest {
   }
 
   @Test
-  public void delete() throws Exception {
+  public void delete() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 
     dao.delete(session, 1L);

@@ -45,7 +45,7 @@ public class NewIssuesNotificationDispatcherTest {
   }
 
   @Test
-  public void shouldNotDispatchIfNotNewViolationsNotification() throws Exception {
+  public void shouldNotDispatchIfNotNewViolationsNotification() {
     Notification notification = new Notification("other-notif");
     dispatcher.performDispatch(notification, context);
 

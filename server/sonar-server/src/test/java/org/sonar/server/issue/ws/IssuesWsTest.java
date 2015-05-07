@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 public class IssuesWsTest {
 
   @Test
-  public void define_actions() throws Exception {
+  public void define_actions() {
     BaseIssuesWsAction action1 = mock(BaseIssuesWsAction.class);
     BaseIssuesWsAction action2 = mock(BaseIssuesWsAction.class);
     IssuesWs ws = new IssuesWs(action1, action2);

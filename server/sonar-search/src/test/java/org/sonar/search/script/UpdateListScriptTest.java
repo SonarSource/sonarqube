@@ -37,7 +37,7 @@ public class UpdateListScriptTest {
   ListUpdate.UpdateListScriptFactory factory;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     factory = new ListUpdate.UpdateListScriptFactory();
   }
 
@@ -101,7 +101,7 @@ public class UpdateListScriptTest {
   }
 
   @Test
-  public void update_list() throws Exception {
+  public void update_list() {
 
     String listField = "listField";
     Collection<Map<String, Object>> mapFields;

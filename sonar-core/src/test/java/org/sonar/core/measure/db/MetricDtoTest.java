@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MetricDtoTest {
 
   @Test
-  public void getters_and_setters() throws Exception {
+  public void getters_and_setters() {
     MetricDto metricDto = new MetricDto()
       .setId(1)
       .setKey("coverage")

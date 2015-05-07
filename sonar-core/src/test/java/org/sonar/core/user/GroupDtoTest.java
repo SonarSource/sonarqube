@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GroupDtoTest {
 
   @Test
-  public void getter_and_setter() throws Exception {
+  public void getter_and_setter() {
     GroupDto dto = new GroupDto()
       .setId(1L)
       .setName("sonar-users")

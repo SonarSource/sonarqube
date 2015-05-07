@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 
 public class InputFileBuilderFactoryTest {
   @Test
-  public void create_builder() throws Exception {
+  public void create_builder() {
     PathResolver pathResolver = new PathResolver();
     LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);

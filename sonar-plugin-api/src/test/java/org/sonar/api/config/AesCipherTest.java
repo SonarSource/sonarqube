@@ -175,7 +175,7 @@ public class AesCipherTest {
   }
 
   @Test
-  public void doesNotHaveSecretKey() throws Exception {
+  public void doesNotHaveSecretKey() {
     AesCipher cipher = new AesCipher("/my/twitter/id/is/SimonBrandhof");
 
     assertThat(cipher.hasSecretKey(), Matchers.is(false));

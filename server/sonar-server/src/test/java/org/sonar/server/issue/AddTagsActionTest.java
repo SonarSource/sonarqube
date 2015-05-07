@@ -73,7 +73,7 @@ public class AddTagsActionTest {
   }
 
   @Test
-  public void should_fail_if_tag_is_not_valid() throws Exception {
+  public void should_fail_if_tag_is_not_valid() {
     throwable.expect(IllegalArgumentException.class);
     throwable.expectMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 

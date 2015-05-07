@@ -37,14 +37,14 @@ public class EsMonitorTest {
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
   @Test
-  public void name() throws Exception {
+  public void name() {
     EsMonitor monitor = new EsMonitor(esTester.client());
     assertThat(monitor.name()).isEqualTo("ElasticSearch");
   }
 
 
   @Test
-  public void cluster_attributes() throws Exception {
+  public void cluster_attributes() {
     EsMonitor monitor = new EsMonitor(esTester.client());
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     assertThat(monitor.getState()).isEqualTo(ClusterHealthStatus.GREEN.name());
@@ -53,7 +53,7 @@ public class EsMonitorTest {
   }
 
   @Test
-  public void node_attributes() throws Exception {
+  public void node_attributes() {
     EsMonitor monitor = new EsMonitor(esTester.client());
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     Map nodesAttributes = (Map)attributes.get("Nodes");
@@ -66,7 +66,7 @@ public class EsMonitorTest {
   }
 
   @Test
-  public void index_attributes() throws Exception {
+  public void index_attributes() {
     EsMonitor monitor = new EsMonitor(esTester.client());
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     Map indicesAttributes = (Map)attributes.get("Indices");

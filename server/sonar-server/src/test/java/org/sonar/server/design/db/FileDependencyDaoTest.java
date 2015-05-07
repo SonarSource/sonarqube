@@ -45,19 +45,19 @@ public class FileDependencyDaoTest {
   FileDependencyDao dao;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dao = new FileDependencyDao();
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void select_from_parents() throws Exception {
+  public void select_from_parents() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<FileDependencyDto> dtos = dao.selectFromParents(session, "MNOP", "QRST", 1L);
@@ -76,14 +76,14 @@ public class FileDependencyDaoTest {
   }
 
   @Test
-  public void select_all() throws Exception {
+  public void select_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectAll(session)).hasSize(3);
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     dao.insert(session, new FileDependencyDto()
       .setFromComponentUuid("ABCD")
       .setToComponentUuid("EFGH")

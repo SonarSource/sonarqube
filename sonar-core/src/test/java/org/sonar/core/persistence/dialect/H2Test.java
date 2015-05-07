@@ -53,7 +53,7 @@ public class H2Test {
   }
 
   @Test
-  public void h2_does_not_supportMigration() throws Exception {
+  public void h2_does_not_supportMigration() {
     assertThat(dialect.supportsMigration()).isFalse();
   }
 }

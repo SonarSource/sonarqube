@@ -37,7 +37,7 @@ public class ConsoleLoggerTest {
   public LogTester tester = new LogTester();
 
   @Test
-  public void debug_enabled() throws Exception {
+  public void debug_enabled() {
     tester.setLevel(LoggerLevel.DEBUG);
     assertThat(sut.isDebugEnabled()).isTrue();
     assertThat(sut.isTraceEnabled()).isFalse();
@@ -49,7 +49,7 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void debug_disabled() throws Exception {
+  public void debug_disabled() {
     tester.setLevel(LoggerLevel.INFO);
     assertThat(sut.isDebugEnabled()).isFalse();
     assertThat(sut.isTraceEnabled()).isFalse();
@@ -61,7 +61,7 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void trace_enabled() throws Exception {
+  public void trace_enabled() {
     tester.setLevel(LoggerLevel.TRACE);
     assertThat(sut.isDebugEnabled()).isTrue();
     assertThat(sut.isTraceEnabled()).isTrue();
@@ -73,7 +73,7 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void trace_disabled() throws Exception {
+  public void trace_disabled() {
     tester.setLevel(LoggerLevel.DEBUG);
     assertThat(sut.isTraceEnabled()).isFalse();
     sut.trace("message");
@@ -84,7 +84,7 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void log() throws Exception {
+  public void log() {
     sut.info("message");
     sut.info("message {}", "foo");
     sut.info("message {} {}", "foo", "bar");
@@ -106,7 +106,7 @@ public class ConsoleLoggerTest {
   }
 
   @Test
-  public void level_change_not_implemented_yet() throws Exception {
+  public void level_change_not_implemented_yet() {
     assertThat(sut.setLevel(LoggerLevel.DEBUG)).isFalse();
   }
 }

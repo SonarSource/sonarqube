@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserWithPermissionDtoTest {
 
   @Test
-  public void to_user_with_permission_having_permission() throws Exception {
+  public void to_user_with_permission_having_permission() {
     UserWithPermission user = new UserWithPermissionDto()
       .setName("Arthur")
       .setLogin("arthur")
@@ -40,7 +40,7 @@ public class UserWithPermissionDtoTest {
   }
 
   @Test
-  public void to_user_with_permission_not_having_permission() throws Exception {
+  public void to_user_with_permission_not_having_permission() {
     UserWithPermission user = new UserWithPermissionDto()
       .setName("Arthur")
       .setLogin("arthur")

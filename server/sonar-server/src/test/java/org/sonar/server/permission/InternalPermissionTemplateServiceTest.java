@@ -85,7 +85,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void find_users_with_permission_template() throws Exception {
+  public void find_users_with_permission_template() {
     service.findUsersWithPermissionTemplate(ImmutableMap.<String, Object>of(
       "permission", "user",
       "template", "my_template",
@@ -94,7 +94,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void find_groups_with_permission_template() throws Exception {
+  public void find_groups_with_permission_template() {
     service.findGroupsWithPermissionTemplate(ImmutableMap.<String, Object>of(
       "permission", "user",
       "template", "my_template",
@@ -104,7 +104,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_create_permission_template() throws Exception {
+  public void should_create_permission_template() {
     when(permissionTemplateDao.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
 
     PermissionTemplate permissionTemplate = service.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN);
@@ -116,7 +116,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_enforce_unique_template_name() throws Exception {
+  public void should_enforce_unique_template_name() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("A template with that name already exists");
 
@@ -126,7 +126,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_reject_empty_name_on_creation() throws Exception {
+  public void should_reject_empty_name_on_creation() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Name can't be blank");
 
@@ -134,7 +134,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_reject_invalid_key_pattern_on_creation() throws Exception {
+  public void should_reject_invalid_key_pattern_on_creation() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
 
@@ -142,7 +142,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_delete_permission_template() throws Exception {
+  public void should_delete_permission_template() {
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     service.deletePermissionTemplate(1L);
@@ -151,7 +151,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_retrieve_permission_template() throws Exception {
+  public void should_retrieve_permission_template() {
 
     List<PermissionTemplateUserDto> usersPermissions = Lists.newArrayList(
       buildUserPermission("user_scan", GlobalPermissions.SCAN_EXECUTION),
@@ -186,7 +186,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_retrieve_all_permission_templates() throws Exception {
+  public void should_retrieve_all_permission_templates() {
     PermissionTemplateDto template1 =
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
@@ -202,7 +202,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_retrieve_all_permission_templates_from_project() throws Exception {
+  public void should_retrieve_all_permission_templates_from_project() {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     PermissionTemplateDto template1 =
@@ -220,7 +220,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_update_permission_template() throws Exception {
+  public void should_update_permission_template() {
 
     service.updatePermissionTemplate(1L, "new_name", "new_description", null);
 
@@ -228,7 +228,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_validate_template_name_on_update_if_applicable() throws Exception {
+  public void should_validate_template_name_on_update_if_applicable() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("A template with that name already exists");
 
@@ -242,7 +242,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_validate_template_key_pattern_on_update_if_applicable() throws Exception {
+  public void should_validate_template_key_pattern_on_update_if_applicable() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
 
@@ -253,7 +253,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_skip_name_validation_where_not_applicable() throws Exception {
+  public void should_skip_name_validation_where_not_applicable() {
     PermissionTemplateDto template1 =
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
@@ -266,7 +266,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_add_user_permission() throws Exception {
+  public void should_add_user_permission() {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
@@ -277,7 +277,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_validate_provided_user_login() throws Exception {
+  public void should_validate_provided_user_login() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown user:");
 
@@ -288,7 +288,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_remove_user_permission() throws Exception {
+  public void should_remove_user_permission() {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
@@ -299,7 +299,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_add_group_permission() throws Exception {
+  public void should_add_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
@@ -310,7 +310,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_validate_provided_group_name() throws Exception {
+  public void should_validate_provided_group_name() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown group:");
 
@@ -321,7 +321,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_remove_group_permission() throws Exception {
+  public void should_remove_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group")).thenReturn(groupDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
@@ -332,7 +332,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_add_permission_to_anyone_group() throws Exception {
+  public void should_add_permission_to_anyone_group() {
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
@@ -342,7 +342,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_remove_permission_from_anyone_group() throws Exception {
+  public void should_remove_permission_from_anyone_group() {
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     service.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
@@ -352,7 +352,7 @@ public class InternalPermissionTemplateServiceTest {
   }
 
   @Test
-  public void should_remove_group_from_templates() throws Exception {
+  public void should_remove_group_from_templates() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(userDao.selectGroupByName("group", session)).thenReturn(groupDto);
 

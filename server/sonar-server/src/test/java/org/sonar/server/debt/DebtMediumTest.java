@@ -38,13 +38,13 @@ public class DebtMediumTest {
   public static ServerTester serverTester = new ServerTester();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     serverTester.clearDbAndIndexes();
     serverTester.get(Platform.class).executeStartupTasks();
   }
 
   @Test
-  public void find_default_characteristics() throws Exception {
+  public void find_default_characteristics() {
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
 
     // Only root characteristics
@@ -55,7 +55,7 @@ public class DebtMediumTest {
   }
 
   @Test
-  public void create_characteristic() throws Exception {
+  public void create_characteristic() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
@@ -72,7 +72,7 @@ public class DebtMediumTest {
   }
 
   @Test
-  public void create_sub_characteristic() throws Exception {
+  public void create_sub_characteristic() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);

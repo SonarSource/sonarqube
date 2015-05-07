@@ -69,7 +69,7 @@ public class MasterServletFilterTest {
   }
 
   @Test
-  public void servlet_container_should_instantiate_only_a_single_master_instance() throws Exception {
+  public void servlet_container_should_instantiate_only_a_single_master_instance() {
     new MasterServletFilter();
 
     thrown.expect(IllegalStateException.class);

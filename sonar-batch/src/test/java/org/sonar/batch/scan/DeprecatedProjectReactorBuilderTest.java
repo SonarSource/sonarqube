@@ -166,7 +166,7 @@ public class DeprecatedProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailIfUnexistingModuleFile() throws IOException {
+  public void shouldFailIfUnexistingModuleFile() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The properties file of the module 'module1' does not exist: "
       + TestUtils.getResource(this.getClass(), "multi-module-with-unexisting-file").getAbsolutePath() + File.separator + "any-folder"
@@ -175,7 +175,7 @@ public class DeprecatedProjectReactorBuilderTest {
     loadProjectDefinition("multi-module-with-unexisting-file");
   }
 
-  private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
+  private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = Maps.<String, String>newHashMap();
     Properties runnerProps = ProjectReactorBuilder.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {

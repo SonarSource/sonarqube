@@ -193,7 +193,7 @@ public class SourceLineIndexerTest {
   }
 
   @Test
-  public void index_source_lines_with_big_test_data() throws Exception {
+  public void index_source_lines_with_big_test_data() {
     Integer bigValue = Short.MAX_VALUE * 2;
 
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();

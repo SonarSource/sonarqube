@@ -391,7 +391,7 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_change_shared_filter_ownership_when_admin() throws Exception {
+  public void should_change_shared_filter_ownership_when_admin() {
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin("former.owner").setShared(true);
     IssueFilterDto expectedDto = new IssueFilterDto().setName("My filter").setUserLogin("new.owner").setShared(true);
 
@@ -409,7 +409,7 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_deny_filter_ownership_change_when_not_admin() throws Exception {
+  public void should_deny_filter_ownership_change_when_not_admin() {
     String currentUser = "dave.loper";
     IssueFilterDto sharedFilter = new IssueFilterDto().setId(1L).setName("My filter").setUserLogin(currentUser).setShared(true);
 
@@ -675,7 +675,7 @@ public class IssueFilterServiceTest {
   }
 
   @Test
-  public void should_create_filter_provided_by_platform() throws Exception {
+  public void should_create_filter_provided_by_platform() {
 
     ArgumentCaptor<IssueFilterDto> filterCaptor = ArgumentCaptor.forClass(IssueFilterDto.class);
 

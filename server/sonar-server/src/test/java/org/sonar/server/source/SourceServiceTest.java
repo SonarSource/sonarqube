@@ -54,12 +54,12 @@ public class SourceServiceTest {
   SourceService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     service = new SourceService(sourceDecorator, sourceLineIndex);
   }
 
   @Test
-  public void get_html_lines() throws Exception {
+  public void get_html_lines() {
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols")));
 
@@ -69,7 +69,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_block_of_lines() throws Exception {
+  public void get_block_of_lines() {
 
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(new SourceLineDoc().setSource("source").setHighlighting("highlight").setSymbols("symbols"),
@@ -82,7 +82,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void getLinesAsTxt() throws Exception {
+  public void getLinesAsTxt() {
     when(sourceLineIndex.getLines(COMPONENT_UUID, 1, Integer.MAX_VALUE)).thenReturn(
       Arrays.asList(
         new SourceLineDoc().setSource("line1"),

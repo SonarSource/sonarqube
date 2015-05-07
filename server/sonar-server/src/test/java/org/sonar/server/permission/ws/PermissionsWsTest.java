@@ -33,12 +33,12 @@ public class PermissionsWsTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester = new WsTester(new PermissionsWs());
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     WebService.Controller controller = tester.controller("api/permissions");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
@@ -47,7 +47,7 @@ public class PermissionsWsTest {
   }
 
   @Test
-  public void define_add_action() throws Exception {
+  public void define_add_action() {
     WebService.Controller controller = tester.controller("api/permissions");
 
     WebService.Action action = controller.action("add");
@@ -61,7 +61,7 @@ public class PermissionsWsTest {
   }
 
   @Test
-  public void define_remove_action() throws Exception {
+  public void define_remove_action() {
     WebService.Controller controller = tester.controller("api/permissions");
 
     WebService.Action action = controller.action("remove");

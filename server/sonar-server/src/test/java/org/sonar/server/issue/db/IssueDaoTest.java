@@ -40,7 +40,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   private DbSession session;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     this.session = getMyBatis().openSession(false);
     this.sut = new IssueDao(getMyBatis());
   }
@@ -130,7 +130,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L).setUuid("component-uuid"));
     dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));

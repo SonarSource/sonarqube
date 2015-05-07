@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActiveRuleParamDtoTest {
 
   @Test
-  public void groupByKey() throws Exception {
+  public void groupByKey() {
     assertThat(ActiveRuleParamDto.groupByKey(Collections.<ActiveRuleParamDto>emptyList())).isEmpty();
 
     Collection<ActiveRuleParamDto> dtos = Arrays.asList(

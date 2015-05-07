@@ -51,7 +51,7 @@ public class ViewIndexerTest {
   ViewIndexer indexer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
     indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao()), esTester.client());
@@ -59,13 +59,13 @@ public class ViewIndexerTest {
   }
 
   @Test
-  public void index_nothing() throws Exception {
+  public void index_nothing() {
     indexer.index();
     assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(0L);
   }
 
   @Test
-  public void index() throws Exception {
+  public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     indexer.index();
@@ -100,7 +100,7 @@ public class ViewIndexerTest {
   }
 
   @Test
-  public void index_root_view() throws Exception {
+  public void index_root_view() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     indexer.index("EFGH");
@@ -120,7 +120,7 @@ public class ViewIndexerTest {
   }
 
   @Test
-  public void index_view_doc() throws Exception {
+  public void index_view_doc() {
     indexer.index(new ViewDoc().setUuid("EFGH").setProjects(newArrayList("KLMN", "JKLM")));
 
     List<ViewDoc> docs = esTester.getDocuments("views", "view", ViewDoc.class);

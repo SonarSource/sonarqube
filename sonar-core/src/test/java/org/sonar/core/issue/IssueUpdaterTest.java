@@ -42,12 +42,12 @@ public class IssueUpdaterTest {
   IssueUpdater updater;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     updater = new IssueUpdater();
   }
 
   @Test
-  public void assign() throws Exception {
+  public void assign() {
     User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
 
     boolean updated = updater.assign(issue, user, context);
@@ -60,7 +60,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void unassign() throws Exception {
+  public void unassign() {
     issue.setAssignee("morgan");
     boolean updated = updater.assign(issue, null, context);
     assertThat(updated).isTrue();
@@ -72,7 +72,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void change_assignee() throws Exception {
+  public void change_assignee() {
     User user = new DefaultUser().setLogin("emmerik").setName("Emmerik");
 
     issue.setAssignee("morgan");
@@ -86,7 +86,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_assignee() throws Exception {
+  public void not_change_assignee() {
     User user = new DefaultUser().setLogin("morgan").setName("Morgan");
 
     issue.setAssignee("morgan");
@@ -97,7 +97,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_severity() throws Exception {
+  public void set_severity() {
     boolean updated = updater.setSeverity(issue, "BLOCKER", context);
     assertThat(updated).isTrue();
     assertThat(issue.severity()).isEqualTo("BLOCKER");
@@ -110,7 +110,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_severity() throws Exception {
+  public void set_past_severity() {
     issue.setSeverity("BLOCKER");
     boolean updated = updater.setPastSeverity(issue, "INFO", context);
     assertThat(updated).isTrue();
@@ -123,7 +123,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void update_severity() throws Exception {
+  public void update_severity() {
     issue.setSeverity("BLOCKER");
     boolean updated = updater.setSeverity(issue, "MINOR", context);
 
@@ -136,7 +136,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_severity() throws Exception {
+  public void not_change_severity() {
     issue.setSeverity("MINOR");
     boolean updated = updater.setSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
@@ -145,7 +145,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_revert_manual_severity() throws Exception {
+  public void not_revert_manual_severity() {
     issue.setSeverity("MINOR").setManualSeverity(true);
     try {
       updater.setSeverity(issue, "MAJOR", context);
@@ -155,7 +155,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_manual_severity() throws Exception {
+  public void set_manual_severity() {
     issue.setSeverity("BLOCKER");
     boolean updated = updater.setManualSeverity(issue, "MINOR", context);
 
@@ -169,7 +169,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_manual_severity() throws Exception {
+  public void not_change_manual_severity() {
     issue.setSeverity("MINOR").setManualSeverity(true);
     boolean updated = updater.setManualSeverity(issue, "MINOR", context);
     assertThat(updated).isFalse();
@@ -178,7 +178,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_line() throws Exception {
+  public void set_line() {
     boolean updated = updater.setLine(issue, 123);
     assertThat(updated).isTrue();
     assertThat(issue.line()).isEqualTo(123);
@@ -188,7 +188,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_line() throws Exception {
+  public void set_past_line() {
     issue.setLine(42);
     boolean updated = updater.setPastLine(issue, 123);
     assertThat(updated).isTrue();
@@ -200,7 +200,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_line() throws Exception {
+  public void not_change_line() {
     issue.setLine(123);
     boolean updated = updater.setLine(issue, 123);
     assertThat(updated).isFalse();
@@ -210,7 +210,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_resolution() throws Exception {
+  public void set_resolution() {
     boolean updated = updater.setResolution(issue, "OPEN", context);
     assertThat(updated).isTrue();
     assertThat(issue.resolution()).isEqualTo("OPEN");
@@ -222,7 +222,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_resolution() throws Exception {
+  public void not_change_resolution() {
     issue.setResolution("FIXED");
     boolean updated = updater.setResolution(issue, "FIXED", context);
     assertThat(updated).isFalse();
@@ -232,7 +232,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_status() throws Exception {
+  public void set_status() {
     boolean updated = updater.setStatus(issue, "OPEN", context);
     assertThat(updated).isTrue();
     assertThat(issue.status()).isEqualTo("OPEN");
@@ -244,7 +244,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_change_status() throws Exception {
+  public void not_change_status() {
     issue.setStatus("CLOSED");
     boolean updated = updater.setStatus(issue, "CLOSED", context);
     assertThat(updated).isFalse();
@@ -254,7 +254,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_new_attribute_value() throws Exception {
+  public void set_new_attribute_value() {
     boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isTrue();
     assertThat(issue.attribute("JIRA")).isEqualTo("FOO-123");
@@ -265,7 +265,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void unset_attribute() throws Exception {
+  public void unset_attribute() {
     issue.setAttribute("JIRA", "FOO-123");
     boolean updated = updater.setAttribute(issue, "JIRA", null, context);
     assertThat(updated).isTrue();
@@ -277,7 +277,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_update_attribute() throws Exception {
+  public void not_update_attribute() {
     issue.setAttribute("JIRA", "FOO-123");
     boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isFalse();
@@ -285,7 +285,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void plan_with_no_existing_plan() throws Exception {
+  public void plan_with_no_existing_plan() {
     ActionPlan newActionPlan = DefaultActionPlan.create("newName");
 
     boolean updated = updater.plan(issue, newActionPlan, context);
@@ -299,7 +299,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void plan_with_existing_plan() throws Exception {
+  public void plan_with_existing_plan() {
     issue.setActionPlanKey("formerActionPlan");
 
     ActionPlan newActionPlan = DefaultActionPlan.create("newName").setKey("newKey");
@@ -315,7 +315,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void unplan() throws Exception {
+  public void unplan() {
     issue.setActionPlanKey("formerActionPlan");
 
     boolean updated = updater.plan(issue, null, context);
@@ -329,7 +329,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_plan_again() throws Exception {
+  public void not_plan_again() {
     issue.setActionPlanKey("existingActionPlan");
 
     ActionPlan newActionPlan = DefaultActionPlan.create("existingActionPlan").setKey("existingActionPlan");
@@ -341,7 +341,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_effort_to_fix() throws Exception {
+  public void set_effort_to_fix() {
     boolean updated = updater.setEffortToFix(issue, 3.14, context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
@@ -350,7 +350,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_set_effort_to_fix_if_unchanged() throws Exception {
+  public void not_set_effort_to_fix_if_unchanged() {
     issue.setEffortToFix(3.14);
     boolean updated = updater.setEffortToFix(issue, 3.14, context);
     assertThat(updated).isFalse();
@@ -360,7 +360,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_effort() throws Exception {
+  public void set_past_effort() {
     issue.setEffortToFix(3.14);
     boolean updated = updater.setPastEffortToFix(issue, 1.0, context);
     assertThat(updated).isTrue();
@@ -372,7 +372,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_technical_debt() throws Exception {
+  public void set_past_technical_debt() {
     Duration newDebt = Duration.create(15 * 8 * 60);
     Duration previousDebt = Duration.create(10 * 8 * 60);
     issue.setDebt(newDebt);
@@ -387,7 +387,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_technical_debt_without_previous_value() throws Exception {
+  public void set_past_technical_debt_without_previous_value() {
     Duration newDebt = Duration.create(15 * 8 * 60);
     issue.setDebt(newDebt);
     boolean updated = updater.setPastTechnicalDebt(issue, null, context);
@@ -401,7 +401,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_technical_debt_with_null_new_value() throws Exception {
+  public void set_past_technical_debt_with_null_new_value() {
     issue.setDebt(null);
     Duration previousDebt = Duration.create(10 * 8 * 60);
     boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
@@ -415,7 +415,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_message() throws Exception {
+  public void set_message() {
     boolean updated = updater.setMessage(issue, "the message", context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
@@ -424,7 +424,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_message() throws Exception {
+  public void set_past_message() {
     issue.setMessage("new message");
     boolean updated = updater.setPastMessage(issue, "past message", context);
     assertThat(updated).isTrue();
@@ -436,7 +436,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_author() throws Exception {
+  public void set_author() {
     boolean updated = updater.setAuthorLogin(issue, "eric", context);
     assertThat(updated).isTrue();
     assertThat(issue.authorLogin()).isEqualTo("eric");
@@ -448,7 +448,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_project() throws Exception {
+  public void set_project() {
     boolean updated = updater.setProject(issue, "sample", context);
     assertThat(updated).isTrue();
     assertThat(issue.projectKey()).isEqualTo("sample");
@@ -459,7 +459,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void set_past_project() throws Exception {
+  public void set_past_project() {
     issue.setProjectKey("new project key");
     boolean updated = updater.setPastProject(issue, "past project key", context);
     assertThat(updated).isTrue();
@@ -471,7 +471,7 @@ public class IssueUpdaterTest {
   }
 
   @Test
-  public void not_set_past_project_if_no_change() throws Exception {
+  public void not_set_past_project_if_no_change() {
     issue.setProjectKey("key");
     boolean updated = updater.setPastProject(issue, "key", context);
     assertThat(updated).isFalse();

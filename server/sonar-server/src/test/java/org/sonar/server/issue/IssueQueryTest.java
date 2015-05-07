@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueQueryTest {
 
   @Test
-  public void build_query() throws Exception {
+  public void build_query() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
@@ -81,7 +81,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void build_query_without_dates() throws Exception {
+  public void build_query_without_dates() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .createdAfter(null)
@@ -96,7 +96,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void throw_exception_if_sort_is_not_valid() throws Exception {
+  public void throw_exception_if_sort_is_not_valid() {
     try {
       IssueQuery.builder()
         .sort("UNKNOWN")
@@ -107,7 +107,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void collection_params_should_not_be_null_but_empty() throws Exception {
+  public void collection_params_should_not_be_null_but_empty() {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
       .componentUuids(null)
@@ -161,7 +161,7 @@ public class IssueQueryTest {
   }
 
   @Test
-  public void should_accept_null_sort() throws Exception {
+  public void should_accept_null_sort() {
     IssueQuery query = IssueQuery.builder().sort(null).build();
     assertThat(query.sort()).isNull();
   }

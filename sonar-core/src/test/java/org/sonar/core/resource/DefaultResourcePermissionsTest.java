@@ -62,7 +62,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -224,7 +224,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_fail_when_no_default_template_is_defined() throws Exception {
+  public void should_fail_when_no_default_template_is_defined() {
     throwable.expect(IllegalStateException.class);
 
     permissions.grantDefaultRoles(project);

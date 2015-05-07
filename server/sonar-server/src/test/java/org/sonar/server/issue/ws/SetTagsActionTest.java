@@ -50,7 +50,7 @@ public class SetTagsActionTest {
   }
 
   @Test
-  public void should_define() throws Exception {
+  public void should_define() {
     Action action = tester.controller("api/issues").action("set_tags");
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExampleAsString()).isNull();

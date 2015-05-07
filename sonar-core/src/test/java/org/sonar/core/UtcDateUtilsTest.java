@@ -29,13 +29,13 @@ import static org.junit.Assert.fail;
 public class UtcDateUtilsTest {
 
   @Test
-  public void parse_then_format() throws Exception {
+  public void parse_then_format() {
     Date date = UtcDateUtils.parseDateTime("2014-01-14T14:00:00+0200");
     assertThat(UtcDateUtils.formatDateTime(date)).isEqualTo("2014-01-14T12:00:00+0000");
   }
 
   @Test
-  public void fail_if_bad_format() throws Exception {
+  public void fail_if_bad_format() {
     try {
       UtcDateUtils.parseDateTime("2014-01-14");
       fail();

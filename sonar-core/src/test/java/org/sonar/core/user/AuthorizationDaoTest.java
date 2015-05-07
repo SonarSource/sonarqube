@@ -43,13 +43,13 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   AuthorizationDao authorization;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     session = getMyBatis().openSession(false);
     authorization = new AuthorizationDao(getMyBatis());
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -286,7 +286,7 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_return_global_permissions_for_group_anyone() throws Exception {
+  public void should_return_global_permissions_for_group_anyone() {
     setupData("should_return_global_permissions_for_group_anyone");
 
     assertThat(authorization.selectGlobalPermissions("anyone_user")).containsOnly("user", "profileadmin");

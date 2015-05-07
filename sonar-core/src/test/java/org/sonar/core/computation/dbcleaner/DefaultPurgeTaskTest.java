@@ -54,7 +54,7 @@ public class DefaultPurgeTaskTest {
   private PurgeProfiler profiler;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     this.purgeDao = mock(PurgeDao.class);
     this.resourceDao = mock(ResourceDao.class);
     when(resourceDao.getResource(anyLong())).thenReturn(new ResourceDto().setQualifier(Qualifiers.PROJECT).setUuid("1").setId(1L));
@@ -140,7 +140,7 @@ public class DefaultPurgeTaskTest {
   }
 
   @Test
-  public void call_dao_delete_when_deleting() throws Exception {
+  public void call_dao_delete_when_deleting() {
     when(resourceDao.getResource(123L)).thenReturn(new ResourceDto().setId(123L).setUuid("A"));
 
     sut.delete(123L);

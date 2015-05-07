@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentDtoTest {
 
   @Test
-  public void setters_and_getters() throws Exception {
+  public void setters_and_getters() {
     ComponentDto componentDto = new ComponentDto()
       .setId(1L)
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
@@ -59,7 +59,7 @@ public class ComponentDtoTest {
   }
 
   @Test
-  public void equals_and_hashcode() throws Exception {
+  public void equals_and_hashcode() {
     ComponentDto dto = new ComponentDto().setId(1L);
     ComponentDto dtoWithSameId = new ComponentDto().setId(1L);
     ComponentDto dtoWithDifferentId = new ComponentDto().setId(2L);
@@ -74,13 +74,13 @@ public class ComponentDtoTest {
   }
 
   @Test
-  public void toString_does_not_fail_if_empty() throws Exception {
+  public void toString_does_not_fail_if_empty() {
     ComponentDto dto = new ComponentDto();
     assertThat(dto.toString()).isNotEmpty();
   }
 
   @Test
-  public void is_root_project() throws Exception {
+  public void is_root_project() {
     assertThat(new ComponentDto().setModuleUuid("ABCD").isRootProject()).isFalse();
     assertThat(new ComponentDto().setModuleUuid("ABCD").setScope(Scopes.DIRECTORY).isRootProject()).isFalse();
     assertThat(new ComponentDto().setModuleUuid(null).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT).isRootProject()).isTrue();

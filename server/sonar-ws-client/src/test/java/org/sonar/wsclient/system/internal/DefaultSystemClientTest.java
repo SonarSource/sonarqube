@@ -61,7 +61,7 @@ public class DefaultSystemClientTest {
   }
 
   @Test
-  public void fail_if_rate_is_greater_than_timeout() throws Exception {
+  public void fail_if_rate_is_greater_than_timeout() {
     try {
       DefaultSystemClient client = new DefaultSystemClient(mock(HttpRequestFactory.class));
       client.migrate(5L, 50L);

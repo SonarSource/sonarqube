@@ -39,7 +39,7 @@ public class SymbolsLineReaderTest {
   FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
-  public void read_nothing() throws Exception {
+  public void read_nothing() {
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(Collections.<BatchReport.Symbols.Symbol>emptyList());
 
     symbolsLineReader.read(line1);
@@ -48,7 +48,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols() throws Exception {
+  public void read_symbols() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -71,7 +71,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_with_reference_on_same_line() throws Exception {
+  public void read_symbols_with_reference_on_same_line() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -90,7 +90,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_with_two_references() throws Exception {
+  public void read_symbols_with_two_references() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -116,7 +116,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_with_two_references_on_the_same_line() throws Exception {
+  public void read_symbols_with_two_references_on_the_same_line() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -140,7 +140,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_when_reference_line_is_before_declaration_line() throws Exception {
+  public void read_symbols_when_reference_line_is_before_declaration_line() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -161,7 +161,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_many_symbols_on_lines() throws Exception {
+  public void read_many_symbols_on_lines() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -192,7 +192,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void symbol_declaration_should_be_sorted_by_offset() throws Exception {
+  public void symbol_declaration_should_be_sorted_by_offset() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -223,7 +223,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void symbol_declaration_should_be_sorted_by_line() throws Exception {
+  public void symbol_declaration_should_be_sorted_by_line() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -254,7 +254,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_defined_on_many_lines() throws Exception {
+  public void read_symbols_defined_on_many_lines() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
@@ -278,7 +278,7 @@ public class SymbolsLineReaderTest {
   }
 
   @Test
-  public void read_symbols_declared_on_a_whole_line() throws Exception {
+  public void read_symbols_declared_on_a_whole_line() {
     List<BatchReport.Symbols.Symbol> symbols = newArrayList(
       BatchReport.Symbols.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()

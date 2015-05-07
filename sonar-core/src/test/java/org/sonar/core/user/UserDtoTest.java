@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserDtoTest {
 
   @Test
-  public void encode_scm_accounts() throws Exception {
+  public void encode_scm_accounts() {
     assertThat(UserDto.encodeScmAccounts(null)).isNull();
     assertThat(UserDto.encodeScmAccounts(Collections.<String>emptyList())).isNull();
     assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo"))).isEqualTo("\nfoo\n");
@@ -37,7 +37,7 @@ public class UserDtoTest {
   }
 
   @Test
-  public void decode_scm_accounts() throws Exception {
+  public void decode_scm_accounts() {
     assertThat(UserDto.decodeScmAccounts(null)).isEmpty();
     assertThat(UserDto.decodeScmAccounts("\nfoo\n")).containsOnly("foo");
     assertThat(UserDto.decodeScmAccounts("\nfoo\nbar\n")).containsOnly("foo", "bar");

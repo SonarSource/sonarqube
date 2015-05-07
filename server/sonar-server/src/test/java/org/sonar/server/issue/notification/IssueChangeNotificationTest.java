@@ -31,7 +31,7 @@ public class IssueChangeNotificationTest {
   IssueChangeNotification notification = new IssueChangeNotification();
 
   @Test
-  public void set_issue() throws Exception {
+  public void set_issue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setReporter("arthur")
@@ -52,7 +52,7 @@ public class IssueChangeNotificationTest {
   }
 
   @Test
-  public void set_issue_with_current_change_having_no_old_value() throws Exception {
+  public void set_issue_with_current_change_having_no_old_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setReporter("arthur")
@@ -70,7 +70,7 @@ public class IssueChangeNotificationTest {
   }
 
   @Test
-  public void set_issue_with_current_change_having_no_new_value() throws Exception {
+  public void set_issue_with_current_change_having_no_new_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
       .setReporter("arthur")
@@ -88,32 +88,32 @@ public class IssueChangeNotificationTest {
   }
 
   @Test
-  public void set_project() throws Exception {
+  public void set_project() {
     IssueChangeNotification result = notification.setProject(new ComponentDto().setKey("MyService").setLongName("My Service"));
     assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
   }
 
   @Test
-  public void set_component() throws Exception {
+  public void set_component() {
     IssueChangeNotification result = notification.setComponent(new ComponentDto().setKey("MyService").setLongName("My Service"));
     assertThat(result.getFieldValue("componentName")).isEqualTo("My Service");
   }
 
   @Test
-  public void set_change_author_login() throws Exception {
+  public void set_change_author_login() {
     IssueChangeNotification result = notification.setChangeAuthorLogin("stephane");
     assertThat(result.getFieldValue("changeAuthor")).isEqualTo("stephane");
   }
 
   @Test
-  public void set_rule_name() throws Exception {
+  public void set_rule_name() {
     IssueChangeNotification result = notification.setRuleName("Xoo Rule");
     assertThat(result.getFieldValue("ruleName")).isEqualTo("Xoo Rule");
   }
 
   @Test
-  public void setComment() throws Exception {
+  public void setComment() {
     IssueChangeNotification result = notification.setComment("My comment");
     assertThat(result.getFieldValue("comment")).isEqualTo("My comment");
   }

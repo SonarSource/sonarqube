@@ -28,7 +28,7 @@ public class FieldDiffsTest {
   FieldDiffs diffs = new FieldDiffs();
 
   @Test
-  public void diffs_should_be_empty_by_default() throws Exception {
+  public void diffs_should_be_empty_by_default() {
     assertThat(diffs.diffs()).isEmpty();
   }
 
@@ -49,7 +49,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void diff_with_long_values() throws Exception {
+  public void diff_with_long_values() {
     diffs.setDiff("technicalDebt", 50l, "100");
 
     FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
@@ -58,7 +58,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void diff_with_empty_long_values() throws Exception {
+  public void diff_with_empty_long_values() {
     diffs.setDiff("technicalDebt", null, "");
 
     FieldDiffs.Diff diff = diffs.diffs().get("technicalDebt");
@@ -83,7 +83,7 @@ public class FieldDiffsTest {
   }
 
   @Test
-  public void should_keep_old_value() throws Exception {
+  public void should_keep_old_value() {
     diffs.setDiff("severity", "BLOCKER", "INFO");
     diffs.setDiff("severity", null, "MAJOR");
     FieldDiffs.Diff diff = diffs.diffs().get("severity");

@@ -28,13 +28,13 @@ public class ConsoleLoggersTest {
   ConsoleLoggers sut = new ConsoleLoggers();
 
   @Test
-  public void newInstance() throws Exception {
+  public void newInstance() {
     Logger logger = sut.newInstance("foo");
     assertThat(logger).isInstanceOf(ConsoleLogger.class);
   }
 
   @Test
-  public void level() throws Exception {
+  public void level() {
     // INFO by default
     assertThat(sut.getLevel()).isEqualTo(LoggerLevel.INFO);
 

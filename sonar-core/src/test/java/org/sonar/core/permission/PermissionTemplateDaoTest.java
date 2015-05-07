@@ -57,7 +57,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_create_permission_template() throws Exception {
+  public void should_create_permission_template() {
     setupData("createPermissionTemplate");
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("my template", "my description", "myregexp");
     assertThat(permissionTemplate).isNotNull();
@@ -66,7 +66,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_normalize_kee_on_template_creation() throws Exception {
+  public void should_normalize_kee_on_template_creation() {
     setupData("createNonAsciiPermissionTemplate");
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description", null);
     assertThat(permissionTemplate).isNotNull();
@@ -75,7 +75,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_skip_key_normalization_on_default_template() throws Exception {
+  public void should_skip_key_normalization_on_default_template() {
 
     PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
 
@@ -95,7 +95,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_permission_template() throws Exception {
+  public void should_select_permission_template() {
     setupData("selectPermissionTemplate");
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my_template_20130102_030405");
 
@@ -115,7 +115,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_empty_permission_template() throws Exception {
+  public void should_select_empty_permission_template() {
     setupData("selectEmptyPermissionTemplate");
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectPermissionTemplate("my_template_20130102_030405");
 
@@ -127,7 +127,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_permission_template_by_key() throws Exception {
+  public void should_select_permission_template_by_key() {
     setupData("selectPermissionTemplate");
 
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.selectTemplateByKey("my_template_20130102_030405");
@@ -140,7 +140,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_all_permission_templates() throws Exception {
+  public void should_select_all_permission_templates() {
     setupData("selectAllPermissionTemplates");
 
     List<PermissionTemplateDto> permissionTemplates = permissionTemplateDao.selectAllPermissionTemplates();
@@ -153,7 +153,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_update_permission_template() throws Exception {
+  public void should_update_permission_template() {
     setupData("updatePermissionTemplate");
 
     permissionTemplateDao.updatePermissionTemplate(1L, "new_name", "new_description", "new_regexp");
@@ -162,7 +162,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_delete_permission_template() throws Exception {
+  public void should_delete_permission_template() {
     setupData("deletePermissionTemplate");
 
     permissionTemplateDao.deletePermissionTemplate(1L);
@@ -173,7 +173,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_add_user_permission_to_template() throws Exception {
+  public void should_add_user_permission_to_template() {
     setupData("addUserPermissionToTemplate");
     permissionTemplateDao.addUserPermission(1L, 1L, "new_permission");
 
@@ -183,7 +183,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_remove_user_permission_from_template() throws Exception {
+  public void should_remove_user_permission_from_template() {
     setupData("removeUserPermissionFromTemplate");
     permissionTemplateDao.removeUserPermission(1L, 2L, "permission_to_remove");
 
@@ -193,7 +193,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_add_group_permission_to_template() throws Exception {
+  public void should_add_group_permission_to_template() {
     setupData("addGroupPermissionToTemplate");
     permissionTemplateDao.addGroupPermission(1L, 1L, "new_permission");
 
@@ -203,7 +203,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_remove_group_permission_from_template() throws Exception {
+  public void should_remove_group_permission_from_template() {
     setupData("removeGroupPermissionFromTemplate");
     permissionTemplateDao.removeGroupPermission(1L, 2L, "permission_to_remove");
 
@@ -213,7 +213,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void remove_by_group() throws Exception {
+  public void remove_by_group() {
     setupData("remove_by_group");
     permissionTemplateDao.removeByGroup(2L, session);
     session.commit();
@@ -222,7 +222,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_add_group_permission_with_null_name() throws Exception {
+  public void should_add_group_permission_with_null_name() {
     setupData("addNullGroupPermissionToTemplate");
     permissionTemplateDao.addGroupPermission(1L, null, "new_permission");
 
@@ -232,7 +232,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_remove_group_permission_with_null_name() throws Exception {
+  public void should_remove_group_permission_with_null_name() {
     setupData("removeNullGroupPermissionFromTemplate");
     permissionTemplateDao.removeGroupPermission(1L, null, "permission_to_remove");
 

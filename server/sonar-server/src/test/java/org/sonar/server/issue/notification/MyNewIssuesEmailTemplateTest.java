@@ -100,7 +100,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void message_id() throws Exception {
+  public void message_id() {
     Notification notification = newNotification();
 
     EmailMessage message = sut.format(notification);
@@ -109,7 +109,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   @Test
-  public void subject() throws Exception {
+  public void subject() {
     Notification notification = newNotification();
 
     EmailMessage message = sut.format(notification);

@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DebtRemediationFunctionTest {
 
   @Test
-  public void create_linear() throws Exception {
+  public void create_linear() {
     DebtRemediationFunction function = DebtRemediationFunction.createLinear(Duration.create(10));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(function.coefficient()).isEqualTo(Duration.create(10));
@@ -36,7 +36,7 @@ public class DebtRemediationFunctionTest {
   }
 
   @Test
-  public void create_linear_with_offset() throws Exception {
+  public void create_linear_with_offset() {
     DebtRemediationFunction function = DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(function.coefficient()).isEqualTo(Duration.create(10));
@@ -44,7 +44,7 @@ public class DebtRemediationFunctionTest {
   }
 
   @Test
-  public void create_constant_per_issue() throws Exception {
+  public void create_constant_per_issue() {
     DebtRemediationFunction function = DebtRemediationFunction.createConstantPerIssue(Duration.create(10));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(function.coefficient()).isNull();

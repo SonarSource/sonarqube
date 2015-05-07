@@ -57,7 +57,7 @@ public class PermissionTemplateUpdaterTest {
   }
 
   @Test
-  public void should_execute_on_valid_parameters() throws Exception {
+  public void should_execute_on_valid_parameters() {
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
@@ -75,7 +75,7 @@ public class PermissionTemplateUpdaterTest {
   }
 
   @Test
-  public void should_validate_template_reference() throws Exception {
+  public void should_validate_template_reference() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown template:");
 
@@ -92,7 +92,7 @@ public class PermissionTemplateUpdaterTest {
   }
 
   @Test
-  public void should_validate_permission_reference() throws Exception {
+  public void should_validate_permission_reference() {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Invalid permission:");
 
@@ -109,7 +109,7 @@ public class PermissionTemplateUpdaterTest {
   }
 
   @Test
-  public void should_check_that_user_is_logged_in() throws Exception {
+  public void should_check_that_user_is_logged_in() {
     expected.expect(UnauthorizedException.class);
     expected.expectMessage("Authentication is required");
 
@@ -124,7 +124,7 @@ public class PermissionTemplateUpdaterTest {
   }
 
   @Test
-  public void should_check_that_user_is_a_system_admin() throws Exception {
+  public void should_check_that_user_is_a_system_admin() {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 

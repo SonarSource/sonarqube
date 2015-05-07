@@ -69,7 +69,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void get_rule_by_key() throws Exception {
+  public void get_rule_by_key() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -87,7 +87,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void get_non_null_rule_by_key() throws Exception {
+  public void get_non_null_rule_by_key() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -108,7 +108,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void get_rule_by_key_escape_description_on_manual_rule() throws Exception {
+  public void get_rule_by_key_escape_description_on_manual_rule() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -125,7 +125,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void get_rule_by_keys() throws Exception {
+  public void get_rule_by_keys() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -140,7 +140,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void list_tags() throws InterruptedException {
+  public void list_tags() {
     // insert db
     RuleKey key1 = RuleKey.of("javascript", "S001");
     RuleKey key2 = RuleKey.of("java", "S001");
@@ -163,7 +163,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void update_rule() throws Exception {
+  public void update_rule() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -185,7 +185,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test(expected = UnauthorizedException.class)
-  public void do_not_update_if_not_granted() throws Exception {
+  public void do_not_update_if_not_granted() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     RuleKey key = RuleKey.of("java", "S001");
@@ -200,7 +200,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void create_rule() throws Exception {
+  public void create_rule() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -226,14 +226,14 @@ public class RuleServiceMediumTest {
   }
 
   @Test(expected = UnauthorizedException.class)
-  public void do_not_create_if_not_granted() throws Exception {
+  public void do_not_create_if_not_granted() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     service.create(NewRule.createForCustomRule("MY_CUSTOM", RuleKey.of("java", "S001")));
   }
 
   @Test
-  public void delete_rule() throws Exception {
+  public void delete_rule() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -257,7 +257,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test(expected = UnauthorizedException.class)
-  public void do_not_delete_if_not_granted() throws Exception {
+  public void do_not_delete_if_not_granted() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     service.delete(RuleKey.of("java", "S001"));

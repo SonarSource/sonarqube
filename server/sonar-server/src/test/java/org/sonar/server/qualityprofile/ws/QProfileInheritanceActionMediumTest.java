@@ -51,7 +51,7 @@ public class QProfileInheritanceActionMediumTest {
   private DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);

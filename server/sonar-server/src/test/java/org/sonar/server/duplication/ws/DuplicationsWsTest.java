@@ -36,7 +36,7 @@ public class DuplicationsWsTest {
     new ShowAction(mock(DbClient.class), mock(ComponentDao.class), mock(MeasureDao.class), mock(DuplicationsParser.class), mock(DuplicationsJsonWriter.class))));
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/duplications");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.4");

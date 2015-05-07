@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class JvmPropertiesMonitorTest {
 
   @Test
-  public void attributes() throws Exception {
+  public void attributes() {
     JvmPropertiesMonitor sut = new JvmPropertiesMonitor();
     LinkedHashMap<String, Object> attributes = sut.attributes();
 

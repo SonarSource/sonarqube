@@ -33,7 +33,7 @@ public class UsedQProfilesTest {
   static final String PHP_JSON = "{\"key\":\"p2\",\"language\":\"php\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2014-02-20T00:00:00+0000\"}";
 
   @Test
-  public void from_and_to_json() throws Exception {
+  public void from_and_to_json() {
     QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java")
       .setRulesUpdatedAt(UtcDateUtils.parseDateTime("2014-01-15T00:00:00+0000"));
     QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php")
@@ -50,7 +50,7 @@ public class UsedQProfilesTest {
   }
 
   @Test
-  public void do_not_duplicate_profiles() throws Exception {
+  public void do_not_duplicate_profiles() {
     QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java");
     QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php");
 
@@ -59,7 +59,7 @@ public class UsedQProfilesTest {
   }
 
   @Test
-  public void group_profiles_by_key() throws Exception {
+  public void group_profiles_by_key() {
     QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java");
     QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php");
 

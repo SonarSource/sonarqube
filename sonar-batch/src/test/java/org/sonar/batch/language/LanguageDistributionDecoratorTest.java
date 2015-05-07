@@ -60,7 +60,7 @@ public class LanguageDistributionDecoratorTest {
   LanguageDistributionDecorator decorator;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     decorator = new LanguageDistributionDecorator();
   }
 

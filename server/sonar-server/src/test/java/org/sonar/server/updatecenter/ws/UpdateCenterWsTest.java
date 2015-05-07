@@ -33,12 +33,12 @@ public class UpdateCenterWsTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester = new WsTester(new UpdateCenterWs());
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     WebService.Controller controller = tester.controller("api/updatecenter");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
@@ -47,7 +47,7 @@ public class UpdateCenterWsTest {
   }
 
   @Test
-  public void define_installed_plugins_action() throws Exception {
+  public void define_installed_plugins_action() {
     WebService.Controller controller = tester.controller("api/updatecenter");
 
     WebService.Action action = controller.action("installed_plugins");

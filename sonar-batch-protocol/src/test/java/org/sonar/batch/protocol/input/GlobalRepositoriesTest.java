@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GlobalRepositoriesTest {
 
   @Test
-  public void to_json() throws Exception {
+  public void to_json() {
     GlobalRepositories ref = new GlobalRepositories();
     ref.addMetric(new Metric(1, "ncloc", "INT", "Description", -1, "NCLOC", true, false, 2.0, 1.0, true));
     ref.addGlobalSetting("prop", "value");

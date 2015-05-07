@@ -64,7 +64,7 @@ public class JdbcDriverDeployerTest {
   }
 
   @Test
-  public void dont_fail_when_medium_test() throws Exception {
+  public void dont_fail_when_medium_test() {
     Settings settings = new Settings();
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
 

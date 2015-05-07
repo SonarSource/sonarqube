@@ -44,7 +44,7 @@ public class SonarQubeMonitorTest {
   Server server = mock(Server.class);
 
   @Test
-  public void getServerId() throws Exception {
+  public void getServerId() {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server);
 

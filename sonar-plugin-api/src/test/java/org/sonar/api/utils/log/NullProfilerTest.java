@@ -28,7 +28,7 @@ public class NullProfilerTest {
   NullProfiler sut = NullProfiler.NULL_INSTANCE;
 
   @Test
-  public void do_not_fail() throws Exception {
+  public void do_not_fail() {
     assertThat(sut.start()).isSameAs(sut);
     assertThat(sut.startTrace("")).isSameAs(sut);
     assertThat(sut.startDebug("")).isSameAs(sut);

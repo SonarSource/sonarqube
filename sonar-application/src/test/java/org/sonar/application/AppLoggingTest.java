@@ -59,7 +59,7 @@ public class AppLoggingTest {
   }
 
   @Test
-  public void configure_defaults() throws Exception {
+  public void configure_defaults() {
     LoggerContext ctx = sut.configure(props);
 
     Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
@@ -72,7 +72,7 @@ public class AppLoggingTest {
   }
 
   @Test
-  public void configure_no_rotation() throws Exception {
+  public void configure_no_rotation() {
     props.set("sonar.log.rollingPolicy", "none");
 
     LoggerContext ctx = sut.configure(props);
@@ -83,7 +83,7 @@ public class AppLoggingTest {
   }
 
   @Test
-  public void copyGobblerToConsole() throws Exception {
+  public void copyGobblerToConsole() {
     props.set("sonar.log.console", "true");
 
     LoggerContext ctx = sut.configure(props);

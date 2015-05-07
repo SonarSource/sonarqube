@@ -51,25 +51,25 @@ public class XmlWriterTest {
   }
 
   @Test
-  public void only_root() throws Exception {
+  public void only_root() {
     writer.begin("foo").end().close();
     expect("<foo/>");
   }
 
   @Test
-  public void escape_value() throws Exception {
+  public void escape_value() {
     writer.prop("foo", "1<2 & 2>=2").close();
     expect("<foo>1&lt;2 &amp; 2>=2</foo>");
   }
 
   @Test
-  public void only_root_with_value() throws Exception {
+  public void only_root_with_value() {
     writer.prop("foo", "bar").close();
     expect("<foo>bar</foo>");
   }
 
   @Test
-  public void ignore_null_values() throws Exception {
+  public void ignore_null_values() {
     writer.begin("root")
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
@@ -78,7 +78,7 @@ public class XmlWriterTest {
   }
 
   @Test
-  public void fail_on_NaN_value() throws Exception {
+  public void fail_on_NaN_value() {
     thrown.expect(WriterException.class);
     thrown.expectMessage("Fail to write XML. Double value is not valid: NaN");
     writer.begin("root").prop("foo", Double.NaN).end().close();

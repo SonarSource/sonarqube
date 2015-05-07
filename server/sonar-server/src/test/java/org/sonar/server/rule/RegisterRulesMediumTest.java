@@ -105,7 +105,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void register_rules_at_startup() throws Exception {
+  public void register_rules_at_startup() {
     register(new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -166,7 +166,7 @@ public class RegisterRulesMediumTest {
    * 4. start server -> db is up-to-date (no changes) but rules must be re-indexed
    */
   @Test
-  public void index_rules_even_if_no_changes() throws Exception {
+  public void index_rules_even_if_no_changes() {
     Rules rules = new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -303,7 +303,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void do_not_update_rules_if_no_changes() throws Exception {
+  public void do_not_update_rules_if_no_changes() {
     Rules rules = new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -349,7 +349,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void deactivate_removed_rules_only_if_repository_still_exists() throws Exception {
+  public void deactivate_removed_rules_only_if_repository_still_exists() {
     register(new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -378,7 +378,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void do_not_deactivate_removed_rules_if_repository_accidentally_uninstalled() throws Exception {
+  public void do_not_deactivate_removed_rules_if_repository_accidentally_uninstalled() {
     Rules rules = new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -407,7 +407,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void update_active_rules_on_param_changes() throws Exception {
+  public void update_active_rules_on_param_changes() {
     register(new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -482,7 +482,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void fail_if_debt_characteristic_is_root() throws Exception {
+  public void fail_if_debt_characteristic_is_root() {
     try {
       register(new Rules() {
         @Override
@@ -500,7 +500,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void update_custom_rule_on_template_change() throws Exception {
+  public void update_custom_rule_on_template_change() {
     register(new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -555,7 +555,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void do_not_update_custom_rule_if_no_template_change() throws Exception {
+  public void do_not_update_custom_rule_if_no_template_change() {
     Rules rules = new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {
@@ -591,7 +591,7 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void do_not_update_custom_rule_params_from_template() throws Exception {
+  public void do_not_update_custom_rule_params_from_template() {
     register(new Rules() {
       @Override
       public void init(RulesDefinition.NewRepository repository) {

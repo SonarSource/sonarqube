@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComputeFileSourceDataTest {
 
   @Test
-  public void compute_one_line() throws Exception {
+  public void compute_one_line() {
       ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
         newArrayList("line1").iterator(),
         Lists.<LineReader>newArrayList(new MockLineReader()),
@@ -45,7 +45,7 @@ public class ComputeFileSourceDataTest {
   }
 
   @Test
-  public void compute_two_lines() throws Exception {
+  public void compute_two_lines() {
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1", "line2").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
@@ -61,7 +61,7 @@ public class ComputeFileSourceDataTest {
   }
 
   @Test
-  public void compute_missing_last_line() throws Exception {
+  public void compute_missing_last_line() {
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
@@ -78,7 +78,7 @@ public class ComputeFileSourceDataTest {
   }
 
   @Test
-  public void remove_tabs_and_spaces_in_line_hashes() throws Exception {
+  public void remove_tabs_and_spaces_in_line_hashes() {
     String refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
@@ -93,7 +93,7 @@ public class ComputeFileSourceDataTest {
   }
 
   @Test
-  public void compute_line_hashes_of_empty_lines() throws Exception {
+  public void compute_line_hashes_of_empty_lines() {
     assertThat(new ComputeFileSourceData(
       newArrayList("   ").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),

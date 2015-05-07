@@ -38,13 +38,13 @@ public class RefreshIndexTest {
   Index index;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     index = mock(Index.class);
     when(index.getIndexName()).thenReturn(TEST_INDEX.getIndexName());
   }
 
   @Test
-  public void get_delete_request() throws Exception {
+  public void get_delete_request() {
     RefreshIndex refreshAction = new RefreshIndex(TEST_INDEX.getIndexType());
 
     try {

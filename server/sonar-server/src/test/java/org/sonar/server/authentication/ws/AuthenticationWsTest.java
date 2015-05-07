@@ -32,7 +32,7 @@ public class AuthenticationWsTest {
   WsTester tester = new WsTester(new AuthenticationWs());
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/authentication");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

@@ -65,7 +65,7 @@ public class QProfileDeleteActionTest {
   private DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
     componentDao = new ComponentDao();

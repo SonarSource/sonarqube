@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 public class SearchOptionsTest {
 
   @Test
-  public void defaults() throws Exception {
+  public void defaults() {
     SearchOptions options = new SearchOptions();
 
     assertThat(options.getFacets()).isEmpty();
@@ -43,7 +43,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void page_shortcut_for_limit_and_offset() throws Exception {
+  public void page_shortcut_for_limit_and_offset() {
     SearchOptions options = new SearchOptions().setPage(3, 10);
 
     assertThat(options.getLimit()).isEqualTo(10);
@@ -51,7 +51,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void page_starts_at_one() throws Exception {
+  public void page_starts_at_one() {
     SearchOptions options = new SearchOptions().setPage(1, 10);
     assertThat(options.getLimit()).isEqualTo(10);
     assertThat(options.getOffset()).isEqualTo(0);
@@ -59,7 +59,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void with_zero_page_size() throws Exception {
+  public void with_zero_page_size() {
     SearchOptions options = new SearchOptions().setPage(1, 0);
     assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
     assertThat(options.getOffset()).isEqualTo(0);
@@ -67,7 +67,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void page_must_be_strictly_positive() throws Exception {
+  public void page_must_be_strictly_positive() {
     try {
       new SearchOptions().setPage(0, 10);
       fail();
@@ -77,13 +77,13 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void use_max_limit_if_negative() throws Exception {
+  public void use_max_limit_if_negative() {
     SearchOptions options = new SearchOptions().setPage(2, -1);
     assertThat(options.getLimit()).isEqualTo(SearchOptions.MAX_LIMIT);
   }
 
   @Test
-  public void max_limit() throws Exception {
+  public void max_limit() {
     SearchOptions options = new SearchOptions().setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
 
@@ -92,20 +92,20 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void disable_limit() throws Exception {
+  public void disable_limit() {
     SearchOptions options = new SearchOptions().disableLimit();
     assertThat(options.getLimit()).isEqualTo(999999);
   }
 
   @Test
-  public void max_page_size() throws Exception {
+  public void max_page_size() {
     SearchOptions options = new SearchOptions().setPage(3, QueryContext.MAX_LIMIT + 10);
     assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
     assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
-  public void hasField() throws Exception {
+  public void hasField() {
     // parameter is missing -> all the fields are returned by default
     SearchOptions options = new SearchOptions();
     assertThat(options.hasField("repo")).isTrue();
@@ -122,7 +122,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void writeJson() throws Exception {
+  public void writeJson() {
     SearchOptions options = new SearchOptions().setPage(3, 10);
     StringWriter json = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(json).beginObject();
@@ -133,7 +133,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void writeDeprecatedJson() throws Exception {
+  public void writeDeprecatedJson() {
     SearchOptions options = new SearchOptions().setPage(3, 10);
     StringWriter json = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(json).beginObject();
@@ -144,7 +144,7 @@ public class SearchOptionsTest {
   }
 
   @Test
-  public void writeDeprecatedJson_exact_nb_of_pages() throws Exception {
+  public void writeDeprecatedJson_exact_nb_of_pages() {
     SearchOptions options = new SearchOptions().setPage(3, 10);
     StringWriter json = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(json).beginObject();

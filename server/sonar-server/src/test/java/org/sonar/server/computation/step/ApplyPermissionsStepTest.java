@@ -32,7 +32,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   ApplyPermissionsStep step = new ApplyPermissionsStep(indexer);
 
   @Test
-  public void index_issue_permissions() throws Exception {
+  public void index_issue_permissions() {
     step.execute(mock(ComputationContext.class));
     verify(indexer).index();
   }

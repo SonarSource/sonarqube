@@ -30,7 +30,7 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 public class IssueChangeDtoTest {
 
   @Test
-  public void create_from_comment() throws Exception {
+  public void create_from_comment() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
 
     IssueChangeDto dto = IssueChangeDto.of(comment);
@@ -45,7 +45,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_comment_with_created_at() throws Exception {
+  public void create_from_comment_with_created_at() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     comment.setCreatedAt(parseDate("2015-01-13"));
 
@@ -55,7 +55,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_diff() throws Exception {
+  public void create_from_diff() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
@@ -72,7 +72,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void create_from_diff_with_created_at() throws Exception {
+  public void create_from_diff_with_created_at() {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
@@ -84,7 +84,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_comment() throws Exception {
+  public void to_comment() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserLogin("emmerik")
@@ -103,7 +103,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_field_diffs_with_issue_creation_date() throws Exception {
+  public void to_field_diffs_with_issue_creation_date() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserLogin("emmerik")
@@ -118,7 +118,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_field_diffs_with_create_at() throws Exception {
+  public void to_field_diffs_with_create_at() {
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserLogin("emmerik")
@@ -133,7 +133,7 @@ public class IssueChangeDtoTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     IssueChangeDto dto = IssueChangeDto.of(comment);
     assertThat(dto.toString()).contains("ABCDE");

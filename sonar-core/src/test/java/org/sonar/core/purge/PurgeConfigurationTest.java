@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgeConfigurationTest {
   @Test
-  public void should_delete_all_closed_issues() throws Exception {
+  public void should_delete_all_closed_issues() {
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0);
     assertThat(conf.maxLiveDateOfClosedIssues()).isNull();
 
@@ -37,7 +37,7 @@ public class PurgeConfigurationTest {
   }
 
   @Test
-  public void should_delete_only_old_closed_issues() throws Exception {
+  public void should_delete_only_old_closed_issues() {
     Date now = DateUtils.parseDate("2013-05-18");
 
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);

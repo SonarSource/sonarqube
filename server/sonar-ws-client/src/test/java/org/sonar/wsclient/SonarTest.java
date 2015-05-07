@@ -98,7 +98,7 @@ public class SonarTest {
   }
 
   @Test(expected = ConnectionException.class)
-  public void failWhenConnectionIsClosed() throws Exception {
+  public void failWhenConnectionIsClosed() {
     Sonar fakeSonar = Sonar.create("http://localhost:70");
     fakeSonar.findAll(MetricQuery.all());
   }

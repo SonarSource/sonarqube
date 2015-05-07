@@ -37,7 +37,7 @@ public class CacheTest {
   Caches caches;
 
   @Before
-  public void start() throws Exception {
+  public void start() {
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
@@ -48,7 +48,7 @@ public class CacheTest {
   }
 
   @Test
-  public void one_part_key() throws Exception {
+  public void one_part_key() {
     Cache<String> cache = caches.createCache("capitals");
 
     assertThat(cache.get("france")).isNull();
@@ -97,7 +97,7 @@ public class CacheTest {
   }
 
   @Test
-  public void two_parts_key() throws Exception {
+  public void two_parts_key() {
     Cache<String> cache = caches.createCache("capitals");
 
     assertThat(cache.get("europe", "france")).isNull();
@@ -153,7 +153,7 @@ public class CacheTest {
   }
 
   @Test
-  public void three_parts_key() throws Exception {
+  public void three_parts_key() {
     Cache<String> cache = caches.createCache("places");
     assertThat(cache.get("europe", "france", "paris")).isNull();
 
@@ -229,7 +229,7 @@ public class CacheTest {
   }
 
   @Test
-  public void remove_versus_clear() throws Exception {
+  public void remove_versus_clear() {
     Cache<String> cache = caches.createCache("capitals");
     cache.put("europe", "france", "paris");
     cache.put("europe", "italy", "rome");
@@ -244,7 +244,7 @@ public class CacheTest {
   }
 
   @Test
-  public void empty_cache() throws Exception {
+  public void empty_cache() {
     Cache<String> cache = caches.createCache("empty");
 
     assertThat(cache.get("foo")).isNull();

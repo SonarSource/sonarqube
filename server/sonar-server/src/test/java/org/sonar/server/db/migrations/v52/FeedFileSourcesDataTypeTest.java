@@ -34,7 +34,7 @@ public class FeedFileSourcesDataTypeTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table file_sources");
 
     migration = new FeedFileSourcesDataType(db.database());

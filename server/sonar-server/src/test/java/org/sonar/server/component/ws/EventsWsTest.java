@@ -31,7 +31,7 @@ public class EventsWsTest {
   WsTester tester = new WsTester(new EventsWs());
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/events");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

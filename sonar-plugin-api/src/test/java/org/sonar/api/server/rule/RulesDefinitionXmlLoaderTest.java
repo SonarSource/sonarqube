@@ -45,7 +45,7 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void parse_xml() throws Exception {
+  public void parse_xml() {
     InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/rules.xml");
     RulesDefinition.Repository repository = load(input, Charsets.UTF_8.name());
     assertThat(repository.rules()).hasSize(2);
@@ -94,7 +94,7 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void fail_if_invalid_xml() throws UnsupportedEncodingException {
+  public void fail_if_invalid_xml() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("XML is not valid");
 
@@ -117,7 +117,7 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void support_deprecated_format() throws UnsupportedEncodingException {
+  public void support_deprecated_format() {
     // the deprecated format uses some attributes instead of nodes
     InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/deprecated.xml");
     RulesDefinition.Repository repository = load(input, Charsets.UTF_8.name());

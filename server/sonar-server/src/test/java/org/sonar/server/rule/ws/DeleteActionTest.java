@@ -40,7 +40,7 @@ public class DeleteActionTest {
   RuleService ruleService;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester = new WsTester(new RulesWebService(new DeleteAction(ruleService)));
   }
 

@@ -50,7 +50,7 @@ public class SubmitReportWsActionTest {
   }
 
   @Test
-  public void define_metadata() throws Exception {
+  public void define_metadata() {
     WebService.Context context = new WebService.Context();
     WebService.NewController controller = context.createController("api/computation");
     sut.define(controller);

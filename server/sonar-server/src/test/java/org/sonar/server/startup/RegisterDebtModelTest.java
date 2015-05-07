@@ -46,12 +46,12 @@ public class RegisterDebtModelTest {
   RegisterDebtModel registerDebtModel;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     registerDebtModel = new RegisterDebtModel(dao, debtModelBackup);
   }
 
   @Test
-  public void create_debt_model() throws Exception {
+  public void create_debt_model() {
     when(dao.selectEnabledCharacteristics()).thenReturn(Collections.<CharacteristicDto>emptyList());
 
     registerDebtModel.start();
@@ -60,7 +60,7 @@ public class RegisterDebtModelTest {
   }
 
   @Test
-  public void not_create_debt_model_if_already_exists() throws Exception {
+  public void not_create_debt_model_if_already_exists() {
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(new CharacteristicDto()));
 
     registerDebtModel.start();

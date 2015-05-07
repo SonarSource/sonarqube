@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 public class VerificationsTest {
 
   @Test
-  public void check() throws Exception {
+  public void check() {
     // no exception
     Verifications.check(true, "my.l10n.key", "foo", "bar");
 

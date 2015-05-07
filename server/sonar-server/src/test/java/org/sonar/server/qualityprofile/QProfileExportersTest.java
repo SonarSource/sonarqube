@@ -72,19 +72,19 @@ public class QProfileExportersTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void exportersForLanguage() throws Exception {
+  public void exportersForLanguage() {
     assertThat(exporters.exportersForLanguage("xoo")).hasSize(2);
     assertThat(exporters.exportersForLanguage("java")).hasSize(1);
     assertThat(exporters.exportersForLanguage("java").get(0)).isInstanceOf(StandardExporter.class);
   }
 
   @Test
-  public void mimeType() throws Exception {
+  public void mimeType() {
     assertThat(exporters.mimeType("xootool")).isEqualTo("plain/custom");
 
     // default mime type
@@ -120,12 +120,12 @@ public class QProfileExportersTest {
   }
 
   @Test
-  public void profile_importers_for_language() throws Exception {
+  public void profile_importers_for_language() {
     assertThat(exporters.findProfileImportersForLanguage("xoo")).hasSize(3);
   }
 
   @Test
-  public void import_xml() throws Exception {
+  public void import_xml() {
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
@@ -143,7 +143,7 @@ public class QProfileExportersTest {
   }
 
   @Test
-  public void import_xml_return_messages() throws Exception {
+  public void import_xml_return_messages() {
     QProfileResult result = exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithMessages", "<xml/>", dbSession);
     dbSession.commit();
 
@@ -152,7 +152,7 @@ public class QProfileExportersTest {
   }
 
   @Test
-  public void fail_to_import_xml_when_error_in_importer() throws Exception {
+  public void fail_to_import_xml_when_error_in_importer() {
     try {
       exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", "<xml/>", dbSession);
       fail();
@@ -162,7 +162,7 @@ public class QProfileExportersTest {
   }
 
   @Test
-  public void fail_to_import_xml_on_unknown_importer() throws Exception {
+  public void fail_to_import_xml_on_unknown_importer() {
     try {
       exporters.importXml(QProfileTesting.newXooP1(), "Unknown", "<xml/>", dbSession);
       fail();

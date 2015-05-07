@@ -64,7 +64,7 @@ public class InstallPluginsWsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Before
-  public void wireMocks() throws Exception {
+  public void wireMocks() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
@@ -82,7 +82,7 @@ public class InstallPluginsWsActionTest {
   }
 
   @Test
-  public void action_install_is_defined() throws Exception {
+  public void action_install_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

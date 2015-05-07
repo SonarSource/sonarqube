@@ -33,7 +33,7 @@ public class DefaultIssueFilterChainTest {
   private final Issue issue = mock(Issue.class);
 
   @Test
-  public void should_accept_when_no_filter() throws Exception {
+  public void should_accept_when_no_filter() {
     assertThat(new DefaultIssueFilterChain().accept(issue)).isTrue();
   }
 
@@ -68,7 +68,7 @@ public class DefaultIssueFilterChainTest {
   }
 
   @Test
-  public void should_accept_if_all_filters_pass() throws Exception {
+  public void should_accept_if_all_filters_pass() {
     assertThat(new DefaultIssueFilterChain(
       new PassingFilter(),
       new PassingFilter(),
@@ -77,7 +77,7 @@ public class DefaultIssueFilterChainTest {
   }
 
   @Test
-  public void should_accept_and_not_go_further_if_filter_accepts() throws Exception {
+  public void should_accept_and_not_go_further_if_filter_accepts() {
     assertThat(new DefaultIssueFilterChain(
       new PassingFilter(),
       new AcceptingFilter(),
@@ -86,7 +86,7 @@ public class DefaultIssueFilterChainTest {
   }
 
   @Test
-  public void should_refuse_and_not_go_further_if_filter_refuses() throws Exception {
+  public void should_refuse_and_not_go_further_if_filter_refuses() {
     assertThat(new DefaultIssueFilterChain(
       new PassingFilter(),
       new RefusingFilter(),

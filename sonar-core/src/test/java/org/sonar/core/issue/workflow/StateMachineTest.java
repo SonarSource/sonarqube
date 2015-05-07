@@ -25,14 +25,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StateMachineTest {
   @Test
-  public void keep_order_of_state_keys() throws Exception {
+  public void keep_order_of_state_keys() {
     StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
 
     assertThat(machine.stateKeys()).containsSequence("OPEN", "RESOLVED", "CLOSED");
   }
 
   @Test
-  public void stateKey() throws Exception {
+  public void stateKey() {
     StateMachine machine = StateMachine.builder()
       .states("OPEN", "RESOLVED", "CLOSED")
       .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())

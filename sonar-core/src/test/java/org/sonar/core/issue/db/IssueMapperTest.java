@@ -46,7 +46,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     IssueDto dto = new IssueDto();
     dto.setComponentUuid("uuid-123");
     dto.setProjectUuid("uuid-100");
@@ -79,7 +79,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update() throws Exception {
+  public void update() {
     setupData("testUpdate");
 
     IssueDto dto = new IssueDto();
@@ -114,7 +114,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void updateBeforeSelectedDate_without_conflict() throws Exception {
+  public void updateBeforeSelectedDate_without_conflict() {
     setupData("testUpdate");
 
     IssueDto dto = new IssueDto();
@@ -152,7 +152,7 @@ public class IssueMapperTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void updateBeforeSelectedDate_with_conflict() throws Exception {
+  public void updateBeforeSelectedDate_with_conflict() {
     setupData("updateBeforeSelectedDate_with_conflict");
 
     IssueDto dto = new IssueDto();

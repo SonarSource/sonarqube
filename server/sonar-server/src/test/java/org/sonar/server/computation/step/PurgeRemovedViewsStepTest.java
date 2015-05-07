@@ -90,7 +90,7 @@ public class PurgeRemovedViewsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void only_support_views() throws Exception {
+  public void only_support_views() {
     assertThat(sut.supportedProjectQualifiers()).containsOnly(Qualifiers.VIEW);
   }
 

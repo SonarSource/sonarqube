@@ -48,7 +48,7 @@ public class ActionTest {
   }
 
   @Test
-  public void key_should_be_set() throws Exception {
+  public void key_should_be_set() {
     try {
       new Action("");
       fail();
@@ -58,7 +58,7 @@ public class ActionTest {
   }
 
   @Test
-  public void should_verify_conditions() throws Exception {
+  public void should_verify_conditions() {
     DefaultIssue issue = new DefaultIssue();
     Action action = new Action("link-to-jira")
       .setConditions(condition1, condition2);

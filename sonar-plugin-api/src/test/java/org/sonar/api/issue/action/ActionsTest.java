@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActionsTest {
 
   @Test
-  public void add_action() throws Exception {
+  public void add_action() {
     Actions actions = new Actions();
     actions.add("plan");
 

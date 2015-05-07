@@ -123,7 +123,7 @@ public class HttpRequestFactoryTest {
   }
 
   @Test
-  public void beginning_slash_is_optional() throws Exception {
+  public void beginning_slash_is_optional() {
     HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
     factory.get("api/foo", Collections.<String, Object>emptyMap());
     assertThat(httpServer.requestedPath()).isEqualTo("/api/foo");

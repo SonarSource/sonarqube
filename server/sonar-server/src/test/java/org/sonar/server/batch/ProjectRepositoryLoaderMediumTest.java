@@ -86,7 +86,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_project_settings() throws Exception {
+  public void return_project_settings() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -110,7 +110,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void not_returned_secured_settings_with_only_preview_permission() throws Exception {
+  public void not_returned_secured_settings_with_only_preview_permission() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addProjectUuidPermissions(UserRole.USER, project.uuid());
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -133,7 +133,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_project_with_module_settings() throws Exception {
+  public void return_project_with_module_settings() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -169,7 +169,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_project_with_module_settings_inherited_from_project() throws Exception {
+  public void return_project_with_module_settings_inherited_from_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -200,7 +200,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_project_with_module_with_sub_module() throws Exception {
+  public void return_project_with_module_with_sub_module() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -248,7 +248,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_project_with_two_modules() throws Exception {
+  public void return_project_with_two_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -292,7 +292,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_provisioned_project_settings() throws Exception {
+  public void return_provisioned_project_settings() {
     // No snapshot attached on the project -> provisioned project
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
@@ -313,7 +313,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_sub_module_settings() throws Exception {
+  public void return_sub_module_settings() {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -346,7 +346,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_sub_module_settings_including_settings_from_parent_modules() throws Exception {
+  public void return_sub_module_settings_including_settings_from_parent_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
@@ -380,7 +380,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_sub_module_settings_only_inherited_from_project() throws Exception {
+  public void return_sub_module_settings_only_inherited_from_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
@@ -412,7 +412,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_sub_module_settings_inherited_from_project_and_module() throws Exception {
+  public void return_sub_module_settings_inherited_from_project_and_module() {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
@@ -445,7 +445,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_quality_profile_from_project_profile() throws Exception {
+  public void return_quality_profile_from_project_profile() {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -469,7 +469,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_quality_profile_from_default_profile() throws Exception {
+  public void return_quality_profile_from_default_profile() {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -492,7 +492,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_quality_profile_from_given_profile_name() throws Exception {
+  public void return_quality_profile_from_given_profile_name() {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -515,7 +515,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_quality_profiles_even_when_project_does_not_exists() throws Exception {
+  public void return_quality_profiles_even_when_project_does_not_exists() {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
@@ -535,7 +535,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_provisioned_project_profile() throws Exception {
+  public void return_provisioned_project_profile() {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     // No snapshot attached on the project -> provisioned project
@@ -560,7 +560,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void fail_when_no_quality_profile_for_a_language() throws Exception {
+  public void fail_when_no_quality_profile_for_a_language() {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("org.codehaus.sonar:sonar");
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -575,7 +575,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_active_rules() throws Exception {
+  public void return_active_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -610,7 +610,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_only_active_rules_from_project_profile() throws Exception {
+  public void return_only_active_rules_from_project_profile() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -648,7 +648,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_more_than_10_active_rules() throws Exception {
+  public void return_more_than_10_active_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -670,7 +670,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_custom_rule() throws Exception {
+  public void return_custom_rule() {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -702,7 +702,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_manual_rules() throws Exception {
+  public void return_manual_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -723,7 +723,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void fail_if_no_permission() throws Exception {
+  public void fail_if_no_permission() {
     MockUserSession.set().setLogin("john").setGlobalPermissions();
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -739,7 +739,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void fail_when_not_preview_and_only_dry_run_permission() throws Exception {
+  public void fail_when_not_preview_and_only_dry_run_permission() {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
@@ -757,7 +757,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_file_data_from_single_project() throws Exception {
+  public void return_file_data_from_single_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -776,7 +776,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_file_data_from_multi_modules() throws Exception {
+  public void return_file_data_from_multi_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -803,7 +803,7 @@ public class ProjectRepositoryLoaderMediumTest {
   }
 
   @Test
-  public void return_file_data_from_module() throws Exception {
+  public void return_file_data_from_module() {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();

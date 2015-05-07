@@ -63,7 +63,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   ComputationStep step;
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return step;
   }
 
@@ -80,12 +80,12 @@ public class PersistIssuesStepTest extends BaseStepTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void insert_new_issue() throws Exception {
+  public void insert_new_issue() {
     dbTester.prepareDbUnit(getClass(), "insert_new_issue.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
@@ -104,7 +104,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   }
 
   @Test
-  public void close_issue() throws Exception {
+  public void close_issue() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
@@ -125,7 +125,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   }
 
   @Test
-  public void add_comment() throws Exception {
+  public void add_comment() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
@@ -153,7 +153,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   }
 
   @Test
-  public void add_change() throws Exception {
+  public void add_change() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()

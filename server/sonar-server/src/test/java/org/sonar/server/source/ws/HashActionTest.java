@@ -56,7 +56,7 @@ public class HashActionTest {
   WsTester tester;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     db.truncateTables();
     this.session = db.myBatis().openSession(false);
 
@@ -89,7 +89,7 @@ public class HashActionTest {
   }
 
   @Test
-  public void fail_to_show_hashes_if_file_does_not_exist() throws Exception {
+  public void fail_to_show_hashes_if_file_does_not_exist() {
     MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);

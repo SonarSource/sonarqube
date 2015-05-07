@@ -53,12 +53,12 @@ public class UserResultSetIteratorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     DbUtils.closeQuietly(connection);
   }
 
   @Test
-  public void iterator_over_users() throws Exception {
+  public void iterator_over_users() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     UserResultSetIterator it = UserResultSetIterator.create(client, connection, 0L);
     Map<String, UserDoc> usersByLogin = Maps.uniqueIndex(it, new Function<UserDoc, String>() {
@@ -97,7 +97,7 @@ public class UserResultSetIteratorTest {
   }
 
   @Test
-  public void select_after_date() throws Exception {
+  public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     UserResultSetIterator it = UserResultSetIterator.create(client, connection, 1520000000000L);
 

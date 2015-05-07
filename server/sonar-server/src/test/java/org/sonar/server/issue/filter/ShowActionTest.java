@@ -48,7 +48,7 @@ public class ShowActionTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     action = new ShowAction(service, writer);
     tester = new WsTester(new IssueFilterWs(mock(AppAction.class), action, mock(FavoritesAction.class)));
   }

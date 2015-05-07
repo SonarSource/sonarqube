@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CoverageLineReaderTest {
 
   @Test
-  public void set_coverage() throws Exception {
+  public void set_coverage() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
@@ -56,7 +56,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void set_coverage_on_uncovered_lines() throws Exception {
+  public void set_coverage_on_uncovered_lines() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(false)
@@ -75,7 +75,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void set_coverage_without_line_hits() throws Exception {
+  public void set_coverage_without_line_hits() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .build()).iterator());
@@ -89,7 +89,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void set_overall_line_hits_with_only_ut() throws Exception {
+  public void set_overall_line_hits_with_only_ut() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
         .setLine(1)
         .setUtHits(true)
@@ -103,7 +103,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void set_overall_line_hits_with_only_it() throws Exception {
+  public void set_overall_line_hits_with_only_it() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(false)
@@ -117,7 +117,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void set_overall_line_hits_with_ut_and_it() throws Exception {
+  public void set_overall_line_hits_with_ut_and_it() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(true)
@@ -131,7 +131,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_coverage_info() throws Exception {
+  public void nothing_to_do_when_no_coverage_info() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<BatchReport.Coverage>emptyList().iterator());
 
     FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
@@ -147,7 +147,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_coverage_info_for_current_line() throws Exception {
+  public void nothing_to_do_when_no_coverage_info_for_current_line() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)
@@ -174,7 +174,7 @@ public class CoverageLineReaderTest {
   }
 
   @Test
-  public void nothing_to_do_when_no_coverage_info_for_next_line() throws Exception {
+  public void nothing_to_do_when_no_coverage_info_for_next_line() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(
       BatchReport.Coverage.newBuilder()
         .setLine(1)

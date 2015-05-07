@@ -43,7 +43,7 @@ public class DuplicationCacheTest {
   Caches caches;
 
   @Before
-  public void start() throws Exception {
+  public void start() {
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
   }
@@ -54,7 +54,7 @@ public class DuplicationCacheTest {
   }
 
   @Test
-  public void should_add_clone_groups() throws Exception {
+  public void should_add_clone_groups() {
     DuplicationCache cache = new DuplicationCache(caches);
 
     DefaultDuplication group1 = new DefaultDuplication()

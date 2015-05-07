@@ -40,13 +40,13 @@ public class DaoUtilsTest {
   }
 
   @Test
-  public void repeatCondition() throws Exception {
+  public void repeatCondition() {
     assertThat(DaoUtils.repeatCondition("uuid=?", 1, "or")).isEqualTo("uuid=?");
     assertThat(DaoUtils.repeatCondition("uuid=?", 3, "or")).isEqualTo("uuid=? or uuid=? or uuid=?");
   }
 
   @Test
-  public void execute_large_inputs() throws Exception {
+  public void execute_large_inputs() {
     List<Integer> inputs = newArrayList();
     List<String> expectedOutputs = newArrayList();
     for (int i = 0; i < 2010; i++) {
@@ -72,7 +72,7 @@ public class DaoUtilsTest {
   }
 
   @Test
-  public void execute_large_inputs_on_empty_list() throws Exception {
+  public void execute_large_inputs_on_empty_list() {
     List<String> outputs = DaoUtils.executeLargeInputs(Collections.<Integer>emptyList(), new Function<List<Integer>, List<String>>() {
       @Override
       public List<String> apply(List<Integer> input) {

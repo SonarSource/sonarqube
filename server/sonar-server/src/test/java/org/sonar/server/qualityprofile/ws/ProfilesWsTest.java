@@ -41,7 +41,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     WebService.Controller controller = tester.controller("api/profiles");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/profiles");
@@ -50,7 +50,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_list_action() throws Exception {
+  public void define_list_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("list");
@@ -61,7 +61,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_index_action() throws Exception {
+  public void define_index_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("index");
@@ -72,7 +72,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_backup_action() throws Exception {
+  public void define_backup_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("backup");
@@ -82,7 +82,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_restore_action() throws Exception {
+  public void define_restore_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("restore");
@@ -92,7 +92,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_destroy_action() throws Exception {
+  public void define_destroy_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("destroy");
@@ -102,7 +102,7 @@ public class ProfilesWsTest {
   }
 
   @Test
-  public void define_set_as_default_action() throws Exception {
+  public void define_set_as_default_action() {
     WebService.Controller controller = tester.controller("api/profiles");
 
     WebService.Action restoreProfiles = controller.action("set_as_default");

@@ -43,7 +43,7 @@ public class CopyScmAccountsFromAuthorsToUsersTest {
   System2 system = mock(System2.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table authors");
     db.executeUpdateSql("truncate table users");
     migration = new CopyScmAccountsFromAuthorsToUsers(db.database(), system);

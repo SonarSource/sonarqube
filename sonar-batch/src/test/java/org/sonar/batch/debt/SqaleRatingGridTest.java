@@ -41,7 +41,7 @@ public class SqaleRatingGridTest {
   }
 
   @Test
-  public void return_grade_lower_bound() throws Exception {
+  public void return_grade_lower_bound() {
     assertThat(ratingGrid.getGradeLowerBound(SqaleRatingGrid.SqaleRating.A)).isEqualTo(0);
     assertThat(ratingGrid.getGradeLowerBound(SqaleRatingGrid.SqaleRating.B)).isEqualTo(0.1);
     assertThat(ratingGrid.getGradeLowerBound(SqaleRatingGrid.SqaleRating.C)).isEqualTo(0.2);
@@ -50,7 +50,7 @@ public class SqaleRatingGridTest {
   }
 
   @Test
-  public void return_rating_matching_density() throws Exception {
+  public void return_rating_matching_density() {
     assertThat(ratingGrid.getRatingForDensity(0)).isEqualTo(1);
     assertThat(ratingGrid.getRatingForDensity(0.05)).isEqualTo(1);
     assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(2);
@@ -64,7 +64,7 @@ public class SqaleRatingGridTest {
   }
 
   @Test
-  public void fail_on_invalid_density() throws Exception {
+  public void fail_on_invalid_density() {
     throwable.expect(RuntimeException.class);
 
     ratingGrid.getRatingForDensity(-1);

@@ -33,13 +33,13 @@ public class ProjectsWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new ProjectsWs());
     controller = tester.controller("api/projects");
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("2.10");
@@ -47,7 +47,7 @@ public class ProjectsWsTest {
   }
 
   @Test
-  public void define_index_action() throws Exception {
+  public void define_index_action() {
     WebService.Action action = controller.action("index");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
@@ -56,7 +56,7 @@ public class ProjectsWsTest {
   }
 
   @Test
-  public void define_create_action() throws Exception {
+  public void define_create_action() {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
@@ -65,7 +65,7 @@ public class ProjectsWsTest {
   }
 
   @Test
-  public void define_destroy_action() throws Exception {
+  public void define_destroy_action() {
     WebService.Action action = controller.action("destroy");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);

@@ -37,7 +37,7 @@ public class UpdateProjectsModuleUuidPathTest {
   System2 system;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table projects");
 
     migration = new UpdateProjectsModuleUuidPath(db.database());

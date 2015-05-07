@@ -37,7 +37,7 @@ public class FeedManualMeasuresLongDatesTest {
   public static DbTester db = new DbTester().schema(FeedManualMeasuresLongDatesTest.class, "schema.sql");
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     db.prepareDbUnit(getClass(), "before.xml");
   }
 

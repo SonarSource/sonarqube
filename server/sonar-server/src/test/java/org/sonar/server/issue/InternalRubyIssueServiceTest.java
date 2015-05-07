@@ -99,32 +99,32 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void get_issue_by_key() throws Exception {
+  public void get_issue_by_key() {
     service.getIssueByKey("ABCD");
     verify(issueService).getByKey("ABCD");
   }
 
   @Test
-  public void list_transitions_by_issue_key() throws Exception {
+  public void list_transitions_by_issue_key() {
     service.listTransitions("ABCD");
     verify(issueService).listTransitions(eq("ABCD"));
   }
 
   @Test
-  public void list_transitions_by_issue() throws Exception {
+  public void list_transitions_by_issue() {
     Issue issue = new DefaultIssue().setKey("ABCD");
     service.listTransitions(issue);
     verify(issueService).listTransitions(eq(issue));
   }
 
   @Test
-  public void list_status() throws Exception {
+  public void list_status() {
     service.listStatus();
     verify(issueService).listStatus();
   }
 
   @Test
-  public void list_resolutions() throws Exception {
+  public void list_resolutions() {
     assertThat(service.listResolutions()).isEqualTo(Issue.RESOLUTIONS);
   }
 
@@ -151,7 +151,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void do_transition() throws Exception {
+  public void do_transition() {
     service.doTransition("ABCD", Issue.STATUS_RESOLVED);
     verify(issueService).doTransition(eq("ABCD"), eq(Issue.STATUS_RESOLVED));
   }
@@ -695,14 +695,14 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void list_tags() throws Exception {
+  public void list_tags() {
     List<String> tags = Arrays.asList("tag1", "tag2", "tag3");
     when(issueService.listTags(null, 0)).thenReturn(tags);
     assertThat(service.listTags()).isEqualTo(tags);
   }
 
   @Test
-  public void list_tags_for_component() throws Exception {
+  public void list_tags_for_component() {
     Map<String, Long> tags = ImmutableMap.of("tag1", 1L, "tag2", 2L, "tag3", 3L);
     int pageSize = 42;
     IssueQuery query = IssueQuery.builder().build();

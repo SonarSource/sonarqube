@@ -46,7 +46,7 @@ public class DeprecatedFileFiltersTest {
   FileSystemFilter filter = mock(FileSystemFilter.class);
 
   @Test
-  public void no_filters() throws Exception {
+  public void no_filters() {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
     InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");

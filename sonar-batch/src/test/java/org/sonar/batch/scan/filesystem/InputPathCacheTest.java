@@ -39,7 +39,7 @@ public class InputPathCacheTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
-  public void start() throws Exception {
+  public void start() {
   }
 
   @After

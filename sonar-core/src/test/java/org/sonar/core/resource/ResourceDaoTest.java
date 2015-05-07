@@ -59,7 +59,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -291,7 +291,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_insert_using_existing_session() throws Exception {
+  public void should_insert_using_existing_session() {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto().setUuid("ABCD")

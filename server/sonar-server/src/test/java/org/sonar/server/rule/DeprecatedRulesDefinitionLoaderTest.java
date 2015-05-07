@@ -95,7 +95,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
   }
 
   @Test
-  public void wrap_deprecated_rule_repositories() throws Exception {
+  public void wrap_deprecated_rule_repositories() {
     RulesDefinition.Context context = new RulesDefinition.Context();
     new DeprecatedRulesDefinitionLoader(i18n, debtModelRepository, importer, new RuleRepository[] {new CheckstyleRules()}).complete(context);
 
@@ -125,7 +125,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
   }
 
   @Test
-  public void emulate_the_day_deprecated_api_can_be_dropped() throws Exception {
+  public void emulate_the_day_deprecated_api_can_be_dropped() {
     RulesDefinition.Context context = new RulesDefinition.Context();
 
     // no more RuleRepository !
@@ -135,7 +135,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
   }
 
   @Test
-  public void use_l10n_bundles() throws Exception {
+  public void use_l10n_bundles() {
     RulesDefinition.Context context = new RulesDefinition.Context();
     when(i18n.getName("checkstyle", "ConstantName")).thenReturn("Constant Name");
     when(i18n.getDescription("checkstyle", "ConstantName")).thenReturn("Checks that constant names conform to the specified format");
@@ -155,7 +155,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
   }
 
   @Test
-  public void define_rule_debt() throws Exception {
+  public void define_rule_debt() {
     RulesDefinition.Context context = new RulesDefinition.Context();
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
@@ -188,7 +188,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
   }
 
   @Test
-  public void fail_on_invalid_rule_debt() throws Exception {
+  public void fail_on_invalid_rule_debt() {
     RulesDefinition.Context context = new RulesDefinition.Context();
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(

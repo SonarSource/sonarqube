@@ -33,7 +33,7 @@ public class IndexIssuesStepTest {
   IndexIssuesStep sut;
 
   @Test
-  public void call_indexers() throws Exception {
+  public void call_indexers() {
     IssueAuthorizationIndexer authorizationIndexer = mock(IssueAuthorizationIndexer.class);
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
     sut = new IndexIssuesStep(authorizationIndexer, issueIndexer);

@@ -78,28 +78,28 @@ public class PatternMatcherTest {
   }
 
   @Test
-  public void shouldMatchWithStandardPatterns() throws IOException {
+  public void shouldMatchWithStandardPatterns() {
     patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
 
     assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isNotNull();
   }
 
   @Test
-  public void shouldNotMatchWithStandardPatterns() throws IOException {
+  public void shouldNotMatchWithStandardPatterns() {
     patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;checkstyle:MagicNumber;[15-200]"));
 
     assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isNull();
   }
 
   @Test
-  public void shouldMatchWithExtraPattern() throws IOException {
+  public void shouldMatchWithExtraPattern() {
     patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;*;[15-200]"));
 
     assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 150))).isNotNull();
   }
 
   @Test
-  public void shouldNotMatchWithExtraPattern() throws IOException {
+  public void shouldNotMatchWithExtraPattern() {
     patternMatcher.addPatternForComponent(JAVA_FILE, createPattern("org.foo.Hello;*;[15-200]"));
 
     assertThat(patternMatcher.getMatchingPattern(create(CHECKSTYLE_RULE, JAVA_FILE, 5))).isNull();

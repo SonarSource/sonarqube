@@ -58,7 +58,7 @@ public class SearchServerTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (searchServer != null) {
       searchServer.stop();
       searchServer.awaitStop();

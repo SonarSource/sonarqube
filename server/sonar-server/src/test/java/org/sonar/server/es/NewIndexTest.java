@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 public class NewIndexTest {
 
   @Test
-  public void most_basic_index() throws Exception {
+  public void most_basic_index() {
     NewIndex index = new NewIndex("issues");
     assertThat(index.getName()).isEqualTo("issues");
     assertThat(index.getTypes()).isEmpty();
@@ -41,7 +41,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void index_name_is_lower_case() throws Exception {
+  public void index_name_is_lower_case() {
     try {
       new NewIndex("Issues");
       fail();
@@ -51,7 +51,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void define_fields() throws Exception {
+  public void define_fields() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setAttribute("dynamic", "true");
@@ -81,7 +81,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void define_string_field() throws Exception {
+  public void define_string_field() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.stringFieldBuilder("basic_field").build();
@@ -109,7 +109,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void string_doc_values() throws Exception {
+  public void string_doc_values() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.stringFieldBuilder("the_doc_value").docValues().build();
@@ -122,7 +122,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void analyzed_strings_must_not_be_doc_values() throws Exception {
+  public void analyzed_strings_must_not_be_doc_values() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     try {
@@ -134,7 +134,7 @@ public class NewIndexTest {
   }
 
   @Test
-  public void do_not_disable_search_on_searchable_fields() throws Exception {
+  public void do_not_disable_search_on_searchable_fields() {
     NewIndex index = new NewIndex("issues");
     NewIndex.NewIndexType mapping = index.createType("issue");
     try {

@@ -55,12 +55,12 @@ public class IssueChangelogDebtCalculatorTest {
   Duration fiveDaysDebt = Duration.create(fiveDays);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     issueChangelogDebtCalculator = new IssueChangelogDebtCalculator();
   }
 
   @Test
-  public void calculate_new_technical_debt_with_one_diff_in_changelog() throws Exception {
+  public void calculate_new_technical_debt_with_one_diff_in_changelog() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
       newArrayList(
         // changelog created at is null because it has just been created on the current analysis
@@ -75,7 +75,7 @@ public class IssueChangelogDebtCalculatorTest {
   }
 
   @Test
-  public void calculate_new_technical_debt_with_many_diffs_in_changelog() throws Exception {
+  public void calculate_new_technical_debt_with_many_diffs_in_changelog() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(null),
@@ -106,7 +106,7 @@ public class IssueChangelogDebtCalculatorTest {
   }
 
   @Test
-  public void calculate_new_technical_debt_with_null_date() throws Exception {
+  public void calculate_new_technical_debt_with_null_date() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
@@ -117,7 +117,7 @@ public class IssueChangelogDebtCalculatorTest {
   }
 
   @Test
-  public void calculate_new_technical_debt_when_new_debt_is_null() throws Exception {
+  public void calculate_new_technical_debt_when_new_debt_is_null() {
     Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(null).setChanges(
       newArrayList(
         new FieldDiffs().setDiff("technicalDebt", oneDay, null).setCreationDate(null),

@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentQueryTest {
 
   @Test
-  public void should_build_query() throws Exception {
+  public void should_build_query() {
     ComponentQuery query = ComponentQuery.builder()
       .keys(newArrayList("org.codehaus"))
       .names(newArrayList("Sona"))
@@ -48,20 +48,20 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void should_accept_null_sort() throws Exception {
+  public void should_accept_null_sort() {
     ComponentQuery query = ComponentQuery.builder().sort(null).build();
     assertThat(query.sort()).isNull();
   }
 
   @Test
-  public void should_sort_by_name_asc_by_default() throws Exception {
+  public void should_sort_by_name_asc_by_default() {
     ComponentQuery query = ComponentQuery.builder().build();
     assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
     assertThat(query.asc()).isTrue();
   }
 
   @Test
-  public void should_throw_exception_if_sort_is_not_valid() throws Exception {
+  public void should_throw_exception_if_sort_is_not_valid() {
     try {
       ComponentQuery.builder()
         .sort("UNKNOWN")
@@ -79,7 +79,7 @@ public class ComponentQueryTest {
   }
 
   @Test
-  public void should_build_non_paginated_query() throws Exception {
+  public void should_build_non_paginated_query() {
     ComponentQuery query = ComponentQuery.builder().pageSize(ComponentQuery.NO_PAGINATION).build();
     assertThat(query.pageSize()).isEqualTo(ComponentQuery.NO_PAGINATION);
     assertThat(query.pageIndex()).isEqualTo(ComponentQuery.DEFAULT_PAGE_INDEX);

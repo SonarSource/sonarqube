@@ -994,7 +994,7 @@ public class GraphsonUtilTest {
   }
 
   @Test
-  public void vertexFromJsonIgnoreKeyValid() throws Exception {
+  public void vertexFromJsonIgnoreKeyValid() {
     Graph g = new TinkerGraph();
     ElementFactory factory = new ElementFactory(g);
 

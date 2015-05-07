@@ -49,7 +49,7 @@ public class TestsCoveredFilesActionTest {
   private TestIndex testIndex;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
     testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
     ws = new WsTester(new TestsWs(new TestsCoveredFilesAction(dbClient, testIndex)));

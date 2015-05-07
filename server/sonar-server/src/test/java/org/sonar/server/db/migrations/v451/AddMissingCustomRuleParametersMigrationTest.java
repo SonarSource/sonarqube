@@ -40,7 +40,7 @@ public class AddMissingCustomRuleParametersMigrationTest {
   System2 system = mock(System2.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table rules");
     db.executeUpdateSql("truncate table rules_parameters");
     DbClient dbClient = new DbClient(db.database(), db.myBatis());

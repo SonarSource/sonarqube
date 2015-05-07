@@ -54,12 +54,12 @@ public class IssueAuthorizationDaoTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     DbUtils.closeQuietly(connection);
   }
 
   @Test
-  public void select_all() throws Exception {
+  public void select_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 0L);
@@ -77,7 +77,7 @@ public class IssueAuthorizationDaoTest {
   }
 
   @Test
-  public void select_after_date() throws Exception {
+  public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 1500000000L);
@@ -91,7 +91,7 @@ public class IssueAuthorizationDaoTest {
   }
 
   @Test
-  public void no_authorization() throws Exception {
+  public void no_authorization() {
     dbTester.prepareDbUnit(getClass(), "no_authorization.xml");
 
     Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 0L);

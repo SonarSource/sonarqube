@@ -93,7 +93,7 @@ public class UserUpdaterTest {
 
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.truncateTables();
     es.truncateIndices();
     settings = new Settings();
@@ -111,12 +111,12 @@ public class UserUpdaterTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void create_user() throws Exception {
+  public void create_user() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -152,7 +152,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void create_user_with_minimum_fields() throws Exception {
+  public void create_user_with_minimum_fields() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -172,7 +172,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void create_user_with_scm_accounts_containing_blank_or_null_entries() throws Exception {
+  public void create_user_with_scm_accounts_containing_blank_or_null_entries() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -187,7 +187,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void create_user_with_scm_accounts_containing_one_blank_entry() throws Exception {
+  public void create_user_with_scm_accounts_containing_one_blank_entry() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -202,7 +202,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void create_user_with_scm_accounts_containing_duplications() throws Exception {
+  public void create_user_with_scm_accounts_containing_duplications() {
     when(system2.now()).thenReturn(1418215735482L);
     createDefaultGroup();
 
@@ -217,7 +217,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_missing_login() throws Exception {
+  public void fail_to_create_user_with_missing_login() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin(null)
@@ -232,7 +232,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_invalid_login() throws Exception {
+  public void fail_to_create_user_with_invalid_login() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("/marius/")
@@ -247,7 +247,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_too_short_login() throws Exception {
+  public void fail_to_create_user_with_too_short_login() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("ma")
@@ -262,7 +262,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_too_long_login() throws Exception {
+  public void fail_to_create_user_with_too_long_login() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin(Strings.repeat("m", 256))
@@ -277,7 +277,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_missing_name() throws Exception {
+  public void fail_to_create_user_with_missing_name() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -292,7 +292,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_too_long_name() throws Exception {
+  public void fail_to_create_user_with_too_long_name() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -307,7 +307,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_too_long_email() throws Exception {
+  public void fail_to_create_user_with_too_long_email() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -322,7 +322,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_missing_password() throws Exception {
+  public void fail_to_create_user_with_missing_password() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -337,7 +337,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_missing_password_confirmation() throws Exception {
+  public void fail_to_create_user_with_missing_password_confirmation() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -352,7 +352,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_password_not_matching_password_confirmation() throws Exception {
+  public void fail_to_create_user_with_password_not_matching_password_confirmation() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -367,7 +367,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_with_many_errors() throws Exception {
+  public void fail_to_create_user_with_many_errors() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("")
@@ -382,7 +382,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_when_scm_account_is_already_used() throws Exception {
+  public void fail_to_create_user_when_scm_account_is_already_used() {
     db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used.xml");
 
     try {
@@ -400,7 +400,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_when_scm_account_is_already_used_by_many_user() throws Exception {
+  public void fail_to_create_user_when_scm_account_is_already_used_by_many_user() {
     db.prepareDbUnit(getClass(), "fail_to_create_user_when_scm_account_is_already_used_by_many_user.xml");
 
     try {
@@ -418,7 +418,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_when_scm_account_is_user_login() throws Exception {
+  public void fail_to_create_user_when_scm_account_is_user_login() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -434,7 +434,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_user_when_scm_account_is_user_email() throws Exception {
+  public void fail_to_create_user_when_scm_account_is_user_email() {
     try {
       userUpdater.create(NewUser.create()
         .setLogin("marius")
@@ -450,7 +450,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void notify_new_user() throws Exception {
+  public void notify_new_user() {
     createDefaultGroup();
 
     userUpdater.create(NewUser.create()
@@ -468,7 +468,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void associate_default_group_when_creating_user() throws Exception {
+  public void associate_default_group_when_creating_user() {
     createDefaultGroup();
 
     userUpdater.create(NewUser.create()
@@ -486,7 +486,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_associate_default_group_to_user_if_no_default_group() throws Exception {
+  public void fail_to_associate_default_group_to_user_if_no_default_group() {
     settings.setProperty(CoreProperties.CORE_DEFAULT_GROUP, (String) null);
 
     try {
@@ -503,7 +503,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void reactivate_user_when_creating_user_with_existing_login() throws Exception {
+  public void reactivate_user_when_creating_user_with_existing_login() {
     db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
@@ -531,7 +531,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_reactivate_user_if_not_disabled() throws Exception {
+  public void fail_to_reactivate_user_if_not_disabled() {
     db.prepareDbUnit(getClass(), "fail_to_reactivate_user_if_not_disabled.xml");
     createDefaultGroup();
 
@@ -549,7 +549,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void associate_default_groups_when_reactivating_user() throws Exception {
+  public void associate_default_groups_when_reactivating_user() {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_reactivating_user.xml");
     createDefaultGroup();
 
@@ -568,7 +568,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_user() throws Exception {
+  public void update_user() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
@@ -603,7 +603,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_user_with_scm_accounts_containing_blank_entry() throws Exception {
+  public void update_user_with_scm_accounts_containing_blank_entry() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -621,7 +621,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_only_user_name() throws Exception {
+  public void update_only_user_name() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -641,7 +641,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_only_user_email() throws Exception {
+  public void update_only_user_email() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -661,7 +661,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_only_scm_accounts() throws Exception {
+  public void update_only_scm_accounts() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -681,7 +681,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_scm_accounts_with_same_values() throws Exception {
+  public void update_scm_accounts_with_same_values() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -695,7 +695,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void remove_scm_accounts() throws Exception {
+  public void remove_scm_accounts() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -709,7 +709,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void update_only_user_password() throws Exception {
+  public void update_only_user_password() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -730,7 +730,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void associate_default_group_when_updating_user() throws Exception {
+  public void associate_default_group_when_updating_user() {
     db.prepareDbUnit(getClass(), "associate_default_groups_when_updating_user.xml");
     createDefaultGroup();
 
@@ -749,7 +749,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void not_associate_default_group_when_updating_user_if_already_existing() throws Exception {
+  public void not_associate_default_group_when_updating_user_if_already_existing() {
     db.prepareDbUnit(getClass(), "not_associate_default_group_when_updating_user_if_already_existing.xml");
     settings.setProperty(CoreProperties.CORE_DEFAULT_GROUP, "sonar-users");
     session.commit();
@@ -776,7 +776,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_user_when_scm_account_is_already_used() throws Exception {
+  public void fail_to_update_user_when_scm_account_is_already_used() {
     db.prepareDbUnit(getClass(), "fail_to_update_user_when_scm_account_is_already_used.xml");
     createDefaultGroup();
 
@@ -794,7 +794,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_user_when_scm_account_is_user_login() throws Exception {
+  public void fail_to_update_user_when_scm_account_is_user_login() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -808,7 +808,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_user_when_scm_account_is_existing_user_email() throws Exception {
+  public void fail_to_update_user_when_scm_account_is_existing_user_email() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 
@@ -822,7 +822,7 @@ public class UserUpdaterTest {
   }
 
   @Test
-  public void fail_to_update_user_when_scm_account_is_new_user_email() throws Exception {
+  public void fail_to_update_user_when_scm_account_is_new_user_email() {
     db.prepareDbUnit(getClass(), "update_user.xml");
     createDefaultGroup();
 

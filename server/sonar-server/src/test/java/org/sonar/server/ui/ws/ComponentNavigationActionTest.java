@@ -90,7 +90,7 @@ public class ComponentNavigationActionTest {
   private ResourceTypes resourceTypes;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     dbTester.truncateTables();
 
     System2 system = mock(System2.class);
@@ -117,7 +117,7 @@ public class ComponentNavigationActionTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     session.close();
   }
 

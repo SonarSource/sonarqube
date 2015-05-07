@@ -50,12 +50,12 @@ public class FacetsMediumTest {
   public static EsTester esTester = new EsTester().addDefinitions(new FacetsTestDefinition());
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     esTester.truncateIndices();
   }
 
   @Test
-  public void should_ignore_result_without_aggregations() throws Exception {
+  public void should_ignore_result_without_aggregations() {
     Facets facets = new Facets(mock(SearchResponse.class));
     assertThat(facets.getFacets()).isEmpty();
     assertThat(facets.getFacetKeys("polop")).isEmpty();

@@ -56,14 +56,14 @@ public class CoverageServiceTest {
   CoverageService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
     service = new CoverageService(myBatis, measureDao, snapshotPerspectives);
   }
 
   @Test
-  public void check_permission() throws Exception {
+  public void check_permission() {
     String projectKey = "org.sonar.sample";
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, projectKey, COMPONENT_KEY);
 
@@ -71,7 +71,7 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void get_hits_data() throws Exception {
+  public void get_hits_data() {
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
 
@@ -83,13 +83,13 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void not_get_hits_data_if_no_data() throws Exception {
+  public void not_get_hits_data_if_no_data() {
     when(measureDao.findByComponentKeyAndMetricKey(eq(session), anyString(), anyString())).thenReturn(null);
     assertThat(service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
   }
 
   @Test
-  public void get_conditions_data() throws Exception {
+  public void get_conditions_data() {
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY);
 
@@ -101,7 +101,7 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void get_covered_conditions_data() throws Exception {
+  public void get_covered_conditions_data() {
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
 
@@ -113,7 +113,7 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void get_test_cases_by_lines() throws Exception {
+  public void get_test_cases_by_lines() {
     MutableTestable testable = mock(MutableTestable.class);
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(testable);
 
@@ -124,7 +124,7 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void not_get_test_cases_by_lines_if_no_testable() throws Exception {
+  public void not_get_test_cases_by_lines_if_no_testable() {
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(null);
 
     assertThat(service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());

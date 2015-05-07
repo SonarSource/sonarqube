@@ -91,7 +91,7 @@ public class System2Test {
   }
 
   @Test
-  public void close() throws Exception {
+  public void close() {
     class MyCloseable implements Closeable {
       boolean isClosed = false;
       @Override
@@ -106,7 +106,7 @@ public class System2Test {
   }
 
   @Test
-  public void close_throws_exception_on_error() throws Exception {
+  public void close_throws_exception_on_error() {
     Closeable closeable = new Closeable() {
       @Override
       public void close() throws IOException {
@@ -122,7 +122,7 @@ public class System2Test {
   }
 
   @Test
-  public void getDefaultTimezone() throws Exception {
+  public void getDefaultTimezone() {
     assertThat(System2.INSTANCE.getDefaultTimeZone().getID()).isEqualTo(TimeZone.getDefault().getID());
 
   }

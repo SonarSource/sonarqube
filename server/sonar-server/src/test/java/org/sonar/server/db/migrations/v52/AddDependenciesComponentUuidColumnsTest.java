@@ -35,7 +35,7 @@ public class AddDependenciesComponentUuidColumnsTest {
   AddDependenciesComponentUuidColumns migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new AddDependenciesComponentUuidColumns(db.database());
   }
 

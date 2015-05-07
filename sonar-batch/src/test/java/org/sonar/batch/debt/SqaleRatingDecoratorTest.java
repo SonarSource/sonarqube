@@ -81,7 +81,7 @@ public class SqaleRatingDecoratorTest {
   }
 
   @Test
-  public void generates_metrics() throws Exception {
+  public void generates_metrics() {
     SqaleRatingDecorator decorator = new SqaleRatingDecorator();
     assertThat(decorator.generatesMetrics()).hasSize(3);
   }
@@ -93,13 +93,13 @@ public class SqaleRatingDecoratorTest {
   }
 
   @Test
-  public void execute_on_project() throws Exception {
+  public void execute_on_project() {
     SqaleRatingDecorator decorator = new SqaleRatingDecorator();
     assertThat(decorator.shouldExecuteOnProject(null)).isTrue();
   }
 
   @Test
-  public void not_execute_on_unit_test() throws Exception {
+  public void not_execute_on_unit_test() {
     File resource = mock(File.class);
     when(resource.getQualifier()).thenReturn(Qualifiers.UNIT_TEST_FILE);
     DecoratorContext context = mock(DecoratorContext.class);

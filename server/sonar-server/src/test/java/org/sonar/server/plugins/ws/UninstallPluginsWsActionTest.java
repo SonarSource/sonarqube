@@ -60,7 +60,7 @@ public class UninstallPluginsWsActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
@@ -76,7 +76,7 @@ public class UninstallPluginsWsActionTest {
   }
 
   @Test
-  public void action_uninstall_is_defined() throws Exception {
+  public void action_uninstall_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

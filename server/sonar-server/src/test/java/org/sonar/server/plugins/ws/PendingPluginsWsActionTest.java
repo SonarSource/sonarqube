@@ -61,7 +61,7 @@ public class PendingPluginsWsActionTest {
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Test
-  public void action_pending_is_defined() throws Exception {
+  public void action_pending_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

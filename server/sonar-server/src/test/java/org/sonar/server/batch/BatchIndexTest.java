@@ -59,7 +59,7 @@ public class BatchIndexTest {
   }
 
   @Test
-  public void get_index() throws Exception {
+  public void get_index() {
     BatchIndex batchIndex = new BatchIndex(server);
     batchIndex.start();
 
@@ -70,7 +70,7 @@ public class BatchIndexTest {
   }
 
   @Test
-  public void get_file() throws Exception {
+  public void get_file() {
     BatchIndex batchIndex = new BatchIndex(server);
     batchIndex.start();
 
@@ -83,7 +83,7 @@ public class BatchIndexTest {
    * /etc/passwd
    */
   @Test
-  public void check_location_of_file() throws Exception {
+  public void check_location_of_file() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
@@ -94,7 +94,7 @@ public class BatchIndexTest {
   }
 
   @Test
-  public void file_does_not_exist() throws Exception {
+  public void file_does_not_exist() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: other.jar");
 

@@ -34,7 +34,7 @@ public class FeedDependenciesComponentUuidsTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table dependencies");
     db.executeUpdateSql("truncate table projects");
 

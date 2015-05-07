@@ -67,7 +67,7 @@ public class DefaultHighlightingTest {
   }
 
   @Test
-  public void should_register_highlighting_rule() throws Exception {
+  public void should_register_highlighting_rule() {
     assertThat(highlightingRules).hasSize(6);
   }
 
@@ -76,7 +76,7 @@ public class DefaultHighlightingTest {
   }
 
   @Test
-  public void should_order_by_start_then_end_offset() throws Exception {
+  public void should_order_by_start_then_end_offset() {
     assertThat(highlightingRules).extracting("range", TextRange.class).containsExactly(rangeOf(1, 0, 1, 10),
       rangeOf(1, 10, 1, 12),
       rangeOf(1, 12, 1, 20),
@@ -87,7 +87,7 @@ public class DefaultHighlightingTest {
   }
 
   @Test
-  public void should_suport_overlapping() throws Exception {
+  public void should_suport_overlapping() {
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(0, 15, KEYWORD)
@@ -96,7 +96,7 @@ public class DefaultHighlightingTest {
   }
 
   @Test
-  public void should_prevent_boudaries_overlapping() throws Exception {
+  public void should_prevent_boudaries_overlapping() {
     throwable.expect(IllegalStateException.class);
     throwable
       .expectMessage("Cannot register highlighting rule for characters at Range[from [line=1, lineOffset=8] to [line=1, lineOffset=15]] as it overlaps at least one existing rule");

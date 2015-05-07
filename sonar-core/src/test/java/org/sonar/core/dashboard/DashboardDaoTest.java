@@ -94,7 +94,7 @@ public class DashboardDaoTest {
   }
 
   @Test
-  public void shouldInsertWithNullableColumns() throws Exception {
+  public void shouldInsertWithNullableColumns() {
     dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     DashboardDto dashboardDto = new DashboardDto();

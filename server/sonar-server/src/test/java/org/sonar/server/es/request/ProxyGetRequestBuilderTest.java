@@ -63,7 +63,7 @@ public class ProxyGetRequestBuilderTest {
   }
 
   @Test
-  public void fail_to_get_bad_query() throws Exception {
+  public void fail_to_get_bad_query() {
     GetRequestBuilder requestBuilder = esTester.client().prepareGet()
       .setIndex("unknown")
       .setType("test")
@@ -78,7 +78,7 @@ public class ProxyGetRequestBuilderTest {
   }
 
   @Test
-  public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_string_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareGet().get("1");
       fail();
@@ -88,7 +88,7 @@ public class ProxyGetRequestBuilderTest {
   }
 
   @Test
-  public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareGet().get(TimeValue.timeValueMinutes(1));
       fail();
@@ -98,7 +98,7 @@ public class ProxyGetRequestBuilderTest {
   }
 
   @Test
-  public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
+  public void execute_should_throw_an_unsupported_operation_exception() {
     try {
       esTester.client().prepareGet().execute();
       fail();

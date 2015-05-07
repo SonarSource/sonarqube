@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 public class SetAssigneeTest {
   @Test
-  public void assign() throws Exception {
+  public void assign() {
     User user = new DefaultUser().setLogin("eric").setName("eric");
     SetAssignee function = new SetAssignee(user);
     Function.Context context = mock(Function.Context.class);
@@ -37,7 +37,7 @@ public class SetAssigneeTest {
   }
 
   @Test
-  public void unassign() throws Exception {
+  public void unassign() {
     Function.Context context = mock(Function.Context.class);
     SetAssignee.UNASSIGN.execute(context);
     verify(context, times(1)).setAssignee(null);

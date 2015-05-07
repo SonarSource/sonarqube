@@ -38,7 +38,7 @@ public class MinimumViableSystemTest {
    * Test environment does not necessarily follows all checks.
    */
   @Test
-  public void check() throws Exception {
+  public void check() {
     MinimumViableSystem mve = new MinimumViableSystem();
 
     try {
@@ -50,7 +50,7 @@ public class MinimumViableSystemTest {
   }
 
   @Test
-  public void checkJavaVersion() throws Exception {
+  public void checkJavaVersion() {
     MinimumViableSystem mve = new MinimumViableSystem();
 
     // yes, sources are compiled with a supported Java version!
@@ -66,7 +66,7 @@ public class MinimumViableSystemTest {
   }
 
   @Test
-  public void checkJavaOption() throws Exception {
+  public void checkJavaOption() {
     String key = "MinimumViableEnvironmentTest.test.prop";
     MinimumViableSystem mve = new MinimumViableSystem()
       .setRequiredJavaOption(key, "true");

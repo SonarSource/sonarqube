@@ -56,7 +56,7 @@ public class SourceIndexBenchmarkTest {
   public Benchmark benchmark = new Benchmark();
 
   @Test
-  public void benchmark() throws Exception {
+  public void benchmark() {
     // index source lines
     benchmarkIndexing();
 

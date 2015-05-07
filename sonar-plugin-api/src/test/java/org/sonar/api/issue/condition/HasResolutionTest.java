@@ -30,7 +30,7 @@ public class HasResolutionTest {
   DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void should_match() throws Exception {
+  public void should_match() {
     HasResolution condition = new HasResolution(Issue.RESOLUTION_FIXED, Issue.RESOLUTION_FALSE_POSITIVE);
 
     assertThat(condition.matches(issue.setResolution("FIXED"))).isTrue();

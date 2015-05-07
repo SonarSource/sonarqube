@@ -80,12 +80,12 @@ public class QProfileComparisonMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void compare_empty_profiles() throws Exception {
+  public void compare_empty_profiles() {
     QProfileComparisonResult result = comparison.compare(left.getKey(), right.getKey());
     assertThat(result.left().getKey()).isEqualTo(left.getKey());
     assertThat(result.right().getKey()).isEqualTo(right.getKey());
@@ -97,7 +97,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_same() throws Exception {
+  public void compare_same() {
     RuleActivation commonActivation = new RuleActivation(xooRule1.getKey())
       .setSeverity(Severity.CRITICAL)
       .setParameter("min", "7")
@@ -117,7 +117,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_only_left() throws Exception {
+  public void compare_only_left() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), left);
     dbSession.commit();
 
@@ -132,7 +132,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_only_right() throws Exception {
+  public void compare_only_right() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), right);
     dbSession.commit();
 
@@ -147,7 +147,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_disjoint() throws Exception {
+  public void compare_disjoint() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()), left);
     ruleActivator.activate(dbSession, new RuleActivation(xooRule2.getKey()), right);
     dbSession.commit();
@@ -163,7 +163,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_modified_severity() throws Exception {
+  public void compare_modified_severity() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setSeverity(Severity.CRITICAL), left);
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setSeverity(Severity.BLOCKER), right);
     dbSession.commit();
@@ -184,7 +184,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_modified_param() throws Exception {
+  public void compare_modified_param() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "20"), left);
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "30"), right);
     dbSession.commit();
@@ -208,7 +208,7 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test
-  public void compare_different_params() throws Exception {
+  public void compare_different_params() {
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("max", "20"), left);
     ruleActivator.activate(dbSession, new RuleActivation(xooRule1.getKey()).setParameter("min", "5"), right);
     dbSession.commit();
@@ -231,12 +231,12 @@ public class QProfileComparisonMediumTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_unknown_left() throws Exception {
+  public void fail_on_unknown_left() {
     comparison.compare("polop", right.getKey());
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_on_unknown_right() throws Exception {
+  public void fail_on_unknown_right() {
     comparison.compare(left.getKey(), "polop");
   }
 }

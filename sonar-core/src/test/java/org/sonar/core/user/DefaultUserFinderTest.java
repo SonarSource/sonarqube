@@ -34,7 +34,7 @@ public class DefaultUserFinderTest {
   DefaultUserFinder finder = new DefaultUserFinder(dao);
 
   @Test
-  public void findByLogin() throws Exception {
+  public void findByLogin() {
     UserDto dto = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
     when(dao.selectActiveUserByLogin("david")).thenReturn(dto);
 
@@ -42,7 +42,7 @@ public class DefaultUserFinderTest {
   }
 
   @Test
-  public void findByLogins() throws Exception {
+  public void findByLogins() {
     UserDto david = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com");
     when(dao.selectUsersByLogins(Arrays.asList("david", "john"))).thenReturn(Arrays.asList(david, john));
@@ -55,7 +55,7 @@ public class DefaultUserFinderTest {
   }
 
   @Test
-  public void findByQuery() throws Exception {
+  public void findByQuery() {
     UserQuery query = UserQuery.builder().logins("simon").build();
     finder.find(query);
     verify(dao).selectUsers(query);

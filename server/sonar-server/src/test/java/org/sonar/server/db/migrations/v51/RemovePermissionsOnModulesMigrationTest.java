@@ -33,7 +33,7 @@ public class RemovePermissionsOnModulesMigrationTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new RemovePermissionsOnModulesMigrationStep(db.database());
   }
 

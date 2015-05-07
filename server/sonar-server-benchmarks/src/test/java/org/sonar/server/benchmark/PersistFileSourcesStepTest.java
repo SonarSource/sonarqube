@@ -70,7 +70,7 @@ public class PersistFileSourcesStepTest {
     persistFileSources(reportDir);
   }
 
-  private void persistFileSources(File reportDir) throws SQLException {
+  private void persistFileSources(File reportDir) {
     LOGGER.info("Persist file sources");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
 

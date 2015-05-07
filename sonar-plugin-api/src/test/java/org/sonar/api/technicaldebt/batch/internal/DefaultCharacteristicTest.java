@@ -54,7 +54,7 @@ public class DefaultCharacteristicTest {
   }
 
   @Test
-  public void set_name_as_key() throws Exception {
+  public void set_name_as_key() {
     DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setId(1)
       .setName("Compiler related portability", true);
@@ -64,7 +64,7 @@ public class DefaultCharacteristicTest {
   }
 
   @Test
-  public void add_requirement() throws Exception {
+  public void add_requirement() {
     DefaultRequirement requirement = new DefaultRequirement().setRuleKey(RuleKey.of("repo", "rule"));
 
     DefaultCharacteristic characteristic = new DefaultCharacteristic()
@@ -76,7 +76,7 @@ public class DefaultCharacteristicTest {
   }
 
   @Test
-  public void add_child() throws Exception {
+  public void add_child() {
     DefaultCharacteristic root = new DefaultCharacteristic()
       .setId(1)
       .setKey("REUSABILITY");
@@ -93,7 +93,7 @@ public class DefaultCharacteristicTest {
 
 
   @Test
-  public void is_root() throws Exception {
+  public void is_root() {
     DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setId(1)
       .setKey("NETWORK_USE")

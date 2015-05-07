@@ -71,7 +71,7 @@ public class IssueIndexTest {
   ViewIndexer viewIndexer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.truncateIndices();
     issueIndexer = new IssueIndexer(null, tester.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
@@ -85,7 +85,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void get_by_key() throws Exception {
+  public void get_by_key() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
@@ -96,7 +96,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void get_by_key_with_attributes() throws Exception {
+  public void get_by_key_with_attributes() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     IssueDoc issue = IssueTesting.newDoc("ISSUE1", file).setAttributes((KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234"))));
@@ -107,7 +107,7 @@ public class IssueIndexTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void comments_field_is_not_available() throws Exception {
+  public void comments_field_is_not_available() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
@@ -118,7 +118,7 @@ public class IssueIndexTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void is_new_field_is_not_available() throws Exception {
+  public void is_new_field_is_not_available() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
@@ -129,12 +129,12 @@ public class IssueIndexTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void fail_to_get_unknown_key() throws Exception {
+  public void fail_to_get_unknown_key() {
     index.getByKey("unknown");
   }
 
   @Test
-  public void filter_by_keys() throws Exception {
+  public void filter_by_keys() {
     ComponentDto project = ComponentTesting.newProjectDto();
 
     indexIssues(
@@ -147,7 +147,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_projects() throws Exception {
+  public void filter_by_projects() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
@@ -165,7 +165,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_projects() throws Exception {
+  public void facets_on_projects() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD");
     ComponentDto project2 = ComponentTesting.newProjectDto("EFGH");
 
@@ -180,7 +180,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_modules() throws Exception {
+  public void filter_by_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
@@ -203,7 +203,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_components_on_contextualized_search() throws Exception {
+  public void filter_by_components_on_contextualized_search() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
@@ -238,7 +238,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_components_on_non_contextualized_search() throws Exception {
+  public void filter_by_components_on_non_contextualized_search() {
     ComponentDto project = ComponentTesting.newProjectDto("project");
     ComponentDto file1 = ComponentTesting.newFileDto(project, "file1");
     ComponentDto module = ComponentTesting.newModuleDto(project).setUuid("module");
@@ -268,7 +268,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_components() throws Exception {
+  public void facets_on_components() {
     ComponentDto project = ComponentTesting.newProjectDto("A");
     ComponentDto file1 = ComponentTesting.newFileDto(project, "ABCD");
     ComponentDto file2 = ComponentTesting.newFileDto(project, "BCDE");
@@ -288,7 +288,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_directories() throws Exception {
+  public void filter_by_directories() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
@@ -303,7 +303,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_directories() throws Exception {
+  public void facets_on_directories() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project).setPath("src/main/xoo/F1.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project).setPath("F2.xoo");
@@ -318,7 +318,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_views() throws Exception {
+  public void filter_by_views() {
     ComponentDto project1 = ComponentTesting.newProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project1);
     ComponentDto project2 = ComponentTesting.newProjectDto();
@@ -344,7 +344,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_severities() throws Exception {
+  public void filter_by_severities() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -358,7 +358,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_severities() throws Exception {
+  public void facets_on_severities() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -373,7 +373,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_statuses() throws Exception {
+  public void filter_by_statuses() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -387,7 +387,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_statuses() throws Exception {
+  public void facets_on_statuses() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -402,7 +402,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_resolutions() throws Exception {
+  public void filter_by_resolutions() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -417,7 +417,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_resolutions() throws Exception {
+  public void facets_on_resolutions() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -432,7 +432,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_resolved() throws Exception {
+  public void filter_by_resolved() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -447,7 +447,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_action_plans() throws Exception {
+  public void filter_by_action_plans() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -461,7 +461,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_action_plans() throws Exception {
+  public void facets_on_action_plans() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -475,7 +475,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_planned() throws Exception {
+  public void filter_by_planned() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -490,7 +490,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_rules() throws Exception {
+  public void filter_by_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
@@ -502,7 +502,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_languages() throws Exception {
+  public void filter_by_languages() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
@@ -515,7 +515,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_languages() throws Exception {
+  public void facets_on_languages() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
@@ -528,7 +528,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_assignees() throws Exception {
+  public void filter_by_assignees() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -543,7 +543,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_assignees() throws Exception {
+  public void facets_on_assignees() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -559,7 +559,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_assignees_supports_dashes() throws Exception {
+  public void facets_on_assignees_supports_dashes() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -575,7 +575,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_assigned() throws Exception {
+  public void filter_by_assigned() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -590,7 +590,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_reporters() throws Exception {
+  public void filter_by_reporters() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -604,7 +604,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_authors() throws Exception {
+  public void filter_by_authors() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -619,7 +619,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facets_on_authors() throws Exception {
+  public void facets_on_authors() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -635,7 +635,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_after() throws Exception {
+  public void filter_by_created_after() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -651,7 +651,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_before() throws Exception {
+  public void filter_by_created_before() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -667,7 +667,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_after_and_before() throws Exception {
+  public void filter_by_created_after_and_before() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -712,7 +712,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_before_must_be_lower_than_after() throws Exception {
+  public void filter_by_created_before_must_be_lower_than_after() {
     try {
       index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
@@ -722,7 +722,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_after_must_not_be_in_future() throws Exception {
+  public void filter_by_created_after_must_not_be_in_future() {
     try {
       index.search(IssueQuery.builder().createdAfter(new Date(Long.MAX_VALUE)).build(), new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
@@ -732,7 +732,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_created_at() throws Exception {
+  public void filter_by_created_at() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -743,7 +743,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_days() throws Exception {
+  public void facet_on_created_at_with_less_than_20_days() {
 
     SearchOptions options = fixtureForCreatedAtFacet();
 
@@ -766,7 +766,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_weeks() throws Exception {
+  public void facet_on_created_at_with_less_than_20_weeks() {
 
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
@@ -782,7 +782,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_with_less_than_20_months() throws Exception {
+  public void facet_on_created_at_with_less_than_20_months() {
 
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
@@ -800,7 +800,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_with_more_than_20_months() throws Exception {
+  public void facet_on_created_at_with_more_than_20_months() {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder()
@@ -818,7 +818,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_with_bounds_outside_of_data() throws Exception {
+  public void facet_on_created_at_with_bounds_outside_of_data() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder()
@@ -837,7 +837,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_without_start_bound() throws Exception {
+  public void facet_on_created_at_without_start_bound() {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder()
@@ -852,7 +852,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void facet_on_created_at_without_issues() throws Exception {
+  public void facet_on_created_at_without_issues() {
     SearchOptions SearchOptions = new SearchOptions().addFacets("createdAt");
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder().build(),
@@ -878,7 +878,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void paging() throws Exception {
+  public void paging() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     for (int i = 0; i < 12; i++) {
@@ -901,7 +901,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_with_max_limit() throws Exception {
+  public void search_with_max_limit() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     List<IssueDoc> issues = newArrayList();
@@ -917,7 +917,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_status() throws Exception {
+  public void sort_by_status() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -940,7 +940,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_severity() throws Exception {
+  public void sort_by_severity() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -969,7 +969,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_assignee() throws Exception {
+  public void sort_by_assignee() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -991,7 +991,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_creation_date() throws Exception {
+  public void sort_by_creation_date() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -1013,7 +1013,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_update_date() throws Exception {
+  public void sort_by_update_date() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -1035,7 +1035,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_close_date() throws Exception {
+  public void sort_by_close_date() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
@@ -1060,7 +1060,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void sort_by_file_and_line() throws Exception {
+  public void sort_by_file_and_line() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file1 = ComponentTesting.newFileDto(project, "F1").setPath("src/main/xoo/org/sonar/samples/File.xoo");
     ComponentDto file2 = ComponentTesting.newFileDto(project, "F2").setPath("src/main/xoo/org/sonar/samples/File2.xoo");
@@ -1101,7 +1101,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void authorized_issues_on_groups() throws Exception {
+  public void authorized_issues_on_groups() {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
     ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
@@ -1134,7 +1134,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void authorized_issues_on_user() throws Exception {
+  public void authorized_issues_on_user() {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
     ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
@@ -1163,7 +1163,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void authorized_issues_on_user_and_group() throws Exception {
+  public void authorized_issues_on_user_and_group() {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
 
@@ -1208,7 +1208,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_issues_for_batch_return_needed_fields() throws Exception {
+  public void search_issues_for_batch_return_needed_fields() {
     ComponentDto project = ComponentTesting.newProjectDto("PROJECT");
     ComponentDto file = ComponentTesting.newFileDto(project).setPath("src/File.xoo");
 
@@ -1244,7 +1244,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_issues_for_batch() throws Exception {
+  public void search_issues_for_batch() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto module = ComponentTesting.newModuleDto(project);
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
@@ -1265,7 +1265,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void fail_to_search_issues_for_batch_on_not_allowed_scope() throws Exception {
+  public void fail_to_search_issues_for_batch_on_not_allowed_scope() {
     try {
       index.selectIssuesForBatch(new ComponentDto().setScope(Scopes.DIRECTORY));
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
@@ -1275,7 +1275,7 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void search_issues_for_batch_return_only_authorized_issues() throws Exception {
+  public void search_issues_for_batch_return_only_authorized_issues() {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
 

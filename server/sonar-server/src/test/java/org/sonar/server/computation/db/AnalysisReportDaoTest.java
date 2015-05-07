@@ -72,7 +72,7 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void insert_multiple_reports() throws Exception {
+  public void insert_multiple_reports() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     AnalysisReportDto report1 = newDefaultAnalysisReport().setUuid("UUID_1");

@@ -43,20 +43,20 @@ public class UserIndexerTest {
   public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
   }
 
   @Test
-  public void index_nothing() throws Exception {
+  public void index_nothing() {
     UserIndexer indexer = createIndexer();
     indexer.index();
     assertThat(esTester.countDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER)).isEqualTo(0L);
   }
 
   @Test
-  public void index() throws Exception {
+  public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     UserIndexer indexer = createIndexer();
@@ -75,7 +75,7 @@ public class UserIndexerTest {
   }
 
   @Test
-  public void do_nothing_if_disabled() throws Exception {
+  public void do_nothing_if_disabled() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     createIndexer().setEnabled(false).index();

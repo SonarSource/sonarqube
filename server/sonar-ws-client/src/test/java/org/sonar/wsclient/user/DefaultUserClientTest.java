@@ -63,7 +63,7 @@ public class DefaultUserClientTest {
   }
 
   @Test
-  public void should_create_user() throws Exception {
+  public void should_create_user() {
     httpServer.stubResponseBody("{\"user\":{\"login\":\"daveloper\",\"name\":\"daveloper\",\"email\":null}}");
 
     UserParameters params = UserParameters.create().login("daveloper").password("pass1").passwordConfirmation("pass1");
@@ -82,7 +82,7 @@ public class DefaultUserClientTest {
   }
 
   @Test
-  public void should_update_user() throws Exception {
+  public void should_update_user() {
     httpServer.stubResponseBody("{\"user\":{\"login\":\"daveloper\",\"name\":\"daveloper\",\"email\":\"new_email\"}}");
 
     UserParameters params = UserParameters.create().login("daveloper").email("new_email");
@@ -100,7 +100,7 @@ public class DefaultUserClientTest {
   }
 
   @Test
-  public void should_deactivate_user() throws Exception {
+  public void should_deactivate_user() {
     httpServer.stubStatusCode(200);
 
     client.deactivate("daveloper");

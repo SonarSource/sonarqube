@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class RuleCacheTest {
 
   @Test
-  public void ruleName() throws Exception {
+  public void ruleName() {
     RuleCacheLoader loader = mock(RuleCacheLoader.class);
     when(loader.load(RuleKey.of("squid", "R002"))).thenReturn(new RuleDto().setName("Rule Two"));
     RuleCache cache = new RuleCache(loader);

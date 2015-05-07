@@ -60,7 +60,7 @@ public class ComponentCleanerServiceMediumTest {
   ComponentCleanerService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
 
     db = tester.get(DbClient.class);
@@ -75,7 +75,7 @@ public class ComponentCleanerServiceMediumTest {
   }
 
   @Test
-  public void delete_project() throws Exception {
+  public void delete_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
     session.commit();
@@ -86,7 +86,7 @@ public class ComponentCleanerServiceMediumTest {
   }
 
   @Test
-  public void remove_issue_permission_index_when_deleting_a_project() throws Exception {
+  public void remove_issue_permission_index_when_deleting_a_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
 
@@ -103,7 +103,7 @@ public class ComponentCleanerServiceMediumTest {
   }
 
   @Test
-  public void remove_issue_when_deleting_a_project() throws Exception {
+  public void remove_issue_when_deleting_a_project() {
     // ARRANGE
     ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
@@ -127,7 +127,7 @@ public class ComponentCleanerServiceMediumTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_to_delete_not_project() throws Exception {
+  public void fail_to_delete_not_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
     db.componentDao().insert(session, project, file);

@@ -39,13 +39,13 @@ public class DeleteKeyTest {
   Index index;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     index = mock(Index.class);
     when(index.getIndexName()).thenReturn(TEST_INDEX.getIndexName());
   }
 
   @Test
-  public void get_delete_request() throws Exception {
+  public void get_delete_request() {
     String key = "test_key";
     DeleteKey<String> deleteAction = new DeleteKey<String>(TEST_INDEX.getIndexType(), key);
 

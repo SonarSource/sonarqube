@@ -31,7 +31,7 @@ public class EmbeddedDatabaseFactoryTest {
   Settings settings = new Settings();
 
   @Test
-  public void should_start_and_stop_tcp_h2_database() throws Exception {
+  public void should_start_and_stop_tcp_h2_database() {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp:localhost");
 
     final EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);
@@ -50,7 +50,7 @@ public class EmbeddedDatabaseFactoryTest {
   }
 
   @Test
-  public void should_not_start_mem_h2_database() throws Exception {
+  public void should_not_start_mem_h2_database() {
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:mem");
 
     final EmbeddedDatabase embeddedDatabase = mock(EmbeddedDatabase.class);

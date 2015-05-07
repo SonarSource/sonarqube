@@ -35,14 +35,14 @@ public class MyNewIssuesNotificationTest {
   MyNewIssuesNotification sut = new MyNewIssuesNotification(mock(UserIndex.class), mock(RuleIndex.class), mock(DbClient.class), mock(Durations.class));
 
   @Test
-  public void set_assignee() throws Exception {
+  public void set_assignee() {
     sut.setAssignee("myAssignee");
 
     assertThat(sut.getFieldValue(FIELD_ASSIGNEE)).isEqualTo("myAssignee");
   }
 
   @Test
-  public void set_with_a_specific_type() throws Exception {
+  public void set_with_a_specific_type() {
     assertThat(sut.getType()).isEqualTo(MyNewIssuesNotification.TYPE);
 
   }

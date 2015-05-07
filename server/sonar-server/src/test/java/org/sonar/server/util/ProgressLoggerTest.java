@@ -47,7 +47,7 @@ public class ProgressLoggerTest {
   }
 
   @Test
-  public void create() throws Exception {
+  public void create() {
     ProgressLogger progress = ProgressLogger.create(getClass(), new AtomicLong());
 
     // default values

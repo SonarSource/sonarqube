@@ -69,7 +69,7 @@ public class MeasureCacheTest {
   private MeasureCache cache;
 
   @Before
-  public void start() throws Exception {
+  public void start() {
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
     metricFinder = mock(MetricFinder.class);
@@ -84,7 +84,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_add_measure() throws Exception {
+  public void should_add_measure() {
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -114,7 +114,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_add_measure_with_big_data() throws Exception {
+  public void should_add_measure_with_big_data() {
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -153,7 +153,7 @@ public class MeasureCacheTest {
    * This test fails with stock PersisitIt.
    */
   @Test
-  public void should_add_measure_with_too_big_data_for_persistit_pre_patch() throws Exception {
+  public void should_add_measure_with_too_big_data_for_persistit_pre_patch() {
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -188,7 +188,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_add_measure_with_too_big_data_for_persistit() throws Exception {
+  public void should_add_measure_with_too_big_data_for_persistit() {
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -210,7 +210,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_add_measure_with_same_metric() throws Exception {
+  public void should_add_measure_with_same_metric() {
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -231,7 +231,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_get_measures() throws Exception {
+  public void should_get_measures() {
     Project p = new Project("struts");
     Resource dir = Directory.create("foo/bar").setEffectiveKey("struts:foo/bar");
     Resource file1 = Directory.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");

@@ -54,12 +54,12 @@ public class BackendCleanupMediumTest {
   BackendCleanup backendCleanup;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     backendCleanup = new BackendCleanup(esTester.client(), dbTester.myBatis());
   }
 
   @Test
-  public void clear_db() throws Exception {
+  public void clear_db() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     backendCleanup.clearDb();

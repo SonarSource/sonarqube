@@ -44,7 +44,7 @@ public class IssueActionPlanKeyMigrationTest {
   IssueActionPlanKeyMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-28").getTime());
 
     migration = new IssueActionPlanKeyMigrationStep(db.database(), system2);

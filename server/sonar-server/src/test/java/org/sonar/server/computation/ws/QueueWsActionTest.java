@@ -41,7 +41,7 @@ public class QueueWsActionTest {
   private ReportQueue queue;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     queue = mock(ReportQueue.class);
     tester = new WsTester(new ComputationWebService(new QueueWsAction(queue)));
   }
@@ -64,7 +64,7 @@ public class QueueWsActionTest {
   }
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     assertThat(tester.controller(ComputationWebService.API_ENDPOINT).action("queue")).isNotNull();
   }
 }

@@ -30,13 +30,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RulesAggregationTest {
 
   @Test
-  public void empty() throws Exception {
+  public void empty() {
     RulesAggregation rulesAggregation = new RulesAggregation();
     assertThat(rulesAggregation.rules()).isEmpty();
   }
 
   @Test
-  public void count_rules() throws Exception {
+  public void count_rules() {
     RulesAggregation rulesAggregation = new RulesAggregation();
     RuleKey ruleKey = RuleKey.of("xoo", "S001");
     RuleDto ruleDto = RuleTesting.newDto(ruleKey).setName("Rule name");
@@ -51,7 +51,7 @@ public class RulesAggregationTest {
   }
 
   @Test
-  public void count_rules_with_different_rules() throws Exception {
+  public void count_rules_with_different_rules() {
     RulesAggregation rulesAggregation = new RulesAggregation();
 
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("xoo", "S001")).setName("Rule name 1");

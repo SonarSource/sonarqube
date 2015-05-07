@@ -57,7 +57,7 @@ public class LanguageWsTest {
   }
 
   @Test
-  public void should_be_well_defined() throws Exception {
+  public void should_be_well_defined() {
     Controller controller = tester.controller(CONTROLLER_LANGUAGES);
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

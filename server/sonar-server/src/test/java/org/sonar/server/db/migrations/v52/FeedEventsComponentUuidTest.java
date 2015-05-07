@@ -34,7 +34,7 @@ public class FeedEventsComponentUuidTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table events");
     db.executeUpdateSql("truncate table projects");
 

@@ -51,7 +51,7 @@ public class ResultSetIteratorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     DbUtils.closeQuietly(connection);
   }
 

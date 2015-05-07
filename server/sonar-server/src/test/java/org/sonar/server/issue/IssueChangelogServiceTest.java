@@ -57,12 +57,12 @@ public class IssueChangelogServiceTest {
   IssueChangelogService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     service = new IssueChangelogService(changeDao, userFinder, issueService, formatter);
   }
 
   @Test
-  public void load_changelog_and_related_users() throws Exception {
+  public void load_changelog_and_related_users() {
     FieldDiffs userChange = new FieldDiffs().setUserLogin("arthur").setDiff("severity", "MAJOR", "BLOCKER");
     FieldDiffs scanChange = new FieldDiffs().setDiff("status", "RESOLVED", "CLOSED");
     when(changeDao.selectChangelogByIssue("ABCDE")).thenReturn(Arrays.asList(userChange, scanChange));
@@ -80,7 +80,7 @@ public class IssueChangelogServiceTest {
   }
 
   @Test
-  public void format_diffs() throws Exception {
+  public void format_diffs() {
     FieldDiffs diffs = new FieldDiffs().setUserLogin("arthur").setDiff("severity", "MAJOR", "BLOCKER");
     MockUserSession.set();
     service.formatDiffs(diffs);

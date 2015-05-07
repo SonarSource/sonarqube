@@ -88,7 +88,7 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldPersist() throws Exception {
+  public void shouldPersist() {
     Notification notification = new Notification("test");
     manager.scheduleForSending(notification);
 
@@ -96,7 +96,7 @@ public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldGetFromQueueAndDelete() throws Exception {
+  public void shouldGetFromQueueAndDelete() {
     Notification notification = new Notification("test");
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
     List<NotificationQueueDto> dtos = Arrays.asList(dto);

@@ -109,7 +109,7 @@ public class DebtModelOperationsTest {
   DebtModelOperations service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(now.getTime());
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);

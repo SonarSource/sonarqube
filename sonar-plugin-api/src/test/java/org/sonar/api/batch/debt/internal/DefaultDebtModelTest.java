@@ -30,7 +30,7 @@ public class DefaultDebtModelTest {
   private DefaultDebtModel debtModel;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     debtModel = new DefaultDebtModel()
       .addCharacteristic(
         new DefaultDebtCharacteristic().setId(1)
@@ -48,22 +48,22 @@ public class DefaultDebtModelTest {
   }
 
   @Test
-  public void all_characteristics() throws Exception {
+  public void all_characteristics() {
     assertThat(debtModel.allCharacteristics()).hasSize(2);
   }
 
   @Test
-  public void characteristics() throws Exception {
+  public void characteristics() {
     assertThat(debtModel.characteristics()).hasSize(1);
   }
 
   @Test
-  public void sub_characteristics() throws Exception {
+  public void sub_characteristics() {
     assertThat(debtModel.subCharacteristics("MEMORY_EFFICIENCY")).hasSize(1);
   }
 
   @Test
-  public void characteristic_by_id() throws Exception {
+  public void characteristic_by_id() {
     DefaultDebtCharacteristic debtCharacteristic = (DefaultDebtCharacteristic) debtModel.characteristicById(1);
     assertThat(debtCharacteristic).isNotNull();
     assertThat(debtCharacteristic.id()).isEqualTo(1);
@@ -78,7 +78,7 @@ public class DefaultDebtModelTest {
   }
 
   @Test
-  public void characteristic_by_key() throws Exception {
+  public void characteristic_by_key() {
     DefaultDebtCharacteristic debtCharacteristic = (DefaultDebtCharacteristic) debtModel.characteristicByKey("EFFICIENCY");
     assertThat(debtCharacteristic).isNotNull();
     assertThat(debtCharacteristic.id()).isEqualTo(2);

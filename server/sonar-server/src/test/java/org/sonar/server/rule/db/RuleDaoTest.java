@@ -48,7 +48,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   private System2 system2;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     this.session = getMyBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.dao = new RuleDao(system2);
@@ -60,7 +60,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all() throws Exception {
+  public void select_all() {
     setupData("selectAll");
     List<RuleDto> ruleDtos = dao.findAll(session);
 
@@ -86,7 +86,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enables_and_non_manual() throws Exception {
+  public void select_enables_and_non_manual() {
     setupData("select_enables_and_non_manual");
     List<RuleDto> ruleDtos = dao.findByEnabledAndNotManual(session);
 
@@ -111,7 +111,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_id() throws Exception {
+  public void select_by_id() {
     setupData("selectById");
     RuleDto ruleDto = dao.getById(session, 2);
 
@@ -124,7 +124,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_rule_key() throws Exception {
+  public void select_by_rule_key() {
     setupData("select_by_rule_key");
     assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
     assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "Unknown"))).isNull();
@@ -132,7 +132,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_name() throws Exception {
+  public void select_by_name() {
     setupData("select_by_name");
     RuleDto ruleDto = dao.getByName("Avoid Null", session);
 
@@ -146,7 +146,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_non_manual() throws Exception {
+  public void select_non_manual() {
     setupData("selectNonManual");
     List<RuleDto> ruleDtos = dao.findByNonManual(session);
     session.commit();
@@ -297,7 +297,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_parameters() throws Exception {
+  public void select_parameters() {
     setupData("selectParameters");
     List<RuleParamDto> ruleDtos = dao.findAllRuleParams(session);
 
@@ -311,7 +311,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_parameters_by_rule_id() throws Exception {
+  public void select_parameters_by_rule_id() {
     setupData("select_parameters_by_rule_id");
     RuleDto rule = dao.getById(session, 1);
     List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(session, rule.getKey());

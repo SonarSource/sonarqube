@@ -81,19 +81,19 @@ public class IssueComputationTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     sut.afterReportProcessing();
   }
 
   @Test
-  public void store_issues_on_disk() throws Exception {
+  public void store_issues_on_disk() {
     process();
 
     assertThat(Iterators.getOnlyElement(outputIssues.traverse()).key()).isEqualTo("ISSUE_A");
   }
 
   @Test
-  public void copy_rule_tags_on_new_issues() throws Exception {
+  public void copy_rule_tags_on_new_issues() {
     inputIssue.setIsNew(true);
     rule.setTags(ImmutableSet.of("bug", "performance"));
     rule.setSystemTags(ImmutableSet.of("blocker"));
@@ -104,7 +104,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_copy_rule_tags_on_existing_issues() throws Exception {
+  public void do_not_copy_rule_tags_on_existing_issues() {
     inputIssue.setIsNew(false);
     rule.setTags(ImmutableSet.of("bug", "performance"));
     rule.setSystemTags(ImmutableSet.of("blocker"));
@@ -115,7 +115,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void guess_author_of_new_issues() throws Exception {
+  public void guess_author_of_new_issues() {
     inputIssue.setIsNew(true);
     inputIssue.setLine(3);
     when(lineCache.lineAuthor(3)).thenReturn("charlie");
@@ -126,7 +126,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_fail_if_missing_author_for_new_issues() throws Exception {
+  public void do_not_fail_if_missing_author_for_new_issues() {
     inputIssue.setIsNew(true);
     inputIssue.setLine(3);
     when(lineCache.lineAuthor(3)).thenReturn(null);
@@ -137,7 +137,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_guess_author_of_existing_issues() throws Exception {
+  public void do_not_guess_author_of_existing_issues() {
     inputIssue.setIsNew(false);
     inputIssue.setLine(3);
     when(lineCache.lineAuthor(3)).thenReturn("charlie");
@@ -148,7 +148,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void auto_assign_new_issues() throws Exception {
+  public void auto_assign_new_issues() {
     inputIssue.setIsNew(true);
     inputIssue.setAuthorLogin("charlie");
     when(scmAccountCache.getNullable("charlie")).thenReturn("char.lie");
@@ -159,7 +159,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_auto_assign_existing_issues() throws Exception {
+  public void do_not_auto_assign_existing_issues() {
     inputIssue.setIsNew(false);
     inputIssue.setAuthorLogin("charlie");
     when(scmAccountCache.getNullable("charlie")).thenReturn("char.lie");
@@ -170,7 +170,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_override_author_and_assignee_set_by_old_batch_plugins() throws Exception {
+  public void do_not_override_author_and_assignee_set_by_old_batch_plugins() {
     inputIssue.setIsNew(true);
 
     // these fields were provided during project analysis, for instance
@@ -188,7 +188,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void assign_default_assignee_when_available() throws Exception {
+  public void assign_default_assignee_when_available() {
     inputIssue.setIsNew(true);
     String wolinski = "wolinski";
     when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);
@@ -201,7 +201,7 @@ public class IssueComputationTest {
   }
 
   @Test
-  public void do_not_assign_default_assignee_when_not_found_in_index() throws Exception {
+  public void do_not_assign_default_assignee_when_not_found_in_index() {
     inputIssue.setIsNew(true);
     String wolinski = "wolinski";
     when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);

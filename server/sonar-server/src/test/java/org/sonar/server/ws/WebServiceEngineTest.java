@@ -107,13 +107,13 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void load_ws_definitions_at_startup() throws Exception {
+  public void load_ws_definitions_at_startup() {
     assertThat(engine.controllers()).hasSize(1);
     assertThat(engine.controllers().get(0).path()).isEqualTo("api/system");
   }
 
   @Test
-  public void execute_request() throws Exception {
+  public void execute_request() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "health");
@@ -122,7 +122,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void no_content() throws Exception {
+  public void no_content() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "alive");
@@ -131,7 +131,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_controller() throws Exception {
+  public void bad_controller() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/xxx", "health");
@@ -140,7 +140,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_action() throws Exception {
+  public void bad_action() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "xxx");
@@ -149,7 +149,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void method_get_not_allowed() throws Exception {
+  public void method_get_not_allowed() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
@@ -158,7 +158,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void method_post_required() throws Exception {
+  public void method_post_required() {
     ValidatingRequest request = new SimpleRequest("POST");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
@@ -167,7 +167,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void unknown_parameter_is_set() throws Exception {
+  public void unknown_parameter_is_set() {
     ValidatingRequest request = new SimpleRequest("GET").setParam("unknown", "Unknown");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail_with_undeclared_parameter");
@@ -176,7 +176,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void required_parameter_is_not_set() throws Exception {
+  public void required_parameter_is_not_set() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
@@ -185,7 +185,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void optional_parameter_is_not_set() throws Exception {
+  public void optional_parameter_is_not_set() {
     ValidatingRequest request = new SimpleRequest("GET").setParam("message", "Hello World");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
@@ -194,7 +194,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void optional_parameter_is_set() throws Exception {
+  public void optional_parameter_is_set() {
     ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
@@ -205,7 +205,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void param_value_is_in_possible_values() throws Exception {
+  public void param_value_is_in_possible_values() {
     ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "json");
@@ -216,7 +216,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void param_value_is_not_in_possible_values() throws Exception {
+  public void param_value_is_not_in_possible_values() {
     ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "html");
@@ -227,7 +227,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void internal_error() throws Exception {
+  public void internal_error() {
     ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail");
@@ -238,7 +238,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_request_with_i18n_message() throws Exception {
+  public void bad_request_with_i18n_message() {
     MockUserSession.set().setLocale(Locale.ENGLISH);
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
@@ -254,7 +254,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_request_with_multiple_messages() throws Exception {
+  public void bad_request_with_multiple_messages() {
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
 
@@ -270,7 +270,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void bad_request_with_multiple_i18n_messages() throws Exception {
+  public void bad_request_with_multiple_i18n_messages() {
     MockUserSession.set().setLocale(Locale.ENGLISH);
 
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");

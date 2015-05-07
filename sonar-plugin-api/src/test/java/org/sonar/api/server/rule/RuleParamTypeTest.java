@@ -111,7 +111,7 @@ public class RuleParamTypeTest {
   }
 
   @Test
-  public void support_deprecated_formats() throws Exception {
+  public void support_deprecated_formats() {
     assertThat(RuleParamType.parse("b")).isEqualTo(RuleParamType.BOOLEAN);
     assertThat(RuleParamType.parse("i")).isEqualTo(RuleParamType.INTEGER);
     assertThat(RuleParamType.parse("i{}")).isEqualTo(RuleParamType.INTEGER);

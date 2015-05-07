@@ -50,14 +50,14 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   System2 system2;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     session = getMyBatis().openSession(false);
     system2 = mock(System2.class);
     dao = new ComponentDao(system2);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -294,7 +294,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_modules_by_project() throws Exception {
+  public void find_modules_by_project() {
     setupData("multi-modules");
 
     List<ComponentDto> results = dao.findModulesByProject("org.struts:struts", session);
@@ -311,7 +311,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_sub_projects_by_component_keys() throws Exception {
+  public void find_sub_projects_by_component_keys() {
     setupData("multi-modules");
 
     // Sub project of a file
@@ -346,7 +346,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_modules_tree() throws Exception {
+  public void select_enabled_modules_tree() {
     setupData("multi-modules");
 
     // From root project
@@ -367,7 +367,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all_modules_tree() throws Exception {
+  public void select_all_modules_tree() {
     setupData("multi-modules");
 
     // From root project, disabled sub module is returned
@@ -383,7 +383,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_module_files_tree_from_module() throws Exception {
+  public void select_enabled_module_files_tree_from_module() {
     setupData("select_module_files_tree");
 
     // From root project
@@ -414,7 +414,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_module_files_tree_from_project() throws Exception {
+  public void select_enabled_module_files_tree_from_project() {
     setupData("select_module_files_tree");
 
     // From root project

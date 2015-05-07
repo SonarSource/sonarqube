@@ -32,7 +32,7 @@ public class FloatTypeValidationTest {
   FloatTypeValidation validation;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     validation = new FloatTypeValidation();
   }
 

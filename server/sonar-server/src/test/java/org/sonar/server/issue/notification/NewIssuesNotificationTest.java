@@ -65,7 +65,7 @@ public class NewIssuesNotificationTest {
   NewIssuesNotification sut = new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
 
   @Test
-  public void set_project() throws Exception {
+  public void set_project() {
     ComponentDto component = ComponentTesting.newProjectDto()
       .setLongName("project-long-name")
       .setUuid("project-uuid")
@@ -79,7 +79,7 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
-  public void set_date() throws Exception {
+  public void set_date() {
     Date date = new Date();
 
     sut.setAnalysisDate(date);
@@ -88,7 +88,7 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
-  public void set_statistics() throws Exception {
+  public void set_statistics() {
     ComponentDto component = ComponentTesting.newProjectDto()
       .setLongName("project-long-name");
     addIssueNTimes(newIssue1(), 5);
@@ -122,7 +122,7 @@ public class NewIssuesNotificationTest {
   }
 
   @Test
-  public void set_debt() throws Exception {
+  public void set_debt() {
     when(durations.format(any(Locale.class), any(Duration.class))).thenReturn("55 min");
 
     sut.setDebt(Duration.create(55));

@@ -57,7 +57,7 @@ public class InitialOpenIssuesStackTest {
   Caches caches;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     caches = createCacheOnTemp(temp);
     caches.start();
     stack = new InitialOpenIssuesStack(caches);

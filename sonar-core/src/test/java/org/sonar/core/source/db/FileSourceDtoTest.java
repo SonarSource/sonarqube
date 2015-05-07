@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FileSourceDtoTest {
 
   @Test
-  public void encode_and_decode_test_data() throws Exception {
+  public void encode_and_decode_test_data() {
     List<FileSourceDb.Test> tests = Arrays.asList(
       FileSourceDb.Test.newBuilder()
         .setName("name#1")

@@ -55,7 +55,7 @@ public class CreateActionMediumTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
     ruleDao = tester.get(RuleDao.class);
@@ -118,7 +118,7 @@ public class CreateActionMediumTest {
   }
 
   @Test
-  public void fail_if_custom_key_and_manual_key_parameters_are_not_set() throws Exception {
+  public void fail_if_custom_key_and_manual_key_parameters_are_not_set() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");

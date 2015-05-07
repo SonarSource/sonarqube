@@ -34,13 +34,13 @@ public class DurationTest {
   static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
   @Test
-  public void create_from_duration_in_minutes() throws Exception {
+  public void create_from_duration_in_minutes() {
     Duration duration = Duration.create(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
     assertThat(duration.toMinutes()).isEqualTo(ONE_DAY_IN_MINUTES + ONE_HOUR_IN_MINUTES + ONE_MINUTE);
   }
 
   @Test
-  public void encode() throws Exception {
+  public void encode() {
     assertThat(Duration.create(2 * ONE_DAY_IN_MINUTES + 5 * ONE_HOUR_IN_MINUTES + 46 * ONE_MINUTE).encode(HOURS_IN_DAY)).isEqualTo("2d5h46min");
     assertThat(Duration.create(ONE_DAY_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1d");
     assertThat(Duration.create(ONE_HOUR_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1h");
@@ -49,7 +49,7 @@ public class DurationTest {
   }
 
   @Test
-  public void decode() throws Exception {
+  public void decode() {
     assertThat(Duration.decode("    15 d  23  h     42min  ", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 23 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
     assertThat(Duration.decode("15d23h42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 23 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
     assertThat(Duration.decode("23h", HOURS_IN_DAY)).isEqualTo(Duration.create(23 * ONE_HOUR_IN_MINUTES));
@@ -60,7 +60,7 @@ public class DurationTest {
   }
 
   @Test
-  public void fail_to_decode_if_unit_with_invalid_number() throws Exception {
+  public void fail_to_decode_if_unit_with_invalid_number() {
     try {
       Duration.decode("Xd", HOURS_IN_DAY);
       fail();
@@ -70,7 +70,7 @@ public class DurationTest {
   }
 
   @Test
-  public void fail_to_decode_if_no_valid_duration() throws Exception {
+  public void fail_to_decode_if_no_valid_duration() {
     try {
       Duration.decode("foo", HOURS_IN_DAY);
       fail();
@@ -80,7 +80,7 @@ public class DurationTest {
   }
 
   @Test
-  public void fail_to_decode_if_only_number() throws Exception {
+  public void fail_to_decode_if_only_number() {
     try {
       Duration.decode("15", HOURS_IN_DAY);
       fail();
@@ -90,7 +90,7 @@ public class DurationTest {
   }
 
   @Test
-  public void fail_to_decode_if_valid_unit_with_invalid_duration() throws Exception {
+  public void fail_to_decode_if_valid_unit_with_invalid_duration() {
     try {
       Duration.decode("15min foo", HOURS_IN_DAY);
       fail();
@@ -100,7 +100,7 @@ public class DurationTest {
   }
 
   @Test
-  public void is_greater_than() throws Exception {
+  public void is_greater_than() {
     assertThat(Duration.decode("1h", HOURS_IN_DAY).isGreaterThan(Duration.decode("1min", HOURS_IN_DAY))).isTrue();
     assertThat(Duration.decode("1min", HOURS_IN_DAY).isGreaterThan(Duration.decode("1d", HOURS_IN_DAY))).isFalse();
     assertThat(Duration.decode("1d", HOURS_IN_DAY).isGreaterThan(Duration.decode("1d", HOURS_IN_DAY))).isFalse();
@@ -108,17 +108,17 @@ public class DurationTest {
   }
 
   @Test
-  public void add() throws Exception {
+  public void add() {
     assertThat(Duration.decode("1h", HOURS_IN_DAY).add(Duration.decode("1min", HOURS_IN_DAY))).isEqualTo(Duration.decode("1h1min", HOURS_IN_DAY));
   }
 
   @Test
-  public void subtract() throws Exception {
+  public void subtract() {
     assertThat(Duration.decode("1h", HOURS_IN_DAY).subtract(Duration.decode("1min", HOURS_IN_DAY))).isEqualTo(Duration.decode("59min", HOURS_IN_DAY));
   }
 
   @Test
-  public void multiply() throws Exception {
+  public void multiply() {
     assertThat(Duration.decode("1h", HOURS_IN_DAY).multiply(2)).isEqualTo(Duration.decode("2h", HOURS_IN_DAY));
   }
 

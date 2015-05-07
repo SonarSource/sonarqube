@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IdUuidPairsTest {
   @Test
-  public void extract_ids() throws Exception {
+  public void extract_ids() {
     List<IdUuidPair> idUuidPairList = Lists.newArrayList(new IdUuidPair(1L, "ABCD"), new IdUuidPair(2L, "EFGH"));
 
     List<Long> ids = IdUuidPairs.ids(idUuidPairList);
@@ -39,7 +39,7 @@ public class IdUuidPairsTest {
   }
 
   @Test
-  public void is_non_instantiable() throws Exception {
+  public void is_non_instantiable() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(IdUuidPairs.class)).isTrue();
   }
 

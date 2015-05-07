@@ -27,18 +27,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LogInterceptorsTest {
 
   @Test
-  public void default_is_null_interceptor() throws Exception {
+  public void default_is_null_interceptor() {
     // production-ready
     assertThat(LogInterceptors.get()).isInstanceOf(NullInterceptor.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void instance_cant_be_null() throws Exception {
+  public void instance_cant_be_null() {
     LogInterceptors.set(null);
   }
 
   @Test
-  public void private_constructor() throws Exception {
+  public void private_constructor() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(LogInterceptors.class));
   }
 }

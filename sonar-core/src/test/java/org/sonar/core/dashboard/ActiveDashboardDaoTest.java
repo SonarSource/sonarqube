@@ -37,13 +37,13 @@ public class ActiveDashboardDaoTest {
   private ActiveDashboardDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dbTester.truncateTables();
     dao = new ActiveDashboardDao(dbTester.myBatis());
   }
 
   @Test
-  public void shouldInsert() throws Exception {
+  public void shouldInsert() {
     dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     ActiveDashboardDto dashboard = new ActiveDashboardDto();
@@ -56,7 +56,7 @@ public class ActiveDashboardDaoTest {
   }
 
   @Test
-  public void shouldInsertWithNoUser() throws Exception {
+  public void shouldInsertWithNoUser() {
     dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     ActiveDashboardDto dashboard = new ActiveDashboardDto();
@@ -68,7 +68,7 @@ public class ActiveDashboardDaoTest {
   }
 
   @Test
-  public void shouldGetMaxOrderIndexForNullUser() throws Exception {
+  public void shouldGetMaxOrderIndexForNullUser() {
     dbTester.prepareDbUnit(getClass(), "shouldGetMaxOrderIndexForNullUser.xml");
 
     int index = dao.selectMaxOrderIndexForNullUser();
@@ -77,7 +77,7 @@ public class ActiveDashboardDaoTest {
   }
 
   @Test
-  public void shouldGetZeroMaxOrderIndex() throws Exception {
+  public void shouldGetZeroMaxOrderIndex() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     int index = dao.selectMaxOrderIndexForNullUser();
@@ -86,28 +86,28 @@ public class ActiveDashboardDaoTest {
   }
 
   @Test
-  public void should_get_dashboards_for_anonymous() throws Exception {
+  public void should_get_dashboards_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectDashboardsForAnonymous.xml");
 
     assertThat(dao.selectGlobalDashboardsForUserLogin(null)).hasSize(2).extracting("id").containsExactly(2L, 1L);
   }
 
   @Test
-  public void should_get_dashboards_for_user() throws Exception {
+  public void should_get_dashboards_for_user() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectDashboardsForUser.xml");
 
     assertThat(dao.selectGlobalDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);
   }
 
   @Test
-  public void should_get_project_dashboards_for_anonymous() throws Exception {
+  public void should_get_project_dashboards_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForAnonymous.xml");
 
     assertThat(dao.selectProjectDashboardsForUserLogin(null)).hasSize(2).extracting("id").containsExactly(2L, 1L);
   }
 
   @Test
-  public void should_get_project_dashboards_for_user() throws Exception {
+  public void should_get_project_dashboards_for_user() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectProjectDashboardsForUser.xml");
 
     assertThat(dao.selectProjectDashboardsForUserLogin("obiwan")).hasSize(2).extracting("id").containsExactly(2L, 1L);

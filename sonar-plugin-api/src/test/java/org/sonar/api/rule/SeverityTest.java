@@ -31,7 +31,7 @@ public class SeverityTest {
   }
 
   @Test
-  public void default_is_major() throws Exception {
+  public void default_is_major() {
     assertThat(Severity.defaultSeverity()).isEqualTo(Severity.MAJOR);
   }
 }

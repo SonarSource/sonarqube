@@ -36,7 +36,7 @@ public class MeasureDataMigrationTest {
   MeasureDataMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     migration = new MeasureDataMigrationStep(db.database());
   }
 

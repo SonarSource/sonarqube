@@ -42,7 +42,7 @@ public class DecorationDataHolderTest {
   }
 
   @Test
-  public void should_extract_lower_bounds_from_serialized_rules() throws Exception {
+  public void should_extract_lower_bounds_from_serialized_rules() {
 
     List<OpeningHtmlTag> openingTagsEntries = decorationDataHolder.getOpeningTagsEntries();
 
@@ -58,7 +58,7 @@ public class DecorationDataHolderTest {
   }
 
   @Test
-  public void should_extract_upper_bounds_from_serialized_rules() throws Exception {
+  public void should_extract_upper_bounds_from_serialized_rules() {
 
     List<Integer> offsets = decorationDataHolder.getClosingTagsOffsets();
 

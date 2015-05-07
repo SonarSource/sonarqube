@@ -45,14 +45,14 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   System2 system2;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     session = getMyBatis().openSession(false);
     system2 = mock(System2.class);
     sut = new SnapshotDao(system2);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

@@ -36,13 +36,13 @@ public class DropDependenciesComponentColumnsTest {
   Database database;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     database = mock(Database.class);
     migration = new DropDependenciesComponentColumns(database);
   }
 
   @Test
-  public void generate_sql_on_postgresql() throws Exception {
+  public void generate_sql_on_postgresql() {
     when(database.getDialect()).thenReturn(new PostgreSql());
     assertThat(migration.generateSql()).isEqualTo(
       "ALTER TABLE dependencies DROP COLUMN from_resource_id, DROP COLUMN to_resource_id"

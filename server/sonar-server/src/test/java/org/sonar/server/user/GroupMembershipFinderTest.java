@@ -39,13 +39,13 @@ public class GroupMembershipFinderTest {
   GroupMembershipFinder finder;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(userDao.selectActiveUserByLogin("arthur")).thenReturn(new UserDto().setId(100L).setName("arthur"));
     finder = new GroupMembershipFinder(userDao, groupMembershipDao);
   }
 
   @Test
-  public void find() throws Exception {
+  public void find() {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
     when(groupMembershipDao.selectGroups(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new GroupMembershipDto().setId(1L).setName("users").setDescription("Users group").setUserId(100L))
@@ -63,7 +63,7 @@ public class GroupMembershipFinderTest {
   }
 
   @Test
-  public void find_with_paging() throws Exception {
+  public void find_with_paging() {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").pageIndex(3).pageSize(10).build();
     finder.find(query);
 
@@ -76,7 +76,7 @@ public class GroupMembershipFinderTest {
   }
 
   @Test
-  public void find_with_paging_having_more_results() throws Exception {
+  public void find_with_paging_having_more_results() {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").pageIndex(1).pageSize(2).build();
     when(groupMembershipDao.selectGroups(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new GroupMembershipDto().setId(1L).setName("group1"),
@@ -95,7 +95,7 @@ public class GroupMembershipFinderTest {
   }
 
   @Test
-  public void find_with_paging_having_no_more_results() throws Exception {
+  public void find_with_paging_having_no_more_results() {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").pageIndex(1).pageSize(10).build();
     when(groupMembershipDao.selectGroups(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new GroupMembershipDto().setId(1L).setName("group1"),

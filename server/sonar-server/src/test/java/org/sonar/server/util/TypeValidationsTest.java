@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 public class TypeValidationsTest {
 
   @Test
-  public void validate() throws Exception {
+  public void validate() {
     TypeValidation fakeTypeValidation = mock(TypeValidation.class);
     when(fakeTypeValidation.key()).thenReturn("Fake");
 
@@ -42,7 +42,7 @@ public class TypeValidationsTest {
   }
 
   @Test
-  public void validate__multiple_values() throws Exception {
+  public void validate__multiple_values() {
     TypeValidation fakeTypeValidation = mock(TypeValidation.class);
     when(fakeTypeValidation.key()).thenReturn("Fake");
 
@@ -53,7 +53,7 @@ public class TypeValidationsTest {
   }
 
   @Test
-  public void fail_on_unknown_type() throws Exception {
+  public void fail_on_unknown_type() {
     TypeValidation fakeTypeValidation = mock(TypeValidation.class);
     when(fakeTypeValidation.key()).thenReturn("Fake");
 

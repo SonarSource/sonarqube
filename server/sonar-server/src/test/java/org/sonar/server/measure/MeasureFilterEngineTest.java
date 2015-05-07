@@ -57,7 +57,7 @@ public class MeasureFilterEngineTest {
   }
 
   @Test
-  public void keep_error_but_do_not_fail() throws Exception {
+  public void keep_error_but_do_not_fail() {
     Map<String, Object> filterMap = ImmutableMap.of("qualifiers", (Object) "TRK");
     MeasureFilterFactory factory = mock(MeasureFilterFactory.class);
     when(factory.create(filterMap)).thenThrow(new IllegalArgumentException());

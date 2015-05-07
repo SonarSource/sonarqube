@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectQgateAssociationDtoTest {
 
   @Test
-  public void to_assoc_with_project_having_assoc() throws Exception {
+  public void to_assoc_with_project_having_assoc() {
     ProjectQgateAssociation project = new ProjectQgateAssociationDto()
       .setId(1L)
       .setName("polop")
@@ -40,7 +40,7 @@ public class ProjectQgateAssociationDtoTest {
   }
 
   @Test
-  public void to_assoc_with_project_not_having_assoc() throws Exception {
+  public void to_assoc_with_project_not_having_assoc() {
     ProjectQgateAssociation project = new ProjectQgateAssociationDto()
       .setId(1L)
       .setName("polop")

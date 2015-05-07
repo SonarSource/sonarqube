@@ -41,7 +41,7 @@ public class EmbeddedDatabaseTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test(timeout = 5000)
-  public void should_start_and_stop() throws IOException {
+  public void should_start_and_stop() {
     int port = NetworkUtils.freePort();
 
     EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port));
@@ -59,7 +59,7 @@ public class EmbeddedDatabaseTest {
   }
 
   @Test
-  public void should_return_embedded_data_directory() throws Exception {
+  public void should_return_embedded_data_directory() {
     Settings settings = testSettings(0);
     EmbeddedDatabase database = new EmbeddedDatabase(settings);
 

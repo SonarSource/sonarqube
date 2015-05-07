@@ -37,7 +37,7 @@ public class PermissionChangeTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void populate_from_params() throws Exception {
+  public void populate_from_params() {
     Map<String, Object> params = Maps.newHashMap();
     params.put("user", "my_login");
     params.put("group", "my_group");
@@ -53,7 +53,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void validate_user_query() throws Exception {
+  public void validate_user_query() {
     Map<String, Object> validUserParams = Maps.newHashMap();
     validUserParams.put("user", "my_login");
     validUserParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
@@ -63,7 +63,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void validate_group_query() throws Exception {
+  public void validate_group_query() {
     Map<String, Object> validGroupParams = Maps.newHashMap();
     validGroupParams.put("group", "my_group");
     validGroupParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
@@ -73,7 +73,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void reject_inconsistent_query() throws Exception {
+  public void reject_inconsistent_query() {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("group", "my_group");
@@ -87,7 +87,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void detect_missing_user_or_group() throws Exception {
+  public void detect_missing_user_or_group() {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("permission", "admin");
 
@@ -99,7 +99,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void detect_missing_permission() throws Exception {
+  public void detect_missing_permission() {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
 
@@ -111,7 +111,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void validate_global_permission_reference() throws Exception {
+  public void validate_global_permission_reference() {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("permission", "invalid");
@@ -124,7 +124,7 @@ public class PermissionChangeTest {
   }
 
   @Test
-  public void validate_component_permission_reference() throws Exception {
+  public void validate_component_permission_reference() {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("component", "org.sample.Sample");

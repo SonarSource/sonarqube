@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 public class CloseableIteratorTest {
 
   @Test
-  public void iterate() throws Exception {
+  public void iterate() {
     SimpleCloseableIterator it = new SimpleCloseableIterator();
     assertThat(it.isClosed).isFalse();
 
@@ -54,7 +54,7 @@ public class CloseableIteratorTest {
   }
 
   @Test
-  public void call_next_without_hasNext() throws Exception {
+  public void call_next_without_hasNext() {
     SimpleCloseableIterator it = new SimpleCloseableIterator();
     assertThat(it.next()).isEqualTo(1);
     assertThat(it.next()).isEqualTo(2);
@@ -67,7 +67,7 @@ public class CloseableIteratorTest {
   }
 
   @Test
-  public void automatic_close_if_traversal_error() throws Exception {
+  public void automatic_close_if_traversal_error() {
     FailureCloseableIterator it = new FailureCloseableIterator();
     try {
       it.next();
@@ -79,7 +79,7 @@ public class CloseableIteratorTest {
   }
 
   @Test
-  public void remove_is_not_supported_by_default() throws Exception {
+  public void remove_is_not_supported_by_default() {
     SimpleCloseableIterator it = new SimpleCloseableIterator();
     try {
       it.remove();
@@ -90,14 +90,14 @@ public class CloseableIteratorTest {
   }
 
   @Test
-  public void remove_can_be_overridden() throws Exception {
+  public void remove_can_be_overridden() {
     RemovableCloseableIterator it = new RemovableCloseableIterator();
     it.remove();
     assertThat(it.isRemoved).isTrue();
   }
 
   @Test
-  public void has_next_should_not_call_do_next_when_already_closed() throws Exception {
+  public void has_next_should_not_call_do_next_when_already_closed() {
     DoNextShouldNotBeCalledWhenClosedIterator it = new DoNextShouldNotBeCalledWhenClosedIterator();
 
     it.next();

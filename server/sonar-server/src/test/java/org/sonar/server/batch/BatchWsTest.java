@@ -55,7 +55,7 @@ public class BatchWsTest {
   WsTester tester;
 
   @Before
-  public void before() throws IOException {
+  public void before() {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class)),
       new ProjectRepositoryAction(mock(ProjectRepositoryLoader.class)),

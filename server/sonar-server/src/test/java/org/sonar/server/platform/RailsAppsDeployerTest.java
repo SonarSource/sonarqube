@@ -71,7 +71,7 @@ public class RailsAppsDeployerTest {
   }
 
   @Test
-  public void deployRubyRailsApps_no_apps() throws Exception {
+  public void deployRubyRailsApps_no_apps() {
     ServerFileSystem fileSystem = mock(ServerFileSystem.class);
     File tempDir = this.temp.getRoot();
     when(fileSystem.getTempDir()).thenReturn(tempDir);

@@ -114,7 +114,7 @@ public class MeasureUtilsTest {
   }
 
   @Test
-  public void shouldSumOnVariation() throws Exception {
+  public void shouldSumOnVariation() {
     Measure measure1 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(1.0).setVariation3(3.0);
     Measure measure2 = new Measure(CoreMetrics.NEW_VIOLATIONS).setVariation1(1.0).setVariation2(2.0).setVariation3(3.0);
     List<Measure> children = Arrays.asList(measure1, measure2);

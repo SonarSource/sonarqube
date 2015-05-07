@@ -138,7 +138,7 @@ public class TestResultSetIteratorTest {
   }
 
   @Test
-  public void filter_by_date() throws Exception {
+  public void filter_by_date() {
     db.prepareDbUnit(getClass(), "shared.xml");
     sut = TestResultSetIterator.create(dbClient, connection, 2000000000000L, null);
 
@@ -191,7 +191,7 @@ public class TestResultSetIteratorTest {
     }
   }
 
-  private static List<FileSourceDb.Test> newFakeTests(int numberOfTests) throws IOException {
+  private static List<FileSourceDb.Test> newFakeTests(int numberOfTests) {
     List<FileSourceDb.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
       FileSourceDb.Test.Builder test = FileSourceDb.Test.newBuilder()

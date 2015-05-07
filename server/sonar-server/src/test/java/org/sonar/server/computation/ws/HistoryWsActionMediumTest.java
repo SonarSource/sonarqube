@@ -46,7 +46,7 @@ public class HistoryWsActionMediumTest {
   ActivityService activityService;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     sut = tester.get(HistoryWsAction.class);
     activityService = tester.get(ActivityService.class);

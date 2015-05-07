@@ -38,17 +38,17 @@ public class PluginUpdateAggregatorTest {
   private PluginUpdateAggregator underTest = new PluginUpdateAggregator();
 
   @Test
-  public void aggregates_returns_an_empty_collection_when_plugin_collection_is_null() throws Exception {
+  public void aggregates_returns_an_empty_collection_when_plugin_collection_is_null() {
     assertThat(underTest.aggregate(null)).isEmpty();
   }
 
   @Test
-  public void aggregates_returns_an_empty_collection_when_plugin_collection_is_empty() throws Exception {
+  public void aggregates_returns_an_empty_collection_when_plugin_collection_is_empty() {
     assertThat(underTest.aggregate(Collections.<PluginUpdate>emptyList())).isEmpty();
   }
 
   @Test
-  public void aggregates_groups_pluginUpdate_per_plugin_key() throws Exception {
+  public void aggregates_groups_pluginUpdate_per_plugin_key() {
     Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(ImmutableList.of(
       createPluginUpdate("key1"),
       createPluginUpdate("key1"),
@@ -62,7 +62,7 @@ public class PluginUpdateAggregatorTest {
   }
 
   @Test
-  public void aggregate_put_pluginUpdates_with_same_plugin_in_the_same_PluginUpdateAggregate() throws Exception {
+  public void aggregate_put_pluginUpdates_with_same_plugin_in_the_same_PluginUpdateAggregate() {
     PluginUpdate pluginUpdate1 = createPluginUpdate("key1");
     PluginUpdate pluginUpdate2 = createPluginUpdate("key1");
     PluginUpdate pluginUpdate3 = createPluginUpdate("key1");

@@ -79,12 +79,12 @@ public class QProfileCopierMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void create_target_profile() throws Exception {
+  public void create_target_profile() {
     // source
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -100,7 +100,7 @@ public class QProfileCopierMediumTest {
   }
 
   @Test
-  public void update_target_profile() throws Exception {
+  public void update_target_profile() {
     // source with x1 activated
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
@@ -128,7 +128,7 @@ public class QProfileCopierMediumTest {
   }
 
   @Test
-  public void create_target_profile_with_same_parent_than_source() throws Exception {
+  public void create_target_profile_with_same_parent_than_source() {
     // two profiles : parent and its child
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY));
 
@@ -149,7 +149,7 @@ public class QProfileCopierMediumTest {
   }
 
   @Test
-  public void fail_to_copy_on_self() throws Exception {
+  public void fail_to_copy_on_self() {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");

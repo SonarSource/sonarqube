@@ -53,7 +53,7 @@ public class GroupsActionTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
 
     System2 system2 = new System2();
@@ -72,7 +72,7 @@ public class GroupsActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

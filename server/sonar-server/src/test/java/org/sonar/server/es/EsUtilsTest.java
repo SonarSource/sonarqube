@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class EsUtilsTest {
 
   @Test
-  public void convertToDocs_empty() throws Exception {
+  public void convertToDocs_empty() {
     SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, new Function<Map<String, Object>, BaseDoc>() {
       @Override
@@ -51,7 +51,7 @@ public class EsUtilsTest {
   }
 
   @Test
-  public void convertToDocs() throws Exception {
+  public void convertToDocs() {
     SearchHits hits = mock(SearchHits.class, Mockito.RETURNS_MOCKS);
     when(hits.getHits()).thenReturn(new SearchHit[]{mock(SearchHit.class)});
     List<BaseDoc> docs = EsUtils.convertToDocs(hits, new Function<Map<String, Object>, BaseDoc>() {
@@ -64,12 +64,12 @@ public class EsUtilsTest {
   }
 
   @Test
-  public void util_class() throws Exception {
+  public void util_class() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(EsUtils.class));
   }
 
   @Test
-  public void es_date_format() throws Exception {
+  public void es_date_format() {
     assertThat(EsUtils.formatDateTime(new Date(1_500_000_000_000L))).startsWith("2017-07-");
     assertThat(EsUtils.formatDateTime(null)).isNull();
 

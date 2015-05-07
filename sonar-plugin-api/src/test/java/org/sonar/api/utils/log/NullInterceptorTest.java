@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 public class NullInterceptorTest {
 
   @Test
-  public void do_not_throws_exception() throws Exception {
+  public void do_not_throws_exception() {
     // verify that... it does nothing
     NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo");
     NullInterceptor.NULL_INSTANCE.log(LoggerLevel.INFO, "foo {}", 42);

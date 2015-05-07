@@ -52,7 +52,7 @@ public class LanguageVerifierTest {
   }
 
   @Test
-  public void language_is_not_set() throws Exception {
+  public void language_is_not_set() {
     LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
     verifier.start();
 
@@ -63,7 +63,7 @@ public class LanguageVerifierTest {
   }
 
   @Test
-  public void language_is_valid() throws Exception {
+  public void language_is_valid() {
     settings.setProperty("sonar.language", "java");
 
     LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
@@ -76,7 +76,7 @@ public class LanguageVerifierTest {
   }
 
   @Test
-  public void language_is_not_valid() throws Exception {
+  public void language_is_not_valid() {
     thrown.expect(MessageException.class);
     thrown.expectMessage("You must install a plugin that supports the language 'php'");
 

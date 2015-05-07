@@ -48,7 +48,7 @@ public class RenameIssueWidgetsTest {
   public DbTester dbTester = new DbTester();
 
   @Test
-  public void should_rename_widgets() throws Exception {
+  public void should_rename_widgets() {
     dbTester.prepareDbUnit(this.getClass(), "before.xml");
 
     doStart();
@@ -65,7 +65,7 @@ public class RenameIssueWidgetsTest {
   }
 
   @Test
-  public void should_skip_when_already_executed() throws Exception {
+  public void should_skip_when_already_executed() {
     dbTester.prepareDbUnit(this.getClass(), "after.xml");
 
     doStart();

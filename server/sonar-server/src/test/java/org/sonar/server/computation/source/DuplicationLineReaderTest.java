@@ -38,7 +38,7 @@ public class DuplicationLineReaderTest {
   FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
-  public void read_nothing() throws Exception {
+  public void read_nothing() {
     DuplicationLineReader reader = new DuplicationLineReader(Collections.<BatchReport.Duplication>emptyList());
 
     reader.read(line1);
@@ -47,7 +47,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void read_duplication_with_duplicates_on_same_file() throws Exception {
+  public void read_duplication_with_duplicates_on_same_file() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
@@ -75,7 +75,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void read_duplication_with_duplicates_on_other_file() throws Exception {
+  public void read_duplication_with_duplicates_on_other_file() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
@@ -104,7 +104,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void read_duplication_with_duplicates_on_other_file_from_other_project() throws Exception {
+  public void read_duplication_with_duplicates_on_other_file_from_other_project() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
@@ -133,7 +133,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void read_many_duplications() throws Exception {
+  public void read_many_duplications() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
@@ -173,7 +173,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void should_be_sorted_by_line_block() throws Exception {
+  public void should_be_sorted_by_line_block() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
@@ -213,7 +213,7 @@ public class DuplicationLineReaderTest {
   }
 
   @Test
-  public void should_be_sorted_by_line_length() throws Exception {
+  public void should_be_sorted_by_line_length() {
     DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()

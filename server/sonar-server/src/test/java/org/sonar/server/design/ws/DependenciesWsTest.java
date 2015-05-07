@@ -34,13 +34,13 @@ public class DependenciesWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new DependenciesWs(new ShowAction(mock(DbClient.class))));
     controller = tester.controller("api/dependencies");
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNull();
     assertThat(controller.since()).isEqualTo("5.2");
@@ -48,7 +48,7 @@ public class DependenciesWsTest {
   }
 
   @Test
-  public void define_search_action() throws Exception {
+  public void define_search_action() {
     WebService.Action action = controller.action("show");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();

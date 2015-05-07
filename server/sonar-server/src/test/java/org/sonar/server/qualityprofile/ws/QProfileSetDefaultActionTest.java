@@ -59,7 +59,7 @@ public class QProfileSetDefaultActionTest {
 
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao);
@@ -161,7 +161,7 @@ public class QProfileSetDefaultActionTest {
     session.commit();
   }
 
-  private void checkDefaultProfile(String language, String key) throws Exception {
+  private void checkDefaultProfile(String language, String key) {
     assertThat(dbClient.qualityProfileDao().getDefaultProfile(language).getKey()).isEqualTo(key);
   }
 }

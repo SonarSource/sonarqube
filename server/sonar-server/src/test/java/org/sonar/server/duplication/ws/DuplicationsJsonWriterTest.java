@@ -55,7 +55,7 @@ public class DuplicationsJsonWriterTest {
   ComponentDto project;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project = ComponentTesting.newProjectDto()
       .setId(1L)
       .setName("SonarQube")
@@ -66,7 +66,7 @@ public class DuplicationsJsonWriterTest {
   }
 
   @Test
-  public void write_duplications() throws Exception {
+  public void write_duplications() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setParentProjectId(5L);
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
@@ -125,7 +125,7 @@ public class DuplicationsJsonWriterTest {
   }
 
   @Test
-  public void write_duplications_without_sub_project() throws Exception {
+  public void write_duplications_without_sub_project() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
@@ -173,7 +173,7 @@ public class DuplicationsJsonWriterTest {
   }
 
   @Test
-  public void write_duplications_with_a_removed_component() throws Exception {
+  public void write_duplications_with_a_removed_component() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
 
@@ -214,7 +214,7 @@ public class DuplicationsJsonWriterTest {
   }
 
   @Test
-  public void write_nothing_when_no_data() throws Exception {
+  public void write_nothing_when_no_data() {
     test(Collections.<DuplicationsParser.Block>emptyList(), "{\"duplications\": [], \"files\": {}}");
   }
 

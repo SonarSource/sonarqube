@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class StreamGobblerTest {
 
   @Test
-  public void forward_stream_to_log() throws Exception {
+  public void forward_stream_to_log() {
     InputStream stream = IOUtils.toInputStream("one\nsecond log\nthird log\n");
     Logger logger = mock(Logger.class);
 

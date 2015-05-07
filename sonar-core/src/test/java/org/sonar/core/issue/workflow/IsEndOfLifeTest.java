@@ -28,14 +28,14 @@ public class IsEndOfLifeTest {
   DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void should_be_end_of_life() throws Exception {
+  public void should_be_end_of_life() {
     IsEndOfLife condition = new IsEndOfLife(true);
     assertThat(condition.matches(issue.setEndOfLife(true))).isTrue();
     assertThat(condition.matches(issue.setEndOfLife(false))).isFalse();
   }
 
   @Test
-  public void should_not_be_end_of_life() throws Exception {
+  public void should_not_be_end_of_life() {
     IsEndOfLife condition = new IsEndOfLife(false);
     assertThat(condition.matches(issue.setEndOfLife(true))).isFalse();
     assertThat(condition.matches(issue.setEndOfLife(false))).isTrue();

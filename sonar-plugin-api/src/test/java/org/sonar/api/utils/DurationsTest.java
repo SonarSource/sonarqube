@@ -54,19 +54,19 @@ public class DurationsTest {
   Durations durations;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     settings = new Settings();
     settings.setProperty(CoreProperties.HOURS_IN_DAY, HOURS_IN_DAY);
     durations = new Durations(settings, i18n);
   }
 
   @Test
-  public void create_from_minutes() throws Exception {
+  public void create_from_minutes() {
     assertThat(durations.create(10L).toMinutes()).isEqualTo(10L);
   }
 
   @Test
-  public void decode() throws Exception {
+  public void decode() {
     // 1 working day -> 8 hours
     assertThat(durations.decode("1d").toMinutes()).isEqualTo(8L * ONE_HOUR);
     // 8 hours

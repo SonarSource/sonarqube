@@ -33,13 +33,13 @@ public class TimeMachineWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new TimeMachineWs());
     controller = tester.controller("api/timemachine");
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNotEmpty();
@@ -47,7 +47,7 @@ public class TimeMachineWsTest {
   }
 
   @Test
-  public void define_index_action() throws Exception {
+  public void define_index_action() {
     WebService.Action action = controller.action("index");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);

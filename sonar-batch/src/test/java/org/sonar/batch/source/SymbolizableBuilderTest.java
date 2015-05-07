@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class SymbolizableBuilderTest {
 
   @Test
-  public void should_load_perspective() throws Exception {
+  public void should_load_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
     Component component = new ResourceComponent(file);
 

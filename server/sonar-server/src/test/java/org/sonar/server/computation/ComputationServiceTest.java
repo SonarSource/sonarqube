@@ -74,7 +74,7 @@ public class ComputationServiceTest {
   ProjectSettingsFactory settingsFactory = mock(ProjectSettingsFactory.class, Mockito.RETURNS_DEEP_STUBS);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
     sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system);
 

@@ -68,7 +68,7 @@ public class PathUtilsTest {
   }
 
   @Test
-  public void haveFunGetCoverage() throws Exception {
+  public void haveFunGetCoverage() {
     // does not fail
     new PathUtils();
   }

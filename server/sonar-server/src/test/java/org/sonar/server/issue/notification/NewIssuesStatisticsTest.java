@@ -35,7 +35,7 @@ public class NewIssuesStatisticsTest {
   NewIssuesStatistics sut = new NewIssuesStatistics();
 
   @Test
-  public void add_issues_with_correct_global_statistics() throws Exception {
+  public void add_issues_with_correct_global_statistics() {
     DefaultIssue issue = defaultIssue();
 
     sut.add(issue);
@@ -61,7 +61,7 @@ public class NewIssuesStatisticsTest {
   }
 
   @Test
-  public void do_not_have_issues_when_no_issue_added() throws Exception {
+  public void do_not_have_issues_when_no_issue_added() {
     assertThat(sut.globalStatistics().hasIssues()).isFalse();
   }
 

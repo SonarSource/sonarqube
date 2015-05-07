@@ -116,7 +116,7 @@ public class SourceDbBenchmarkTest {
     return dto;
   }
 
-  private byte[] generateData() throws IOException {
+  private byte[] generateData() {
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
     FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Line.newBuilder();
     for (int i = 1; i <= NUMBER_OF_LINES; i++) {

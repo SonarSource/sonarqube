@@ -122,7 +122,7 @@ public class LanguageDetectionTest {
   }
 
   @Test
-  public void fail_if_invalid_language() throws Exception {
+  public void fail_if_invalid_language() {
     thrown.expect(MessageException.class);
     thrown.expectMessage("No language is installed with key 'unknown'. Please update property 'sonar.language'");
 

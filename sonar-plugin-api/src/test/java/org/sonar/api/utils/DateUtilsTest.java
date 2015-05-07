@@ -100,21 +100,21 @@ public class DateUtilsTest {
   }
 
   @Test
-  public void format_date_time_null_safe() throws Exception {
+  public void format_date_time_null_safe() {
     Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date())).startsWith("20");
     Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date()).length()).isGreaterThan(20);
     Assertions.assertThat(DateUtils.formatDateTimeNullSafe(null)).isEmpty();
   }
 
   @Test
-  public void long_to_date() throws Exception {
+  public void long_to_date() {
     Date date = new Date();
     Assertions.assertThat(DateUtils.longToDate(date.getTime())).isEqualTo(date);
     Assertions.assertThat(DateUtils.longToDate(null)).isNull();
   }
 
   @Test
-  public void date_to_long() throws Exception {
+  public void date_to_long() {
     Date date = new Date();
     Assertions.assertThat(DateUtils.dateToLong(date)).isEqualTo(date.getTime());
     Assertions.assertThat(DateUtils.dateToLong(null)).isEqualTo(null);

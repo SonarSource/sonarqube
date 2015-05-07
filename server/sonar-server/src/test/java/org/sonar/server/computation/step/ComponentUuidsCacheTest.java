@@ -46,7 +46,7 @@ public class ComponentUuidsCacheTest {
   }
 
   @Test
-  public void get_uuid_from_ref() throws Exception {
+  public void get_uuid_from_ref() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)

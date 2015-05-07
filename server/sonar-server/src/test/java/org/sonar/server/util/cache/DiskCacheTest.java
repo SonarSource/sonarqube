@@ -66,7 +66,7 @@ public class DiskCacheTest {
   @Test
   public void fail_to_serialize() throws Exception {
     class Unserializable implements Serializable {
-      private void writeObject(ObjectOutputStream out) throws IOException {
+      private void writeObject(ObjectOutputStream out) {
         throw new UnsupportedOperationException("expected error");
       }
     }

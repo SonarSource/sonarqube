@@ -87,7 +87,7 @@ public class IssueServiceMediumTest {
   IssueService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     IssueIndex = tester.get(IssueIndex.class);
@@ -105,7 +105,7 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void get_by_key() throws Exception {
+  public void get_by_key() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
@@ -115,7 +115,7 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void can_facet() throws Exception {
+  public void can_facet() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);

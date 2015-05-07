@@ -72,7 +72,7 @@ public class UpdateActionTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
@@ -95,7 +95,7 @@ public class UpdateActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

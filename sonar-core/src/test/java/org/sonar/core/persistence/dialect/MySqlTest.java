@@ -57,7 +57,7 @@ public class MySqlTest {
   }
 
   @Test
-  public void mysql_does_supportMigration() throws Exception {
+  public void mysql_does_supportMigration() {
     assertThat(mySql.supportsMigration()).isTrue();
   }
 }

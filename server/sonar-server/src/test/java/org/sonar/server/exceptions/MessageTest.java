@@ -56,7 +56,7 @@ public class MessageTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     assertThat(Message.of("key1", "param1").toString()).isEqualTo("Message{key=key1, params=[param1]}");
     assertThat(Message.of("key1").toString()).isEqualTo("Message{key=key1, params=[]}");
   }

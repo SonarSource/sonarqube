@@ -41,7 +41,7 @@ public class JdbcSettingsTest {
   JdbcSettings settings = new JdbcSettings();
 
   @Test
-  public void driver_provider() throws Exception {
+  public void driver_provider() {
     assertThat(settings.driverProvider("jdbc:oracle:thin:@localhost/XE")).isEqualTo(JdbcSettings.Provider.ORACLE);
     assertThat(settings.driverProvider("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance"))
       .isEqualTo(JdbcSettings.Provider.MYSQL);
@@ -60,7 +60,7 @@ public class JdbcSettingsTest {
   }
 
   @Test
-  public void check_mysql_parameters() throws Exception {
+  public void check_mysql_parameters() {
     // minimal -> ok
     settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
       "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8");

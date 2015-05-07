@@ -47,7 +47,7 @@ public class ServerImplTest {
   ServerImpl server;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     settings = new Settings().setProperty(ProcessProperties.PATH_HOME, sonarHome.getRoot().getAbsolutePath());
     new File(sonarHome.getRoot(), "web/deploy").mkdirs();
 

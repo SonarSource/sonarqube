@@ -33,7 +33,7 @@ public class WorkDurationTest {
   static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
   @Test
-  public void create_from_days_hours_minutes() throws Exception {
+  public void create_from_days_hours_minutes() {
     WorkDuration workDuration = WorkDuration.create(1, 1, 1, HOURS_IN_DAY);
     assertThat(workDuration.days()).isEqualTo(1);
     assertThat(workDuration.hours()).isEqualTo(1);
@@ -43,7 +43,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void create_from_value_and_unit() throws Exception {
+  public void create_from_value_and_unit() {
     WorkDuration result = WorkDuration.createFromValueAndUnit(1, WorkDuration.UNIT.DAYS, HOURS_IN_DAY);
     assertThat(result.days()).isEqualTo(1);
     assertThat(result.hours()).isEqualTo(0);
@@ -57,7 +57,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void create_from_minutes() throws Exception {
+  public void create_from_minutes() {
     WorkDuration workDuration = WorkDuration.createFromMinutes(ONE_MINUTE, HOURS_IN_DAY);
     assertThat(workDuration.days()).isEqualTo(0);
     assertThat(workDuration.hours()).isEqualTo(0);
@@ -75,7 +75,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void create_from_working_long() throws Exception {
+  public void create_from_working_long() {
     // 1 minute
     WorkDuration workDuration = WorkDuration.createFromLong(1L, HOURS_IN_DAY);
     assertThat(workDuration.days()).isEqualTo(0);
@@ -96,14 +96,14 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void convert_to_seconds() throws Exception {
+  public void convert_to_seconds() {
     assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toMinutes()).isEqualTo(2L * ONE_MINUTE);
     assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toMinutes()).isEqualTo(2L * ONE_HOUR_IN_MINUTES);
     assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.DAYS, HOURS_IN_DAY).toMinutes()).isEqualTo(2L * ONE_DAY_IN_MINUTES);
   }
 
   @Test
-  public void convert_to_working_days() throws Exception {
+  public void convert_to_working_days() {
     assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toWorkingDays()).isEqualTo(2d / 60d / 8d);
     assertThat(WorkDuration.createFromValueAndUnit(240, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toWorkingDays()).isEqualTo(0.5);
     assertThat(WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toWorkingDays()).isEqualTo(0.5);
@@ -113,7 +113,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void convert_to_working_long() throws Exception {
+  public void convert_to_working_long() {
     assertThat(WorkDuration.createFromValueAndUnit(2, WorkDuration.UNIT.MINUTES, HOURS_IN_DAY).toLong()).isEqualTo(2l);
     assertThat(WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(400l);
     assertThat(WorkDuration.createFromValueAndUnit(10, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).toLong()).isEqualTo(10200l);
@@ -122,7 +122,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void add() throws Exception {
+  public void add() {
     // 4h + 5h = 1d 1h
     WorkDuration result = WorkDuration.createFromValueAndUnit(4, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).add(WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY));
     assertThat(result.days()).isEqualTo(1);
@@ -146,7 +146,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void subtract() throws Exception {
+  public void subtract() {
     // 1d 1h - 5h = 4h
     WorkDuration result = WorkDuration.create(1, 1, 0, HOURS_IN_DAY).subtract(WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY));
     assertThat(result.days()).isEqualTo(0);
@@ -169,7 +169,7 @@ public class WorkDurationTest {
   }
 
   @Test
-  public void multiply() throws Exception {
+  public void multiply() {
     // 5h * 2 = 1d 2h
     WorkDuration result = WorkDuration.createFromValueAndUnit(5, WorkDuration.UNIT.HOURS, HOURS_IN_DAY).multiply(2);
     assertThat(result.days()).isEqualTo(1);

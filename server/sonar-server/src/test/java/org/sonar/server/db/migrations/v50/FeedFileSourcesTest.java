@@ -50,7 +50,7 @@ public class FeedFileSourcesTest {
   System2 system;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table metrics");
     db.executeUpdateSql("truncate table snapshots");
     db.executeUpdateSql("truncate table snapshot_sources");

@@ -59,20 +59,20 @@ public class ReportIteratorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (sut != null) {
       sut.close();
     }
   }
 
   @Test
-  public void read_report() throws Exception {
+  public void read_report() {
     sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
     assertThat(sut.next().getLine()).isEqualTo(1);
   }
 
   @Test
-  public void do_not_fail_when_calling_has_next_with_iterator_already_closed() throws Exception {
+  public void do_not_fail_when_calling_has_next_with_iterator_already_closed() {
     sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
     assertThat(sut.next().getLine()).isEqualTo(1);
     assertThat(sut.hasNext()).isFalse();

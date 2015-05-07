@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 public class ProjectQgateAssociationQueryTest {
 
   @Test
-  public void fail_on_null_login() throws Exception {
+  public void fail_on_null_login() {
     ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
     builder.gateId(null);
 
@@ -41,7 +41,7 @@ public class ProjectQgateAssociationQueryTest {
   }
 
   @Test
-  public void fail_on_invalid_membership() throws Exception {
+  public void fail_on_invalid_membership() {
     ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
     builder.gateId("nelson");
     builder.membership("unknwown");

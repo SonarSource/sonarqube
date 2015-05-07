@@ -56,7 +56,7 @@ public class UpdateActionMediumTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
     ruleService = tester.get(RuleService.class);
@@ -102,7 +102,7 @@ public class UpdateActionMediumTest {
   }
 
   @Test
-  public void fail_to_update_custom_when_description_is_empty() throws Exception {
+  public void fail_to_update_custom_when_description_is_empty() {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");

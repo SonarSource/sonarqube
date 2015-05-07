@@ -76,17 +76,17 @@ public class
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return sut;
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void nothing_to_do_when_no_duplication() throws Exception {
+  public void nothing_to_do_when_no_duplication() {
     saveDuplicationMetric();
     initReportWithProjectAndFile();
 
@@ -96,7 +96,7 @@ public class
   }
 
   @Test
-  public void persist_duplications_on_same_file() throws Exception {
+  public void persist_duplications_on_same_file() {
     MetricDto duplicationMetric = saveDuplicationMetric();
 
     BatchReportWriter writer = initReportWithProjectAndFile();
@@ -182,7 +182,7 @@ public class
   }
 
   @Test
-  public void persist_duplications_on_same_file_linked_on_a_folder() throws Exception {
+  public void persist_duplications_on_same_file_linked_on_a_folder() {
     saveDuplicationMetric();
 
     BatchReportWriter writer = new BatchReportWriter(reportDir);
@@ -236,7 +236,7 @@ public class
   }
 
   @Test
-  public void persist_duplications_on_same_file_linked_on_sub_folder() throws Exception {
+  public void persist_duplications_on_same_file_linked_on_sub_folder() {
     saveDuplicationMetric();
 
     BatchReportWriter writer = new BatchReportWriter(reportDir);
@@ -346,7 +346,7 @@ public class
   }
 
   @Test
-  public void persist_duplications_on_different_files() throws Exception {
+  public void persist_duplications_on_different_files() {
     saveDuplicationMetric();
     BatchReportWriter writer = initReportWithProjectAndFile();
 
@@ -382,7 +382,7 @@ public class
   }
 
   @Test
-  public void persist_duplications_on_different_projects() throws Exception {
+  public void persist_duplications_on_different_projects() {
     saveDuplicationMetric();
     BatchReportWriter writer = initReportWithProjectAndFile();
 
@@ -410,7 +410,7 @@ public class
     assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
   }
 
-  private BatchReportWriter initReportWithProjectAndFile() throws IOException {
+  private BatchReportWriter initReportWithProjectAndFile() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

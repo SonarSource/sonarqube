@@ -40,7 +40,7 @@ public class DefaultHighlightableTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test
-  public void should_store_highlighting_rules() throws Exception {
+  public void should_store_highlighting_rules() {
     SensorStorage sensorStorage = mock(SensorStorage.class);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
       .initMetadata(new FileMetadata().readMetadata(new StringReader("azerty\nbla bla")));

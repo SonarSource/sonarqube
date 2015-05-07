@@ -69,7 +69,7 @@ public class QProfileResetMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
@@ -89,7 +89,7 @@ public class QProfileResetMediumTest {
   }
 
   @Test
-  public void reset_language_profile() throws Exception {
+  public void reset_language_profile() {
     RulesProfile defProfile = RulesProfile.create("Basic", ServerTester.Xoo.KEY);
     defProfile.activateRule(
       org.sonar.api.rules.Rule.create("xoo", "x1").setParams(newArrayList(new RuleParam().setKey("acceptWhitespace"))),
@@ -137,7 +137,7 @@ public class QProfileResetMediumTest {
   }
 
   @Test
-  public void reset_language_profile_param_when_rule_definition_has_changed() throws Exception {
+  public void reset_language_profile_param_when_rule_definition_has_changed() {
     RulesProfile defProfile = RulesProfile.create("Basic", ServerTester.Xoo.KEY);
     defProfile.activateRule(org.sonar.api.rules.Rule.create("xoo", "x1"), null);
 

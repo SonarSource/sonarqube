@@ -51,12 +51,12 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     session.close();
   }
 
   @Test
-  public void batch_insert_new_issues() throws Exception {
+  public void batch_insert_new_issues() {
     FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -91,7 +91,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void batch_insert_new_issues_with_session() throws Exception {
+  public void batch_insert_new_issues_with_session() {
     FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -127,7 +127,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void server_insert_new_issues_with_session() throws Exception {
+  public void server_insert_new_issues_with_session() {
     ComponentDto project = new ComponentDto().setId(10L).setUuid("uuid-10");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("uuid-100");
     FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
@@ -165,7 +165,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void batch_update_issues() throws Exception {
+  public void batch_update_issues() {
     setupData("should_update_issues");
 
     FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
@@ -209,7 +209,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void server_update_issues() throws Exception {
+  public void server_update_issues() {
     setupData("should_update_issues");
 
     ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");

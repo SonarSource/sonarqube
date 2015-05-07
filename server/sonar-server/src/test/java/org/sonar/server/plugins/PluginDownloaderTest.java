@@ -110,7 +110,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void download_from_url() throws Exception {
+  public void download_from_url() {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
@@ -131,7 +131,7 @@ public class PluginDownloaderTest {
    * SONAR-4685
    */
   @Test
-  public void download_from_redirect_url() throws Exception {
+  public void download_from_redirect_url() {
     Plugin test = new Plugin("plugin-test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/redirect?r=release&g=test&a=test&v=1.0&e=jar");
     test.addRelease(test10);
@@ -181,7 +181,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void throw_exception_if_could_not_download() throws Exception {
+  public void throw_exception_if_could_not_download() {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("file://not_found");
     test.addRelease(test10);
@@ -198,7 +198,7 @@ public class PluginDownloaderTest {
   }
 
   @Test
-  public void throw_exception_if_download_fail() throws Exception {
+  public void throw_exception_if_download_fail() {
     Plugin test = new Plugin("test");
     Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
     test.addRelease(test10);
@@ -266,7 +266,7 @@ public class PluginDownloaderTest {
 
   // SONAR-5011
   @Test
-  public void download_common_transitive_dependency() throws Exception {
+  public void download_common_transitive_dependency() {
     Plugin test1 = new Plugin("test1");
     Release test1R = new Release(test1, "1.0").setDownloadUrl("http://server/test1-1.0.jar");
     test1.addRelease(test1R);

@@ -48,21 +48,21 @@ public class ProjectSettingsFactoryTest {
   }
 
   @Test
-  public void newProjectSettings_returns_a_ProjectSettings() throws Exception {
+  public void newProjectSettings_returns_a_ProjectSettings() {
     Settings projectSettings = sut.newProjectSettings(1L);
 
     assertThat(projectSettings).isInstanceOf(ProjectSettings.class);
   }
 
   @Test
-  public void transform_empty_list_into_empty_map() throws Exception {
+  public void transform_empty_list_into_empty_map() {
     Map<String, String> propertyMap = sut.getPropertyMap(Lists.<PropertyDto>newArrayList());
 
     assertThat(propertyMap).isEmpty();
   }
 
   @Test
-  public void transform_list_of_properties_in_map_key_value() throws Exception {
+  public void transform_list_of_properties_in_map_key_value() {
     PropertyDto property1 = new PropertyDto().setKey("1").setValue("val1");
     PropertyDto property2 = new PropertyDto().setKey("2").setValue("val2");
     PropertyDto property3 = new PropertyDto().setKey("3").setValue("val3");

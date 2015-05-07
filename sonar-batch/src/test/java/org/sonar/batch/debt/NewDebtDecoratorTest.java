@@ -106,12 +106,12 @@ public class NewDebtDecoratorTest {
   }
 
   @Test
-  public void generates_metrics() throws Exception {
+  public void generates_metrics() {
     assertThat(decorator.generatesMetrics()).hasSize(1);
   }
 
   @Test
-  public void execute_on_project() throws Exception {
+  public void execute_on_project() {
     assertThat(decorator.shouldExecuteOnProject(null)).isTrue();
   }
 

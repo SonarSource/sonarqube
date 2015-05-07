@@ -39,7 +39,7 @@ public class TestIndexTest {
   TestIndex sut = new TestIndex(es.client());
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     es.truncateIndices();
   }
 

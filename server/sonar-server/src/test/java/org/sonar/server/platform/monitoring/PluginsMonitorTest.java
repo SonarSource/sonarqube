@@ -39,12 +39,12 @@ public class PluginsMonitorTest {
   PluginsMonitor sut = new PluginsMonitor(new FakePluginRepository());;
 
   @Test
-  public void name() throws Exception {
+  public void name() {
     assertThat(sut.name()).isEqualTo("Plugins");
   }
 
   @Test
-  public void plugin_name_and_version() throws Exception {
+  public void plugin_name_and_version() {
     LinkedHashMap<String, Object> attributes = sut.attributes();
 
     assertThat(attributes).containsKeys("key-1", "key-2");

@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class BaseStepTest {
 
-  protected abstract ComputationStep step() throws IOException;
+  protected abstract ComputationStep step();
 
   @Test
-  public void test_metadata() throws Exception {
+  public void test_metadata() {
     assertThat(step().toString()).isNotEmpty();
     assertThat(step().getDescription()).isNotEmpty();
     assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);

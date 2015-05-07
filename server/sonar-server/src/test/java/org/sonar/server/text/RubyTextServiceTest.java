@@ -32,19 +32,19 @@ public class RubyTextServiceTest {
   RubyTextService text = new RubyTextService(macroInterpreter);
 
   @Test
-  public void interpretMacros() throws Exception {
+  public void interpretMacros() {
     text.interpretMacros("text with macros");
     verify(macroInterpreter, times(1)).interpret("text with macros");
   }
 
   @Test
-  public void markdownToHtml() throws Exception {
+  public void markdownToHtml() {
     String html = text.markdownToHtml("some *markdown*");
     assertThat(html).isEqualTo("some <em>markdown</em>");
   }
 
   @Test
-  public void should_escape_markdown_input() throws Exception {
+  public void should_escape_markdown_input() {
     String html = text.markdownToHtml("a > b");
     assertThat(html).isEqualTo("a &gt; b");
   }

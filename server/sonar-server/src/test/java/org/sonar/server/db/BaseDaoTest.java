@@ -59,7 +59,7 @@ public class BaseDaoTest {
   }
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     this.session = db.myBatis().openSession(false);
     this.dao = new FakeDao(System2.INSTANCE);
   }
@@ -78,7 +78,7 @@ public class BaseDaoTest {
   }
 
   @Test
-  public void can_insert_and_select_by_key() throws Exception {
+  public void can_insert_and_select_by_key() {
     long t0 = System.currentTimeMillis() - 1000;
 
     String key = Uuids.create();
@@ -108,7 +108,7 @@ public class BaseDaoTest {
   }
 
   @Test
-  public void synchronize_to_es_after_date() throws Exception {
+  public void synchronize_to_es_after_date() {
     long t0 = System.currentTimeMillis() - 1000;
 
     String key = Uuids.create();

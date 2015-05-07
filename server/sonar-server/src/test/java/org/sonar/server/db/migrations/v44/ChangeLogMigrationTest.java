@@ -46,7 +46,7 @@ public class ChangeLogMigrationTest {
   DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
     dao = new ActivityDao(db.myBatis(), system2);
     dbClient = new DbClient(db.database(), db.myBatis(), dao);
@@ -60,7 +60,7 @@ public class ChangeLogMigrationTest {
   }
 
   @Test
-  public void migrate() throws Exception {
+  public void migrate() {
     db.prepareDbUnit(getClass(), "active_rules_changes.xml");
     migration.execute();
     assertThat(db.countRowsOfTable("activities")).isEqualTo(5);
@@ -70,7 +70,7 @@ public class ChangeLogMigrationTest {
   }
 
   @Test
-  public void migrate_when_no_changelog() throws Exception {
+  public void migrate_when_no_changelog() {
     db.prepareDbUnit(getClass(), "migrate_when_no_changelog.xml");
     migration.execute();
 

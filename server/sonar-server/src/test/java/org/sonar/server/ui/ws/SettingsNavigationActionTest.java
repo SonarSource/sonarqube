@@ -50,7 +50,7 @@ public class SettingsNavigationActionTest {
   private I18n i18n;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     settings = new Settings();
     i18n = mock(I18n.class);
     when(i18n.message(any(Locale.class), anyString(), anyString())).thenAnswer(new Answer<String>() {

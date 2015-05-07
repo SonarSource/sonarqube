@@ -31,7 +31,7 @@ public class MetricsWsTest {
   WsTester tester = new WsTester(new MetricsWs());
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_ws() {
     WebService.Controller controller = tester.controller("api/metrics");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();

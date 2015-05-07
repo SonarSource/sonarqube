@@ -36,7 +36,7 @@ public class PropsTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void value() throws Exception {
+  public void value() {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -56,7 +56,7 @@ public class PropsTest {
   }
 
   @Test
-  public void valueAsInt() throws Exception {
+  public void valueAsInt() {
     Properties p = new Properties();
     p.setProperty("foo", "33");
     p.setProperty("blank", "");
@@ -71,7 +71,7 @@ public class PropsTest {
   }
 
   @Test
-  public void valueAsInt_not_integer() throws Exception {
+  public void valueAsInt_not_integer() {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -85,7 +85,7 @@ public class PropsTest {
   }
 
   @Test
-  public void booleanOf() throws Exception {
+  public void booleanOf() {
     Properties p = new Properties();
     p.setProperty("foo", "True");
     p.setProperty("bar", "false");
@@ -97,7 +97,7 @@ public class PropsTest {
   }
 
   @Test
-  public void booleanOf_default_value() throws Exception {
+  public void booleanOf_default_value() {
     Properties p = new Properties();
     p.setProperty("foo", "true");
     p.setProperty("bar", "false");
@@ -110,7 +110,7 @@ public class PropsTest {
   }
 
   @Test
-  public void setDefault() throws Exception {
+  public void setDefault() {
     Properties p = new Properties();
     p.setProperty("foo", "foo_value");
     Props props = new Props(p);
@@ -123,7 +123,7 @@ public class PropsTest {
   }
 
   @Test
-  public void set() throws Exception {
+  public void set() {
     Properties p = new Properties();
     p.setProperty("foo", "old_foo");
     Props props = new Props(p);
@@ -135,7 +135,7 @@ public class PropsTest {
   }
 
   @Test
-  public void raw_properties() throws Exception {
+  public void raw_properties() {
     Properties p = new Properties();
     p.setProperty("encrypted_prop", "{aes}abcde");
     p.setProperty("clear_prop", "foo");

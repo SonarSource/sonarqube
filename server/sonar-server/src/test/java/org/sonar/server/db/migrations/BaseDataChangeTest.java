@@ -50,7 +50,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table persons");
   }
 

@@ -58,7 +58,7 @@ public class ExtensionInstallerTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     mode = mock(DefaultAnalysisMode.class);
   }
 

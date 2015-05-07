@@ -59,7 +59,7 @@ public class SourceLinesCacheTest {
   }
 
   @Test
-  public void line_author_from_report() throws Exception {
+  public void line_author_from_report() {
     BatchReportWriter reportWriter = new BatchReportWriter(dir);
     reportWriter.writeComponentChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(123_456_789)
@@ -101,7 +101,7 @@ public class SourceLinesCacheTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_when_component_ref_is_not_filled() throws Exception {
+  public void fail_when_component_ref_is_not_filled() {
     sut.init("ANY_UUID", null, new BatchReportReader(dir));
     sut.lineAuthor(0);
   }

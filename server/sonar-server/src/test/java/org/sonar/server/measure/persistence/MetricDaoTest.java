@@ -50,12 +50,12 @@ public class MetricDaoTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void get_by_key() throws Exception {
+  public void get_by_key() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     MetricDto result = dao.selectByKey(session, "coverage");
@@ -83,7 +83,7 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void get_manual_metric() throws Exception {
+  public void get_manual_metric() {
     dbTester.prepareDbUnit(getClass(), "manual_metric.xml");
 
     MetricDto result = dao.selectByKey(session, "manual");
@@ -106,14 +106,14 @@ public class MetricDaoTest {
   }
 
   @Test
-  public void find_all_enabled() throws Exception {
+  public void find_all_enabled() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectEnabled(session)).hasSize(2);
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     dao.insert(session, new MetricDto()
       .setId(1)
       .setKey("coverage")

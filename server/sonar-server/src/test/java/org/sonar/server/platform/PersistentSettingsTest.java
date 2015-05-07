@@ -43,7 +43,7 @@ public class PersistentSettingsTest {
   private ServerSettings settings;
 
   @Before
-  public void init() throws URISyntaxException {
+  public void init() {
     dao = mock(PropertiesDao.class);
 
     settings = new ServerSettings(

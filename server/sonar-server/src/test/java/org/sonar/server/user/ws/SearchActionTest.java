@@ -47,7 +47,7 @@ public class SearchActionTest {
   UserIndex index;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     esTester.truncateIndices();
 
     index = new UserIndex(esTester.client());

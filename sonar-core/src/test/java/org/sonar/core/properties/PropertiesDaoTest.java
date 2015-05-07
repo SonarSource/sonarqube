@@ -51,7 +51,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -106,7 +106,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void hasNotificationSubscribers() throws Exception {
+  public void hasNotificationSubscribers() {
     setupData("findNotificationSubscribers");
 
     // Nobody is subscribed
@@ -175,7 +175,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_module_properties_tree() throws Exception {
+  public void select_module_properties_tree() {
     setupData("select_module_properties_tree");
 
     List<PropertyDto> properties = dao.selectEnabledDescendantModuleProperties("ABCD", session);

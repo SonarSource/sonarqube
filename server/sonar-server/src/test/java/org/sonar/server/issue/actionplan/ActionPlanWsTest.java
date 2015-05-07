@@ -32,7 +32,7 @@ public class ActionPlanWsTest {
   WsTester tester = new WsTester(new ActionPlanWs());
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     WebService.Controller controller = tester.controller("api/action_plans");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
@@ -40,7 +40,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_search_action() throws Exception {
+  public void define_search_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("search");
@@ -51,7 +51,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_create_action() throws Exception {
+  public void define_create_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("create");
@@ -61,7 +61,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_delete_action() throws Exception {
+  public void define_delete_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("delete");
@@ -71,7 +71,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_update_action() throws Exception {
+  public void define_update_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("update");
@@ -81,7 +81,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_open_action() throws Exception {
+  public void define_open_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("open");
@@ -91,7 +91,7 @@ public class ActionPlanWsTest {
   }
 
   @Test
-  public void define_close_action() throws Exception {
+  public void define_close_action() {
     WebService.Controller controller = tester.controller("api/action_plans");
 
     WebService.Action action = controller.action("close");

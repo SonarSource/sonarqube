@@ -72,7 +72,7 @@ public class NoSonarFilterTest {
   }
 
   @Test
-  public void should_accept_violations_from_no_sonar_rules() throws Exception {
+  public void should_accept_violations_from_no_sonar_rules() {
     // The "No Sonar" rule logs violations on the lines that are flagged with "NOSONAR" !!
 
     Set<Integer> noSonarLines = new HashSet<Integer>();

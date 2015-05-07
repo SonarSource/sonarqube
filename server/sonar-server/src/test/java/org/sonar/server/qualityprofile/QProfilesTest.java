@@ -46,94 +46,94 @@ public class QProfilesTest {
   QProfiles qProfiles;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup);
   }
 
   @Test
-  public void search_profile_by_id() throws Exception {
+  public void search_profile_by_id() {
     qProfiles.profile(1);
     verify(profileLookup).profile(1);
   }
 
   @Test
-  public void search_profile_by_name_and_language() throws Exception {
+  public void search_profile_by_name_and_language() {
     qProfiles.profile("Default", "java");
     verify(profileLookup).profile("Default", "java");
   }
 
   @Test
-  public void search_profiles() throws Exception {
+  public void search_profiles() {
     qProfiles.allProfiles();
     verify(profileLookup).allProfiles();
   }
 
   @Test
-  public void search_profiles_by_language() throws Exception {
+  public void search_profiles_by_language() {
     qProfiles.profilesByLanguage("java");
     verify(profileLookup).profiles("java");
   }
 
   @Test
-  public void search_parent_profile() throws Exception {
+  public void search_parent_profile() {
     QProfile profile = new QProfile().setId(1).setParent("Parent").setLanguage("java");
     qProfiles.parent(profile);
     verify(profileLookup).parent(profile);
   }
 
   @Test
-  public void search_children() throws Exception {
+  public void search_children() {
     QProfile profile = new QProfile();
     qProfiles.children(profile);
     verify(profileLookup).children(profile);
   }
 
   @Test
-  public void search_ancestors() throws Exception {
+  public void search_ancestors() {
     QProfile profile = new QProfile();
     qProfiles.ancestors(profile);
     verify(profileLookup).ancestors(profile);
   }
 
   @Test
-  public void projects() throws Exception {
+  public void projects() {
     qProfiles.projects(1);
     verify(projectLookup).projects(1);
   }
 
   @Test
-  public void count_projects() throws Exception {
+  public void count_projects() {
     QProfile profile = new QProfile();
     qProfiles.countProjects(profile);
     verify(projectLookup).countProjects(profile);
   }
 
   @Test
-  public void get_profiles_from_project_and_language() throws Exception {
+  public void get_profiles_from_project_and_language() {
     qProfiles.findProfileByProjectAndLanguage(1, "java");
     verify(projectLookup).findProfileByProjectAndLanguage(1, "java");
   }
 
   @Test
-  public void add_project() throws Exception {
+  public void add_project() {
     qProfiles.addProject("sonar-way-java", "ABCD");
     verify(projectOperations).addProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
   }
 
   @Test
-  public void remove_project_by_quality_profile_key() throws Exception {
+  public void remove_project_by_quality_profile_key() {
     qProfiles.removeProject("sonar-way-java", "ABCD");
     verify(projectOperations).removeProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
   }
 
   @Test
-  public void remove_project_by_language() throws Exception {
+  public void remove_project_by_language() {
     qProfiles.removeProjectByLanguage("java", 10L);
     verify(projectOperations).removeProject(eq("java"), eq(10L), any(UserSession.class));
   }
 
   @Test
-  public void remove_all_projects() throws Exception {
+  public void remove_all_projects() {
     qProfiles.removeAllProjects("sonar-way-java");
     verify(projectOperations).removeAllProjects(eq("sonar-way-java"), any(UserSession.class));
   }

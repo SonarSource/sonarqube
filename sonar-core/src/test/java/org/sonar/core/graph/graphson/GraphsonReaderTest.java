@@ -39,7 +39,7 @@ import java.util.Set;
 public class GraphsonReaderTest {
 
   @Test
-  public void inputGraphModeExtended() throws Exception {
+  public void inputGraphModeExtended() {
     TinkerGraph graph = new TinkerGraph();
 
     String json = "{ \"mode\":\"EXTENDED\", \"vertices\": [ {\"_id\":1, \"_type\":\"vertex\", \"test\": { \"type\":\"string\", \"value\":\"please work\"}, \"testlist\":{\"type\":\"list\", \"value\":[{\"type\":\"int\", \"value\":1}, {\"type\":\"int\",\"value\":2}, {\"type\":\"int\",\"value\":3}, {\"type\":\"unknown\",\"value\":null}]}, \"testmap\":{\"type\":\"map\", \"value\":{\"big\":{\"type\":\"long\", \"value\":10000000000}, \"small\":{\"type\":\"double\", \"value\":0.4954959595959}, \"nullKey\":{\"type\":\"unknown\", \"value\":null}}}}, {\"_id\":2, \"_type\":\"vertex\", \"testagain\":{\"type\":\"string\", \"value\":\"please work again\"}}], \"edges\":[{\"_id\":100, \"_type\":\"edge\", \"_outV\":1, \"_inV\":2, \"_label\":\"works\", \"teste\": {\"type\":\"string\", \"value\":\"please worke\"}, \"keyNull\":{\"type\":\"unknown\", \"value\":null}}]}";
@@ -88,7 +88,7 @@ public class GraphsonReaderTest {
   }
 
   @Test
-  public void inputGraphModeNormal() throws Exception {
+  public void inputGraphModeNormal() {
     TinkerGraph graph = new TinkerGraph();
 
     String json = "{ \"mode\":\"NORMAL\",\"vertices\": [ {\"_id\":1, \"_type\":\"vertex\", \"test\": \"please work\", \"testlist\":[1, 2, 3, null], \"testmap\":{\"big\":10000000000, \"small\":0.4954959595959, \"nullKey\":null}}, {\"_id\":2, \"_type\":\"vertex\", \"testagain\":\"please work again\"}], \"edges\":[{\"_id\":100, \"_type\":\"edge\", \"_outV\":1, \"_inV\":2, \"_label\":\"works\", \"teste\": \"please worke\", \"keyNull\":null}]}";
@@ -137,7 +137,7 @@ public class GraphsonReaderTest {
   }
 
   @Test
-  public void inputGraphModeCompact() throws Exception {
+  public void inputGraphModeCompact() {
     TinkerGraph graph = new TinkerGraph();
 
     String json = "{ \"mode\":\"COMPACT\",\"vertices\": [ {\"_id\":1, \"test\": \"please work\", \"testlist\":[1, 2, 3, null], \"testmap\":{\"big\":10000000000, \"small\":0.4954959595959, \"nullKey\":null}}, {\"_id\":2, \"testagain\":\"please work again\"}], \"edges\":[{\"_id\":100, \"_outV\":1, \"_inV\":2, \"_label\":\"works\", \"teste\": \"please worke\", \"keyNull\":null}]}";

@@ -62,7 +62,7 @@ public class ProxySearchRequestBuilderTest {
   }
 
   @Test
-  public void fail_to_search_bad_query() throws Exception {
+  public void fail_to_search_bad_query() {
     try {
       esTester.client().prepareSearch(FakeIndexDefinition.INDEX).setQuery("bad query").get();
       fail();
@@ -73,7 +73,7 @@ public class ProxySearchRequestBuilderTest {
   }
 
   @Test
-  public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_string_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get("1");
       fail();
@@ -83,7 +83,7 @@ public class ProxySearchRequestBuilderTest {
   }
 
   @Test
-  public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_time_value_timeout_is_not_yet_implemented() {
     try {
       esTester.client().prepareSearch(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
       fail();
@@ -93,7 +93,7 @@ public class ProxySearchRequestBuilderTest {
   }
 
   @Test
-  public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
+  public void execute_should_throw_an_unsupported_operation_exception() {
     try {
       esTester.client().prepareSearch(FakeIndexDefinition.INDEX).execute();
       fail();

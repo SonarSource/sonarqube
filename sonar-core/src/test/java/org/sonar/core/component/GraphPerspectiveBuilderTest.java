@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class GraphPerspectiveBuilderTest {
 
   @Test
-  public void should_return_null_on_null_component() throws Exception {
+  public void should_return_null_on_null_component() {
 
     String componentKey = "org.foo.Bar";
 
@@ -55,7 +55,7 @@ public class GraphPerspectiveBuilderTest {
   }
 
   @Test
-  public void should_load_perspective() throws Exception {
+  public void should_load_perspective() {
 
     ScanGraph graph = ScanGraph.create();
     MutablePerspective expectedPerspective = mock(MutablePerspective.class);
@@ -73,7 +73,7 @@ public class GraphPerspectiveBuilderTest {
   }
 
   @Test
-  public void should_create_perspective_when_loaded_one_is_null() throws Exception {
+  public void should_create_perspective_when_loaded_one_is_null() {
 
     String perspectiveKey = "perspectiveKey";
 

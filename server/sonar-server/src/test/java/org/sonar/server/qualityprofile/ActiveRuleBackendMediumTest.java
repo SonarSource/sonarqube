@@ -82,7 +82,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  public void synchronize_index() throws Exception {
+  public void synchronize_index() {
 
     Date beginning = new Date();
 
@@ -147,7 +147,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  public void insert_and_index_active_rule_param() throws InterruptedException {
+  public void insert_and_index_active_rule_param() {
     // insert and index
     QualityProfileDto profileDto = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profileDto);
@@ -195,7 +195,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  public void find_active_rules() throws Exception {
+  public void find_active_rules() {
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2();
     db.qualityProfileDao().insert(dbSession, profile1, profile2);

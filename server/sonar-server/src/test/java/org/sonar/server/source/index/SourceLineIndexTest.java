@@ -82,7 +82,7 @@ public class SourceLineIndexTest {
   }
 
   @Test
-  public void fail_to_get_line_when_line_is_not_greater_than_0() throws Exception {
+  public void fail_to_get_line_when_line_is_not_greater_than_0() {
     try {
       index.getLine("file1", 0);
     } catch (Exception e) {
@@ -105,7 +105,7 @@ public class SourceLineIndexTest {
   }
 
   @Test
-  public void fail_to_get_line_on_unknown_file() throws Exception {
+  public void fail_to_get_line_on_unknown_file() {
     try {
       index.getLine("file1", 1);
     } catch (Exception e) {
@@ -134,7 +134,7 @@ public class SourceLineIndexTest {
   }
 
   @Test
-  public void last_commit_null_when_not_found() throws Exception {
+  public void last_commit_null_when_not_found() {
     Date date = index.lastCommitDateOnProject("fake-project-uuid");
 
     assertThat(date).isNull();

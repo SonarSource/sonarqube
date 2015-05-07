@@ -87,7 +87,7 @@ public class MonitorTest {
    * Safeguard
    */
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     try {
       if (monitor != null) {
         monitor.stop();
@@ -97,7 +97,7 @@ public class MonitorTest {
   }
 
   @Test
-  public void fail_to_start_if_no_commands() throws Exception {
+  public void fail_to_start_if_no_commands() {
     monitor = newDefaultMonitor();
     try {
       monitor.start(Collections.<JavaCommand>emptyList());
@@ -264,7 +264,7 @@ public class MonitorTest {
       this.httpPort = httpPort;
     }
 
-    JavaCommand newCommand() throws IOException {
+    JavaCommand newCommand() {
       return new JavaCommand(commandKey)
         .addClasspath(testJar.getAbsolutePath())
         .setClassName("org.sonar.process.test.HttpProcess")
@@ -313,7 +313,7 @@ public class MonitorTest {
       return readTimeFromFile("terminatedAt");
     }
 
-    boolean wasReady() throws IOException {
+    boolean wasReady() {
       return fileExists("readyAt");
     }
 

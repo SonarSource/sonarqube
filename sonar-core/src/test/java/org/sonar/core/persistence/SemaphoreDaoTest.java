@@ -83,7 +83,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void create_and_acquire_semaphore() throws Exception {
+  public void create_and_acquire_semaphore() {
     Semaphores.Semaphore lock = dao.acquire("foo", 60);
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -120,7 +120,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_to_update_null_semaphore() throws Exception {
+  public void fail_to_update_null_semaphore() {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore must not be null");
 
@@ -128,7 +128,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void create_and_acquire_semaphore_when_maxage_is_zeo() throws Exception {
+  public void create_and_acquire_semaphore_when_maxage_is_zeo() {
     Semaphores.Semaphore lock = dao.acquire("foo", 0);
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -145,7 +145,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void create_and_acquire_semaphore_when_no_timeout() throws Exception {
+  public void create_and_acquire_semaphore_when_no_timeout() {
     Semaphores.Semaphore lock = dao.acquire("foo");
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -162,7 +162,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_to_acquire_locked_semaphore() throws Exception {
+  public void fail_to_acquire_locked_semaphore() {
     setupData("old_semaphore");
     Semaphores.Semaphore lock = dao.acquire("foo", Integer.MAX_VALUE);
     assertThat(lock.isLocked()).isFalse();
@@ -177,7 +177,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void acquire_long_locked_semaphore() throws Exception {
+  public void acquire_long_locked_semaphore() {
     setupData("old_semaphore");
     Semaphores.Semaphore lock = dao.acquire("foo", 60);
     assertThat(lock.isLocked()).isTrue();
@@ -192,7 +192,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void acquire_locked_semaphore_when_timeout_is_zero() throws Exception {
+  public void acquire_locked_semaphore_when_timeout_is_zero() {
     setupData("old_semaphore");
     Semaphores.Semaphore lock = dao.acquire("foo", 0);
     assertThat(lock.isLocked()).isTrue();
@@ -210,7 +210,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void fail_to_acquire_locked_semaphore_when_no_timeout() throws Exception {
+  public void fail_to_acquire_locked_semaphore_when_no_timeout() {
     setupData("old_semaphore");
     Semaphores.Semaphore lock = dao.acquire("foo");
     assertThat(lock.isLocked()).isFalse();
@@ -225,7 +225,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_semaphore_return_current_semaphore_when_acquiring() throws Exception {
+  public void should_select_semaphore_return_current_semaphore_when_acquiring() {
     dao.acquire("foo");
 
     SemaphoreDto semaphore = selectSemaphore("foo");
@@ -255,7 +255,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     }
   }
 
-  private SemaphoreDto selectSemaphore(String name) throws Exception {
+  private SemaphoreDto selectSemaphore(String name) {
     SqlSession session = getMyBatis().openSession();
     try {
       return dao.selectSemaphore(name, session);

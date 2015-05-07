@@ -34,7 +34,7 @@ public class DefaultTechnicalDebtModelTest {
   private DefaultTechnicalDebtModel sqaleModel;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DefaultDebtModel debtModel = new DefaultDebtModel();
     debtModel.addCharacteristic(
       new DefaultDebtCharacteristic().setId(1)
@@ -53,7 +53,7 @@ public class DefaultTechnicalDebtModelTest {
   }
 
   @Test
-  public void get_characteristics() throws Exception {
+  public void get_characteristics() {
     assertThat(sqaleModel.rootCharacteristics()).hasSize(1);
 
     DefaultCharacteristic resultRootCharacteristic = sqaleModel.rootCharacteristics().get(0);
@@ -67,7 +67,7 @@ public class DefaultTechnicalDebtModelTest {
   }
 
   @Test
-  public void get_characteristic_by_key() throws Exception {
+  public void get_characteristic_by_key() {
     assertThat(sqaleModel.characteristicByKey("MEMORY_EFFICIENCY")).isNotNull();
     assertThat(sqaleModel.characteristicByKey("EFFICIENCY")).isNotNull();
     assertThat(sqaleModel.characteristicByKey("EFFICIENCY").parent()).isNotNull();
@@ -76,24 +76,24 @@ public class DefaultTechnicalDebtModelTest {
   }
 
   @Test
-  public void characteristic_by_id() throws Exception {
+  public void characteristic_by_id() {
     assertThat(sqaleModel.characteristicById(1)).isNotNull();
     assertThat(sqaleModel.characteristicById(2)).isNotNull();
     assertThat(sqaleModel.characteristicById(123)).isNull();
   }
 
   @Test
-  public void get_requirement_by_rule_key_always_return_null() throws Exception {
+  public void get_requirement_by_rule_key_always_return_null() {
     assertThat(sqaleModel.requirementsByRule(RuleKey.of("checkstyle", "Regexp"))).isNull();
   }
 
   @Test
-  public void get_requirement_by_id_always_return_null() throws Exception {
+  public void get_requirement_by_id_always_return_null() {
     assertThat(sqaleModel.requirementsById(1)).isNull();
   }
 
   @Test
-  public void get_requirements_always_return_empty_list() throws Exception {
+  public void get_requirements_always_return_empty_list() {
     assertThat(sqaleModel.requirements()).isEmpty();
   }
 

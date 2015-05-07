@@ -26,7 +26,7 @@ public class BaseLoggerTest {
   ConsoleLogger sut = new ConsoleLogger();
 
   @Test
-  public void log() throws Exception {
+  public void log() {
     sut.log(LoggerLevel.WARN, "message");
   }
 }

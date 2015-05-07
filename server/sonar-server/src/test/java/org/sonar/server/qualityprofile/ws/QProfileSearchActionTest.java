@@ -60,7 +60,7 @@ public class QProfileSearchActionTest {
   private QProfileLoader profileLoader;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao);

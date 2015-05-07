@@ -39,7 +39,7 @@ public class InsertProjectsAuthorizationUpdatedAtMigrationTest {
   System2 system = mock(System2.class);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table projects");
     migration = new InsertProjectsAuthorizationUpdatedAtMigrationStep(db.database(), system);
     when(system.now()).thenReturn(123456789L);

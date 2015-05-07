@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MessageExceptionTest {
 
   @Test
-  public void should_create_exception() throws Exception {
+  public void should_create_exception() {
     String message = "the message";
     MessageException exception = MessageException.of(message);
     assertThat(exception.getMessage()).isEqualTo(message);

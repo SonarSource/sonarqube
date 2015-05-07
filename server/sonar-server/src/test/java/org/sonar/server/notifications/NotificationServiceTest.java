@@ -210,7 +210,7 @@ public class NotificationServiceTest {
   }
 
   @Test
-  public void shouldLogEvery10Minutes() throws InterruptedException {
+  public void shouldLogEvery10Minutes() {
     setUpMocks();
     // Emulate 2 notifications in DB
     when(manager.getFromQueue()).thenReturn(notification).thenReturn(notification).thenReturn(null);

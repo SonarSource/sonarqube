@@ -33,12 +33,12 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   private static RuleDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new RuleDao(getMyBatis());
   }
 
   @Test
-  public void select_enables_and_non_manual() throws Exception {
+  public void select_enables_and_non_manual() {
     setupData("select_enables_and_non_manual");
     List<RuleDto> ruleDtos = dao.selectEnablesAndNonManual();
 
@@ -63,7 +63,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_parameters() throws Exception {
+  public void select_parameters() {
     setupData("selectParameters");
     List<RuleParamDto> ruleDtos = dao.selectParameters();
 

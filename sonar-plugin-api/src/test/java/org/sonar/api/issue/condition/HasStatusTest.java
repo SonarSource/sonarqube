@@ -30,7 +30,7 @@ public class HasStatusTest {
   DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void should_match() throws Exception {
+  public void should_match() {
     HasStatus condition = new HasStatus("OPEN", "REOPENED", "CONFIRMED");
 
     assertThat(condition.matches(issue.setStatus("OPEN"))).isTrue();

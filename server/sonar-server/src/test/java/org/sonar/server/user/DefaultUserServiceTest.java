@@ -59,7 +59,7 @@ public class DefaultUserServiceTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void parse_query() throws Exception {
+  public void parse_query() {
     service.find(ImmutableMap.<String, Object>of(
       "logins", "simon,loic",
       "includeDeactivated", "true",
@@ -91,7 +91,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void self_deactivation_is_not_possible() throws Exception {
+  public void self_deactivation_is_not_possible() {
     try {
       MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
       service.deactivate("simon");
@@ -103,7 +103,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void user_deactivation_requires_admin_permission() throws Exception {
+  public void user_deactivation_requires_admin_permission() {
     try {
       MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.deactivate("julien");
@@ -114,14 +114,14 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void deactivate_user() throws Exception {
+  public void deactivate_user() {
     MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(userUpdater).deactivateUserByLogin("julien");
   }
 
   @Test
-  public void fail_to_deactivate_when_blank_login() throws Exception {
+  public void fail_to_deactivate_when_blank_login() {
     MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     try {
       service.deactivate("");
@@ -132,7 +132,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void create() throws Exception {
+  public void create() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
@@ -149,7 +149,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void update() throws Exception {
+  public void update() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
@@ -171,7 +171,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void update_only_name() throws Exception {
+  public void update_only_name() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("name", "John");
@@ -186,7 +186,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void update_only_email() throws Exception {
+  public void update_only_email() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("email", "john@email.com");
@@ -201,7 +201,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void update_only_scm_accounts() throws Exception {
+  public void update_only_scm_accounts() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("scm_accounts", newArrayList("jn"));
@@ -216,7 +216,7 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void update_only_password() throws Exception {
+  public void update_only_password() {
     Map<String, Object> params = newHashMap();
     params.put("login", "john");
     params.put("password", "1234");
@@ -232,13 +232,13 @@ public class DefaultUserServiceTest {
   }
 
   @Test
-  public void get_by_login() throws Exception {
+  public void get_by_login() {
     service.getByLogin("john");
     verify(userIndex).getNullableByLogin("john");
   }
 
   @Test
-  public void index() throws Exception {
+  public void index() {
     service.index();
     verify(userUpdater).index();
   }

@@ -58,22 +58,22 @@ public class PlatformDatabaseMigrationTest {
   private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @Test
-  public void status_is_NONE_when_component_is_created() throws Exception {
+  public void status_is_NONE_when_component_is_created() {
     assertThat(underTest.status()).isEqualTo(DatabaseMigration.Status.NONE);
   }
 
   @Test
-  public void startedAt_is_null_when_component_is_created() throws Exception {
+  public void startedAt_is_null_when_component_is_created() {
     assertThat(underTest.startedAt()).isNull();
   }
 
   @Test
-  public void failureError_is_null_when_component_is_created() throws Exception {
+  public void failureError_is_null_when_component_is_created() {
     assertThat(underTest.failureError()).isNull();
   }
 
   @Test
-  public void startit_calls_databasemigration_trigger_in_a_separate_thread() throws Exception {
+  public void startit_calls_databasemigration_trigger_in_a_separate_thread() {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
     when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
 
@@ -88,7 +88,7 @@ public class PlatformDatabaseMigrationTest {
   }
 
   @Test
-  public void status_is_SUCCEEDED_and_failure_is_null_when_trigger_runs_without_an_exception() throws Exception {
+  public void status_is_SUCCEEDED_and_failure_is_null_when_trigger_runs_without_an_exception() {
     when(rubyBridge.databaseMigration()).thenReturn(rubyDatabaseMigration);
     when(rubyBridge.railsRoutes()).thenReturn(rubyRailsRoutes);
 
@@ -100,7 +100,7 @@ public class PlatformDatabaseMigrationTest {
   }
 
   @Test
-  public void status_is_FAILED_and_failure_stores_the_exception_when_trigger_throws_an_exception() throws Exception {
+  public void status_is_FAILED_and_failure_stores_the_exception_when_trigger_throws_an_exception() {
     mockTriggerThrowsError();
 
     underTest.startIt();
@@ -111,7 +111,7 @@ public class PlatformDatabaseMigrationTest {
   }
 
   @Test
-  public void successive_calls_to_startIt_reset_status_startedAt_and_failureError() throws Exception {
+  public void successive_calls_to_startIt_reset_status_startedAt_and_failureError() {
     mockTriggerThrowsError();
 
     underTest.startIt();

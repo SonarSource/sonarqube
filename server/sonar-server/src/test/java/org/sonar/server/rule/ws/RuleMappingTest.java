@@ -38,7 +38,7 @@ public class RuleMappingTest {
   DebtModel debtModel = mock(DebtModel.class);
 
   @Test
-  public void toQueryOptions_load_all_fields() throws Exception {
+  public void toQueryOptions_load_all_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -49,7 +49,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_load_only_few_simple_fields() throws Exception {
+  public void toQueryOptions_load_only_few_simple_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -64,7 +64,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_langName_requires_lang() throws Exception {
+  public void toQueryOptions_langName_requires_lang() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -76,7 +76,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_debt_requires_group_of_fields() throws Exception {
+  public void toQueryOptions_debt_requires_group_of_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -91,7 +91,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_html_note_requires_markdown_note() throws Exception {
+  public void toQueryOptions_html_note_requires_markdown_note() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -103,7 +103,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_debt_characteristics() throws Exception {
+  public void toQueryOptions_debt_characteristics() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
@@ -116,7 +116,7 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_debt_overloaded() throws Exception {
+  public void toQueryOptions_debt_overloaded() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");

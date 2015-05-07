@@ -66,7 +66,7 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toInteger() throws Exception {
+  public void toInteger() {
     assertThat(RubyUtils.toInteger(null)).isNull();
     assertThat(RubyUtils.toInteger("")).isNull();
     assertThat(RubyUtils.toInteger("   ")).isNull();
@@ -76,14 +76,14 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toInteger_unexpected_class() throws Exception {
+  public void toInteger_unexpected_class() {
     throwable.expect(IllegalArgumentException.class);
 
     RubyUtils.toInteger(1.2);
   }
 
   @Test
-  public void toDouble() throws Exception {
+  public void toDouble() {
     assertThat(RubyUtils.toDouble(null)).isNull();
     assertThat(RubyUtils.toDouble("")).isNull();
     assertThat(RubyUtils.toDouble("  ")).isNull();
@@ -95,14 +95,14 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toDouble_unexpected_class() throws Exception {
+  public void toDouble_unexpected_class() {
     throwable.expect(IllegalArgumentException.class);
 
     RubyUtils.toDouble(true);
   }
 
   @Test
-  public void toBoolean() throws Exception {
+  public void toBoolean() {
     assertThat(RubyUtils.toBoolean(null)).isNull();
     assertThat(RubyUtils.toBoolean("")).isNull();
     assertThat(RubyUtils.toBoolean("  ")).isNull();
@@ -113,14 +113,14 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toBoolean_unexpected_class() throws Exception {
+  public void toBoolean_unexpected_class() {
     throwable.expect(IllegalArgumentException.class);
 
     RubyUtils.toBoolean(333);
   }
 
   @Test
-  public void toDate() throws Exception {
+  public void toDate() {
     assertThat(RubyUtils.toDate(null)).isNull();
     assertThat(RubyUtils.toDate("")).isNull();
     assertThat(RubyUtils.toDate("   ")).isNull();
@@ -131,21 +131,21 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toDate_bad_format() throws Exception {
+  public void toDate_bad_format() {
     throwable.expect(SonarException.class);
 
     RubyUtils.toDate("01/02/2013");
   }
 
   @Test
-  public void toDate_unexpected_class() throws Exception {
+  public void toDate_unexpected_class() {
     throwable.expect(IllegalArgumentException.class);
 
     RubyUtils.toDate(333);
   }
 
   @Test
-  public void toLong() throws Exception {
+  public void toLong() {
     assertThat(RubyUtils.toLong(null)).isNull();
     assertThat(RubyUtils.toLong(2)).isEqualTo(2L);
     assertThat(RubyUtils.toLong(3L)).isEqualTo(3L);
@@ -153,7 +153,7 @@ public class RubyUtilsTest {
   }
 
   @Test
-  public void toLong_unexpected_class() throws Exception {
+  public void toLong_unexpected_class() {
     throwable.expect(IllegalArgumentException.class);
 
     RubyUtils.toLong(false);

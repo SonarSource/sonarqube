@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
 public class PluginUnmarshallerTest extends UnmarshallerTestCase {
 
   @Test
-  public void toModel() throws Exception {
+  public void toModel() {
     WSUtils.setInstance(new JdkUtils());
 
     List<Plugin> plugins = new PluginUnmarshaller().toModels(loadFile("/plugins/plugins.json"));

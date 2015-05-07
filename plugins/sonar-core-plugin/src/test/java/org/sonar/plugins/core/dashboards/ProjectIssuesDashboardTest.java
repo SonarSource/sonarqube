@@ -42,7 +42,7 @@ public class ProjectIssuesDashboardTest {
   ProjectIssuesDashboard template;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     IssueFilterDao issueFilterDao = new IssueFilterDao(dbTester.myBatis());
     template = new ProjectIssuesDashboard(issueFilterDao);
   }

@@ -45,20 +45,20 @@ public class IssueIndexerTest {
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
   }
 
   @Test
-  public void index_nothing() throws Exception {
+  public void index_nothing() {
     IssueIndexer indexer = createIndexer();
     indexer.index(Iterators.<IssueDoc>emptyIterator());
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
   }
 
   @Test
-  public void index_nothing_if_disabled() throws Exception {
+  public void index_nothing_if_disabled() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     createIndexer().setEnabled(false).index();
@@ -67,7 +67,7 @@ public class IssueIndexerTest {
   }
 
   @Test
-  public void index() throws Exception {
+  public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     IssueIndexer indexer = createIndexer();

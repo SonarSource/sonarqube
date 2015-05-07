@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureModelTest {
   @Test
-  public void text_is_utf8() throws UnsupportedEncodingException {
+  public void text_is_utf8() {
     String s = "accents éà and special characters ç€";
 
     MeasureModel measure = new MeasureModel();

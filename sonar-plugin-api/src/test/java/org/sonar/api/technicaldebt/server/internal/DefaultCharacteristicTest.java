@@ -81,7 +81,7 @@ public class DefaultCharacteristicTest {
   }
 
   @Test
-  public void is_root() throws Exception {
+  public void is_root() {
     DefaultCharacteristic characteristic = new DefaultCharacteristic()
       .setId(1)
       .setKey("NETWORK_USE")
@@ -94,7 +94,7 @@ public class DefaultCharacteristicTest {
   }
 
   @Test
-  public void is_requirement() throws Exception {
+  public void is_requirement() {
     DefaultCharacteristic requirement = new DefaultCharacteristic()
       .setId(1)
       .setRuleKey(RuleKey.of("repo", "rule"))

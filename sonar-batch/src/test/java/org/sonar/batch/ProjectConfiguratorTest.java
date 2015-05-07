@@ -40,7 +40,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
   System2 system2;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     system2 = mock(System2.class);
   }
 

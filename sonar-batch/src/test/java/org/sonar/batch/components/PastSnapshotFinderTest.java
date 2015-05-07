@@ -151,7 +151,7 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void should_find_by_previous_analysis() throws ParseException {
+  public void should_find_by_previous_analysis() {
     final Date date = DateUtils.parseDate("2010-05-18");
     Snapshot snapshot = new Snapshot();
     snapshot.setCreatedAtMs(date.getTime());

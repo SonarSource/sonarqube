@@ -41,7 +41,7 @@ public class DefaultProjectIssuesTest {
   DefaultProjectIssues projectIssues = new DefaultProjectIssues(cache);
 
   @Test
-  public void should_get_all_issues() throws Exception {
+  public void should_get_all_issues() {
     DefaultIssue issueOnModule = new DefaultIssue().setKey("1").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core");
     DefaultIssue issueInModule = new DefaultIssue().setKey("2").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core:Action");
     DefaultIssue resolvedIssueInModule = new DefaultIssue().setKey("3").setRuleKey(SQUID_RULE_KEY).setComponentKey("org.apache:struts-core:Action")

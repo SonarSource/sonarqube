@@ -47,7 +47,7 @@ public class QProfileDecoratorTest {
   DecoratorContext decoratorContext = mock(DecoratorContext.class);
 
   @Test
-  public void don_t_run_on_leaf() throws Exception {
+  public void don_t_run_on_leaf() {
     QProfileDecorator decorator = new QProfileDecorator();
     when(project.getModules()).thenReturn(Collections.<Project>emptyList());
     assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
@@ -57,7 +57,7 @@ public class QProfileDecoratorTest {
   }
 
   @Test
-  public void aggregate() throws Exception {
+  public void aggregate() {
     Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
     Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
     Measure measureModuleC = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + PHP_JSON + "]");
@@ -73,7 +73,7 @@ public class QProfileDecoratorTest {
   }
 
   @Test
-  public void aggregate_different_profiles_with_same_language() throws Exception {
+  public void aggregate_different_profiles_with_same_language() {
     Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
     Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA2_JSON + "]");
     when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));

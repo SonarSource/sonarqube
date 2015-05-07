@@ -41,7 +41,7 @@ public class DeleteMeasuresOnDeletedProfilesMigrationTest {
   MigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
     migration = new DeleteMeasuresOnDeletedProfilesMigrationStep(dbClient);
   }

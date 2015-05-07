@@ -35,13 +35,13 @@ public class DropIssuesColumnsTest {
   Database database;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     database = mock(Database.class);
     migration = new DropIssuesColumns(database);
   }
 
   @Test
-  public void generate_sql_on_postgresql() throws Exception {
+  public void generate_sql_on_postgresql() {
     when(database.getDialect()).thenReturn(new PostgreSql());
     assertThat(migration.generateSql()).isEqualTo(
       "ALTER TABLE issues DROP COLUMN issue_creation_date, DROP COLUMN issue_update_date, DROP COLUMN issue_close_date, DROP COLUMN component_id, DROP COLUMN root_component_id"

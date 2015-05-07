@@ -47,7 +47,7 @@ public class SearchActionTest {
   WsTester tester;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()

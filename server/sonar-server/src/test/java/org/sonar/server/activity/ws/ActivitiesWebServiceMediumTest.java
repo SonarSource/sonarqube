@@ -40,14 +40,14 @@ public class ActivitiesWebServiceMediumTest {
   ActivityService service;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     ws = tester.get(ActivitiesWebService.class);
     service = tester.get(ActivityService.class);
   }
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 

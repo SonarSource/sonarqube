@@ -69,7 +69,7 @@ public class I18nClassloaderTest {
   }
 
   @Test
-  public void override_toString() throws ClassNotFoundException {
+  public void override_toString() {
     assertThat(i18nClassloader.toString()).isEqualTo("i18n-classloader");
   }
 

@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CharacteristicDtoTest {
 
   @Test
-  public void to_dto_from_characteristic() throws Exception {
+  public void to_dto_from_characteristic() {
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
       .setId(1)
       .setKey("MEMORY_EFFICIENCY")
@@ -57,7 +57,7 @@ public class CharacteristicDtoTest {
   }
 
   @Test
-  public void to_characteristic() throws Exception {
+  public void to_characteristic() {
     DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
       .setId(1)
       .setKey("MEMORY_EFFICIENCY")

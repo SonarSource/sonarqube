@@ -36,13 +36,13 @@ public class SearchClientMediumTest {
   SearchClient searchClient;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     searchClient = tester.get(SearchClient.class);
   }
 
   @Test
-  public void prepare_multi_search_is_not_yet_implemented() throws Exception {
+  public void prepare_multi_search_is_not_yet_implemented() {
     try {
       searchClient.prepareMultiSearch();
       fail();
@@ -52,7 +52,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_update_is_not_yet_implemented() throws Exception {
+  public void prepare_update_is_not_yet_implemented() {
     try {
       searchClient.prepareUpdate();
       fail();
@@ -69,7 +69,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_delete_is_not_yet_implemented() throws Exception {
+  public void prepare_delete_is_not_yet_implemented() {
     try {
       searchClient.prepareDelete();
       fail();
@@ -79,7 +79,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void delete_by_query_is_not_supported() throws Exception {
+  public void delete_by_query_is_not_supported() {
     try {
       searchClient.prepareDeleteByQuery();
       fail();
@@ -89,7 +89,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_percolate_is_not_yet_implemented() throws Exception {
+  public void prepare_percolate_is_not_yet_implemented() {
     try {
       searchClient.preparePercolate();
       fail();
@@ -99,7 +99,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_multi_percolate_is_not_yet_implemented() throws Exception {
+  public void prepare_multi_percolate_is_not_yet_implemented() {
     try {
       searchClient.prepareMultiPercolate();
       fail();
@@ -109,7 +109,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_suggest_is_not_yet_implemented() throws Exception {
+  public void prepare_suggest_is_not_yet_implemented() {
     try {
       searchClient.prepareSuggest("index");
       fail();
@@ -119,7 +119,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_more_like_this_is_not_yet_implemented() throws Exception {
+  public void prepare_more_like_this_is_not_yet_implemented() {
     try {
       searchClient.prepareMoreLikeThis("index", "tpye", "id");
       fail();
@@ -129,7 +129,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_term_vector_is_not_yet_implemented() throws Exception {
+  public void prepare_term_vector_is_not_yet_implemented() {
     try {
       searchClient.prepareTermVector("index", "tpye", "id");
       fail();
@@ -139,7 +139,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_multi_term_vectors_is_not_yet_implemented() throws Exception {
+  public void prepare_multi_term_vectors_is_not_yet_implemented() {
     try {
       searchClient.prepareMultiTermVectors();
       fail();
@@ -149,7 +149,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_explain_is_not_yet_implemented() throws Exception {
+  public void prepare_explain_is_not_yet_implemented() {
     try {
       searchClient.prepareExplain("index", "tpye", "id");
       fail();
@@ -159,7 +159,7 @@ public class SearchClientMediumTest {
   }
 
   @Test
-  public void prepare_clear_scroll_is_not_yet_implemented() throws Exception {
+  public void prepare_clear_scroll_is_not_yet_implemented() {
     try {
       searchClient.prepareClearScroll();
       fail();

@@ -40,7 +40,7 @@ public class ConvertProfileMeasuresMigrationTest {
   ConvertProfileMeasuresMigrationStep migration;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
     migration = new ConvertProfileMeasuresMigrationStep(dbClient);
   }

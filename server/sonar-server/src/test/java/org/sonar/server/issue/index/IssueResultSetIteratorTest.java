@@ -54,12 +54,12 @@ public class IssueResultSetIteratorTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     DbUtils.closeQuietly(connection);
   }
 
   @Test
-  public void iterator_over_one_issue() throws Exception {
+  public void iterator_over_one_issue() {
     dbTester.prepareDbUnit(getClass(), "one_issue.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
@@ -93,7 +93,7 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
-  public void iterator_over_issues() throws Exception {
+  public void iterator_over_issues() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
@@ -151,7 +151,7 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
-  public void extract_directory_path() throws Exception {
+  public void extract_directory_path() {
     dbTester.prepareDbUnit(getClass(), "extract_directory_path.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
@@ -173,7 +173,7 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
-  public void extract_file_path() throws Exception {
+  public void extract_file_path() {
     dbTester.prepareDbUnit(getClass(), "extract_file_path.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
@@ -195,7 +195,7 @@ public class IssueResultSetIteratorTest {
   }
 
   @Test
-  public void select_after_date() throws Exception {
+  public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 1420000000000L);
 

@@ -45,7 +45,7 @@ public class TomcatConnectorsTest {
   // ---- connectors
 
   @Test
-  public void configure_thread_pool() throws Exception {
+  public void configure_thread_pool() {
     Properties p = new Properties();
     p.setProperty("sonar.web.http.minThreads", "2");
     p.setProperty("sonar.web.http.maxThreads", "30");
@@ -60,7 +60,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void configure_default_thread_pool() throws Exception {
+  public void configure_default_thread_pool() {
     Props props = new Props(new Properties());
 
     TomcatConnectors.configure(tomcat, props);
@@ -71,7 +71,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void different_thread_pools_for_connectors() throws Exception {
+  public void different_thread_pools_for_connectors() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.web.http.minThreads", "2");
@@ -165,7 +165,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void http_and_ajp_and_https_ports_should_be_different() throws Exception {
+  public void http_and_ajp_and_https_ports_should_be_different() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.ajp.port", "9000");
@@ -180,7 +180,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void bind_to_all_addresses_by_default() throws Exception {
+  public void bind_to_all_addresses_by_default() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.ajp.port", "9009");
@@ -212,7 +212,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void bind_to_specific_address() throws Exception {
+  public void bind_to_specific_address() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.web.https.port", "9443");
@@ -237,7 +237,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void enable_client_auth() throws Exception {
+  public void enable_client_auth() {
 
     Properties p = new Properties();
 
@@ -259,7 +259,7 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void require_client_auth() throws Exception {
+  public void require_client_auth() {
 
     Properties p = new Properties();
 

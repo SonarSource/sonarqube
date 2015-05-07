@@ -37,7 +37,7 @@ public class UsersWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class)),
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class)),
@@ -48,7 +48,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
@@ -56,7 +56,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_search_action() throws Exception {
+  public void define_search_action() {
     WebService.Action action = controller.action("search");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
@@ -66,7 +66,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_create_action() throws Exception {
+  public void define_create_action() {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
@@ -74,7 +74,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_update_action() throws Exception {
+  public void define_update_action() {
     WebService.Action action = controller.action("update");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
@@ -82,7 +82,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_change_password_action() throws Exception {
+  public void define_change_password_action() {
     WebService.Action action = controller.action("change_password");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
@@ -90,7 +90,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_deactivate_action() throws Exception {
+  public void define_deactivate_action() {
     WebService.Action action = controller.action("deactivate");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
@@ -98,7 +98,7 @@ public class UsersWsTest {
   }
 
   @Test
-  public void define_current_action() throws Exception {
+  public void define_current_action() {
     WebService.Action action = controller.action("current");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();

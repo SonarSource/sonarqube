@@ -28,14 +28,14 @@ public class IsManualTest {
   DefaultIssue issue = new DefaultIssue();
 
   @Test
-  public void should_match() throws Exception {
+  public void should_match() {
     IsManual condition = new IsManual(true);
     assertThat(condition.matches(issue.setReporter("you"))).isTrue();
     assertThat(condition.matches(issue.setReporter(null))).isFalse();
   }
 
   @Test
-  public void should_match_dead() throws Exception {
+  public void should_match_dead() {
     IsManual condition = new IsManual(false);
     assertThat(condition.matches(issue.setReporter("you"))).isFalse();
     assertThat(condition.matches(issue.setReporter(null))).isTrue();

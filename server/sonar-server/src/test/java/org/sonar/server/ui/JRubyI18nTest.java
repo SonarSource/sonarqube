@@ -49,7 +49,7 @@ public class JRubyI18nTest {
 
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     jRubyI18n = new JRubyI18n(i18n, durations);
   }
 
@@ -70,37 +70,37 @@ public class JRubyI18nTest {
   }
 
   @Test
-  public void default_locale_should_be_english() throws Exception {
+  public void default_locale_should_be_english() {
     assertThat(JRubyI18n.toLocale(null)).isEqualTo(Locale.ENGLISH);
   }
 
   @Test
-  public void message() throws Exception {
+  public void message() {
     jRubyI18n.message("en", "my.key", "default");
     verify(i18n).message(any(Locale.class), eq("my.key"), eq("default"));
   }
 
   @Test
-  public void age_from_now() throws Exception {
+  public void age_from_now() {
     Date date = new Date();
     jRubyI18n.ageFromNow(date);
     verify(i18n).ageFromNow(any(Locale.class), eq(date));
   }
 
   @Test
-  public void format_work_duration() throws Exception {
+  public void format_work_duration() {
     jRubyI18n.formatDuration(Duration.create(10L), "SHORT");
     verify(durations).format(any(Locale.class), eq(Duration.create(10L)), eq(Durations.DurationFormat.SHORT));
   }
 
   @Test
-  public void format_long_work_duration() throws Exception {
+  public void format_long_work_duration() {
     jRubyI18n.formatLongDuration(10L, "SHORT");
     verify(durations).format(any(Locale.class), eq(Duration.create(10L)), eq(Durations.DurationFormat.SHORT));
   }
 
   @Test
-  public void format_date_time() throws Exception {
+  public void format_date_time() {
     Date date = new Date();
     jRubyI18n.formatDateTime(date);
     verify(i18n).formatDateTime(any(Locale.class), eq(date));

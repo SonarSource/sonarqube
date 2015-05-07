@@ -32,7 +32,7 @@ public class ActivityIndexDefinitionTest {
   IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     ActivityIndexDefinition def = new ActivityIndexDefinition(new Settings());
     def.define(context);
 
@@ -47,7 +47,7 @@ public class ActivityIndexDefinitionTest {
   }
 
   @Test
-  public void enable_cluster() throws Exception {
+  public void enable_cluster() {
     Settings settings = new Settings();
     settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     ActivityIndexDefinition def = new ActivityIndexDefinition(settings);

@@ -43,7 +43,7 @@ public class SystemInfoWsActionTest {
   SystemInfoWsAction sut = new SystemInfoWsAction(monitor1, monitor2);
 
   @Test(expected = ForbiddenException.class)
-  public void should_fail_when_does_not_have_admin_right() throws Exception {
+  public void should_fail_when_does_not_have_admin_right() {
     MockUserSession.set()
       .setLogin("login")
       .setName("name")
@@ -53,7 +53,7 @@ public class SystemInfoWsActionTest {
   }
 
   @Test
-  public void write_json() throws Exception {
+  public void write_json() {
     MockUserSession.set()
       .setLogin("login")
       .setName("name")

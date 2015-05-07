@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 public class RuleTagHelperTest {
 
   @Test
-  public void applyTags() throws Exception {
+  public void applyTags() {
     RuleDto rule = new RuleDto().setTags(Sets.newHashSet("performance"));
     boolean changed = RuleTagHelper.applyTags(rule, Sets.newHashSet("java8", "security"));
     assertThat(rule.getTags()).containsOnly("java8", "security");
@@ -39,7 +39,7 @@ public class RuleTagHelperTest {
   }
 
   @Test
-  public void applyTags_remove_all_existing_tags() throws Exception {
+  public void applyTags_remove_all_existing_tags() {
     RuleDto rule = new RuleDto().setTags(Sets.newHashSet("performance"));
     boolean changed = RuleTagHelper.applyTags(rule, Collections.<String>emptySet());
     assertThat(rule.getTags()).isEmpty();
@@ -47,7 +47,7 @@ public class RuleTagHelperTest {
   }
 
   @Test
-  public void applyTags_no_changes() throws Exception {
+  public void applyTags_no_changes() {
     RuleDto rule = new RuleDto().setTags(Sets.newHashSet("performance"));
     boolean changed = RuleTagHelper.applyTags(rule, Sets.newHashSet("performance"));
     assertThat(rule.getTags()).containsOnly("performance");
@@ -55,7 +55,7 @@ public class RuleTagHelperTest {
   }
 
   @Test
-  public void applyTags_validate_format() throws Exception {
+  public void applyTags_validate_format() {
     RuleDto rule = new RuleDto();
     boolean changed = RuleTagHelper.applyTags(rule, Sets.newHashSet("java8", "security"));
     assertThat(rule.getTags()).containsOnly("java8", "security");
@@ -70,7 +70,7 @@ public class RuleTagHelperTest {
   }
 
   @Test
-  public void applyTags_do_not_duplicate_system_tags() throws Exception {
+  public void applyTags_do_not_duplicate_system_tags() {
     RuleDto rule = new RuleDto()
       .setTags(Sets.newHashSet("performance"))
       .setSystemTags(Sets.newHashSet("security"));

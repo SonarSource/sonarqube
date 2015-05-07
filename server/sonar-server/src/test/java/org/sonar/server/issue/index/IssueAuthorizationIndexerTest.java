@@ -46,13 +46,13 @@ public class IssueAuthorizationIndexerTest {
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
   }
 
   @Test
-  public void index_nothing() throws Exception {
+  public void index_nothing() {
     IssueAuthorizationIndexer indexer = createIndexer();
     indexer.index();
 
@@ -60,7 +60,7 @@ public class IssueAuthorizationIndexerTest {
   }
 
   @Test
-  public void index() throws Exception {
+  public void index() {
     dbTester.prepareDbUnit(getClass(), "index.xml");
 
     IssueAuthorizationIndexer indexer = createIndexer();
@@ -80,14 +80,14 @@ public class IssueAuthorizationIndexerTest {
   }
 
   @Test
-  public void do_not_fail_when_deleting_unindexed_project() throws Exception {
+  public void do_not_fail_when_deleting_unindexed_project() {
     IssueAuthorizationIndexer indexer = createIndexer();
     indexer.deleteProject("UNKNOWN", true);
     assertThat(esTester.countDocuments("issues", "authorization")).isZero();
   }
 
   @Test
-  public void delete_permissions() throws Exception {
+  public void delete_permissions() {
     IssueAuthorizationIndexer indexer = createIndexer();
     IssueAuthorizationDao.Dto authorization = new IssueAuthorizationDao.Dto("ABC", System.currentTimeMillis());
     authorization.addUser("guy");

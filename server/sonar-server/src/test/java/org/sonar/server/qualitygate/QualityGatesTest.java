@@ -107,14 +107,14 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_list_qgates() throws Exception {
+  public void should_list_qgates() {
     List<QualityGateDto> allQgates = Lists.newArrayList(new QualityGateDto().setName("Gate One"), new QualityGateDto().setName("Gate Two"));
     when(dao.selectAll()).thenReturn(allQgates);
     assertThat(qGates.list()).isEqualTo(allQgates);
   }
 
   @Test
-  public void should_create_qgate() throws Exception {
+  public void should_create_qgate() {
     String name = "SG-1";
     QualityGateDto sg1 = qGates.create(name);
     assertThat(sg1.getName()).isEqualTo(name);
@@ -124,32 +124,32 @@ public class QualityGatesTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void should_fail_create_on_anonymous() throws Exception {
+  public void should_fail_create_on_anonymous() {
     UserSessionTestUtils.setUserSession(unauthenticatedUserSession);
     assertThat(qGates.currentUserHasWritePermission()).isFalse();
     qGates.create("polop");
   }
 
   @Test(expected = ForbiddenException.class)
-  public void should_fail_create_on_missing_permission() throws Exception {
+  public void should_fail_create_on_missing_permission() {
     UserSessionTestUtils.setUserSession(unauthorizedUserSession);
     qGates.create("polop");
   }
 
   @Test(expected = BadRequestException.class)
-  public void should_fail_create_on_empty_name() throws Exception {
+  public void should_fail_create_on_empty_name() {
     qGates.create("");
   }
 
   @Test(expected = BadRequestException.class)
-  public void should_fail_create_on_duplicate_name() throws Exception {
+  public void should_fail_create_on_duplicate_name() {
     String name = "SG-1";
     when(dao.selectByName(name)).thenReturn(new QualityGateDto().setName(name).setId(42L));
     qGates.create(name);
   }
 
   @Test
-  public void should_get_qgate_by_id() throws Exception {
+  public void should_get_qgate_by_id() {
     long id = 42L;
     final String name = "Golden";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
@@ -159,7 +159,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_get_qgate_by_name() throws Exception {
+  public void should_get_qgate_by_name() {
     long id = 42L;
     final String name = "Golden";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
@@ -169,12 +169,12 @@ public class QualityGatesTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_to_find_qgate_by_name() throws Exception {
+  public void should_fail_to_find_qgate_by_name() {
     qGates.get("Does not exist");
   }
 
   @Test
-  public void should_rename_qgate() throws Exception {
+  public void should_rename_qgate() {
     long id = 42L;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
@@ -187,7 +187,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_allow_rename_with_same_name() throws Exception {
+  public void should_allow_rename_with_same_name() {
     long id = 42L;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
@@ -200,12 +200,12 @@ public class QualityGatesTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_rename_on_inexistent_qgate() throws Exception {
+  public void should_fail_rename_on_inexistent_qgate() {
     qGates.rename(42L, "Unknown");
   }
 
   @Test(expected = BadRequestException.class)
-  public void should_fail_rename_on_duplicate_name() throws Exception {
+  public void should_fail_rename_on_duplicate_name() {
     long id = 42L;
     String name = "SG-1";
     QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
@@ -215,7 +215,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_select_default_qgate() throws Exception {
+  public void should_select_default_qgate() {
     long defaultId = 42L;
     String defaultName = "Default Name";
     when(dao.selectById(defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
@@ -228,13 +228,13 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_unset_default_qgate() throws Exception {
+  public void should_unset_default_qgate() {
     qGates.setDefault(null);
     verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate");
   }
 
   @Test
-  public void should_delete_qgate() throws Exception {
+  public void should_delete_qgate() {
     long idToDelete = 42L;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
@@ -248,7 +248,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_delete_qgate_if_non_default() throws Exception {
+  public void should_delete_qgate_if_non_default() {
     long idToDelete = 42L;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
@@ -263,7 +263,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_delete_qgate_even_if_default() throws Exception {
+  public void should_delete_qgate_even_if_default() {
     long idToDelete = 42L;
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
@@ -279,7 +279,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_return_default_qgate_if_set() throws Exception {
+  public void should_return_default_qgate_if_set() {
     String defaultName = "Sonar way";
     long defaultId = 42L;
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(Long.toString(defaultId)));
@@ -289,7 +289,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_return_null_default_qgate_if_unset() throws Exception {
+  public void should_return_null_default_qgate_if_unset() {
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(""));
     assertThat(qGates.getDefault()).isNull();
   }
@@ -455,7 +455,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_list_conditions() throws Exception {
+  public void should_list_conditions() {
     long qGateId = 42L;
     long metric1Id = 1L;
     String metric1Key = "polop";
@@ -478,7 +478,7 @@ public class QualityGatesTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void should_do_a_sanity_check_when_listing_conditions() throws Exception {
+  public void should_do_a_sanity_check_when_listing_conditions() {
     long qGateId = 42L;
     long metric1Id = 1L;
     String metric1Key = "polop";
@@ -494,7 +494,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_delete_condition() throws Exception {
+  public void should_delete_condition() {
     long idToDelete = 42L;
     QualityGateConditionDto toDelete = new QualityGateConditionDto().setId(idToDelete);
     when(conditionDao.selectById(idToDelete)).thenReturn(toDelete);
@@ -504,7 +504,7 @@ public class QualityGatesTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_delete_condition() throws Exception {
+  public void should_fail_delete_condition() {
     qGates.deleteCondition(42L);
   }
 
@@ -563,7 +563,7 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_copy_qgate() throws Exception {
+  public void should_copy_qgate() {
     String name = "Atlantis";
     long sourceId = 42L;
     final long destId = 43L;

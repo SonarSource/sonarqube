@@ -39,7 +39,7 @@ public class NewAlertsTest {
   NewAlerts dispatcher = new NewAlerts(notificationManager);
 
   @Test
-  public void should_not_dispatch_if_not_alerts_notification() throws Exception {
+  public void should_not_dispatch_if_not_alerts_notification() {
     Notification notification = new Notification("other-notif");
     dispatcher.performDispatch(notification, context);
 

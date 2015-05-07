@@ -31,12 +31,12 @@ public class LoadedTemplateDaoTest extends AbstractDaoTestCase {
   private LoadedTemplateDao dao;
 
   @Before
-  public void createDao() throws Exception {
+  public void createDao() {
     dao = new LoadedTemplateDao(getMyBatis());
   }
 
   @Test
-  public void shouldCountByTypeAndKey() throws Exception {
+  public void shouldCountByTypeAndKey() {
     setupData("shouldCountByTypeAndKey");
     assertThat(dao.countByTypeAndKey("DASHBOARD", "HOTSPOTS"), is(1));
     assertThat(dao.countByTypeAndKey("DASHBOARD", "UNKNOWN"), is(0));
@@ -44,7 +44,7 @@ public class LoadedTemplateDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsert() throws Exception {
+  public void shouldInsert() {
     setupData("shouldInsert");
 
     LoadedTemplateDto template = new LoadedTemplateDto("SQALE", "DASHBOARD");

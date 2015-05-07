@@ -46,7 +46,7 @@ public class DefaultRuleFinderMediumTest {
   private DbSession session;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     finder = tester.get(DefaultRuleFinder.class);
     dbClient = tester.get(DbClient.class);
     session = dbClient.openSession(false);

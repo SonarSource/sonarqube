@@ -70,7 +70,7 @@ public class IssueCommentServiceMediumTest {
   ComponentDto file;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     indexClient = tester.get(IndexClient.class);
@@ -105,7 +105,7 @@ public class IssueCommentServiceMediumTest {
   }
 
   @Test
-  public void add_comment() throws Exception {
+  public void add_comment() {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
@@ -119,7 +119,7 @@ public class IssueCommentServiceMediumTest {
   }
 
   @Test
-  public void add_comment_on_removed_issue() throws Exception {
+  public void add_comment_on_removed_issue() {
     RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
     tester.get(RuleDao.class).insert(session, removedRule);
 

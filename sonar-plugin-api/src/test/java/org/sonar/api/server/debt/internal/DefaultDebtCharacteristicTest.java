@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultDebtCharacteristicTest {
 
   @Test
-  public void setter_and_getter_on_characteristic() throws Exception {
+  public void setter_and_getter_on_characteristic() {
     DefaultDebtCharacteristic debtCharacteristic = new DefaultDebtCharacteristic()
       .setId(1)
       .setKey("PORTABILITY")
@@ -49,7 +49,7 @@ public class DefaultDebtCharacteristicTest {
   }
 
   @Test
-  public void setter_and_getter_on_sub_characteristic() throws Exception {
+  public void setter_and_getter_on_sub_characteristic() {
     DefaultDebtCharacteristic debtCharacteristic = new DefaultDebtCharacteristic()
       .setId(1)
       .setKey("COMPILER")
@@ -69,7 +69,7 @@ public class DefaultDebtCharacteristicTest {
   }
 
   @Test
-  public void to_string() throws Exception {
+  public void to_string() {
     assertThat(new DefaultDebtCharacteristic()
       .setId(1)
       .setKey("PORTABILITY")

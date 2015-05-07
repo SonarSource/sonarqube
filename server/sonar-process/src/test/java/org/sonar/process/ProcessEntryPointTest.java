@@ -70,7 +70,7 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void fail_to_launch_multiple_times() throws Exception {
+  public void fail_to_launch_multiple_times() {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
@@ -146,7 +146,7 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void terminate_if_startup_error() throws Exception {
+  public void terminate_if_startup_error() {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");

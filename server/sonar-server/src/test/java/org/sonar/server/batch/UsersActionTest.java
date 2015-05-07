@@ -51,7 +51,7 @@ public class UsersActionTest {
   UsersAction usersAction;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     es.truncateIndices();
 
     userIndex = new UserIndex(es.client());

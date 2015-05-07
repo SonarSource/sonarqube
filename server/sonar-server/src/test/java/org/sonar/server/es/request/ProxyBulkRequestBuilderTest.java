@@ -74,17 +74,17 @@ public class ProxyBulkRequestBuilderTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_string_timeout_is_not_yet_implemented() {
     esTester.client().prepareBulk().get("1");
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
+  public void get_with_time_value_timeout_is_not_yet_implemented() {
     esTester.client().prepareBulk().get(TimeValue.timeValueMinutes(1));
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void execute_is_not_yet_implemented() throws Exception {
+  public void execute_is_not_yet_implemented() {
     esTester.client().prepareBulk().execute();
   }
 

@@ -78,7 +78,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void fail_on_unknown_rule() throws Exception {
+  public void fail_on_unknown_rule() {
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
 
@@ -93,7 +93,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void fail_if_rule_has_no_name_and_issue_has_no_message() throws Exception {
+  public void fail_if_rule_has_no_name_and_issue_has_no_message() {
     ruleBuilder.add(RuleKey.of("squid", "AvoidCycle"));
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setMessage("");
@@ -109,7 +109,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void ignore_null_active_rule() throws Exception {
+  public void ignore_null_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
 
@@ -121,7 +121,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void ignore_null_rule_of_active_rule() throws Exception {
+  public void ignore_null_rule_of_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).activate();
     initModuleIssues();
@@ -134,7 +134,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void add_issue_to_cache() throws Exception {
+  public void add_issue_to_cache() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
@@ -158,7 +158,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void use_severity_from_active_rule_if_no_severity_on_issue() throws Exception {
+  public void use_severity_from_active_rule_if_no_severity_on_issue() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
@@ -177,7 +177,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void use_rule_name_if_no_message() throws Exception {
+  public void use_rule_name_if_no_message() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
     initModuleIssues();
@@ -201,7 +201,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void add_deprecated_violation() throws Exception {
+  public void add_deprecated_violation() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
@@ -231,7 +231,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void filter_issue() throws Exception {
+  public void filter_issue() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
@@ -250,7 +250,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void set_debt_with_linear_function() throws Exception {
+  public void set_debt_with_linear_function() {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
@@ -276,7 +276,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void set_debt_with_linear_with_offset_function() throws Exception {
+  public void set_debt_with_linear_with_offset_function() {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
@@ -302,7 +302,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void set_debt_with_constant_issue_function() throws Exception {
+  public void set_debt_with_constant_issue_function() {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
@@ -328,7 +328,7 @@ public class ModuleIssuesTest {
   }
 
   @Test
-  public void fail_to_set_debt_with_constant_issue_function_when_effort_to_fix_is_set() throws Exception {
+  public void fail_to_set_debt_with_constant_issue_function_when_effort_to_fix_is_set() {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")

@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RubyUserSessionTest {
   @Test
-  public void should_set_session() throws Exception {
+  public void should_set_session() {
     RubyUserSession.setSession(123, "karadoc", "Karadoc", newArrayList("sonar-users"), "fr");
 
     UserSession session = UserSession.get();
@@ -43,7 +43,7 @@ public class RubyUserSessionTest {
   }
 
   @Test
-  public void should_set_anonymous_session() throws Exception {
+  public void should_set_anonymous_session() {
     RubyUserSession.setSession(null, null, null, null, "fr");
 
     UserSession session = UserSession.get();

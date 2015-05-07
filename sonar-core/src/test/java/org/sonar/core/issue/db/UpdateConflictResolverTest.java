@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 public class UpdateConflictResolverTest {
 
   @Test
-  public void should_reload_issue_and_resolve_conflict() throws Exception {
+  public void should_reload_issue_and_resolve_conflict() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
@@ -66,7 +66,7 @@ public class UpdateConflictResolverTest {
   }
 
   @Test
-  public void should_keep_changes_made_by_user() throws Exception {
+  public void should_keep_changes_made_by_user() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
@@ -121,7 +121,7 @@ public class UpdateConflictResolverTest {
   }
 
   @Test
-  public void severity_changed_by_user_should_be_kept() throws Exception {
+  public void severity_changed_by_user_should_be_kept() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))

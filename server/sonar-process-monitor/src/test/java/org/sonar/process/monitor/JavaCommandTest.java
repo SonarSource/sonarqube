@@ -65,7 +65,7 @@ public class JavaCommandTest {
   }
 
   @Test
-  public void add_java_options() throws Exception {
+  public void add_java_options() {
     JavaCommand command = new JavaCommand("foo");
     assertThat(command.getJavaOptions()).isEmpty();
 

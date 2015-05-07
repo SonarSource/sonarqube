@@ -53,7 +53,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
@@ -77,7 +77,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByLogins() throws Exception {
+  public void selectUsersByLogins() {
     setupData("selectUsersByLogins");
 
     Collection<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
@@ -86,14 +86,14 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByLogins_empty_logins() throws Exception {
+  public void selectUsersByLogins_empty_logins() {
     // no need to access db
     Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
   }
 
   @Test
-  public void selectUsersByQuery_all() throws Exception {
+  public void selectUsersByQuery_all() {
     setupData("selectUsersByQuery");
 
     UserQuery query = UserQuery.builder().includeDeactivated().build();
@@ -102,7 +102,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByQuery_only_actives() throws Exception {
+  public void selectUsersByQuery_only_actives() {
     setupData("selectUsersByQuery");
 
     UserQuery query = UserQuery.ALL_ACTIVES;
@@ -112,7 +112,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByQuery_filter_by_login() throws Exception {
+  public void selectUsersByQuery_filter_by_login() {
     setupData("selectUsersByQuery");
 
     UserQuery query = UserQuery.builder().logins("marius", "john").build();
@@ -122,7 +122,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByQuery_search_by_login_text() throws Exception {
+  public void selectUsersByQuery_search_by_login_text() {
     setupData("selectUsersByText");
 
     UserQuery query = UserQuery.builder().searchText("sbr").build();
@@ -132,7 +132,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByQuery_search_by_name_text() throws Exception {
+  public void selectUsersByQuery_search_by_name_text() {
     setupData("selectUsersByText");
 
     UserQuery query = UserQuery.builder().searchText("Simon").build();
@@ -142,7 +142,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectUsersByQuery_escape_special_characters_in_like() throws Exception {
+  public void selectUsersByQuery_escape_special_characters_in_like() {
     setupData("selectUsersByText");
 
     UserQuery query = UserQuery.builder().searchText("%s%").build();

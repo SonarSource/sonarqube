@@ -54,7 +54,7 @@ public class PagingTest {
   }
 
   @Test
-  public void page_size_should_be_strictly_positive() throws Exception {
+  public void page_size_should_be_strictly_positive() {
     try {
       Paging.create(0, 5, 5);
       fail();
@@ -64,7 +64,7 @@ public class PagingTest {
   }
 
   @Test
-  public void page_index_should_be_strictly_positive() throws Exception {
+  public void page_index_should_be_strictly_positive() {
     try {
       Paging.create(5, 0, 5);
       fail();
@@ -74,7 +74,7 @@ public class PagingTest {
   }
 
   @Test
-  public void total_items_should_be_positive() throws Exception {
+  public void total_items_should_be_positive() {
     try {
       Paging.create(5, 5, -1);
       fail();

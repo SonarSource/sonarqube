@@ -38,7 +38,7 @@ public class ApplyPermissionTemplateQueryTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test
-  public void should_populate_with_params() throws Exception {
+  public void should_populate_with_params() {
 
     Map<String, Object> params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
@@ -51,7 +51,7 @@ public class ApplyPermissionTemplateQueryTest {
   }
 
   @Test
-  public void should_invalidate_query_with_empty_name() throws Exception {
+  public void should_invalidate_query_with_empty_name() {
 
     throwable.expect(BadRequestException.class);
     throwable.expectMessage("Permission template is mandatory");
@@ -65,7 +65,7 @@ public class ApplyPermissionTemplateQueryTest {
   }
 
   @Test
-  public void should_invalidate_query_with_no_components() throws Exception {
+  public void should_invalidate_query_with_no_components() {
 
     throwable.expect(BadRequestException.class);
     throwable.expectMessage("Please provide at least one entry to which the permission template should be applied");

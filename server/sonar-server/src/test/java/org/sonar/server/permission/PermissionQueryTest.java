@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 public class PermissionQueryTest {
 
   @Test
-  public void fail_on_null_permission() throws Exception {
+  public void fail_on_null_permission() {
     PermissionQuery.Builder builder = PermissionQuery.builder();
     builder.permission(null);
 
@@ -42,7 +42,7 @@ public class PermissionQueryTest {
   }
 
   @Test
-  public void fail_on_invalid_membership() throws Exception {
+  public void fail_on_invalid_membership() {
     PermissionQuery.Builder builder = PermissionQuery.builder();
     builder.permission("admin");
     builder.membership("unknwown");

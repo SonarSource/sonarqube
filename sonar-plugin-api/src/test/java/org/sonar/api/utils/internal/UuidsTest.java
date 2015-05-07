@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UuidsTest {
 
   @Test
-  public void create_unique() throws Exception {
+  public void create_unique() {
     Set<String> all = Sets.newHashSet();
     for (int i = 0; i < 50; i++) {
       String uuid = Uuids.create();
@@ -41,7 +41,7 @@ public class UuidsTest {
   }
 
   @Test
-  public void constructor_is_private() throws Exception {
+  public void constructor_is_private() {
     TestUtils.hasOnlyPrivateConstructors(Uuids.class);
   }
 }

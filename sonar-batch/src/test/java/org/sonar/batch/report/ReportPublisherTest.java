@@ -53,7 +53,7 @@ public class ReportPublisherTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_log_successful_analysis() throws Exception {
+  public void should_log_successful_analysis() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
@@ -66,7 +66,7 @@ public class ReportPublisherTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_log_successful_preview_analysis() throws Exception {
+  public void should_log_successful_preview_analysis() {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);

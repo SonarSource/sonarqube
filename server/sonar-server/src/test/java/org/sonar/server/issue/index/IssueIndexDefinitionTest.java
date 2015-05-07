@@ -32,7 +32,7 @@ public class IssueIndexDefinitionTest {
   IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
 
   @Test
-  public void define() throws Exception {
+  public void define() {
     IssueIndexDefinition def = new IssueIndexDefinition(new Settings());
     def.define(context);
 
@@ -47,7 +47,7 @@ public class IssueIndexDefinitionTest {
   }
 
   @Test
-  public void enable_cluster() throws Exception {
+  public void enable_cluster() {
     Settings settings = new Settings();
     settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
     IssueIndexDefinition def = new IssueIndexDefinition(settings);

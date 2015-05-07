@@ -35,19 +35,19 @@ public class QueryContextTest {
   QueryContext options;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
     options = new QueryContext();
   }
 
   @Test
-  public void user_and_groups() throws Exception {
+  public void user_and_groups() {
     assertThat(options.getUserLogin()).isEqualTo("john");
     assertThat(options.getUserGroups()).containsOnly("sonar-users", "Anyone");
   }
 
   @Test
-  public void page_shortcut_for_limit_and_offset() throws Exception {
+  public void page_shortcut_for_limit_and_offset() {
     options.setPage(3, 10);
 
     assertThat(options.getLimit()).isEqualTo(10);
@@ -55,7 +55,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void page_starts_at_one() throws Exception {
+  public void page_starts_at_one() {
     options.setPage(1, 10);
     assertThat(options.getLimit()).isEqualTo(10);
     assertThat(options.getOffset()).isEqualTo(0);
@@ -63,7 +63,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void with_zero_page_size() throws Exception {
+  public void with_zero_page_size() {
     options.setPage(1, 0);
     assertThat(options.getLimit()).isEqualTo(0);
     assertThat(options.getOffset()).isEqualTo(0);
@@ -71,7 +71,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void page_must_be_strictly_positive() throws Exception {
+  public void page_must_be_strictly_positive() {
     try {
       options.setPage(0, 10);
       fail();
@@ -81,7 +81,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void page_size_must_be_positive() throws Exception {
+  public void page_size_must_be_positive() {
     try {
       options.setPage(2, -1);
       fail();
@@ -91,7 +91,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void max_limit() throws Exception {
+  public void max_limit() {
     options.setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
 
@@ -100,20 +100,20 @@ public class QueryContextTest {
   }
 
   @Test
-  public void set_max_limit() throws Exception {
+  public void set_max_limit() {
     options.setMaxLimit();
     assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
-  public void max_page_size() throws Exception {
+  public void max_page_size() {
     options.setPage(3, QueryContext.MAX_LIMIT + 10);
     assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
     assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
-  public void getFieldsToReturn() throws Exception {
+  public void getFieldsToReturn() {
     assertThat(options.getFieldsToReturn()).isEmpty();
 
     options.setFieldsToReturn(Arrays.asList("one", "two"));
@@ -127,7 +127,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void support_immutable_fields() throws Exception {
+  public void support_immutable_fields() {
     options.setFieldsToReturn(ImmutableList.of("one", "two"));
     assertThat(options.getFieldsToReturn()).containsOnly("one", "two");
 
@@ -139,7 +139,7 @@ public class QueryContextTest {
   }
 
   @Test
-  public void do_not_request_facets_by_default() throws Exception {
+  public void do_not_request_facets_by_default() {
     assertThat(options.isFacet()).isFalse();
 
     options.addFacets(Arrays.asList("polop"));

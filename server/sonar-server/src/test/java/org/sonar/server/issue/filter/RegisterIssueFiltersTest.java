@@ -46,7 +46,7 @@ public class RegisterIssueFiltersTest {
   private System2 system;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     IssueFilterDao issueFilterDao = new IssueFilterDao(db.myBatis());
     LoadedTemplateDao loadedTemplateDao = new LoadedTemplateDao(db.myBatis());
     system = mock(System2.class);
@@ -54,7 +54,7 @@ public class RegisterIssueFiltersTest {
   }
 
   @Test
-  public void should_do_nothing_if_not_needed() throws Exception {
+  public void should_do_nothing_if_not_needed() {
     db.prepareDbUnit(getClass(), "do_nothing.xml");
     taskUnderTest.start();
     taskUnderTest.stop();
@@ -62,7 +62,7 @@ public class RegisterIssueFiltersTest {
   }
 
   @Test
-  public void should_register_issue_filters() throws Exception {
+  public void should_register_issue_filters() {
     Date now = DateUtils.parseDateTime("2011-04-25T01:15:00+0200");
     when(system.now()).thenReturn(now.getTime());
 

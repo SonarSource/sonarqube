@@ -33,7 +33,7 @@ public class NotConditionTest {
   Condition target = Mockito.mock(Condition.class);
 
   @Test
-  public void should_match_opposite() throws Exception {
+  public void should_match_opposite() {
     NotCondition condition = new NotCondition(target);
 
     when(target.matches(any(Issue.class))).thenReturn(true);

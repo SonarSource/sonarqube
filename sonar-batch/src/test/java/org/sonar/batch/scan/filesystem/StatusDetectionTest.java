@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
-  public void detect_status() throws Exception {
+  public void detect_status() {
     ProjectRepositories ref = new ProjectRepositories();
     ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", true));
     ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", true));

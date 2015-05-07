@@ -104,7 +104,7 @@ public class DebtDecoratorTest {
   DebtDecorator decorator;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
     RulesBuilder rulesBuilder = new RulesBuilder();
     rulesBuilder.add(ruleKey1).setName("rule1").setDebtSubCharacteristic("MEMORY_EFFICIENCY");
@@ -124,12 +124,12 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void generates_metrics() throws Exception {
+  public void generates_metrics() {
     assertThat(decorator.generatesMetrics()).hasSize(1);
   }
 
   @Test
-  public void execute_on_project() throws Exception {
+  public void execute_on_project() {
     assertThat(decorator.shouldExecuteOnProject(null)).isTrue();
   }
 
@@ -143,7 +143,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_one_issue_and_no_parent() throws Exception {
+  public void add_technical_debt_from_one_issue_and_no_parent() {
     Issue issue = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
@@ -154,7 +154,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_one_issue_without_debt() throws Exception {
+  public void add_technical_debt_from_one_issue_without_debt() {
     Issue issue = createIssue("rule1", "repo1").setDebt(null);
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
@@ -164,7 +164,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_one_issue_and_propagate_to_parents() throws Exception {
+  public void add_technical_debt_from_one_issue_and_propagate_to_parents() {
     Issue issue = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     when(issuable.issues()).thenReturn(newArrayList(issue));
 
@@ -177,7 +177,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_issues() throws Exception {
+  public void add_technical_debt_from_issues() {
     Long technicalDebt1 = ONE_DAY_IN_MINUTES;
     Long technicalDebt2 = 2 * ONE_DAY_IN_MINUTES;
 
@@ -195,7 +195,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_from_current_and_children_measures() throws Exception {
+  public void add_technical_debt_from_current_and_children_measures() {
     Issue issue1 = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     Issue issue2 = createIssue("rule1", "repo1").setDebt(Duration.create(ONE_DAY_IN_MINUTES));
     when(issuable.issues()).thenReturn(newArrayList(issue1, issue2));
@@ -214,7 +214,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void add_technical_debt_only_from_children_measures() throws Exception {
+  public void add_technical_debt_only_from_children_measures() {
     when(issuable.issues()).thenReturn(Collections.<Issue>emptyList());
 
     when(context.getChildrenMeasures(any(MeasuresFilter.class))).thenReturn(Lists.<Measure>newArrayList(
@@ -238,7 +238,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void always_save_technical_debt_for_positive_values() throws Exception {
+  public void always_save_technical_debt_for_positive_values() {
     // for a project
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
@@ -253,7 +253,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void always_save_technical_debt_for_project_if_top_characteristic() throws Exception {
+  public void always_save_technical_debt_for_project_if_top_characteristic() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
 
@@ -268,7 +268,7 @@ public class DebtDecoratorTest {
    * SQALE-147
    */
   @Test
-  public void never_save_technical_debt_for_project_if_not_top_characteristic() throws Exception {
+  public void never_save_technical_debt_for_project_if_not_top_characteristic() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(new Project("foo"));
 
@@ -280,7 +280,7 @@ public class DebtDecoratorTest {
   }
 
   @Test
-  public void not_save_technical_debt_for_file_if_zero() throws Exception {
+  public void not_save_technical_debt_for_file_if_zero() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getResource()).thenReturn(File.create("foo"));
 

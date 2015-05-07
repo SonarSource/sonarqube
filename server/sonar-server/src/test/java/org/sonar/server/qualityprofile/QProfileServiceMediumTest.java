@@ -93,12 +93,12 @@ public class QProfileServiceMediumTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     dbSession.close();
   }
 
   @Test
-  public void create_profile() throws Exception {
+  public void create_profile() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     QualityProfileDto profile = service.create(QProfileName.createFor("xoo", "New Profile"), null).profile();
@@ -109,7 +109,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void create_profile_with_xml() throws Exception {
+  public void create_profile_with_xml() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
@@ -127,7 +127,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void count_by_all_profiles() throws Exception {
+  public void count_by_all_profiles() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -159,7 +159,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void count_by_deprecated() throws Exception {
+  public void count_by_deprecated() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     // create deprecated rule
@@ -177,7 +177,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_qprofile_activity() throws InterruptedException {
+  public void search_qprofile_activity() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
 
     UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
@@ -210,7 +210,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_qprofile_activity_without_severity() throws InterruptedException {
+  public void search_qprofile_activity_without_severity() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
@@ -229,7 +229,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_qprofile_activity_with_user_not_found() throws InterruptedException {
+  public void search_qprofile_activity_with_user_not_found() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
 
     // We need an actual rule in DB to test RuleName in Activity
@@ -252,7 +252,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_qprofile_activity_with_rule_not_found() throws InterruptedException {
+  public void search_qprofile_activity_with_rule_not_found() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
@@ -273,7 +273,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_activity_by_qprofile() throws InterruptedException {
+  public void search_activity_by_qprofile() {
 
     tester.get(ActivityService.class).save(
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1)).toActivity());
@@ -291,7 +291,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_activity_by_qprofile_having_dashes_in_keys() throws InterruptedException {
+  public void search_activity_by_qprofile_having_dashes_in_keys() {
     tester.get(ActivityService.class).save(
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)).toActivity());
     tester.get(ActivityService.class).save(
@@ -308,7 +308,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void set_default() throws Exception {
+  public void set_default() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     assertThat(service.getDefault("xoo")).isNull();

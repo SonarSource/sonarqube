@@ -53,12 +53,12 @@ public class MeasureDaoTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void get_value_by_key() throws Exception {
+  public void get_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
@@ -68,7 +68,7 @@ public class MeasureDaoTest {
 
   @Test
   // TODO the string must be longer than 4000 char to be persisted in the data field
-  public void get_data_by_key() throws Exception {
+  public void get_data_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
@@ -77,7 +77,7 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void get_text_value_by_key() throws Exception {
+  public void get_text_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
@@ -86,7 +86,7 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void find_by_component_key_and_metrics() throws Exception {
+  public void find_by_component_key_and_metrics() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     List<MeasureDto> results = sut.findByComponentKeyAndMetricKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java",
@@ -109,7 +109,7 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void find_by_component_key_and_metric() throws Exception {
+  public void find_by_component_key_and_metric() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
@@ -127,7 +127,7 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void exists_by_key() throws Exception {
+  public void exists_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(sut.existsByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc")).isTrue();
@@ -135,7 +135,7 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void insert() throws Exception {
+  public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     sut.insert(session, new MeasureDto()

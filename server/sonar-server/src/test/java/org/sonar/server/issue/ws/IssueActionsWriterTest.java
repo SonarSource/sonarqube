@@ -56,12 +56,12 @@ public class IssueActionsWriterTest {
   IssueActionsWriter writer;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     writer = new IssueActionsWriter(issueService, actionService);
   }
 
   @Test
-  public void write_all_standard_actions() throws Exception {
+  public void write_all_standard_actions() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentUuid("BCDE")
@@ -80,7 +80,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_plugin_actions() throws Exception {
+  public void write_plugin_actions() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
@@ -100,7 +100,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_only_comment_action() throws Exception {
+  public void write_only_comment_action() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
@@ -118,7 +118,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_no_action_if_not_logged() throws Exception {
+  public void write_no_action_if_not_logged() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
@@ -132,7 +132,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_actions_without_assign_to_me() throws Exception {
+  public void write_actions_without_assign_to_me() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
@@ -150,7 +150,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_transitions() throws Exception {
+  public void write_transitions() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
@@ -167,7 +167,7 @@ public class IssueActionsWriterTest {
   }
 
   @Test
-  public void write_no_transitions() throws Exception {
+  public void write_no_transitions() {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")

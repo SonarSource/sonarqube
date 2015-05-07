@@ -86,7 +86,7 @@ public class IssuesActionTest {
   IssuesAction issuesAction;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     db.truncateTables();
     es.truncateIndices();
     this.session = db.myBatis().openSession(false);

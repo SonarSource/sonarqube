@@ -63,7 +63,7 @@ public class DuplicationsParserTest {
   ComponentDto project2;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     project1 = ComponentTesting.newProjectDto()
       .setId(1L)
       .setName("SonarQube")
@@ -91,7 +91,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void empty_list_when_no_data() throws Exception {
+  public void empty_list_when_no_data() {
     assertThat(parser.parse(currentFile, null, session)).isEmpty();
   }
 
@@ -198,7 +198,7 @@ public class DuplicationsParserTest {
   }
 
   @Test
-  public void compare_duplications() throws Exception {
+  public void compare_duplications() {
     ComponentDto currentFile = ComponentTesting.newFileDto(project1).setId(11L);
     ComponentDto fileOnSameProject = ComponentTesting.newFileDto(project1).setId(12L);
     ComponentDto fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(13L);

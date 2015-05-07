@@ -54,7 +54,7 @@ public class ViewIndexTest {
   }
 
   @Test
-  public void not_find_all_view_uuids() throws Exception {
+  public void not_find_all_view_uuids() {
     List<String> result = newArrayList(index.findAllViewUuids());
 
     assertThat(result).isEmpty();

@@ -98,7 +98,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
@@ -106,7 +106,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_restore_built_action() throws Exception {
+  public void define_restore_built_action() {
     WebService.Action restoreProfiles = controller.action("restore_built_in");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -114,7 +114,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_search() throws Exception {
+  public void define_search() {
     WebService.Action search = controller.action("search");
     assertThat(search).isNotNull();
     assertThat(search.isPost()).isFalse();
@@ -125,7 +125,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_activate_rule_action() throws Exception {
+  public void define_activate_rule_action() {
     WebService.Action restoreProfiles = controller.action(RuleActivationActions.ACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -133,7 +133,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_deactivate_rule_action() throws Exception {
+  public void define_deactivate_rule_action() {
     WebService.Action restoreProfiles = controller.action(RuleActivationActions.DEACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -141,7 +141,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_add_project_action() throws Exception {
+  public void define_add_project_action() {
     WebService.Action addProject = controller.action("add_project");
     assertThat(addProject).isNotNull();
     assertThat(addProject.isPost()).isTrue();
@@ -149,7 +149,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_remove_project_action() throws Exception {
+  public void define_remove_project_action() {
     WebService.Action removeProject = controller.action("remove_project");
     assertThat(removeProject).isNotNull();
     assertThat(removeProject.isPost()).isTrue();
@@ -157,7 +157,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_set_default_action() throws Exception {
+  public void define_set_default_action() {
     WebService.Action setDefault = controller.action("set_default");
     assertThat(setDefault).isNotNull();
     assertThat(setDefault.isPost()).isTrue();
@@ -165,7 +165,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_projects_action() throws Exception {
+  public void define_projects_action() {
     WebService.Action projects = controller.action("projects");
     assertThat(projects).isNotNull();
     assertThat(projects.isPost()).isFalse();
@@ -174,7 +174,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_backup_action() throws Exception {
+  public void define_backup_action() {
     WebService.Action backup = controller.action("backup");
     assertThat(backup).isNotNull();
     assertThat(backup.isPost()).isFalse();
@@ -182,14 +182,14 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_restore_action() throws Exception {
+  public void define_restore_action() {
     WebService.Action restore = controller.action("restore");
     assertThat(restore).isNotNull();
     assertThat(restore.isPost()).isTrue();
     assertThat(restore.params()).hasSize(1);
   }
 
-  public void define_bulk_activate_rule_action() throws Exception {
+  public void define_bulk_activate_rule_action() {
     WebService.Action restoreProfiles = controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -197,7 +197,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_bulk_deactivate_rule_action() throws Exception {
+  public void define_bulk_deactivate_rule_action() {
     WebService.Action restoreProfiles = controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -205,7 +205,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_create_action() throws Exception {
+  public void define_create_action() {
     WebService.Action create = controller.action("create");
     assertThat(create).isNotNull();
     assertThat(create.isPost()).isTrue();
@@ -221,7 +221,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_importers_action() throws Exception {
+  public void define_importers_action() {
     WebService.Action importers = controller.action("importers");
     assertThat(importers).isNotNull();
     assertThat(importers.isPost()).isFalse();
@@ -230,7 +230,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_changelog_action() throws Exception {
+  public void define_changelog_action() {
     WebService.Action changelog = controller.action("changelog");
     assertThat(changelog).isNotNull();
     assertThat(changelog.isPost()).isFalse();
@@ -241,7 +241,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_change_parent_action() throws Exception {
+  public void define_change_parent_action() {
     WebService.Action changeParent = controller.action("change_parent");
     assertThat(changeParent).isNotNull();
     assertThat(changeParent.isPost()).isTrue();
@@ -251,7 +251,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_compare_action() throws Exception {
+  public void define_compare_action() {
     WebService.Action compare = controller.action("compare");
     assertThat(compare).isNotNull();
     assertThat(compare.isPost()).isFalse();
@@ -263,7 +263,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_copy_action() throws Exception {
+  public void define_copy_action() {
     WebService.Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
     assertThat(copy.isPost()).isTrue();
@@ -273,7 +273,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_delete_action() throws Exception {
+  public void define_delete_action() {
     WebService.Action delete = controller.action("delete");
     assertThat(delete).isNotNull();
     assertThat(delete.isPost()).isTrue();
@@ -283,7 +283,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_export_action() throws Exception {
+  public void define_export_action() {
     WebService.Action export = controller.action("export");
     assertThat(export).isNotNull();
     assertThat(export.isPost()).isFalse();
@@ -293,7 +293,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_exporters_action() throws Exception {
+  public void define_exporters_action() {
     WebService.Action exporters = controller.action("exporters");
     assertThat(exporters).isNotNull();
     assertThat(exporters.isPost()).isFalse();
@@ -302,7 +302,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_inheritance_action() throws Exception {
+  public void define_inheritance_action() {
     WebService.Action inheritance = controller.action("inheritance");
     assertThat(inheritance).isNotNull();
     assertThat(inheritance.isPost()).isFalse();
@@ -313,7 +313,7 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_rename_action() throws Exception {
+  public void define_rename_action() {
     WebService.Action rename = controller.action("rename");
     assertThat(rename).isNotNull();
     assertThat(rename.isPost()).isTrue();

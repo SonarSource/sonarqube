@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultiSetsTest {
   @Test
-  public void order_with_highest_count_first() throws Exception {
+  public void order_with_highest_count_first() {
     Multiset<String> multiset = HashMultiset.create();
     add(multiset, "seneca", 10);
     add(multiset, "plato", 5);

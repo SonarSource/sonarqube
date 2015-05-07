@@ -37,13 +37,13 @@ public class ComponentsWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class)), new SearchAction(mock(DbClient.class))));
     controller = tester.controller("api/components");
   }
 
   @Test
-  public void define_controller() throws Exception {
+  public void define_controller() {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
@@ -51,7 +51,7 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_suggestions_action() throws Exception {
+  public void define_suggestions_action() {
     WebService.Action action = controller.action("suggestions");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
@@ -62,7 +62,7 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_app_action() throws Exception {
+  public void define_app_action() {
     WebService.Action action = controller.action("app");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();
@@ -72,7 +72,7 @@ public class ComponentsWsTest {
   }
 
   @Test
-  public void define_search_action() throws Exception {
+  public void define_search_action() {
     WebService.Action action = controller.action("search");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isTrue();

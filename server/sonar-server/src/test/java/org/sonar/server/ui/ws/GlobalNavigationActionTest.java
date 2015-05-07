@@ -64,7 +64,7 @@ public class GlobalNavigationActionTest {
   private ActiveDashboardDao activeDashboardDao;
 
   @Before
-  public void before() throws Exception {
+  public void before() {
     dbTester.truncateTables();
 
     userDao = new UserDao(dbTester.myBatis(), mock(System2.class));
@@ -77,7 +77,7 @@ public class GlobalNavigationActionTest {
   }
 
   @After
-  public void after() throws Exception {
+  public void after() {
     session.close();
   }
 

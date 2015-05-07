@@ -29,7 +29,7 @@ import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 public class RangeOffsetHelperTest {
 
   @Test
-  public void append_range() throws Exception {
+  public void append_range() {
     assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(1)
       .setStartOffset(2).setEndOffset(3)
@@ -37,7 +37,7 @@ public class RangeOffsetHelperTest {
   }
 
   @Test
-  public void append_range_not_finishing_in_current_line() throws Exception {
+  public void append_range_not_finishing_in_current_line() {
     assertThat( RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
@@ -45,7 +45,7 @@ public class RangeOffsetHelperTest {
   }
 
   @Test
-  public void append_range_that_began_in_previous_line_and_finish_in_current_line() throws Exception {
+  public void append_range_that_began_in_previous_line_and_finish_in_current_line() {
     assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
@@ -53,7 +53,7 @@ public class RangeOffsetHelperTest {
   }
 
   @Test
-  public void append_range_that_began_in_previous_line_and_not_finishing_in_current_line() throws Exception {
+  public void append_range_that_began_in_previous_line_and_not_finishing_in_current_line() {
     assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
@@ -61,7 +61,7 @@ public class RangeOffsetHelperTest {
   }
 
   @Test
-  public void do_nothing_if_offset_is_empty() throws Exception {
+  public void do_nothing_if_offset_is_empty() {
     assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
       .setStartLine(1).setEndLine(1)
       .setStartOffset(0).setEndOffset(0)

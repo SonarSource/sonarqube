@@ -68,7 +68,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldInsertAuthorAndDeveloper() throws Exception {
+  public void shouldInsertAuthorAndDeveloper() {
     setupData("shouldInsertAuthorAndDeveloper");
 
     String login = "developer@company.net";
@@ -82,7 +82,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void add_missing_module_uuid_path() throws Exception {
+  public void add_missing_module_uuid_path() {
     setupData("add_missing_module_uuid_path");
 
     dao.insertAuthorAndDeveloper("developer@company.net", new ResourceDto().setName("developer@company.net").setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD")
@@ -109,7 +109,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldPreventAuthorsAndDevelopersDuplication() throws Exception {
+  public void shouldPreventAuthorsAndDevelopersDuplication() {
     setupData("shouldPreventAuthorsAndDevelopersDuplication");
 
     String login = "developer@company.net";

@@ -41,7 +41,7 @@ public class FeedIssueTagsTest {
   System2 system;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.executeUpdateSql("truncate table rules");
     db.executeUpdateSql("truncate table issues");
 
