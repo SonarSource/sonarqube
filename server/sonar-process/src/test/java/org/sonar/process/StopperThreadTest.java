@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 public class StopperThreadTest {
 
   @Test(timeout = 3000L)
-  public void stop_in_a_timely_fashion() throws Exception {
+  public void stop_in_a_timely_fashion() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     Monitored monitored = mock(Monitored.class);
 
@@ -42,7 +42,7 @@ public class StopperThreadTest {
   }
 
   @Test(timeout = 3000L)
-  public void stop_timeout() throws Exception {
+  public void stop_timeout() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     Monitored monitored = mock(Monitored.class);
     doAnswer(new Answer() {

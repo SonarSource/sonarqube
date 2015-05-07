@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 public class StopWatcherTest {
 
   @Test(timeout = 1000L)
-  public void stop_if_receive_command() throws Exception {
+  public void stop_if_receive_command() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false).thenReturn(true);
     Stoppable stoppable = mock(Stoppable.class);
@@ -39,7 +39,7 @@ public class StopWatcherTest {
   }
 
   @Test(timeout = 1000L)
-  public void stop_watching_on_interruption() throws Exception {
+  public void stop_watching_on_interruption() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false);
     Stoppable stoppable = mock(Stoppable.class);
