@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Ordering.natural;
@@ -58,19 +57,39 @@ public class PluginInfoTest {
   }
 
   @Test
-  public void test_comparison() {
+   public void test_comparison() {
     PluginInfo java1 = new PluginInfo("java").setVersion(Version.create("1.0"));
     PluginInfo java2 = new PluginInfo("java").setVersion(Version.create("2.0"));
+    PluginInfo javaNoVersion = new PluginInfo("java");
     PluginInfo cobol = new PluginInfo("cobol").setVersion(Version.create("1.0"));
     PluginInfo noVersion = new PluginInfo("noVersion");
-    List<PluginInfo> plugins = Arrays.asList(java1, java2, cobol, noVersion);
-    Collections.shuffle(plugins);
+    List<PluginInfo> plugins = Arrays.asList(java1, cobol, javaNoVersion, noVersion, java2);
 
     List<PluginInfo> ordered = natural().sortedCopy(plugins);
     assertThat(ordered.get(0)).isSameAs(cobol);
-    assertThat(ordered.get(1)).isSameAs(java1);
-    assertThat(ordered.get(2)).isSameAs(java2);
-    assertThat(ordered.get(3)).isSameAs(noVersion);
+    assertThat(ordered.get(1)).isSameAs(javaNoVersion);
+    assertThat(ordered.get(2)).isSameAs(java1);
+    assertThat(ordered.get(3)).isSameAs(java2);
+    assertThat(ordered.get(4)).isSameAs(noVersion);
+  }
+
+  @Test
+  public void test_equals() {
+    PluginInfo java1 = new PluginInfo("java").setVersion(Version.create("1.0"));
+    PluginInfo java2 = new PluginInfo("java").setVersion(Version.create("2.0"));
+    PluginInfo javaNoVersion = new PluginInfo("java");
+    PluginInfo cobol = new PluginInfo("cobol").setVersion(Version.create("1.0"));
+
+    assertThat(java1.equals(java1)).isTrue();
+    assertThat(java1.equals(java2)).isFalse();
+    assertThat(java1.equals(javaNoVersion)).isFalse();
+    assertThat(java1.equals(cobol)).isFalse();
+    assertThat(java1.equals("java:1.0")).isFalse();
+    assertThat(java1.equals(null)).isFalse();
+    assertThat(javaNoVersion.equals(javaNoVersion)).isTrue();
+
+    assertThat(java1.hashCode()).isEqualTo(java1.hashCode());
+    assertThat(javaNoVersion.hashCode()).isEqualTo(javaNoVersion.hashCode());
   }
 
   @Test
@@ -118,7 +137,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getKey()).isEqualTo("java");
     assertThat(pluginInfo.getName()).isEqualTo("Java");
     assertThat(pluginInfo.getVersion().getName()).isEqualTo("1.0");
-    assertThat(pluginInfo.getJarFile2()).isSameAs(jarFile);
+    assertThat(pluginInfo.getJarFile()).isSameAs(jarFile);
     assertThat(pluginInfo.getMainClass()).isEqualTo("org.foo.FooPlugin");
     assertThat(pluginInfo.isCore()).isFalse();
     assertThat(pluginInfo.getBasePlugin()).isNull();

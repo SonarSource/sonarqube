@@ -145,7 +145,7 @@ public class PluginLoader implements BatchComponent, ServerComponent {
         } catch (UnsupportedClassVersionError e) {
           throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
             pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
-        } catch (Exception e) {
+        } catch (ClassNotFoundException|IllegalAccessException|InstantiationException e) {
           throw new IllegalStateException(String.format(
             "Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }

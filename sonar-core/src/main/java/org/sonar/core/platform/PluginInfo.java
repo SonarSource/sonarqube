@@ -24,6 +24,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
@@ -87,7 +89,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
   }
 
-  private String key;
+  private final String key;
   private String name;
 
   @CheckForNull
@@ -133,6 +135,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
   public PluginInfo(String key) {
+    Preconditions.checkNotNull(key);
     this.key = key;
     this.name = key;
   }
@@ -143,7 +146,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   @CheckForNull
-  public File getJarFile2() {
+  public File getJarFile() {
     return jarFile;
   }
 
@@ -327,12 +330,34 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   @Override
-  public int compareTo(PluginInfo other) {
-    int cmp = name.compareTo(other.name);
-    if (cmp != 0) {
-      return cmp;
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
     }
-    return version.compareTo(other.version);
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PluginInfo info = (PluginInfo) o;
+    if (!key.equals(info.key)) {
+      return false;
+    }
+    return !(version != null ? !version.equals(info.version) : info.version != null);
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = key.hashCode();
+    result = 31 * result + (version != null ? version.hashCode() : 0);
+    return result;
+  }
+
+  @Override
+  public int compareTo(PluginInfo that) {
+    return ComparisonChain.start()
+      .compare(this.name, that.name)
+      .compare(this.version, that.version, Ordering.natural().nullsFirst())
+      .result();
   }
 
   public static PluginInfo create(File jarFile) {
@@ -386,7 +411,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     }
   }
 
-  public static Function<File, PluginInfo>  jarToPluginInfo() {
+  public static Function<File, PluginInfo> jarToPluginInfo() {
     return JarToPluginInfo.INSTANCE;
   }
 }

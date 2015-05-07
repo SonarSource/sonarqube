@@ -63,7 +63,7 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
     response.noContent();
   }
 
-  // FIXME should be moved to {@link ServerPluginRepository#uninstall(String)}
+  // FIXME should be moved to ServerPluginRepository#uninstall(String)
   private void ensurePluginIsInstalled(String key) {
     if (!pluginRepository.hasPlugin(key)) {
       throw new IllegalArgumentException(format("Plugin [%s] is not installed", key));

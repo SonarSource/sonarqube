@@ -21,7 +21,6 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.HashMap;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
