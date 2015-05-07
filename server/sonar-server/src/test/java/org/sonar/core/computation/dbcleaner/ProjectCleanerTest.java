@@ -41,11 +41,11 @@ import static org.mockito.Mockito.*;
 public class ProjectCleanerTest {
 
   private ProjectCleaner sut;
-  private PurgeDao dao= mock(PurgeDao.class);
-  private PurgeProfiler profiler= mock(PurgeProfiler.class);
-  private DefaultPeriodCleaner periodCleaner= mock(DefaultPeriodCleaner.class);
-  private PurgeListener purgeListener= mock(PurgeListener.class);
-  private IssueIndex issueIndex= mock(IssueIndex.class);
+  private PurgeDao dao = mock(PurgeDao.class);
+  private PurgeProfiler profiler = mock(PurgeProfiler.class);
+  private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
+  private PurgeListener purgeListener = mock(PurgeListener.class);
+  private IssueIndex issueIndex = mock(IssueIndex.class);
   private Settings settings = new Settings();
 
   @Before
