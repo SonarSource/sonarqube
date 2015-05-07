@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
@@ -46,6 +47,7 @@ import java.util.List;
 /**
  * @since 2.10
  */
+@RequiresDB
 public class DefaultNotificationManager implements NotificationManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultNotificationManager.class);

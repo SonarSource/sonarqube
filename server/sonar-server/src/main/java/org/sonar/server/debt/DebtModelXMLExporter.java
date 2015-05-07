@@ -27,7 +27,7 @@ import com.google.common.collect.Ordering;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
@@ -35,7 +35,10 @@ import org.xml.sax.InputSource;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -52,7 +55,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Export characteristics and rule debt definitions to XML
  */
-public class DebtModelXMLExporter implements ServerComponent {
+@ServerSide
+public class DebtModelXMLExporter {
 
   private static final String ROOT = "sqale";
   private static final String DEFAULT_INDENT = "2";

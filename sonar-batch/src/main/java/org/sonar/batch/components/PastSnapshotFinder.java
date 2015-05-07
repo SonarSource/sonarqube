@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
@@ -42,7 +42,8 @@ import java.util.Date;
 /**
  * Can't be moved since it is used by devcockpit.
  */
-public class PastSnapshotFinder implements BatchExtension {
+@BatchSide
+public class PastSnapshotFinder {
 
   private static final Logger LOG = LoggerFactory.getLogger(PastSnapshotFinder.class);
 

@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
@@ -38,7 +38,8 @@ import java.util.List;
 /**
  * Create, delete, rename and set as default profile.
  */
-public class QProfileFactory implements ServerComponent {
+@ServerSide
+public class QProfileFactory {
 
   private final DbClient db;
 

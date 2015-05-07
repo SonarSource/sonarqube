@@ -21,7 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Strings;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -35,7 +35,8 @@ import java.util.List;
  * Use {@link org.sonar.server.qualityprofile.QProfileService} instead
  */
 @Deprecated
-public class QProfiles implements ServerComponent {
+@ServerSide
+public class QProfiles {
 
   private static final String LANGUAGE_PARAM = "language";
 

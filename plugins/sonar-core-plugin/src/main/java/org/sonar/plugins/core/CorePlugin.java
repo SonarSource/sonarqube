@@ -25,7 +25,6 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
@@ -258,7 +257,6 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
-      Periods.class,
 
       // measure filters
       ProjectFilter.class,

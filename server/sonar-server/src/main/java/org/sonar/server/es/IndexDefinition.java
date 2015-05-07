@@ -21,11 +21,12 @@ package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.Map;
 
-public interface IndexDefinition extends ServerComponent {
+@ServerSide
+public interface IndexDefinition {
 
   public static class IndexDefinitionContext {
     private final Map<String, NewIndex> byKey = Maps.newHashMap();
@@ -41,7 +42,6 @@ public interface IndexDefinition extends ServerComponent {
       return byKey;
     }
   }
-
 
   void define(IndexDefinitionContext context);
 

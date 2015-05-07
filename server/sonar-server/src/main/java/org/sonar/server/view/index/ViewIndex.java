@@ -27,7 +27,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.server.es.EsClient;
 
 import java.util.Collection;
@@ -35,7 +35,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class ViewIndex implements ServerComponent {
+@ServerSide
+public class ViewIndex {
 
   private static final int SCROLL_TIME_IN_MINUTES = 3;
 
@@ -78,7 +79,7 @@ public class ViewIndex implements ServerComponent {
       .setTypes(ViewIndexDefinition.TYPE_VIEW)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
         FilterBuilders.termsFilter(ViewIndexDefinition.FIELD_UUID, viewUuids)
-      ))
+        ))
       .get();
   }
 }

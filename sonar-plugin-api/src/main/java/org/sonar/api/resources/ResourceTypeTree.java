@@ -26,8 +26,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.sonar.api.ServerExtension;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +37,9 @@ import java.util.List;
 /**
  * @since 2.14
  */
-public class ResourceTypeTree implements TaskExtension, ServerExtension {
+@BatchSide
+@ServerSide
+public class ResourceTypeTree {
 
   private final List<ResourceType> types;
   private final ListMultimap<String, String> relations;

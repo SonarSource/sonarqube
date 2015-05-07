@@ -20,7 +20,7 @@
 
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -30,12 +30,14 @@ import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 
 import javax.persistence.Query;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
-public class PeriodsDefinition implements BatchComponent {
+@BatchSide
+public class PeriodsDefinition {
 
   private static final int NUMBER_OF_VARIATION_SNAPSHOTS = 5;
 

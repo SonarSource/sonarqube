@@ -21,11 +21,11 @@ package org.sonar.api.config;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 
 import javax.annotation.Nullable;
@@ -41,7 +41,9 @@ import java.util.Map;
  *
  * @since 2.12
  */
-public final class PropertyDefinitions implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public final class PropertyDefinitions {
 
   private final Map<String, PropertyDefinition> definitions = new HashMap<>();
   private final Map<String, Category> categories = new HashMap<>();

@@ -20,8 +20,8 @@
 package org.sonar.core.issue.workflow;
 
 import org.picocontainer.Startable;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
@@ -32,7 +32,9 @@ import org.sonar.core.issue.IssueUpdater;
 
 import java.util.List;
 
-public class IssueWorkflow implements BatchComponent, ServerComponent, Startable {
+@BatchSide
+@ServerSide
+public class IssueWorkflow implements Startable {
 
   private final FunctionExecutor functionExecutor;
   private final IssueUpdater updater;
@@ -89,7 +91,7 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
 
-        // resolve as false-positive
+      // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), SetAssignee.UNASSIGN)
@@ -118,10 +120,10 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
-          .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
-          .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), SetAssignee.UNASSIGN)
-          .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-          .build()
+        .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
+        .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), SetAssignee.UNASSIGN)
+        .requiredProjectPermission(UserRole.ISSUE_ADMIN)
+        .build()
       );
 
   }
@@ -159,14 +161,14 @@ public class IssueWorkflow implements BatchComponent, ServerComponent, Startable
         .automatic()
         .build())
 
-        // Reopen issues that are marked as resolved but that are still alive.
-        // Manual issues are kept resolved.
+      // Reopen issues that are marked as resolved but that are still alive.
+      // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
-          .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-          .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
-          .functions(new SetResolution(null), new SetCloseDate(false))
-          .automatic()
-          .build()
+        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
+        .conditions(new IsEndOfLife(false), new HasResolution(Issue.RESOLUTION_FIXED), new IsManual(false))
+        .functions(new SetResolution(null), new SetCloseDate(false))
+        .automatic()
+        .build()
       );
   }
 

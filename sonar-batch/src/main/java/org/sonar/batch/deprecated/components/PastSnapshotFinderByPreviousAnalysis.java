@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -33,7 +33,8 @@ import java.util.List;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public class PastSnapshotFinderByPreviousAnalysis implements BatchExtension {
+@BatchSide
+public class PastSnapshotFinderByPreviousAnalysis {
 
   private DatabaseSession session;
 

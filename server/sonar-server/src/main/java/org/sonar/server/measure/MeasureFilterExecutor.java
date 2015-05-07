@@ -22,7 +22,7 @@ package org.sonar.server.measure;
 import com.google.common.base.Strings;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
@@ -32,7 +32,8 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-public class MeasureFilterExecutor implements ServerComponent {
+@ServerSide
+public class MeasureFilterExecutor {
 
   private MyBatis mybatis;
   private Database database;
@@ -80,7 +81,7 @@ public class MeasureFilterExecutor implements ServerComponent {
   }
 
   static boolean isValid(MeasureFilter filter, MeasureFilterContext context) {
-    boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot()!=null;
+    boolean valid = Strings.isNullOrEmpty(filter.getBaseResourceKey()) || context.getBaseSnapshot() != null;
     valid &= !(filter.isOnBaseResourceChildren() && context.getBaseSnapshot() == null);
     valid &= !(filter.isOnFavourites() && context.getUserId() == null);
     valid &= validateMeasureConditions(filter);

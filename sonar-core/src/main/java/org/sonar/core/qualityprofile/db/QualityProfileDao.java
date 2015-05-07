@@ -23,7 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
@@ -37,7 +37,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class QualityProfileDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class QualityProfileDao implements DaoComponent {
 
   private final MyBatis mybatis;
   private final System2 system;

@@ -21,7 +21,7 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -34,7 +34,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class DuplicationsJsonWriter implements ServerComponent {
+@ServerSide
+public class DuplicationsJsonWriter {
 
   private final ComponentDao componentDao;
 

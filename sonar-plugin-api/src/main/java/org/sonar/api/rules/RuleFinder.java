@@ -19,10 +19,10 @@
  */
 package org.sonar.api.rules;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.task.TaskComponent;
 
 import javax.annotation.CheckForNull;
 
@@ -33,7 +33,9 @@ import java.util.Collection;
  * @deprecated since 5.1. Use {@link ActiveRules} on batch side.
  */
 @Deprecated
-public interface RuleFinder extends TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface RuleFinder {
 
   /**
    * @since 2.5

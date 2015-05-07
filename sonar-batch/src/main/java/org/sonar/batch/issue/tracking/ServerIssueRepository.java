@@ -20,7 +20,7 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -45,7 +45,8 @@ import java.util.Collections;
 import java.util.List;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class ServerIssueRepository implements BatchComponent {
+@BatchSide
+public class ServerIssueRepository {
 
   private static final Logger LOG = Loggers.get(ServerIssueRepository.class);
 

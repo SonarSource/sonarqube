@@ -171,7 +171,7 @@ public interface Issue extends Serializable {
    * Non-null list of comments, ordered by chronological order.
    * <p/>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
-   * (from {@link org.sonar.api.BatchExtension}).
+   * (from {@link org.sonar.api.BatchSide}).
    */
   List<IssueComment> comments();
 

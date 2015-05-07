@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -34,6 +34,7 @@ import org.sonar.api.utils.ValidationMessages;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
@@ -42,7 +43,8 @@ import java.util.Map;
 /**
  * @since 2.3
  */
-public class XMLProfileParser implements ServerComponent {
+@ServerSide
+public class XMLProfileParser {
 
   private final RuleFinder ruleFinder;
 

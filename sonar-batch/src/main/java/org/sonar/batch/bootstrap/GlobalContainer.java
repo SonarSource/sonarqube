@@ -113,6 +113,7 @@ public class GlobalContainer extends ComponentContainer {
       new FileCacheProvider(),
       System2.INSTANCE,
       DefaultI18n.class,
+      Durations.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
@@ -153,8 +154,7 @@ public class GlobalContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousAnalysis.class,
       PastSnapshotFinderByVersion.class,
       PastSnapshotFinderByPreviousVersion.class,
-      PastSnapshotFinder.class,
-      Durations.class);
+      PastSnapshotFinder.class);
   }
 
   @Override

@@ -23,7 +23,7 @@ package org.sonar.server.issue;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -38,7 +38,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.7
  */
-public abstract class Action implements ServerComponent {
+@ServerSide
+public abstract class Action {
 
   private final String key;
   private final List<Condition> conditions;
@@ -82,4 +83,3 @@ public abstract class Action implements ServerComponent {
   }
 
 }
-

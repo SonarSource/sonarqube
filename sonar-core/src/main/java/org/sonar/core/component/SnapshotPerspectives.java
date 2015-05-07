@@ -21,7 +21,7 @@ package org.sonar.core.component;
 
 import com.google.common.collect.Maps;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.component.Perspective;
 import org.sonar.core.graph.graphson.GraphsonReader;
 import org.sonar.core.graph.jdbc.GraphDao;
@@ -32,7 +32,8 @@ import javax.annotation.CheckForNull;
 import java.io.StringReader;
 import java.util.Map;
 
-public class SnapshotPerspectives implements ServerComponent {
+@ServerSide
+public class SnapshotPerspectives {
 
   private final GraphDao dao;
   private final Map<Class<?>, GraphPerspectiveLoader<?>> loaders = Maps.newHashMap();

@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.api;
 
-package org.sonar.server.event.db;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.sonar.api.ServerSide;
-import org.sonar.core.event.EventDto;
-import org.sonar.core.event.db.EventMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-
-import java.util.List;
-
-@ServerSide
-public class EventDao implements DaoComponent {
-
-  public List<EventDto> selectByComponentUuid(DbSession session, String componentUuid) {
-    return session.getMapper(EventMapper.class).selectByComponentUuid(componentUuid);
-  }
-
-  public void insert(DbSession session, EventDto dto) {
-    session.getMapper(EventMapper.class).insert(dto);
-  }
-
-  public void delete(DbSession session, Long id) {
-    session.getMapper(EventMapper.class).delete(id);
-  }
-
+/**
+ * Marker annotation for all the interfaces that are extension point (ie can be implemented by plugins 
+ * and will be called at some point of time by the platform).
+ *
+ * @since 5.2
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ExtensionPoint {
 }

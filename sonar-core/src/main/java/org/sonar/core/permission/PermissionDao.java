@@ -23,17 +23,19 @@ package org.sonar.core.permission;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class PermissionDao implements ServerComponent {
+@ServerSide
+public class PermissionDao {
 
   private static final String QUERY_PARAMETER = "query";
   private static final String COMPONENT_ID_PARAMETER = "componentId";

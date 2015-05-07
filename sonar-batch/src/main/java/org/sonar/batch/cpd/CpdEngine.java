@@ -20,10 +20,11 @@
 package org.sonar.batch.cpd;
 
 import org.slf4j.Logger;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.sensor.SensorContext;
 
-public abstract class CpdEngine implements BatchExtension {
+@BatchSide
+public abstract class CpdEngine {
 
   abstract boolean isLanguageSupported(String language);
 

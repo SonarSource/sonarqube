@@ -20,7 +20,7 @@
 package org.sonar.server.search;
 
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
@@ -30,7 +30,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
+@ServerSide
+public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable {
 
   @CheckForNull
   DOMAIN getNullableByKey(KEY key);

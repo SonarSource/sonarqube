@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
-public interface Reporter extends BatchComponent {
+@BatchSide
+public interface Reporter {
 
   public void execute();
 

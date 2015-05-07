@@ -20,7 +20,7 @@
 
 package org.sonar.server.user;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 
@@ -29,7 +29,8 @@ import java.util.Map;
 /**
  * Used by ruby code <pre>Internal.group_membership</pre>
  */
-public class GroupMembershipService implements ServerComponent {
+@ServerSide
+public class GroupMembershipService {
 
   private static final String SELECTED_MEMBERSHIP = "selected";
   private static final String DESELECTED_MEMBERSHIP = "deselected";

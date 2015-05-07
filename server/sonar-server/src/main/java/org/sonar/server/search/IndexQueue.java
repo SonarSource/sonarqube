@@ -28,11 +28,11 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.search.action.IndexAction;
 
 import java.util.HashMap;
@@ -45,7 +45,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
+@ServerSide
+public class IndexQueue implements WorkQueue<IndexAction<?>> {
 
   private final SearchClient searchClient;
   private final ComponentContainer container;

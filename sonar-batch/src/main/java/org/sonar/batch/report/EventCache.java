@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants.EventCategory;
@@ -27,9 +27,14 @@ import org.sonar.batch.protocol.output.BatchReport.Event;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class EventCache implements BatchComponent {
+@BatchSide
+public class EventCache {
 
   private final Map<Integer, List<Event>> eventsByComponentBatchId = new HashMap<>();
   private final ResourceCache resourceCache;

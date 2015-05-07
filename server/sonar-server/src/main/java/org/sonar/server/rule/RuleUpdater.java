@@ -25,7 +25,7 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -46,7 +46,8 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RuleUpdater implements ServerComponent {
+@ServerSide
+public class RuleUpdater {
 
   private final DbClient dbClient;
   private final System2 system;
@@ -289,7 +290,7 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
-                                        Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
+    Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
     for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = Strings.emptyToNull(update.parameter(key));

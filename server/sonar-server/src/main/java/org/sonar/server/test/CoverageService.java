@@ -21,7 +21,7 @@
 package org.sonar.server.test;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.Testable;
@@ -38,7 +38,8 @@ import javax.annotation.CheckForNull;
 
 import java.util.Map;
 
-public class CoverageService implements ServerComponent {
+@ServerSide
+public class CoverageService {
 
   public enum TYPE {
     UT, IT, OVERALL

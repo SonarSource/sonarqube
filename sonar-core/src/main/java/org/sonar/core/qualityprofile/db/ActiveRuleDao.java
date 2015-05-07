@@ -21,7 +21,7 @@
 package org.sonar.core.qualityprofile.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -31,7 +31,8 @@ import java.util.List;
  * @deprecated use the ActiveRuleDao class defined in sonar-server
  */
 @Deprecated
-public class ActiveRuleDao implements ServerComponent {
+@ServerSide
+public class ActiveRuleDao {
 
   private final MyBatis mybatis;
 

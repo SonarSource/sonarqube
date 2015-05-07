@@ -19,7 +19,7 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
@@ -30,7 +30,8 @@ import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
  * @since 4.0
  */
 @InstantiationStrategy(PER_BATCH)
-public interface ProjectIssues extends BatchComponent {
+@BatchSide
+public interface ProjectIssues {
 
   /**
    * All the unresolved issues of the project, including the issues reported by end-users.

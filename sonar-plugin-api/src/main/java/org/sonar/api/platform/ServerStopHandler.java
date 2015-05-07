@@ -19,12 +19,15 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 2.2
  */
-public interface ServerStopHandler extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface ServerStopHandler {
 
   void onServerStop(Server server);
 

@@ -19,13 +19,16 @@
  */
 package org.sonar.plugins.emailnotifications.api;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.notifications.Notification;
 
 /**
  * @since 2.10
  */
-public abstract class EmailTemplate implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class EmailTemplate {
 
   public abstract EmailMessage format(Notification notification);
 

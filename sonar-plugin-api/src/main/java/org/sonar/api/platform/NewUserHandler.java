@@ -20,14 +20,17 @@
 package org.sonar.api.platform;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 
 /**
  * @since 3.2
  */
-public interface NewUserHandler extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface NewUserHandler {
 
   final class Context {
     private String login;

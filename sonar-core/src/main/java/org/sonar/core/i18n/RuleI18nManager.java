@@ -20,8 +20,8 @@
 package org.sonar.core.i18n;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
 
@@ -33,7 +33,9 @@ import java.util.Locale;
  * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
  */
 @Deprecated
-public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtension {
+@BatchSide
+@ServerSide
+public class RuleI18nManager implements RuleI18n {
 
   private static final String NAME_SUFFIX = ".name";
   private static final String RULE_PREFIX = "rule.";
@@ -79,7 +81,6 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey, Locale locale) {
     return getParamDescription(repositoryKey, ruleKey, paramKey);
   }
-
 
   @Override
   @CheckForNull
@@ -128,7 +129,6 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     String propertyKey = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(suffix).toString();
     return defaultI18n.message(Locale.ENGLISH, propertyKey, null);
   }
-
 
   static boolean isRuleProperty(String propertyKey) {
     return StringUtils.startsWith(propertyKey, RULE_PREFIX) && StringUtils.endsWith(propertyKey, NAME_SUFFIX) && !propertyKey.contains(".param.");

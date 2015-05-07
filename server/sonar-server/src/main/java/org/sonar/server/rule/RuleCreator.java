@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -45,7 +45,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RuleCreator implements ServerComponent {
+@ServerSide
+public class RuleCreator {
 
   private final DbClient dbClient;
 
@@ -74,7 +75,7 @@ public class RuleCreator implements ServerComponent {
     }
   }
 
-  private RuleKey createCustomRule(NewRule newRule, DbSession dbSession){
+  private RuleKey createCustomRule(NewRule newRule, DbSession dbSession) {
     RuleKey templateKey = newRule.templateKey();
     if (templateKey == null) {
       throw new IllegalArgumentException("Rule template key should not be null");
@@ -98,7 +99,7 @@ public class RuleCreator implements ServerComponent {
     return customRuleKey;
   }
 
-  private RuleKey createManualRule(NewRule newRule, DbSession dbSession){
+  private RuleKey createManualRule(NewRule newRule, DbSession dbSession) {
     validateManualRule(newRule);
 
     RuleKey customRuleKey = RuleKey.of(RuleDoc.MANUAL_REPOSITORY, newRule.ruleKey());
@@ -190,11 +191,11 @@ public class RuleCreator implements ServerComponent {
   }
 
   @CheckForNull
-  private RuleDto loadRule(RuleKey ruleKey, DbSession dbSession){
+  private RuleDto loadRule(RuleKey ruleKey, DbSession dbSession) {
     return dbClient.ruleDao().getNullableByKey(dbSession, ruleKey);
   }
 
-  private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession){
+  private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
@@ -220,7 +221,7 @@ public class RuleCreator implements ServerComponent {
     return ruleKey;
   }
 
-  private void createCustomRuleParams(@Nullable String paramValue, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession){
+  private void createCustomRuleParams(@Nullable String paramValue, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession) {
     RuleParamDto ruleParamDto = RuleParamDto.createFor(ruleDto)
       .setName(templateRuleParam.getName())
       .setType(templateRuleParam.getType())
@@ -229,7 +230,7 @@ public class RuleCreator implements ServerComponent {
     dbClient.ruleDao().addRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession){
+  private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession) {
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setName(newRule.name())
       .setDescription(newRule.markdownDescription())
@@ -240,7 +241,7 @@ public class RuleCreator implements ServerComponent {
     return ruleKey;
   }
 
-  private void updateExistingRule(RuleDto ruleDto, NewRule newRule, DbSession dbSession){
+  private void updateExistingRule(RuleDto ruleDto, NewRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());

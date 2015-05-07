@@ -19,7 +19,8 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 1.12
@@ -27,7 +28,9 @@ import org.sonar.api.ServerExtension;
  * @deprecated replaced by Authenticator in version 3.1
  */
 @Deprecated
-public interface LoginPasswordAuthenticator extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface LoginPasswordAuthenticator {
 
   /**
    * @throws RuntimeException if the authenticator can not be initialized at sonar server startup, eg. if the connection to LDAP server is refused

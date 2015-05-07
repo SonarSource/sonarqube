@@ -22,7 +22,7 @@ package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
@@ -45,7 +45,8 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
  */
-public class InternalPermissionTemplateService implements ServerComponent {
+@ServerSide
+public class InternalPermissionTemplateService {
 
   private final MyBatis myBatis;
   private final PermissionTemplateDao permissionTemplateDao;

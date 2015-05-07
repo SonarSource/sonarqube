@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
-public class StatusDetectionFactory implements BatchComponent {
+@BatchSide
+public class StatusDetectionFactory {
 
   private final ProjectRepositories projectReferentials;
 

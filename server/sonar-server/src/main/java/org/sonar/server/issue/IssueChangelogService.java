@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
@@ -35,7 +35,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class IssueChangelogService implements ServerComponent {
+@ServerSide
+public class IssueChangelogService {
 
   private final IssueChangeDao changeDao;
   private final UserFinder userFinder;

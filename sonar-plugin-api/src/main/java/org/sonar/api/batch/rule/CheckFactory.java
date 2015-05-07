@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 /**
  * Creates {@link org.sonar.api.batch.rule.Checks}. This class is available
@@ -27,7 +27,8 @@ import org.sonar.api.BatchComponent;
  *
  * @since 4.2
  */
-public class CheckFactory implements BatchComponent {
+@BatchSide
+public class CheckFactory {
 
   private final ActiveRules activeRules;
 

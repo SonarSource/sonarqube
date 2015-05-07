@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.phases;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
@@ -30,7 +30,8 @@ import org.sonar.api.utils.SonarException;
 /**
  * Should be dropped when org.sonar.api.resources.Project is fully refactored.
  */
-public class ProjectInitializer implements BatchComponent {
+@BatchSide
+public class ProjectInitializer {
 
   private Languages languages;
   private Settings settings;

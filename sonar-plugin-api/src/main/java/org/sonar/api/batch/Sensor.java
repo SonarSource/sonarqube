@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Project;
 
 /**
@@ -41,7 +42,9 @@ import org.sonar.api.resources.Project;
  *
  * @since 1.10
  */
-public interface Sensor extends BatchExtension, CheckProject {
+@BatchSide
+@ExtensionPoint
+public interface Sensor extends CheckProject {
 
   /**
    * Sensors that depend upon Squid must declare the following method :

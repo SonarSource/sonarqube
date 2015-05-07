@@ -21,14 +21,14 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Collection;
 import java.util.Set;
 
-
-public class AddTagsAction extends AbstractChangeTagsAction implements ServerComponent {
+@ServerSide
+public class AddTagsAction extends AbstractChangeTagsAction {
 
   public static final String KEY = "add_tags";
 

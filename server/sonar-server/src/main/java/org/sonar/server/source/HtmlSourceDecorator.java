@@ -20,14 +20,15 @@
 package org.sonar.server.source;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class HtmlSourceDecorator implements ServerComponent {
+@ServerSide
+public class HtmlSourceDecorator {
 
   @CheckForNull
   public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting, @Nullable String symbols) {

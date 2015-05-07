@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.core.persistence.DbSession;
@@ -51,7 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class QProfileBackuper implements ServerComponent {
+@ServerSide
+public class QProfileBackuper {
 
   private final QProfileReset reset;
   private final DbClient db;

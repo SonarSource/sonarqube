@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
@@ -41,7 +41,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class ReportPublisher implements BatchComponent, Startable {
+@BatchSide
+public class ReportPublisher implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportPublisher.class);
   public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";

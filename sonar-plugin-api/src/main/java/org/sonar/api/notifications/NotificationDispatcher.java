@@ -20,7 +20,8 @@
 package org.sonar.api.notifications;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * <p>
@@ -37,7 +38,9 @@ import org.sonar.api.ServerExtension;
  * 
  * @since 2.10
  */
-public abstract class NotificationDispatcher implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class NotificationDispatcher {
 
   private final String notificationType;
 

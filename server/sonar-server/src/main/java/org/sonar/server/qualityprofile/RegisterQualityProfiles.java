@@ -25,7 +25,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Languages;
@@ -43,12 +43,17 @@ import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Synchronize Quality profiles during server startup
  */
-public class RegisterQualityProfiles implements ServerComponent {
+@ServerSide
+public class RegisterQualityProfiles {
 
   private static final Logger LOGGER = Loggers.get(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";

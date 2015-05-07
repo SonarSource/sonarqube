@@ -22,7 +22,7 @@ package org.sonar.core.user;
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
@@ -37,7 +37,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class AuthorizationDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class AuthorizationDao implements DaoComponent {
 
   private static final String USER_ID_PARAM = "userId";
   private final MyBatis mybatis;

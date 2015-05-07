@@ -30,8 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +43,8 @@ import java.util.Map;
  * @since 2.14
  */
 @Beta
-public class ResourceTypes implements TaskComponent, ServerComponent {
+@ServerSide
+public class ResourceTypes {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
     @Override
@@ -184,7 +184,7 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
     return treeByQualifier.get(qualifier);
   }
 
-  public ResourceType getRoot(String qualifier){
+  public ResourceType getRoot(String qualifier) {
     return getTree(qualifier).getRootType();
   }
 

@@ -22,7 +22,7 @@ package org.sonar.server.user;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
@@ -33,7 +33,8 @@ import org.sonar.api.utils.log.Loggers;
 /**
  * @since 2.14
  */
-public class SecurityRealmFactory implements ServerComponent, Startable {
+@ServerSide
+public class SecurityRealmFactory implements Startable {
 
   private final boolean ignoreStartupFailure;
   private final SecurityRealm realm;

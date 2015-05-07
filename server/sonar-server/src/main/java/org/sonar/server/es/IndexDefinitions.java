@@ -23,14 +23,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.Map;
 
 /**
  * This class collects definitions of all Elasticsearch indices during server startup
  */
-public class IndexDefinitions implements ServerComponent, Startable {
+@ServerSide
+public class IndexDefinitions implements Startable {
 
   /**
    * Immutable copy of {@link org.sonar.server.es.NewIndex}

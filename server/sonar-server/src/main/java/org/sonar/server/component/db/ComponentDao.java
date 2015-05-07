@@ -21,7 +21,7 @@
 package org.sonar.server.component.db;
 
 import com.google.common.base.Function;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -44,7 +44,8 @@ import java.util.List;
 /**
  * @since 4.3
  */
-public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements ServerComponent, DaoComponent {
+@ServerSide
+public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements DaoComponent {
 
   public ComponentDao() {
     this(System2.INSTANCE);

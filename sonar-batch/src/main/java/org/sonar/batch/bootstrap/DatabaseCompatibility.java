@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
@@ -32,7 +32,8 @@ import org.sonar.core.properties.PropertiesDao;
 /**
  * Detects if database is not up-to-date with the version required by the batch.
  */
-public class DatabaseCompatibility implements BatchComponent {
+@BatchSide
+public class DatabaseCompatibility {
 
   private DatabaseVersion version;
   private Settings settings;

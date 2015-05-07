@@ -21,12 +21,13 @@ package org.sonar.batch.postjob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 import org.sonar.api.config.Settings;
 
-public class PostJobOptimizer implements BatchComponent {
+@BatchSide
+public class PostJobOptimizer {
 
   private static final Logger LOG = LoggerFactory.getLogger(PostJobOptimizer.class);
 

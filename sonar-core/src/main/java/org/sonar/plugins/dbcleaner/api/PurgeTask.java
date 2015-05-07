@@ -19,15 +19,17 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.sonar.api.ServerExtension;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 2.14
  * @deprecated (is used by the plugin views only. Will rely on the implementation when views analysis views moved on the server side)
  */
 @Deprecated
-public interface PurgeTask extends TaskExtension, ServerExtension {
+@BatchSide
+@ServerSide
+public interface PurgeTask {
   /**
    * Purges the data related to a tree of resources.
    * <p/>

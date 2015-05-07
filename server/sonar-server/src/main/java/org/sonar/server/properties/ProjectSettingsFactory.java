@@ -22,7 +22,7 @@ package org.sonar.server.properties;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -30,7 +30,8 @@ import org.sonar.core.properties.PropertyDto;
 import java.util.List;
 import java.util.Map;
 
-public class ProjectSettingsFactory implements ServerComponent {
+@ServerSide
+public class ProjectSettingsFactory {
 
   private final PropertiesDao dao;
   private final Settings settings;

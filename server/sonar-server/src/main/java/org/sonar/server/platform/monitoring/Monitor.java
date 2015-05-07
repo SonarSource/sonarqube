@@ -19,14 +19,15 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.LinkedHashMap;
 
 /**
  * Any component that is involved in the informations returned by the web service api/system/info
  */
-public interface Monitor extends ServerComponent {
+@ServerSide
+public interface Monitor {
   /**
    * Name of section in System Info page
    */
@@ -36,5 +37,5 @@ public interface Monitor extends ServerComponent {
    * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
    * because of JSON export by {@link org.sonar.server.platform.ws.SystemInfoWsAction}
    */
-  LinkedHashMap<String,Object> attributes();
+  LinkedHashMap<String, Object> attributes();
 }

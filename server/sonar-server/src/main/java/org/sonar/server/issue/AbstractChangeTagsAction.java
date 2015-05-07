@@ -23,7 +23,7 @@ package org.sonar.server.issue;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -35,7 +35,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractChangeTagsAction extends Action implements ServerComponent {
+@ServerSide
+public abstract class AbstractChangeTagsAction extends Action {
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 

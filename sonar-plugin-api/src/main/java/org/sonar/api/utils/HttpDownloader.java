@@ -19,8 +19,8 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import java.io.File;
 import java.io.InputStream;
@@ -30,7 +30,9 @@ import java.net.URI;
  * This component is available in IoC container, so it should be injected through
  * a constructor parameter. It is available in both batch and server.
  */
-public abstract class HttpDownloader extends UriReader.SchemeProcessor implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public abstract class HttpDownloader extends UriReader.SchemeProcessor {
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
 
   public abstract String downloadPlainText(URI uri, String encoding);

@@ -19,14 +19,17 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
- * Marker interface for event handlers.
+ * Common interface for event handlers.
  * This interface is not intended to be implemented by clients.
  * 
  * @since 2.8
  */
-public interface EventHandler extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface EventHandler {
 
 }

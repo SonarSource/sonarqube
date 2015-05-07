@@ -23,7 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
@@ -37,6 +37,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
+import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
@@ -47,12 +48,12 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 /**
  * Inject deprecated RuleRepository into {@link org.sonar.api.server.rule.RulesDefinition} for backward-compatibility.
  */
-public class DeprecatedRulesDefinitionLoader implements ServerComponent {
+@ServerSide
+public class DeprecatedRulesDefinitionLoader {
 
   private static final Logger LOG = Loggers.get(DeprecatedRulesDefinitionLoader.class);
 

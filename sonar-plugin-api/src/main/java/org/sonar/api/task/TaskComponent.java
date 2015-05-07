@@ -19,6 +19,9 @@
  */
 package org.sonar.api.task;
 
+import org.sonar.api.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
+
 /**
  * All the classes implementing this interface can be injected in public constructors of {@link TaskExtension}.
  *
@@ -26,5 +29,7 @@ package org.sonar.api.task;
  * @deprecated since 5.1 all tasks (devcockpit, views) will be moved to server side
  */
 @Deprecated
+@BatchSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface TaskComponent {
 }

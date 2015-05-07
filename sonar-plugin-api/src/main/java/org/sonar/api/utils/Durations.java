@@ -20,9 +20,9 @@
 
 package org.sonar.api.utils;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 
@@ -35,7 +35,9 @@ import java.util.Locale;
  *
  * @since 4.3
  */
-public class Durations implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class Durations {
 
   public enum DurationFormat {
     /**
@@ -111,7 +113,7 @@ public class Durations implements BatchComponent, ServerComponent {
     return format(locale, days, hours, minutes, isNegative);
   }
 
-  private String format(Locale locale, int days, int hours, int minutes, boolean isNegative){
+  private String format(Locale locale, int days, int hours, int minutes, boolean isNegative) {
     StringBuilder message = new StringBuilder();
     if (days > 0) {
       message.append(message(locale, "work_duration.x_days", isNegative ? -1 * days : days));

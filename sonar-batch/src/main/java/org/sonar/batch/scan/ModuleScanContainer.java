@@ -21,7 +21,6 @@ package org.sonar.batch.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
@@ -31,9 +30,11 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
-import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.debt.*;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.deprecated.DeprecatedSensorContext;
 import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
@@ -50,17 +51,34 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
-import org.sonar.batch.issue.tracking.IssueHandlers;
-import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
-import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.phases.*;
+import org.sonar.batch.phases.DecoratorsExecutor;
+import org.sonar.batch.phases.InitializersExecutor;
+import org.sonar.batch.phases.PersistersExecutor;
+import org.sonar.batch.phases.PhaseExecutor;
+import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.phases.PostJobsExecutor;
+import org.sonar.batch.phases.ProjectInitializer;
+import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.postjob.DefaultPostJobContext;
 import org.sonar.batch.postjob.PostJobOptimizer;
-import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.rule.*;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.rule.QProfileDecorator;
+import org.sonar.batch.rule.QProfileSensor;
+import org.sonar.batch.rule.QProfileVerifier;
+import org.sonar.batch.rule.RuleFinderCompatibility;
+import org.sonar.batch.rule.RulesProfileProvider;
+import org.sonar.batch.scan.filesystem.ComponentIndexer;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileIndexer;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
+import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
+import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
+import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.report.IssuesReports;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
@@ -68,6 +86,7 @@ import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
+import org.sonar.core.timemachine.Periods;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -84,9 +103,6 @@ public class ModuleScanContainer extends ComponentContainer {
   protected void doBeforeStart() {
     LOG.info("-------------  Scan {}", module.getName());
     addCoreComponents();
-    if (analysisMode.isDb()) {
-      addDataBaseComponents();
-    }
     addExtensions();
   }
 
@@ -102,6 +118,7 @@ public class ModuleScanContainer extends ComponentContainer {
     module.setSettings(moduleSettings);
 
     add(
+      Periods.class,
       PhaseExecutor.class,
       RuleFinderCompatibility.class,
       EventBus.class,
@@ -176,39 +193,12 @@ public class ModuleScanContainer extends ComponentContainer {
       SymbolizableBuilder.class);
   }
 
-  private void addDataBaseComponents() {
-    add(
-      // Quality Gate
-      QualityGateVerifier.class,
-      GenerateQualityGateEvents.class,
-
-      // language
-      LanguageDistributionDecorator.class,
-
-      // Debt
-      IssueChangelogDebtCalculator.class,
-      DebtDecorator.class,
-      NewDebtDecorator.class,
-      SqaleRatingDecorator.class,
-      SqaleRatingSettings.class,
-
-      // Issue tracking
-      IssueTrackingDecorator.class,
-      IssueHandlers.class,
-      InitialOpenIssuesSensor.class,
-
-      QProfileEventsDecorator.class,
-
-      TimeMachineConfiguration.class);
-
-  }
-
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
       @Override
       public boolean accept(Object extension) {
-        if (ExtensionUtils.isType(extension, BatchComponent.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
+        if (ExtensionUtils.isBatchSide(extension) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
           // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some
           // new sub-projects without pom.
           // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.

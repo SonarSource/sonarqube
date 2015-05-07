@@ -20,7 +20,8 @@
 package org.sonar.api.notifications;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import java.util.Map;
 
@@ -33,7 +34,9 @@ import java.util.Map;
  *
  * @since 3.5
  */
-public final class NotificationDispatcherMetadata implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public final class NotificationDispatcherMetadata {
 
   public static final String GLOBAL_NOTIFICATION = "globalNotification";
   public static final String PER_PROJECT_NOTIFICATION = "perProjectNotification";

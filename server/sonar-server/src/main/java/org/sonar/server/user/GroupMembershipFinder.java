@@ -20,15 +20,21 @@
 
 package org.sonar.server.user;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.user.*;
+import org.sonar.api.ServerSide;
+import org.sonar.core.user.GroupMembership;
+import org.sonar.core.user.GroupMembershipDao;
+import org.sonar.core.user.GroupMembershipDto;
+import org.sonar.core.user.GroupMembershipQuery;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class GroupMembershipFinder implements ServerComponent {
+@ServerSide
+public class GroupMembershipFinder {
 
   public static class Membership {
     private List<GroupMembership> groups;

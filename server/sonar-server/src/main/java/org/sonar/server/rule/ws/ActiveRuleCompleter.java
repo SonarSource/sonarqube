@@ -21,7 +21,7 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -45,7 +45,8 @@ import java.util.Map;
  * Add details about active rules to api/rules/search and api/rules/show
  * web services.
  */
-public class ActiveRuleCompleter implements ServerComponent {
+@ServerSide
+public class ActiveRuleCompleter {
 
   private static final Logger LOG = Loggers.get(ActiveRuleCompleter.class);
 

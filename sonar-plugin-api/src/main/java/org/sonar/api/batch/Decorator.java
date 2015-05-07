@@ -19,13 +19,16 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
  */
-public interface Decorator extends BatchExtension, CheckProject {
+@BatchSide
+@ExtensionPoint
+public interface Decorator extends CheckProject {
 
   /**
    * @param resource resource that is currently decorated, equivalent of <code>context.getResource()</code>

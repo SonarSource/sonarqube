@@ -21,14 +21,17 @@ package org.sonar.api.web;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import javax.servlet.Filter;
 
 /**
  * @since 3.1
  */
-public abstract class ServletFilter implements ServerExtension, Filter {
+@ServerSide
+@ExtensionPoint
+public abstract class ServletFilter implements Filter {
 
   /**
    * Override to change URL. Default is /*

@@ -20,7 +20,8 @@
 package org.sonar.api.batch.sensor;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
  * <p>
@@ -35,7 +36,9 @@ import org.sonar.api.BatchExtension;
  * @since 5.1
  */
 @Beta
-public interface Sensor extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface Sensor {
 
   /**
    * Populate {@link SensorDescriptor} of this sensor.

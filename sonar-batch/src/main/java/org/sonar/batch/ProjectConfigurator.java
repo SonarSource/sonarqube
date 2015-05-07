@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
@@ -44,7 +44,8 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
  * Used by views !!
  *
  */
-public class ProjectConfigurator implements BatchComponent {
+@BatchSide
+public class ProjectConfigurator {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);
   private final System2 system2;

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.scm;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,7 +31,8 @@ import java.util.List;
  * @since 5.0
  */
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public abstract class BlameCommand implements BatchComponent {
+@BatchSide
+public abstract class BlameCommand {
 
   /**
    * Compute blame of the provided files. 

@@ -21,7 +21,7 @@ package org.sonar.batch.scan.report;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
@@ -37,7 +37,8 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import javax.annotation.CheckForNull;
 
-public class IssuesReportBuilder implements BatchExtension {
+@BatchSide
+public class IssuesReportBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssuesReportBuilder.class);
 

@@ -19,10 +19,11 @@
  */
 package org.sonar.api.database;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+
 import java.util.List;
 
 /**
@@ -30,13 +31,12 @@ import java.util.List;
  *
  * @since 1.10
  */
-public abstract class DatabaseSession implements BatchComponent {
-
+@BatchSide
+public abstract class DatabaseSession {
 
   // IMPORTANT : this value must be the same than the property
   // hibernate.jdbc.batch_size from /META-INF/persistence.xml (module sonar-database)
   public static final int BATCH_SIZE = 30;
-
 
   public abstract EntityManager getEntityManager();
 

@@ -19,13 +19,16 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
  * @since 2.6
  * @deprecated since 5.2 not used anymore
  */
 @Deprecated
-public interface CoverageExtension extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface CoverageExtension {
 
 }

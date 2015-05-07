@@ -20,11 +20,13 @@
 package org.sonar.api.utils.internal;
 
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.TempFolder;
 
-public class TempFolderCleaner implements TaskComponent, ServerComponent, Startable {
+@BatchSide
+@ServerSide
+public class TempFolderCleaner implements Startable {
 
   private TempFolder defaultTempFolder;
 

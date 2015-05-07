@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.BatchSide;
+
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Ints;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -33,7 +34,12 @@ import org.sonar.api.utils.log.Loggers;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -43,7 +49,8 @@ import java.util.List;
  * Computes hash of files. Ends of Lines are ignored, so files with
  * same content but different EOL encoding have the same hash.
  */
-public class FileMetadata implements BatchComponent {
+@BatchSide
+public class FileMetadata {
 
   private static final Logger LOG = Loggers.get(FileMetadata.class);
 

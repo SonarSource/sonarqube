@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.index.BatchResource;
@@ -34,7 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SourceProvider implements BatchComponent {
+@BatchSide
+public class SourceProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(SourceProvider.class);
   private final InputPathCache inputPathCache;

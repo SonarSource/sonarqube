@@ -22,15 +22,19 @@ package org.sonar.api.profiles;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import java.io.Writer;
 
 /**
  * @since 2.3
  */
-public abstract class ProfileExporter implements BatchExtension, ServerExtension {
+@BatchSide
+@ServerSide
+@ExtensionPoint
+public abstract class ProfileExporter {
 
   private String[] supportedLanguages = new String[0];
   private String key;
@@ -105,10 +109,10 @@ public abstract class ProfileExporter implements BatchExtension, ServerExtension
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("key", key)
-        .append("name", name)
-        .append("mimeType", mimeType)
-        .append("languages", supportedLanguages)
-        .toString();
+      .append("key", key)
+      .append("name", name)
+      .append("mimeType", mimeType)
+      .append("languages", supportedLanguages)
+      .toString();
   }
 }

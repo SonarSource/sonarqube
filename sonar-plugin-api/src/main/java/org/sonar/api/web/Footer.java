@@ -19,12 +19,15 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 1.10
  */
-public interface Footer extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface Footer {
 
   /**
    * Static HTML (no Ruby on Rails)

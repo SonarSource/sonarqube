@@ -24,7 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -65,7 +65,8 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class ProjectRepositoryLoader implements ServerComponent {
+@ServerSide
+public class ProjectRepositoryLoader {
 
   private static final Logger LOG = Loggers.get(ProjectRepositoryLoader.class);
 

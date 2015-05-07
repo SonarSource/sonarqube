@@ -20,7 +20,7 @@
 package org.sonar.api.server.rule;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.RuleI18n;
 
 /**
@@ -35,7 +35,8 @@ import org.sonar.api.i18n.RuleI18n;
  * @see org.sonar.api.server.rule.RulesDefinition for an example
  * @since 4.3
  */
-public class RulesDefinitionI18nLoader implements ServerComponent {
+@ServerSide
+public class RulesDefinitionI18nLoader {
 
   private final RuleI18n i18n;
 

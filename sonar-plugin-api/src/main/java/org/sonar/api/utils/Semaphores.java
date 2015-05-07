@@ -19,10 +19,11 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -31,7 +32,9 @@ import java.util.Date;
  *
  * @since 3.4
  */
-public interface Semaphores extends TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface Semaphores {
 
   /**
    * Try to acquire a semaphore for a given duration.

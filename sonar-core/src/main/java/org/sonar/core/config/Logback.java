@@ -27,8 +27,8 @@ import ch.qos.logback.core.util.StatusPrinter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,7 +41,9 @@ import java.util.Map;
  *
  * @since 2.12
  */
-public class Logback implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class Logback {
 
   public static void configure(String classloaderPath, Map<String, String> substitutionVariables) {
     InputStream input = Logback.class.getResourceAsStream(classloaderPath);

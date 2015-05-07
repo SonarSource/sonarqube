@@ -23,14 +23,15 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Resource;
 import org.sonar.core.graph.BeanGraph;
 import org.sonar.core.graph.BeanIterable;
 import org.sonar.core.graph.GraphUtil;
 
-public class ScanGraph extends BeanGraph implements BatchComponent {
+@BatchSide
+public class ScanGraph extends BeanGraph {
 
   private static final String COMPONENT = "component";
   private final Vertex componentsRoot;

@@ -21,7 +21,7 @@ package org.sonar.server.ui;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -38,7 +38,8 @@ import java.util.Map;
  *
  * Bridge between JRuby webapp and Java I18n component
  */
-public class JRubyI18n implements ServerComponent {
+@ServerSide
+public class JRubyI18n {
 
   private I18n i18n;
   private Durations durations;

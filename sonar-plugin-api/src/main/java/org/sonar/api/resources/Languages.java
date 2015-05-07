@@ -21,8 +21,8 @@ package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -37,7 +37,9 @@ import java.util.Map;
  *
  * @since 1.10
  */
-public class Languages implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class Languages {
 
   private static final Logger LOG = Loggers.get(Languages.class);
 

@@ -19,14 +19,16 @@
  */
 package org.sonar.core.component;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 
 import javax.annotation.CheckForNull;
 
-public abstract class PerspectiveBuilder<T extends Perspective> implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public abstract class PerspectiveBuilder<T extends Perspective> {
 
   private final Class<T> perspectiveClass;
 

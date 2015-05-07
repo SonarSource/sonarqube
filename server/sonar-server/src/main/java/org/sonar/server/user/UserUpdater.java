@@ -27,7 +27,7 @@ import com.google.common.collect.Iterables;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.utils.System2;
@@ -51,7 +51,8 @@ import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class UserUpdater implements ServerComponent {
+@ServerSide
+public class UserUpdater {
 
   private static final String LOGIN_PARAM = "Login";
   private static final String PASSWORD_CONFIRMATION_PARAM = "Password confirmation";

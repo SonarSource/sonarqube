@@ -21,19 +21,20 @@
 package org.sonar.server.text;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.platform.Server;
 
 import java.util.List;
 
-public class MacroInterpreter implements ServerComponent {
+@ServerSide
+public class MacroInterpreter {
 
   private final List<Macro> macros;
 
   public MacroInterpreter(Server server) {
     this.macros = ImmutableList.<Macro>of(
       new RuleMacro(server.getContextPath())
-    );
+      );
   }
 
   public String interpret(String text) {

@@ -20,10 +20,17 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -132,7 +139,9 @@ import java.util.Set;
  *
  * @since 4.3
  */
-public interface RulesDefinition extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface RulesDefinition {
 
   /**
    * Default sub-characteristics of technical debt model. See http://www.sqale.org

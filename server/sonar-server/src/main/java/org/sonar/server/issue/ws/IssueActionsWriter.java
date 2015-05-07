@@ -20,7 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.utils.text.JsonWriter;
@@ -34,7 +34,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueActionsWriter implements ServerComponent {
+@ServerSide
+public class IssueActionsWriter {
 
   private final IssueService issueService;
   private final ActionService actionService;

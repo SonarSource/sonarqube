@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -32,7 +32,8 @@ import org.sonar.server.exceptions.BadRequestException;
 
 import java.util.Collection;
 
-public class RuleActivatorContextFactory implements ServerComponent {
+@ServerSide
+public class RuleActivatorContextFactory {
 
   private final DbClient db;
 

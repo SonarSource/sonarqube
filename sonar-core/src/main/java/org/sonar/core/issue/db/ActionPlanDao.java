@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
@@ -36,7 +36,9 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class ActionPlanDao implements DaoComponent {
 
   private final MyBatis mybatis;
 
@@ -95,7 +97,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent, DaoCompon
         List<ActionPlanDto> dtos = session.getMapper(ActionPlanMapper.class).findByKeys(partition);
         dtosList.addAll(dtos);
       }
-      return dtosList;      
+      return dtosList;
     } finally {
       MyBatis.closeQuietly(session);
     }

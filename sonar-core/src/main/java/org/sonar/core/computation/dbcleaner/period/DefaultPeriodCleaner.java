@@ -21,9 +21,9 @@
 package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
-import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -35,7 +35,9 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.List;
 
-public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
+@BatchSide
+@ServerSide
+public class DefaultPeriodCleaner {
 
   private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;

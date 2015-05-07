@@ -22,7 +22,8 @@ package org.sonar.api.rules;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import java.util.List;
 
@@ -31,7 +32,9 @@ import java.util.List;
  * @deprecated in 4.2. Replaced by org.sonar.api.server.rule.RulesDefinition
  */
 @Deprecated
-public abstract class RuleRepository implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class RuleRepository {
 
   private String key;
   private String language;

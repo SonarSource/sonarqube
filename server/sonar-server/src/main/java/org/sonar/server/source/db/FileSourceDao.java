@@ -23,7 +23,7 @@ package org.sonar.server.source.db;
 import com.google.common.base.Function;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -40,7 +40,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FileSourceDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class FileSourceDao implements DaoComponent {
 
   private final MyBatis mybatis;
 

@@ -21,7 +21,7 @@ package org.sonar.batch.components;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -35,7 +35,8 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
 @RequiresDB
-public class TimeMachineConfiguration implements BatchComponent {
+@BatchSide
+public class TimeMachineConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(TimeMachineConfiguration.class);
 

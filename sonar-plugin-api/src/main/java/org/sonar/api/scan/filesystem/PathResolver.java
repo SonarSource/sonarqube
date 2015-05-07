@@ -21,7 +21,7 @@ package org.sonar.api.scan.filesystem;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
@@ -34,7 +34,8 @@ import java.util.List;
 /**
  * @since 3.5
  */
-public class PathResolver implements BatchComponent {
+@BatchSide
+public class PathResolver {
 
   public File relativeFile(File dir, String path) {
     Preconditions.checkArgument(dir.isDirectory(), "Not a directory: " + dir.getAbsolutePath());

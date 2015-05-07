@@ -23,6 +23,8 @@ package org.sonar.api;
  * Server extension point.
  *
  * @since 1.10
+ * @deprecated since 5.2 replaced by {@link ServerSide} and {@link ExtensionPoint} annotations
  */
+@Deprecated
 public interface ServerExtension extends Extension, ServerComponent {
 }

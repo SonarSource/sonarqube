@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
@@ -33,7 +33,8 @@ import org.sonar.server.issue.index.IssueIndexer;
 /**
  * @since 3.6
  */
-public class ServerIssueStorage extends IssueStorage implements ServerComponent {
+@ServerSide
+public class ServerIssueStorage extends IssueStorage {
 
   private final DbClient dbClient;
   private final IssueIndexer indexer;

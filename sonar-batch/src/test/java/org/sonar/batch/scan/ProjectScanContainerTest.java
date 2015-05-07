@@ -109,8 +109,8 @@ public class ProjectScanContainerTest {
     assertThat(filter.accept(MyProjectExtension.class)).isFalse();
     assertThat(filter.accept(new MyServerExtension())).isFalse();
     assertThat(filter.accept(MyServerExtension.class)).isFalse();
-    assertThat(filter.accept(new MyTaskExtension())).isFalse();
-    assertThat(filter.accept(MyTaskExtension.class)).isFalse();
+    assertThat(filter.accept(new MyTaskExtension())).isTrue();
+    assertThat(filter.accept(MyTaskExtension.class)).isTrue();
   }
 
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)

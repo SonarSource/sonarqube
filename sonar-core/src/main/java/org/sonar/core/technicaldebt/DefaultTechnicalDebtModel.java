@@ -22,6 +22,7 @@ package org.sonar.core.technicaldebt;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
@@ -38,6 +39,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@RequiresDB
 public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
 
   private final DebtModel model;

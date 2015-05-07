@@ -19,12 +19,15 @@
  */
 package org.sonar.api.server.ws;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 4.2
  */
-public interface RequestHandler extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface RequestHandler {
 
   void handle(Request request, Response response) throws Exception;
 

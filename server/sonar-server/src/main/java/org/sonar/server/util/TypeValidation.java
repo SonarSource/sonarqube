@@ -20,12 +20,14 @@
 
 package org.sonar.server.util;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
-public interface TypeValidation extends ServerComponent {
+@ServerSide
+public interface TypeValidation {
 
   String key();
 

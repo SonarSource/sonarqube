@@ -35,8 +35,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
@@ -145,7 +145,9 @@ import ch.qos.logback.classic.Level;
 
 import com.google.common.io.Closeables;
 
-public class MyBatis implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class MyBatis {
 
   private final Database database;
   private final Logback logback;

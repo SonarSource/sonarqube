@@ -20,7 +20,7 @@
 
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
@@ -33,8 +33,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class InitialOpenIssuesStack implements BatchExtension {
+public class InitialOpenIssuesStack {
 
   private final Cache<IssueDto> issuesCache;
   private final Cache<ArrayList<IssueChangeDto>> issuesChangelogCache;

@@ -19,8 +19,8 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 
@@ -36,7 +36,9 @@ import java.io.File;
  * @since 4.0
  *
  */
-public interface TempFolder extends TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface TempFolder {
 
   /**
    * Create a directory in temp folder with a random unique name.

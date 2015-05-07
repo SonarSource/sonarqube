@@ -21,11 +21,20 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.report.EventCache;
@@ -37,6 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@RequiresDB
 public class QProfileEventsDecorator implements Decorator {
 
   private final TimeMachine timeMachine;

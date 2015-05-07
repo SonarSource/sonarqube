@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.NotFoundException;
@@ -40,7 +40,8 @@ import java.util.Set;
 /**
  * @since 4.4
  */
-public class RuleService implements ServerComponent {
+@ServerSide
+public class RuleService {
 
   private final RuleIndex index;
   private final RuleUpdater ruleUpdater;

@@ -21,8 +21,8 @@ package org.sonar.server.platform;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -35,7 +35,8 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class BackendCleanup implements ServerComponent {
+@ServerSide
+public class BackendCleanup {
 
   private static final String[] INSPECTION_TABLES = {
     "action_plans", "authors", "dependencies", "duplications_index", "events", "graphs", "issues", "issue_changes", "manual_measures",

@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
@@ -33,7 +33,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class QProfileLookup implements ServerComponent {
+@ServerSide
+public class QProfileLookup {
 
   private final DbClient db;
 

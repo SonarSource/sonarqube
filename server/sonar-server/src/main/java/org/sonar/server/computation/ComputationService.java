@@ -23,7 +23,7 @@ package org.sonar.server.computation;
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
@@ -44,14 +44,18 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.properties.ProjectSettingsFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.*;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.CANCELLED;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
-public class ComputationService implements ServerComponent {
+@ServerSide
+public class ComputationService {
 
   private static final Logger LOG = Loggers.get(ComputationService.class);
 
@@ -62,8 +66,8 @@ public class ComputationService implements ServerComponent {
   private final TempFolder tempFolder;
   private final System2 system;
 
-  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService, 
-                            ProjectSettingsFactory projectSettingsFactory, TempFolder tempFolder, System2 system) {
+  public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
+    ProjectSettingsFactory projectSettingsFactory, TempFolder tempFolder, System2 system) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
@@ -139,7 +143,7 @@ public class ComputationService implements ServerComponent {
         LOG.info("Processing of report #{} is canceled because it was submitted while another report of the same project was already being processed.", item.dto.getId());
         LOG.debug("The snapshot ID #{} provided by the report #{} does not exist anymore.", snapshotId, item.dto.getId());
       }
-      return snapshot==null;
+      return snapshot == null;
     } finally {
       MyBatis.closeQuietly(session);
     }

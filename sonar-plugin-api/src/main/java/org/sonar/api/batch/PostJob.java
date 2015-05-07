@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Project;
 
 /**
@@ -30,7 +31,9 @@ import org.sonar.api.resources.Project;
  *
  * @since 1.10
  */
-public interface PostJob extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface PostJob {
 
   void executeOn(Project project, SensorContext context);
 

@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
@@ -34,13 +33,22 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
+import org.sonar.batch.bootstrap.DefaultAnalysisMode;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.debt.DebtModelProvider;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.*;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
@@ -50,19 +58,28 @@ import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.qualitygate.QualityGateProvider;
-import org.sonar.batch.report.*;
+import org.sonar.batch.report.ComponentsPublisher;
+import org.sonar.batch.report.CoveragePublisher;
+import org.sonar.batch.report.DuplicationsPublisher;
+import org.sonar.batch.report.EventCache;
+import org.sonar.batch.report.IssuesPublisher;
+import org.sonar.batch.report.MeasuresPublisher;
+import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.report.SourcePublisher;
+import org.sonar.batch.report.TestExecutionAndCoveragePublisher;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.batch.scan.measure.DefaultMetricFinder;
+import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
@@ -121,7 +138,6 @@ public class ProjectScanContainer extends ComponentContainer {
       new ProjectRepositoriesProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
-      DefaultNotificationManager.class,
       MetricProvider.class,
       ProjectConfigurator.class,
       DefaultIndex.class,
@@ -142,9 +158,12 @@ public class ProjectScanContainer extends ComponentContainer {
       IssueWorkflow.class,
       IssueCache.class,
       DefaultProjectIssues.class,
-      IssueChangelogDebtCalculator.class,
       LocalIssueTracking.class,
       ServerIssueRepository.class,
+
+      // metrics
+      DefaultMetricFinder.class,
+      DeprecatedMetricFinder.class,
 
       // tests
       TestPlanPerspectiveLoader.class,
@@ -192,6 +211,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addDataBaseComponents() {
     add(
+      PastMeasuresLoader.class,
       ResourcePersister.class,
       ResourceKeyMigration.class,
       GraphPersister.class,
@@ -240,7 +260,7 @@ public class ProjectScanContainer extends ComponentContainer {
   static class BatchExtensionFilter implements ExtensionMatcher {
     @Override
     public boolean accept(Object extension) {
-      return ExtensionUtils.isType(extension, BatchComponent.class)
+      return ExtensionUtils.isBatchSide(extension)
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
     }
   }

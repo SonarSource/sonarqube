@@ -21,7 +21,7 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Charsets;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -43,7 +43,8 @@ import java.util.List;
 /**
  * @since 4.2
  */
-public class WebServiceEngine implements ServerComponent, Startable {
+@ServerSide
+public class WebServiceEngine implements Startable {
 
   private final WebService.Context context;
 

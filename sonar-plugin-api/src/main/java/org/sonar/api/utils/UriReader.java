@@ -25,8 +25,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,9 @@ import java.util.Map;
  *
  * @since 3.2
  */
-public class UriReader implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class UriReader {
 
   private final Map<String, SchemeProcessor> processorsByScheme = Maps.newHashMap();
 
@@ -96,7 +98,6 @@ public class UriReader implements BatchComponent, ServerComponent {
     protected abstract String description(URI uri);
   }
 
-
   /**
    * This implementation is not exposed in API and is kept private.
    */
@@ -104,7 +105,7 @@ public class UriReader implements BatchComponent, ServerComponent {
 
     @Override
     public String[] getSupportedSchemes() {
-      return new String[]{"file"};
+      return new String[] {"file"};
     }
 
     @Override

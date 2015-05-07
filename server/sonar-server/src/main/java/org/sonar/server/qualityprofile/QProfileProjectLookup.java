@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;
@@ -37,7 +37,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileProjectLookup implements ServerComponent {
+@ServerSide
+public class QProfileProjectLookup {
 
   private final DbClient db;
 

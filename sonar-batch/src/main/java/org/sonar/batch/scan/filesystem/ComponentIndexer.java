@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.File;
@@ -37,7 +37,8 @@ import javax.annotation.Nullable;
  *
  * @since 4.2
  */
-public class ComponentIndexer implements BatchComponent {
+@BatchSide
+public class ComponentIndexer {
 
   private final Languages languages;
   private final SonarIndex sonarIndex;

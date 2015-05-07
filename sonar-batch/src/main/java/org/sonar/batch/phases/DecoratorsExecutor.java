@@ -20,7 +20,7 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
@@ -41,7 +41,8 @@ import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import java.util.Collection;
 import java.util.List;
 
-public class DecoratorsExecutor implements BatchComponent {
+@BatchSide
+public class DecoratorsExecutor {
 
   private final DecoratorsSelector decoratorsSelector;
   private final SonarIndex index;

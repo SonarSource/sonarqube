@@ -20,15 +20,17 @@
 package org.sonar.core.duplication;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
 import java.util.List;
 
-public class DuplicationDao implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class DuplicationDao {
 
   private final MyBatis mybatis;
 

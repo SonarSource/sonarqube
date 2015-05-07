@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Library;
@@ -37,7 +37,8 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
-public class ResourceCache implements BatchComponent {
+@BatchSide
+public class ResourceCache {
   // resource by component key
   private final Map<String, BatchResource> resources = Maps.newLinkedHashMap();
   // dedicated cache for libraries

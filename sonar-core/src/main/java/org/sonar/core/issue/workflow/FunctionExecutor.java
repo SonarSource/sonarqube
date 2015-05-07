@@ -19,8 +19,8 @@
  */
 package org.sonar.core.issue.workflow;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -29,7 +29,9 @@ import org.sonar.core.issue.IssueUpdater;
 
 import javax.annotation.Nullable;
 
-public class FunctionExecutor implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class FunctionExecutor {
 
   private final IssueUpdater updater;
 

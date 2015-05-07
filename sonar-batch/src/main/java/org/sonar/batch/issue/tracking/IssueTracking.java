@@ -27,16 +27,21 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.issue.internal.DefaultIssue;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class IssueTracking implements BatchComponent {
+@BatchSide
+public class IssueTracking {
 
   /**
    * @param sourceHashHolder Null when working on resource that is not a file (directory/project)

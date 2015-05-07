@@ -19,8 +19,8 @@
  */
 package org.sonar.api.i18n;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 
@@ -32,7 +32,9 @@ import java.util.Locale;
  *
  * @since 2.10
  */
-public interface I18n extends ServerComponent, BatchComponent {
+@BatchSide
+@ServerSide
+public interface I18n {
 
   /**
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.

@@ -20,14 +20,15 @@
 
 package org.sonar.api.server.debt;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.List;
 
 /**
  * @since 4.3
  */
-public interface DebtModel extends ServerComponent {
+@ServerSide
+public interface DebtModel {
 
   /**
    * @return all characteristics

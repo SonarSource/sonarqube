@@ -22,8 +22,8 @@ package org.sonar.core.user;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
@@ -40,7 +40,9 @@ import java.util.List;
  *
  * Be careful when updating this class because it's used by the Dev Cockpit plugin.
  */
-public class AuthorDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class AuthorDao implements DaoComponent {
 
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;

@@ -19,8 +19,9 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import java.util.List;
@@ -28,7 +29,10 @@ import java.util.List;
 /**
  * @since 1.10
  */
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface Metrics extends BatchExtension, ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface Metrics {
   List<Metric> getMetrics();
 }

@@ -19,16 +19,18 @@
  */
 package org.sonar.plugins.core;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
 
+@BatchSide
+@ServerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class DefaultResourceTypes extends ExtensionProvider implements BatchExtension, ServerExtension {
+public final class DefaultResourceTypes extends ExtensionProvider {
 
   private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
   private static final String CONFIGURABLE = "configurable";

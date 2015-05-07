@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.BatchSide;
+import org.sonar.api.config.Settings;
 import org.sonar.batch.repository.language.LanguagesRepository;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.config.Settings;
-
-public class LanguageDetectionFactory implements BatchComponent {
+@BatchSide
+public class LanguageDetectionFactory {
   private final Settings settings;
   private final LanguagesRepository languages;
 

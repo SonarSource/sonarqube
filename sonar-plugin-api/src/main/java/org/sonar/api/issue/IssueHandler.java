@@ -19,7 +19,8 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.user.User;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,9 @@ import javax.annotation.Nullable;
 /**
  * @since 3.6
  */
-public interface IssueHandler extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface IssueHandler {
 
   interface Context {
     Issue issue();

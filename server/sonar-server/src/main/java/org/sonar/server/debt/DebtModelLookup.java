@@ -22,7 +22,7 @@ package org.sonar.server.debt;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -36,7 +36,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class DebtModelLookup implements ServerComponent {
+@ServerSide
+public class DebtModelLookup {
 
   private final CharacteristicDao dao;
 

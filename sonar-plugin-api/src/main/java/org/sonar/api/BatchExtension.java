@@ -24,7 +24,9 @@ package org.sonar.api;
  * by plugins.
  *
  * @since 1.10
+ * @deprecated since 5.2 replaced by {@link BatchSide} and {@link ExtensionPoint} annotations
  */
+@Deprecated
 public interface BatchExtension extends Extension, BatchComponent {
 
 }

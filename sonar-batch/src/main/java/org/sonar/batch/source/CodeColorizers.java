@@ -24,7 +24,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.CodeColorizer;
@@ -32,7 +32,11 @@ import org.sonar.colorizer.Tokenizer;
 
 import javax.annotation.CheckForNull;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +45,8 @@ import java.util.Map;
 /**
  * Central point for sonar-colorizer extensions
  */
-public class CodeColorizers implements BatchComponent {
+@BatchSide
+public class CodeColorizers {
 
   private static final Logger LOG = LoggerFactory.getLogger(CodeColorizers.class);
 

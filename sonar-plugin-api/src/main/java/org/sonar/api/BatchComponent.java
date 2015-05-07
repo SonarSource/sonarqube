@@ -36,6 +36,9 @@ package org.sonar.api;
  * </pre>
  *
  * @since 2.2
+ * @deprecated since 5.2 use {@link BatchSide} annotation
  */
+@Deprecated
+@BatchSide
 public interface BatchComponent {
 }

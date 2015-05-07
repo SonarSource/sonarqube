@@ -20,7 +20,8 @@
 package org.sonar.api.security;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +30,9 @@ import javax.servlet.http.HttpServletRequest;
  * @see SecurityRealm
  * @since 3.1
  */
-public abstract class Authenticator implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class Authenticator {
 
   /**
    * @return true if user was successfully authenticated with specified credentials, false otherwise

@@ -21,7 +21,7 @@
 package org.sonar.server.activity;
 
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.QProfileActivity;
@@ -38,7 +38,8 @@ import java.util.Map;
  * @deprecated in 4.4 because Ruby on Rails is deprecated too !
  */
 @Deprecated
-public class RubyQProfileActivityService implements ServerComponent, Startable {
+@ServerSide
+public class RubyQProfileActivityService implements Startable {
 
   private final QProfileService service;
 
@@ -52,7 +53,7 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
   public QProfileActivityResult search(Map<String, Object> params) {
     QProfileActivityQuery query = new QProfileActivityQuery();
 
-    query.setQprofileKey((String)params.get("profileKey"));
+    query.setQprofileKey((String) params.get("profileKey"));
     Date since = RubyUtils.toDate(params.get("since"));
     if (since != null) {
       query.setSince(since);

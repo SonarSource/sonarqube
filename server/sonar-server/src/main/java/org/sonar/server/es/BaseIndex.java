@@ -19,9 +19,10 @@
  */
 package org.sonar.server.es;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
-public abstract class BaseIndex implements ServerComponent {
+@ServerSide
+public abstract class BaseIndex {
   private final EsClient client;
 
   public BaseIndex(EsClient client) {

@@ -21,14 +21,18 @@
 package org.sonar.core.computation.dbcleaner;
 
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.*;
+import org.sonar.core.purge.IdUuidPair;
+import org.sonar.core.purge.PurgeConfiguration;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeListener;
+import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
 
 import javax.annotation.Nullable;
@@ -37,7 +41,8 @@ import java.util.Date;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
-public class ProjectCleaner implements ServerComponent {
+@ServerSide
+public class ProjectCleaner {
   private static final Logger LOG = Loggers.get(ProjectCleaner.class);
 
   private final PurgeProfiler profiler;

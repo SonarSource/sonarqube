@@ -20,7 +20,7 @@
 
 package org.sonar.server.component.db;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.component.ComponentLinkDto;
 import org.sonar.core.component.db.ComponentLinkMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -28,7 +28,8 @@ import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
-public class ComponentLinkDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class ComponentLinkDao implements DaoComponent {
 
   public List<ComponentLinkDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(ComponentLinkMapper.class).selectByComponentUuid(componentUuid);

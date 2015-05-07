@@ -20,7 +20,7 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.charts.Chart;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -29,10 +29,10 @@ import javax.annotation.CheckForNull;
 
 import java.util.Map;
 
-public final class ChartFactory implements ServerComponent {
+@ServerSide
+public final class ChartFactory {
   private static final Logger LOG = Loggers.get(ChartFactory.class);
   private final Map<String, Chart> chartsByKey = Maps.newHashMap();
-
 
   public ChartFactory(Chart[] charts) {
     for (Chart chart : charts) {

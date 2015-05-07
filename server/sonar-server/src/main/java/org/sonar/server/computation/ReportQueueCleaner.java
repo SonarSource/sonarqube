@@ -21,7 +21,7 @@
 package org.sonar.server.computation;
 
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
 
 /**
@@ -32,7 +32,8 @@ import org.sonar.api.platform.ServerUpgradeStatus;
  *   <li>reset reports that were in status WORKING while server stopped</li>
  * </ul>
  */
-public class ReportQueueCleaner implements Startable, ServerComponent {
+@ServerSide
+public class ReportQueueCleaner implements Startable {
 
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final ReportQueue queue;

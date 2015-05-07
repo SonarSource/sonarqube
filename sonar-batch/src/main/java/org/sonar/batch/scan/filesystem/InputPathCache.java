@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
@@ -29,13 +29,19 @@ import org.sonar.batch.index.BatchResource;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
  * exclusion patterns are already applied.
  */
-public class InputPathCache implements BatchComponent {
+@BatchSide
+public class InputPathCache {
 
   private final Map<String, SortedMap<String, InputFile>> inputFileCache = new LinkedHashMap<>();
   private final Map<String, SortedMap<String, InputDir>> inputDirCache = new LinkedHashMap<>();

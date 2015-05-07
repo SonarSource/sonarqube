@@ -19,7 +19,12 @@
  */
 package org.sonar.batch.qualitygate;
 
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -34,6 +39,7 @@ import org.sonar.batch.report.EventCache;
 
 import java.util.List;
 
+@RequiresDB
 public class GenerateQualityGateEvents implements Decorator {
 
   private final QualityGate qualityGate;

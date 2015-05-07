@@ -20,14 +20,15 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
 
 import javax.annotation.Nullable;
 
-public class SqaleRatingSettings implements BatchComponent {
+@BatchSide
+public class SqaleRatingSettings {
 
   private final Settings settings;
 

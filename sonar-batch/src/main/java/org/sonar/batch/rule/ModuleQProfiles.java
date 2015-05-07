@@ -20,7 +20,7 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 import javax.annotation.CheckForNull;
@@ -31,7 +31,8 @@ import java.util.Map;
 /**
  * Lists the Quality profiles enabled on the current module.
  */
-public class ModuleQProfiles implements BatchComponent {
+@BatchSide
+public class ModuleQProfiles {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
   private final Map<String, QProfile> byLanguage;

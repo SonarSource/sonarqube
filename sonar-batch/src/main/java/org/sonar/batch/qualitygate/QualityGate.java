@@ -21,13 +21,14 @@ package org.sonar.batch.qualitygate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 import javax.annotation.Nullable;
 
 import java.util.Collection;
 
-public class QualityGate implements BatchComponent {
+@BatchSide
+public class QualityGate {
 
   private final String name;
 

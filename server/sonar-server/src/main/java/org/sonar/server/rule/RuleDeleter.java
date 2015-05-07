@@ -20,7 +20,7 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.persistence.DbSession;
@@ -29,7 +29,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleDoc;
 
-public class RuleDeleter implements ServerComponent {
+@ServerSide
+public class RuleDeleter {
 
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;

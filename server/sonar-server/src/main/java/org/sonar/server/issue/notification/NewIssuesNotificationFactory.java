@@ -20,13 +20,14 @@
 
 package org.sonar.server.issue.notification;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserIndex;
 
-public class NewIssuesNotificationFactory implements ServerComponent {
+@ServerSide
+public class NewIssuesNotificationFactory {
   private final UserIndex userIndex;
   private final RuleIndex ruleIndex;
   private final DbClient dbClient;

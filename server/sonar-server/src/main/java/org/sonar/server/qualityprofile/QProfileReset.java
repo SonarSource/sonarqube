@@ -24,7 +24,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
@@ -44,7 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class QProfileReset implements ServerComponent {
+@ServerSide
+public class QProfileReset {
 
   private final DbClient db;
   private final QProfileFactory factory;

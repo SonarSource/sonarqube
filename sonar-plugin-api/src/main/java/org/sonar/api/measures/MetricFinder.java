@@ -19,8 +19,8 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -32,7 +32,9 @@ import java.util.List;
  * @deprecated since 5.1 use {@link org.sonar.api.batch.measure.MetricFinder} on batch side
  */
 @Deprecated
-public interface MetricFinder extends TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface MetricFinder {
 
   @CheckForNull
   Metric findById(int id);

@@ -20,7 +20,7 @@
 package org.sonar.batch.platform;
 
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -33,7 +33,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DefaultServer extends Server implements BatchComponent {
+@BatchSide
+public class DefaultServer extends Server {
 
   private Settings settings;
   private ServerClient client;

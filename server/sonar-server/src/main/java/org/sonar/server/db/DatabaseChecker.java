@@ -23,9 +23,9 @@ import com.google.common.base.Throwables;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.Oracle;
@@ -33,7 +33,8 @@ import org.sonar.core.persistence.dialect.Oracle;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DatabaseChecker implements ServerComponent, Startable {
+@ServerSide
+public class DatabaseChecker implements Startable {
 
   public static final int ORACLE_MIN_MAJOR_VERSION = 11;
 

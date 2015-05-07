@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
@@ -32,7 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-public class FileSystemLogger implements BatchComponent {
+@BatchSide
+public class FileSystemLogger {
 
   private final DefaultModuleFileSystem fs;
 

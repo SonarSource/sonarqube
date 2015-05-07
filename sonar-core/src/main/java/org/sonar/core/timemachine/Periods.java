@@ -20,9 +20,9 @@
 package org.sonar.core.timemachine;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
@@ -30,6 +30,7 @@ import org.sonar.api.i18n.I18n;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,7 +39,9 @@ import java.util.Locale;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
 @RequiresDB
-public class Periods implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class Periods {
 
   private final Settings settings;
   private final I18n i18n;

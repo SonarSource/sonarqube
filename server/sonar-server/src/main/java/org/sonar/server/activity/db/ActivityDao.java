@@ -19,7 +19,7 @@
  */
 package org.sonar.server.activity.db;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
@@ -29,7 +29,8 @@ import org.sonar.core.persistence.MyBatis;
 
 import java.util.Date;
 
-public class ActivityDao implements DaoComponent, ServerComponent {
+@ServerSide
+public class ActivityDao implements DaoComponent {
 
   private final MyBatis mybatis;
   private final System2 system;

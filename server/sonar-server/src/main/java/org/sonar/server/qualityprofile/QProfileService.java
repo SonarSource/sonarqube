@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -37,6 +37,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -45,7 +46,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileService implements ServerComponent {
+@ServerSide
+public class QProfileService {
 
   private final DbClient db;
   private final ActivityIndex activityIndex;
@@ -57,7 +59,7 @@ public class QProfileService implements ServerComponent {
   private final QProfileExporters exporters;
 
   public QProfileService(DbClient db, ActivityIndex activityIndex, RuleActivator ruleActivator, QProfileFactory factory,
-                         QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters) {
+    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters) {
     this.db = db;
     this.activityIndex = activityIndex;
     this.ruleActivator = ruleActivator;

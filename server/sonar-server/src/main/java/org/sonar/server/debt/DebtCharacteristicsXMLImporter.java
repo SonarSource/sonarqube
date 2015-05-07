@@ -25,9 +25,10 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -37,12 +38,15 @@ import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import static org.sonar.server.debt.DebtModelXMLExporter.*;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_NAME;
 
 /**
  * Import characteristics from an xml
  */
-public class DebtCharacteristicsXMLImporter implements ServerComponent {
+@ServerSide
+public class DebtCharacteristicsXMLImporter {
 
   public DebtModel importXML(String xml) {
     return importXML(new StringReader(xml));
@@ -104,7 +108,7 @@ public class DebtCharacteristicsXMLImporter implements ServerComponent {
     }
   }
 
-  static String convertKey(String key){
+  static String convertKey(String key) {
     if ("NETWORK_USE_EFFICIENCY".equals(key)) {
       return RulesDefinition.SubCharacteristics.NETWORK_USE;
     }

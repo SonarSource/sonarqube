@@ -32,7 +32,7 @@ import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
@@ -44,7 +44,8 @@ import java.util.Set;
  *
  * @since 3.6
  */
-public class Caches implements BatchComponent, Startable {
+@BatchSide
+public class Caches implements Startable {
 
   private final Set<String> cacheNames = Sets.newHashSet();
   private File tempDir;

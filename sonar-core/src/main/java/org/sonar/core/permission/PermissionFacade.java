@@ -22,14 +22,18 @@ package org.sonar.core.permission;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserRoleDto;
 
 import javax.annotation.Nullable;
 
@@ -45,7 +49,9 @@ import java.util.List;
  *
  * WARNING, this class is called by Views to apply default permission template on new views
  */
-public class PermissionFacade implements TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class PermissionFacade {
 
   private final RoleDao roleDao;
   private final UserDao userDao;

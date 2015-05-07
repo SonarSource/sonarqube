@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
@@ -34,7 +34,8 @@ import org.sonar.core.duplication.DuplicationDao;
 
 import javax.annotation.Nullable;
 
-public class IndexFactory implements BatchComponent {
+@BatchSide
+public class IndexFactory {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexFactory.class);
 

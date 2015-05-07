@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Resource;
 
 /**
@@ -32,11 +33,13 @@ import org.sonar.api.resources.Resource;
  * @deprecated since 4.2. Analysis is file-system oriented. See {@link org.sonar.api.scan.filesystem.InputFileFilter}
  */
 @Deprecated
-public interface ResourceFilter extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface ResourceFilter {
 
   /**
    * Return true if the resource must be ignored, else it's saved into database.
    */
   boolean isIgnored(Resource resource);
-  
+
 }

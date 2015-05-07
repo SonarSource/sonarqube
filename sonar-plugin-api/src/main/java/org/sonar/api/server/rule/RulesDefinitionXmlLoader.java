@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.check.Cardinality;
@@ -81,7 +81,8 @@ import java.util.List;
  * @see org.sonar.api.server.rule.RulesDefinition
  * @since 4.3
  */
-public class RulesDefinitionXmlLoader implements ServerComponent {
+@ServerSide
+public class RulesDefinitionXmlLoader {
 
   public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
     load(repo, input, Charset.forName(encoding));

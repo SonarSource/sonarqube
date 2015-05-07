@@ -27,8 +27,8 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
@@ -36,7 +36,9 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-public class ComponentContainer implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class ComponentContainer {
 
   // no need for multiple children
   ComponentContainer parent, child;

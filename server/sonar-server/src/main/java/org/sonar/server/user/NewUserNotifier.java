@@ -19,14 +19,15 @@
  */
 package org.sonar.server.user;
 
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.platform.NewUserHandler;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * @since 3.2
  */
-public class NewUserNotifier implements ServerComponent {
+@ServerSide
+public class NewUserNotifier {
 
   private NewUserHandler[] handlers;
 

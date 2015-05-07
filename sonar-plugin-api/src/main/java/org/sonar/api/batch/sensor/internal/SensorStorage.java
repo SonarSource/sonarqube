@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
@@ -31,7 +31,8 @@ import org.sonar.api.batch.sensor.measure.Measure;
  * Interface for storing data computed by sensors.
  * @since 5.1
  */
-public interface SensorStorage extends BatchComponent {
+@BatchSide
+public interface SensorStorage {
 
   void store(Measure measure);
 

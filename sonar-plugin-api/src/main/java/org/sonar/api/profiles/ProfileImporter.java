@@ -21,7 +21,8 @@ package org.sonar.api.profiles;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 
 import java.io.Reader;
@@ -29,7 +30,9 @@ import java.io.Reader;
 /**
  * @since 2.3
  */
-public abstract class ProfileImporter implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class ProfileImporter {
 
   private String[] supportedLanguages = new String[0];
   private String importerKey;
@@ -92,9 +95,9 @@ public abstract class ProfileImporter implements ServerExtension {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("key", importerKey)
-        .append("name", importerName)
-        .append("languages", supportedLanguages)
-        .toString();
+      .append("key", importerKey)
+      .append("name", importerName)
+      .append("languages", supportedLanguages)
+      .toString();
   }
 }

@@ -29,11 +29,12 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -45,12 +46,23 @@ import java.io.StringReader;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.debt.DebtModelXMLExporter.*;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
+import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_COEFFICIENT;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_FUNCTION;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_OFFSET;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_TEXT_VALUE;
+import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_VALUE;
+import static org.sonar.server.debt.DebtModelXMLExporter.REPOSITORY_KEY;
+import static org.sonar.server.debt.DebtModelXMLExporter.RULE_KEY;
 
 /**
  * Import rules debt definitions from an XML
  */
-public class DebtRulesXMLImporter implements ServerComponent {
+@ServerSide
+public class DebtRulesXMLImporter {
 
   public List<RuleDebt> importXML(String xml, ValidationMessages validationMessages) {
     return importXML(new StringReader(xml), validationMessages);
@@ -86,7 +98,7 @@ public class DebtRulesXMLImporter implements ServerComponent {
   }
 
   private void process(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey,
-                       ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
+    ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
     String currentCharacteristicKey = null;
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {

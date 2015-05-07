@@ -21,7 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -49,7 +49,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * @deprecated in 4.4 because Ruby on Rails is deprecated too !
  */
 @Deprecated
-public class RubyRuleService implements ServerComponent, Startable {
+@ServerSide
+public class RubyRuleService implements Startable {
 
   private final RuleService service;
   private final RuleUpdater updater;
