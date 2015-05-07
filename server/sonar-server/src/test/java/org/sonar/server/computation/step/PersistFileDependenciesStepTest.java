@@ -41,7 +41,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.design.db.FileDependencyDao;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 

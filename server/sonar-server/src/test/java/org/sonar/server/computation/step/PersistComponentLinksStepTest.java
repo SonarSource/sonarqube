@@ -37,7 +37,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;

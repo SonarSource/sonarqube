@@ -36,7 +36,6 @@ import org.sonar.server.source.index.SourceLineResultSetIteratorTest;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;

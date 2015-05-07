@@ -26,7 +26,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;

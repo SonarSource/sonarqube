@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.*;
 
 public class BatchSessionTest {

@@ -31,9 +31,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.ProjectTree;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
+
 import static org.mockito.Mockito.*;
 
 public class PeriodsDefinitionTest extends AbstractDbUnitTestCase {

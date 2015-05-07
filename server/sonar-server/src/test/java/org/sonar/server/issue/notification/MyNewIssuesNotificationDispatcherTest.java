@@ -29,7 +29,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.notifications.NotificationManager;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class MyNewIssuesNotificationDispatcherTest {

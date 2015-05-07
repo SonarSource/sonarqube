@@ -20,7 +20,6 @@
 package org.sonar.api.web;
 
 import com.google.common.base.Objects;
-import org.sonar.api.source.Highlightable;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.colorizer.Tokenizer;
 

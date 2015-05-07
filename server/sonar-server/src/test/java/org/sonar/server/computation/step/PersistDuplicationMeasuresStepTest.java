@@ -40,7 +40,6 @@ import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;

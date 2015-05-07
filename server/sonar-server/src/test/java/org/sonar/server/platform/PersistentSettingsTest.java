@@ -27,7 +27,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Properties;
 

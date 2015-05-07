@@ -21,8 +21,6 @@ package org.sonar.server.computation.step;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

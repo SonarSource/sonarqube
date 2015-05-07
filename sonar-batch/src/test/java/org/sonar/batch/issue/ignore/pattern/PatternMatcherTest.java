@@ -31,7 +31,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
-import java.io.IOException;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;

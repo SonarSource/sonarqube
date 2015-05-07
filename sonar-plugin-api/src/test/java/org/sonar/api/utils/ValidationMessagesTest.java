@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.utils.log.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class ValidationMessagesTest {

@@ -22,8 +22,6 @@ package org.sonar.api.database.model;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 
-import java.io.UnsupportedEncodingException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureModelTest {

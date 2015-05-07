@@ -37,9 +37,6 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.notifications.NotificationService;
 
-import java.io.IOException;
-
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class SendIssueNotificationsStepTest extends BaseStepTest {

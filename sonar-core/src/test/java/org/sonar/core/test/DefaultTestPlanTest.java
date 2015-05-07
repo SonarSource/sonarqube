@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.test.MutableTestCase;
-import org.sonar.api.test.TestPlan;
 import org.sonar.core.graph.BeanGraph;
 
 import static org.assertj.core.api.Assertions.assertThat;

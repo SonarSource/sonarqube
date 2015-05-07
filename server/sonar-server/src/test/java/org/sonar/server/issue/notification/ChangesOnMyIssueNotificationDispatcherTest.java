@@ -29,7 +29,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.notifications.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -39,8 +39,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.db.RuleDao;
 
-import java.io.IOException;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

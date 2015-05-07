@@ -34,7 +34,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.WsTester;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

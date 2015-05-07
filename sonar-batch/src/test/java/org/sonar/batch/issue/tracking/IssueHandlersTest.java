@@ -30,7 +30,6 @@ import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Date;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class IssueHandlersTest {

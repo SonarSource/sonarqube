@@ -29,7 +29,6 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessProperties;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.DriverManager;
 
 import static junit.framework.Assert.fail;

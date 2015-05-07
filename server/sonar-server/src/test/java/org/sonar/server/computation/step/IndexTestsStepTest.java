@@ -38,7 +38,6 @@ import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 

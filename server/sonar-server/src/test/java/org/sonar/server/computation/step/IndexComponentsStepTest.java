@@ -26,8 +26,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
 
-import java.io.IOException;
-
 import static org.mockito.Mockito.*;
 
 public class IndexComponentsStepTest extends BaseStepTest {

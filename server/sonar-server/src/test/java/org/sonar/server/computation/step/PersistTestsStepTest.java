@@ -44,7 +44,6 @@ import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 

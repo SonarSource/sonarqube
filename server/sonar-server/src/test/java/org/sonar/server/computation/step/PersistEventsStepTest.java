@@ -37,7 +37,6 @@ import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

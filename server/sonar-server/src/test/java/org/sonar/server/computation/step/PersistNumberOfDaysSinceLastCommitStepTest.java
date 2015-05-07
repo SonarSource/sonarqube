@@ -41,7 +41,6 @@ import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 
 import static org.mockito.Matchers.anyString;

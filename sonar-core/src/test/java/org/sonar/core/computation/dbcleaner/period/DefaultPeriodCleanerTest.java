@@ -36,9 +36,6 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.Arrays;
 
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class DefaultPeriodCleanerTest {

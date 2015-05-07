@@ -44,12 +44,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class PersistMeasuresStepTest extends BaseStepTest {

@@ -28,7 +28,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class ActivityServerIdTest {

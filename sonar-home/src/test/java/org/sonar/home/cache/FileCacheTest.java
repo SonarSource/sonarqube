@@ -29,7 +29,6 @@ import org.sonar.home.log.Slf4jLog;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

@@ -25,7 +25,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.server.util.CloseableIterator;
 
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 

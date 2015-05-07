@@ -38,7 +38,6 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 

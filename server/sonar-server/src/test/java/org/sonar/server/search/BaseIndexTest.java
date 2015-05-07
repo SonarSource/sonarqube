@@ -29,7 +29,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;

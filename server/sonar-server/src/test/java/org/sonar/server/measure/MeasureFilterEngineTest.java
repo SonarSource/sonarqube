@@ -27,8 +27,6 @@ import org.junit.Test;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.*;
 
 public class MeasureFilterEngineTest {

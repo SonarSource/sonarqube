@@ -19,7 +19,6 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;

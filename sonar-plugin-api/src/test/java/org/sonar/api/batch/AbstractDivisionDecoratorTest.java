@@ -20,7 +20,6 @@
 package org.sonar.api.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;

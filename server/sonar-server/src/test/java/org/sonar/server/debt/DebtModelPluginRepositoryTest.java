@@ -34,7 +34,6 @@ import org.sonar.api.platform.PluginRepository;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

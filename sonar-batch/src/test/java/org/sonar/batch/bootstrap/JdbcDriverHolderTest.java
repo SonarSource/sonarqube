@@ -31,8 +31,6 @@ import org.sonar.home.cache.FileCache;
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class JdbcDriverHolderTest {
