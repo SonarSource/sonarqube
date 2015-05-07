@@ -34,6 +34,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorDao;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
@@ -85,6 +86,7 @@ public class DbClient implements ServerComponent {
   private final UserDao userDao;
   private final GroupDao groupDao;
   private final UserGroupDao userGroupDao;
+  private final GroupMembershipDao groupMembershipDao;
   private final IssueDao issueDao;
   private final IssueFilterDao issueFilterDao;
   private final IssueChangeDao issueChangeDao;
@@ -124,6 +126,7 @@ public class DbClient implements ServerComponent {
     userDao = getDao(map, UserDao.class);
     groupDao = getDao(map, GroupDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
+    groupMembershipDao = getDao(map, GroupMembershipDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueFilterDao = getDao(map, IssueFilterDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
@@ -222,6 +225,10 @@ public class DbClient implements ServerComponent {
 
   public UserGroupDao userGroupDao() {
     return userGroupDao;
+  }
+
+  public GroupMembershipDao groupMembershipDao() {
+    return groupMembershipDao;
   }
 
   public ActionPlanDao actionPlanDao() {

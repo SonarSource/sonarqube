@@ -1,0 +1,7 @@
+{
+  "p": 1,
+  "total": 1,
+  "groups": [
+    {"name": "sonar-users", "description": "Sonar Users", "selected": true}
+  ]
+}

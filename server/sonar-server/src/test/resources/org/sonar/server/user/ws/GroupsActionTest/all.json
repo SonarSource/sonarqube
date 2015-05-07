@@ -1,0 +1,8 @@
+{
+  "p": 1,
+  "total": 2,
+  "groups": [
+    {"name": "sonar-admins", "description": "Sonar Admins", "selected": false},
+    {"name": "sonar-users", "description": "Sonar Users", "selected": true}
+  ]
+}
