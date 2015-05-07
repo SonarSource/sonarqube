@@ -29,7 +29,6 @@
     "istanbul-middleware": "0.2.0",
     "jade": "1.4.2",
     "jit-grunt": "0.9.1",
-    "phantomjs": "1.9.7-12",
     "serve-static": "1.5.0"
   },
   "scripts": {
