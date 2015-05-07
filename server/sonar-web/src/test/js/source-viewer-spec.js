@@ -379,12 +379,9 @@ casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
         lib.mockRequestFromFile('/api/metrics', 'metrics.json');
         lib.mockRequestFromFile('/api/resources', 'measures-test.json',
             { data: { resource: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
-        lib.mockRequestFromFile('/api/tests/show', 'tests.json',
-            { data: { key: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
-        lib.mockRequestFromFile('/api/tests/covered_files', 'covered-files.json', { data: {
-          key: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java',
-          test: 'test1'
-        } });
+        lib.mockRequestFromFile('/api/tests/list', 'tests.json', { data: { testFileUuid: 'uuid' } });
+        lib.mockRequestFromFile('/api/tests/covered_files', 'covered-files.json',
+            { data: { testUuid: 'test-uuid-1' } });
       })
 
       .then(function () {
@@ -469,7 +466,7 @@ casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
       })
 
       .then(function () {
-        casper.click('.js-show-test[data-name="test1"]');
+        casper.click('.js-show-test[data-id="test-uuid-1"]');
         casper.waitForText('src/main/java/com/sonar/CoveredFile1.java');
       })
 

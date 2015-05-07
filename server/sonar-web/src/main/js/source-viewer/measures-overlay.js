@@ -166,8 +166,8 @@ define([
 
     requestTests: function () {
       var that = this,
-          url = baseUrl + '/api/tests/show',
-          options = { key: this.model.key() };
+          url = baseUrl + '/api/tests/list',
+          options = { testFileUuid: this.model.id };
       return $.get(url, options).done(function (data) {
         that.model.set({ tests: data.tests });
         that.testSorting = 'status';
@@ -221,16 +221,13 @@ define([
 
     showTest: function (e) {
       var that = this,
-          name = $(e.currentTarget).data('name'),
+          testUuid = $(e.currentTarget).data('id'),
           url = baseUrl + '/api/tests/covered_files',
-          options = {
-            key: this.model.key(),
-            test: name
-          };
+          options = { testUuid: testUuid };
       this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
       return $.get(url, options).done(function (data) {
         that.coveredFiles = data.files;
-        that.selectedTest = _.findWhere(that.model.get('tests'), { name: name });
+        that.selectedTest = _.findWhere(that.model.get('tests'), { testUuid: testUuid });
         that.render();
       });
     },
