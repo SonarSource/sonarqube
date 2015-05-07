@@ -33,7 +33,6 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeListener;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.properties.ProjectSettingsFactory;
 
 import java.util.Date;
 
@@ -46,14 +45,11 @@ public class ProjectCleanerTest {
   private PurgeProfiler profiler= mock(PurgeProfiler.class);
   private DefaultPeriodCleaner periodCleaner= mock(DefaultPeriodCleaner.class);
   private PurgeListener purgeListener= mock(PurgeListener.class);
-  private ProjectSettingsFactory projectSettingsFactory;
   private IssueIndex issueIndex= mock(IssueIndex.class);
   private Settings settings = new Settings();
 
   @Before
   public void before() {
-    this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
-
     this.sut = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, issueIndex);
   }
 
