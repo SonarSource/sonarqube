@@ -172,8 +172,8 @@ public class DebtModelOperations implements ServerComponent {
       }
     });
     Integer nextPosition = moveUpOrDown ?
-      ((currentPosition > 0) ? (currentPosition - 1) : null) :
-      ((currentPosition < (rootCharacteristics.size() - 1)) ? (currentPosition + 1) : null);
+      (currentPosition > 0 ? currentPosition - 1 : null) :
+      ((currentPosition < rootCharacteristics.size() - 1) ? currentPosition + 1 : null);
     return (nextPosition != null) ? Iterables.get(rootCharacteristics, nextPosition) : null;
   }
 

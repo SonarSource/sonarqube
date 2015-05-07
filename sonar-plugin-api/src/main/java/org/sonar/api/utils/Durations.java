@@ -114,15 +114,15 @@ public class Durations implements BatchComponent, ServerComponent {
   private String format(Locale locale, int days, int hours, int minutes, boolean isNegative){
     StringBuilder message = new StringBuilder();
     if (days > 0) {
-      message.append(message(locale, "work_duration.x_days", isNegative ? (-1 * days) : days));
+      message.append(message(locale, "work_duration.x_days", isNegative ? -1 * days : days));
     }
     if (displayHours(days, hours)) {
       addSpaceIfNeeded(message);
-      message.append(message(locale, "work_duration.x_hours", (isNegative && message.length() == 0) ? (-1 * hours) : hours));
+      message.append(message(locale, "work_duration.x_hours", isNegative && message.length() == 0 ? -1 * hours : hours));
     }
     if (displayMinutes(days, hours, minutes)) {
       addSpaceIfNeeded(message);
-      message.append(message(locale, "work_duration.x_minutes", (isNegative && message.length() == 0) ? (-1 * minutes) : minutes));
+      message.append(message(locale, "work_duration.x_minutes", isNegative && message.length() == 0 ? -1 * minutes : minutes));
     }
     return message.toString();
   }
