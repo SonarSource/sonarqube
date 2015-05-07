@@ -82,6 +82,8 @@ public class MeasureDaoTest {
 
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
     assertThat(result.getId()).isEqualTo(21);
+    assertThat(result.getComponentId()).isEqualTo(1);
+    assertThat(result.getSnapshotId()).isEqualTo(5);
     assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }
 

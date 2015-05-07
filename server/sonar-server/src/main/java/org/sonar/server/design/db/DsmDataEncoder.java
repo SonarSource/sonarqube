@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.design;
+package org.sonar.server.design.db;
 
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.io.IOUtils;
-import org.sonar.server.design.db.DsmDb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

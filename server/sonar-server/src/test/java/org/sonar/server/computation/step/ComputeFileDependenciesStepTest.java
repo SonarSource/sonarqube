@@ -31,11 +31,11 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.design.DsmDataEncoder;
 import org.sonar.server.computation.design.FileDependenciesCache;
 import org.sonar.server.computation.design.FileDependency;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasuresCache;
+import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
 import org.sonar.server.measure.ServerMetrics;
 

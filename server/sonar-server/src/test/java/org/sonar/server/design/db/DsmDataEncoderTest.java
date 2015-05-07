@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.design;
+package org.sonar.server.design.db;
 
 import org.junit.Test;
-import org.sonar.server.design.db.DsmDb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

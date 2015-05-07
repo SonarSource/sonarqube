@@ -39,7 +39,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class PersistMeasuresStep implements ComputationStep {
+public class PersistReportMeasuresStep implements ComputationStep {
 
   /**
    * List of metrics that should not be received from the report, as they should only by fed by the compute engine
@@ -50,7 +50,7 @@ public class PersistMeasuresStep implements ComputationStep {
   private final RuleCache ruleCache;
   private final MetricCache metricCache;
 
-  public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache) {
+  public PersistReportMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache) {
     this.dbClient = dbClient;
     this.ruleCache = ruleCache;
     this.metricCache = metricCache;
@@ -63,7 +63,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @Override
   public String getDescription() {
-    return "Persist measures";
+    return "Persist report measures";
   }
 
   @Override

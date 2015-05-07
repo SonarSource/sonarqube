@@ -8,11 +8,11 @@
 
   <snapshots id="5" project_id="1" islast="[true]" />
 
-  <project_measures id="20" snapshot_id="5" metric_id="10" value="[null]" text_value="0123456789012345678901234567890123456789" measure_data="[null]"
+  <project_measures id="20" snapshot_id="5" project_id="1" metric_id="10" value="[null]" text_value="0123456789012345678901234567890123456789" measure_data="[null]"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]" />
-  <project_measures id="21" snapshot_id="5" metric_id="11" value="[null]" text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1" measure_data="[null]"
+  <project_measures id="21" snapshot_id="5" project_id="1" metric_id="11" value="[null]" text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1" measure_data="[null]"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]" />
-  <project_measures id="22" snapshot_id="5" metric_id="12" value="10" text_value="[null]" measure_data="[null]"
+  <project_measures id="22" snapshot_id="5" project_id="1" metric_id="12" value="10" text_value="[null]" measure_data="[null]"
                     variation_value_1="1" variation_value_2="2" variation_value_3="3" variation_value_4="4" variation_value_5="-5"/>
 
 </dataset>

@@ -58,8 +58,11 @@ public class DsmDataBuilderTest {
     graph.addEdge(new FileDependency(2, 1, 2));
     graph.addEdge(new FileDependency(3, 1, 4));
 
-    DsmDb.Data result = DsmDataBuilder.build(new Dsm<>(graph), new MockComponentUuidsCache(ImmutableMap.of(1, "A", 2, "B", 3, "C")));
+    Dsm<Integer> fileDependencyDsm = new Dsm<>(graph);
+    DsmDb.Data result = DsmDataBuilder.build(fileDependencyDsm, new MockComponentUuidsCache(ImmutableMap.of(1, "A", 2, "B", 3, "C")));
     assertThat(result.getUuidCount()).isEqualTo(3);
+    assertThat(result.getUuidList()).containsExactly("A", "B", "C");
+
     assertThat(result.getCellCount()).isEqualTo(3);
     assertThat(result.getCell(0).getOffset()).isEqualTo(3);
     assertThat(result.getCell(0).getWeight()).isEqualTo(2);

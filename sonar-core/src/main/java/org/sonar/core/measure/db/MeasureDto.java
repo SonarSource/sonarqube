@@ -42,7 +42,7 @@ public class MeasureDto {
   private String description;
   private Integer severityIndex;
 
-  private Long projectId;
+  private Long componentId;
   private Long snapshotId;
   private Integer metricId;
   private Integer ruleId;
@@ -177,11 +177,11 @@ public class MeasureDto {
   }
 
   public Long getComponentId() {
-    return projectId;
+    return componentId;
   }
 
   public MeasureDto setComponentId(Long componentId) {
-    this.projectId = componentId;
+    this.componentId = componentId;
     return this;
   }
 

@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.server.measure.ServerMetrics;
 
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class RegisterMetrics {
 
     List<Metric> metricsToRegister = newArrayList();
     metricsToRegister.addAll(CoreMetrics.getMetrics());
+    metricsToRegister.addAll(ServerMetrics.getMetrics());
     metricsToRegister.addAll(getMetricsRepositories());
     register(metricsToRegister);
     cleanAlerts();

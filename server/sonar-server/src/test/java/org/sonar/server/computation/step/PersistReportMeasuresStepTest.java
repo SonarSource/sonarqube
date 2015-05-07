@@ -44,13 +44,18 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class PersistMeasuresStepTest extends BaseStepTest {
+public class PersistReportMeasuresStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -60,12 +65,12 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   MetricCache metricCache;
   MeasureDao measureDao;
 
-  PersistMeasuresStep sut;
+  PersistReportMeasuresStep sut;
 
   private BatchReport.Component component;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
     ruleCache = mock(RuleCache.class, Mockito.RETURNS_DEEP_STUBS);
     metricCache = mock(MetricCache.class, Mockito.RETURNS_DEEP_STUBS);
@@ -73,7 +78,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureDao = mock(MeasureDao.class);
     when(ruleCache.get(any(RuleKey.class)).getId()).thenReturn(987);
 
-    sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache);
+    sut = new PersistReportMeasuresStep(dbClient, ruleCache, metricCache);
 
     component = defaultComponent().build();
   }
@@ -154,7 +159,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_full_batch_measure() {
+  public void map_full_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.DOUBLE)
       .setDoubleValue(123.123d)
@@ -179,7 +184,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_minimal_batch_measure() {
+  public void map_minimal_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.INT)
       .setMetricKey("metric-key")
@@ -191,7 +196,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_boolean_batch_measure() {
+  public void map_boolean_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.BOOLEAN)
       .setBooleanValue(true)
@@ -223,7 +228,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_double_batch_measure() {
+  public void map_double_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.DOUBLE)
       .setDoubleValue(3.2)
@@ -245,7 +250,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_int_batch_measure() {
+  public void map_int_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.INT)
       .setIntValue(3)
@@ -267,7 +272,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void map_long_batch_measure() {
+  public void map_long_batch_measure() throws Exception {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(Constants.MeasureValueType.LONG)
       .setLongValue(3L)
@@ -289,7 +294,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_when_no_metric_key() {
+  public void fail_when_no_metric_key() throws Exception {
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
       .setValueType(MeasureValueType.STRING)
       .setStringValue("string-value")
@@ -300,7 +305,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_when_no_value() {
+  public void fail_when_no_value() throws Exception {
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
       .setMetricKey("repo:metric-key")
       .build();
@@ -310,7 +315,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void fail_when_forbid_metric() {
+  public void fail_when_forbid_metric() throws Exception {
     BatchReport.Measure measure = BatchReport.Measure.newBuilder()
       .setMetricKey("duplications_data")
       .build();
@@ -347,7 +352,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() {
+  protected ComputationStep step() throws IOException {
     return sut;
   }
 }

@@ -5,6 +5,7 @@
 
   <sql id="measureColumns">
     pm.id,
+    pm.project_id as componentId,
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
@@ -76,7 +77,7 @@
     VALUES (
     #{value, jdbcType=DOUBLE}, #{metricId, jdbcType=INTEGER}, #{snapshotId, jdbcType=INTEGER},
     #{ruleId, jdbcType=INTEGER}, #{textValue, jdbcType=VARCHAR},
-    #{projectId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
+    #{componentId, jdbcType=INTEGER}, #{alertStatus, jdbcType=VARCHAR}, #{alertText, jdbcType=VARCHAR},
     #{description, jdbcType=VARCHAR}, #{severityIndex, jdbcType=INTEGER}, #{characteristicId, jdbcType=INTEGER},
     #{personId, jdbcType=INTEGER}, #{variation1, jdbcType=DOUBLE}, #{variation2, jdbcType=DOUBLE}, #{variation3, jdbcType=DOUBLE},
     #{variation4, jdbcType=DOUBLE}, #{variation5, jdbcType=DOUBLE}, #{dataValue, jdbcType=BINARY}

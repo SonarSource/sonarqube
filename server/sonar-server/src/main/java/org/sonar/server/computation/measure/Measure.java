@@ -38,6 +38,7 @@ public class Measure implements Serializable {
     return componentUuid;
   }
 
+  // TODO Is it usefull as it will be stored in a cache by component ref ?
   public Measure setComponentUuid(String componentUuid) {
     this.componentUuid = componentUuid;
     return this;

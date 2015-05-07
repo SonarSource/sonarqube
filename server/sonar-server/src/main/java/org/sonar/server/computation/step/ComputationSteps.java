@@ -45,7 +45,8 @@ public class ComputationSteps {
 
       // Persist data
       PersistNumberOfDaysSinceLastCommitStep.class,
-      PersistMeasuresStep.class,
+      PersistReportMeasuresStep.class,
+      PersistComputeMeasuresStep.class,
       PersistIssuesStep.class,
       PersistComponentLinksStep.class,
       PersistEventsStep.class,
