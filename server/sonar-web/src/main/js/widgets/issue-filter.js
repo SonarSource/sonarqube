@@ -319,7 +319,7 @@ define(['templates/widgets'], function () {
           var items = that.sortItems(that.withLabels(that.withLink(that.filterItems(r.facets[0].values))));
           that.model.set({
             items: items,
-            maxResultsReached: r.facets[0].values.length >= FACET_LIMIT,
+            maxResultsReached: items.length >= FACET_LIMIT,
             maxResults: items.length,
             total: r.total
           });
