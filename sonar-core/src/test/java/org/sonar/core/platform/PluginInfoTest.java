@@ -182,7 +182,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getOrganizationName()).isEqualTo("SonarSource");
     assertThat(pluginInfo.getOrganizationUrl()).isEqualTo("http://sonarsource.com");
     assertThat(pluginInfo.getMinimalSqVersion().getName()).isEqualTo("4.5.1");
-    assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsExactly("java", "pmd");
+    assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
     assertThat(pluginInfo.isCore()).isTrue();
   }
 
