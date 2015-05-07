@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -30,7 +30,8 @@ import org.sonar.core.persistence.MyBatis;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public class PastSnapshotFinderByPreviousVersion implements BatchExtension {
+@BatchSide
+public class PastSnapshotFinderByPreviousVersion {
 
   private final DatabaseSession session;
   private final MyBatis mybatis;

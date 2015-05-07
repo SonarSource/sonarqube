@@ -20,12 +20,13 @@
 
 package org.sonar.core.computation.dbcleaner;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.purge.PurgeListener;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
-public class IndexPurgeListener implements PurgeListener, ServerComponent {
+@ServerSide
+public class IndexPurgeListener implements PurgeListener {
   private final SourceLineIndexer sourceLineIndexer;
   private final TestIndexer testIndexer;
 

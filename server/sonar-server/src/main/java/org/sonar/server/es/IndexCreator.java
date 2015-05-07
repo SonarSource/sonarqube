@@ -25,7 +25,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -34,7 +34,8 @@ import java.util.Map;
 /**
  * Creates/deletes all indices in Elasticsearch during server startup.
  */
-public class IndexCreator implements ServerComponent, Startable {
+@ServerSide
+public class IndexCreator implements Startable {
 
   private static final Logger LOGGER = Loggers.get(IndexCreator.class);
 

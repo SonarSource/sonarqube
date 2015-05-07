@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Views implements ServerComponent {
+@ServerSide
+public class Views {
 
   private Map<String, ViewProxy<Page>> pagesPerId = Maps.newHashMap();
   private Set<ViewProxy<Page>> pages = Sets.newTreeSet();

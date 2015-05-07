@@ -22,18 +22,21 @@ package org.sonar.core.technicaldebt.db;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class CharacteristicDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class CharacteristicDao implements DaoComponent {
 
   private final MyBatis mybatis;
 

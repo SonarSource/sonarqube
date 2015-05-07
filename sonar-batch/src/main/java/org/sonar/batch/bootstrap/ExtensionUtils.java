@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
@@ -41,8 +41,8 @@ public class ExtensionUtils {
     return InstantiationStrategy.PER_PROJECT.equals(strategy);
   }
 
-  public static boolean isBatchExtension(Object extension) {
-    return isType(extension, BatchExtension.class);
+  public static boolean isBatchSide(Object extension) {
+    return AnnotationUtils.getAnnotation(extension, BatchSide.class) != null;
   }
 
   public static boolean supportsEnvironment(Object extension, EnvironmentInformation environment) {

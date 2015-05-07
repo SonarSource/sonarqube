@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.internal.DefaultIssue;
 
-public class IssueFilters implements BatchComponent {
+@BatchSide
+public class IssueFilters {
 
   private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;

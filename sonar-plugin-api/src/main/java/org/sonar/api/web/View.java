@@ -19,12 +19,15 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 1.11
  */
-public interface View extends ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface View {
 
   String getId();
 

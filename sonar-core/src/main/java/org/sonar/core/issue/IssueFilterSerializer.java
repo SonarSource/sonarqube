@@ -23,7 +23,7 @@ package org.sonar.core.issue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +32,8 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssueFilterSerializer implements ServerComponent {
+@ServerSide
+public class IssueFilterSerializer {
 
   public static final String SEPARATOR = "|";
   public static final String KEY_VALUE_SEPARATOR = "=";
@@ -60,7 +61,7 @@ public class IssueFilterSerializer implements ServerComponent {
         if (!valuesList.isEmpty()) {
           stringBuilder.append(key);
           stringBuilder.append(IssueFilterSerializer.KEY_VALUE_SEPARATOR);
-          for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext(); ) {
+          for (Iterator<Object> valueListIter = valuesList.iterator(); valueListIter.hasNext();) {
             Object valueList = valueListIter.next();
             stringBuilder.append(valueList);
             if (valueListIter.hasNext()) {

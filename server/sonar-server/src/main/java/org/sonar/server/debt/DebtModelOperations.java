@@ -24,7 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.System2;
@@ -45,7 +45,8 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
-public class DebtModelOperations implements ServerComponent {
+@ServerSide
+public class DebtModelOperations {
 
   private final DbClient dbClient;
   private final System2 system2;

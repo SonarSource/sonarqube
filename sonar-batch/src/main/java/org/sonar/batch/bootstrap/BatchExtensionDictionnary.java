@@ -23,7 +23,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
@@ -126,15 +125,15 @@ public class BatchExtensionDictionnary {
     return result;
   }
 
-  protected List<Object> getExtensions(@Nullable Class type) {
+  protected List<Object> getExtensions(Class type) {
     List<Object> extensions = Lists.newArrayList();
     completeBatchExtensions(componentContainer, extensions, type);
     return extensions;
   }
 
-  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, @Nullable Class type) {
+  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, Class type) {
     if (container != null) {
-      extensions.addAll(container.getComponentsByType(type != null ? type : BatchExtension.class));
+      extensions.addAll(container.getComponentsByType(type));
       completeBatchExtensions(container.getParent(), extensions, type);
     }
   }

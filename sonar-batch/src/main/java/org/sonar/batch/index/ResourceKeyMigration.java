@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
@@ -43,7 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ResourceKeyMigration implements BatchComponent {
+@BatchSide
+public class ResourceKeyMigration {
 
   private static final String UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND = "Unable to update component {}. No match was found.";
   private static final String COMPONENT_CHANGED_TO = "Component {} changed to {}";

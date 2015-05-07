@@ -20,12 +20,14 @@
 package org.sonar.core.dashboard;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
-public class DashboardDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class DashboardDao implements DaoComponent {
 
   private MyBatis mybatis;
 

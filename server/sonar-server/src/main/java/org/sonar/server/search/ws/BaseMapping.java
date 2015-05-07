@@ -21,7 +21,7 @@ package org.sonar.server.search.ws;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
@@ -36,7 +36,8 @@ import java.util.Set;
 /**
  * Mapping of search documents (see {@link org.sonar.server.search.BaseDoc}) to WS JSON responses
  */
-public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerComponent {
+@ServerSide
+public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
 
   private final Multimap<String, String> indexFieldsByWsFields = LinkedHashMultimap.create();
   private final Multimap<String, Mapper> mappers = LinkedHashMultimap.create();
@@ -132,7 +133,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
   /**
    * String field
    */
-  public static class IndexStringMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
+  public static class IndexStringMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
     protected final String key;
 
     public IndexStringMapper(String key, String indexKey, String defaultIndexKey) {
@@ -156,7 +157,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
     }
   }
 
-  public static class IndexBooleanMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
+  public static class IndexBooleanMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
     private final String key;
 
     public IndexBooleanMapper(String key, String indexKey) {
@@ -171,7 +172,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
     }
   }
 
-  public static class IndexArrayMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
+  public static class IndexArrayMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
     private final String key;
 
     public IndexArrayMapper(String key, String indexKey) {
@@ -188,7 +189,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
     }
   }
 
-  public static class IndexDatetimeMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
+  public static class IndexDatetimeMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
     private final String key;
 
     public IndexDatetimeMapper(String key, String indexKey) {

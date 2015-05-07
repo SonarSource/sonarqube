@@ -19,7 +19,7 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.io.File;
 import java.util.List;
@@ -27,7 +27,8 @@ import java.util.List;
 /**
  * @since 2.3
  */
-public interface ServerFileSystem extends ServerComponent {
+@ServerSide
+public interface ServerFileSystem {
 
   File getHomeDir();
 

@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.core.persistence.DaoComponent;
@@ -44,7 +44,9 @@ import static com.google.common.collect.Maps.newHashMap;
 /**
  * @since 3.6
  */
-public class IssueChangeDao implements DaoComponent, BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class IssueChangeDao implements DaoComponent {
 
   private final MyBatis mybatis;
 

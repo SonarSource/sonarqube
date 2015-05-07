@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -35,7 +35,8 @@ import java.util.Collection;
  *
  * @since 4.2
  */
-public interface ActiveRules extends BatchComponent {
+@BatchSide
+public interface ActiveRules {
 
   /**
    * Find a {@link ActiveRule} by the associated rule key. <code>null</code>

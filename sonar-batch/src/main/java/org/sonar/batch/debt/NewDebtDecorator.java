@@ -20,15 +20,13 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.batch.components.Period;
-
-import org.sonar.batch.components.TimeMachineConfiguration;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -38,6 +36,8 @@ import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
@@ -50,6 +50,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Decorator that computes the technical debt metric
  */
+@RequiresDB
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
 public final class NewDebtDecorator implements Decorator {
 

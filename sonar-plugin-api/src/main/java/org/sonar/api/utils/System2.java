@@ -20,8 +20,8 @@
 package org.sonar.api.utils;
 
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -63,7 +63,9 @@ import java.util.TimeZone;
  *
  * @since 4.2
  */
-public class System2 implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class System2 {
 
   public static final System2 INSTANCE = new System2();
 

@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -32,7 +32,8 @@ import org.sonar.batch.events.EventBus;
 
 import java.util.Collection;
 
-public class PostJobsExecutor implements BatchComponent {
+@BatchSide
+public class PostJobsExecutor {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobsExecutor.class);
 
   private final BatchExtensionDictionnary selector;

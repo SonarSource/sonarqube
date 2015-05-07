@@ -19,16 +19,18 @@
  */
 package org.sonar.core.platform;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.Plugin;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.Collection;
 
 /**
  * Provides information about the plugins installed in the dependency injection container
  */
-public interface PluginRepository extends BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface PluginRepository {
 
   Collection<PluginInfo> getPluginInfos();
 

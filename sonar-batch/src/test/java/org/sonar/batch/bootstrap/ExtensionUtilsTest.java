@@ -20,8 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
@@ -52,12 +53,13 @@ public class ExtensionUtilsTest {
   }
 
   @Test
-  public void testIsBatchExtension() {
-    assertThat(ExtensionUtils.isBatchExtension(BatchService.class)).isTrue();
-    assertThat(ExtensionUtils.isBatchExtension(new BatchService())).isTrue();
+  public void testIsBatchSide() {
+    assertThat(ExtensionUtils.isBatchSide(BatchService.class)).isTrue();
+    assertThat(ExtensionUtils.isBatchSide(new BatchService())).isTrue();
+    assertThat(ExtensionUtils.isBatchSide(DeprecatedBatchService.class)).isTrue();
 
-    assertThat(ExtensionUtils.isBatchExtension(ServerService.class)).isFalse();
-    assertThat(ExtensionUtils.isBatchExtension(new ServerService())).isFalse();
+    assertThat(ExtensionUtils.isBatchSide(ServerService.class)).isFalse();
+    assertThat(ExtensionUtils.isBatchSide(new ServerService())).isFalse();
   }
 
   @Test
@@ -87,36 +89,47 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.requiresDB(new PersistentService())).isTrue();
   }
 
+  @BatchSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  public static class BatchService implements BatchExtension {
+  public static class BatchService {
 
   }
 
+  public static class DeprecatedBatchService implements BatchComponent {
+
+  }
+
+  @BatchSide
   @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
-  public static class ProjectService implements BatchExtension {
+  public static class ProjectService {
 
   }
 
-  public static class DefaultService implements BatchExtension {
+  @BatchSide
+  public static class DefaultService {
 
   }
 
-  public static class ServerService implements ServerExtension {
+  @ServerSide
+  public static class ServerService {
 
   }
 
+  @BatchSide
   @SupportedEnvironment("maven")
-  public static class MavenService implements BatchExtension {
+  public static class MavenService {
 
   }
 
+  @BatchSide
   @SupportedEnvironment({"maven", "ant", "gradle"})
-  public static class BuildToolService implements BatchExtension {
+  public static class BuildToolService {
 
   }
 
+  @BatchSide
   @RequiresDB
-  public static class PersistentService implements BatchExtension {
+  public static class PersistentService {
 
   }
 }

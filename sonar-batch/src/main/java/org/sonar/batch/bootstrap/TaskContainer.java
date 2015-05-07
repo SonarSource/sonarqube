@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.components.PastMeasuresLoader;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.core.platform.ComponentContainer;
@@ -35,8 +33,6 @@ import org.sonar.batch.deprecated.tasks.Tasks;
 import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
-import org.sonar.batch.scan.measure.DefaultMetricFinder;
-import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.DefaultResourcePermissions;
 
@@ -49,13 +45,11 @@ public class TaskContainer extends ComponentContainer {
 
   private final Map<String, String> taskProperties;
   private final Object[] components;
-  private final DefaultAnalysisMode analysisMode;
 
   public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties, Object... components) {
     super(parent);
     this.taskProperties = taskProperties;
     this.components = components;
-    analysisMode = parent.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
@@ -63,22 +57,9 @@ public class TaskContainer extends ComponentContainer {
     installCoreTasks();
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
-    addCoreComponents();
-    if (analysisMode.isDb()) {
-      addDataBaseComponents();
-    }
     for (Object component : components) {
       add(component);
     }
-  }
-
-  private void addDataBaseComponents() {
-    add(PastMeasuresLoader.class);
-  }
-
-  private void addCoreComponents() {
-    add(DefaultMetricFinder.class,
-      DeprecatedMetricFinder.class);
   }
 
   void installCoreTasks() {

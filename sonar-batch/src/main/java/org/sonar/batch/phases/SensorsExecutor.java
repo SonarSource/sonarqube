@@ -20,7 +20,7 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -29,22 +29,21 @@ import org.sonar.batch.events.EventBus;
 
 import java.util.Collection;
 
-public class SensorsExecutor implements BatchComponent {
+@BatchSide
+public class SensorsExecutor {
 
   private EventBus eventBus;
   private Project module;
   private BatchExtensionDictionnary selector;
-  private final SensorMatcher sensorMatcher;
 
-  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus, SensorMatcher sensorMatcher) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, Project project, EventBus eventBus) {
     this.selector = selector;
     this.eventBus = eventBus;
     this.module = project;
-    this.sensorMatcher = sensorMatcher;
   }
 
   public void execute(SensorContext context) {
-    Collection<Sensor> sensors = selector.select(Sensor.class, module, true, sensorMatcher);
+    Collection<Sensor> sensors = selector.select(Sensor.class, module, true, null);
     eventBus.fireEvent(new SensorsPhaseEvent(Lists.newArrayList(sensors), true));
 
     for (Sensor sensor : sensors) {

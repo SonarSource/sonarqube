@@ -21,7 +21,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -33,8 +33,8 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 import java.util.Map;
 
-
-public class AssignAction extends Action implements ServerComponent {
+@ServerSide
+public class AssignAction extends Action {
 
   public static final String KEY = "assign";
   public static final String VERIFIED_ASSIGNEE = "verifiedAssignee";
@@ -50,9 +50,9 @@ public class AssignAction extends Action implements ServerComponent {
   }
 
   @Override
-  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession){
+  public boolean verify(Map<String, Object> properties, Collection<Issue> issues, UserSession userSession) {
     String assignee = assigneeValue(properties);
-    if(!Strings.isNullOrEmpty(assignee)) {
+    if (!Strings.isNullOrEmpty(assignee)) {
       User user = selectUser(assignee);
       if (user == null) {
         throw new IllegalArgumentException("Unknown user: " + assignee);
@@ -66,7 +66,7 @@ public class AssignAction extends Action implements ServerComponent {
 
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
-    if(!properties.containsKey(VERIFIED_ASSIGNEE)) {
+    if (!properties.containsKey(VERIFIED_ASSIGNEE)) {
       throw new IllegalArgumentException("Assignee is missing from the execution parameters");
     }
     User assignee = (User) properties.get(VERIFIED_ASSIGNEE);

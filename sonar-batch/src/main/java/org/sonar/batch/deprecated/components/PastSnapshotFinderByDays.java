@@ -20,7 +20,7 @@
 package org.sonar.batch.deprecated.components;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
@@ -28,10 +28,12 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.components.PastSnapshot;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 
-public class PastSnapshotFinderByDays implements BatchExtension {
+@BatchSide
+public class PastSnapshotFinderByDays {
 
   private DatabaseSession session;
 

@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.CpdMapping;
 
 import javax.annotation.CheckForNull;
 
-public class CpdMappings implements BatchComponent {
+@BatchSide
+public class CpdMappings {
 
   private final CpdMapping[] mappings;
 

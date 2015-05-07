@@ -19,14 +19,15 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 /**
  * Describes execution environment.
  * 
  * @since 2.6
  */
-public class EnvironmentInformation implements BatchComponent {
+@BatchSide
+public class EnvironmentInformation {
 
   private String key;
   private String version;

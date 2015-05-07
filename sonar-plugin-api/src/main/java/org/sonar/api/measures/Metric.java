@@ -22,13 +22,20 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import java.io.Serializable;
 
@@ -39,8 +46,10 @@ import java.io.Serializable;
  */
 @Table(name = "metrics")
 @Entity(name = "Metric")
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.api.batch.measure.Metric<G> {
+@ServerSide
+public class Metric<G extends Serializable> implements Serializable, org.sonar.api.batch.measure.Metric<G> {
 
   /**
    * A metric bigger value means a degradation

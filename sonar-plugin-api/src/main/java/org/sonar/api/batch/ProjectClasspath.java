@@ -21,7 +21,7 @@ package org.sonar.api.batch;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -36,7 +36,8 @@ import java.util.List;
  * @deprecated since 4.5 this is some Java specific stuff that should by handled by SQ Java plugin
  */
 @Deprecated
-public class ProjectClasspath implements BatchComponent {
+@BatchSide
+public class ProjectClasspath {
 
   protected MavenProject pom;
   private List<File> elements;

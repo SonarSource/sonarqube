@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
@@ -29,7 +29,8 @@ import java.util.Collection;
 /**
  * Shared issues among all project modules
  */
-public class IssueCache implements BatchComponent {
+@BatchSide
+public class IssueCache {
 
   // component key -> issue key -> issue
   private final Cache<DefaultIssue> cache;

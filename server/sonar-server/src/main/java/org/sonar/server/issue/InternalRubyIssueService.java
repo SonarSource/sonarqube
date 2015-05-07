@@ -27,7 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -71,7 +71,8 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 3.6
  */
-public class InternalRubyIssueService implements ServerComponent {
+@ServerSide
+public class InternalRubyIssueService {
 
   private static final String ID_PARAM = "id";
   private static final String NAME_PARAM = "name";

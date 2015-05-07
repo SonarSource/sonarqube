@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Project;
 
 /**
@@ -34,7 +35,9 @@ import org.sonar.api.resources.Project;
  * 
  * @since 2.6
  */
-public abstract class Initializer implements BatchExtension, CheckProject {
+@BatchSide
+@ExtensionPoint
+public abstract class Initializer implements CheckProject {
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {

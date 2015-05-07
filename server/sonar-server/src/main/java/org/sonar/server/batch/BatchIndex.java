@@ -26,7 +26,7 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.platform.Server;
 import org.sonar.home.cache.FileHashes;
 
@@ -37,7 +37,8 @@ import java.util.Collection;
 /**
  * JAR files to be downloaded by sonar-runner.
  */
-public class BatchIndex implements ServerComponent, Startable {
+@ServerSide
+public class BatchIndex implements Startable {
 
   private final Server server;
   private String index;

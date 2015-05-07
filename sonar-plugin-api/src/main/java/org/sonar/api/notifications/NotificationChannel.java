@@ -19,7 +19,8 @@
  */
 package org.sonar.api.notifications;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * <p>
@@ -34,7 +35,9 @@ import org.sonar.api.ServerExtension;
  * 
  * @since 2.10
  */
-public abstract class NotificationChannel implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class NotificationChannel {
 
   /**
    * Returns the unique key of this channel. 

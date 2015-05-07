@@ -26,7 +26,7 @@ import com.google.common.collect.SetMultimap;
 import org.picocontainer.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -62,7 +62,8 @@ import java.util.concurrent.TimeUnit;
     project = false,
     global = false)
 })
-public class NotificationService implements ServerComponent, Startable {
+@ServerSide
+public class NotificationService implements Startable {
 
   private static final Logger LOG = Loggers.get(NotificationService.class);
 

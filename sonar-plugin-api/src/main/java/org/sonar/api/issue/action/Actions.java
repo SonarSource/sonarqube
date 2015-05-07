@@ -20,7 +20,8 @@
 package org.sonar.api.issue.action;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,9 @@ import java.util.List;
  * @since 3.6
  */
 @Beta
-public class Actions implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public class Actions {
 
   private final List<Action> actions = new ArrayList<>();
 

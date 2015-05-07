@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueFilterDao;
@@ -66,7 +66,8 @@ import java.util.Map;
 /**
  * Facade for all db components, mainly DAOs
  */
-public class DbClient implements ServerComponent {
+@ServerSide
+public class DbClient {
 
   private final Database db;
   private final MyBatis myBatis;

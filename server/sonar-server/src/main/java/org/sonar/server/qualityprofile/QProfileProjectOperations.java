@@ -20,7 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -35,7 +35,8 @@ import org.sonar.server.user.UserSession;
  * Should be refactored in order to use project key. Mabye should it be move to {@link QProfileFactory}
  * Permission checks should also be done in the upper service.
  */
-public class QProfileProjectOperations implements ServerComponent {
+@ServerSide
+public class QProfileProjectOperations {
 
   private final DbClient db;
 

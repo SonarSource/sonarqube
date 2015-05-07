@@ -19,16 +19,18 @@
  */
 package org.sonar.api.user;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
 /**
  * @since 3.6
  */
-public interface RubyUserService extends ServerComponent {
+@ServerSide
+public interface RubyUserService {
 
   @CheckForNull
   User findByLogin(String login);

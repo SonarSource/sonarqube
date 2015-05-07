@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * Issue filter used to ignore issues created on lines commented with the tag "NOSONAR".
  * <p/>
- * Plugins, via {@link org.sonar.api.BatchExtension}s, must feed this filter by registering the
+ * Plugins, via {@link org.sonar.api.BatchSide}s, must feed this filter by registering the
  * lines that contain "NOSONAR". Note that filters are disabled for the issues reported by
  * end-users from UI or web services.
  *

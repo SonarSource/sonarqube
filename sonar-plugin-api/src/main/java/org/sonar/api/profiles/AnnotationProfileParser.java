@@ -20,7 +20,7 @@
 package org.sonar.api.profiles;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.api.rules.RuleFinder;
@@ -33,7 +33,8 @@ import java.util.Collection;
 /**
  * @since 2.3
  */
-public final class AnnotationProfileParser implements ServerComponent {
+@ServerSide
+public final class AnnotationProfileParser {
 
   private final RuleFinder ruleFinder;
 

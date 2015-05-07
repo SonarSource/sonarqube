@@ -19,12 +19,13 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 2.5
  */
-public interface ServerUpgradeStatus extends ServerComponent {
+@ServerSide
+public interface ServerUpgradeStatus {
 
   /**
    * Has the database been upgraded during the current startup ? Return false when {@link #isFreshInstall()} is true.
@@ -40,5 +41,5 @@ public interface ServerUpgradeStatus extends ServerComponent {
    * The database version before the server startup. Returns <=0 if db created from scratch.
    */
   int getInitialDbVersion();
-  
+
 }

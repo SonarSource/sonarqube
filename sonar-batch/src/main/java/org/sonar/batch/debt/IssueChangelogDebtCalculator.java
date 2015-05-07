@@ -23,7 +23,7 @@ package org.sonar.batch.debt;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -32,14 +32,21 @@ import org.sonar.core.issue.IssueUpdater;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Warning, before modifying this class, please do not forget that it's used by the Dev Cockpit plugin
  */
-public class IssueChangelogDebtCalculator implements BatchComponent {
+@BatchSide
+public class IssueChangelogDebtCalculator {
 
   @CheckForNull
   public Long calculateNewTechnicalDebt(Issue issue, @Nullable Date periodDate) {
@@ -55,7 +62,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
   @CheckForNull
   private Long calculateNewTechnicalDebtValueFromChangelog(@Nullable Long currentTechnicalDebtValue, Issue issue, Date periodDate) {
     List<FieldDiffs> changelog = technicalDebtHistory(issue);
-    for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext(); ) {
+    for (Iterator<FieldDiffs> iterator = changelog.iterator(); iterator.hasNext();) {
       FieldDiffs diff = iterator.next();
       Date date = diff.creationDate();
       if (isLesserOrEqual(date, periodDate)) {

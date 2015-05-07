@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -32,7 +32,8 @@ import java.util.Collection;
  *
  * @since 4.2
  */
-public interface Rules extends BatchComponent {
+@BatchSide
+public interface Rules {
 
   /**
    * Get a rule by its key. Returns <code>null</code> if rule does not exist.

@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
-public interface ScanPersister extends BatchComponent {
+@BatchSide
+public interface ScanPersister {
 
   void persist();
 

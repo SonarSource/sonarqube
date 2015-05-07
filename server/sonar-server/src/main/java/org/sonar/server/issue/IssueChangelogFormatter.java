@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.Duration;
@@ -34,7 +34,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueChangelogFormatter implements ServerComponent {
+@ServerSide
+public class IssueChangelogFormatter {
 
   private static final String ISSUE_CHANGELOG_FIELD = "issue.changelog.field.";
 

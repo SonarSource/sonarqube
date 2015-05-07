@@ -21,7 +21,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
@@ -33,7 +33,8 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 import java.util.Map;
 
-public class PlanAction extends Action implements ServerComponent {
+@ServerSide
+public class PlanAction extends Action {
 
   public static final String KEY = "plan";
   public static final String VERIFIED_ACTION_PLAN = "verifiedActionPlan";

@@ -19,7 +19,8 @@
  */
 package org.sonar.api.config;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.Nullable;
 
@@ -33,7 +34,9 @@ import javax.annotation.Nullable;
  *
  * @since 3.0
  */
-public abstract class GlobalPropertyChangeHandler implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class GlobalPropertyChangeHandler {
 
   public static final class PropertyChange {
     private String key;

@@ -20,16 +20,18 @@
 package org.sonar.api.config;
 
 import com.google.common.base.Objects;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 /**
  * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)
  *
  * @since 3.2
  */
-public class EmailSettings implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class EmailSettings {
   public static final String SMTP_HOST = "email.smtp_host.secured";
   public static final String SMTP_HOST_DEFAULT = "";
   public static final String SMTP_PORT = "email.smtp_port.secured";

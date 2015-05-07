@@ -19,7 +19,7 @@
  */
 package org.sonar.api.charts;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerSide;
 
 import java.awt.image.BufferedImage;
 
@@ -30,7 +30,8 @@ import java.awt.image.BufferedImage;
  * @deprecated in 4.5.1, replaced by Javascript charts
  */
 @Deprecated
-public interface Chart extends ServerExtension {
+@ServerSide
+public interface Chart {
   String getKey();
 
   /**

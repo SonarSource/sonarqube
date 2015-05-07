@@ -19,7 +19,7 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,20 +28,21 @@ import java.util.Map;
 /**
  * Facade for all Elasticsearch indices
  */
-public class IndexClient implements ServerComponent {
+@ServerSide
+public class IndexClient {
 
-  private final Map<Class<?>, Index<?,?,?>> indexComponents;
+  private final Map<Class<?>, Index<?, ?, ?>> indexComponents;
 
-  public IndexClient(Index<?,?,?>... indexComponents) {
+  public IndexClient(Index<?, ?, ?>... indexComponents) {
 
-    this.indexComponents = new HashMap<Class<?>,  Index<?,?,?>>();
+    this.indexComponents = new HashMap<Class<?>, Index<?, ?, ?>>();
 
-    for(Index<?,?,?> indexComponent : indexComponents){
+    for (Index<?, ?, ?> indexComponent : indexComponents) {
       this.indexComponents.put(indexComponent.getClass(), indexComponent);
     }
   }
 
-  public <K extends Index> K get(Class<K> clazz){
+  public <K extends Index> K get(Class<K> clazz) {
     return (K) this.indexComponents.get(clazz);
   }
 

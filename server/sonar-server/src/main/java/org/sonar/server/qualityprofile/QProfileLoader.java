@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.persistence.DbSession;
@@ -42,7 +42,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileLoader implements ServerComponent {
+@ServerSide
+public class QProfileLoader {
 
   private final DbClient db;
   private final IndexClient index;
@@ -130,6 +131,5 @@ public class QProfileLoader implements ServerComponent {
         .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
       new QueryContext().setLimit(0)).getTotal();
   }
-
 
 }

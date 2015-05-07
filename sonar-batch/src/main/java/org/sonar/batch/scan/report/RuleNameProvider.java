@@ -20,14 +20,15 @@
 package org.sonar.batch.scan.report;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 
 import javax.annotation.CheckForNull;
 
-public class RuleNameProvider implements BatchComponent {
+@BatchSide
+public class RuleNameProvider {
   private RuleFinder ruleFinder;
 
   public RuleNameProvider(RuleFinder ruleFinder) {

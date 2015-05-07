@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.fs;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 import javax.annotation.CheckForNull;
 
@@ -53,7 +53,8 @@ import java.util.SortedSet;
  *
  * @since 4.2
  */
-public interface FileSystem extends BatchComponent {
+@BatchSide
+public interface FileSystem {
 
   /**
    * Absolute base directory of module

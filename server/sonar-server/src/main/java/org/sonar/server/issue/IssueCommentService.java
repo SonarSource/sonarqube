@@ -22,7 +22,7 @@ package org.sonar.server.issue;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
@@ -48,7 +48,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class IssueCommentService implements ServerComponent {
+@ServerSide
+public class IssueCommentService {
 
   private final DbClient dbClient;
   private final IssueService issueService;

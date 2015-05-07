@@ -36,7 +36,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -52,7 +52,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class UserIndex implements ServerComponent {
+@ServerSide
+public class UserIndex {
 
   /**
    * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's

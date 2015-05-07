@@ -22,22 +22,31 @@ package org.sonar.server.permission;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.permission.*;
+import org.sonar.core.permission.GroupWithPermission;
+import org.sonar.core.permission.GroupWithPermissionDto;
+import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.UserWithPermission;
+import org.sonar.core.permission.UserWithPermissionDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class PermissionFinder implements ServerComponent {
+@ServerSide
+public class PermissionFinder {
 
   private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;

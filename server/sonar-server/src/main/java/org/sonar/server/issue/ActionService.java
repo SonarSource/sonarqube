@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
@@ -52,7 +52,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionService implements ServerComponent {
+@ServerSide
+public class ActionService {
 
   private final DbClient dbClient;
   private final IssueService issueService;

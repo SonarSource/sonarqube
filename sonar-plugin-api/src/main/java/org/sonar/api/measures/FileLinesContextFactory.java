@@ -19,7 +19,7 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
 
@@ -28,7 +28,8 @@ import org.sonar.api.resources.Resource;
  *
  * @since 2.14
  */
-public interface FileLinesContextFactory extends BatchComponent {
+@BatchSide
+public interface FileLinesContextFactory {
 
   /**
    * @deprecated since 4.4 use {@link #createFor(InputFile)}

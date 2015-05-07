@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.internal.FileMetadata;
-
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
-public class InputFileBuilderFactory implements BatchComponent {
+@BatchSide
+public class InputFileBuilderFactory {
 
   private final String moduleKey;
   private final PathResolver pathResolver;

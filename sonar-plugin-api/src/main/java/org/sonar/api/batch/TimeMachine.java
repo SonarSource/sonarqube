@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.measures.Measure;
 
 import java.util.List;
@@ -32,7 +32,8 @@ import java.util.List;
  */
 @Deprecated
 @RequiresDB
-public interface TimeMachine extends BatchComponent {
+@BatchSide
+public interface TimeMachine {
 
   /**
    * Past measures, sorted by date. Returns all fields.

@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.measure;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.RuleMeasure;
@@ -34,7 +34,8 @@ import org.sonar.batch.index.Caches;
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
  */
-public class MeasureCache implements BatchComponent {
+@BatchSide
+public class MeasureCache {
 
   private final Cache<Measure> cache;
 

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 /**
  * This lock is used to ensure that Sonar resources (files, packages, directories) are not created by buggy plugins
@@ -29,12 +29,13 @@ import org.sonar.api.BatchComponent;
  * @deprecated since 4.2. File system is immutable and does not require this class anymore.
  */
 @Deprecated
-public interface ResourceCreationLock extends BatchComponent {
+@BatchSide
+public interface ResourceCreationLock {
 
   /**
    * Forbids the creation of resources when saving violations and measures. By default it's unlocked, so only warnings
    * are logged. When locked, then an exception is thrown.
    */
   void lock();
-  
+
 }

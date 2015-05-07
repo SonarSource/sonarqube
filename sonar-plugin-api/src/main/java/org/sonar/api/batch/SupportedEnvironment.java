@@ -25,15 +25,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation allows to specify in which environments {@link org.sonar.api.BatchExtension} would be active.
+ * This annotation allows to specify in which environments {@link org.sonar.api.BatchSide} components would be active.
  * For example: "maven", "ant".
  * Usage of this annotation is discouraged and we strictly recommend you to not overuse it.
- * Most preferable is to design extensions to work in all environments.
+ * Most preferable is to design components to work in all environments.
  * 
  * @since 2.6
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 public @interface SupportedEnvironment {
 
   String[] value();

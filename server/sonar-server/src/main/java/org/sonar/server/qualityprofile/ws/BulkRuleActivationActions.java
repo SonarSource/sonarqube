@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -33,7 +33,8 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.user.UserSession;
 
-public class BulkRuleActivationActions implements ServerComponent {
+@ServerSide
+public class BulkRuleActivationActions {
 
   public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "activation_severity";

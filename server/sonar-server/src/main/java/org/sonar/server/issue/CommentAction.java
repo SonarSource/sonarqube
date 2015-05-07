@@ -21,7 +21,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.issue.IssueUpdater;
@@ -30,7 +30,8 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 import java.util.Map;
 
-public class CommentAction extends Action implements ServerComponent {
+@ServerSide
+public class CommentAction extends Action {
 
   public static final String KEY = "comment";
   public static final String COMMENT_PROPERTY = "comment";

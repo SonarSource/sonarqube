@@ -21,16 +21,18 @@
 package org.sonar.core.user;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class RoleDao implements TaskComponent, ServerComponent {
+@ServerSide
+@BatchSide
+public class RoleDao {
 
   public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
     return session.getMapper(RoleMapper.class).selectUserPermissions(userLogin, resourceId);

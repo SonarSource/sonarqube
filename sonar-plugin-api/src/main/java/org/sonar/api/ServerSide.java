@@ -17,29 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.api;
 
-import org.apache.commons.lang.ClassUtils;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.Sensor;
-import org.sonar.batch.bootstrap.ExtensionMatcher;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Allow to filter sensors that will be executed.
- * Used by views !!
- * @since 3.6
+ * Same than {@link org.sonar.api.BatchSide} but for server-side components.
  *
+ * @since 5.2
  */
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public abstract class SensorMatcher implements BatchExtension, ExtensionMatcher {
-
-  @Override
-  public final boolean accept(Object extension) {
-    return (ClassUtils.isAssignable(extension.getClass(), Sensor.class) && acceptSensor((Sensor) extension))
-      || ClassUtils.isAssignable(extension.getClass(), org.sonar.api.batch.sensor.Sensor.class);
-  }
-
-  public abstract boolean acceptSensor(Sensor sensor);
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ServerSide {
 }

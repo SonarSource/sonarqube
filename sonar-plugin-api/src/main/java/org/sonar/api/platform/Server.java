@@ -19,8 +19,8 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -30,7 +30,9 @@ import java.util.Date;
 /**
  * @since 2.2
   */
-public abstract class Server implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public abstract class Server {
 
   public abstract String getId();
 

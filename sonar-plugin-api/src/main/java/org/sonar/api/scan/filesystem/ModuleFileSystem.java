@@ -19,7 +19,7 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
@@ -34,7 +34,8 @@ import java.util.List;
  * @deprecated in 4.2. Replaced by {@link org.sonar.api.batch.fs.FileSystem}
  */
 @Deprecated
-public interface ModuleFileSystem extends BatchComponent {
+@BatchSide
+public interface ModuleFileSystem {
 
   /**
    * Base directory.

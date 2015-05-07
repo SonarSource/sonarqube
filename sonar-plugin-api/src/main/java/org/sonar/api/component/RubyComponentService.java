@@ -19,14 +19,15 @@
  */
 package org.sonar.api.component;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 
 /**
  * @since 3.6
  */
-public interface RubyComponentService extends ServerComponent {
+@ServerSide
+public interface RubyComponentService {
 
   @CheckForNull
   Component findByKey(String key);

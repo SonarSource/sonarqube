@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
@@ -43,7 +43,8 @@ import javax.annotation.Nullable;
  * @deprecated to be dropped in 4.4
  */
 @Deprecated
-public class RuleOperations implements ServerComponent {
+@ServerSide
+public class RuleOperations {
 
   private final DbClient dbClient;
 

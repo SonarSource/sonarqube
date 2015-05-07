@@ -24,9 +24,9 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.task.TaskComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -41,7 +41,9 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class PermissionTemplateDao implements TaskComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class PermissionTemplateDao {
 
   public static final String QUERY_PARAMETER = "query";
   public static final String TEMPLATE_ID_PARAMETER = "templateId";

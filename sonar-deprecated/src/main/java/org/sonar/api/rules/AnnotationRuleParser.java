@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
@@ -42,7 +42,8 @@ import java.util.List;
  * @deprecated in 4.2. Replaced by {@link org.sonar.api.server.rule.RulesDefinitionAnnotationLoader}
  */
 @Deprecated
-public final class AnnotationRuleParser implements ServerComponent {
+@ServerSide
+public final class AnnotationRuleParser {
 
   private static final Logger LOG = Loggers.get(AnnotationRuleParser.class);
 
@@ -101,15 +102,15 @@ public final class AnnotationRuleParser implements ServerComponent {
   }
 
   private static final Function<Class<?>, PropertyType> TYPE_FOR_CLASS = Functions.forMap(
-      ImmutableMap.<Class<?>, PropertyType> builder()
-          .put(Integer.class, PropertyType.INTEGER)
-          .put(int.class, PropertyType.INTEGER)
-          .put(Float.class, PropertyType.FLOAT)
-          .put(float.class, PropertyType.FLOAT)
-          .put(Boolean.class, PropertyType.BOOLEAN)
-          .put(boolean.class, PropertyType.BOOLEAN)
-          .build(),
-      PropertyType.STRING);
+    ImmutableMap.<Class<?>, PropertyType>builder()
+      .put(Integer.class, PropertyType.INTEGER)
+      .put(int.class, PropertyType.INTEGER)
+      .put(Float.class, PropertyType.FLOAT)
+      .put(float.class, PropertyType.FLOAT)
+      .put(Boolean.class, PropertyType.BOOLEAN)
+      .put(boolean.class, PropertyType.BOOLEAN)
+      .build(),
+    PropertyType.STRING);
 
   @VisibleForTesting
   static PropertyType guessType(Class<?> type) {

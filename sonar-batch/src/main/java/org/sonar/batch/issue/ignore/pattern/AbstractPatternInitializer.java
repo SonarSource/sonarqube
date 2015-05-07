@@ -22,14 +22,15 @@ package org.sonar.batch.issue.ignore.pattern;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.config.Settings;
 
 import java.util.List;
 
 import static com.google.common.base.Objects.firstNonNull;
 
-public abstract class AbstractPatternInitializer implements BatchExtension {
+@BatchSide
+public abstract class AbstractPatternInitializer {
 
   private Settings settings;
 
@@ -53,7 +54,7 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
   }
 
   public boolean hasMulticriteriaPatterns() {
-    return ! multicriteriaPatterns.isEmpty();
+    return !multicriteriaPatterns.isEmpty();
   }
 
   public abstract void initializePatternsForPath(String relativePath, String componentKey);
@@ -68,7 +69,7 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
       String resourceKeyPattern = settings.getString(propPrefix + "resourceKey");
       String ruleKeyPattern = settings.getString(propPrefix + "ruleKey");
       String lineRange = "*";
-      String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
+      String[] fields = new String[] {resourceKeyPattern, ruleKeyPattern, lineRange};
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);
       IssuePattern pattern = new IssuePattern(firstNonNull(resourceKeyPattern, "*"), firstNonNull(ruleKeyPattern, "*"));
       PatternDecoder.decodeRangeOfLines(pattern, firstNonNull(lineRange, "*"));

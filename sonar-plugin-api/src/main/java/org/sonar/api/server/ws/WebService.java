@@ -27,7 +27,8 @@ import com.google.common.collect.Sets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -100,7 +101,9 @@ import java.util.Set;
  *
  * @since 4.2
  */
-public interface WebService extends ServerExtension, Definable<WebService.Context> {
+@ServerSide
+@ExtensionPoint
+public interface WebService extends Definable<WebService.Context> {
 
   class Context {
     private final Map<String, Controller> controllers = Maps.newHashMap();

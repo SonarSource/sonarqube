@@ -21,7 +21,7 @@
 package org.sonar.server.measure.persistence;
 
 import com.google.common.base.Function;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -32,7 +32,8 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
-public class MeasureDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class MeasureDao implements DaoComponent {
 
   public boolean existsByKey(DbSession session, String componentKey, String metricKey) {
     return mapper(session).countByComponentAndMetric(componentKey, metricKey) > 0;

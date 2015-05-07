@@ -25,10 +25,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 
 import javax.annotation.Nullable;
@@ -67,7 +68,10 @@ import java.util.List;
  *
  * @since 3.6
  */
-public final class PropertyDefinition implements BatchExtension, ServerExtension {
+@BatchSide
+@ServerSide
+@ExtensionPoint
+public final class PropertyDefinition {
 
   private String key;
   private String defaultValue;

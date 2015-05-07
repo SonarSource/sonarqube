@@ -26,7 +26,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
@@ -57,7 +57,8 @@ import java.util.List;
  *
  * @since 4.3 this component could be removed after 4 or 5 releases.
  */
-public class CopyRequirementsFromCharacteristicsToRules implements ServerComponent {
+@ServerSide
+public class CopyRequirementsFromCharacteristicsToRules {
 
   private static final Logger LOGGER = Loggers.get(CopyRequirementsFromCharacteristicsToRules.class);
 
@@ -129,7 +130,8 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
       convertDisableRequirement(rule, session);
 
     } else if (enabledRequirement != null) {
-      // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model definition
+      // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model
+      // definition
       convertEnabledRequirement(rule, enabledRequirement, session);
 
       // When default values on debt are the same that ones set by SQALE, nothing to do

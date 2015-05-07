@@ -19,7 +19,7 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.web.PageDecoration;
 
 import java.util.Collections;
@@ -28,7 +28,8 @@ import java.util.List;
 /**
  * @since 3.3
  */
-public final class PageDecorations implements ServerComponent {
+@ServerSide
+public final class PageDecorations {
 
   private final PageDecoration[] decorations;
 
@@ -41,6 +42,6 @@ public final class PageDecorations implements ServerComponent {
   }
 
   public PageDecoration[] get() {
-    return decorations;//NOSONAR expose internal representation
+    return decorations;// NOSONAR expose internal representation
   }
 }

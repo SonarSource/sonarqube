@@ -20,7 +20,7 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -31,9 +31,9 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -45,7 +45,8 @@ import java.util.Map;
 /**
  * Used by ruby code <pre>Internal.permissions</pre>
  */
-public class InternalPermissionService implements ServerComponent {
+@ServerSide
+public class InternalPermissionService {
 
   private enum Operation {
     ADD, REMOVE

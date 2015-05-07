@@ -21,7 +21,11 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -30,7 +34,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISOPeriodFormat;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
@@ -48,14 +52,19 @@ import org.sonar.server.util.RubyUtils;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
  */
-public class IssueQueryService implements ServerComponent {
+@ServerSide
+public class IssueQueryService {
 
   public static final String LOGIN_MYSELF = "__me__";
 
@@ -294,7 +303,7 @@ public class IssueQueryService implements ServerComponent {
     }
 
     String uniqueQualifier = qualifiers.iterator().next();
-    switch(uniqueQualifier) {
+    switch (uniqueQualifier) {
       case Qualifiers.VIEW:
       case Qualifiers.SUBVIEW:
         addViewsOrSubViews(builder, componentUuids, uniqueQualifier);

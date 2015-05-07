@@ -26,6 +26,7 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.component.ResourcePerspectives;
@@ -61,6 +62,7 @@ import static com.google.common.collect.Maps.newHashMap;
  * Decorator that computes the technical debt metric
  */
 @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)
+@RequiresDB
 public final class DebtDecorator implements Decorator {
 
   private final ResourcePerspectives perspectives;

@@ -27,8 +27,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
@@ -47,7 +47,9 @@ import java.util.Set;
 /**
  * Updates issue fields and chooses if changes must be kept in history.
  */
-public class IssueUpdater implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class IssueUpdater {
 
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
@@ -291,7 +293,7 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
       }));
 
     Set<String> oldTags = Sets.newHashSet(issue.tags());
-    
+
     if (!oldTags.equals(newTags)) {
       issue.setFieldChange(context, TAGS,
         oldTags.isEmpty() ? null : CHANGELOG_TAG_JOINER.join(oldTags),

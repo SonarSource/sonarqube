@@ -23,7 +23,7 @@ package org.sonar.server.issue.filter;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.db.IssueFilterDao;
@@ -51,7 +51,8 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueFilterService implements ServerComponent {
+@ServerSide
+public class IssueFilterService {
 
   private final IssueFilterDao filterDao;
   private final IssueFilterFavouriteDao favouriteDao;

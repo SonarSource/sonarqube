@@ -19,14 +19,17 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * This extension point must be implemented to define a new dashboard.
  *
  * @since 2.13
  */
-public abstract class DashboardTemplate implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class DashboardTemplate {
 
   /**
    * Returns the {@link Dashboard} object that represents the dashboard to use.

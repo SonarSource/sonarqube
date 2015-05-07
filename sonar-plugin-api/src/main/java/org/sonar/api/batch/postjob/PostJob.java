@@ -20,7 +20,8 @@
 package org.sonar.api.batch.postjob;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
  * PostJobs are executed at the very end of batch analysis. A PostJob can't do any modification
@@ -31,7 +32,9 @@ import org.sonar.api.BatchExtension;
  * @since 5.2
  */
 @Beta
-public interface PostJob extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface PostJob {
 
   /**
    * Populate {@link PostJobDescriptor} of this PostJob.

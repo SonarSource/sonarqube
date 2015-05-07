@@ -19,14 +19,17 @@
  */
 package org.sonar.api.web;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * This extension point must be implemented to define a new filter.
  *
  * @since 3.1
  */
-public abstract class FilterTemplate implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class FilterTemplate {
 
   /**
    * Returns the {@link Filter} object that represents the filter to use.

@@ -21,8 +21,8 @@
 package org.sonar.core.notification.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -32,7 +32,9 @@ import java.util.List;
 /**
  * @since 3.7.1
  */
-public class NotificationQueueDao implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class NotificationQueueDao {
 
   private final MyBatis mybatis;
 

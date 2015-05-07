@@ -19,7 +19,8 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFileFilter;
 
 import java.io.File;
@@ -35,7 +36,9 @@ import java.io.File;
  * @deprecated since 4.2 use {@link InputFileFilter}
  */
 @Deprecated
-public interface FileSystemFilter extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface FileSystemFilter {
 
   /**
    * Plugins must not implement this interface. It is provided at runtime.

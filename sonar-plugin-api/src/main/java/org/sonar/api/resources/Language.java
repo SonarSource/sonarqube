@@ -19,8 +19,9 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
@@ -30,8 +31,11 @@ import org.sonar.api.batch.InstantiationStrategy;
  *
  * @since 1.10
  */
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface Language extends BatchExtension, ServerExtension {
+@ServerSide
+@ExtensionPoint
+public interface Language {
 
   /**
    * For example "java". Should not be more than 20 chars.

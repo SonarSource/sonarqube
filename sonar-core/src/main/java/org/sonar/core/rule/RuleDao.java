@@ -20,8 +20,8 @@
 package org.sonar.core.rule;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.List;
@@ -30,7 +30,9 @@ import java.util.List;
  * @deprecated in 4.4 moved to org.sonar.server.rule.db.RuleDao.
  */
 @Deprecated
-public class RuleDao implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class RuleDao {
 
   private MyBatis mybatis;
 

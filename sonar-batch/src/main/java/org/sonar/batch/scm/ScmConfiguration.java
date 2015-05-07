@@ -23,7 +23,11 @@ import com.google.common.base.Joiner;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.*;
+import org.sonar.api.BatchSide;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -47,7 +51,8 @@ import java.util.Map;
   )
 })
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class ScmConfiguration implements BatchComponent, Startable {
+@BatchSide
+public final class ScmConfiguration implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";

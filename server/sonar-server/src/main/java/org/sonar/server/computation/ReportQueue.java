@@ -21,7 +21,7 @@
 package org.sonar.server.computation;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
@@ -41,7 +41,8 @@ import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
-public class ReportQueue implements ServerComponent {
+@ServerSide
+public class ReportQueue {
   private final DbClient dbClient;
   private final Settings settings;
 

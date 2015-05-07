@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Charsets;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
@@ -36,13 +36,19 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileExporters implements ServerComponent {
+@ServerSide
+public class QProfileExporters {
 
   private final QProfileLoader loader;
   private final RuleFinder ruleFinder;
@@ -147,7 +153,6 @@ public class QProfileExporters implements ServerComponent {
     processValidationMessages(messages, result);
     return result;
   }
-
 
   private void importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {

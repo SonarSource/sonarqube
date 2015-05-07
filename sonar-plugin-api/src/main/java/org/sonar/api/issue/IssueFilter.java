@@ -19,14 +19,17 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
  * @since 3.6
  * @deprecated since 4.0
  */
 @Deprecated
-public interface IssueFilter extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface IssueFilter {
 
   boolean accept(Issue issue);
 

@@ -22,7 +22,7 @@ package org.sonar.server.issue;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -60,9 +60,15 @@ import org.sonar.server.user.index.UserIndex;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-public class IssueService implements ServerComponent {
+@ServerSide
+public class IssueService {
 
   private final DbClient dbClient;
   private final IssueIndex issueIndex;

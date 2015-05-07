@@ -20,17 +20,16 @@
 
 package org.sonar.batch.issue.ignore.scanner;
 
-import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-import org.sonar.batch.issue.ignore.pattern.LineRange;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssuePattern;
+import org.sonar.batch.issue.ignore.pattern.LineRange;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +37,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
-public class IssueExclusionsRegexpScanner implements BatchExtension {
+@BatchSide
+public class IssueExclusionsRegexpScanner {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueExclusionsRegexpScanner.class);
 
@@ -64,8 +64,8 @@ public class IssueExclusionsRegexpScanner implements BatchExtension {
     }
     for (IssuePattern pattern : patternsInitializer.getBlockPatterns()) {
       blockMatchers.add(new DoubleRegexpMatcher(
-          java.util.regex.Pattern.compile(pattern.getBeginBlockRegexp()),
-          java.util.regex.Pattern.compile(pattern.getEndBlockRegexp())));
+        java.util.regex.Pattern.compile(pattern.getBeginBlockRegexp()),
+        java.util.regex.Pattern.compile(pattern.getEndBlockRegexp())));
     }
 
     init();

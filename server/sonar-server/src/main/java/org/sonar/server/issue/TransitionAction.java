@@ -24,7 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -34,7 +34,8 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 import java.util.Map;
 
-public class TransitionAction extends Action implements ServerComponent {
+@ServerSide
+public class TransitionAction extends Action {
 
   public static final String KEY = "do_transition";
 

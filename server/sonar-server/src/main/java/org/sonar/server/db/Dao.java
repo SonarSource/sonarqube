@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
 
@@ -31,7 +31,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-public interface Dao<DTO extends Dto<KEY>, KEY extends Serializable> extends ServerComponent {
+@ServerSide
+public interface Dao<DTO extends Dto<KEY>, KEY extends Serializable> {
 
   /**
    * Get a DTO by its key. Return <code>null</code> if the key does not exist.

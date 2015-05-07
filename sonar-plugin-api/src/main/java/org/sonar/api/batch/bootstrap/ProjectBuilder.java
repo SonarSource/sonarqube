@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**
@@ -34,8 +35,10 @@ import org.sonar.api.batch.InstantiationStrategy;
  *
  * @since 2.9
  */
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public abstract class ProjectBuilder implements BatchExtension {
+@ExtensionPoint
+public abstract class ProjectBuilder {
 
   /**
    * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
@@ -44,6 +47,7 @@ public abstract class ProjectBuilder implements BatchExtension {
   public interface Context {
     ProjectReactor projectReactor();
   }
+
   /**
    * Don't inject ProjectReactor as it may not be available
    * @deprecated since 3.7 use {@link #ProjectBuilder()}

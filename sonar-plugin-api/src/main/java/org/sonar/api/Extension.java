@@ -23,6 +23,9 @@ package org.sonar.api;
  * Plugin extension point
  *
  * @since 1.10
+ * @deprecated since 5.2 replaced by {@link ExtensionPoint} annotation
  */
+@Deprecated
+@ExtensionPoint
 public interface Extension {
 }

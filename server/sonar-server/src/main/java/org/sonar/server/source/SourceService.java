@@ -22,7 +22,7 @@ package org.sonar.server.source;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.elasticsearch.common.collect.Lists;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 
@@ -30,7 +30,8 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class SourceService implements ServerComponent {
+@ServerSide
+public class SourceService {
 
   private final HtmlSourceDecorator sourceDecorator;
   private final SourceLineIndex sourceLineIndex;

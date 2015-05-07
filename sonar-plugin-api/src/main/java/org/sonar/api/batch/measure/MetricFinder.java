@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.measure;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 import javax.annotation.CheckForNull;
 
@@ -29,7 +29,8 @@ import java.util.List;
 /**
  * @since 4.5
  */
-public interface MetricFinder extends BatchComponent {
+@BatchSide
+public interface MetricFinder {
 
   @CheckForNull
   Metric findByKey(String key);

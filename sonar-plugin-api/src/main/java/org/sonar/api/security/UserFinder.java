@@ -19,8 +19,8 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.database.model.User;
 
 /**
@@ -28,7 +28,9 @@ import org.sonar.api.database.model.User;
  * @deprecated since 5.1 DB access will soon be removed from batch side
  */
 @Deprecated
-public interface UserFinder extends ServerComponent, BatchComponent {
+@BatchSide
+@ServerSide
+public interface UserFinder {
 
   User findById(int id);
 

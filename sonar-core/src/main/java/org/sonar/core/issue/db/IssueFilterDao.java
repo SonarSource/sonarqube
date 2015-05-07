@@ -21,8 +21,8 @@
 package org.sonar.core.issue.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
@@ -33,7 +33,9 @@ import java.util.List;
 /**
  * @since 3.7
  */
-public class IssueFilterDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class IssueFilterDao implements DaoComponent {
 
   private final MyBatis mybatis;
 

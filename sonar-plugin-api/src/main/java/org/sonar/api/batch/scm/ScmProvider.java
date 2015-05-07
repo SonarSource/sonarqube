@@ -19,8 +19,9 @@
  */
 package org.sonar.api.batch.scm;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import java.io.File;
@@ -29,8 +30,10 @@ import java.io.File;
  * See {@link CoreProperties#LINKS_SOURCES_DEV} to get old Maven URL format.
  * @since 5.0
  */
+@BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public abstract class ScmProvider implements BatchExtension {
+@ExtensionPoint
+public abstract class ScmProvider {
 
   /**
    * Unique identifier of the provider. Can be passed to {@link CoreProperties#SCM_PROVIDER_KEY}

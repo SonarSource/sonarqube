@@ -19,8 +19,8 @@
  */
 package org.sonar.api.i18n;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rules.Rule;
 
 import javax.annotation.CheckForNull;
@@ -34,7 +34,9 @@ import java.util.Locale;
  * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
  */
 @Deprecated
-public interface RuleI18n extends ServerComponent, BatchComponent {
+@BatchSide
+@ServerSide
+public interface RuleI18n {
 
   /**
    * Returns the localized name of the rule identified by its repository key and rule key.

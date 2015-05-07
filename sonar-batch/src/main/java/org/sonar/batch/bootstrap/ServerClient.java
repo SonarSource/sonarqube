@@ -31,11 +31,11 @@ import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.util.DefaultHttpDownloader;
 
 import javax.annotation.Nullable;
 
@@ -54,7 +54,8 @@ import java.util.List;
  *
  * @since 3.4
  */
-public class ServerClient implements BatchComponent {
+@BatchSide
+public class ServerClient {
 
   private static final String GET = "GET";
   private BootstrapProperties props;

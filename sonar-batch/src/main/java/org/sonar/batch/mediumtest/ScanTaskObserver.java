@@ -19,10 +19,13 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.batch.scan.ProjectScanContainer;
 
-public interface ScanTaskObserver extends BatchExtension {
+@BatchSide
+@ExtensionPoint
+public interface ScanTaskObserver {
 
   void scanTaskCompleted(ProjectScanContainer container);
 

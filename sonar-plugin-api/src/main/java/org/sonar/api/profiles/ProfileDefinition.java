@@ -19,7 +19,8 @@
  */
 package org.sonar.api.profiles;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 
 /**
@@ -28,7 +29,9 @@ import org.sonar.api.utils.ValidationMessages;
  *
  * @since 2.3
  */
-public abstract class ProfileDefinition implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class ProfileDefinition {
 
   public abstract RulesProfile createProfile(ValidationMessages validation);
 

@@ -22,7 +22,7 @@ package org.sonar.server.issue.actionplan;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -31,7 +31,12 @@ import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.ActionPlanStatsDao;
+import org.sonar.core.issue.db.ActionPlanStatsDto;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -52,7 +57,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanService implements ServerComponent {
+@ServerSide
+public class ActionPlanService {
 
   private final DbClient dbClient;
 
@@ -63,7 +69,7 @@ public class ActionPlanService implements ServerComponent {
   private final IssueStorage issueStorage;
 
   public ActionPlanService(DbClient dbClient, ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao,
-                           IssueUpdater issueUpdater, IssueStorage issueStorage) {
+    IssueUpdater issueUpdater, IssueStorage issueStorage) {
     this.dbClient = dbClient;
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
@@ -111,7 +117,7 @@ public class ActionPlanService implements ServerComponent {
     issueStorage.save(issues);
   }
 
-  private List<IssueDto> findIssuesByActionPlan(String actionPlanKey){
+  private List<IssueDto> findIssuesByActionPlan(String actionPlanKey) {
     DbSession session = dbClient.openSession(false);
     try {
       return dbClient.issueDao().findByActionPlan(session, actionPlanKey);

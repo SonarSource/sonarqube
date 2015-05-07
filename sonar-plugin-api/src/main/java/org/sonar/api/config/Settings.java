@@ -26,8 +26,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
@@ -85,7 +85,9 @@ import java.util.Properties;
  * </p>
  * @since 2.12
  */
-public class Settings implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class Settings {
 
   protected Map<String, String> properties;
   protected PropertyDefinitions definitions;

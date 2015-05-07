@@ -22,8 +22,8 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +31,9 @@ import java.util.List;
 /**
  * @since 3.0
  */
-public class DatabaseVersion implements BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class DatabaseVersion {
 
   public static final int LAST_VERSION = 914;
 

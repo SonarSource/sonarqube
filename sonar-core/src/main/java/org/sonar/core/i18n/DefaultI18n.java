@@ -23,6 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.IOUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
@@ -51,6 +53,8 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+@BatchSide
+@ServerSide
 public class DefaultI18n implements I18n, Startable {
 
   private static final Logger LOG = Loggers.get(DefaultI18n.class);
@@ -120,7 +124,7 @@ public class DefaultI18n implements I18n, Startable {
   @Override
   public void stop() {
     if (classloader instanceof Closeable) {
-      IOUtils.closeQuietly((Closeable)classloader);
+      IOUtils.closeQuietly((Closeable) classloader);
     }
     classloader = null;
     propertyToBundles = null;

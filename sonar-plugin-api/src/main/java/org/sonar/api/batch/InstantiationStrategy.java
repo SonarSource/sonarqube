@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Define instantiation strategy of batch extensions. If an extension is not annotated, then default value
+ * Define instantiation strategy of batch IoC components. If a component is not annotated, then default value
  * is {@link org.sonar.api.batch.InstantiationStrategy#PER_PROJECT}.
  * @since 4.4
  */

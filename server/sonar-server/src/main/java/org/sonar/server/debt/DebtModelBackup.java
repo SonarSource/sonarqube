@@ -19,6 +19,8 @@
  */
 package org.sonar.server.debt;
 
+import org.sonar.api.ServerSide;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -56,7 +58,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class DebtModelBackup implements ServerComponent {
+@ServerSide
+public class DebtModelBackup {
 
   private static final Logger LOG = Loggers.get(DebtModelBackup.class);
 

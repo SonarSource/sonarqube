@@ -21,7 +21,7 @@ package org.sonar.batch.duplication;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
@@ -29,7 +29,8 @@ import org.sonar.batch.index.Caches;
 /**
  * Cache of duplication blocks. This cache is shared amongst all project modules.
  */
-public class DuplicationCache implements BatchComponent {
+@BatchSide
+public class DuplicationCache {
 
   private final Cache<DefaultDuplication> cache;
   private int sequence = 1;

@@ -20,8 +20,9 @@
 package org.sonar.api.notifications;
 
 import com.google.common.collect.Multimap;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
+import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +39,10 @@ import java.util.List;
  *
  * @since 2.10
  */
-public interface NotificationManager extends ServerComponent, BatchComponent {
+@ServerSide
+@BatchSide
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public interface NotificationManager {
 
   /**
    * Receives a notification and stores it so that it is processed by the notification service.

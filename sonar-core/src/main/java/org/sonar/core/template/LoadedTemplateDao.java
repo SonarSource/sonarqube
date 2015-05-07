@@ -20,13 +20,15 @@
 package org.sonar.core.template;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
-public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public class LoadedTemplateDao implements DaoComponent {
 
   private MyBatis mybatis;
 
@@ -46,7 +48,6 @@ public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerCo
   public int countByTypeAndKey(String type, String key, SqlSession session) {
     return session.getMapper(LoadedTemplateMapper.class).countByTypeAndKey(type, key);
   }
-
 
   public void insert(LoadedTemplateDto loadedTemplateDto) {
     SqlSession session = mybatis.openSession(false);

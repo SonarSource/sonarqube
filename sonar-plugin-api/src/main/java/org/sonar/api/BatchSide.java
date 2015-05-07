@@ -17,21 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.api;
 
-import org.sonar.api.batch.Sensor;
-import org.sonar.batch.phases.SensorMatcher;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * By default all sensors are executed
- * @since 3.6
+ * Marker annotation for all the components available in container of batch (code analyzer). Note that
+ * injection of dependencies by constructor is used :
+ * <pre>
+ *   {@literal @}BatchSide
+ *   public class Foo {
  *
+ *   }
+ *   {@literal @}BatchSide
+ *   public class Bar {
+ *     private final Foo foo;
+ *     public Bar(Foo f) {
+ *       this.foo = f;
+ *     }
+ *   }
+ *
+ * </pre>
+ *
+ * @since 5.2
  */
-public class DefaultSensorMatcher extends SensorMatcher {
-
-  @Override
-  public boolean acceptSensor(Sensor sensor) {
-    return true;
-  }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface BatchSide {
 }

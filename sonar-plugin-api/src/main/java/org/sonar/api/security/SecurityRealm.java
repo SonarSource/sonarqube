@@ -19,12 +19,15 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ServerSide;
 
 /**
  * @since 2.14
  */
-public abstract class SecurityRealm implements ServerExtension {
+@ServerSide
+@ExtensionPoint
+public abstract class SecurityRealm {
 
   /**
    * @return unique name of this realm, e.g. "ldap"

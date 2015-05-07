@@ -20,9 +20,12 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.ws.*;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.exceptions.NotFoundException;
@@ -33,7 +36,8 @@ import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public class ProjectAssociationActions implements ServerComponent {
+@ServerSide
+public class ProjectAssociationActions {
 
   private static final String PARAM_LANGUAGE = "language";
   private static final String PARAM_PROFILE_NAME = "profileName";
@@ -121,7 +125,7 @@ public class ProjectAssociationActions implements ServerComponent {
         (!isEmpty(language) && !isEmpty(profileName)) ^ !isEmpty(profileKey), "Either profileKey or profileName + language must be set");
       Preconditions.checkArgument(!isEmpty(projectKey) ^ !isEmpty(projectUuid), "Either projectKey or projectUuid must be set");
 
-      if(profileKey == null) {
+      if (profileKey == null) {
         profileKey = getProfileKeyFromLanguageAndName(language, profileName);
       }
 

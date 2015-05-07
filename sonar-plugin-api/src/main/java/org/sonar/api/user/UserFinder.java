@@ -19,8 +19,8 @@
  */
 package org.sonar.api.user;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -31,7 +31,9 @@ import java.util.List;
  * @deprecated since 5.1 DB access will soon be removed from batch side
  */
 @Deprecated
-public interface UserFinder extends BatchComponent, ServerComponent {
+@BatchSide
+@ServerSide
+public interface UserFinder {
 
   @CheckForNull
   User findByLogin(String login);

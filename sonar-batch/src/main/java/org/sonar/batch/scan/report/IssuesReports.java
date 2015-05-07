@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
-public class IssuesReports implements BatchComponent {
+@BatchSide
+public class IssuesReports {
 
   private final DefaultAnalysisMode analysisMode;
   private final Reporter[] reporters;

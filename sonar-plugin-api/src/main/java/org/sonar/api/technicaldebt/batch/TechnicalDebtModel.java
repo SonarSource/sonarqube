@@ -20,7 +20,7 @@
 
 package org.sonar.api.technicaldebt.batch;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 
@@ -30,11 +30,11 @@ import java.util.List;
 
 /**
  * @since 4.1
- * Used by Views plugin
  * @deprecated since 4.3
  */
 @Deprecated
-public interface TechnicalDebtModel extends BatchComponent {
+@BatchSide
+public interface TechnicalDebtModel {
 
   @CheckForNull
   Characteristic characteristicById(Integer id);

@@ -20,7 +20,7 @@
 
 package org.sonar.server.measure.persistence;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.measure.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -30,7 +30,8 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
-public class MetricDao implements ServerComponent, DaoComponent {
+@ServerSide
+public class MetricDao implements DaoComponent {
 
   @CheckForNull
   public MetricDto selectByKey(DbSession session, String key) {
@@ -41,7 +42,7 @@ public class MetricDao implements ServerComponent, DaoComponent {
     return session.getMapper(MetricMapper.class).selectAllEnabled();
   }
 
-  public void insert(DbSession session, MetricDto dto){
+  public void insert(DbSession session, MetricDto dto) {
     session.getMapper(MetricMapper.class).insert(dto);
   }
 }

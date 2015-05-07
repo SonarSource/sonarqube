@@ -21,7 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -56,7 +56,8 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Activation and deactivation of rules in Quality profiles
  */
-public class RuleActivator implements ServerComponent {
+@ServerSide
+public class RuleActivator {
 
   private final DbClient db;
   private final TypeValidations typeValidations;

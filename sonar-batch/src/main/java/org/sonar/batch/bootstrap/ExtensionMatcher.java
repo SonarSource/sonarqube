@@ -19,9 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.BatchSide;
+
 /**
  * @since 3.6
  */
+@BatchSide
 public interface ExtensionMatcher {
   boolean accept(Object extension);
 }

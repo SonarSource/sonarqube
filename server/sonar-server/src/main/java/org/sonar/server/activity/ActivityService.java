@@ -19,7 +19,7 @@
  */
 package org.sonar.server.activity;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.activity.db.ActivityDto;
@@ -27,7 +27,8 @@ import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-public class ActivityService implements ServerComponent {
+@ServerSide
+public class ActivityService {
 
   private final DbClient dbClient;
   private final ActivityIndexer indexer;

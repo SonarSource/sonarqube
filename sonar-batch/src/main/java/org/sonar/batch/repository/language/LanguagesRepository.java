@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.repository.language;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 
 import javax.annotation.CheckForNull;
 
@@ -29,7 +29,8 @@ import java.util.Collection;
  * Languages repository
  * @since 4.4
  */
-public interface LanguagesRepository extends BatchComponent {
+@BatchSide
+public interface LanguagesRepository {
 
   /**
    * Get language.

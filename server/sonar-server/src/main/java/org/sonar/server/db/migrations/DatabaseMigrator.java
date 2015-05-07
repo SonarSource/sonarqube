@@ -19,19 +19,18 @@
  */
 package org.sonar.server.db.migrations;
 
-import java.sql.Connection;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DdlUtils;
 import org.sonar.server.db.DbClient;
-
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.server.plugins.ServerPluginRepository;
+
+import java.sql.Connection;
 
 /**
  * Restore schema by executing DDL scripts. Only H2 database is supported.
@@ -39,7 +38,8 @@ import org.sonar.server.plugins.ServerPluginRepository;
  *
  * @since 2.12
  */
-public class DatabaseMigrator implements ServerComponent, Startable {
+@ServerSide
+public class DatabaseMigrator implements Startable {
 
   private final DbClient dbClient;
   private final MigrationStep[] migrations;
@@ -49,7 +49,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
    * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
   public DatabaseMigrator(DbClient dbClient, MigrationStep[] migrations, ServerUpgradeStatus serverUpgradeStatus,
-                          ServerPluginRepository unused) {
+    ServerPluginRepository unused) {
     this.dbClient = dbClient;
     this.migrations = migrations;
     this.serverUpgradeStatus = serverUpgradeStatus;

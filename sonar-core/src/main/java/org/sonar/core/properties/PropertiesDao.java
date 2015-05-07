@@ -25,8 +25,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
@@ -43,7 +43,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class PropertiesDao implements BatchComponent, ServerComponent, DaoComponent {
+@BatchSide
+@ServerSide
+public class PropertiesDao implements DaoComponent {
 
   private static final String NOTIFICATION_PREFIX = "notification.";
   private MyBatis mybatis;

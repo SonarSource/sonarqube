@@ -20,7 +20,7 @@
 
 package org.sonar.server.component;
 
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -33,7 +33,8 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
-public class ComponentCleanerService implements ServerComponent {
+@ServerSide
+public class ComponentCleanerService {
 
   private final DbClient dbClient;
   private final PurgeDao purgeDao;

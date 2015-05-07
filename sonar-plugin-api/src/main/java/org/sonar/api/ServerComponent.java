@@ -23,6 +23,9 @@ package org.sonar.api;
  * Same than {@link org.sonar.api.BatchComponent} but for server-side components.
  *
  * @since 2.2
+ * @deprecated since 5.2 use {@link ServerSide} annotation
  */
+@Deprecated
+@ServerSide
 public interface ServerComponent {
 }
