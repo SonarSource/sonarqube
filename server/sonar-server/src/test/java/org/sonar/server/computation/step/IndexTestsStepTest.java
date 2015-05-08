@@ -57,6 +57,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
+    esTester.truncateIndices();
   }
 
   @Override
@@ -72,7 +73,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void index_source() throws Exception {
+  public void index_test() throws Exception {
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     Connection connection = dbTester.openConnection();
     TestTesting.updateDataColumn(connection, "FILE1_UUID", TestTesting.newRandomTests(1));

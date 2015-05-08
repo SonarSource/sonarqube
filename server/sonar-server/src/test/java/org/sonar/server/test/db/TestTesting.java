@@ -65,8 +65,7 @@ public class TestTesting {
         .setStacktrace(RandomStringUtils.randomAlphanumeric(50))
         .setMsg(RandomStringUtils.randomAlphanumeric(30))
         .setExecutionTimeMs(RandomUtils.nextLong());
-      int numberOfCoveredFiles = RandomUtils.nextInt(10);
-      for (int j = 0; j < numberOfCoveredFiles; j++) {
+      for (int j = 0; j < numberOfTests; j++) {
         test.addCoveredFile(
           FileSourceDb.Test.CoveredFile.newBuilder()
             .setFileUuid(Uuids.create())
