@@ -182,16 +182,20 @@ public class TestsListAction implements TestAction {
     @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
       return searchTestsByTestUuid(dbSession, testUuid, searchOptions);
-    } else if (testFileUuid != null) {
+    }
+    if (testFileUuid != null) {
       return searchTestsByTestFileUuid(dbSession, testFileUuid, searchOptions);
-    } else if (testFileKey != null) {
+    }
+    if (testFileKey != null) {
       return searchTestsByTestFileKey(dbSession, testFileKey, searchOptions);
-    } else if (sourceFileUuid != null && sourceFileLineNumber != null) {
+    }
+    if (sourceFileUuid != null && sourceFileLineNumber != null) {
       return searchTestsBySourceFileUuidAndLineNumber(dbSession, sourceFileUuid, sourceFileLineNumber, searchOptions);
     }
 
     throw new IllegalArgumentException(
-      "One (and only one) of the following combination of parameters must be provided: 1) test UUID. 2) test file UUID. 3) test file key. 4) source file UUID and source file line number.");
+      "One (and only one) of the following combination of parameters must be provided: 1) test UUID. 2) test file UUID. " +
+        "3) test file key. 4) source file UUID and source file line number.");
   }
 
   private SearchResult<TestDoc> searchTestsBySourceFileUuidAndLineNumber(DbSession dbSession, String sourceFileUuid, Integer sourceFileLineNumber, SearchOptions searchOptions) {
