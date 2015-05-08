@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.rule.RuleService;
 
@@ -46,7 +47,7 @@ public class TagsAction implements RulesAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
 
-    action.createParam("q")
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match tags against")
       .setExampleValue("misra");
     action.createParam("ps")
@@ -57,7 +58,7 @@ public class TagsAction implements RulesAction {
 
   @Override
   public void handle(Request request, Response response) {
-    String query = request.param("q");
+    String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
     Set<String> tags = service.listTags(query, pageSize);
     JsonWriter json = response.newJsonWriter().beginObject();

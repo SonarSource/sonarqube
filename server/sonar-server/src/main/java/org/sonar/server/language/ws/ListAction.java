@@ -29,6 +29,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 
 import javax.annotation.Nullable;
@@ -52,7 +53,7 @@ public class ListAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param("q");
+    String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
     JsonWriter json = response.newJsonWriter().beginObject().name("languages").beginArray();
@@ -84,7 +85,7 @@ public class ListAction implements RequestHandler {
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-list.json"));
 
-    action.createParam("q")
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match language keys/names against")
       .setExampleValue("java");
     action.createParam("ps")

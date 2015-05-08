@@ -21,6 +21,8 @@
 package org.sonar.server.component.db;
 
 import com.google.common.base.Function;
+import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -33,13 +35,17 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.3
@@ -173,4 +179,21 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectProjectsFromView("%." + viewUuid + ".%", projectViewUuid);
   }
 
+  public List<ComponentDto> selectProvisionedProjects(DbSession session, SearchOptions searchOptions, @Nullable String query) {
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put("qualifier", Qualifiers.PROJECT);
+    if (query != null) {
+      parameters.put("query", "%" + query + "%");
+    }
+    return mapper(session).selectProvisionedProjects(parameters, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+  }
+
+  public int countProvisionedProjects(DbSession session, @Nullable String query) {
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put("qualifier", Qualifiers.PROJECT);
+    if (query != null) {
+      parameters.put("query", "%" + query + "%");
+    }
+    return mapper(session).countProvisionedProjects(parameters);
+  }
 }

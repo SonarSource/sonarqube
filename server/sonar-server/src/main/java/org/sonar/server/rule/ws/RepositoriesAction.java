@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
@@ -53,7 +54,7 @@ public class RepositoriesAction implements RulesAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param("q");
+    String query = request.param(Param.TEXT_QUERY);
     String languageKey = request.param(LANGUAGE);
     int pageSize = request.mandatoryParamAsInt("ps");
 
@@ -102,7 +103,7 @@ public class RepositoriesAction implements RulesAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-repositories.json"));
 
-    action.createParam("q")
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match repository keys/names against")
       .setExampleValue("squid");
     action.createParam(LANGUAGE)

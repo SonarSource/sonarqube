@@ -1,0 +1,14 @@
+{
+  "projects":[
+    {
+      "uuid":"provisioned-uuid-1",
+      "key":"provisioned-key-1",
+      "name":"provisioned-name-1"
+    },
+    {
+      "uuid":"provisioned-uuid-2",
+      "key":"provisioned-key-2",
+      "name":"provisioned-name-2"
+    }
+  ]
+}

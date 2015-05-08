@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -36,8 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 public class SearchAction implements BaseUsersWsAction {
-
-  private static final String PARAM_QUERY = "q";
 
   private static final String FIELD_LOGIN = "login";
   private static final String FIELD_NAME = "name";
@@ -61,16 +60,16 @@ public class SearchAction implements BaseUsersWsAction {
     action.addFieldsParam(FIELDS);
     action.addPagingParams(50);
 
-    action.createParam(PARAM_QUERY)
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("Filter on login or name.");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     SearchOptions options = new SearchOptions()
-      .setPage(request.mandatoryParamAsInt(WebService.Param.PAGE), request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
-    List<String> fields = request.paramAsStrings(WebService.Param.FIELDS);
-    SearchResult<UserDoc> result = userIndex.search(request.param(PARAM_QUERY), options);
+      .setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
+    List<String> fields = request.paramAsStrings(Param.FIELDS);
+    SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     options.writeJson(json, result.getTotal());

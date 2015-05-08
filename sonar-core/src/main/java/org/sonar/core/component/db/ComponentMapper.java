@@ -21,6 +21,7 @@
 package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.UuidWithProjectUuidDto;
@@ -29,6 +30,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.3
@@ -101,4 +103,8 @@ public interface ComponentMapper {
   void insert(ComponentDto rule);
 
   void deleteByKey(String key);
+
+  List<ComponentDto> selectProvisionedProjects(Map<String, String> parameters, RowBounds rowBounds);
+
+  int countProvisionedProjects(Map<String, String> parameters);
 }

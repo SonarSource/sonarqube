@@ -114,7 +114,7 @@ public class TestsListAction implements TestAction {
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(WebService.Param.PAGE),
       request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE)
-      );
+    );
 
     DbSession dbSession = dbClient.openSession(false);
     SearchResult<TestDoc> tests;

@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
@@ -37,8 +38,8 @@ public class AuthorsAction implements BaseIssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param(WebService.Param.TEXT_QUERY);
-    int pageSize = request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
+    String query = request.param(Param.TEXT_QUERY);
+    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
 
     JsonWriter json = response.newJsonWriter()
       .beginObject()
@@ -60,10 +61,10 @@ public class AuthorsAction implements BaseIssuesWsAction {
       .setResponseExample(Resources.getResource(this.getClass(), "example-authors.json"))
       .setHandler(this);
 
-    action.createParam(WebService.Param.TEXT_QUERY)
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match SCM accounts against")
       .setExampleValue("luke");
-    action.createParam(WebService.Param.PAGE_SIZE)
+    action.createParam(Param.PAGE_SIZE)
       .setDescription("The size of the list to return")
       .setExampleValue("25")
       .setDefaultValue("10");

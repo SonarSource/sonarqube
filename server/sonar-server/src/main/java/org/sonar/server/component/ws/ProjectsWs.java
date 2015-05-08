@@ -25,6 +25,11 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
+  private final ProjectsAction[] actions;
+
+  public ProjectsWs(ProjectsAction... actions) {
+    this.actions = actions;
+  }
 
   @Override
   public void define(Context context) {
@@ -35,6 +40,10 @@ public class ProjectsWs implements WebService {
     defineIndexAction(controller);
     defineCreateAction(controller);
     defineDestroyAction(controller);
+
+    for (ProjectsAction action : actions) {
+      action.define(controller);
+    }
 
     controller.done();
   }

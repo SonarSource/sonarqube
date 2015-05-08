@@ -17,24 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
 
-import org.junit.Test;
+package org.sonar.server.component.ws;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.server.ws.WsAction;
 
-/**
- * Temporary solution to test metadata. Should be replaced by a medium test of
- * all computation stack
- */
-public abstract class BaseStepTest {
-
-  protected abstract ComputationStep step();
-
-  @Test
-  public void test_metadata() {
-    assertThat(step().toString()).isNotEmpty();
-    assertThat(step().getDescription()).isNotEmpty();
-    assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
-  }
+public interface ProjectsAction extends WsAction {
+  // marker interface
 }
