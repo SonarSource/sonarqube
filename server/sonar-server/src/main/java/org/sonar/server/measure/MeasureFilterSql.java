@@ -95,7 +95,7 @@ class MeasureFilterSql {
           return -1;
         }
 
-        return -left.compareTo(right);
+        return right.compareTo(left);
       }
     });
   }
