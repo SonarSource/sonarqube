@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -47,7 +48,6 @@ public class SearchAction implements RequestHandler {
   private static final short MINIMUM_SEARCH_CHARACTERS = 2;
 
   private static final String PARAM_COMPONENT_UUID = "componentUuid";
-  private static final String PARAM_QUERY = "q";
 
   private final DbClient dbClient;
 
@@ -69,7 +69,7 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("d6d9e1e5-5e13-44fa-ab82-3ec29efa8935");
 
     action
-      .createParam(PARAM_QUERY)
+      .createParam(Param.TEXT_QUERY)
       .setRequired(true)
       .setDescription("UTF-8 search query")
       .setExampleValue("sonar");
@@ -79,7 +79,7 @@ public class SearchAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    String query = request.mandatoryParam(PARAM_QUERY);
+    String query = request.mandatoryParam(Param.TEXT_QUERY);
     if (query.length() < MINIMUM_SEARCH_CHARACTERS) {
       throw new IllegalArgumentException(String.format("Minimum search is %s characters", MINIMUM_SEARCH_CHARACTERS));
     }

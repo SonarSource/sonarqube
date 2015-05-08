@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.util.NonNullInputFunction;
@@ -61,8 +62,6 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
     FIELD_PROJECT_COUNT);
 
   private static final String PARAM_LANGUAGE = FIELD_LANGUAGE;
-  private static final String PARAM_FIELDS = "f";
-
 
   private final Languages languages;
 
@@ -92,7 +91,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
       .setExampleValue("js")
       .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages));
 
-    search.createParam(PARAM_FIELDS)
+    search.createParam(Param.FIELDS)
       .setDescription("Use to restrict returned fields.")
       .setExampleValue("key,language")
       .setPossibleValues(ALL_FIELDS);
@@ -100,7 +99,7 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<String> fields = request.paramAsStrings(PARAM_FIELDS);
+    List<String> fields = request.paramAsStrings(Param.FIELDS);
 
     String language = request.param(PARAM_LANGUAGE);
 
@@ -135,7 +134,6 @@ public class QProfileSearchAction implements BaseQProfileWsAction {
     });
     Map<String, Long> activeRuleCountByKey = profileLoader.countAllActiveRules();
     Map<String, Long> projectCountByKey = qualityProfileDao.countProjectsByProfileKey();
-
 
     json.name("profiles")
       .beginArray();

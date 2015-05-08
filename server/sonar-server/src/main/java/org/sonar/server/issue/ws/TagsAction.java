@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
@@ -46,7 +47,7 @@ public class TagsAction implements BaseIssuesWsAction {
       .setSince("5.1")
       .setDescription("List tags matching a given query")
       .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
-    action.createParam("q")
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("A pattern to match tags against")
       .setExampleValue("misra");
     action.createParam("ps")
@@ -57,7 +58,7 @@ public class TagsAction implements BaseIssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String query = request.param("q");
+    String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (String tag: service.listTags(query, pageSize)) {

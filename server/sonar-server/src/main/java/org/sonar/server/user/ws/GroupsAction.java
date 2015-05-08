@@ -40,7 +40,6 @@ public class GroupsAction implements BaseUsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_SELECTED = "selected";
-  private static final String PARAM_QUERY = "q";
 
   private static final String SELECTION_ALL = "all";
   private static final String SELECTION_SELECTED = "selected";
@@ -70,7 +69,7 @@ public class GroupsAction implements BaseUsersWsAction {
       .setPossibleValues(SELECTION_SELECTED, SELECTION_DESELECTED, SELECTION_ALL)
       .setDefaultValue(SELECTION_ALL);
 
-    action.createParam(PARAM_QUERY)
+    action.createParam(Param.TEXT_QUERY)
       .setDescription("If specified, only show groups whose name contains the query.")
       .setExampleValue("user");
 
@@ -82,7 +81,7 @@ public class GroupsAction implements BaseUsersWsAction {
     String login = request.mandatoryParam(PARAM_LOGIN);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
-    String queryString = request.param(PARAM_QUERY);
+    String queryString = request.param(Param.TEXT_QUERY);
     String selected = request.param(PARAM_SELECTED);
 
     GroupMembershipQuery query = GroupMembershipQuery.builder()
