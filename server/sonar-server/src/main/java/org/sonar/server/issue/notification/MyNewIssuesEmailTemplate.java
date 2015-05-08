@@ -39,7 +39,7 @@ public class MyNewIssuesEmailTemplate extends AbstractNewIssuesEmailTemplate {
 
   @Override
   protected boolean shouldNotFormat(Notification notification) {
-    return !MyNewIssuesNotification.TYPE.equals(notification.getType());
+    return !MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE.equals(notification.getType());
   }
 
   @Override

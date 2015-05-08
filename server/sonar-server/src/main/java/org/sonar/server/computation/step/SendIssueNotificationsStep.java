@@ -43,7 +43,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   /**
    * Types of the notifications sent by this step
    */
-  static final Set<String> NOTIF_TYPES = ImmutableSet.of(IssueChangeNotification.TYPE, NewIssuesNotification.TYPE, MyNewIssuesNotification.TYPE);
+  static final Set<String> NOTIF_TYPES = ImmutableSet.of(IssueChangeNotification.TYPE, NewIssuesNotification.TYPE, MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
 
   private final IssueCache issueCache;
   private final RuleCache rules;

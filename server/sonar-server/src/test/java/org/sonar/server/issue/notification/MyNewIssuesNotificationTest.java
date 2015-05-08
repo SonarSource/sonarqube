@@ -43,7 +43,7 @@ public class MyNewIssuesNotificationTest {
 
   @Test
   public void set_with_a_specific_type() {
-    assertThat(sut.getType()).isEqualTo(MyNewIssuesNotification.TYPE);
+    assertThat(sut.getType()).isEqualTo(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
 
   }
 }

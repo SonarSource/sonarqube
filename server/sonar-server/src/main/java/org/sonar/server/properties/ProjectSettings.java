@@ -27,11 +27,11 @@ import java.util.Map;
 
 public class ProjectSettings extends Settings {
   private final Settings settings;
-  private final Map<String, String> properties;
+  private final Map<String, String> projectProperties;
 
-  public ProjectSettings(Settings settings, Map<String, String> properties) {
+  public ProjectSettings(Settings settings, Map<String, String> projectProperties) {
     this.settings = settings;
-    this.properties = properties;
+    this.projectProperties = projectProperties;
   }
 
   @Override
@@ -67,6 +67,6 @@ public class ProjectSettings extends Settings {
   }
 
   private String get(String key) {
-    return properties.get(key);
+    return projectProperties.get(key);
   }
 }

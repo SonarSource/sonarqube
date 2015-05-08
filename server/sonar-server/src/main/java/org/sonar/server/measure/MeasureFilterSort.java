@@ -27,6 +27,7 @@ class MeasureFilterSort {
   private Metric metric = null;
   private Integer period = null;
   private boolean asc = true;
+
   MeasureFilterSort() {
   }
 
@@ -129,7 +130,7 @@ class MeasureFilterSort {
     }
   }
 
-  public static enum Field {
+  public enum Field {
     KEY, NAME, VERSION, METRIC, SHORT_NAME, DESCRIPTION,
     // Sort by last analysis date
     DATE,

@@ -130,7 +130,7 @@ public class MyNewIssuesEmailTemplateTest {
 
   @Test
   public void do_not_add_footer_when_properties_missing() {
-    Notification notification = new Notification(MyNewIssuesNotification.TYPE)
+    Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue(SEVERITY + ".count", "32")
       .setFieldValue("projectName", "Struts");
 
@@ -139,7 +139,7 @@ public class MyNewIssuesEmailTemplateTest {
   }
 
   private Notification newNotification() {
-    return new Notification(MyNewIssuesNotification.TYPE)
+    return new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
       .setFieldValue("projectUuid", "ABCDE")

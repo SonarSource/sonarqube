@@ -29,10 +29,10 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 
 public class MyNewIssuesNotification extends NewIssuesNotification {
 
-  public static final String TYPE = "my-new-issues";
+  public static final String MY_NEW_ISSUES_NOTIF_TYPE = "my-new-issues";
 
   MyNewIssuesNotification(UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
-    super(TYPE, userIndex, ruleIndex, dbClient, durations);
+    super(MY_NEW_ISSUES_NOTIF_TYPE, userIndex, ruleIndex, dbClient, durations);
   }
 
   public MyNewIssuesNotification setAssignee(String assignee) {

@@ -61,7 +61,7 @@ public class MyNewIssuesNotificationDispatcherTest {
     recipients.put("user2", twitterChannel);
     when(notificationManager.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
 
-    Notification notification = new Notification(MyNewIssuesNotification.TYPE)
+    Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue("projectKey", "struts")
       .setFieldValue("assignee", "user1");
     sut.performDispatch(notification, context);
