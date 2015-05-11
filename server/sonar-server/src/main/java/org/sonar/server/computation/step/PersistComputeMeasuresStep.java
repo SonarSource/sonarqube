@@ -35,6 +35,9 @@ import org.sonar.server.util.CloseableIterator;
 
 import java.util.Iterator;
 
+/**
+ * Read measures from the measures cache and persist it
+ */
 public class PersistComputeMeasuresStep implements ComputationStep {
 
   private final DbClient dbClient;

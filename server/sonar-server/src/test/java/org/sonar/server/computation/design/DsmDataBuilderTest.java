@@ -44,9 +44,9 @@ public class DsmDataBuilderTest {
 
   /**
    * / | A | B | C |
-   * A |   | 1 |   |
-   * B | 2 |   |   |
-   * C | 4 |   |   |
+   * A |   | 2 | 4 |
+   * B | 1 |   |   |
+   * C |   |   |   |
    */
   @Test
   public void build_dsm_db() throws Exception {
@@ -64,11 +64,11 @@ public class DsmDataBuilderTest {
     assertThat(result.getUuidList()).containsExactly("A", "B", "C");
 
     assertThat(result.getCellCount()).isEqualTo(3);
-    assertThat(result.getCell(0).getOffset()).isEqualTo(3);
+    assertThat(result.getCell(0).getOffset()).isEqualTo(1);
     assertThat(result.getCell(0).getWeight()).isEqualTo(2);
-    assertThat(result.getCell(1).getOffset()).isEqualTo(6);
+    assertThat(result.getCell(1).getOffset()).isEqualTo(2);
     assertThat(result.getCell(1).getWeight()).isEqualTo(4);
-    assertThat(result.getCell(2).getOffset()).isEqualTo(1);
+    assertThat(result.getCell(2).getOffset()).isEqualTo(3);
     assertThat(result.getCell(2).getWeight()).isEqualTo(1);
   }
 

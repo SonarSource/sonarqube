@@ -44,7 +44,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -352,7 +351,7 @@ public class PersistReportMeasuresStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return sut;
   }
 }

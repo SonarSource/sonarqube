@@ -51,7 +51,6 @@ import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.util.cache.DiskCacheById;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -106,7 +105,7 @@ public class PersistComputeMeasuresStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return new PersistComputeMeasuresStep(dbClient, new MetricCache(dbClient), measuresCache);
   }
 

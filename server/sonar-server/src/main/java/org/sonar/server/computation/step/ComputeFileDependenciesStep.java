@@ -60,6 +60,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Compute dsm_data measures and put it into the measures cache
+ */
 public class ComputeFileDependenciesStep implements ComputationStep {
 
   private static final Logger LOG = LoggerFactory.getLogger(ComputeFileDependenciesStep.class);
@@ -151,7 +154,7 @@ public class ComputeFileDependenciesStep implements ComputationStep {
     Bag parentDependenciesBag = new HashBag();
     for (FileDependency fileDependency : fileDependencies) {
       Integer directoryRef = directoryByFile.get(fileDependency.getTo());
-      if (directoryRef != null) {
+      if (directoryRef != null && !directoryRef.equals(ref)) {
         int toDirectoryRef = context.getReportReader().readComponent(directoryRef).getRef();
         parentDependenciesBag.add(toDirectoryRef);
       }

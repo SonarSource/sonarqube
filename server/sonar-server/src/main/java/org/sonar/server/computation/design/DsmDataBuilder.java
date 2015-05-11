@@ -64,8 +64,9 @@ public final class DsmDataBuilder {
   private void processCell(int y, int x) {
     DsmCell cell = dsm.cell(x, y);
     if (cell != null && cell.getEdge() != null && cell.getWeight() > 0) {
+      int offset = dsm.getDimension() * y + x;
       dsmBuilder.addCellBuilder()
-        .setOffset(dsm.getDimension() * x + y)
+        .setOffset(offset)
         .setWeight(cell.getWeight())
         .build();
     }

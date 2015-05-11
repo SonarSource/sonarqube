@@ -40,7 +40,6 @@ import org.sonar.server.design.db.DsmDb;
 import org.sonar.server.measure.ServerMetrics;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -77,7 +76,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
   }
 
   @Override
-  protected ComputationStep step() throws IOException {
+  protected ComputationStep step() {
     return new ComputeFileDependenciesStep(fileDependenciesCache, measuresCache);
   }
 
@@ -124,13 +123,13 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(5)
         .setWeight(1)
         .build()
-    ));
+      ));
     writer.writeFileDependencies(3, Collections.singletonList(
       BatchReport.FileDependency.newBuilder()
         .setToFileRef(6)
         .setWeight(1)
         .build()
-    ));
+      ));
 
     sut.execute(context);
 
@@ -156,6 +155,53 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
 
     // No dependency on project
     assertThat(fileDependenciesCache.traverse(1)).isEmpty();
+  }
+
+  @Test
+  public void not_feed_file_dependencies_cache_when_dependencies_are_on_same_folder() throws Exception {
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid(PROJECT_UUID)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setUuid("DIRECTORY_A")
+      .addChildRef(3)
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_A")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_B")
+      .build());
+
+    writer.writeFileDependencies(3, Collections.singletonList(
+      BatchReport.FileDependency.newBuilder()
+        .setToFileRef(4)
+        .setWeight(1)
+        .build()
+    ));
+
+    sut.execute(context);
+
+    // Dependencies on file FILE_A
+    assertThat(fileDependenciesCache.traverse(3)).hasSize(1);
+    Iterator<FileDependency> fileDependencies = fileDependenciesCache.traverse(3);
+    FileDependency fileDependency = fileDependencies.next();
+    assertThat(fileDependency.getFrom()).isEqualTo(3);
+    assertThat(fileDependency.getTo()).isEqualTo(4);
+    assertThat(fileDependency.getWeight()).isEqualTo(1);
+
+    // No dependency on directory DIRECTORY_A because children dependencies are in the same folder
+    assertThat(fileDependenciesCache.traverse(2)).isEmpty();
   }
 
   @Test
@@ -195,7 +241,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(5)
         .setWeight(1)
         .build()
-    ));
+      ));
 
     sut.execute(context);
 
@@ -211,7 +257,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(projectDsmData.getUuid(0)).isEqualTo("DIRECTORY_A");
     assertThat(projectDsmData.getCellCount()).isEqualTo(1);
     assertThat(projectDsmData.getCell(0).getWeight()).isEqualTo(1);
-    assertThat(projectDsmData.getCell(0).getOffset()).isEqualTo(1);
+    assertThat(projectDsmData.getCell(0).getOffset()).isEqualTo(2);
     assertThat(projectDsmData.getUuid(1)).isEqualTo("DIRECTORY_B");
 
     // On directory
@@ -226,7 +272,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(directoryDsmData.getUuid(0)).isEqualTo("FILE_A");
     assertThat(directoryDsmData.getCellCount()).isEqualTo(1);
     assertThat(directoryDsmData.getCell(0).getWeight()).isEqualTo(1);
-    assertThat(directoryDsmData.getCell(0).getOffset()).isEqualTo(1);
+    assertThat(directoryDsmData.getCell(0).getOffset()).isEqualTo(2);
     assertThat(directoryDsmData.getUuid(1)).isEqualTo("FILE_B");
 
     // Nothing on file
@@ -277,7 +323,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(6)
         .setWeight(1)
         .build()
-    ));
+      ));
 
     sut.execute(context);
 
@@ -321,7 +367,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
       .setUuid("DIRECTORY_B");
 
     // Add dependencies on 205 components, as it's more than 200 no measure will be computed
-    for (int i=5; i<210; i++) {
+    for (int i = 5; i < 210; i++) {
       writer.writeComponent(BatchReport.Component.newBuilder()
         .setRef(i)
         .setType(Constants.ComponentType.FILE)
@@ -334,7 +380,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
           .setToFileRef(i)
           .setWeight(1)
           .build()
-      ));
+        ));
     }
     writer.writeComponent(directoryBuilder.build());
 
