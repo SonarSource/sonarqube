@@ -60,7 +60,7 @@ public class ServerTester extends ExternalResource {
   private Platform platform;
   private EsServerHolder esServerHolder;
   private final File homeDir = TestUtils.newTempDir("tmp-sq-");
-  private final List components = Lists.newArrayList(WsTester.class);
+  private final List<Object> components = Lists.<Object>newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
   private final ServletContext servletContext = new AttributeHolderServletContext();
 
@@ -139,6 +139,10 @@ public class ServerTester extends ExternalResource {
     }
     esServerHolder = null;
     FileUtils.deleteQuietly(homeDir);
+  }
+
+  public void restart() {
+    platform.restart();
   }
 
   /**
