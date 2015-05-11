@@ -20,7 +20,7 @@
 package org.sonar.core.persistence;
 
 public interface IsAliveMapper {
-  static final int IS_ALIVE_RETURNED_VALUE = 1;
+  int IS_ALIVE_RETURNED_VALUE = 1;
   /**
    * Always return {@link #IS_ALIVE_RETURNED_VALUE} unless a database or connection error occurs.
    */

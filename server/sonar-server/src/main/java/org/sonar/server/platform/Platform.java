@@ -253,7 +253,7 @@ public class Platform {
     return getContainer().getComponentByKey(key);
   }
 
-  public static enum Status {
+  public enum Status {
     BOOTING, SAFEMODE, UP;
   }
 }
