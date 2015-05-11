@@ -24,38 +24,26 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.task.TaskComponent;
-
-import javax.annotation.Nullable;
 
 /**
  * Exclude the sub-projects as defined by the properties sonar.skippedModules and sonar.includedModules
  *
  * @since 2.12
  */
-public class ProjectExclusions implements TaskComponent {
+public class ProjectExclusions {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectExclusions.class);
 
   private Settings settings;
-  private ProjectReactor reactor;
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor,
-    // exclusions are applied when the project is completely defined by extensions
-    @Nullable ProjectBuilder[] projectBuilders) {
+  public ProjectExclusions(Settings settings) {
     this.settings = settings;
-    this.reactor = reactor;
   }
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor) {
-    this(settings, reactor, new ProjectBuilder[0]);
-  }
-
-  public void apply() {
+  public void apply(ProjectReactor reactor) {
     if (!reactor.getProjects().isEmpty() && StringUtils.isNotBlank(reactor.getProjects().get(0).getKey())) {
       LOG.info("Apply project exclusions");
 

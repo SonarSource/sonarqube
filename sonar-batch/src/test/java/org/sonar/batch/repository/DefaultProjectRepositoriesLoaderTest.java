@@ -26,7 +26,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
 
 import static org.mockito.Matchers.anyString;
@@ -41,7 +41,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   private ServerClient serverClient;
   private DefaultAnalysisMode analysisMode;
   private ProjectReactor reactor;
-  private TaskProperties taskProperties;
+  private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
@@ -50,7 +50,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     loader = new DefaultProjectRepositoriesLoader(serverClient, analysisMode);
     loader = spy(loader);
     when(serverClient.request(anyString())).thenReturn("{}");
-    taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
+    taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
   }
 
   @Test

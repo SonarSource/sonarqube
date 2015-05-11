@@ -87,12 +87,12 @@ public final class Batch {
   /**
    * @since 4.4
    */
-  public Batch executeTask(Map<String, String> taskProperties, Object... components) {
+  public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
     if (!started) {
       throw new IllegalStateException("Batch is not started. Unable to execute task.");
     }
 
-    bootstrapContainer.executeTask(taskProperties, components);
+    bootstrapContainer.executeAnalysis(analysisProperties, components);
     return this;
   }
 

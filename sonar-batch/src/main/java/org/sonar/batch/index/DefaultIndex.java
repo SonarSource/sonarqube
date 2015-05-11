@@ -37,12 +37,18 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentKeys;
@@ -51,7 +57,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -90,11 +104,11 @@ public class DefaultIndex extends SonarIndex {
   private Set<Dependency> dependencies = Sets.newLinkedHashSet();
   private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newLinkedHashMap();
   private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newLinkedHashMap();
-  private ProjectTree projectTree;
+  private DefaultProjectTree projectTree;
   private ModuleIssues moduleIssues;
 
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
-    ProjectTree projectTree, MetricFinder metricFinder,
+    DefaultProjectTree projectTree, MetricFinder metricFinder,
     ResourceKeyMigration migration, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
@@ -104,7 +118,7 @@ public class DefaultIndex extends SonarIndex {
     this.measureCache = measureCache;
   }
 
-  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, ProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
     this.projectTree = projectTree;

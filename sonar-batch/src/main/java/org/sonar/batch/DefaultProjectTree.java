@@ -22,31 +22,35 @@ package org.sonar.batch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
+import org.picocontainer.Startable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.scan.ProjectReactorReady;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 import java.util.List;
 import java.util.Map;
 
-public class DefaultProjectTree implements ProjectTree {
+public class DefaultProjectTree implements Startable {
 
   private final ProjectConfigurator configurator;
-  private ProjectReactor projectReactor;
+  private ImmutableProjectReactor projectReactor;
 
   private List<Project> projects;
   private Map<ProjectDefinition, Project> projectsByDef;
 
-  public DefaultProjectTree(ProjectReactor projectReactor,
-      ProjectConfigurator projectConfigurator,
-      ProjectReactorReady reactorReady) {
+  public DefaultProjectTree(ImmutableProjectReactor projectReactor, ProjectConfigurator projectConfigurator) {
     this.projectReactor = projectReactor;
     this.configurator = projectConfigurator;
   }
 
+  @Override
   public void start() {
     doStart(projectReactor.getProjects());
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to do
   }
 
   void doStart(List<ProjectDefinition> definitions) {
@@ -77,7 +81,6 @@ public class DefaultProjectTree implements ProjectTree {
     return projects;
   }
 
-  @Override
   public Project getRootProject() {
     for (Project project : projects) {
       if (project.getParent() == null) {
@@ -87,7 +90,6 @@ public class DefaultProjectTree implements ProjectTree {
     throw new IllegalStateException("Can not find the root project from the list of Maven modules");
   }
 
-  @Override
   public ProjectDefinition getProjectDefinition(Project project) {
     for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
       if (ObjectUtils.equals(entry.getValue(), project)) {

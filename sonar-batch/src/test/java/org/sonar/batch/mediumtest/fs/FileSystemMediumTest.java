@@ -261,4 +261,15 @@ public class FileSystemMediumTest {
     assertThat(result.inputFile("src/sample.other").language()).isNull();
   }
 
+  @Test
+  public void scanMultiModuleProject() throws IOException {
+    File projectDir = new File("src/test/resources/mediumtest/xoo/multi-modules-sample");
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(4);
+    assertThat(result.inputDirs()).hasSize(4);
+  }
+
 }

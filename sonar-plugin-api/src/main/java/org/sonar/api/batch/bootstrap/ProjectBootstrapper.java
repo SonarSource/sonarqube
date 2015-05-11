@@ -19,7 +19,8 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.BatchSide;
+import org.sonar.api.ExtensionPoint;
 
 /**
  * This extension point initializes the project structure. It is extended by batch bootstrappers
@@ -35,7 +36,9 @@ import org.sonar.api.task.TaskExtension;
  * @deprecated since 4.3 All bootstrappers should use SQ Runner API and provide a set of properties
  */
 @Deprecated
-public interface ProjectBootstrapper extends TaskExtension {
+@BatchSide
+@ExtensionPoint
+public interface ProjectBootstrapper {
 
   /**
    * Implement this method to create project reactor

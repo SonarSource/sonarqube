@@ -19,24 +19,22 @@
  */
 package org.sonar.batch.scan;
 
-import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectBuilder;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
-import static org.mockito.Mockito.mock;
+public class ImmutableProjectReactorProvider extends ProviderAdapter {
 
-public class ProjectReactorReadyTest {
-  @Test
-  public void should_do_nothing() {
-    // it's only a barrier
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class),
-      new ProjectBuilder[] {mock(ProjectBuilder.class)}, mock(ProjectReactorValidator.class));
-    barrier.start();
-  }
+  public ImmutableProjectReactor provide(ProjectReactor reactor, ProjectBuildersExecutor projectBuildersExecutor, ProjectExclusions exclusions, ProjectReactorValidator validator) {
 
-  @Test
-  public void project_builders_should_be_optional() {
-    ProjectReactorReady barrier = new ProjectReactorReady(mock(ProjectExclusions.class), mock(ProjectReactor.class), mock(ProjectReactorValidator.class));
-    barrier.start();
+    // 1 Apply project builders
+    projectBuildersExecutor.execute(reactor);
+
+    // 2 Apply project exclusions
+    exclusions.apply(reactor);
+
+    // 3 Validate final reactor
+    validator.validate(reactor);
+
+    return new ImmutableProjectReactor(reactor.getRoot());
   }
 }

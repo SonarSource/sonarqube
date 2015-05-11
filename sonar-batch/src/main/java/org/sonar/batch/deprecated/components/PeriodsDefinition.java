@@ -25,7 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
 
@@ -43,12 +43,12 @@ public class PeriodsDefinition {
 
   private DatabaseSession session;
 
-  private ProjectTree projectTree;
+  private DefaultProjectTree projectTree;
   private final Settings settings;
 
   private List<PastSnapshot> projectPastSnapshots;
 
-  public PeriodsDefinition(DatabaseSession session, ProjectTree projectTree, Settings settings,
+  public PeriodsDefinition(DatabaseSession session, DefaultProjectTree projectTree, Settings settings,
     PastSnapshotFinder pastSnapshotFinder) {
     this.session = session;
     this.projectTree = projectTree;

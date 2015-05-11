@@ -25,7 +25,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
@@ -34,7 +34,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
 
   private ProjectRepositories projectReferentials;
 
-  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, TaskProperties taskProps, AnalysisMode analysisMode) {
+  public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, AnalysisProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo("Load project repositories");
       projectReferentials = loader.load(reactor, taskProps);

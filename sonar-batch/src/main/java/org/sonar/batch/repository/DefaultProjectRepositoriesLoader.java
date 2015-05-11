@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 
@@ -43,7 +43,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   }
 
   @Override
-  public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
+  public ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties) {
     String projectKey = reactor.getRoot().getKeyWithBranch();
     String url = BATCH_PROJECT_URL + "?key=" + ServerClient.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {

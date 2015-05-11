@@ -17,18 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.bootstrap;
 
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
+import javax.annotation.Nullable;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Map;
 
-public class ScanTaskTest {
-  @Test
-  public void test_definition() {
-    assertThat(ScanTask.DEFINITION).isNotNull();
-    assertThat(ScanTask.DEFINITION.key()).isEqualTo(CoreProperties.SCAN_TASK);
+/**
+ * Batch properties that are specific to an analysis (for example
+ * coming from sonar-project.properties).
+ */
+public class AnalysisProperties extends UserProperties {
+
+  public AnalysisProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
+    super(properties, pathToSecretKey);
   }
 
 }

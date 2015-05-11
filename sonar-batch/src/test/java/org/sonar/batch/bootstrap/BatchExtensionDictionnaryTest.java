@@ -22,7 +22,15 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.BuildBreaker;
+import org.sonar.api.batch.CheckProject;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.PostJob;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
@@ -42,9 +50,9 @@ import static org.mockito.Mockito.mock;
 
 public class BatchExtensionDictionnaryTest {
 
-  private BatchExtensionDictionnary newSelector(BatchExtension... extensions) {
+  private BatchExtensionDictionnary newSelector(Object... extensions) {
     ComponentContainer iocContainer = new ComponentContainer();
-    for (BatchExtension extension : extensions) {
+    for (Object extension : extensions) {
       iocContainer.addSingleton(extension);
     }
     return new BatchExtensionDictionnary(iocContainer, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
@@ -80,9 +88,9 @@ public class BatchExtensionDictionnaryTest {
 
   @Test
   public void shouldSearchInParentContainers() {
-    BatchExtension a = new FakeSensor();
-    BatchExtension b = new FakeSensor();
-    BatchExtension c = new FakeSensor();
+    Sensor a = new FakeSensor();
+    Sensor b = new FakeSensor();
+    Sensor c = new FakeSensor();
 
     ComponentContainer grandParent = new ComponentContainer();
     grandParent.addSingleton(a);
@@ -95,7 +103,7 @@ public class BatchExtensionDictionnaryTest {
 
     BatchExtensionDictionnary dictionnary = new BatchExtensionDictionnary(child, mock(DefaultSensorContext.class), mock(SensorOptimizer.class), mock(PostJobContext.class),
       mock(PostJobOptimizer.class));
-    assertThat(dictionnary.select(BatchExtension.class, null, true, null)).containsOnly(a, b, c);
+    assertThat(dictionnary.select(Sensor.class, null, true, null)).containsOnly(a, b, c);
   }
 
   @Test
@@ -303,7 +311,7 @@ public class BatchExtensionDictionnaryTest {
     };
 
     BatchExtensionDictionnary selector = newSelector(new FakePostJob(), checker, new FakePostJob());
-    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    List extensions = Lists.newArrayList(selector.select(PostJob.class, null, true, null));
 
     assertThat(extensions).hasSize(3);
     assertThat(extensions.get(2)).isEqualTo(checker);

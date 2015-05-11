@@ -23,26 +23,28 @@ import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultFileLinesContextFactory;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DependencyPersister;
@@ -56,6 +58,7 @@ import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.GraphPersister;
+import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.report.ComponentsPublisher;
@@ -80,6 +83,8 @@ import org.sonar.core.component.ScanGraph;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
@@ -89,16 +94,22 @@ import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
 
-  private DefaultAnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
+  private final Object[] components;
+  private final AnalysisProperties props;
 
-  public ProjectScanContainer(ComponentContainer taskContainer) {
-    super(taskContainer);
-    analysisMode = taskContainer.getComponentByType(DefaultAnalysisMode.class);
+  public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props, Object... components) {
+    super(globalContainer);
+    this.props = props;
+    this.components = components;
+    analysisMode = globalContainer.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
   protected void doBeforeStart() {
-    projectBootstrap();
+    for (Object component : components) {
+      add(component);
+    }
     addBatchComponents();
     if (analysisMode.isDb()) {
       addDataBaseComponents();
@@ -110,31 +121,34 @@ public class ProjectScanContainer extends ComponentContainer {
     }
   }
 
-  private void projectBootstrap() {
-    // Views pass a custom ProjectReactor
-    ProjectReactor reactor = getComponentByType(ProjectReactor.class);
-    if (reactor == null) {
-      // OK, not present, so look for a deprecated custom ProjectBootstrapper for old versions of SQ Runner
-      ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      Settings settings = getComponentByType(Settings.class);
-      if (bootstrapper == null
-        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
-        // Use default SonarRunner project bootstrapper
-        ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
-        reactor = builder.execute();
-      } else {
-        reactor = bootstrapper.bootstrap();
-      }
-      if (reactor == null) {
-        throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
-      }
-      add(reactor);
+  private Class<?> projectReactorBuilder() {
+    if (isRunnerVersionLessThan2Dot4()) {
+      return DeprecatedProjectReactorBuilder.class;
     }
+    return ProjectReactorBuilder.class;
+  }
+
+  private boolean isRunnerVersionLessThan2Dot4() {
+    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
+    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
+    return env != null && "SonarRunner".equals(env.getKey());
   }
 
   private void addBatchComponents() {
     add(
+      props,
+      projectReactorBuilder(),
+      new MutableProjectReactorProvider(getComponentByType(ProjectBootstrapper.class)),
+      new ImmutableProjectReactorProvider(),
+      ProjectBuildersExecutor.class,
+      EventBus.class,
+      PhasesTimeProfiler.class,
+      ResourceTypes.class,
+      PermissionFacade.class,
+      DefaultResourcePermissions.class,
+      DefaultProjectTree.class,
+      ProjectExclusions.class,
+      ProjectReactorValidator.class,
       new ProjectRepositoriesProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
@@ -238,7 +252,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    ProjectTree tree = getComponentByType(ProjectTree.class);
+    DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);
     scanRecursively(tree.getRootProject());
     if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();

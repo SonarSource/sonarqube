@@ -20,19 +20,23 @@
 
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.components.PastSnapshotFinder;
-
-import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
+import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class PeriodsDefinitionTest extends AbstractDbUnitTestCase {
 
@@ -48,7 +52,7 @@ public class PeriodsDefinitionTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_init_past_snapshots() {
-    ProjectTree projectTree = mock(ProjectTree.class);
+    DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
     when(projectTree.getRootProject()).thenReturn(new Project("my:project"));
     new PeriodsDefinition(getSession(), projectTree, settings, pastSnapshotFinder);
 
@@ -62,7 +66,7 @@ public class PeriodsDefinitionTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_not_init_past_snapshots_if_first_analysis() {
-    ProjectTree projectTree = mock(ProjectTree.class);
+    DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
     when(projectTree.getRootProject()).thenReturn(new Project("new:project"));
 
     new PeriodsDefinition(getSession(), projectTree, settings, pastSnapshotFinder);

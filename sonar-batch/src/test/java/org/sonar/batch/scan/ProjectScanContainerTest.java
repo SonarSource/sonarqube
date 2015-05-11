@@ -19,84 +19,15 @@
  */
 package org.sonar.batch.scan;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.ExtensionInstaller;
-import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.bootstrap.TaskProperties;
-import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.protocol.input.GlobalRepositories;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProjectScanContainerTest {
-
-  private ProjectBootstrapper projectBootstrapper;
-  private ProjectScanContainer container;
-  private Settings settings;
-  private ComponentContainer parentContainer;
-  private BootstrapProperties bootstrapProperties;
-
-  @Before
-  public void prepare() {
-    projectBootstrapper = mock(ProjectBootstrapper.class);
-    bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
-    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(Collections.<String, String>emptyMap());
-    when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
-    parentContainer = new ComponentContainer();
-    parentContainer.add(System2.INSTANCE);
-    parentContainer.add(bootstrapProperties);
-    parentContainer.add(analysisMode);
-    GlobalRepositories globalRef = new GlobalRepositories();
-    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, analysisMode);
-    parentContainer.add(settings);
-    ProjectRepositoriesLoader projectReferentialsLoader = new ProjectRepositoriesLoader() {
-      @Override
-      public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
-        return new ProjectRepositories();
-      }
-    };
-    parentContainer.add(projectReferentialsLoader);
-    parentContainer.add(mock(TaskProperties.class));
-    container = new ProjectScanContainer(parentContainer);
-  }
-
-  @Test
-  public void should_activate_profiling() {
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, mock(TempFolder.class));
-    container.doBeforeStart();
-
-    assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
-
-    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
-
-    container = new ProjectScanContainer(parentContainer);
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, mock(TempFolder.class));
-    container.doBeforeStart();
-
-    assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(1);
-  }
 
   @Test
   public void should_add_only_batch_extensions() {

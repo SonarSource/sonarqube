@@ -26,7 +26,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.util.Locale;
@@ -36,11 +36,11 @@ public class ProjectLock {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectLock.class);
 
   private final Semaphores semaphores;
-  private final ProjectTree projectTree;
+  private final DefaultProjectTree projectTree;
   private final DefaultAnalysisMode analysisMode;
   private final I18n i18n;
 
-  public ProjectLock(Semaphores semaphores, ProjectTree projectTree, DefaultAnalysisMode analysisMode, I18n i18n) {
+  public ProjectLock(Semaphores semaphores, DefaultProjectTree projectTree, DefaultAnalysisMode analysisMode, I18n i18n) {
     this.semaphores = semaphores;
     this.projectTree = projectTree;
     this.analysisMode = analysisMode;

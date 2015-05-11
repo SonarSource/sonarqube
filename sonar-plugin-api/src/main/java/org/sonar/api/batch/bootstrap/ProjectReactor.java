@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Mutable project definitions that can be modified by {@link ProjectBuilder} extensions.
  * @since 2.9
  */
 @BatchSide

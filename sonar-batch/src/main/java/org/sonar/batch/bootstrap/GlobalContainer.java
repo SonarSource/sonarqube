@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.utils.Durations;
@@ -42,6 +43,7 @@ import org.sonar.batch.repository.GlobalRepositoriesProvider;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepository;
+import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -170,8 +172,9 @@ public class GlobalContainer extends ComponentContainer {
     }
   }
 
-  public void executeTask(Map<String, String> taskProperties, Object... components) {
-    new TaskContainer(this, taskProperties, components).execute();
+  public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
+    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    new ProjectScanContainer(this, props, components).execute();
   }
 
 }
