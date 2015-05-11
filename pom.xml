@@ -1228,9 +1228,9 @@
 
   <developers>
     <developer>
-      <id>racodond</id>
-      <name>David Racodon</name>
-      <email>david.racodon@sonarsource.com</email>
+      <id>bellingard</id>
+      <name>Fabrice Bellingard</name>
+      <email>fabrice.bellingard@sonarsource.com</email>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
@@ -1242,30 +1242,41 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <id>godin</id>
-      <name>Evgeny Mandrikov</name>
-      <email>evgeny.mandrikov@sonarsource.com</email>
-      <organization>SonarSource</organization>
-      <timezone>+3</timezone>
-    </developer>
-    <developer>
-      <id>bellingard</id>
-      <name>Fabrice Bellingard</name>
-      <email>fabrice.bellingard@sonarsource.com</email>
+      <id>dgageot</id>
+      <name>David Gageot</name>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <id>freddy.mallet</id>
+      <id>ehartmann</id>
+      <name>Eric Hartmann</name>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>fmallet</id>
       <name>Freddy Mallet</name>
       <email>freddy.mallet@sonarsource.com</email>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
     <developer>
+      <id>Godin</id>
+      <name>Evgeny Mandrikov</name>
+      <email>evgeny.mandrikov@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+3</timezone>
+    </developer>
+    <developer>
       <id>henryju</id>
       <name>Julien Henry</name>
       <email>julien.henry@sonarsource.com</email>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>jblievremont</id>
+      <name>Jean-Baptiste Lievremont</name>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
@@ -1291,9 +1302,20 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <id>henryju</id>
-      <name>Julien Henry</name>
-      <email>julien.henry@sonarsource.com</email>
+      <id>sns-seb</id>
+      <name>Sebastien Lesaint</name>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>stas-vilchik</id>
+      <name>Stas Vilchik</name>
+      <organization>SonarSource</organization>
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>teryk</id>
+      <name>Teryk Bellahsene</name>
       <organization>SonarSource</organization>
       <timezone>+1</timezone>
     </developer>
