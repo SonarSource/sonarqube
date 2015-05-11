@@ -21,7 +21,6 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Map;
-
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,8 +35,10 @@ import org.sonar.server.user.UserSession;
 public class SystemInfoWsAction implements SystemWsAction {
 
   private final Monitor[] monitors;
+  private final UserSession userSession;
 
-  public SystemInfoWsAction(Monitor... monitors) {
+  public SystemInfoWsAction(UserSession userSession, Monitor... monitors) {
+    this.userSession = userSession;
     this.monitors = monitors;
   }
 
@@ -54,7 +55,7 @@ public class SystemInfoWsAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     JsonWriter json = response.newJsonWriter();
     writeJson(json);
     json.close();

@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -41,7 +42,7 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +52,8 @@ public class QProfileDeleteActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient;
 
@@ -80,7 +83,7 @@ public class QProfileDeleteActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileDeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient), dbClient)));
+      new QProfileDeleteAction(new Languages(xoo1, xoo2), new QProfileFactory(dbClient), dbClient, userSessionRule)));
   }
 
   @After
@@ -98,7 +101,7 @@ public class QProfileDeleteActionTest {
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileKey", "sonar-way-xoo1-12345").execute().assertNoContent();
 
@@ -116,7 +119,7 @@ public class QProfileDeleteActionTest {
     qualityProfileDao.insertProjectProfileAssociation(project.uuid(), profileKey, session);
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Sonar way").setParam("language", xoo1.getKey()).execute().assertNoContent();
 
@@ -126,37 +129,37 @@ public class QProfileDeleteActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
     tester.newPostRequest("api/qualityprofiles", "delete").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_arguments() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_language() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("language", xoo1.getKey()).execute();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_too_many_arguments() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").setParam("language", xoo1.getKey()).setParam("profileKey", "polop").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unexisting_profile() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Polop").setParam("language", xoo1.getKey()).execute();
   }
 }

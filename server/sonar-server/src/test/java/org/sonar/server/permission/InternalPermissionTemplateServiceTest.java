@@ -22,6 +22,7 @@ package org.sonar.server.permission;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +31,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.*;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.PermissionTemplateGroupDto;
+import org.sonar.core.permission.PermissionTemplateUserDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
@@ -38,12 +44,16 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternalPermissionTemplateServiceTest {
@@ -55,6 +65,9 @@ public class InternalPermissionTemplateServiceTest {
   private static final PermissionTemplateDto DEFAULT_TEMPLATE =
     new PermissionTemplateDto().setId(1L).setName(DEFAULT_KEY).setDescription(DEFAULT_DESC).setKeyPattern(DEFAULT_PATTERN);
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  
   @Mock
   PermissionTemplateDao permissionTemplateDao;
 
@@ -77,11 +90,11 @@ public class InternalPermissionTemplateServiceTest {
 
   @Before
   public void setUp() {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder);
+    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder, userSessionRule);
   }
 
   @Test
@@ -203,7 +216,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_retrieve_all_permission_templates_from_project() {
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     PermissionTemplateDto template1 =
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");

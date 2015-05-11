@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
@@ -39,7 +40,7 @@ import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.JsonAssert;
 
@@ -49,6 +50,8 @@ public class ProvisionedProjectsActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester ws;
   DbClient dbClient;
@@ -56,22 +59,22 @@ public class ProvisionedProjectsActionTest {
   ComponentDao componentDao;
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
     dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();
-    ws = new WsTester(new ProjectsWs(new ProvisionedProjectsAction(dbClient)));
+    ws = new WsTester(new ProjectsWs(new ProvisionedProjectsAction(dbClient, userSessionRule)));
   }
 
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
-    MockUserSession.set().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
     componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
     analyzedProject = componentDao.insert(dbSession, analyzedProject);
@@ -86,7 +89,7 @@ public class ProvisionedProjectsActionTest {
 
   @Test
   public void provisioned_projects_with_correct_paginated() throws Exception {
-    MockUserSession.set().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     for (int i = 1; i <= 10; i++) {
       componentDao.insert(dbSession, newProvisionedProject(String.valueOf(i)));
     }
@@ -103,7 +106,7 @@ public class ProvisionedProjectsActionTest {
 
   @Test
   public void provisioned_projects_with_desired_fields() throws Exception {
-    MockUserSession.set().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     componentDao.insert(dbSession, newProvisionedProject("1"));
     dbSession.commit();
 
@@ -118,7 +121,7 @@ public class ProvisionedProjectsActionTest {
 
   @Test
   public void provisioned_projects_with_query() throws Exception {
-    MockUserSession.set().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
     dbSession.commit();
 
@@ -143,7 +146,7 @@ public class ProvisionedProjectsActionTest {
 
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
-    MockUserSession.set().setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     ComponentDto hBaseProject = ComponentTesting.newProjectDto("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")

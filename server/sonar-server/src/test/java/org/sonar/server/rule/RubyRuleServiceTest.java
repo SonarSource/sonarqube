@@ -21,6 +21,8 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,18 +36,22 @@ import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
-import org.sonar.server.user.UserSession;
-
-import java.util.HashMap;
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RubyRuleServiceTest {
+
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   RuleService ruleService;
@@ -63,7 +69,7 @@ public class RubyRuleServiceTest {
 
   @Before
   public void setUp() {
-    service = new RubyRuleService(ruleService, updater);
+    service = new RubyRuleService(ruleService, updater, userSessionRule);
   }
 
   @Test
@@ -161,7 +167,7 @@ public class RubyRuleServiceTest {
 
     service.updateRule(ImmutableMap.<String, Object>of("ruleKey", "squid:S001"));
 
-    verify(updater).update(any(RuleUpdate.class), any(UserSession.class));
+    verify(updater).update(any(RuleUpdate.class), any(ThreadLocalUserSession.class));
   }
 
   @Test

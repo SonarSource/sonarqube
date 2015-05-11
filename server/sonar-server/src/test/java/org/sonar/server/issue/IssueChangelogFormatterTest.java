@@ -19,7 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import java.util.List;
+import java.util.Locale;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,9 +31,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-
-import java.util.List;
-import java.util.Locale;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -41,6 +42,9 @@ import static org.mockito.Mockito.when;
 public class IssueChangelogFormatterTest {
 
   private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   private I18n i18n;
@@ -53,7 +57,7 @@ public class IssueChangelogFormatterTest {
 
   @Before
   public void before() {
-    formatter = new IssueChangelogFormatter(i18n, durations);
+    formatter = new IssueChangelogFormatter(i18n, durations, userSessionRule);
   }
 
   @Test

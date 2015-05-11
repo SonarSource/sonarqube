@@ -21,6 +21,8 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -33,18 +35,17 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 public class QProfileRestoreAction implements BaseQProfileWsAction {
 
   private static final String PARAM_BACKUP = "backup";
   private final QProfileBackuper backuper;
   private final Languages languages;
+  private final UserSession userSession;
 
-  public QProfileRestoreAction(QProfileBackuper backuper, Languages languages) {
+  public QProfileRestoreAction(QProfileBackuper backuper, Languages languages, UserSession userSession) {
     this.backuper = backuper;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   @Override
@@ -63,7 +64,7 @@ public class QProfileRestoreAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     InputStream backup = request.paramAsInputStream(PARAM_BACKUP);
     InputStreamReader reader = null;
 

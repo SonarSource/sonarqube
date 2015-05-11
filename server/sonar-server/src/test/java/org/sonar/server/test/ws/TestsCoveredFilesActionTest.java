@@ -20,17 +20,17 @@
 
 package org.sonar.server.test.ws;
 
+import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestIndex;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Arrays;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
@@ -43,6 +43,8 @@ import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.test.ws.TestsCoveredFilesAction.TEST_UUID;
 
 public class TestsCoveredFilesActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester ws;
   private DbClient dbClient;
@@ -52,12 +54,12 @@ public class TestsCoveredFilesActionTest {
   public void setUp() {
     dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
     testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
-    ws = new WsTester(new TestsWs(new TestsCoveredFilesAction(dbClient, testIndex)));
+    ws = new WsTester(new TestsWs(new TestsCoveredFilesAction(dbClient, testIndex, userSessionRule)));
   }
 
   @Test
   public void covered_files() throws Exception {
-    MockUserSession.set().addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "test-file-uuid");
+    userSessionRule.addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "test-file-uuid");
 
     when(testIndex.searchByTestUuid(anyString()).fileUuid()).thenReturn("test-file-uuid");
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(

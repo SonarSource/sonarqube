@@ -20,10 +20,13 @@
 
 package org.sonar.server.component;
 
+import java.util.Arrays;
+import java.util.Map;
 import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
@@ -40,10 +43,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Arrays;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -56,6 +56,8 @@ public class ComponentServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession session;
@@ -108,7 +110,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.updateKey(project.key(), "sample2:root");
     session.commit();
 
@@ -132,7 +134,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.updateKey(module.key(), "sample:root2:module");
     session.commit();
 
@@ -155,7 +157,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
     service.updateKey(provisionedProject.key(), "provisionedProject2");
     session.commit();
 
@@ -167,7 +169,7 @@ public class ComponentServiceMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_to_update_project_key_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.updateKey(project.key(), "sample2:root");
   }
 
@@ -182,7 +184,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
 
     assertThat(result).hasSize(2);
@@ -201,7 +203,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample:root", "foo");
 
     assertThat(result).hasSize(2);
@@ -212,7 +214,7 @@ public class ComponentServiceMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_to_check_module_keys_before_renaming_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
@@ -227,7 +229,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, project.uuid());
     service.bulkUpdateKey(project.key(), "sample", "sample2");
     session.commit();
 
@@ -251,7 +253,7 @@ public class ComponentServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ADMIN, provisionedProject.uuid());
     service.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
     session.commit();
 
@@ -263,14 +265,14 @@ public class ComponentServiceMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_to_bulk_update_project_key_without_admin_permission() {
     ComponentDto project = createProject("sample:root");
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
     service.bulkUpdateKey("sample:root", "sample", "sample2");
   }
 
   @Test
   public void create_project() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     String key = service.create(NewComponent.create("struts", "Struts project"));
 
@@ -291,7 +293,7 @@ public class ComponentServiceMediumTest {
   @Test
   public void create_new_project_with_branch() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     String key = service.create(NewComponent.create("struts", "Struts project").setBranch("origin/branch"));
 
@@ -303,7 +305,7 @@ public class ComponentServiceMediumTest {
   @Test
   public void create_view() {
     executeStartupTasksToCreateDefaultPermissionTemplate();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     String key = service.create(NewComponent.create("all-project", "All Projects").setQualifier(Qualifiers.VIEW));
 
@@ -323,7 +325,7 @@ public class ComponentServiceMediumTest {
 
   @Test
   public void fail_to_create_new_component_on_invalid_key() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     try {
       service.create(NewComponent.create("struts?parent", "Struts project"));
@@ -336,7 +338,7 @@ public class ComponentServiceMediumTest {
 
   @Test
   public void fail_to_create_new_component_on_invalid_branch() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     try {
       service.create(NewComponent.create("struts", "Struts project").setBranch("origin?branch"));
@@ -349,7 +351,7 @@ public class ComponentServiceMediumTest {
 
   @Test
   public void fail_to_create_new_component_if_key_already_exists() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     ComponentDto project = ComponentTesting.newProjectDto().setKey("struts");
     tester.get(ComponentDao.class).insert(session, project);
@@ -406,9 +408,8 @@ public class ComponentServiceMediumTest {
     session.commit();
 
     // project can be seen by anyone
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    MockUserSession.set();
 
     return project;
   }

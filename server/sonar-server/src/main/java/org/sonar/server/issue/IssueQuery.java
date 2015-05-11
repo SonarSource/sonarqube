@@ -21,18 +21,16 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -283,8 +281,8 @@ public class IssueQuery {
     return ReflectionToStringBuilder.toString(this);
   }
 
-  public static Builder builder() {
-    return new Builder();
+  public static Builder builder(UserSession userSession) {
+    return new Builder(userSession);
   }
 
   public static class Builder {
@@ -318,11 +316,13 @@ public class IssueQuery {
     private String sort;
     private Boolean asc = false;
     private Boolean ignorePaging = false;
-    private String userLogin = UserSession.get().login();
-    private Set<String> userGroups = UserSession.get().userGroups();
+    private String userLogin;
+    private Set<String> userGroups;
     private boolean checkAuthorization = true;
 
-    private Builder() {
+    private Builder(UserSession userSession) {
+      this.userLogin = userSession.login();
+      this.userGroups = userSession.userGroups();
     }
 
     public Builder issueKeys(@Nullable Collection<String> l) {

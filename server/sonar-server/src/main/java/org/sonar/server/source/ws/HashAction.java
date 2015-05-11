@@ -22,6 +22,9 @@ package org.sonar.server.source.ws;
 import com.google.common.base.Function;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import org.apache.commons.io.Charsets;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,16 +35,14 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-
 public class HashAction implements SourcesAction {
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public HashAction(DbClient dbClient) {
+  public HashAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -65,7 +66,7 @@ public class HashAction implements SourcesAction {
     try (DbSession session = dbClient.openSession(false)) {
       final String componentKey = request.mandatoryParam("key");
       final ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
-      UserSession.get().checkProjectUuidPermission(UserRole.USER, component.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
       response.stream().setMediaType("text/plain");
       OutputStreamWriter writer = new OutputStreamWriter(response.stream().output(), Charsets.UTF_8);

@@ -20,8 +20,10 @@
 
 package org.sonar.server.computation.ws;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -29,10 +31,8 @@ import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
 
 /**
  * TODO replace this medium test by a small test
@@ -41,6 +41,8 @@ public class HistoryWsActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   HistoryWsAction sut;
   ActivityService activityService;
@@ -74,7 +76,7 @@ public class HistoryWsActionMediumTest {
     activity2.setData("submittedAt", new Date());
     activityService.save(activity2);
 
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest("api/computation", "history");
     request.execute().assertJson(getClass(), "list_history_reports.json");
@@ -82,8 +84,6 @@ public class HistoryWsActionMediumTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_admin_right() throws Exception {
-    MockUserSession.set();
-
     WsTester.TestRequest request = tester.wsTester().newGetRequest("api/computation", "history");
     request.execute();
   }

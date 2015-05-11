@@ -27,6 +27,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -44,6 +45,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -52,6 +54,8 @@ public class QProfileBackuperMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;

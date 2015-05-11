@@ -21,9 +21,11 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.web.UserRole;
@@ -40,10 +42,8 @@ import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -57,9 +57,10 @@ public class LinesActionTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   SourceLineIndex sourceLineIndex;
 
@@ -81,9 +82,7 @@ public class LinesActionTest {
     componentDao = new ComponentDao();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), componentDao);
     session = dbClient.openSession(false);
-    wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator)));
-
-    MockUserSession.set();
+    wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator, userSessionRule)));
   }
 
   @After
@@ -156,7 +155,7 @@ public class LinesActionTest {
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, line1, line2, line3);
 
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "show_source.json");
@@ -166,7 +165,7 @@ public class LinesActionTest {
   public void fail_to_show_source_if_no_source_found() {
     newFile();
 
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     try {
       WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
@@ -181,7 +180,7 @@ public class LinesActionTest {
   public void show_source_with_from_and_to_params() throws Exception {
     newFile();
 
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       new SourceLineDoc()
@@ -237,7 +236,7 @@ public class LinesActionTest {
         .setUpdateDate(new Date())
     );
 
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
     request.execute().assertJson(getClass(), "show_source_by_file_key.json");
@@ -246,7 +245,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     newFile();
-    MockUserSession.set().setLogin("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
 
     try {
@@ -261,7 +260,7 @@ public class LinesActionTest {
   public void should_check_permission() throws Exception {
     newFile();
 
-    MockUserSession.set().setLogin("login");
+    userSessionRule.logon("login");
 
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", FILE_UUID)

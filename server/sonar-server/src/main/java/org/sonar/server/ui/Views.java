@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class Views {
@@ -43,10 +44,14 @@ public class Views {
   private Map<String, ViewProxy<Widget>> widgetsPerId = Maps.newHashMap();
   private Set<ViewProxy<Widget>> widgets = Sets.newTreeSet();
 
-  public Views() {
+  private final UserSession userSession;
+
+  public Views(UserSession userSession) {
+    this.userSession = userSession;
   }
 
-  public Views(View[] views) {
+  public Views(UserSession userSession, View[] views) {
+    this.userSession = userSession;
     for (View view : views) {
       register(view);
     }
@@ -54,12 +59,12 @@ public class Views {
 
   private void register(View view) {
     if (view instanceof Widget) {
-      ViewProxy<Widget> proxy = new ViewProxy<Widget>((Widget) view);
+      ViewProxy<Widget> proxy = new ViewProxy<>((Widget) view, userSession);
       widgets.add(proxy);
       widgetsPerId.put(proxy.getId(), proxy);
 
     } else if (view instanceof Page) {
-      ViewProxy<Page> proxy = new ViewProxy<Page>((Page) view);
+      ViewProxy<Page> proxy = new ViewProxy<>((Page) view, userSession);
       pagesPerId.put(proxy.getId(), proxy);
       pages.add(proxy);
     }

@@ -22,6 +22,7 @@ package org.sonar.server.ui.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.ResourceType;
@@ -41,8 +42,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 
@@ -52,6 +53,8 @@ public class GlobalNavigationActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbSession session;
 
@@ -83,9 +86,7 @@ public class GlobalNavigationActionTest {
 
   @Test
   public void empty_call() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(), new Settings(), new ResourceTypes())));
-
-    MockUserSession.set();
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new Settings(), new ResourceTypes(), userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "empty.json");
   }
@@ -105,22 +106,18 @@ public class GlobalNavigationActionTest {
           .addRelations("PAL", "LAP")
           .build()
       });
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(), new Settings(), resourceTypes)));
-
-    MockUserSession.set();
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule), new Settings(), resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "with_qualifiers.json");
   }
 
   @Test
   public void only_logo() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(),
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, new Views(userSessionRule),
       new Settings()
         .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
         .setProperty("sonar.lf.logoWidthPx", "123"),
-      new ResourceTypes())));
-
-    MockUserSession.set();
+      new ResourceTypes(), userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "only_logo.json");
   }
@@ -129,8 +126,6 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_anonymous() throws Exception {
     nominalSetup();
 
-    MockUserSession.set();
-
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "anonymous.json");
   }
 
@@ -138,7 +133,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_user() throws Exception {
     nominalSetup();
 
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "user.json");
   }
@@ -147,7 +142,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_admin() throws Exception {
     nominalSetup();
 
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "admin.json");
   }
@@ -156,7 +151,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_user_without_configured_dashboards() throws Exception {
     nominalSetup();
 
-    MockUserSession.set().setLogin("anakin");
+    userSessionRule.logon("anakin");
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "anonymous.json");
   }
@@ -170,7 +165,7 @@ public class GlobalNavigationActionTest {
     Settings settings = new Settings()
       .setProperty("sonar.lf.logoUrl", "http://some-server.tld/logo.png")
       .setProperty("sonar.lf.logoWidthPx", "123");
-    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings, new ResourceTypes())));
+    wsTester = new WsTester(new NavigationWs(new GlobalNavigationAction(activeDashboardDao, createViews(), settings, new ResourceTypes(), userSessionRule)));
   }
 
   private void createAndConfigureDashboardForUser() {
@@ -245,6 +240,6 @@ public class GlobalNavigationActionTest {
         return "admin_page";
       }
     }
-    return new Views(new View[] {page, controller, new AdminPage()});
+    return new Views(userSessionRule, new View[] {page, controller, new AdminPage()});
   }
 }

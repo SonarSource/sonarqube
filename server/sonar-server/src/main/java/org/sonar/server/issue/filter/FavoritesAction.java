@@ -31,9 +31,11 @@ import org.sonar.server.user.UserSession;
 public class FavoritesAction implements RequestHandler {
 
   private final IssueFilterService service;
+  private final UserSession userSession;
 
-  public FavoritesAction(IssueFilterService service) {
+  public FavoritesAction(IssueFilterService service, UserSession userSession) {
     this.service = service;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -46,11 +48,10 @@ public class FavoritesAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession session = UserSession.get();
     JsonWriter json = response.newJsonWriter();
     json.beginObject().name("favoriteFilters").beginArray();
-    if (session.isLoggedIn()) {
-      for (IssueFilterDto favorite : service.findFavoriteFilters(session)) {
+    if (userSession.isLoggedIn()) {
+      for (IssueFilterDto favorite : service.findFavoriteFilters(userSession)) {
         json.beginObject();
         json.prop("id", favorite.getId());
         json.prop("name", favorite.getName());

@@ -20,13 +20,11 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
-import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newLinkedHashSet;
@@ -52,9 +50,9 @@ public class QueryContext {
   private String userLogin;
   private Set<String> userGroups = newHashSet();
 
-  public QueryContext() {
-    this.userLogin = UserSession.get().login();
-    this.userGroups = UserSession.get().userGroups();
+  public QueryContext(UserSession userSession) {
+    this.userLogin = userSession.login();
+    this.userGroups = userSession.userGroups();
   }
 
   /**

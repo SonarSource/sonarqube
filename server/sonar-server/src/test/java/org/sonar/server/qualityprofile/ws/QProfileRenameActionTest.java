@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,7 +34,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,8 @@ public class QProfileRenameActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient;
 
@@ -68,7 +71,7 @@ public class QProfileRenameActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileRenameAction(new QProfileFactory(dbClient))));
+      new QProfileRenameAction(new QProfileFactory(dbClient), userSessionRule)));
   }
 
   @After
@@ -78,7 +81,7 @@ public class QProfileRenameActionTest {
 
   @Test
   public void rename_nominal() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo2-23456")
@@ -90,7 +93,7 @@ public class QProfileRenameActionTest {
 
   @Test(expected = BadRequestException.class)
   public void do_nothing_on_conflict() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo2-23456")
@@ -100,7 +103,7 @@ public class QProfileRenameActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("name", "Other Sonar Way")
@@ -109,7 +112,7 @@ public class QProfileRenameActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -118,7 +121,7 @@ public class QProfileRenameActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -128,7 +131,7 @@ public class QProfileRenameActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_unknown_profile() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "rename")
       .setParam("key", "polop")

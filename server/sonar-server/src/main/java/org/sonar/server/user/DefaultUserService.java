@@ -41,11 +41,13 @@ public class DefaultUserService implements RubyUserService {
   private final UserIndex userIndex;
   private final UserUpdater userUpdater;
   private final UserFinder finder;
+  private final UserSession userSession;
 
-  public DefaultUserService(UserIndex userIndex, UserUpdater userUpdater, UserFinder finder) {
+  public DefaultUserService(UserIndex userIndex, UserUpdater userUpdater, UserFinder finder, UserSession userSession) {
     this.userIndex = userIndex;
     this.userUpdater = userUpdater;
     this.finder = finder;
+    this.userSession = userSession;
   }
 
   @Override
@@ -108,7 +110,6 @@ public class DefaultUserService implements RubyUserService {
     if (Strings.isNullOrEmpty(login)) {
       throw new BadRequestException("Login is missing");
     }
-    UserSession userSession = UserSession.get();
     userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     if (Objects.equal(userSession.login(), login)) {
       throw new BadRequestException("Self-deactivation is not possible");

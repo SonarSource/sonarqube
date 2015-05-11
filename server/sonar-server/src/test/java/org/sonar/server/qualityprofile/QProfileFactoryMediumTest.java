@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.component.ComponentDto;
@@ -36,7 +37,8 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -48,6 +50,8 @@ public class QProfileFactoryMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;
@@ -325,7 +329,7 @@ public class QProfileFactoryMediumTest {
     assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo")).isNull();
 
     tester.get(QProfileProjectOperations.class).addProject(profileDto.getKey(), project.uuid(),
-      MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN), dbSession);
+      new MockUserSession("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN), dbSession);
     dbSession.commit();
     dbSession.clearCache();
     assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo").getKey()).isEqualTo(XOO_P1_KEY);

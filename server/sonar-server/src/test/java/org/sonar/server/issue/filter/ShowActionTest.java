@@ -21,13 +21,14 @@
 package org.sonar.server.issue.filter;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +38,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   IssueFilterService service;
@@ -49,15 +52,15 @@ public class ShowActionTest {
 
   @Before
   public void setUp() {
-    action = new ShowAction(service, writer);
+    action = new ShowAction(service, writer, userSessionRule);
     tester = new WsTester(new IssueFilterWs(mock(AppAction.class), action, mock(FavoritesAction.class)));
   }
 
   @Test
   public void show_filter() throws Exception {
     // logged-in user is 'eric' but filter is owned by 'simon'
-    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
-    when(service.find(13L, session)).thenReturn(
+    userSessionRule.logon("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(13L, userSessionRule)).thenReturn(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setDescription("All Blocker Issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     );
 
@@ -67,8 +70,8 @@ public class ShowActionTest {
 
   @Test
   public void show_unknown_filter() throws Exception {
-    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123).setGlobalPermissions("none");
-    when(service.find(42L, session)).thenThrow(new NotFoundException("Filter 42 does not exist"));
+    userSessionRule.logon("eric").setUserId(123).setGlobalPermissions("none");
+    when(service.find(42L, userSessionRule)).thenThrow(new NotFoundException("Filter 42 does not exist"));
 
     try {
       tester.newGetRequest("api/issue_filters", "show").setParam("id", "42").execute();

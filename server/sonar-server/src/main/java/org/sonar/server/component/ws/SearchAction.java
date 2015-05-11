@@ -21,6 +21,9 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -35,10 +38,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -50,9 +49,11 @@ public class SearchAction implements RequestHandler {
   private static final String PARAM_COMPONENT_UUID = "componentUuid";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public SearchAction(DbClient dbClient) {
+  public SearchAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -91,10 +92,10 @@ public class SearchAction implements RequestHandler {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto componentDto = dbClient.componentDao().getByUuid(session, viewOrSubUuid);
-      UserSession.get().checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
 
       Set<Long> projectIds = newLinkedHashSet(dbClient.componentIndexDao().selectProjectIdsFromQueryAndViewOrSubViewUuid(session, query, componentDto.uuid()));
-      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, UserSession.get().userId(), UserRole.USER);
+      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.userId(), UserRole.USER);
 
       SearchOptions options = new SearchOptions();
       options.setPage(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));

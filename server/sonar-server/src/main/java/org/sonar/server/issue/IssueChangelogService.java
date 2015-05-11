@@ -19,6 +19,9 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Collection;
+import java.util.List;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -26,9 +29,6 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.server.user.UserSession;
-
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -42,12 +42,14 @@ public class IssueChangelogService {
   private final UserFinder userFinder;
   private final IssueService issueService;
   private final IssueChangelogFormatter formatter;
+  private final UserSession userSession;
 
-  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, IssueService issueService, IssueChangelogFormatter formatter) {
+  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, IssueService issueService, IssueChangelogFormatter formatter, UserSession userSession) {
     this.changeDao = changeDao;
     this.userFinder = userFinder;
     this.issueService = issueService;
     this.formatter = formatter;
+    this.userSession = userSession;
   }
 
   public IssueChangelog changelog(String issueKey) {
@@ -70,6 +72,6 @@ public class IssueChangelogService {
   }
 
   public List<String> formatDiffs(FieldDiffs diffs) {
-    return formatter.format(UserSession.get().locale(), diffs);
+    return formatter.format(userSession.locale(), diffs);
   }
 }

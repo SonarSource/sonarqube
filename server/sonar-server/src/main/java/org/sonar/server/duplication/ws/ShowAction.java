@@ -22,6 +22,8 @@ package org.sonar.server.duplication.ws;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -39,9 +41,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import java.util.List;
-
 public class ShowAction implements RequestHandler {
 
   private final DbClient dbClient;
@@ -49,13 +48,15 @@ public class ShowAction implements RequestHandler {
   private final MeasureDao measureDao;
   private final DuplicationsParser parser;
   private final DuplicationsJsonWriter duplicationsJsonWriter;
+  private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsJsonWriter duplicationsJsonWriter) {
+  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentDao = componentDao;
     this.measureDao = measureDao;
     this.parser = parser;
     this.duplicationsJsonWriter = duplicationsJsonWriter;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -87,7 +88,7 @@ public class ShowAction implements RequestHandler {
       fileKey = componentDao.getByUuid(session, fileUuid).key();
     }
 
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
     try {
       ComponentDto component = findComponent(fileKey, session);

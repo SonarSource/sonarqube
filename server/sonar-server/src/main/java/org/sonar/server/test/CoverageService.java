@@ -20,7 +20,10 @@
 
 package org.sonar.server.test;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.ServerSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.MutableTestable;
@@ -34,9 +37,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 @ServerSide
 public class CoverageService {
@@ -48,15 +49,17 @@ public class CoverageService {
   private final MyBatis myBatis;
   private final MeasureDao measureDao;
   private final SnapshotPerspectives snapshotPerspectives;
+  private final UserSession userSession;
 
-  public CoverageService(MyBatis myBatis, MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives) {
+  public CoverageService(MyBatis myBatis, MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives, UserSession userSession) {
     this.myBatis = myBatis;
     this.measureDao = measureDao;
     this.snapshotPerspectives = snapshotPerspectives;
+    this.userSession = userSession;
   }
 
   public void checkPermission(String fileKey) {
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
   }
 
   public Map<Integer, Integer> getHits(String fileKey, CoverageService.TYPE type) {

@@ -40,10 +40,12 @@ public class GlobalRepositoryAction implements BatchAction {
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
+  private final UserSession userSession;
 
-  public GlobalRepositoryAction(DbClient dbClient, PropertiesDao propertiesDao) {
+  public GlobalRepositoryAction(DbClient dbClient, PropertiesDao propertiesDao, UserSession userSession) {
     this.dbClient = dbClient;
     this.propertiesDao = propertiesDao;
+    this.userSession = userSession;
   }
 
   @Override
@@ -57,7 +59,6 @@ public class GlobalRepositoryAction implements BatchAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {

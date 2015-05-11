@@ -34,9 +34,9 @@ import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
-import org.sonar.server.user.UserSession;
 
 import java.io.InputStream;
+import org.sonar.server.user.UserSession;
 
 public class QProfileCreateAction implements BaseQProfileWsAction {
 
@@ -53,17 +53,19 @@ public class QProfileCreateAction implements BaseQProfileWsAction {
   private final Languages languages;
 
   private final ProfileImporter[] importers;
+  private final UserSession userSession;
 
-  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, ProfileImporter[] importers) {
+  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, ProfileImporter[] importers, UserSession userSession) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;
     this.languages = languages;
     this.importers = importers;
+    this.userSession = userSession;
   }
 
-  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages) {
-    this(dbClient, profileFactory, exporters, languages, new ProfileImporter[0]);
+  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, UserSession userSession) {
+    this(dbClient, profileFactory, exporters, languages, new ProfileImporter[0], userSession);
   }
 
   @Override
@@ -94,7 +96,7 @@ public class QProfileCreateAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String name = request.mandatoryParam(PARAM_PROFILE_NAME);
     String language = request.mandatoryParam(PARAM_LANGUAGE);

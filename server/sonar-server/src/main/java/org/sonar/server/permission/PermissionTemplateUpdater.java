@@ -42,17 +42,19 @@ abstract class PermissionTemplateUpdater {
   private final String updatedReference;
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
+  private final UserSession userSession;
 
-  PermissionTemplateUpdater(String templateKey, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao) {
+  PermissionTemplateUpdater(String templateKey, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao, UserSession userSession) {
     this.templateKey = templateKey;
     this.permission = permission;
     this.updatedReference = updatedReference;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
+    this.userSession = userSession;
   }
 
   void executeUpdate() {
-    checkSystemAdminUser();
+    checkSystemAdminUser(userSession);
     Long templateId = getTemplateId(templateKey);
     validatePermission(permission);
     doExecute(templateId, permission);
@@ -79,19 +81,16 @@ abstract class PermissionTemplateUpdater {
     return groupDto.getId();
   }
 
-  static void checkSystemAdminUser() {
-    checkProjectAdminUser(null);
+  static void checkSystemAdminUser(UserSession userSession) {
+    checkProjectAdminUser(null, userSession);
   }
 
-  static void checkProjectAdminUser(@Nullable String componentKey) {
-    UserSession currentSession = UserSession.get();
-    currentSession.checkLoggedIn();
+  static void checkProjectAdminUser(@Nullable String componentKey, UserSession userSession) {
+    userSession.checkLoggedIn();
     if (componentKey == null) {
-      currentSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    } else {
-      if (!currentSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !currentSession.hasProjectPermission(UserRole.ADMIN, componentKey)) {
-        throw new ForbiddenException("Insufficient privileges");
-      }
+      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    } else if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, componentKey)) {
+      throw new ForbiddenException("Insufficient privileges");
     }
   }
 

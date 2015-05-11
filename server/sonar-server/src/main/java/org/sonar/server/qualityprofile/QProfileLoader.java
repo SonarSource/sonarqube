@@ -41,16 +41,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class QProfileLoader {
 
   private final DbClient db;
   private final IndexClient index;
+  private final UserSession userSession;
 
-  public QProfileLoader(DbClient db, IndexClient index) {
+  public QProfileLoader(DbClient db, IndexClient index, UserSession userSession) {
     this.db = db;
     this.index = index;
+    this.userSession = userSession;
   }
 
   /**
@@ -129,7 +132,7 @@ public class QProfileLoader {
         .setQProfileKey(key)
         .setActivation(true)
         .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
-      new QueryContext().setLimit(0)).getTotal();
+      new QueryContext(userSession).setLimit(0)).getTotal();
   }
 
 }

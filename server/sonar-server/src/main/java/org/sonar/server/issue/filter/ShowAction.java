@@ -33,10 +33,12 @@ public class ShowAction implements RequestHandler {
 
   private final IssueFilterService service;
   private final IssueFilterWriter issueFilterWriter;
+  private final UserSession userSession;
 
-  public ShowAction(IssueFilterService service, IssueFilterWriter issueFilterWriter) {
+  public ShowAction(IssueFilterService service, IssueFilterWriter issueFilterWriter, UserSession userSession) {
     this.service = service;
     this.issueFilterWriter = issueFilterWriter;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -53,12 +55,11 @@ public class ShowAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession session = UserSession.get();
-    IssueFilterDto filter = service.find(request.mandatoryParamAsLong("id"), session);
+    IssueFilterDto filter = service.find(request.mandatoryParamAsLong("id"), userSession);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-    issueFilterWriter.write(session, filter, json);
+    issueFilterWriter.write(userSession, filter, json);
     json.endObject();
     json.close();
   }

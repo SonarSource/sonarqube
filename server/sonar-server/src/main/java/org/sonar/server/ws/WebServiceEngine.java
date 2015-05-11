@@ -20,6 +20,9 @@
 package org.sonar.server.ws;
 
 import com.google.common.base.Charsets;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
@@ -35,11 +38,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.OutputStreamWriter;
-import java.util.List;
-
 /**
  * @since 4.2
  */
@@ -47,10 +45,11 @@ import java.util.List;
 public class WebServiceEngine implements Startable {
 
   private final WebService.Context context;
-
   private final I18n i18n;
+  private final UserSession userSession;
 
-  public WebServiceEngine(WebService[] webServices, I18n i18n) {
+  public WebServiceEngine(WebService[] webServices, I18n i18n, UserSession userSession) {
+    this.userSession = userSession;
     context = new WebService.Context();
     for (WebService webService : webServices) {
       webService.define(context);
@@ -125,7 +124,7 @@ public class WebServiceEngine implements Startable {
 
     try {
       json.beginObject();
-      errors.writeJson(json, i18n, UserSession.get().locale());
+      errors.writeJson(json, i18n, userSession.locale());
       json.endObject();
     } finally {
       // TODO if close() fails, the runtime exception should not hide the

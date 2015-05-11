@@ -71,15 +71,17 @@ public class IssueBulkChangeService {
   private final DefaultRuleFinder ruleFinder;
   private final NotificationManager notificationService;
   private final List<Action> actions;
+  private final UserSession userSession;
 
   public IssueBulkChangeService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
-    NotificationManager notificationService, List<Action> actions) {
+    NotificationManager notificationService, List<Action> actions, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;
     this.ruleFinder = ruleFinder;
     this.notificationService = notificationService;
     this.actions = actions;
+    this.userSession = userSession;
   }
 
   public IssueBulkChangeResult execute(IssueBulkChangeQuery issueBulkChangeQuery, UserSession userSession) {
@@ -129,7 +131,7 @@ public class IssueBulkChangeService {
     // Load from index to check permission
     SearchOptions options = new SearchOptions().setLimit(SearchOptions.MAX_LIMIT);
     // TODO restrict fields to issue key, in order to not load all other fields;
-    List<IssueDoc> authorizedIssues = issueService.search(IssueQuery.builder().issueKeys(issueKeys).build(), options).getDocs();
+    List<IssueDoc> authorizedIssues = issueService.search(IssueQuery.builder(userSession).issueKeys(issueKeys).build(), options).getDocs();
     Collection<String> authorizedKeys = Collections2.transform(authorizedIssues, new Function<IssueDoc, String>() {
       @Override
       public String apply(IssueDoc input) {

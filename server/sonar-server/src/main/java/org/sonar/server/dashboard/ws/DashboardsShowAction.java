@@ -20,6 +20,7 @@
 package org.sonar.server.dashboard.ws;
 
 import com.google.common.collect.ListMultimap;
+import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,16 +34,16 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-
 public class DashboardsShowAction implements DashboardsAction {
 
   private static final String PARAM_KEY = "key";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public DashboardsShowAction(DbClient dbClient) {
+  public DashboardsShowAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -61,7 +62,7 @@ public class DashboardsShowAction implements DashboardsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      Integer userId = UserSession.get().userId();
+      Integer userId = userSession.userId();
       DashboardDto dashboard = dbClient.dashboardDao().getAllowedByKey(dbSession, request.mandatoryParamAsLong(PARAM_KEY),
         userId != null ? userId.longValue() : null);
       if (dashboard == null) {

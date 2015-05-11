@@ -39,12 +39,14 @@ import java.util.Date;
 import java.util.List;
 
 public class ProvisionedProjectsAction implements ProjectsAction {
-  private final DbClient dbClient;
-
   private static final List<String> POSSIBLE_FIELDS = Arrays.asList("uuid", "key", "name", "creationDate");
 
-  public ProvisionedProjectsAction(DbClient dbClient) {
+  private final DbClient dbClient;
+  private final UserSession userSession;
+
+  public ProvisionedProjectsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -68,7 +70,7 @@ public class ProvisionedProjectsAction implements ProjectsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(UserRole.ADMIN, "You need admin rights.");
+    userSession.checkGlobalPermission(UserRole.ADMIN, "You need admin rights.");
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
       request.mandatoryParamAsInt(Param.PAGE_SIZE)

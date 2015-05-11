@@ -20,7 +20,9 @@
 
 package org.sonar.server.issue.ws;
 
+import java.io.StringWriter;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -34,10 +36,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.JsonAssert;
-
-import java.io.StringWriter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.eq;
@@ -46,6 +46,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueActionsWriterTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   IssueService issueService;
@@ -57,7 +59,7 @@ public class IssueActionsWriterTest {
 
   @Before
   public void setUp() {
-    writer = new IssueActionsWriter(issueService, actionService);
+    writer = new IssueActionsWriter(issueService, actionService, userSessionRule);
   }
 
   @Test
@@ -70,7 +72,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
 
     testActions(issue,
       "{\"actions\": " +
@@ -87,7 +89,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
     Action action = mock(Action.class);
     when(action.key()).thenReturn("link-to-jira");
     when(actionService.listAvailableActions(eq(issue))).thenReturn(newArrayList(action));
@@ -108,7 +110,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setResolution("CLOSED");
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     testActions(issue,
       "{\"actions\": " +
@@ -125,8 +127,6 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    MockUserSession.set();
-
     testActions(issue,
       "{\"actions\": []}");
   }
@@ -140,7 +140,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setAssignee("john");
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     testActions(issue,
       "{\"actions\": " +
@@ -158,7 +158,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     testTransitions(issue,
       "{\"transitions\": [\n" +
@@ -174,7 +174,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     testTransitions(issue,
       "{\"transitions\": []}");

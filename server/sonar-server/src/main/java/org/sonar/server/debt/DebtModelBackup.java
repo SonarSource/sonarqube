@@ -45,7 +45,6 @@ import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
-import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -53,6 +52,7 @@ import javax.annotation.Nullable;
 import java.io.Reader;
 import java.util.Date;
 import java.util.List;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -70,18 +70,19 @@ public class DebtModelBackup {
   private final DebtModelXMLExporter debtModelXMLExporter;
   private final RuleDefinitionsLoader defLoader;
   private final System2 system2;
+  private final UserSession userSession;
 
   public DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
     DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader) {
+    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, UserSession userSession) {
     this(dbClient, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter,
-      defLoader, System2.INSTANCE);
+      defLoader, System2.INSTANCE, userSession);
   }
 
   @VisibleForTesting
   DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
     DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2) {
+    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2, UserSession userSession) {
     this.dbClient = dbClient;
     this.debtModelOperations = debtModelOperations;
     this.ruleOperations = ruleOperations;
@@ -91,6 +92,7 @@ public class DebtModelBackup {
     this.debtModelXMLExporter = debtModelXMLExporter;
     this.defLoader = defLoader;
     this.system2 = system2;
+    this.userSession = userSession;
   }
 
   public String backup() {
@@ -426,7 +428,7 @@ public class DebtModelBackup {
   }
 
   private void checkPermission() {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
 }

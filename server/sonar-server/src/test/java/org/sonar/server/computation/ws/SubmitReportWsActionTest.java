@@ -20,7 +20,9 @@
 
 package org.sonar.server.computation.ws;
 
+import java.io.InputStream;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -28,15 +30,19 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import java.io.InputStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SubmitReportWsActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
   ReportQueue queue = mock(ReportQueue.class);
@@ -45,7 +51,7 @@ public class SubmitReportWsActionTest {
 
   @Before
   public void before() {
-    sut = new SubmitReportWsAction(queue, workerLauncher);
+    sut = new SubmitReportWsAction(queue, workerLauncher, userSessionRule);
     wsTester = new WsTester(new ComputationWebService(sut));
   }
 
@@ -63,7 +69,7 @@ public class SubmitReportWsActionTest {
 
   @Test
   public void add_element_to_queue_and_launch_analysis_task() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     AnalysisReportDto dto = mock(AnalysisReportDto.class);
     when(dto.getId()).thenReturn(42L);
     when(queue.add(any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
@@ -81,7 +87,7 @@ public class SubmitReportWsActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_scan_permission() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
 
     WsTester.TestRequest request = wsTester
       .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")

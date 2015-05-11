@@ -26,6 +26,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -69,20 +81,6 @@ import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -136,11 +134,13 @@ public class IssueIndex extends BaseIndex {
 
   private final Sorting sorting;
   private final System2 system;
+  private final UserSession userSession;
 
-  public IssueIndex(EsClient client, System2 system) {
+  public IssueIndex(EsClient client, System2 system, UserSession userSession) {
     super(client);
 
     this.system = system;
+    this.userSession = userSession;
     this.sorting = new Sorting();
     this.sorting.add(IssueQuery.SORT_BY_ASSIGNEE, IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE);
     this.sorting.add(IssueQuery.SORT_BY_STATUS, IssueIndexDefinition.FIELD_ISSUE_STATUS);
@@ -165,7 +165,7 @@ public class IssueIndex extends BaseIndex {
    */
   @CheckForNull
   public IssueDoc getNullableByKey(String key) {
-    SearchResult<IssueDoc> result = search(IssueQuery.builder().issueKeys(newArrayList(key)).build(), new SearchOptions());
+    SearchResult<IssueDoc> result = search(IssueQuery.builder(userSession).issueKeys(newArrayList(key)).build(), new SearchOptions());
     if (result.getTotal() == 1) {
       return result.getDocs().get(0);
     }
@@ -521,7 +521,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
-    String login = UserSession.get().login();
+    String login = userSession.login();
 
     if (!options.getFacets().contains(IssueFilterParameters.FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(login)) {
       return;
@@ -713,7 +713,7 @@ public class IssueIndex extends BaseIndex {
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
     BoolFilterBuilder filter = FilterBuilders.boolFilter()
-      .must(createAuthorizationFilter(true, UserSession.get().login(), UserSession.get().userGroups()))
+      .must(createAuthorizationFilter(true, userSession.login(), userSession.userGroups()))
       .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
 
     switch (component.scope()) {

@@ -45,11 +45,13 @@ public class BulkRuleActivationActions {
   private final QProfileService profileService;
   private final RuleService ruleService;
   private final I18n i18n;
+  private final UserSession userSession;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService, I18n i18n) {
+  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService, I18n i18n, UserSession userSession) {
     this.profileService = profileService;
     this.ruleService = ruleService;
     this.i18n = i18n;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -121,7 +123,7 @@ public class BulkRuleActivationActions {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    result.getErrors().writeJsonAsWarnings(json, i18n, UserSession.get().locale());
+    result.getErrors().writeJsonAsWarnings(json, i18n, userSession.locale());
     json.endObject().close();
   }
 }

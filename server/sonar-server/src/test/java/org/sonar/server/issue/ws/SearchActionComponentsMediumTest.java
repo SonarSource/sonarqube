@@ -20,9 +20,11 @@
 
 package org.sonar.server.issue.ws;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleStatus;
@@ -45,13 +47,11 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -59,6 +59,8 @@ public class SearchActionComponentsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession session;
@@ -361,7 +363,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
@@ -380,7 +382,7 @@ public class SearchActionComponentsMediumTest {
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -400,7 +402,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -421,7 +423,7 @@ public class SearchActionComponentsMediumTest {
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
+    userSessionRule.logon("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
@@ -443,7 +445,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+    userSessionRule.logon("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
@@ -547,9 +549,8 @@ public class SearchActionComponentsMediumTest {
   }
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
-    MockUserSession.set();
   }
 
   private IssueDto insertIssue(IssueDto issue) {

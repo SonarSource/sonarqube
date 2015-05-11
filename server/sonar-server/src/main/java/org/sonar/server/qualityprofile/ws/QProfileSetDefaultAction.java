@@ -45,11 +45,13 @@ public class QProfileSetDefaultAction implements BaseQProfileWsAction {
   private final QProfileLookup profileLookup;
 
   private final QProfileFactory profileFactory;
+  private final UserSession userSession;
 
-  public QProfileSetDefaultAction(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory) {
+  public QProfileSetDefaultAction(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory, UserSession userSession) {
     this.languages = languages;
     this.profileLookup = profileLookup;
     this.profileFactory = profileFactory;
+    this.userSession = userSession;
   }
 
   @Override
@@ -76,7 +78,7 @@ public class QProfileSetDefaultAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String language = request.param(PARAM_LANGUAGE);
     String profileName = request.param(PARAM_PROFILE_NAME);

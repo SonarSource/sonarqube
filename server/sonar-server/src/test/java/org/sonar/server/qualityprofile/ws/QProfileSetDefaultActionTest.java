@@ -23,6 +23,7 @@ import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -36,7 +37,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +47,8 @@ public class QProfileSetDefaultActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient;
 
@@ -71,7 +74,7 @@ public class QProfileSetDefaultActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileSetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient))));
+      new QProfileSetDefaultAction(LanguageTesting.newLanguages(xoo1Key, xoo2Key), new QProfileLookup(dbClient), new QProfileFactory(dbClient), userSessionRule)));
   }
 
   @After
@@ -81,7 +84,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_key() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
@@ -102,7 +105,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_language_and_name() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Sonar way").execute().assertNoContent();
 
@@ -112,7 +115,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_key() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
@@ -127,7 +130,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_language_and_name() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Unknown").execute();
@@ -141,7 +144,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_on_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();

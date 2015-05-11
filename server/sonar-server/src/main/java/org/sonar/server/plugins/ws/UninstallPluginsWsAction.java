@@ -35,9 +35,11 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
   private static final String PARAM_KEY = "key";
 
   private final ServerPluginRepository pluginRepository;
+  private final UserSession userSession;
 
-  public UninstallPluginsWsAction(ServerPluginRepository pluginRepository) {
+  public UninstallPluginsWsAction(ServerPluginRepository pluginRepository, UserSession userSession) {
     this.pluginRepository = pluginRepository;
+    this.userSession = userSession;
   }
 
   @Override
@@ -56,7 +58,7 @@ public class UninstallPluginsWsAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
     ensurePluginIsInstalled(key);
     pluginRepository.uninstall(key);

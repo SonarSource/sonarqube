@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,7 +30,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileCopier;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
@@ -38,6 +39,9 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileCopyActionTest {
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private WsTester tester;
 
@@ -51,12 +55,12 @@ public class QProfileCopyActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileCopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"))));
+      new QProfileCopyAction(qProfileCopier, LanguageTesting.newLanguages("xoo"), userSessionRule)));
   }
 
   @Test
   public void copy_nominal() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -76,7 +80,7 @@ public class QProfileCopyActionTest {
 
   @Test
   public void copy_with_parent() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -97,7 +101,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("name", "Other Sonar Way")
@@ -106,7 +110,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -115,7 +119,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")

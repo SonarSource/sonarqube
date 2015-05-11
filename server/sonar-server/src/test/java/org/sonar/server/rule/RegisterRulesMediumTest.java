@@ -21,6 +21,10 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -50,14 +54,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +66,8 @@ public class RegisterRulesMediumTest {
 
   @ClassRule
   public static final ServerTester TESTER = new ServerTester().addXoo().addComponents(RULE_DEFS);
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);
 
   RuleIndex ruleIndex;
   ActiveRuleIndex activeRuleIndex;
@@ -135,7 +134,7 @@ public class RegisterRulesMediumTest {
     assertThat(ruleParams).hasSize(2);
 
     // verify es
-    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext());
+    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext(userSessionRule));
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
     Rule rule = ruleIndex.getByKey(RuleKey.of("xoo", "x1"));
@@ -182,8 +181,8 @@ public class RegisterRulesMediumTest {
     register(rules);
 
     // verify that rules are indexed
-    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext());
-    searchResult = ruleIndex.search(new RuleQuery().setKey("xoo:x1"), new QueryContext());
+    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext(userSessionRule));
+    searchResult = ruleIndex.search(new RuleQuery().setKey("xoo:x1"), new QueryContext(userSessionRule));
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
     assertThat(searchResult.getHits().get(0).key()).isEqualTo(RuleKey.of("xoo", "x1"));
@@ -358,7 +357,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create a profile and activate rule
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -388,7 +387,7 @@ public class RegisterRulesMediumTest {
     register(rules);
 
     // create a profile and activate rule
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -420,7 +419,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create profile and activate rule
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -463,7 +462,7 @@ public class RegisterRulesMediumTest {
     assertThat(rule.tags()).isEmpty();
 
     // User adds tag
-    TESTER.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), UserSession.get());
+    TESTER.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
     dbSession.clearCache();
     rule = ruleIndex.getByKey(RuleTesting.XOO_X1);
     assertThat(rule.systemTags()).containsOnly("tag1");

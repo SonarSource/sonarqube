@@ -20,22 +20,24 @@
 
 package org.sonar.server.issue.filter;
 
+import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.issue.db.IssueFilterDto;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FavoritesActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   IssueFilterService service;
@@ -49,13 +51,13 @@ public class FavoritesActionTest {
 
   @Before
   public void setUp() {
-    action = new FavoritesAction(service);
+    action = new FavoritesAction(service, userSessionRule);
     tester = new WsTester(new IssueFilterWs(mock(AppAction.class), mock(ShowAction.class), action));
   }
 
   @Test
   public void favorites_of_anonymous() throws Exception {
-    MockUserSession.set();
+    userSessionRule.logon();
 
     tester.newGetRequest("api/issue_filters", "favorites").execute()
       .assertJson("{\"favoriteFilters\": []}");
@@ -63,8 +65,8 @@ public class FavoritesActionTest {
 
   @Test
   public void favorites_of_logged_in_user() throws Exception {
-    MockUserSession session = MockUserSession.set().setLogin("eric").setUserId(123);
-    when(service.findFavoriteFilters(session)).thenReturn(Arrays.asList(
+    userSessionRule.logon("eric").setUserId(123);
+    when(service.findFavoriteFilters(userSessionRule)).thenReturn(Arrays.asList(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     ));
 

@@ -34,9 +34,11 @@ public class ChangePasswordAction implements BaseUsersWsAction {
   private static final String PARAM_PASSWORD = "password";
 
   private final UserUpdater userUpdater;
+  private final UserSession userSession;
 
-  public ChangePasswordAction(UserUpdater userUpdater) {
+  public ChangePasswordAction(UserUpdater userUpdater, UserSession userSession) {
     this.userUpdater = userUpdater;
+    this.userSession = userSession;
   }
 
   @Override
@@ -60,7 +62,7 @@ public class ChangePasswordAction implements BaseUsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     String password = request.mandatoryParam(PARAM_PASSWORD);

@@ -19,19 +19,38 @@
  */
 package org.sonar.server.user;
 
-import org.junit.Test;
+import java.util.Collections;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public final class AnonymousUserSession extends AbstractUserSession<AnonymousUserSession> {
+  public static final UserSession INSTANCE = new AnonymousUserSession();
 
-public class MockUserSessionTest {
-  @Test
-  public void set_mock_session() {
-    MockUserSession.set().setLogin("simon").setUserGroups("sonar-users");
+  private AnonymousUserSession() {
+    super(AnonymousUserSession.class);
+  }
 
-    UserSession mock = UserSession.get();
-    assertThat(mock.login()).isEqualTo("simon");
-    assertThat(mock.userGroups()).containsOnly("sonar-users", "Anyone");
-    assertThat(mock.globalPermissions()).isEmpty();
-    assertThat(mock.isLoggedIn()).isTrue();
+  @Override
+  public List<String> globalPermissions() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public boolean hasProjectPermission(String permission, String projectKey) {
+    return false;
+  }
+
+  @Override
+  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+    return false;
+  }
+
+  @Override
+  public boolean hasComponentPermission(String permission, String componentKey) {
+    return false;
+  }
+
+  @Override
+  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    return false;
   }
 }

@@ -21,6 +21,7 @@
 package org.sonar.server.issue.filter;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -29,16 +30,16 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
 public class AppAction implements RequestHandler {
 
   private final IssueFilterService service;
   private final IssueFilterWriter issueFilterWriter;
+  private final UserSession userSession;
 
-  public AppAction(IssueFilterService service, IssueFilterWriter issueFilterWriter) {
+  public AppAction(IssueFilterService service, IssueFilterWriter issueFilterWriter, UserSession userSession) {
     this.service = service;
     this.issueFilterWriter = issueFilterWriter;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -55,8 +56,6 @@ public class AppAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession session = UserSession.get();
-
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
 
@@ -64,21 +63,21 @@ public class AppAction implements RequestHandler {
     Integer filterId = request.paramAsInt("id");
     IssueFilterDto filter = null;
     if (filterId != null && filterId >= 0) {
-      filter = service.find((long) filterId, session);
+      filter = service.find((long) filterId, userSession);
     }
 
     // Permissions
-    json.prop("canManageFilters", session.isLoggedIn());
-    json.prop("canBulkChange", session.isLoggedIn());
+    json.prop("canManageFilters", userSession.isLoggedIn());
+    json.prop("canBulkChange", userSession.isLoggedIn());
 
     // Selected filter
     if (filter != null) {
-      issueFilterWriter.write(session, filter, json);
+      issueFilterWriter.write(userSession, filter, json);
     }
 
     // Favorite filters, if logged in
-    if (session.isLoggedIn()) {
-      List<IssueFilterDto> favorites = service.findFavoriteFilters(session);
+    if (userSession.isLoggedIn()) {
+      List<IssueFilterDto> favorites = service.findFavoriteFilters(userSession);
       json.name("favorites").beginArray();
       for (IssueFilterDto favorite : favorites) {
         json

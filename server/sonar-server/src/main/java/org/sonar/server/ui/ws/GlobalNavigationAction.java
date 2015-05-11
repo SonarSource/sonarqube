@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.List;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
@@ -34,8 +35,6 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
 public class GlobalNavigationAction implements NavigationAction {
 
   private static final String ANONYMOUS = null;
@@ -44,12 +43,14 @@ public class GlobalNavigationAction implements NavigationAction {
   private final Views views;
   private final Settings settings;
   private final ResourceTypes resourceTypes;
+  private final UserSession userSession;
 
-  public GlobalNavigationAction(ActiveDashboardDao activeDashboardDao, Views views, Settings settings, ResourceTypes resourceTypes) {
+  public GlobalNavigationAction(ActiveDashboardDao activeDashboardDao, Views views, Settings settings, ResourceTypes resourceTypes, UserSession userSession) {
     this.activeDashboardDao = activeDashboardDao;
     this.views = views;
     this.settings = settings;
     this.resourceTypes = resourceTypes;
+    this.userSession = userSession;
   }
 
   @Override
@@ -64,8 +65,6 @@ public class GlobalNavigationAction implements NavigationAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession userSession = UserSession.get();
-
     List<DashboardDto> dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(userSession.login());
     if (dashboards.isEmpty()) {
       dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(ANONYMOUS);

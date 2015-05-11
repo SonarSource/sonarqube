@@ -20,7 +20,9 @@
 
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.Reader;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.profiles.ProfileImporter;
@@ -33,14 +35,15 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.io.Reader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class QProfilesWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WebService.Controller controller;
 
@@ -58,25 +61,25 @@ public class QProfilesWsTest {
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService, i18n),
-      new ProjectAssociationActions(null, null, null, languages),
-      new QProfileCreateAction(null, null, null, languages, importers),
+      new BulkRuleActivationActions(profileService, ruleService, i18n, userSessionRule),
+      new ProjectAssociationActions(null, null, null, languages, userSessionRule),
+      new QProfileCreateAction(null, null, null, languages, importers, userSessionRule),
       new QProfileImportersAction(importers),
       new QProfileRestoreBuiltInAction(null),
       new QProfileSearchAction(languages, null, null, null),
-      new QProfileSetDefaultAction(languages, null, null),
-      new QProfileProjectsAction(null),
+      new QProfileSetDefaultAction(languages, null, null, userSessionRule),
+      new QProfileProjectsAction(null, userSessionRule),
       new QProfileBackupAction(null, null, null, languages),
-      new QProfileRestoreAction(null, languages),
+      new QProfileRestoreAction(null, languages, userSessionRule),
       new QProfileChangelogAction(null, null, null, languages),
-      new QProfileChangeParentAction(null, null, null, languages),
+      new QProfileChangeParentAction(null, null, null, languages, userSessionRule),
       new QProfileCompareAction(null, null, null, languages),
-      new QProfileCopyAction(null, languages),
-      new QProfileDeleteAction(languages, null, null),
+      new QProfileCopyAction(null, languages, userSessionRule),
+      new QProfileDeleteAction(languages, null, null, userSessionRule),
       new QProfileExportAction(null, null, null, mock(QProfileExporters.class), languages),
       new QProfileExportersAction(),
       new QProfileInheritanceAction(null, null, null, null, languages),
-      new QProfileRenameAction(null)
+      new QProfileRenameAction(null, userSessionRule)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 

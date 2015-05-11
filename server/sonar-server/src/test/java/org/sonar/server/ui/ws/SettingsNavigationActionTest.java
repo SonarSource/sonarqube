@@ -19,7 +19,9 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Locale;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,11 +32,9 @@ import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Locale;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -42,6 +42,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SettingsNavigationActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private WsTester wsTester;
 
@@ -64,24 +66,24 @@ public class SettingsNavigationActionTest {
 
   @Test
   public void empty() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(), i18n)));
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "empty.json");
   }
 
   @Test
   public void with_provisioning() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(), i18n)));
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_provisioning.json");
   }
 
   @Test
   public void with_views() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n)));
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_views.json");
   }
@@ -89,17 +91,16 @@ public class SettingsNavigationActionTest {
   @Test
   public void with_update_center() throws Exception {
     settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(), i18n)));
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, new Views(userSessionRule), i18n, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "with_update_center.json");
   }
 
   @Test
   public void with_views_and_update_center_but_not_admin() throws Exception {
-    MockUserSession.set();
     settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
-    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n)));
+    wsTester = new WsTester(new NavigationWs(new SettingsNavigationAction(settings, createViews(), i18n, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "settings").execute().assertJson(getClass(), "empty.json");
   }
@@ -135,6 +136,6 @@ public class SettingsNavigationActionTest {
 
     Page page = new FirstPage();
     Page controller = new SecondPage();
-    return new Views(new View[] {page, controller});
+    return new Views(userSessionRule, new View[] {page, controller});
   }
 }

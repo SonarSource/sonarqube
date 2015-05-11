@@ -21,11 +21,15 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -38,12 +42,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,6 +53,8 @@ public class InternalPermissionServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession session;
@@ -81,7 +82,7 @@ public class InternalPermissionServiceMediumTest {
   @Test
   public void add_project_permission_to_user() {
     // init
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     UserDto user = new UserDto().setLogin("john").setName("John");
     db.userDao().insert(session, user);
     session.commit();
@@ -101,7 +102,7 @@ public class InternalPermissionServiceMediumTest {
 
   @Test
   public void remove_project_permission_to_user() {
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user1 = new UserDto().setLogin("user1").setName("User1");
     db.userDao().insert(session, user1);
@@ -125,7 +126,7 @@ public class InternalPermissionServiceMediumTest {
 
   @Test
   public void remove_all_component_user_permissions() {
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user = new UserDto().setLogin("user1").setName("User1");
     db.userDao().insert(session, user);
@@ -153,7 +154,7 @@ public class InternalPermissionServiceMediumTest {
   @Test
   public void add_and_remove_permission_to_group() {
     // init
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     GroupDto group = new GroupDto().setName("group1");
     db.groupDao().insert(session, group);
     session.commit();

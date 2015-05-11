@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -47,7 +48,7 @@ import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +58,9 @@ public class QProfilesWsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester)
+      .logon("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   QProfilesWs ws;
   DbClient db;
@@ -70,8 +74,6 @@ public class QProfilesWsMediumTest {
     ws = tester.get(QProfilesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
-    MockUserSession.set().setLogin("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
   }
 
   @After
@@ -335,7 +337,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
-      new QueryContext()).getHits()).hasSize(2);
+      new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);

@@ -26,13 +26,15 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.BaseMapping;
 
 import java.util.Map;
+import org.sonar.server.user.UserSession;
 
 /**
  * Conversion between {@link org.sonar.server.activity.index.ActivityDoc} and WS JSON response
  */
 public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
 
-  public ActivityMapping() {
+  public ActivityMapping(UserSession userSession) {
+    super(userSession);
     map("type", ActivityIndexDefinition.FIELD_TYPE);
     map("action", ActivityIndexDefinition.FIELD_ACTION);
     mapDateTime("createdAt", ActivityIndexDefinition.FIELD_CREATED_AT);

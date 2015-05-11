@@ -35,11 +35,13 @@ public class QProfileDeleteAction implements BaseQProfileWsAction {
   private final Languages languages;
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public QProfileDeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient) {
+  public QProfileDeleteAction(Languages languages, QProfileFactory profileFactory, DbClient dbClient, UserSession userSession) {
     this.languages = languages;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -56,8 +58,8 @@ public class QProfileDeleteAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn();
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
 
     DbSession session = dbClient.openSession(false);

@@ -33,9 +33,11 @@ public class QProfileRenameAction implements BaseQProfileWsAction {
   private static final String PARAM_PROFILE_KEY = "key";
 
   private final QProfileFactory profileFactory;
+  private final UserSession userSession;
 
-  public QProfileRenameAction(QProfileFactory profileFactory) {
+  public QProfileRenameAction(QProfileFactory profileFactory, UserSession userSession) {
     this.profileFactory = profileFactory;
+    this.userSession = userSession;
   }
 
   @Override
@@ -59,7 +61,7 @@ public class QProfileRenameAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);

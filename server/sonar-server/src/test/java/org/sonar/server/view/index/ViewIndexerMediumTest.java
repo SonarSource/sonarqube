@@ -23,6 +23,7 @@ package org.sonar.server.view.index;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
@@ -47,7 +48,7 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +63,8 @@ public class ViewIndexerMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbSession dbSession;
 
@@ -99,7 +102,7 @@ public class ViewIndexerMediumTest {
     indexer.index(viewUuid);
 
     // Execute issue query on view -> 1 issue on view
-    SearchResult<IssueDoc> docs = tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(),
+    SearchResult<IssueDoc> docs = tester.get(IssueIndex.class).search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(),
       new SearchOptions());
     assertThat(docs.getDocs()).hasSize(1);
 
@@ -111,7 +114,7 @@ public class ViewIndexerMediumTest {
     indexer.index(viewUuid);
 
     // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
   private ComponentDto addProjectWithIssue(RuleDto rule) {
@@ -131,9 +134,8 @@ public class ViewIndexerMediumTest {
 
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    MockUserSession.set();
   }
 
 }

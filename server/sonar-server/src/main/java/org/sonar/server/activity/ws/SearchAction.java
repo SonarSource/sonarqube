@@ -31,6 +31,7 @@ import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.search.QueryContext;
+import org.sonar.server.user.UserSession;
 
 public class SearchAction implements RequestHandler {
 
@@ -39,10 +40,12 @@ public class SearchAction implements RequestHandler {
 
   private final ActivityIndex activityIndex;
   private final ActivityMapping docToJsonMapping;
+  private final UserSession userSession;
 
-  public SearchAction(ActivityIndex activityIndex, ActivityMapping docToJsonMapping) {
+  public SearchAction(ActivityIndex activityIndex, ActivityMapping docToJsonMapping, UserSession userSession) {
     this.activityIndex = activityIndex;
     this.docToJsonMapping = docToJsonMapping;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -73,7 +76,7 @@ public class SearchAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     options.writeJson(json, results.getTotal());
-    writeActivities(results, json, new QueryContext().setFieldsToReturn(request.paramAsStrings(WebService.Param.FIELDS)));
+    writeActivities(results, json, new QueryContext(userSession).setFieldsToReturn(request.paramAsStrings(WebService.Param.FIELDS)));
     json.endObject().close();
   }
 

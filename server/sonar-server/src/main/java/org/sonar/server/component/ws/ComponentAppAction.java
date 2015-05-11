@@ -20,6 +20,10 @@
 
 package org.sonar.server.component.ws;
 
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -41,12 +45,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -63,11 +61,13 @@ public class ComponentAppAction implements RequestHandler {
 
   private final Durations durations;
   private final I18n i18n;
+  private final UserSession userSession;
 
-  public ComponentAppAction(DbClient dbClient, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, Durations durations, I18n i18n, UserSession userSession) {
     this.dbClient = dbClient;
     this.durations = durations;
     this.i18n = i18n;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
@@ -92,7 +92,6 @@ public class ComponentAppAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String componentUuid = request.mandatoryParam(PARAM_UUID);
-    UserSession userSession = UserSession.get();
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
@@ -211,16 +210,16 @@ public class ComponentAppAction implements RequestHandler {
       value = metric.getBestValue();
     }
     if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
-      return i18n.formatDouble(UserSession.get().locale(), value);
+      return i18n.formatDouble(userSession.locale(), value);
     }
     if (metricType.equals(Metric.ValueType.INT) && value != null) {
-      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+      return i18n.formatInteger(userSession.locale(), value.intValue());
     }
     if (metricType.equals(Metric.ValueType.PERCENT) && value != null) {
-      return i18n.formatDouble(UserSession.get().locale(), value) + "%";
+      return i18n.formatDouble(userSession.locale(), value) + "%";
     }
     if (metricType.equals(Metric.ValueType.WORK_DUR) && value != null) {
-      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+      return durations.format(userSession.locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
     }
     if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
       return data;

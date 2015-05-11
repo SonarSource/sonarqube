@@ -22,9 +22,16 @@ package org.sonar.server.issue.index;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import javax.annotation.Nullable;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
@@ -43,14 +50,10 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
-
-import javax.annotation.Nullable;
-
-import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +66,8 @@ public class IssueIndexTest {
 
   @ClassRule
   public static EsTester tester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   IssueIndex index;
 
@@ -80,7 +85,7 @@ public class IssueIndexTest {
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());
 
-    index = new IssueIndex(tester.client(), system);
+    index = new IssueIndex(tester.client(), system, userSessionRule);
 
   }
 
@@ -141,9 +146,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("1", ComponentTesting.newFileDto(project)),
       IssueTesting.newDoc("2", ComponentTesting.newFileDto(project)));
 
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("3", "4")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).issueKeys(newArrayList("1", "2")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).issueKeys(newArrayList("1")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).issueKeys(newArrayList("3", "4")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -160,8 +165,8 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", ComponentTesting.newFileDto(subModule)));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -174,7 +179,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)),
       IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("projectUuids")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("projectUuids")));
     assertThat(result.getFacets().getNames()).containsOnly("projectUuids");
     assertThat(result.getFacets().get("projectUuids")).containsOnly(entry("ABCD", 2L), entry("EFGH", 1L));
   }
@@ -191,15 +196,15 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE2", file));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
       .isEmpty();
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
       .hasSize(1);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs())
       .hasSize(2);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
       .isEmpty();
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -221,19 +226,19 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", file3));
 
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(3);
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).moduleRootUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).moduleRootUuids(newArrayList(module.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(4);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions())
       .getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(view)).build(), new SearchOptions())
       .getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList("unknown")).build(), new SearchOptions())
       .getDocs()).isEmpty();
   }
 
@@ -256,15 +261,15 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE5", subModule),
       IssueTesting.newDoc("ISSUE6", file3));
 
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view)).build(), new SearchOptions()).getDocs()).hasSize(6);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2); // XXX
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(view)).build(), new SearchOptions()).getDocs()).hasSize(6);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions()).getDocs()).hasSize(2); // XXX
     // Misleading
     // !
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).fileUuids(newArrayList(file1.uuid())).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).fileUuids(newArrayList(file1.uuid(), file2.uuid(), file3.uuid())).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -281,7 +286,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE4", file2),
       IssueTesting.newDoc("ISSUE5", file3));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("fileUuids")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("fileUuids")));
     assertThat(result.getFacets().getNames()).containsOnly("fileUuids");
     assertThat(result.getFacets().get("fileUuids"))
       .containsOnly(entry("A", 1L), entry("ABCD", 1L), entry("BCDE", 2L), entry("CDEF", 1L));
@@ -297,9 +302,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
       IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/src/main/xoo")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("/")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().directories(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).directories(newArrayList("/src/main/xoo")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).directories(newArrayList("/")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).directories(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -312,7 +317,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file1).setDirectoryPath("/src/main/xoo"),
       IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("directories")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("directories")));
     assertThat(result.getFacets().getNames()).containsOnly("directories");
     assertThat(result.getFacets().get("directories")).containsOnly(entry("/src/main/xoo", 1L), entry("/", 1L));
   }
@@ -337,10 +342,10 @@ public class IssueIndexTest {
     String view2 = "CDEF";
     indexView(view2, newArrayList(project2.uuid()));
 
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1)).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view2)).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList(view1, view2)).build(), new SearchOptions()).getDocs()).hasSize(3);
-    assertThat(index.search(IssueQuery.builder().viewUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(view1)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(view2)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(view1, view2)).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -352,9 +357,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setSeverity(Severity.INFO),
       IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.MAJOR));
 
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.BLOCKER)).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).severities(newArrayList(Severity.INFO)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).severities(newArrayList(Severity.BLOCKER)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -367,7 +372,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setSeverity(Severity.INFO),
       IssueTesting.newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("severities")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("severities")));
     assertThat(result.getFacets().getNames()).containsOnly("severities");
     assertThat(result.getFacets().get("severities")).containsOnly(entry("INFO", 2L), entry("MAJOR", 1L));
   }
@@ -381,9 +386,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
 
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -396,7 +401,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("statuses")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("statuses")));
     assertThat(result.getFacets().getNames()).containsOnly("statuses");
     assertThat(result.getFacets().get("statuses")).containsOnly(entry("CLOSED", 2L), entry("OPEN", 1L));
   }
@@ -410,10 +415,10 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
       IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
 
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
       .hasSize(2);
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -426,7 +431,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
       IssueTesting.newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("resolutions")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("resolutions")));
     assertThat(result.getFacets().getNames()).containsOnly("resolutions");
     assertThat(result.getFacets().get("resolutions")).containsOnly(entry("FALSE-POSITIVE", 2L), entry("FIXED", 1L));
   }
@@ -441,9 +446,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN).setResolution(null),
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN).setResolution(null));
 
-    assertThat(index.search(IssueQuery.builder().resolved(true).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().resolved(false).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().resolved(null).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolved(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolved(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).resolved(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -455,9 +460,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("plan1")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("plan1", "plan2")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -469,7 +474,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
     assertThat(result.getFacets().getNames()).containsOnly("actionPlans");
     assertThat(result.getFacets().get("actionPlans")).containsOnly(entry("plan1", 1L), entry("plan2", 1L));
   }
@@ -484,9 +489,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey(null),
       IssueTesting.newDoc("ISSUE3", file).setActionPlanKey(null));
 
-    assertThat(index.search(IssueQuery.builder().planned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().planned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().planned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -497,8 +502,8 @@ public class IssueIndexTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()));
 
-    assertThat(index.search(IssueQuery.builder().rules(newArrayList(ruleKey)).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).rules(newArrayList(ruleKey)).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -509,9 +514,9 @@ public class IssueIndexTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
-    assertThat(index.search(IssueQuery.builder().languages(newArrayList("xoo")).build(),
+    assertThat(index.search(IssueQuery.builder(userSessionRule).languages(newArrayList("xoo")).build(),
       new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).languages(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -522,7 +527,7 @@ public class IssueIndexTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("languages")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("languages")));
     assertThat(result.getFacets().getNames()).containsOnly("languages");
     assertThat(result.getFacets().get("languages")).containsOnly(entry("xoo", 1L));
   }
@@ -537,9 +542,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assignees(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assignees(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assignees(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -553,7 +558,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE3", file).setAssignee("simon"),
       IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("assignees")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("assignees")));
     assertThat(result.getFacets().getNames()).containsOnly("assignees");
     assertThat(result.getFacets().get("assignees")).containsOnly(entry("steph", 1L), entry("simon", 2L), entry("", 1L));
   }
@@ -569,7 +574,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE3", file).setAssignee("simon"),
       IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().assignees(Arrays.asList("j-b")).build(), new SearchOptions().addFacets(newArrayList("assignees")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).assignees(Arrays.asList("j-b")).build(), new SearchOptions().addFacets(newArrayList("assignees")));
     assertThat(result.getFacets().getNames()).containsOnly("assignees");
     assertThat(result.getFacets().get("assignees")).containsOnly(entry("j-b", 1L), entry("simon", 2L), entry("", 1L));
   }
@@ -584,9 +589,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setAssignee(null),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().assigned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().assigned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().assigned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
   }
 
   @Test
@@ -598,9 +603,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setReporter("fabrice"),
       IssueTesting.newDoc("ISSUE2", file).setReporter("stephane"));
 
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("fabrice", "stephane")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("fabrice")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -613,9 +618,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setAuthorLogin("simon"),
       IssueTesting.newDoc("ISSUE3", file).setAssignee(null));
 
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().authors(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).authors(newArrayList("steph")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).authors(newArrayList("steph", "simon")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).authors(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -629,7 +634,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE3", file).setAuthorLogin("simon"),
       IssueTesting.newDoc("ISSUE4", file).setAuthorLogin(null));
 
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder().build(), new SearchOptions().addFacets(newArrayList("authors")));
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("authors")));
     assertThat(result.getFacets().getNames()).containsOnly("authors");
     assertThat(result.getFacets().get("authors")).containsOnly(entry("steph", 1L), entry("simon", 2L));
   }
@@ -643,11 +648,11 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
     // Lower bound is excluded
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -659,11 +664,11 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
     // Upper bound is excluded
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
   @Test
@@ -676,37 +681,37 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
     // 19 < createdAt < 25
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 20 < createdAt < 25: excludes first issue
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 25
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 24
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-24"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 23: excludes second issue
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-23"))
       .build(), new SearchOptions()).getDocs()).isEmpty();
 
     // 19 < createdAt < 21: only first issue
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-21"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 20 < createdAt < 20: nothing
-    assertThat(index.search(IssueQuery.builder()
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-20"))
       .build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -714,7 +719,7 @@ public class IssueIndexTest {
   @Test
   public void filter_by_created_before_must_be_lower_than_after() {
     try {
-      index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions());
+      index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
       assertThat(exception.getMessage()).isEqualTo("Start bound cannot be larger than end bound");
@@ -724,7 +729,7 @@ public class IssueIndexTest {
   @Test
   public void filter_by_created_after_must_not_be_in_future() {
     try {
-      index.search(IssueQuery.builder().createdAfter(new Date(Long.MAX_VALUE)).build(), new SearchOptions());
+      index.search(IssueQuery.builder(userSessionRule).createdAfter(new Date(Long.MAX_VALUE)).build(), new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
       assertThat(exception.getMessage()).isEqualTo("Start bound cannot be in the future");
@@ -738,8 +743,8 @@ public class IssueIndexTest {
 
     indexIssues(IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")));
 
-    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -747,7 +752,7 @@ public class IssueIndexTest {
 
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    IssueQuery query = IssueQuery.builder()
+    IssueQuery query = IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(DateUtils.parseDateTime("2014-09-08T00:00:00+0100"))
       .checkAuthorization(false)
@@ -770,7 +775,7 @@ public class IssueIndexTest {
 
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
         .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
         .createdBefore(DateUtils.parseDateTime("2014-09-21T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
@@ -786,7 +791,7 @@ public class IssueIndexTest {
 
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
         .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
         .createdBefore(DateUtils.parseDateTime("2015-01-19T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
@@ -803,7 +808,7 @@ public class IssueIndexTest {
   public void facet_on_created_at_with_more_than_20_months() {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
         .createdAfter(DateUtils.parseDateTime("2011-01-01T00:00:00+0100"))
         .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
@@ -821,7 +826,7 @@ public class IssueIndexTest {
   public void facet_on_created_at_with_bounds_outside_of_data() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDateTime("2009-01-01T00:00:00+0100"))
       .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100"))
       .build(), options).getFacets().get("createdAt");
@@ -840,7 +845,7 @@ public class IssueIndexTest {
   public void facet_on_created_at_without_start_bound() {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder()
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
         .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -855,7 +860,7 @@ public class IssueIndexTest {
   public void facet_on_created_at_without_issues() {
     SearchOptions SearchOptions = new SearchOptions().addFacets("createdAt");
 
-    Map<String, Long> createdAt = index.search(IssueQuery.builder().build(),
+    Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).isEmpty();
   }
@@ -885,17 +890,17 @@ public class IssueIndexTest {
       indexIssues(IssueTesting.newDoc("ISSUE" + i, file));
     }
 
-    IssueQuery.Builder query = IssueQuery.builder();
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule);
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions().setPage(2, 10));
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getTotal()).isEqualTo(12);
 
-    result = index.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
+    result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().setOffset(0).setLimit(5));
     assertThat(result.getDocs()).hasSize(5);
     assertThat(result.getTotal()).isEqualTo(12);
 
-    result = index.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
+    result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().setOffset(2).setLimit(0));
     assertThat(result.getDocs()).hasSize(10);
     assertThat(result.getTotal()).isEqualTo(12);
   }
@@ -911,7 +916,7 @@ public class IssueIndexTest {
     }
     indexIssues(issues.toArray(new IssueDoc[] {}));
 
-    IssueQuery.Builder query = IssueQuery.builder();
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions().setLimit(Integer.MAX_VALUE));
     assertThat(result.getDocs()).hasSize(SearchOptions.MAX_LIMIT);
   }
@@ -926,13 +931,13 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_REOPENED));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_STATUS).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs().get(0).status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(result.getDocs().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(result.getDocs().get(2).status()).isEqualTo(Issue.STATUS_REOPENED);
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_STATUS).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs().get(0).status()).isEqualTo(Issue.STATUS_REOPENED);
     assertThat(result.getDocs().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
@@ -951,7 +956,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE4", file).setSeverity(Severity.CRITICAL),
       IssueTesting.newDoc("ISSUE5", file).setSeverity(Severity.MAJOR));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs().get(0).severity()).isEqualTo(Severity.INFO);
     assertThat(result.getDocs().get(1).severity()).isEqualTo(Severity.MINOR);
@@ -959,7 +964,7 @@ public class IssueIndexTest {
     assertThat(result.getDocs().get(3).severity()).isEqualTo(Severity.CRITICAL);
     assertThat(result.getDocs().get(4).severity()).isEqualTo(Severity.BLOCKER);
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_SEVERITY).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs().get(0).severity()).isEqualTo(Severity.BLOCKER);
     assertThat(result.getDocs().get(1).severity()).isEqualTo(Severity.CRITICAL);
@@ -977,13 +982,13 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setAssignee("steph"),
       IssueTesting.newDoc("ISSUE2", file).setAssignee("simon"));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).assignee()).isEqualTo("simon");
     assertThat(result.getDocs().get(1).assignee()).isEqualTo("steph");
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_ASSIGNEE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).assignee()).isEqualTo("steph");
@@ -999,13 +1004,13 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-23T00:00:00+0100")),
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
     assertThat(result.getDocs().get(1).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
@@ -1021,13 +1026,13 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setFuncUpdateDate(DateUtils.parseDateTime("2014-09-23T00:00:00+0100")),
       IssueTesting.newDoc("ISSUE2", file).setFuncUpdateDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
     assertThat(result.getDocs().get(1).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
@@ -1044,14 +1049,14 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")),
       IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
 
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(3);
     assertThat(result.getDocs().get(0).closeDate()).isNull();
     assertThat(result.getDocs().get(1).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
     assertThat(result.getDocs().get(2).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
 
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(3);
     assertThat(result.getDocs().get(0).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
@@ -1078,7 +1083,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("F2_3", file2).setLine(109));
 
     // ascending sort -> F1 then F2. Line "0" first.
-    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
+    IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(6);
     assertThat(result.getDocs().get(0).key()).isEqualTo("F1_1");
@@ -1089,7 +1094,7 @@ public class IssueIndexTest {
     assertThat(result.getDocs().get(5).key()).isEqualTo("F2_3");
 
     // descending sort -> F2 then F1
-    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(false);
+    query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_FILE_LINE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(6);
     assertThat(result.getDocs().get(0).key()).isEqualTo("F2_3");
@@ -1117,20 +1122,20 @@ public class IssueIndexTest {
     // project3 can be seen by nobody
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    MockUserSession.set().setUserGroups("sonar-users");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+    userSessionRule.logon().setUserGroups("sonar-users");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    MockUserSession.set().setUserGroups("sonar-admins");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+    userSessionRule.logon().setUserGroups("sonar-admins");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(2);
+    userSessionRule.logon().setUserGroups("sonar-users", "sonar-admins");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(2);
 
-    MockUserSession.set().setUserGroups("another group");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).isEmpty();
+    userSessionRule.logon().setUserGroups("another group");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).isEmpty();
 
-    MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project3.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
+    userSessionRule.logon().setUserGroups("sonar-users", "sonar-admins");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project3.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -1148,18 +1153,18 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    MockUserSession.set().setLogin("max");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+    userSessionRule.logon("max");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    MockUserSession.set().setLogin("another guy");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(0);
+    userSessionRule.logon("another guy");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(0);
 
-    MockUserSession.set().setLogin("john");
-    assertThat(index.search(IssueQuery.builder().projectUuids(newArrayList(project3.key())).build(), new SearchOptions()).getDocs()).hasSize(0);
+    userSessionRule.logon("john");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project3.key())).build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
   @Test
@@ -1174,8 +1179,8 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", "john");
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
 
-    MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
-    assertThat(index.search(IssueQuery.builder().build(), new SearchOptions()).getDocs()).hasSize(1);
+    userSessionRule.logon("john").setUserGroups("sonar-users");
+    assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 
   @Test
@@ -1197,7 +1202,7 @@ public class IssueIndexTest {
     index.deleteClosedIssuesOfProjectBefore(project.uuid(), yesterday);
 
     // ASSERT
-    List<IssueDoc> issues = index.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs();
+    List<IssueDoc> issues = index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs();
     List<Date> dates = newArrayList();
     for (IssueDoc issue : issues) {
       dates.add(issue.closeDate());
@@ -1287,10 +1292,10 @@ public class IssueIndexTest {
     // project3 can be seen by nobody
     indexIssue(IssueTesting.newDoc("ISSUE3", file2), null, null);
 
-    MockUserSession.set().setUserGroups("sonar-users");
+    userSessionRule.setUserGroups("sonar-users");
     assertThat(Lists.newArrayList(index.selectIssuesForBatch(project1))).hasSize(1);
 
-    MockUserSession.set().setUserGroups("another group");
+    userSessionRule.setUserGroups("another group");
     assertThat(Lists.newArrayList(index.selectIssuesForBatch(project2))).isEmpty();
   }
 

@@ -20,6 +20,8 @@
 
 package org.sonar.server.platform.ws;
 
+import java.util.LinkedHashMap;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,37 +29,32 @@ import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SystemInfoWsActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("login")
+      .setName("name");
 
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
-  SystemInfoWsAction sut = new SystemInfoWsAction(monitor1, monitor2);
+  SystemInfoWsAction sut = new SystemInfoWsAction(userSessionRule, monitor1, monitor2);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {
-    MockUserSession.set()
-      .setLogin("login")
-      .setName("name")
-      .setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     sut.handle(mock(Request.class), mock(Response.class));
   }
 
   @Test
   public void write_json() {
-    MockUserSession.set()
-      .setLogin("login")
-      .setName("name")
-      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     LinkedHashMap<String, Object> attributes1 = new LinkedHashMap<>();
     attributes1.put("foo", "bar");

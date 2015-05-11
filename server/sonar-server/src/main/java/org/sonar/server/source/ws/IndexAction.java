@@ -21,6 +21,7 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,16 +33,16 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
 public class IndexAction implements SourcesAction {
 
   private final DbClient dbClient;
   private final SourceService sourceService;
+  private final UserSession userSession;
 
-  public IndexAction(DbClient dbClient, SourceService sourceService) {
+  public IndexAction(DbClient dbClient, SourceService sourceService, UserSession userSession) {
     this.dbClient = dbClient;
     this.sourceService = sourceService;
+    this.userSession = userSession;
   }
 
   @Override
@@ -72,7 +73,7 @@ public class IndexAction implements SourcesAction {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("resource");
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     Integer from = request.mandatoryParamAsInt("from");
     Integer to = request.paramAsInt("to");
     try (DbSession session = dbClient.openSession(false)) {

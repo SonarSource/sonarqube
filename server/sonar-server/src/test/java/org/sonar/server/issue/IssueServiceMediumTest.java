@@ -22,9 +22,13 @@ package org.sonar.server.issue;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -60,17 +64,13 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
-import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -80,6 +80,8 @@ public class IssueServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   IssueIndex IssueIndex;
@@ -123,11 +125,11 @@ public class IssueServiceMediumTest {
     saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P1"));
     saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P2").setResolution("NONE"));
 
-    SearchResult<IssueDoc> result = service.search(IssueQuery.builder().build(), new SearchOptions());
+    SearchResult<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
     assertThat(result.getFacets().getNames()).isEmpty();
 
-    result = service.search(IssueQuery.builder().build(), new SearchOptions().addFacets("actionPlans", "assignees"));
+    result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets("actionPlans", "assignees"));
     assertThat(result.getFacets().getNames()).hasSize(2);
     assertThat(result.getFacets().get("actionPlans")).hasSize(2);
     assertThat(result.getFacets().get("assignees")).hasSize(1);
@@ -155,7 +157,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
 
@@ -171,7 +173,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -192,7 +194,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
 
@@ -213,7 +215,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -230,7 +232,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -251,7 +253,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     String actionPlanKey = "EFGH";
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
@@ -269,7 +271,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
     try {
@@ -285,7 +287,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
@@ -300,7 +302,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -326,7 +328,7 @@ public class IssueServiceMediumTest {
     newSourceLine(file, 1, "arthur");
     createDefaultGroup();
     newUser("arthur");
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -350,7 +352,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue_with_major_severity_when_no_severity() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -366,7 +368,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue_with_rule_name_when_no_message() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey").setName("Manual rule name");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -386,7 +388,7 @@ public class IssueServiceMediumTest {
     newSourceLine(file, 1, "unknown");
     createDefaultGroup();
     newUser("arthur");
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -404,7 +406,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     // No author on line 1
     newSourceLine(file, 1, "");
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -421,7 +423,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     try {
       service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null, 2d);
@@ -435,7 +437,7 @@ public class IssueServiceMediumTest {
   public void fail_create_manual_issue_if_rule_does_not_exists() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
 
     service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null, 2d);
   }
@@ -447,7 +449,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
 
     // User has not the 'user' role on the project
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
+    userSessionRule.logon("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -463,7 +465,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project));
 
-    List<IssueDoc> result = service.search(IssueQuery.builder().build(), new SearchOptions()).getDocs();
+    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs();
     assertThat(result).hasSize(1);
   }
 
@@ -490,7 +492,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -537,7 +539,7 @@ public class IssueServiceMediumTest {
   }
 
   private IssueQuery projectQuery(String projectUuid) {
-    return IssueQuery.builder().projectUuids(Arrays.asList(projectUuid)).resolved(false).build();
+    return IssueQuery.builder(userSessionRule).projectUuids(Arrays.asList(projectUuid)).resolved(false).build();
   }
 
   @Test
@@ -568,12 +570,12 @@ public class IssueServiceMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
 
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     session.commit();
 
     // project can be seen by group "anyone"
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    MockUserSession.set();
+    userSessionRule.logon();
 
     return project;
   }

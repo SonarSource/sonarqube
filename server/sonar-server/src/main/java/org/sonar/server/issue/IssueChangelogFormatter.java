@@ -19,6 +19,11 @@
  */
 package org.sonar.server.issue;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -26,11 +31,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
-
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -41,10 +41,12 @@ public class IssueChangelogFormatter {
 
   private final I18n i18n;
   private final Durations durations;
+  private final UserSession userSession;
 
-  public IssueChangelogFormatter(I18n i18n, Durations durations) {
+  public IssueChangelogFormatter(I18n i18n, Durations durations, UserSession userSession) {
     this.i18n = i18n;
     this.durations = durations;
+    this.userSession = userSession;
   }
 
   public List<String> format(Locale locale, FieldDiffs diffs) {
@@ -76,10 +78,10 @@ public class IssueChangelogFormatter {
     String oldValueString = oldValue != null && !"".equals(oldValue) ? oldValue.toString() : null;
     if (IssueUpdater.TECHNICAL_DEBT.equals(key)) {
       if (newValueString != null) {
-        newValueString = durations.format(UserSession.get().locale(), Duration.create(Long.parseLong(newValueString)), Durations.DurationFormat.SHORT);
+        newValueString = durations.format(userSession.locale(), Duration.create(Long.parseLong(newValueString)), Durations.DurationFormat.SHORT);
       }
       if (oldValueString != null) {
-        oldValueString = durations.format(UserSession.get().locale(), Duration.create(Long.parseLong(oldValueString)), Durations.DurationFormat.SHORT);
+        oldValueString = durations.format(userSession.locale(), Duration.create(Long.parseLong(oldValueString)), Durations.DurationFormat.SHORT);
       }
     }
     return new IssueChangelogDiffFormat(oldValueString, newValueString);

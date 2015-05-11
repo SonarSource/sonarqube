@@ -43,6 +43,7 @@ import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
 import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,6 +54,8 @@ public class RuleBackendMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -432,7 +435,7 @@ public class RuleBackendMediumTest {
     assertThat(index.getByKey(RuleTesting.XOO_X2)).isNotNull();
 
     // 2. assert find does not get REMOVED
-    List<Rule> rules = index.search(new RuleQuery(), new QueryContext()).getHits();
+    List<Rule> rules = index.search(new RuleQuery(), new QueryContext(userSessionRule)).getHits();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
   }

@@ -20,17 +20,21 @@
 package org.sonar.server.issue.filter;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueFilterWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   IssueFilterService service;
@@ -44,7 +48,7 @@ public class IssueFilterWsTest {
 
   @Before
   public void setUp() {
-    ws = new IssueFilterWs(new AppAction(service, issueFilterWriter), new ShowAction(service, issueFilterWriter), new FavoritesAction(service));
+    ws = new IssueFilterWs(new AppAction(service, issueFilterWriter, userSessionRule), new ShowAction(service, issueFilterWriter, userSessionRule), new FavoritesAction(service, userSessionRule));
     tester = new WsTester(ws);
   }
 

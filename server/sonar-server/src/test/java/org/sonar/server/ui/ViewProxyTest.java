@@ -20,6 +20,7 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,9 +34,7 @@ import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 import org.sonar.api.web.WidgetScope;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,13 +43,15 @@ import static org.sonar.server.component.ComponentTesting.newProjectDto;
 public class ViewProxyTest {
 
   @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
   public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void compareTo() {
-    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("bbb")))).isLessThan(0);
-    assertThat(new ViewProxy<FakeView>(new FakeView("aaa")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa")))).isZero();
-    assertThat(new ViewProxy<FakeView>(new FakeView("bbb")).compareTo(new ViewProxy<FakeView>(new FakeView("aaa")))).isGreaterThan(0);
+    assertThat(new ViewProxy<>(new FakeView("aaa"), userSession).compareTo(new ViewProxy<>(new FakeView("bbb"), userSession))).isLessThan(0);
+    assertThat(new ViewProxy<>(new FakeView("aaa"), userSession).compareTo(new ViewProxy<>(new FakeView("aaa"), userSession))).isZero();
+    assertThat(new ViewProxy<>(new FakeView("bbb"), userSession).compareTo(new ViewProxy<>(new FakeView("aaa"), userSession))).isGreaterThan(0);
   }
 
   @Test
@@ -65,7 +66,7 @@ public class ViewProxyTest {
     }
 
     View view = new MyView();
-    ViewProxy proxy = new ViewProxy<View>(view);
+    ViewProxy proxy = new ViewProxy<>(view, userSession);
 
     assertThat(proxy.getTarget()).isEqualTo(view);
     assertThat(proxy.getSections()).isEqualTo(new String[] {NavigationSection.RESOURCE});
@@ -81,7 +82,7 @@ public class ViewProxyTest {
       }
     }
     View view = new MyView();
-    ViewProxy proxy = new ViewProxy<View>(view);
+    ViewProxy proxy = new ViewProxy<>(view, userSession);
 
     assertThat(proxy.getTarget()).isEqualTo(view);
     assertThat(proxy.getSections()).isEqualTo(new String[] {NavigationSection.HOME});
@@ -97,7 +98,7 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.isDefaultTab()).isTrue();
     assertThat(proxy.getDefaultTabForMetrics()).isEmpty();
@@ -110,7 +111,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.isDefaultTab()).isFalse();
     assertThat(proxy.getDefaultTabForMetrics()).isEmpty();
@@ -124,7 +125,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.isDefaultTab()).isFalse();
     assertThat(proxy.getDefaultTabForMetrics()).isEqualTo(new String[] {"ncloc", "coverage"});
@@ -132,7 +133,7 @@ public class ViewProxyTest {
 
   @Test
   public void widget_should_be_editable() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
 
     assertThat(proxy.isEditable()).isTrue();
     assertThat(proxy.getWidgetProperties()).hasSize(3);
@@ -140,7 +141,7 @@ public class ViewProxyTest {
 
   @Test
   public void load_widget_properties_in_the_same_order_than_annotations() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
 
     List<WidgetProperty> widgetProperties = Lists.newArrayList(proxy.getWidgetProperties());
     assertThat(widgetProperties).hasSize(3);
@@ -151,21 +152,21 @@ public class ViewProxyTest {
 
   @Test
   public void widget_should_have_text_property() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new TextWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new TextWidget(), userSession);
 
     assertThat(getOnlyElement(proxy.getWidgetProperties()).type()).isEqualTo(WidgetPropertyType.TEXT);
   }
 
   @Test
   public void widget_should_not_be_global_by_default() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
 
     assertThat(proxy.isGlobal()).isFalse();
   }
 
   @Test
   public void widget_should_be_global() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new GlobalWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new GlobalWidget(), userSession);
 
     assertThat(proxy.isGlobal()).isTrue();
   }
@@ -176,18 +177,18 @@ public class ViewProxyTest {
     exception.expectMessage("INVALID");
     exception.expectMessage("WidgetWithInvalidScope");
 
-    new ViewProxy<Widget>(new WidgetWithInvalidScope());
+    new ViewProxy<Widget>(new WidgetWithInvalidScope(), userSession);
   }
 
   @Test
   public void widgetShouldRequireMandatoryProperties() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new EditableWidget(), userSession);
     assertThat(proxy.hasRequiredProperties()).isTrue();
   }
 
   @Test
   public void widgetShouldDefineOnlyOptionalProperties() {
-    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties());
+    ViewProxy<Widget> proxy = new ViewProxy<Widget>(new WidgetWithOptionalProperties(), userSession);
     assertThat(proxy.hasRequiredProperties()).isFalse();
   }
 
@@ -198,7 +199,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
   }
@@ -211,7 +212,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage"})).isTrue();
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isFalse();
@@ -225,7 +226,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "coverage"})).isTrue();
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"complexity", "coverage"})).isFalse();
@@ -239,7 +240,7 @@ public class ViewProxyTest {
         super("fake");
       }
     }
-    ViewProxy proxy = new ViewProxy<MyView>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
     // ok, mandatory measures and 1 needed measure
     assertThat(proxy.acceptsAvailableMeasures(new String[] {"lines", "ncloc", "coverage", "duplications"})).isTrue();
@@ -259,9 +260,8 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set();
     assertThat(proxy.isUserAuthorized()).isTrue();
   }
 
@@ -276,9 +276,9 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set().setGlobalPermissions("palap");
+    userSession.setGlobalPermissions("palap");
     assertThat(proxy.isUserAuthorized()).isTrue();
   }
 
@@ -293,9 +293,9 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set().setGlobalPermissions("pilip");
+    userSession.setGlobalPermissions("pilip");
     assertThat(proxy.isUserAuthorized()).isFalse();
   }
 
@@ -309,9 +309,8 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set();
     assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
   }
 
@@ -326,9 +325,9 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set().addProjectUuidPermissions("palap", "abcd");
+    userSession.addProjectUuidPermissions("palap", "abcd");
     assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isTrue();
   }
 
@@ -343,9 +342,9 @@ public class ViewProxyTest {
       }
     }
 
-    ViewProxy proxy = new ViewProxy<View>(new MyView());
+    ViewProxy proxy = new ViewProxy<>(new MyView(), userSession);
 
-    MockUserSession.set().addProjectUuidPermissions("pilip", "abcd");
+    userSession.addProjectUuidPermissions("pilip", "abcd");
     assertThat(proxy.isUserAuthorized(newProjectDto("abcd"))).isFalse();
   }
 }

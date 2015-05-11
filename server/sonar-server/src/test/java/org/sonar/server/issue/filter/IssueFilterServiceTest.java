@@ -43,7 +43,8 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -64,7 +65,7 @@ public class IssueFilterServiceTest {
   IssueIndex issueIndex = mock(IssueIndex.class);
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
-  UserSession userSession = MockUserSession.create().setLogin("john");
+  UserSession userSession = new MockUserSession("john");
   IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueIndex, authorizationDao, issueFilterSerializer);
 
   @Test
@@ -110,9 +111,8 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_by_id_if_not_logged() {
-    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
-      service.find(1L, userSession);
+      service.find(1L, new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
@@ -144,9 +144,8 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_by_user_if_not_logged() {
-    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
-      service.findByUser(userSession);
+      service.findByUser(new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
@@ -174,10 +173,9 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_save_if_not_logged() {
-    UserSession userSession = MockUserSession.create().setLogin(null);
     try {
       IssueFilterDto issueFilter = new IssueFilterDto().setName("My Issue");
-      service.save(issueFilter, userSession);
+      service.save(issueFilter, new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
@@ -417,7 +415,7 @@ public class IssueFilterServiceTest {
 
     try {
       IssueFilterDto issueFilter = new IssueFilterDto().setId(1L).setName("My filter").setShared(true).setUserLogin("new.owner");
-      service.update(issueFilter, MockUserSession.create().setUserId(1).setLogin(currentUser));
+      service.update(issueFilter, new MockUserSession(currentUser).setUserId(1));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("User is not authorized to change the owner of this filter");
@@ -535,7 +533,7 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_execute_from_issue_query() {
-    IssueQuery issueQuery = IssueQuery.builder().build();
+    IssueQuery issueQuery = IssueQuery.builder(userSession).build();
     SearchOptions searchOptions = new SearchOptions().setPage(2, 50);
 
     SearchResult<IssueDoc> result = mock(SearchResult.class);
@@ -573,10 +571,8 @@ public class IssueFilterServiceTest {
 
   @Test
   public void should_not_find_favourite_issue_filter_if_not_logged() {
-    UserSession userSession = MockUserSession.create().setLogin(null);
-
     try {
-      service.findFavoriteFilters(userSession);
+      service.findFavoriteFilters(new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnauthorizedException.class).hasMessage("User is not logged in");
@@ -662,14 +658,13 @@ public class IssueFilterServiceTest {
   @Test
   public void user_can_share_filter_if_logged_and_own_sharing_permission() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
-    UserSession userSession = MockUserSession.create().setLogin("john");
+    UserSession userSession = new MockUserSession("john");
     assertThat(service.canShareFilter(userSession)).isTrue();
 
-    userSession = MockUserSession.create().setLogin(null);
-    assertThat(service.canShareFilter(userSession)).isFalse();
+    assertThat(service.canShareFilter(new AnonymousMockUserSession())).isFalse();
 
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(Collections.<String>emptyList());
-    userSession = MockUserSession.create().setLogin("john");
+    userSession = new MockUserSession("john");
     assertThat(service.canShareFilter(userSession)).isFalse();
   }
 

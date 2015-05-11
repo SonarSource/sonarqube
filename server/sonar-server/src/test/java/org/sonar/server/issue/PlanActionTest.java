@@ -31,7 +31,7 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.issue.actionplan.ActionPlanService;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import java.util.List;
 import java.util.Map;
@@ -102,8 +102,8 @@ public class PlanActionTest {
     ActionPlan actionPlan = new DefaultActionPlan().setProjectKey("struts");
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(actionPlan);
-    assertThat(action.verify(properties, issues, mock(UserSession.class))).isTrue();
+    when(actionPlanService.findByKey(eq(planKey), any(ThreadLocalUserSession.class))).thenReturn(actionPlan);
+    assertThat(action.verify(properties, issues, mock(ThreadLocalUserSession.class))).isTrue();
     assertThat(properties.get(PlanAction.VERIFIED_ACTION_PLAN)).isEqualTo(actionPlan);
   }
 
@@ -117,8 +117,8 @@ public class PlanActionTest {
     properties.put("plan", planKey);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(null);
-    action.verify(properties, issues, mock(UserSession.class));
+    when(actionPlanService.findByKey(eq(planKey), any(ThreadLocalUserSession.class))).thenReturn(null);
+    action.verify(properties, issues, mock(ThreadLocalUserSession.class));
   }
 
   @Test
@@ -128,7 +128,7 @@ public class PlanActionTest {
     properties.put("plan", planKey);
 
     List<Issue> issues = newArrayList((Issue) new DefaultIssue().setKey("ABC").setProjectKey("struts"));
-    action.verify(properties, issues, mock(UserSession.class));
+    action.verify(properties, issues, mock(ThreadLocalUserSession.class));
     assertThat(properties.containsKey(PlanAction.VERIFIED_ACTION_PLAN)).isTrue();
     assertThat(properties.get(PlanAction.VERIFIED_ACTION_PLAN)).isNull();
   }
@@ -142,9 +142,9 @@ public class PlanActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("plan", planKey);
 
-    when(actionPlanService.findByKey(eq(planKey), any(UserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
+    when(actionPlanService.findByKey(eq(planKey), any(ThreadLocalUserSession.class))).thenReturn(new DefaultActionPlan().setProjectKey("struts"));
     List<Issue> issues = newArrayList(new DefaultIssue().setKey("ABC").setProjectKey("struts"), (Issue) new DefaultIssue().setKey("ABE").setProjectKey("mybatis"));
-    action.verify(properties, issues, mock(UserSession.class));
+    action.verify(properties, issues, mock(ThreadLocalUserSession.class));
   }
 
   @Test

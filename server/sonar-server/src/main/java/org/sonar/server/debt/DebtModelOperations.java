@@ -50,15 +50,17 @@ public class DebtModelOperations {
 
   private final DbClient dbClient;
   private final System2 system2;
+  private final UserSession userSession;
 
-  public DebtModelOperations(DbClient dbClient) {
-    this(dbClient, System2.INSTANCE);
+  public DebtModelOperations(DbClient dbClient, UserSession userSession) {
+    this(dbClient, System2.INSTANCE, userSession);
   }
 
   @VisibleForTesting
-  DebtModelOperations(DbClient dbClient, System2 system2) {
+  DebtModelOperations(DbClient dbClient, System2 system2, UserSession userSession) {
     this.dbClient = dbClient;
     this.system2 = system2;
+    this.userSession = userSession;
   }
 
   public DebtCharacteristic create(String name, @Nullable Integer parentId) {
@@ -262,7 +264,7 @@ public class DebtModelOperations {
   }
 
   private void checkPermission() {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private static DebtCharacteristic toCharacteristic(CharacteristicDto dto) {

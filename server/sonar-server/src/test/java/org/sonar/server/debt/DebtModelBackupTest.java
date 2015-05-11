@@ -20,7 +20,13 @@
 
 package org.sonar.server.debt;
 
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -49,63 +55,58 @@ import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.MockUserSession;
-
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DebtModelBackupTest {
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Mock
   DbClient dbClient;
-
   @Mock
   DbSession session;
-
   @Mock
   DebtModelPluginRepository debtModelPluginRepository;
-
   @Mock
   CharacteristicDao dao;
-
   @Mock
   RuleDao ruleDao;
-
   @Mock
   DebtModelOperations debtModelOperations;
-
   @Mock
   RuleOperations ruleOperations;
-
   @Mock
   DebtCharacteristicsXMLImporter characteristicsXMLImporter;
-
   @Mock
   DebtRulesXMLImporter rulesXMLImporter;
-
   @Mock
   DebtModelXMLExporter debtModelXMLExporter;
-
   @Mock
   RuleDefinitionsLoader defLoader;
-
   @Mock
   System2 system2;
 
   @Captor
   ArgumentCaptor<CharacteristicDto> characteristicCaptor;
-
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
-
   @Captor
   ArgumentCaptor<ArrayList<RuleDebt>> ruleDebtListCaptor;
 
@@ -117,8 +118,8 @@ public class DebtModelBackupTest {
   DebtModelBackup debtModelBackup;
 
   @Before
-  public void setUp() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public void setUp() throws Exception {
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     when(system2.now()).thenReturn(now.getTime());
 
@@ -141,7 +142,7 @@ public class DebtModelBackupTest {
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
 
     debtModelBackup = new DebtModelBackup(dbClient, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter,
-      debtModelXMLExporter, defLoader, system2);
+      debtModelXMLExporter, defLoader, system2, userSessionRule);
   }
 
   @Test

@@ -21,6 +21,8 @@ package org.sonar.server.ui;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -46,13 +48,11 @@ import org.sonar.api.web.WidgetScope;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.Map;
-
 @SuppressWarnings("rawtypes")
 public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
-  private V view;
+  private final V view;
+  private final UserSession userSession;
   private String[] sections = {NavigationSection.HOME};
   private String[] userRoles = {};
   private String[] resourceScopes = {};
@@ -69,8 +69,9 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   private String[] mandatoryMeasures = {};
   private String[] needOneOfMeasures = {};
 
-  public ViewProxy(final V view) {
+  public ViewProxy(V view, UserSession userSession) {
     this.view = view;
+    this.userSession = userSession;
 
     initUserRoles(view);
     initSections(view);
@@ -277,7 +278,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean isUserAuthorized() {
     boolean authorized = userRoles.length == 0;
     for (String userRole : getUserRoles()) {
-      authorized |= UserSession.get().hasGlobalPermission(userRole);
+      authorized |= userSession.hasGlobalPermission(userRole);
     }
     return authorized;
   }
@@ -285,7 +286,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
   public boolean isUserAuthorized(ComponentDto component) {
     boolean authorized = userRoles.length == 0;
     for (String userRole : getUserRoles()) {
-      authorized |= UserSession.get().hasProjectPermissionByUuid(userRole, component.uuid());
+      authorized |= userSession.hasProjectPermissionByUuid(userRole, component.uuid());
     }
     return authorized;
   }

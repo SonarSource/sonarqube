@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import org.junit.Rule;
 import org.sonar.server.source.db.FileSourceDao;
 
 import org.junit.After;
@@ -35,7 +36,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +51,8 @@ public class HashActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   DbSession session;
 
@@ -62,7 +65,7 @@ public class HashActionTest {
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
 
-    tester = new WsTester(new SourcesWs(new HashAction(dbClient)));
+    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule)));
   }
 
   @After
@@ -73,7 +76,7 @@ public class HashActionTest {
   @Test
   public void show_hashes() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.logon("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     assertThat(request.execute().outputAsString()).isEqualTo("987654");
@@ -82,7 +85,7 @@ public class HashActionTest {
   @Test
   public void hashes_empty_if_no_source() throws Exception {
     db.prepareDbUnit(getClass(), "no_source.xml");
-    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.logon("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
     request.execute().assertNoContent();
@@ -90,7 +93,7 @@ public class HashActionTest {
 
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() {
-    MockUserSession.set().setLogin("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.logon("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
       request.execute();
@@ -104,7 +107,7 @@ public class HashActionTest {
   public void fail_on_missing_permission() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MockUserSession.set().setLogin("polop");
+    userSessionRule.logon("polop");
     tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY).execute();
   }
 }

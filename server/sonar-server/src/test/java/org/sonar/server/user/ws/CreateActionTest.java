@@ -23,6 +23,7 @@ package org.sonar.server.user.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
@@ -67,6 +68,8 @@ public class CreateActionTest {
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WebService.Controller controller;
 
@@ -101,7 +104,7 @@ public class CreateActionTest {
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new CreateAction(index,
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2),
-      i18n)));
+      i18n, userSessionRule)));
     controller = tester.controller("api/users");
 
   }
@@ -113,7 +116,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user() throws Exception {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -133,7 +136,7 @@ public class CreateActionTest {
 
   @Test
   public void reactivate_user() throws Exception {
-    MockUserSession.set().setLogin("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     dbClient.userDao().insert(session, new UserDto()
       .setEmail("john@email.com")
@@ -160,7 +163,7 @@ public class CreateActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("not_admin");
+    userSessionRule.logon("not_admin");
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")

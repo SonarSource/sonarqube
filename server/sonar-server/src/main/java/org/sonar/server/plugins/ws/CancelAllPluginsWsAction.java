@@ -31,10 +31,12 @@ public class CancelAllPluginsWsAction implements PluginsWsAction {
 
   private final PluginDownloader pluginDownloader;
   private final ServerPluginRepository pluginRepository;
+  private final UserSession userSession;
 
-  public CancelAllPluginsWsAction(PluginDownloader pluginDownloader, ServerPluginRepository pluginRepository) {
+  public CancelAllPluginsWsAction(PluginDownloader pluginDownloader, ServerPluginRepository pluginRepository, UserSession userSession) {
     this.pluginDownloader = pluginDownloader;
     this.pluginRepository = pluginRepository;
+    this.userSession = userSession;
   }
 
   @Override
@@ -49,7 +51,7 @@ public class CancelAllPluginsWsAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     pluginDownloader.cancelDownloads();
     pluginRepository.cancelUninstalls();

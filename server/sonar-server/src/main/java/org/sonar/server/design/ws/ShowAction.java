@@ -21,6 +21,11 @@
 package org.sonar.server.design.ws;
 
 import com.google.common.io.Resources;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -33,21 +38,17 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.ws.BaseUsersWsAction;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class ShowAction implements BaseUsersWsAction {
 
   private static final String PARAM_FROM_PARENT_UUID = "fromParentUuid";
   private static final String PARAM_TO_PARENT_UUID = "toParentUuid";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient) {
+  public ShowAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -79,7 +80,7 @@ public class ShowAction implements BaseUsersWsAction {
     try {
       ComponentDto fromParent = dbClient.componentDao().getByUuid(session, fromParentUuid);
       ComponentDto project = dbClient.componentDao().getByUuid(session, fromParent.projectUuid());
-      UserSession.get().checkProjectUuidPermission(UserRole.USER, project.uuid());
+      userSession.checkProjectUuidPermission(UserRole.USER, project.uuid());
 
       List<FileDependencyDto> fileDependencies = dbClient.fileDependencyDao().selectFromParents(session, fromParentUuid, toParentUuid, project.getId());
       writeResponse(response, fileDependencies, componentsByUuid(session, fileDependencies));

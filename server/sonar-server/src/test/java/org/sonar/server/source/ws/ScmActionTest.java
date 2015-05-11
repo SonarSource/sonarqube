@@ -20,9 +20,11 @@
 
 package org.sonar.server.source.ws;
 
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
@@ -38,10 +40,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
 
 public class ScmActionTest {
 
@@ -51,9 +51,10 @@ public class ScmActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester tester;
 
@@ -68,7 +69,7 @@ public class ScmActionTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
     session = dbClient.openSession(false);
 
-    tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()))));
+    tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule)));
   }
 
   @After
@@ -79,7 +80,7 @@ public class ScmActionTest {
   @Test
   public void show_scm() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)
@@ -92,7 +93,7 @@ public class ScmActionTest {
   @Test
   public void show_scm_from_given_range_lines() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
@@ -108,7 +109,7 @@ public class ScmActionTest {
   @Test
   public void not_group_lines_by_commit() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
@@ -125,7 +126,7 @@ public class ScmActionTest {
   @Test
   public void group_lines_by_commit() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     // lines 1 and 2 are the same commit, but not 3 (different date)
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
@@ -142,7 +143,7 @@ public class ScmActionTest {
   @Test
   public void accept_negative_value_in_from_parameter() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1),
@@ -158,7 +159,7 @@ public class ScmActionTest {
   @Test
   public void return_empty_value_when_no_scm() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       newSourceLine(null, null, null, 1)
@@ -171,7 +172,7 @@ public class ScmActionTest {
   @Test(expected = ForbiddenException.class)
   public void fail_without_code_viewer_permission() throws Exception {
     initFile();
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute();

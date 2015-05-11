@@ -21,9 +21,15 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -45,17 +51,13 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
-
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.sonar.server.qualityprofile.QProfileTesting.*;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_KEY;
 
 public class RuleActivatorMediumTest {
 
@@ -65,6 +67,8 @@ public class RuleActivatorMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;
@@ -840,7 +844,7 @@ public class RuleActivatorMediumTest {
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);
     assertThat(tester.get(RuleIndex.class)
-      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new QueryContext()).getTotal())
+      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new QueryContext(userSessionRule)).getTotal())
       .isEqualTo(bulkSize);
 
     // 1. bulk activate all the rules

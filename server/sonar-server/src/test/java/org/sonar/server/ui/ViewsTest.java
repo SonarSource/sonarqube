@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ui;
 
+import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Qualifiers;
@@ -27,14 +29,16 @@ import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.View;
 import org.sonar.api.web.Widget;
-
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ViewsTest {
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private static FakeResourceViewer FAKE_TAB = new FakeResourceViewer();
   private static FakeWidget FAKE_WIDGET = new FakeWidget();
@@ -43,7 +47,7 @@ public class ViewsTest {
 
   @Test
   public void should_get_page_by_id() {
-    final Views views = new Views(VIEWS);
+    final Views views = new Views(userSessionRule, VIEWS);
     assertThat(views.getPage("fake-page").getTarget().getClass()).isEqualTo(FakePage.class);
     assertThat(views.getPage("fake-widget")).isNull();
     assertThat(views.getPage("foo")).isNull();
@@ -52,7 +56,7 @@ public class ViewsTest {
 
   @Test
   public void should_get_pages_by_section() {
-    final Views views = new Views(VIEWS);
+    final Views views = new Views(userSessionRule, VIEWS);
 
     List<ViewProxy<Page>> pages = views.getPages(NavigationSection.RESOURCE);
     assertThat(pages.size()).isEqualTo(1);
@@ -64,7 +68,7 @@ public class ViewsTest {
 
   @Test
   public void should_get_widgets() {
-    final Views views = new Views(VIEWS);
+    final Views views = new Views(userSessionRule, VIEWS);
     List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size()).isEqualTo(1);
     assertThat(widgets.get(0).getTarget().getClass()).isEqualTo(FakeWidget.class);
@@ -72,7 +76,7 @@ public class ViewsTest {
 
   @Test
   public void should_sort_views_by_title() {
-    final Views views = new Views(new View[] {new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
+    final Views views = new Views(userSessionRule, new View[] {new FakeWidget("ccc", "ccc"), new FakeWidget("aaa", "aaa"), new FakeWidget("bbb", "bbb")});
     List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size()).isEqualTo(3);
     assertThat(widgets.get(0).getId()).isEqualTo("aaa");
@@ -82,7 +86,7 @@ public class ViewsTest {
 
   @Test
   public void should_prefix_title_by_number_to_display_first() {
-    final Views views = new Views(new View[] {new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
+    final Views views = new Views(userSessionRule, new View[] {new FakeWidget("other", "Other"), new FakeWidget("1id", "1widget"), new FakeWidget("2id", "2widget")});
     List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
     assertThat(widgets.size()).isEqualTo(3);
     assertThat(widgets.get(0).getId()).isEqualTo("1id");

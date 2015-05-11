@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -37,7 +38,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
@@ -50,6 +51,8 @@ public class QProfileProjectsActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private WsTester wsTester;
 
@@ -79,9 +82,9 @@ public class QProfileProjectsActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileProjectsAction(dbClient)));
+      new QProfileProjectsAction(dbClient, userSessionRule)));
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId.intValue());
+    userSessionRule.logon("obiwan").setUserId(userId.intValue());
     new UserDao(dbTester.myBatis(), mock(System2.class))
       .insert(session, new UserDto()
         .setActive(true)

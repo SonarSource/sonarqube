@@ -37,10 +37,12 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
 
   private final QProfileCopier profileCopier;
   private final Languages languages;
+  private final UserSession userSession;
 
-  public QProfileCopyAction(QProfileCopier profileCopier, Languages languages) {
+  public QProfileCopyAction(QProfileCopier profileCopier, Languages languages, UserSession userSession) {
     this.profileCopier = profileCopier;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   @Override
@@ -64,7 +66,7 @@ public class QProfileCopyAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String newName = request.mandatoryParam(PARAM_PROFILE_NAME);
     String profileKey = request.mandatoryParam(PARAM_PROFILE_KEY);

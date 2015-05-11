@@ -47,12 +47,14 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
   private final QProfileFactory profileFactory;
 
   private final Languages languages;
+  private final UserSession userSession;
 
-  public QProfileChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory, Languages languages) {
+  public QProfileChangeParentAction(DbClient dbClient, RuleActivator ruleActivator, QProfileFactory profileFactory, Languages languages, UserSession userSession) {
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.profileFactory = profileFactory;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   @Override
@@ -78,7 +80,7 @@ public class QProfileChangeParentAction implements BaseQProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     DbSession session = dbClient.openSession(false);
     try {

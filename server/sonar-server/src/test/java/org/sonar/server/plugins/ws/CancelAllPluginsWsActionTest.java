@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +28,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,20 +39,18 @@ import static org.mockito.Mockito.verify;
 public class CancelAllPluginsWsActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private CancelAllPluginsWsAction underTest = new CancelAllPluginsWsAction(pluginDownloader, pluginRepository);
+  private CancelAllPluginsWsAction underTest = new CancelAllPluginsWsAction(pluginDownloader, pluginRepository, userSessionRule);
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Before
-  public void setUp() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
 
   @Test
   public void action_cancel_all_is_defined() {
@@ -80,7 +77,7 @@ public class CancelAllPluginsWsActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     // no permission on user
-    MockUserSession.set().setGlobalPermissions();
+    userSessionRule.setGlobalPermissions();
 
     underTest.handle(request, response);
   }

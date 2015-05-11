@@ -24,8 +24,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,14 +50,7 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.atomic.AtomicLong;
+import org.sonar.server.tester.UserSessionRule;
 
 public class IssueIndexBenchmarkTest {
 
@@ -60,8 +60,10 @@ public class IssueIndexBenchmarkTest {
   final static int FILES_PER_PROJECT = 100;
   final static int ISSUES_PER_FILE = 100;
 
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
   @Rule
-  public ServerTester tester = new ServerTester();
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   @Rule
   public Benchmark benchmark = new Benchmark();
@@ -122,11 +124,11 @@ public class IssueIndexBenchmarkTest {
   }
 
   private void benchmarkQueries() {
-    MockUserSession.set().setUserGroups("sonar-users");
-    benchmarkQuery("all issues", IssueQuery.builder().build());
-    benchmarkQuery("project issues", IssueQuery.builder().projectUuids(Arrays.asList("PROJECT33")).build());
-    benchmarkQuery("file issues", IssueQuery.builder().componentUuids(Arrays.asList("FILE333")).build());
-    benchmarkQuery("various", IssueQuery.builder()
+    userSessionRule.setUserGroups("sonar-users");
+    benchmarkQuery("all issues", IssueQuery.builder(userSessionRule).build());
+    benchmarkQuery("project issues", IssueQuery.builder(userSessionRule).projectUuids(Arrays.asList("PROJECT33")).build());
+    benchmarkQuery("file issues", IssueQuery.builder(userSessionRule).componentUuids(Arrays.asList("FILE333")).build());
+    benchmarkQuery("various", IssueQuery.builder(userSessionRule)
       .resolutions(Arrays.asList(Issue.RESOLUTION_FIXED))
       .assigned(true)
       .build());

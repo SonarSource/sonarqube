@@ -23,6 +23,7 @@ package org.sonar.server.user.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -39,7 +40,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.UserDao;
@@ -59,9 +60,10 @@ public class DeactivateActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
-
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WebService.Controller controller;
 
@@ -92,7 +94,7 @@ public class DeactivateActionTest {
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new DeactivateAction(index,
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2))));
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule)));
     controller = tester.controller("api/users");
 
   }
@@ -106,7 +108,7 @@ public class DeactivateActionTest {
   public void deactivate_user() throws Exception {
     createUser();
 
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john")
       .execute()
@@ -120,14 +122,14 @@ public class DeactivateActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    MockUserSession.set().setLogin("not_admin");
+    userSessionRule.logon("not_admin");
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }

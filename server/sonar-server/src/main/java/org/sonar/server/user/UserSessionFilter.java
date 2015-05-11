@@ -21,11 +21,23 @@ package org.sonar.server.user;
 
 import javax.servlet.*;
 import java.io.IOException;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.platform.Platform;
 
 /**
  * @since 3.6
  */
 public class UserSessionFilter implements Filter {
+  private final Platform platform;
+
+  public UserSessionFilter() {
+    this.platform = Platform.getInstance();
+  }
+
+  public UserSessionFilter(Platform platform) {
+    this.platform = platform;
+  }
+
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     // nothing to do
@@ -41,7 +53,13 @@ public class UserSessionFilter implements Filter {
     try {
       chain.doFilter(servletRequest, servletResponse);
     } finally {
-      UserSession.remove();
+      ThreadLocalUserSession userSession = platform.getContainer().getComponentByType(ThreadLocalUserSession.class);
+      if (userSession == null) {
+        Loggers.get(UserSessionFilter.class).error("Can not retrieve ThreadLocalUserSession from Platform");
+      }
+      else {
+        userSession.remove();
+      }
     }
   }
 }

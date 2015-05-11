@@ -61,6 +61,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,6 +71,8 @@ public class RuleIndexMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   protected DbClient db;
 
@@ -136,15 +139,15 @@ public class RuleIndexMediumTest {
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
-    Result result = index.search(query, new QueryContext());
+    Result result = index.search(query, new QueryContext(userSessionRule));
     assertThat(result.getFacets()).isEmpty();
 
     // should not have any facet on non matching query!
-    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryContext().addFacets(Arrays.asList("repositories")));
+    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryContext(userSessionRule).addFacets(Arrays.asList("repositories")));
     assertThat(result.getFacets()).isEmpty();
 
     // Repositories Facet is preset
-    result = index.search(query, new QueryContext().addFacets(Arrays.asList("repositories", "tags")));
+    result = index.search(query, new QueryContext(userSessionRule).addFacets(Arrays.asList("repositories", "tags")));
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(2);
 
@@ -168,7 +171,7 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
-    QueryContext options = new QueryContext().setFieldsToReturn(null);
+    QueryContext options = new QueryContext(userSessionRule).setFieldsToReturn(null);
     Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     Rule hit = Iterables.getFirst(results.getHits(), null);
@@ -176,7 +179,7 @@ public class RuleIndexMediumTest {
     assertThat(hit.htmlDescription()).isNotNull();
     assertThat(hit.name()).isNotNull();
 
-    options = new QueryContext().setFieldsToReturn(Collections.<String>emptyList());
+    options = new QueryContext(userSessionRule).setFieldsToReturn(Collections.<String>emptyList());
     results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     hit = Iterables.getFirst(results.getHits(), null);
@@ -190,7 +193,7 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
-    QueryContext options = new QueryContext();
+    QueryContext options = new QueryContext(userSessionRule);
     options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.field(), RuleNormalizer.RuleField.STATUS.field());
     Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
@@ -215,19 +218,19 @@ public class RuleIndexMediumTest {
 
     // substring
     RuleQuery query = new RuleQuery().setQueryText("test");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // substring
     query = new RuleQuery().setQueryText("partial match");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // case-insensitive
     query = new RuleQuery().setQueryText("TESTING");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // not found
     query = new RuleQuery().setQueryText("not present");
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
   }
 
   @Test
@@ -239,16 +242,16 @@ public class RuleIndexMediumTest {
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
     // TODO fix non-partial match for Key search
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
   }
 
   @Test
@@ -260,12 +263,12 @@ public class RuleIndexMediumTest {
 
     // key
     RuleQuery query = new RuleQuery().setKey(RuleKey.of("javascript", "X001").toString());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // partial key does not match
     query = new RuleQuery().setKey("X001");
     // TODO fix non-partial match for Key search
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
   }
 
   @Test
@@ -274,7 +277,7 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
     dbSession.commit();
 
-    Result results = index.search(new RuleQuery(), new QueryContext());
+    Result results = index.search(new RuleQuery(), new QueryContext(userSessionRule));
 
     assertThat(results.getTotal()).isEqualTo(2);
     assertThat(results.getHits()).hasSize(2);
@@ -288,7 +291,7 @@ public class RuleIndexMediumTest {
     }
     dbSession.commit();
 
-    Result results = index.search(new RuleQuery(), new QueryContext().setScroll(true));
+    Result results = index.search(new RuleQuery(), new QueryContext(userSessionRule).setScroll(true));
 
     assertThat(results.getTotal()).isEqualTo(max);
     assertThat(results.getHits()).hasSize(0);
@@ -343,9 +346,9 @@ public class RuleIndexMediumTest {
       .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
     dbSession.commit();
 
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(null), new QueryContext()).getTotal()).isEqualTo(4);
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryContext()).getTotal()).isEqualTo(2);
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(false), new QueryContext()).getTotal()).isEqualTo(2);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(null), new QueryContext(userSessionRule)).getTotal()).isEqualTo(4);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryContext(userSessionRule)).getTotal()).isEqualTo(2);
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(false), new QueryContext(userSessionRule)).getTotal()).isEqualTo(2);
   }
 
   @Test
@@ -388,7 +391,7 @@ public class RuleIndexMediumTest {
       .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
     dbSession.commit();
 
-    QueryContext withDebtCharFacet = new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_DEBT_CHARACTERISTICS));
+    QueryContext withDebtCharFacet = new QueryContext(userSessionRule).addFacets(Arrays.asList(RuleIndex.FACET_DEBT_CHARACTERISTICS));
 
     // Facet show results on characs, subcharacs and uncharacterized rules 
     Result<Rule> result1 = index.search(new RuleQuery(), withDebtCharFacet);
@@ -446,17 +449,17 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     RuleQuery query = new RuleQuery().setRepositories(Arrays.asList("checkstyle", "pmd"));
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setRepositories(Arrays.asList("checkstyle"));
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setRepositories(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -467,22 +470,22 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
 
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setLanguages(Arrays.asList("cpp"));
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setLanguages(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -507,36 +510,36 @@ public class RuleIndexMediumTest {
     Result<Rule> results;
 
     // 0. we have 2 rules in index
-    results = index.search(new RuleQuery(), new QueryContext());
+    results = index.search(new RuleQuery(), new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(2);
 
     // filter by non-subChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of("toto"));
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // filter by subChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // filter by Char
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // filter by Char and SubChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey()));
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // match by Char
     query = new RuleQuery().setQueryText(char1.getKey());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // match by SubChar
     query = new RuleQuery().setQueryText(char11.getKey());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
 
     // match by SubChar & Char
     query = new RuleQuery().setQueryText(char11.getKey() + " " + char1.getKey());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
   }
 
   @Test
@@ -585,26 +588,26 @@ public class RuleIndexMediumTest {
     Result<Rule> results;
 
     // 0. we have 4 rules in index
-    results = index.search(new RuleQuery(), new QueryContext());
+    results = index.search(new RuleQuery(), new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(4);
 
     // filter by subChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext()).getHits())).containsOnly("S001", "S002", "S004");
+    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S004");
 
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char21.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext()).getHits())).containsOnly("S003");
+    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S003");
 
     // filter by Char
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext()).getHits())).containsOnly("S001", "S002", "S004");
+    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S004");
 
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char2.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext()).getHits())).containsOnly("S003");
+    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S003");
 
     // filter by Char and SubChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey(), char2.getKey(), char21.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext()).getHits())).containsOnly("S001", "S002", "S003", "S004");
+    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S003", "S004");
   }
 
   @Test
@@ -614,21 +617,21 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setSeverities(Arrays.asList(Severity.MINOR));
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setSeverities(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setSeverities(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -638,21 +641,21 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED));
-    assertThat(index.search(query, new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
 
     // empty list => no filter
     query = new RuleQuery().setStatuses(Collections.<RuleStatus>emptyList());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setStatuses(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -664,14 +667,14 @@ public class RuleIndexMediumTest {
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.NAME);
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(3);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S003");
 
     // descending
     query = new RuleQuery().setSortField(RuleNormalizer.RuleField.NAME).setAscendingSort(false);
-    results = index.search(query, new QueryContext());
+    results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(3);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S003");
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
@@ -709,25 +712,25 @@ public class RuleIndexMediumTest {
 
     // 1. get all active rules.
     Result<Rule> result = index.search(new RuleQuery().setActivation(true),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(2);
 
     // 2. get all inactive rules.
     result = index.search(new RuleQuery().setActivation(false),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
 
     // 3. get all rules not active on profile
     index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey()),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     // TODO
     assertThat(result.getHits()).hasSize(1);
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(qualityProfileDto2.getKey()),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
 
@@ -769,17 +772,17 @@ public class RuleIndexMediumTest {
 
     // 0. get all rules
     Result<Rule> result = index.search(new RuleQuery(),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(4);
 
     // 1. get all active rules
     result = index.search(new RuleQuery().setActivation(true),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(3);
 
     // 2. get all inactive rules.
     result = index.search(new RuleQuery().setActivation(false),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule4.getName());
 
@@ -787,7 +790,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(0);
 
@@ -795,7 +798,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(2);
 
@@ -803,7 +806,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(0);
 
@@ -811,7 +814,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(1);
 
@@ -820,7 +823,7 @@ public class RuleIndexMediumTest {
       .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(
         ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(0);
 
@@ -829,7 +832,7 @@ public class RuleIndexMediumTest {
       .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(
         ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
-      new QueryContext()
+      new QueryContext(userSessionRule)
       );
     assertThat(result.getHits()).hasSize(3);
   }
@@ -855,12 +858,12 @@ public class RuleIndexMediumTest {
 
     // 1. get all active rules.
     Result<Rule> result = index.search(new RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()),
-      new QueryContext());
+      new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(2);
 
     // 2. get rules with active severity critical.
     result = index.search(new RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()).setActiveSeverities(Arrays.asList("CRITICAL")),
-      new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
+      new QueryContext(userSessionRule).addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule2.getName());
     // check stickyness of active severity facet
@@ -868,7 +871,7 @@ public class RuleIndexMediumTest {
 
     // 3. count activation severities of all active rules
     result = index.search(new RuleQuery(),
-      new QueryContext().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
+      new QueryContext(userSessionRule).addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
     assertThat(result.getHits()).hasSize(3);
     assertThat(result.getFacetValues(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(new FacetValue("BLOCKER", 2), new FacetValue("CRITICAL", 1));
   }
@@ -903,38 +906,38 @@ public class RuleIndexMediumTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // tag1 in query
     query = new RuleQuery().setQueryText("tag1");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryContext()).getHits(), null).tags()).containsExactly("tag1");
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryContext(userSessionRule)).getHits(), null).tags()).containsExactly("tag1");
 
     // tag1 and tag2 in query
     query = new RuleQuery().setQueryText("tag1 tag2");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // tag2 in filter
     query = new RuleQuery().setTags(ImmutableSet.of("tag2"));
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryContext()).getHits(), null).tags()).containsExactly("tag2");
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryContext(userSessionRule)).getHits(), null).tags()).containsExactly("tag2");
 
     // tag2 in filter and tag1 tag2 in query
     query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(0);
 
     // tag2 in filter and tag1 in query
     query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1 tag2");
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryContext()).getHits(), null).tags()).containsExactly("tag2");
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryContext(userSessionRule)).getHits(), null).tags()).containsExactly("tag2");
 
     // null list => no filter
     query = new RuleQuery().setTags(Collections.<String>emptySet());
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setTags(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -945,26 +948,26 @@ public class RuleIndexMediumTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(2);
 
     // Only template
     query = new RuleQuery().setIsTemplate(true);
-    results = index.search(query, new QueryContext());
+    results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
     assertThat(Iterables.getFirst(results.getHits(), null).isTemplate()).isTrue();
 
     // Only not template
     query = new RuleQuery().setIsTemplate(false);
-    results = index.search(query, new QueryContext());
+    results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).isTemplate()).isFalse();
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001");
 
     // null => no filter
     query = new RuleQuery().setIsTemplate(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -976,19 +979,19 @@ public class RuleIndexMediumTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(2);
 
     // Only custom rule
     query = new RuleQuery().setTemplateKey("java:S001");
-    results = index.search(query, new QueryContext());
+    results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001_MY_CUSTOM");
     assertThat(Iterables.getFirst(results.getHits(), null).templateKey()).isEqualTo(RuleKey.of("java", "S001"));
 
     // null => no filter
     query = new RuleQuery().setTemplateKey(null);
-    assertThat(index.search(query, new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
   }
 
   @Test
@@ -1006,7 +1009,7 @@ public class RuleIndexMediumTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(2);
 
     // get params
@@ -1023,7 +1026,7 @@ public class RuleIndexMediumTest {
 
     // find all
     RuleQuery query = new RuleQuery();
-    Result<Rule> results = index.search(query, new QueryContext());
+    Result<Rule> results = index.search(query, new QueryContext(userSessionRule));
     assertThat(results.getHits()).hasSize(2);
 
     // find custom rule
@@ -1038,7 +1041,7 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     // from 0 to 1 included
-    QueryContext options = new QueryContext();
+    QueryContext options = new QueryContext(userSessionRule);
     options.setOffset(0).setLimit(2);
     Result results = index.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
@@ -1073,19 +1076,19 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     // 0. find all rules;
-    assertThat(index.search(new RuleQuery(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(new RuleQuery(), new QueryContext(userSessionRule)).getHits()).hasSize(2);
 
     // 1. find all rules available since a date;
     RuleQuery availableSinceQuery = new RuleQuery()
       .setAvailableSince(since);
-    List<Rule> hits = index.search(availableSinceQuery, new QueryContext()).getHits();
+    List<Rule> hits = index.search(availableSinceQuery, new QueryContext(userSessionRule)).getHits();
     assertThat(hits).hasSize(1);
     assertThat(hits.get(0).key()).isEqualTo(RuleKey.of("java", "S002"));
 
     // 2. find no new rules since tomorrow.
     RuleQuery availableSinceNowQuery = new RuleQuery()
       .setAvailableSince(DateUtils.addDays(since, 1));
-    assertThat(index.search(availableSinceNowQuery, new QueryContext()).getHits()).hasSize(0);
+    assertThat(index.search(availableSinceNowQuery, new QueryContext(userSessionRule)).getHits()).hasSize(0);
   }
 
   @Test
@@ -1113,7 +1116,7 @@ public class RuleIndexMediumTest {
     assertThat(rule.name()).isEqualTo(nameWithProtectedChars);
 
     RuleQuery protectedCharsQuery = new RuleQuery().setQueryText(nameWithProtectedChars);
-    List<Rule> results = index.search(protectedCharsQuery, new QueryContext()).getHits();
+    List<Rule> results = index.search(protectedCharsQuery, new QueryContext(userSessionRule)).getHits();
     assertThat(results).hasSize(1);
     assertThat(results.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
   }
@@ -1135,10 +1138,10 @@ public class RuleIndexMediumTest {
 
     // 0 assert Base
     assertThat(index.countAll()).isEqualTo(9);
-    assertThat(index.search(new RuleQuery(), new QueryContext()).getHits()).hasSize(9);
+    assertThat(index.search(new RuleQuery(), new QueryContext(userSessionRule)).getHits()).hasSize(9);
 
     // 1 Facet with no filters at all
-    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags"))).getFacets();
+    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags"))).getFacets();
     assertThat(facets.keySet()).hasSize(3);
     assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java", "cobol");
     assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).extracting("key").containsOnly("xoo", "foo");
@@ -1148,7 +1151,7 @@ public class RuleIndexMediumTest {
     // -- lang facet should still have all language
     Result<Rule> result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp"))
-      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
+      , new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(3);
     assertThat(result.getFacets()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java", "cobol");
@@ -1160,7 +1163,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp"))
       .setTags(ImmutableList.<String>of("T2"))
-      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
+      , new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getFacets().keySet()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java");
@@ -1174,7 +1177,7 @@ public class RuleIndexMediumTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp", "java"))
       .setTags(ImmutableList.<String>of("T2"))
-      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
+      , new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets().keySet()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java");

@@ -22,12 +22,13 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileExportersTest.StandardExporter;
 import org.sonar.server.qualityprofile.QProfileExportersTest.XooExporter;
 import org.sonar.server.qualityprofile.QProfileExportersTest.XooProfileDefinition;
@@ -35,8 +36,9 @@ import org.sonar.server.qualityprofile.QProfileExportersTest.XooProfileImporter;
 import org.sonar.server.qualityprofile.QProfileExportersTest.XooProfileImporterWithError;
 import org.sonar.server.qualityprofile.QProfileExportersTest.XooProfileImporterWithMessages;
 import org.sonar.server.qualityprofile.QProfileExportersTest.XooRulesDefinition;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 public class QProfileCreateActionMediumTest {
@@ -47,6 +49,8 @@ public class QProfileCreateActionMediumTest {
     XooRulesDefinition.class, XooProfileDefinition.class,
     XooExporter.class, StandardExporter.class,
     XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;
@@ -70,7 +74,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test
   public void create_nominal() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")
@@ -81,7 +85,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test
   public void create_with_messages() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")
@@ -93,7 +97,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test(expected = BadRequestException.class)
   public void fail_on_error_from_importer() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")

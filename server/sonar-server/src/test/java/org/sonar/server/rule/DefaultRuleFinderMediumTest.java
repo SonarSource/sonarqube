@@ -31,6 +31,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collections;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +41,8 @@ public class DefaultRuleFinderMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   private DbClient dbClient;
   private DefaultRuleFinder finder;

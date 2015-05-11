@@ -19,19 +19,34 @@
  */
 package org.sonar.server.user;
 
-import org.junit.Test;
-
 import java.util.Locale;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.Platform;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RubyUserSessionTest {
+  Platform platform = mock(Platform.class);
+  ComponentContainer componentContainer = mock(ComponentContainer.class);
+  ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  RubyUserSession underTest = new RubyUserSession(platform);
+
+  @Before
+  public void setUp() throws Exception {
+    when(platform.getContainer()).thenReturn(componentContainer);
+    when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
+  }
+
   @Test
   public void should_set_session() {
-    RubyUserSession.setSession(123, "karadoc", "Karadoc", newArrayList("sonar-users"), "fr");
+    underTest.setSessionImpl(123, "karadoc", "Karadoc", newArrayList("sonar-users"), "fr");
 
-    UserSession session = UserSession.get();
+    UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
     assertThat(session.login()).isEqualTo("karadoc");
@@ -44,9 +59,9 @@ public class RubyUserSessionTest {
 
   @Test
   public void should_set_anonymous_session() {
-    RubyUserSession.setSession(null, null, null, null, "fr");
+    underTest.setSessionImpl(null, null, null, null, "fr");
 
-    UserSession session = UserSession.get();
+    UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
     assertThat(session.login()).isNull();

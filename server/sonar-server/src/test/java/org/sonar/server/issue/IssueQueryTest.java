@@ -20,21 +20,24 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
+import java.util.Date;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-
-import java.util.Date;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueQueryTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Test
   public void build_query() {
-    IssueQuery query = IssueQuery.builder()
+    IssueQuery query = IssueQuery.builder(userSessionRule)
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
@@ -82,7 +85,7 @@ public class IssueQueryTest {
 
   @Test
   public void build_query_without_dates() {
-    IssueQuery query = IssueQuery.builder()
+    IssueQuery query = IssueQuery.builder(userSessionRule)
       .issueKeys(newArrayList("ABCDE"))
       .createdAfter(null)
       .createdBefore(null)
@@ -98,7 +101,7 @@ public class IssueQueryTest {
   @Test
   public void throw_exception_if_sort_is_not_valid() {
     try {
-      IssueQuery.builder()
+      IssueQuery.builder(userSessionRule)
         .sort("UNKNOWN")
         .build();
     } catch (Exception e) {
@@ -108,7 +111,7 @@ public class IssueQueryTest {
 
   @Test
   public void collection_params_should_not_be_null_but_empty() {
-    IssueQuery query = IssueQuery.builder()
+    IssueQuery query = IssueQuery.builder(userSessionRule)
       .issueKeys(null)
       .componentUuids(null)
       .moduleUuids(null)
@@ -138,7 +141,7 @@ public class IssueQueryTest {
 
   @Test
   public void test_default_query() throws Exception {
-    IssueQuery query = IssueQuery.builder().build();
+    IssueQuery query = IssueQuery.builder(userSessionRule).build();
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.moduleUuids()).isEmpty();
@@ -162,7 +165,7 @@ public class IssueQueryTest {
 
   @Test
   public void should_accept_null_sort() {
-    IssueQuery query = IssueQuery.builder().sort(null).build();
+    IssueQuery query = IssueQuery.builder(userSessionRule).sort(null).build();
     assertThat(query.sort()).isNull();
   }
 }

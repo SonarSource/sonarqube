@@ -49,19 +49,21 @@ public class ProjectAssociationActions {
   private final QProfileLookup profileLookup;
   private final ComponentService componentService;
   private final Languages languages;
+  private final UserSession userSession;
 
-  public ProjectAssociationActions(QProfileProjectOperations profileProjectOperations, QProfileLookup profileLookup, ComponentService componentService, Languages languages) {
+  public ProjectAssociationActions(QProfileProjectOperations profileProjectOperations, QProfileLookup profileLookup, ComponentService componentService, Languages languages, UserSession userSession) {
     this.profileProjectOperations = profileProjectOperations;
     this.profileLookup = profileLookup;
     this.componentService = componentService;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   void define(WebService.NewController controller) {
     NewAction addProject = controller.createAction("add_project")
       .setSince("5.2")
       .setDescription("Associate a project with a quality profile.")
-      .setHandler(new AssociationHandler(profileLookup, componentService) {
+      .setHandler(new AssociationHandler(profileLookup, componentService, userSession) {
         @Override
         protected void changeAssociation(String profileKey, String projectUuid, UserSession userSession) {
           profileProjectOperations.addProject(profileKey, projectUuid, userSession);
@@ -72,7 +74,7 @@ public class ProjectAssociationActions {
     NewAction removeProject = controller.createAction("remove_project")
       .setSince("5.2")
       .setDescription("Remove a project's association with a quality profile.")
-      .setHandler(new AssociationHandler(profileLookup, componentService) {
+      .setHandler(new AssociationHandler(profileLookup, componentService, userSession) {
         @Override
         protected void changeAssociation(String profileKey, String projectUuid, UserSession userSession) {
           profileProjectOperations.removeProject(profileKey, projectUuid, userSession);
@@ -105,10 +107,12 @@ public class ProjectAssociationActions {
 
     private final QProfileLookup profileLookup;
     private final ComponentService componentService;
+    private final UserSession userSession;
 
-    public AssociationHandler(QProfileLookup profileLookup, ComponentService componentService) {
+    public AssociationHandler(QProfileLookup profileLookup, ComponentService componentService, UserSession userSession) {
       this.profileLookup = profileLookup;
       this.componentService = componentService;
+      this.userSession = userSession;
     }
 
     protected abstract void changeAssociation(String profileKey, String projectUuid, UserSession userSession);
@@ -133,7 +137,7 @@ public class ProjectAssociationActions {
         projectUuid = componentService.getByKey(projectKey).uuid();
       }
 
-      changeAssociation(profileKey, projectUuid, UserSession.get());
+      changeAssociation(profileKey, projectUuid, userSession);
       response.noContent();
     }
 

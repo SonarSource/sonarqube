@@ -23,6 +23,7 @@ package org.sonar.server.user.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
@@ -36,7 +37,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
@@ -60,6 +61,8 @@ public class ChangePasswordActionTest {
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   WebService.Controller controller;
 
@@ -89,10 +92,8 @@ public class ChangePasswordActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new ChangePasswordAction(new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2))));
+    tester = new WsTester(new UsersWs(new ChangePasswordAction(new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule)));
     controller = tester.controller("api/users");
-
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -104,7 +105,7 @@ public class ChangePasswordActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    MockUserSession.set().setLogin("polop");
+    userSessionRule.logon("polop");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .execute();

@@ -39,6 +39,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+import org.sonar.server.user.UserSession;
 
 /**
  * Conversion of {@link org.sonar.server.rule.index.RuleDoc} to WS JSON document
@@ -47,7 +48,8 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   private final DebtModel debtModel;
 
-  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, final DebtModel debtModel) {
+  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, final DebtModel debtModel, UserSession userSession) {
+    super(userSession);
     this.debtModel = debtModel;
 
     mapBasicFields(languages);

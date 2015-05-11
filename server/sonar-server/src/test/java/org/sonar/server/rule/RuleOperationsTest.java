@@ -38,15 +38,18 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleOperations.RuleChange;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleOperationsTest {
-
   @Mock
   DbClient dbClient;
 
@@ -62,7 +65,7 @@ public class RuleOperationsTest {
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
 
-  UserSession authorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  UserSession authorizedUserSession = new MockUserSession("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   RuleOperations operations;
 

@@ -20,6 +20,8 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Locale;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -37,10 +39,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Locale;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
@@ -49,6 +49,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   Languages languages;
@@ -67,10 +69,10 @@ public class AppActionTest {
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader);
+    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader, userSessionRule);
     WsTester tester = new WsTester(new RulesWebService(app));
 
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);

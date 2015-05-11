@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtModel;
@@ -26,12 +27,15 @@ import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.SearchOptions;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.text.MacroInterpreter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class RuleMappingTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   Languages languages = new Languages();
   MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
@@ -39,7 +43,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_load_all_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -50,7 +54,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_load_only_few_simple_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -65,7 +69,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_langName_requires_lang() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -77,7 +81,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_requires_group_of_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -92,7 +96,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_html_note_requires_markdown_note() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -104,7 +108,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_characteristics() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -117,7 +121,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_overloaded() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");

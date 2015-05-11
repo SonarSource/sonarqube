@@ -21,6 +21,7 @@ package org.sonar.server.user;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -33,9 +34,8 @@ import org.sonar.api.user.UserQuery;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserIndex;
-
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -49,11 +49,13 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultUserServiceTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   UserIndex userIndex = mock(UserIndex.class);
   UserFinder finder = mock(UserFinder.class);
   UserUpdater userUpdater = mock(UserUpdater.class);
-  DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder);
+  DefaultUserService service = new DefaultUserService(userIndex, userUpdater, finder, userSessionRule);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -93,7 +95,7 @@ public class DefaultUserServiceTest {
   @Test
   public void self_deactivation_is_not_possible() {
     try {
-      MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+      userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
       service.deactivate("simon");
       fail();
     } catch (BadRequestException e) {
@@ -105,7 +107,7 @@ public class DefaultUserServiceTest {
   @Test
   public void user_deactivation_requires_admin_permission() {
     try {
-      MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
@@ -115,14 +117,14 @@ public class DefaultUserServiceTest {
 
   @Test
   public void deactivate_user() {
-    MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(userUpdater).deactivateUserByLogin("julien");
   }
 
   @Test
   public void fail_to_deactivate_when_blank_login() {
-    MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     try {
       service.deactivate("");
       fail();

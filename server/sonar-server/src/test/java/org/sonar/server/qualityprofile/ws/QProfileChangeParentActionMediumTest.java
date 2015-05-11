@@ -19,9 +19,11 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -37,10 +39,8 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,6 +49,8 @@ public class QProfileChangeParentActionMediumTest {
   // TODO Replace with DbTester + EsTester once DaoV2 is removed
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   QProfilesWs ws;
   DbClient db;
@@ -62,7 +64,7 @@ public class QProfileChangeParentActionMediumTest {
     ws = tester.get(QProfilesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
-    MockUserSession.set().setLogin("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @After
@@ -257,7 +259,7 @@ public class QProfileChangeParentActionMediumTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_if_missing_permission() throws Exception {
-    MockUserSession.set().setLogin("anakin");
+    userSessionRule.logon("anakin");
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, "polop")
       .setParam("parentKey", "pulup")

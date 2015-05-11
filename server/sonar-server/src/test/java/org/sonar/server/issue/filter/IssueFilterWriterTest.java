@@ -24,7 +24,8 @@ import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.AnonymousMockUserSession;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringWriter;
@@ -37,8 +38,7 @@ public class IssueFilterWriterTest {
 
   @Test
   public void write_filter() {
-    UserSession userSession = MockUserSession.set();
-    test(userSession,
+    test(new AnonymousMockUserSession(),
       new IssueFilterDto()
         .setId(13L)
         .setName("Blocker issues")
@@ -59,8 +59,7 @@ public class IssueFilterWriterTest {
 
   @Test
   public void can_modify_if_logged_user_own_filter() {
-    UserSession userSession = MockUserSession.set().setLogin("simon");
-    test(userSession,
+    test(new MockUserSession("simon"),
       new IssueFilterDto()
         .setId(13L)
         .setName("Blocker issues")
@@ -81,7 +80,7 @@ public class IssueFilterWriterTest {
 
   @Test
   public void can_modify_if_logged_user_has_permission() {
-    UserSession userSession = MockUserSession.set().setLogin("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    UserSession userSession = new MockUserSession("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     test(userSession,
       new IssueFilterDto()
         .setId(13L)

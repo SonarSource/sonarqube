@@ -38,11 +38,13 @@ public class SettingsNavigationAction implements NavigationAction {
   private final Settings settings;
   private final Views views;
   private final I18n i18n;
+  private final UserSession userSession;
 
-  public SettingsNavigationAction(Settings settings, Views views, I18n i18n) {
+  public SettingsNavigationAction(Settings settings, Views views, I18n i18n, UserSession userSession) {
     this.views = views;
     this.settings = settings;
     this.i18n = i18n;
+    this.userSession = userSession;
   }
 
   @Override
@@ -61,7 +63,6 @@ public class SettingsNavigationAction implements NavigationAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession userSession = UserSession.get();
     boolean isAdmin = userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     JsonWriter json = response.newJsonWriter().beginObject();
@@ -72,7 +73,7 @@ public class SettingsNavigationAction implements NavigationAction {
     if (isAdmin) {
       for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION, null, null, null, null)) {
         json.beginObject()
-          .prop("name", i18n.message(UserSession.get().locale(), String.format("%s.page", page.getTitle()), page.getTitle()))
+          .prop("name", i18n.message(userSession.locale(), String.format("%s.page", page.getTitle()), page.getTitle()))
           .prop("url", getPageUrl(page))
           .endObject();
       }

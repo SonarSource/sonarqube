@@ -19,7 +19,10 @@
  */
 package org.sonar.server.ui;
 
+import java.util.Date;
+import java.util.Locale;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,9 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-
-import java.util.Date;
-import java.util.Locale;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,6 +39,8 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JRubyI18nTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   I18n i18n;
@@ -50,7 +53,7 @@ public class JRubyI18nTest {
 
   @Before
   public void setUp() {
-    jRubyI18n = new JRubyI18n(i18n, durations);
+    jRubyI18n = new JRubyI18n(i18n, durations, userSessionRule);
   }
 
   @Test

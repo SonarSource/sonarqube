@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.ws;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,21 +42,18 @@ public class UninstallPluginsWsActionTest {
   private static final String KEY_PARAM = "key";
   private static final String PLUGIN_KEY = "findbugs";
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private UninstallPluginsWsAction underTest = new UninstallPluginsWsAction(pluginRepository);
+  private UninstallPluginsWsAction underTest = new UninstallPluginsWsAction(pluginRepository, userSessionRule);
 
   private WsTester wsTester = new WsTester(new PluginsWs(underTest));
   private Request invalidRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY);
   private Request validRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY).setParam(KEY_PARAM, PLUGIN_KEY);
   private WsTester.TestResponse response = new WsTester.TestResponse();
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Before
-  public void setUp() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
 
   @Test
   public void user_must_have_system_admin_permission() throws Exception {
@@ -65,7 +61,7 @@ public class UninstallPluginsWsActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     // no permission on user
-    MockUserSession.set().setGlobalPermissions();
+    userSessionRule.setGlobalPermissions();
 
     underTest.handle(validRequest, response);
   }

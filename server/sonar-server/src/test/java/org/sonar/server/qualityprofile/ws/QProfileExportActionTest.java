@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
@@ -42,6 +43,7 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -57,6 +59,8 @@ public class QProfileExportActionTest {
 
   @ClassRule
   public static final DbTester db = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester wsTester;
 
@@ -87,7 +91,7 @@ public class QProfileExportActionTest {
     when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRule>newHashSet().iterator());
 
     when(indexClient.get(ActiveRuleIndex.class)).thenReturn(activeRuleIndex);
-    exporters = new QProfileExporters(new QProfileLoader(dbClient, indexClient), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
+    exporters = new QProfileExporters(new QProfileLoader(dbClient, indexClient, userSessionRule), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),

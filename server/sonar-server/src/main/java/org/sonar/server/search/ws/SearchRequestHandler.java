@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.server.user.UserSession;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
 
@@ -51,9 +52,11 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   public static final String PARAM_FACETS = "facets";
 
   private final String actionName;
+  protected final UserSession userSession;
 
-  protected SearchRequestHandler(String actionName) {
+  protected SearchRequestHandler(String actionName, UserSession userSession) {
     this.actionName = actionName;
+    this.userSession = userSession;
   }
 
   protected abstract Result<DOMAIN> doSearch(QUERY query, QueryContext context);
@@ -126,7 +129,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
   protected QueryContext getQueryContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
-    QueryContext queryContext = new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
+    QueryContext queryContext = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
     List<String> facets = request.paramAsStrings(PARAM_FACETS);
     if(facets != null) {
       queryContext.addFacets(facets);

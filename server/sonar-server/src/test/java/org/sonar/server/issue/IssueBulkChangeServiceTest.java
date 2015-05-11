@@ -34,7 +34,7 @@ public class IssueBulkChangeServiceTest {
 //
 //  IssueBulkChangeService service;
 //
-//  UserSession userSession = MockUserSession.create().setLogin("john").setUserId(10);
+//  UserSession userSession = new MockUserSession("john").setUserId(10);
 //
 //  IssueDoc issue;
 //  Rule rule;

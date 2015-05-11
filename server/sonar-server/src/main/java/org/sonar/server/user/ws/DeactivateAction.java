@@ -37,10 +37,12 @@ public class DeactivateAction implements BaseUsersWsAction {
 
   private final UserIndex index;
   private final UserUpdater userUpdater;
+  private final UserSession userSession;
 
-  public DeactivateAction(UserIndex index, UserUpdater userUpdater) {
+  public DeactivateAction(UserIndex index, UserUpdater userUpdater, UserSession userSession) {
     this.index = index;
     this.userUpdater = userUpdater;
+    this.userSession = userSession;
   }
 
   @Override
@@ -59,7 +61,7 @@ public class DeactivateAction implements BaseUsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     userUpdater.deactivateUserByLogin(login);

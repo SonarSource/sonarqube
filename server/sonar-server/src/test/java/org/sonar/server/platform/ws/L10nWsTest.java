@@ -20,6 +20,9 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Date;
+import java.util.Locale;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,12 +30,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.i18n.DefaultI18n;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
-
-import java.util.Date;
-import java.util.Locale;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -40,6 +40,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class L10nWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DefaultI18n i18n;
@@ -50,13 +52,13 @@ public class L10nWsTest {
   @Test
   public void should_allow_client_to_cache_messages() throws Exception {
     Locale locale = Locale.PRC;
-    MockUserSession.set().setLocale(locale);
+    userSessionRule.setLocale(locale);
 
     Date now = new Date();
     Date aBitLater = new Date(now.getTime() + 1000);
     when(server.getStartedAt()).thenReturn(now);
 
-    Result result = new WsTester(new L10nWs(i18n, server)).newGetRequest("api/l10n", "index").setParam("ts", DateUtils.formatDateTime(aBitLater)).execute();
+    Result result = new WsTester(new L10nWs(i18n, server, userSessionRule)).newGetRequest("api/l10n", "index").setParam("ts", DateUtils.formatDateTime(aBitLater)).execute();
     verifyZeroInteractions(i18n);
     verify(server).getStartedAt();
 
@@ -66,7 +68,7 @@ public class L10nWsTest {
   @Test
   public void should_return_all_l10n_messages_using_accept_header_with_cache_expired() throws Exception {
     Locale locale = Locale.PRC;
-    MockUserSession.set().setLocale(locale);
+    userSessionRule.setLocale(locale);
 
     Date now = new Date();
     Date aBitEarlier = new Date(now.getTime() - 1000);
@@ -81,7 +83,7 @@ public class L10nWsTest {
     when(i18n.message(locale, key2, key2)).thenReturn(key2);
     when(i18n.message(locale, key3, key3)).thenReturn(key3);
 
-    Result result = new WsTester(new L10nWs(i18n, server)).newGetRequest("api/l10n", "index").setParam("ts", DateUtils.formatDateTime(aBitEarlier)).execute();
+    Result result = new WsTester(new L10nWs(i18n, server, userSessionRule)).newGetRequest("api/l10n", "index").setParam("ts", DateUtils.formatDateTime(aBitEarlier)).execute();
     verify(i18n).getPropertyKeys();
     verify(i18n).message(locale, key1, key1);
     verify(i18n).message(locale, key2, key2);
@@ -93,7 +95,7 @@ public class L10nWsTest {
   @Test
   public void should_override_locale_when_locale_param_is_set() throws Exception {
     Locale locale = Locale.PRC;
-    MockUserSession.set().setLocale(locale);
+    userSessionRule.setLocale(locale);
     Locale override = Locale.JAPANESE;
 
     String key1 = "key1";
@@ -105,7 +107,7 @@ public class L10nWsTest {
     when(i18n.message(override, key2, key2)).thenReturn(key2);
     when(i18n.message(override, key3, key3)).thenReturn(key3);
 
-    Result result = new WsTester(new L10nWs(i18n, server)).newGetRequest("api/l10n", "index").setParam("locale", override.toString()).execute();
+    Result result = new WsTester(new L10nWs(i18n, server, userSessionRule)).newGetRequest("api/l10n", "index").setParam("locale", override.toString()).execute();
     verify(i18n).getPropertyKeys();
     verify(i18n).message(override, key1, key1);
     verify(i18n).message(override, key2, key2);

@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -38,7 +39,7 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +49,9 @@ public class UpdateActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).
+      logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 
@@ -71,10 +75,6 @@ public class UpdateActionMediumTest {
 
   @Test
   public void update_custom_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
@@ -103,10 +103,6 @@ public class UpdateActionMediumTest {
 
   @Test
   public void fail_to_update_custom_when_description_is_empty() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
 

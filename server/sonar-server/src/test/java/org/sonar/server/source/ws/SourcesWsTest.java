@@ -20,24 +20,28 @@
 
 package org.sonar.server.source.ws;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class));
-  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
-  LinesAction linesAction = new LinesAction(mock(DbClient.class), mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class));
-  HashAction hashAction = new HashAction(mock(DbClient.class));
-  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class));
+  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class), userSessionRule);
+  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule);
+  LinesAction linesAction = new LinesAction(mock(DbClient.class), mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), userSessionRule);
+  HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule);
+  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class), userSessionRule);
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, indexAction));
 
   @Test

@@ -23,6 +23,7 @@ package org.sonar.server.rule.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -38,7 +39,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,9 @@ public class CreateActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logon()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
   RuleDao ruleDao;
@@ -69,10 +73,6 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_custom_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
@@ -92,10 +92,6 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_manual_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
@@ -106,10 +102,6 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_manual_rule_without_severity() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
@@ -119,10 +111,6 @@ public class CreateActionMediumTest {
 
   @Test
   public void fail_if_custom_key_and_manual_key_parameters_are_not_set() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("key", "MY_MANUAL")
       .setParam("name", "My manual rule")
@@ -139,10 +127,6 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_manual_rule_with_prevent_reactivation_param_to_true() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     String key = "MY_MANUAL";
 
     // insert a removed rule

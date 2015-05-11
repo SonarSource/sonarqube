@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import java.util.List;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
@@ -30,8 +31,6 @@ import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
@@ -39,15 +38,17 @@ public class IssueActionsWriter {
 
   private final IssueService issueService;
   private final ActionService actionService;
+  private final UserSession userSession;
 
-  public IssueActionsWriter(IssueService issueService, ActionService actionService) {
+  public IssueActionsWriter(IssueService issueService, ActionService actionService, UserSession userSession) {
     this.issueService = issueService;
     this.actionService = actionService;
+    this.userSession = userSession;
   }
 
   public void writeTransitions(Issue issue, JsonWriter json) {
     json.name("transitions").beginArray();
-    if (UserSession.get().isLoggedIn()) {
+    if (userSession.isLoggedIn()) {
       for (Transition transition : issueService.listTransitions(issue)) {
         json.value(transition.key());
       }
@@ -65,7 +66,7 @@ public class IssueActionsWriter {
 
   private List<String> actions(Issue issue) {
     List<String> actions = newArrayList();
-    String login = UserSession.get().login();
+    String login = userSession.login();
     if (login != null) {
       actions.add("comment");
       if (issue.resolution() == null) {
@@ -76,7 +77,7 @@ public class IssueActionsWriter {
         }
         actions.add("plan");
         String projectUuid = issue.projectUuid();
-        if (projectUuid != null && UserSession.get().hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
+        if (projectUuid != null && userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
           actions.add("set_severity");
         }
         for (Action action : actionService.listAvailableActions(issue)) {

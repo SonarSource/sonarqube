@@ -23,6 +23,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,11 +42,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 public class QProfileProjectsAction implements BaseQProfileWsAction {
 
   private static final String PARAM_KEY = "key";
@@ -56,9 +55,11 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
   private static final String SELECTION_DESELECTED = "deselected";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public QProfileProjectsAction(DbClient dbClient) {
+  public QProfileProjectsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -117,7 +118,7 @@ public class QProfileProjectsAction implements BaseQProfileWsAction {
         }
       });
 
-      final Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, UserSession.get().userId(), UserRole.USER);
+      final Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.userId(), UserRole.USER);
       Iterable<ProjectQprofileAssociationDto> authorizedProjects = Iterables.filter(projects, new Predicate<ProjectQprofileAssociationDto>() {
         @Override
         public boolean apply(ProjectQprofileAssociationDto input) {

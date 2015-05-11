@@ -20,18 +20,16 @@
 package org.sonar.server.ui;
 
 import com.google.common.collect.Maps;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Used through ruby code <pre>Internal.i18n</pre>
@@ -41,13 +39,15 @@ import java.util.Map;
 @ServerSide
 public class JRubyI18n {
 
-  private I18n i18n;
-  private Durations durations;
+  private final I18n i18n;
+  private final Durations durations;
+  private final UserSession userSession;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
 
-  public JRubyI18n(I18n i18n, Durations durations) {
+  public JRubyI18n(I18n i18n, Durations durations, UserSession userSession) {
     this.i18n = i18n;
     this.durations = durations;
+    this.userSession = userSession;
   }
 
   Locale getLocale(String rubyKey) {
@@ -83,11 +83,11 @@ public class JRubyI18n {
   }
 
   public String ageFromNow(Date date) {
-    return i18n.ageFromNow(UserSession.get().locale(), date);
+    return i18n.ageFromNow(userSession.locale(), date);
   }
 
   public String formatDuration(Duration duration, String format) {
-    return durations.format(UserSession.get().locale(), duration, Durations.DurationFormat.valueOf(format));
+    return durations.format(userSession.locale(), duration, Durations.DurationFormat.valueOf(format));
   }
 
   public String formatLongDuration(long duration, String format) {
@@ -95,7 +95,7 @@ public class JRubyI18n {
   }
 
   public String formatDateTime(Date date) {
-    return i18n.formatDateTime(UserSession.get().locale(), date);
+    return i18n.formatDateTime(userSession.locale(), date);
   }
 
 }

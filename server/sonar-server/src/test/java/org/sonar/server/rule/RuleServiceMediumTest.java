@@ -21,6 +21,8 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -38,10 +40,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Collections;
-import java.util.Set;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +50,8 @@ public class RuleServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -70,9 +71,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_rule_by_key() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -88,9 +87,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_non_null_rule_by_key() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -109,9 +106,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_rule_by_key_escape_description_on_manual_rule() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon().logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleDto manualRule = RuleTesting.newManualRule("My manual")
       .setDescription("<div>Manual rule desc</div>");
@@ -126,9 +121,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_rule_by_keys() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")));
     dbSession.commit();
@@ -164,9 +157,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void update_rule() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -186,7 +177,7 @@ public class RuleServiceMediumTest {
 
   @Test(expected = UnauthorizedException.class)
   public void do_not_update_if_not_granted() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -201,9 +192,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void create_rule() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
@@ -227,16 +216,14 @@ public class RuleServiceMediumTest {
 
   @Test(expected = UnauthorizedException.class)
   public void do_not_create_if_not_granted() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     service.create(NewRule.createForCustomRule("MY_CUSTOM", RuleKey.of("java", "S001")));
   }
 
   @Test
   public void delete_rule() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
+    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
@@ -257,8 +244,8 @@ public class RuleServiceMediumTest {
   }
 
   @Test(expected = UnauthorizedException.class)
-  public void do_not_delete_if_not_granted() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+  public void do_not_delete_if_not_granted() throws Exception {
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     service.delete(RuleKey.of("java", "S001"));
   }

@@ -24,6 +24,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
@@ -60,18 +70,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -101,9 +99,11 @@ public class SearchAction implements BaseIssuesWsAction {
   private final I18n i18n;
   private final Durations durations;
   private final Languages languages;
+  private final UserSession userSession;
 
   public SearchAction(DbClient dbClient, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
-    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages) {
+    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages,
+    UserSession userSession) {
     this.dbClient = dbClient;
     this.service = service;
     this.actionsWriter = actionsWriter;
@@ -114,6 +114,7 @@ public class SearchAction implements BaseIssuesWsAction {
     this.i18n = i18n;
     this.durations = durations;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   @Override
@@ -341,7 +342,6 @@ public class SearchAction implements BaseIssuesWsAction {
 
     collectFacetsData(request, result, projectUuids, componentUuids, userLogins, actionPlanKeys);
 
-    UserSession userSession = UserSession.get();
     if (userSession.isLoggedIn()) {
       userLogins.add(userSession.login());
     }
@@ -418,7 +418,7 @@ public class SearchAction implements BaseIssuesWsAction {
       assignees.remove(IssueQueryService.LOGIN_MYSELF);
     }
     addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assignees);
-    addMandatoryFacetValues(results, IssueFilterParameters.FACET_ASSIGNED_TO_ME, Arrays.asList(UserSession.get().login()));
+    addMandatoryFacetValues(results, IssueFilterParameters.FACET_ASSIGNED_TO_ME, Arrays.asList(userSession.login()));
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
@@ -574,7 +574,7 @@ public class SearchAction implements BaseIssuesWsAction {
   private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
     if (!issueComments.isEmpty()) {
       json.name("comments").beginArray();
-      String login = UserSession.get().login();
+      String login = userSession.login();
       for (IssueComment comment : issueComments) {
         String userLogin = comment.userLogin();
         User user = userLogin != null ? usersByLogin.get(userLogin) : null;
@@ -792,7 +792,7 @@ public class SearchAction implements BaseIssuesWsAction {
   @CheckForNull
   private String formatDate(@Nullable Date date) {
     if (date != null) {
-      return i18n.formatDateTime(UserSession.get().locale(), date);
+      return i18n.formatDateTime(userSession.locale(), date);
     }
     return null;
   }
@@ -800,7 +800,7 @@ public class SearchAction implements BaseIssuesWsAction {
   @CheckForNull
   private String formatAgeDate(@Nullable Date date) {
     if (date != null) {
-      return i18n.ageFromNow(UserSession.get().locale(), date);
+      return i18n.ageFromNow(userSession.locale(), date);
     }
     return null;
   }

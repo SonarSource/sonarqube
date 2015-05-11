@@ -47,6 +47,7 @@ import javax.annotation.CheckForNull;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import org.sonar.server.user.UserSession;
 
 /**
  * @since 4.4
@@ -76,8 +77,8 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
 
-  public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
-    super(SEARCH_ACTION);
+  public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession) {
+    super(SEARCH_ACTION, userSession);
     this.ruleService = service;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;

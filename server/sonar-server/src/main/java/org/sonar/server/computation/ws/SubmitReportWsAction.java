@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.ws;
 
+import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -30,8 +31,6 @@ import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.user.UserSession;
 
-import java.io.InputStream;
-
 public class SubmitReportWsAction implements ComputationWsAction, RequestHandler {
 
   public static final String ACTION = "submit_report";
@@ -40,10 +39,12 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
 
   private final ReportQueue queue;
   private final ComputationThreadLauncher workerLauncher;
+  private final UserSession userSession;
 
-  public SubmitReportWsAction(ReportQueue queue, ComputationThreadLauncher workerLauncher) {
+  public SubmitReportWsAction(ReportQueue queue, ComputationThreadLauncher workerLauncher, UserSession userSession) {
     this.queue = queue;
     this.workerLauncher = workerLauncher;
+    this.userSession = userSession;
   }
 
   @Override
@@ -68,7 +69,7 @@ public class SubmitReportWsAction implements ComputationWsAction, RequestHandler
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    userSession.checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
     InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
     try {

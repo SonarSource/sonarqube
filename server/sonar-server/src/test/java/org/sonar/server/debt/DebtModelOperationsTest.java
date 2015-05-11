@@ -20,8 +20,10 @@
 
 package org.sonar.server.debt;
 
+import java.util.Date;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -45,9 +47,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Date;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +66,9 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DebtModelOperationsTest {
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   CharacteristicDao dao;
@@ -112,7 +115,7 @@ public class DebtModelOperationsTest {
   public void setUp() {
     when(system2.now()).thenReturn(now.getTime());
 
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     currentId = 10;
     // Associate an id when inserting an object to simulate the db id generator
@@ -128,7 +131,7 @@ public class DebtModelOperationsTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(dao);
-    service = new DebtModelOperations(dbClient, system2);
+    service = new DebtModelOperations(dbClient, system2, userSessionRule);
   }
 
   @Test
@@ -184,7 +187,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_create_sub_characteristic_when_wrong_permission() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
 
     try {
       service.create("Compilation", 1);

@@ -21,24 +21,32 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class TransitionActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private TransitionAction action;
 
@@ -46,7 +54,7 @@ public class TransitionActionTest {
 
   @Before
   public void before() {
-    action = new TransitionAction(workflow);
+    action = new TransitionAction(workflow, userSessionRule);
   }
 
   @Test
@@ -88,7 +96,7 @@ public class TransitionActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("unknwown", transition);
     try {
-      action.verify(properties, Lists.<Issue>newArrayList(), MockUserSession.create());
+      action.verify(properties, Lists.<Issue>newArrayList(), userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'transition'");

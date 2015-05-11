@@ -32,7 +32,6 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -41,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.sonar.server.user.UserSession;
 
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
@@ -52,12 +52,14 @@ public class InternalPermissionTemplateService {
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
   private final PermissionFinder finder;
+  private final UserSession userSession;
 
-  public InternalPermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
+  public InternalPermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder, UserSession userSession) {
     this.myBatis = myBatis;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
     this.finder = finder;
+    this.userSession = userSession;
   }
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
@@ -70,7 +72,7 @@ public class InternalPermissionTemplateService {
 
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateKey) {
-    PermissionTemplateUpdater.checkSystemAdminUser();
+    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectPermissionTemplate(templateKey);
     return PermissionTemplate.create(permissionTemplateDto);
   }
@@ -80,7 +82,7 @@ public class InternalPermissionTemplateService {
   }
 
   public List<PermissionTemplate> selectAllPermissionTemplates(@Nullable String componentKey) {
-    PermissionTemplateUpdater.checkProjectAdminUser(componentKey);
+    PermissionTemplateUpdater.checkProjectAdminUser(componentKey, userSession);
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
     List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAllPermissionTemplates();
     if (permissionTemplateDtos != null) {
@@ -92,7 +94,7 @@ public class InternalPermissionTemplateService {
   }
 
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
-    PermissionTemplateUpdater.checkSystemAdminUser();
+    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
     validateTemplateName(null, name);
     validateKeyPattern(keyPattern);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
@@ -100,19 +102,19 @@ public class InternalPermissionTemplateService {
   }
 
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
-    PermissionTemplateUpdater.checkSystemAdminUser();
+    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
     validateTemplateName(templateId, newName);
     validateKeyPattern(newKeyPattern);
     permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
   }
 
   public void deletePermissionTemplate(Long templateId) {
-    PermissionTemplateUpdater.checkSystemAdminUser();
+    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
     permissionTemplateDao.deletePermissionTemplate(templateId);
   }
 
   public void addUserPermission(String templateKey, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao, userSession) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -123,7 +125,7 @@ public class InternalPermissionTemplateService {
   }
 
   public void removeUserPermission(String templateKey, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao, userSession) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -134,7 +136,7 @@ public class InternalPermissionTemplateService {
   }
 
   public void addGroupPermission(String templateKey, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao, userSession) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
@@ -145,7 +147,7 @@ public class InternalPermissionTemplateService {
   }
 
   public void removeGroupPermission(String templateKey, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao, userSession) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
@@ -156,7 +158,7 @@ public class InternalPermissionTemplateService {
   }
 
   public void removeGroupFromTemplates(String groupName) {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     DbSession session = myBatis.openSession(false);
     try {
       GroupDto group = userDao.selectGroupByName(groupName, session);

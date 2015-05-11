@@ -44,11 +44,13 @@ public class CreateAction implements BaseUsersWsAction {
   private final UserIndex index;
   private final UserUpdater userUpdater;
   private final I18n i18n;
+  private final UserSession userSession;
 
-  public CreateAction(UserIndex index, UserUpdater userUpdater, I18n i18n) {
+  public CreateAction(UserIndex index, UserUpdater userUpdater, I18n i18n, UserSession userSession) {
     this.index = index;
     this.userUpdater = userUpdater;
     this.i18n = i18n;
+    this.userSession = userSession;
   }
 
   @Override
@@ -90,7 +92,7 @@ public class CreateAction implements BaseUsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
     NewUser newUser = NewUser.create()
@@ -128,7 +130,7 @@ public class CreateAction implements BaseUsersWsAction {
   private void writeReactivationMessage(JsonWriter json, String login) {
     json.name("infos").beginArray();
     json.beginObject();
-    String text = i18n.message(UserSession.get().locale(), "user.reactivated", "user.reactivated", login);
+    String text = i18n.message(userSession.locale(), "user.reactivated", "user.reactivated", login);
     json.prop("msg", text);
     json.endObject();
     json.endArray();

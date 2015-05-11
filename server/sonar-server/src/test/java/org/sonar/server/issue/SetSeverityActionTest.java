@@ -21,18 +21,18 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.UserSessionTestUtils;
-
-import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,17 +46,19 @@ import static org.mockito.Mockito.when;
 
 public class SetSeverityActionTest {
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
+  private UserSession userSessionMock = mock(UserSession.class);
+
   private SetSeverityAction action;
 
   private IssueUpdater issueUpdater = mock(IssueUpdater.class);
 
-  private UserSession userSession;
-
   @Before
   public void before() {
-    action = new SetSeverityAction(issueUpdater);
-    userSession = mock(UserSession.class);
-    UserSessionTestUtils.setUserSession(userSession);
+    action = new SetSeverityAction(issueUpdater, userSessionRule);
+    userSessionRule.set(userSessionMock);
   }
 
   @Test
@@ -78,7 +80,7 @@ public class SetSeverityActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("unknwown", "unknown value");
     try {
-      action.verify(properties, Lists.<Issue>newArrayList(), MockUserSession.create());
+      action.verify(properties, Lists.<Issue>newArrayList(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'severity'");
@@ -88,14 +90,14 @@ public class SetSeverityActionTest {
 
   @Test
   public void should_support_only_unresolved_issues() {
-    when(userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    when(userSessionMock.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(Issue.RESOLUTION_FIXED))).isFalse();
   }
 
   @Test
   public void should_support_only_issues_with_issue_admin_permission() {
-    when(userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
+    when(userSessionMock.hasProjectPermission(UserRole.ISSUE_ADMIN, "foo:bar")).thenReturn(true);
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar").setResolution(null))).isTrue();
     assertThat(action.supports(new DefaultIssue().setProjectKey("foo:bar2").setResolution(null))).isFalse();
   }

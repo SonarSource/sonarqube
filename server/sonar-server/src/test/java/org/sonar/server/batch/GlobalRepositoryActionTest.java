@@ -35,7 +35,7 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MetricDao;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -44,7 +44,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GlobalRepositoryActionTest {
-
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -65,11 +66,13 @@ public class GlobalRepositoryActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalRepositoryAction(dbClient, propertiesDao, userSessionRule)));
   }
 
   @Test
   public void return_metrics() throws Exception {
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
+
     when(metricDao.selectEnabled(session)).thenReturn(newArrayList(
       new MetricDto().setId(1).setKey("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
         .setWorstValue(0d).setBestValue(100d).setOptimizedBestValue(false).setDirection(1).setEnabled(true)
@@ -81,7 +84,7 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void return_global_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.PREVIEW_EXECUTION);
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),
@@ -95,7 +98,7 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void return_only_license_settings_without_scan_but_with_preview_permission() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),
@@ -109,7 +112,7 @@ public class GlobalRepositoryActionTest {
 
   @Test
   public void access_forbidden_without_scan_and_preview_permission() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions();
+    userSessionRule.setGlobalPermissions();
 
     when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
       new PropertyDto().setKey("foo").setValue("bar"),

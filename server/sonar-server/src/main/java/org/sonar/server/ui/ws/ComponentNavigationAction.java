@@ -21,6 +21,12 @@ package org.sonar.server.ui.ws;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -47,14 +53,6 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 public class ComponentNavigationAction implements NavigationAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
@@ -73,13 +71,15 @@ public class ComponentNavigationAction implements NavigationAction {
   private final Views views;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
+  private final UserSession userSession;
 
-  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n, ResourceTypes resourceTypes) {
+  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession) {
     this.dbClient = dbClient;
     this.activeDashboardDao = activeDashboardDao;
     this.views = views;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
+    this.userSession = userSession;
   }
 
   @Override
@@ -102,7 +102,6 @@ public class ComponentNavigationAction implements NavigationAction {
   public void handle(Request request, Response response) throws Exception {
     String componentKey = request.mandatoryParam(PARAM_COMPONENT_KEY);
 
-    UserSession userSession = UserSession.get();
     DbSession session = dbClient.openSession(false);
 
     try {

@@ -19,6 +19,10 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.Date;
+import java.util.Locale;
 import org.apache.commons.lang.LocaleUtils;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
@@ -29,19 +33,16 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.server.user.UserSession;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.Date;
-import java.util.Locale;
-
 public class L10nWs implements WebService {
 
   private final DefaultI18n i18n;
   private final Server server;
+  private final UserSession userSession;
 
-  public L10nWs(DefaultI18n i18n, Server server) {
+  public L10nWs(DefaultI18n i18n, Server server, UserSession userSession) {
     this.i18n = i18n;
     this.server = server;
+    this.userSession = userSession;
   }
 
   @Override
@@ -74,7 +75,7 @@ public class L10nWs implements WebService {
       response.stream().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED).output().close();
     } else {
 
-      Locale locale = UserSession.get().locale();
+      Locale locale = userSession.locale();
       String localeParam = request.param("locale");
       if (localeParam != null) {
         locale = LocaleUtils.toLocale(localeParam);

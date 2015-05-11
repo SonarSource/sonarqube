@@ -22,6 +22,8 @@ package org.sonar.server.source.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.ws.Request;
@@ -38,17 +40,16 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
-import java.util.List;
-
 public class ScmAction implements SourcesAction {
 
   private final DbClient dbClient;
   private final SourceLineIndex sourceLineIndex;
+  private final UserSession userSession;
 
-  public ScmAction(DbClient dbClient, SourceLineIndex sourceLineIndex) {
+  public ScmAction(DbClient dbClient, SourceLineIndex sourceLineIndex, UserSession userSession) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
+    this.userSession = userSession;
   }
 
   @Override
@@ -101,7 +102,7 @@ public class ScmAction implements SourcesAction {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto fileDto = dbClient.componentDao().getByKey(session, fileKey);
-      UserSession.get().checkProjectUuidPermission(UserRole.CODEVIEWER, fileDto.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, fileDto.projectUuid());
       List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(fileDto.uuid(), from, to);
       if (sourceLines.isEmpty()) {
         throw new NotFoundException("File '" + fileKey + "' has no sources");

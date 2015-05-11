@@ -20,9 +20,9 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
@@ -31,8 +31,9 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.Map;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 
 @ServerSide
 public class TransitionAction extends Action {
@@ -40,10 +41,12 @@ public class TransitionAction extends Action {
   public static final String KEY = "do_transition";
 
   private final IssueWorkflow workflow;
+  private final UserSession userSession;
 
-  public TransitionAction(IssueWorkflow workflow) {
+  public TransitionAction(IssueWorkflow workflow, UserSession userSession) {
     super(KEY);
     this.workflow = workflow;
+    this.userSession = userSession;
   }
 
   @Override
@@ -64,7 +67,6 @@ public class TransitionAction extends Action {
 
   private boolean canExecuteTransition(Issue issue, final String transition) {
     final DefaultIssue defaultIssue = (DefaultIssue) issue;
-    final UserSession userSession = UserSession.get();
     return Iterables.find(workflow.outTransitions(issue), new Predicate<Transition>() {
       @Override
       public boolean apply(Transition input) {

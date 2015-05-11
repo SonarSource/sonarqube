@@ -30,7 +30,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -52,10 +52,13 @@ public class UpdatePluginsWsActionTest {
   private static final String KEY_PARAM = "key";
   private static final String PLUGIN_KEY = "pluginKey";
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private UpdatePluginsWsAction underTest = new UpdatePluginsWsAction(updateCenterFactory, pluginDownloader);
+  private UpdatePluginsWsAction underTest = new UpdatePluginsWsAction(updateCenterFactory, pluginDownloader, userSessionRule);
 
   private WsTester wsTester = new WsTester(new PluginsWs(underTest));
   private Request invalidRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY);
@@ -69,7 +72,7 @@ public class UpdatePluginsWsActionTest {
   public void setUp() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
 
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @Test
@@ -78,7 +81,7 @@ public class UpdatePluginsWsActionTest {
     expectedException.expectMessage("Insufficient privileges");
 
     // no permission on user
-    MockUserSession.set().setGlobalPermissions();
+    userSessionRule.setGlobalPermissions();
 
     underTest.handle(validRequest, response);
   }

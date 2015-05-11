@@ -21,6 +21,9 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,13 +59,9 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
@@ -75,6 +74,9 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class IssueShowActionTest {
+
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DbClient dbClient;
@@ -142,8 +144,10 @@ public class IssueShowActionTest {
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
     tester = new WsTester(new IssuesWs(
-      new IssueShowAction(dbClient, issueService, issueChangelogService, commentService,
-        new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations)
+      new IssueShowAction(
+          dbClient, issueService, issueChangelogService, commentService,
+          new IssueActionsWriter(issueService, actionService, userSessionRule),
+          actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)
       ));
   }
 
@@ -182,7 +186,6 @@ public class IssueShowActionTest {
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue.json");
   }
@@ -232,7 +235,6 @@ public class IssueShowActionTest {
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_with_sub_project.json");
   }
@@ -285,7 +287,6 @@ public class IssueShowActionTest {
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_with_sub_project.json");
   }
@@ -316,7 +317,6 @@ public class IssueShowActionTest {
       .setProjectUuid(project.uuid());
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_on_removed_component.json");
   }
@@ -327,9 +327,8 @@ public class IssueShowActionTest {
       .setActionPlanKey("AP-ABCD");
     when(issueService.getByKey(issue.key())).thenReturn(issue);
 
-    when(actionPlanService.findByKey(eq(issue.actionPlanKey()), any(UserSession.class))).thenReturn(new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2"));
+    when(actionPlanService.findByKey(eq(issue.actionPlanKey()), any(ThreadLocalUserSession.class))).thenReturn(new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2"));
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_action_plan.json");
   }
@@ -345,7 +344,6 @@ public class IssueShowActionTest {
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("steven")).thenReturn(new DefaultUser().setLogin("steven").setName("Steven"));
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_users.json");
   }
@@ -358,7 +356,6 @@ public class IssueShowActionTest {
 
     when(durations.encode(debt)).thenReturn("2h1min");
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_technical_debt.json");
   }
@@ -373,7 +370,6 @@ public class IssueShowActionTest {
     when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
     when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
@@ -388,7 +384,6 @@ public class IssueShowActionTest {
     when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
     when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
@@ -410,7 +405,6 @@ public class IssueShowActionTest {
     when(i18n.ageFromNow(any(Locale.class), eq(updateDate))).thenReturn("9 days");
     when(i18n.formatDateTime(any(Locale.class), eq(closedDate))).thenReturn("Jan 24, 2014 10:03 AM");
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_dates.json");
   }
@@ -442,7 +436,7 @@ public class IssueShowActionTest {
     when(i18n.ageFromNow(any(Locale.class), eq(date1))).thenReturn("9 days");
     when(i18n.ageFromNow(any(Locale.class), eq(date2))).thenReturn("10 days");
 
-    MockUserSession.set().setLogin("arthur");
+    userSessionRule.logon("arthur");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_comments.json");
   }
@@ -456,7 +450,7 @@ public class IssueShowActionTest {
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_transitions.json");
   }
@@ -467,7 +461,7 @@ public class IssueShowActionTest {
       .setStatus("OPEN");
     when(issueService.getByKey(issue.key())).thenReturn(issue);
 
-    MockUserSession.set().setLogin("john");
+    userSessionRule.logon("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_actions.json");
   }
@@ -496,7 +490,6 @@ public class IssueShowActionTest {
     when(i18n.formatDateTime(any(Locale.class), eq(date1))).thenReturn("Fev 22, 2014 10:03 AM");
     when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Fev 23, 2014 10:03 AM");
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_changelog.json");
   }

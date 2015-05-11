@@ -19,6 +19,13 @@
  */
 package org.sonar.server.rule;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
@@ -30,13 +37,6 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 /**
  * @since 4.4
  */
@@ -47,12 +47,14 @@ public class RuleService {
   private final RuleUpdater ruleUpdater;
   private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
+  private final UserSession userSession;
 
-  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter) {
+  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
     this.index = index;
     this.ruleUpdater = ruleUpdater;
     this.ruleCreator = ruleCreator;
     this.ruleDeleter = ruleDeleter;
+    this.userSession = userSession;
   }
 
   @CheckForNull
@@ -98,7 +100,7 @@ public class RuleService {
 
   public void update(RuleUpdate update) {
     checkPermission();
-    ruleUpdater.update(update, UserSession.get());
+    ruleUpdater.update(update, userSession);
   }
 
   public RuleKey create(NewRule newRule) {
@@ -112,7 +114,6 @@ public class RuleService {
   }
 
   private void checkPermission() {
-    UserSession userSession = UserSession.get();
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }

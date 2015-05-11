@@ -23,6 +23,7 @@ package org.sonar.server.design.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -40,7 +41,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,8 @@ public class ShowActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   DbClient dbClient;
 
@@ -73,7 +76,7 @@ public class ShowActionTest {
     dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE), new FileDependencyDao());
     session = dbClient.openSession(false);
-    tester = new WsTester(new DependenciesWs(new ShowAction(dbClient)));
+    tester = new WsTester(new DependenciesWs(new ShowAction(dbClient, userSessionRule)));
     controller = tester.controller("api/dependencies");
 
     initComponents();
@@ -96,7 +99,7 @@ public class ShowActionTest {
       .setCreatedAt(1000L));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     tester.newGetRequest("api/dependencies", "show")
       .setParam("fromParentUuid", DIR1_UUID)
@@ -107,7 +110,7 @@ public class ShowActionTest {
 
   @Test
   public void return_nothing() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     tester.newGetRequest("api/dependencies", "show")
       .setParam("fromParentUuid", DIR1_UUID)
@@ -118,7 +121,7 @@ public class ShowActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_if_no_user_permission_on_project() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     tester.newGetRequest("api/dependencies", "show")
       .setParam("fromParentUuid", DIR1_UUID)
@@ -139,7 +142,7 @@ public class ShowActionTest {
       .setCreatedAt(1000L));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     try {
       tester.newGetRequest("api/dependencies", "show")
@@ -165,7 +168,7 @@ public class ShowActionTest {
       .setCreatedAt(1000L));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     tester.newGetRequest("api/dependencies", "show")
       .setParam("fromParentUuid", DIR1_UUID)
@@ -186,7 +189,7 @@ public class ShowActionTest {
       .setCreatedAt(1000L));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     try {
       tester.newGetRequest("api/dependencies", "show")
@@ -212,7 +215,7 @@ public class ShowActionTest {
       .setCreatedAt(1000L));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     try {
       tester.newGetRequest("api/dependencies", "show")

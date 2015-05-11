@@ -20,6 +20,9 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
@@ -36,11 +39,6 @@ import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
@@ -54,10 +52,12 @@ public class RubyRuleService implements Startable {
 
   private final RuleService service;
   private final RuleUpdater updater;
+  private final UserSession userSession;
 
-  public RubyRuleService(RuleService service, RuleUpdater updater) {
+  public RubyRuleService(RuleService service, RuleUpdater updater, UserSession userSession) {
     this.service = service;
     this.updater = updater;
+    this.userSession = userSession;
   }
 
   /**
@@ -90,7 +90,7 @@ public class RubyRuleService implements Startable {
       query.setActivation(true);
     }
 
-    QueryContext options = new QueryContext();
+    QueryContext options = new QueryContext(userSession);
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
     int size = pageSize != null ? pageSize : 50;
     if (size > -1) {
@@ -100,7 +100,7 @@ public class RubyRuleService implements Startable {
       Result<Rule> result = service.search(query, options);
       return new PagedResult<>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
     } else {
-      List<Rule> rules = newArrayList(service.search(query, new QueryContext().setScroll(true)).scroll());
+      List<Rule> rules = newArrayList(service.search(query, new QueryContext(userSession).setScroll(true)).scroll());
       return new PagedResult<>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
     }
   }
@@ -109,7 +109,7 @@ public class RubyRuleService implements Startable {
    * Used in manual_rules_controller.rb
    */
   public List<Rule> searchManualRules() {
-    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryContext()).getHits();
+    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryContext(userSession)).getHits();
   }
 
   // sqale
@@ -126,7 +126,7 @@ public class RubyRuleService implements Startable {
         Strings.emptyToNull((String) params.get("debtRemediationOffset")))
         );
     }
-    updater.update(update, UserSession.get());
+    updater.update(update, userSession);
   }
 
   /**

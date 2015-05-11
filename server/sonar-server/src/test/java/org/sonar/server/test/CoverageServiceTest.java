@@ -20,7 +20,9 @@
 
 package org.sonar.server.test;
 
+import java.util.Collections;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
@@ -33,18 +35,23 @@ import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Collections;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CoverageServiceTest {
 
   static final String COMPONENT_KEY = "org.sonar.sample:Sample";
-  @org.junit.Rule
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Mock
   DbSession session;
@@ -58,13 +65,13 @@ public class CoverageServiceTest {
   public void setUp() {
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new CoverageService(myBatis, measureDao, snapshotPerspectives);
+    service = new CoverageService(myBatis, measureDao, snapshotPerspectives, userSessionRule);
   }
 
   @Test
   public void check_permission() {
     String projectKey = "org.sonar.sample";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, projectKey, COMPONENT_KEY);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, projectKey, COMPONENT_KEY);
 
     service.checkPermission(COMPONENT_KEY);
   }

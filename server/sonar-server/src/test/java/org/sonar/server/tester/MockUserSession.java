@@ -1,0 +1,153 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.tester;
+
+import com.google.common.base.Preconditions;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.server.user.AbstractUserSession;
+import org.sonar.server.user.UserSession;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
+public class MockUserSession extends AbstractUserSession<MockUserSession> implements UserSession {
+  private Map<String, String> projectKeyByComponentKey = newHashMap();
+
+  protected MockUserSession() {
+    super(MockUserSession.class);
+  }
+
+  public MockUserSession(String login) {
+    this();
+    setLogin(Preconditions.checkNotNull(login));
+  }
+
+  public MockUserSession(MockUserSession ruleUserSession) {
+    this();
+    this.userId = ruleUserSession.userId;
+    this.login = ruleUserSession.login;
+    this.userGroups = ruleUserSession.userGroups;
+    this.globalPermissions = ruleUserSession.globalPermissions;
+    this.projectKeyByPermission = ruleUserSession.projectKeyByPermission;
+    this.projectUuidByPermission = ruleUserSession.projectUuidByPermission;
+    this.projectUuidByComponentUuid = ruleUserSession.projectUuidByComponentUuid;
+    this.projectPermissions = ruleUserSession.projectPermissions;
+    this.name = ruleUserSession.name;
+    this.locale = ruleUserSession.locale;
+  }
+
+  @Override
+  public boolean isLoggedIn() {
+    return true;
+  }
+
+  public MockUserSession setGlobalPermissions(String... globalPermissions) {
+    this.globalPermissions = Arrays.asList(globalPermissions);
+    return this;
+  }
+
+  @Override
+  public MockUserSession setLogin(@Nullable String s) {
+    return super.setLogin(s);
+  }
+
+  @Override
+  public MockUserSession setName(@Nullable String s) {
+    return super.setName(s);
+  }
+
+  @Override
+  public MockUserSession setUserId(@Nullable Integer userId) {
+    return super.setUserId(userId);
+  }
+
+  @Override
+  public MockUserSession setUserGroups(@Nullable String... userGroups) {
+    return super.setUserGroups(userGroups);
+  }
+
+  @Override
+  public MockUserSession setLocale(@Nullable Locale l) {
+    return super.setLocale(l);
+  }
+
+  /**
+   * Deprecated, please use {@link #addProjectUuidPermissions}
+   */
+  @Deprecated
+  public MockUserSession addProjectPermissions(String projectPermission, String... projectKeys) {
+    this.projectPermissions.add(projectPermission);
+    this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
+    return this;
+  }
+
+  public MockUserSession addProjectUuidPermissions(String projectPermission, String... projectUuids) {
+    this.projectPermissions.add(projectPermission);
+    this.projectUuidByPermission.putAll(projectPermission, newArrayList(projectUuids));
+    return this;
+  }
+
+  /**
+   * Deprecated, please use {@link #addComponentUuidPermission}
+   */
+  @Deprecated
+  public MockUserSession addComponentPermission(String projectPermission, String projectKey, String componentKey) {
+    this.projectKeyByComponentKey.put(componentKey, projectKey);
+    addProjectPermissions(projectPermission, projectKey);
+    return this;
+  }
+
+  public MockUserSession addComponentUuidPermission(String projectPermission, String projectUuid, String componentUuid) {
+    this.projectUuidByComponentUuid.put(componentUuid, projectUuid);
+    addProjectUuidPermissions(projectPermission, projectUuid);
+    return this;
+  }
+
+  @Override
+  public List<String> globalPermissions() {
+    return globalPermissions;
+  }
+
+  @Override
+  public boolean hasProjectPermission(String permission, String projectKey) {
+    return projectPermissions.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey);
+  }
+
+  @Override
+  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+  }
+
+  @Override
+  public boolean hasComponentPermission(String permission, String componentKey) {
+    String projectKey = projectKeyByComponentKey.get(componentKey);
+    return projectKey != null && hasProjectPermission(permission, projectKey);
+  }
+
+  @Override
+  public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+    String projectUuid = projectUuidByComponentUuid.get(componentUuid);
+    return projectUuid != null && hasProjectPermissionByUuid(permission, projectUuid);
+  }
+}

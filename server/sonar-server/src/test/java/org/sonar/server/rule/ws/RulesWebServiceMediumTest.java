@@ -20,9 +20,13 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -48,12 +52,8 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +61,8 @@ public class RulesWebServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   private static final String API_ENDPOINT = "api/rules";
   private static final String API_SEARCH_METHOD = "search";
@@ -119,8 +121,6 @@ public class RulesWebServiceMediumTest {
     session.commit();
     session.clearCache();
 
-    MockUserSession.set();
-
     // 1. With Activation
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
     request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
@@ -137,7 +137,6 @@ public class RulesWebServiceMediumTest {
 
   @Test
   public void search_no_rules() throws Exception {
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "actives");
     WsTester.Result result = request.execute();
@@ -151,7 +150,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2());
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_KEY, RuleTesting.XOO_X1.toString());
     request.setParam(SearchOptions.PARAM_FIELDS, "actives");
@@ -172,7 +170,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2());
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     WsTester.Result result = request.execute();
 
@@ -185,7 +182,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2().setDescription("A *Xoo* rule").setDescriptionFormat(Format.MARKDOWN));
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(SearchOptions.PARAM_FIELDS, "name,htmlDesc,mdDesc");
     WsTester.Result result = request.execute();
 
@@ -209,7 +205,6 @@ public class RulesWebServiceMediumTest {
       );
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
@@ -234,7 +229,6 @@ public class RulesWebServiceMediumTest {
       );
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
@@ -258,7 +252,6 @@ public class RulesWebServiceMediumTest {
       );
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
@@ -282,7 +275,6 @@ public class RulesWebServiceMediumTest {
       );
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
@@ -339,7 +331,6 @@ public class RulesWebServiceMediumTest {
       );
     session.commit();
 
-    MockUserSession.set();
     WsTester.Result result = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
       .setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn")
       .setParam("debt_characteristics", "SOFT_RELIABILITY")
@@ -355,7 +346,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "isTemplate");
     request.setParam(SearchAction.PARAM_IS_TEMPLATE, "true");
@@ -370,7 +360,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "templateKey");
     request.setParam(SearchAction.PARAM_TEMPLATE_KEY, "xoo:x1");
@@ -390,7 +379,6 @@ public class RulesWebServiceMediumTest {
     tester.get(ActiveRuleDao.class).insert(session, activeRule);
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
@@ -420,7 +408,6 @@ public class RulesWebServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
@@ -457,7 +444,6 @@ public class RulesWebServiceMediumTest {
 
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
@@ -501,7 +487,6 @@ public class RulesWebServiceMediumTest {
     tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam2);
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
@@ -527,7 +512,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, rule2);
     session.commit();
 
-    MockUserSession.set();
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json");
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)
       .setParam("ps", "1").execute().assertJson(this.getClass(), "get_tags_limited.json");
@@ -543,7 +527,6 @@ public class RulesWebServiceMediumTest {
     ruleDao.insert(session, rule);
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "htmlNote, mdNote");
     WsTester.Result result = request.execute();
@@ -560,7 +543,6 @@ public class RulesWebServiceMediumTest {
       .setSystemTags(ImmutableSet.of("tag2")));
     session.commit();
 
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_TAGS, "tag1");
     request.setParam(SearchOptions.PARAM_FIELDS, "sysTags, tags");
@@ -604,7 +586,6 @@ public class RulesWebServiceMediumTest {
     session.commit();
 
     // 1. Sort Name Asc
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchOptions.PARAM_SORT, "name");
@@ -634,7 +615,6 @@ public class RulesWebServiceMediumTest {
     Date since = new Date();
 
     // 1. find today's rules
-    MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
@@ -647,7 +627,6 @@ public class RulesWebServiceMediumTest {
     c.add(Calendar.DATE, 1); // number of days to add
 
     // 2. no rules since tomorrow
-    MockUserSession.set();
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(c.getTime()));

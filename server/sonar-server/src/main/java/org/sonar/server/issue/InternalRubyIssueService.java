@@ -26,6 +26,12 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
@@ -53,14 +59,6 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -91,6 +89,7 @@ public class InternalRubyIssueService {
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
+  private final UserSession userSession;
 
   public InternalRubyIssueService(
     IssueService issueService,
@@ -98,7 +97,8 @@ public class InternalRubyIssueService {
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao, ActionService actionService,
-    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
+    IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
+    UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
@@ -108,6 +108,7 @@ public class InternalRubyIssueService {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+    this.userSession = userSession;
   }
 
   public Issue getIssueByKey(String issueKey) {
@@ -202,7 +203,7 @@ public class InternalRubyIssueService {
   public Result<IssueComment> addComment(String issueKey, String text) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.addComment(issueKey, text, UserSession.get()));
+      result.set(commentService.addComment(issueKey, text, userSession));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -210,13 +211,13 @@ public class InternalRubyIssueService {
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return commentService.deleteComment(commentKey, UserSession.get());
+    return commentService.deleteComment(commentKey, userSession);
   }
 
   public Result<IssueComment> editComment(String commentKey, String newText) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.editComment(commentKey, newText, UserSession.get()));
+      result.set(commentService.editComment(commentKey, newText, userSession));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -259,27 +260,27 @@ public class InternalRubyIssueService {
   }
 
   public Collection<ActionPlan> findOpenActionPlans(String projectKey) {
-    return actionPlanService.findOpenByProjectKey(projectKey, UserSession.get());
+    return actionPlanService.findOpenByProjectKey(projectKey, userSession);
   }
 
   public ActionPlan findActionPlan(String actionPlanKey) {
-    return actionPlanService.findByKey(actionPlanKey, UserSession.get());
+    return actionPlanService.findByKey(actionPlanKey, userSession);
   }
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey) {
-    return actionPlanService.findActionPlanStats(projectKey, UserSession.get());
+    return actionPlanService.findActionPlanStats(projectKey, userSession);
   }
 
   public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {
     Result<ActionPlan> result = createActionPlanResult(parameters);
     if (result.ok()) {
-      result.set(actionPlanService.create(result.get(), UserSession.get()));
+      result.set(actionPlanService.create(result.get(), userSession));
     }
     return result;
   }
 
   public Result<ActionPlan> updateActionPlan(String key, Map<String, String> parameters) {
-    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, UserSession.get());
+    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, userSession);
     if (existingActionPlan == null) {
       Result<ActionPlan> result = Result.of();
       result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, key));
@@ -290,7 +291,7 @@ public class InternalRubyIssueService {
         DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
         actionPlan.setKey(existingActionPlan.key());
         actionPlan.setUserLogin(existingActionPlan.userLogin());
-        result.set(actionPlanService.update(actionPlan, UserSession.get()));
+        result.set(actionPlanService.update(actionPlan, userSession));
       }
       return result;
     }
@@ -299,7 +300,7 @@ public class InternalRubyIssueService {
   public Result<ActionPlan> closeActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED, UserSession.get()));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED, userSession));
     }
     return result;
   }
@@ -307,7 +308,7 @@ public class InternalRubyIssueService {
   public Result<ActionPlan> openActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN, UserSession.get()));
+      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN, userSession));
     }
     return result;
   }
@@ -315,7 +316,7 @@ public class InternalRubyIssueService {
   public Result<ActionPlan> deleteActionPlan(String actionPlanKey) {
     Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
     if (result.ok()) {
-      actionPlanService.delete(actionPlanKey, UserSession.get());
+      actionPlanService.delete(actionPlanKey, userSession);
     }
     return result;
   }
@@ -351,7 +352,7 @@ public class InternalRubyIssueService {
     if (result.ok()) {
       DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
         .setDescription(description)
-        .setUserLogin(UserSession.get().login())
+        .setUserLogin(userSession.login())
         .setDeadLine(deadLine);
 
       // Can only set project on creation
@@ -408,7 +409,7 @@ public class InternalRubyIssueService {
   public Result<Issue> executeAction(String issueKey, String actionKey) {
     Result<Issue> result = Result.of();
     try {
-      result.set(actionService.execute(issueKey, actionKey, UserSession.get()));
+      result.set(actionService.execute(issueKey, actionKey, userSession));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -437,12 +438,11 @@ public class InternalRubyIssueService {
    * Never return null
    */
   public IssueFilterDto findIssueFilter(Long id) {
-    return issueFilterService.find(id, UserSession.get());
+    return issueFilterService.find(id, userSession);
   }
 
   public boolean isUserAuthorized(IssueFilterDto issueFilter) {
     try {
-      UserSession userSession = UserSession.get();
       String user = issueFilterService.getLoggedLogin(userSession);
       issueFilterService.verifyCurrentUserCanReadFilter(issueFilter, user);
       return true;
@@ -452,7 +452,7 @@ public class InternalRubyIssueService {
   }
 
   public boolean canUserShareIssueFilter() {
-    return issueFilterService.canShareFilter(UserSession.get());
+    return issueFilterService.canShareFilter(userSession);
   }
 
   public String serializeFilterQuery(Map<String, Object> filterQuery) {
@@ -483,7 +483,7 @@ public class InternalRubyIssueService {
    * Execute issue filter from existing filter with optional overridable parameters
    */
   public IssueFilterService.IssueFilterResult execute(Long issueFilterId, Map<String, Object> overrideProps) {
-    IssueFilterDto issueFilter = issueFilterService.find(issueFilterId, UserSession.get());
+    IssueFilterDto issueFilter = issueFilterService.find(issueFilterId, userSession);
     Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
     overrideProps(props, overrideProps);
     return execute(props);
@@ -499,7 +499,7 @@ public class InternalRubyIssueService {
    * List user issue filter
    */
   public List<IssueFilterDto> findIssueFiltersForCurrentUser() {
-    return issueFilterService.findByUser(UserSession.get());
+    return issueFilterService.findByUser(userSession);
   }
 
   /**
@@ -507,7 +507,7 @@ public class InternalRubyIssueService {
    */
   public IssueFilterDto createIssueFilter(Map<String, String> parameters) {
     IssueFilterDto result = createIssueFilterResultForNew(parameters);
-    return issueFilterService.save(result, UserSession.get());
+    return issueFilterService.save(result, userSession);
   }
 
   /**
@@ -515,21 +515,21 @@ public class InternalRubyIssueService {
    */
   public IssueFilterDto updateIssueFilter(Map<String, String> parameters) {
     IssueFilterDto result = createIssueFilterResultForUpdate(parameters);
-    return issueFilterService.update(result, UserSession.get());
+    return issueFilterService.update(result, userSession);
   }
 
   /**
    * Update issue filter data
    */
   public IssueFilterDto updateIssueFilterQuery(Long issueFilterId, Map<String, Object> data) {
-    return issueFilterService.updateFilterQuery(issueFilterId, data, UserSession.get());
+    return issueFilterService.updateFilterQuery(issueFilterId, data, userSession);
   }
 
   /**
    * Delete issue filter
    */
   public void deleteIssueFilter(Long issueFilterId) {
-    issueFilterService.delete(issueFilterId, UserSession.get());
+    issueFilterService.delete(issueFilterId, userSession);
   }
 
   /**
@@ -537,7 +537,7 @@ public class InternalRubyIssueService {
    */
   public IssueFilterDto copyIssueFilter(Long issueFilterIdToCopy, Map<String, String> parameters) {
     IssueFilterDto result = createIssueFilterResultForCopy(parameters);
-    return issueFilterService.copy(issueFilterIdToCopy, result, UserSession.get());
+    return issueFilterService.copy(issueFilterIdToCopy, result, userSession);
   }
 
   @VisibleForTesting
@@ -587,15 +587,15 @@ public class InternalRubyIssueService {
   }
 
   public List<IssueFilterDto> findSharedFiltersForCurrentUser() {
-    return issueFilterService.findSharedFiltersWithoutUserFilters(UserSession.get());
+    return issueFilterService.findSharedFiltersWithoutUserFilters(userSession);
   }
 
   public List<IssueFilterDto> findFavouriteIssueFiltersForCurrentUser() {
-    return issueFilterService.findFavoriteFilters(UserSession.get());
+    return issueFilterService.findFavoriteFilters(userSession);
   }
 
   public boolean toggleFavouriteIssueFilter(Long issueFilterId) {
-    return issueFilterService.toggleFavouriteIssueFilter(issueFilterId, UserSession.get());
+    return issueFilterService.toggleFavouriteIssueFilter(issueFilterId, userSession);
   }
 
   /**
@@ -603,7 +603,7 @@ public class InternalRubyIssueService {
    */
   public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment, boolean sendNotifications) {
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment, sendNotifications);
-    return issueBulkChangeService.execute(issueBulkChangeQuery, UserSession.get());
+    return issueBulkChangeService.execute(issueBulkChangeQuery, userSession);
   }
 
   private void checkMandatoryParameter(String value, String paramName, Result result) {

@@ -22,6 +22,7 @@ package org.sonar.server.component.ws;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.web.UserRole;
@@ -30,7 +31,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -43,6 +44,8 @@ public class SearchActionTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester tester;
 
@@ -52,13 +55,13 @@ public class SearchActionTest {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()
       );
-    tester = new WsTester(new ComponentsWs(mock(ComponentAppAction.class), new SearchAction(dbClient)));
+    tester = new WsTester(new ComponentsWs(mock(ComponentAppAction.class), new SearchAction(dbClient, userSessionRule)));
   }
 
   @Test
   public void return_projects_from_view() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_view.json");
@@ -67,7 +70,7 @@ public class SearchActionTest {
   @Test
   public void return_projects_from_subview() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("john").addComponentUuidPermission(UserRole.USER, "EFGH", "FGHI");
+    userSessionRule.logon("john").addComponentUuidPermission(UserRole.USER, "EFGH", "FGHI");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "FGHI").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_subview.json");
@@ -76,7 +79,7 @@ public class SearchActionTest {
   @Test
   public void return_only_authorized_projects_from_view() throws Exception {
     dbTester.prepareDbUnit(getClass(), "return_only_authorized_projects_from_view.xml");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_only_authorized_projects_from_view.json");
@@ -85,7 +88,7 @@ public class SearchActionTest {
   @Test
   public void return_paged_result() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "2").setParam("ps", "1");
     request.execute().assertJson(getClass(), "return_paged_result.json");
@@ -94,7 +97,7 @@ public class SearchActionTest {
   @Test
   public void return_only_first_page() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "1").setParam("ps", "1");
     request.execute().assertJson(getClass(), "return_only_first_page.json");
@@ -103,7 +106,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_search_param_is_too_short() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "s");
 

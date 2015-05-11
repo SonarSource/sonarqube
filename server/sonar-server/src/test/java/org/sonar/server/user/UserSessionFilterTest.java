@@ -19,44 +19,60 @@
  */
 package org.sonar.server.user;
 
-import org.junit.Before;
-import org.junit.Test;
-
+import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.platform.Platform;
+import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UserSessionFilterTest {
+  private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private Platform platform = mock(Platform.class);
+  private ComponentContainer componentContainer = mock(ComponentContainer.class);
 
   @Before
   public void setUp() {
+    when(platform.getContainer()).thenReturn(componentContainer);
+    when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
     // for test isolation
-    UserSession.remove();
+    threadLocalUserSession.remove();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    threadLocalUserSession.remove();
   }
 
   @Test
-  public void should_cleanup_user_session_after_request_handling() throws Exception {
+  public void should_cleanup_user_session_after_request_handling() throws IOException, ServletException {
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
     ServletResponse httpResponse = mock(ServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
 
-    MockUserSession.set().setUserId(123).setLogin("karadoc");
-    assertThat(UserSession.hasSession()).isTrue();
-    UserSessionFilter filter = new UserSessionFilter();
+    threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123));
+    assertThat(threadLocalUserSession.hasSession()).isTrue();
+    UserSessionFilter filter = new UserSessionFilter(platform);
     filter.doFilter(httpRequest, httpResponse, chain);
 
     verify(chain).doFilter(httpRequest, httpResponse);
-    assertThat(UserSession.hasSession()).isFalse();
+    assertThat(threadLocalUserSession.hasSession()).isFalse();
   }
 
   @Test
-  public void just_for_fun_and_coverage() throws Exception {
-    UserSessionFilter filter = new UserSessionFilter();
+  public void just_for_fun_and_coverage() throws ServletException {
+    UserSessionFilter filter = new UserSessionFilter(platform);
     filter.init(mock(FilterConfig.class));
     filter.destroy();
     // do not fail

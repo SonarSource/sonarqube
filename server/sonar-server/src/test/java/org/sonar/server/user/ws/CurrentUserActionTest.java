@@ -20,29 +20,31 @@
 package org.sonar.server.user.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 public class CurrentUserActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private WsTester tester;
 
   @Before
   public void before() {
-    tester = new WsTester(new UsersWs(new CurrentUserAction()));
+    tester = new WsTester(new UsersWs(new CurrentUserAction(userSessionRule)));
   }
 
   @Test
   public void anonymous() throws Exception {
-    MockUserSession.set();
     tester.newGetRequest("api/users", "current").execute().assertJson(getClass(), "anonymous.json");
   }
 
   @Test
   public void authenticated() throws Exception {
-    MockUserSession.set().setLogin("obiwan.kenobi").setName("Obiwan Kenobi")
+    userSessionRule.logon("obiwan.kenobi").setName("Obiwan Kenobi")
       .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
     tester.newGetRequest("api/users", "current").execute().assertJson(getClass(), "authenticated.json");
   }

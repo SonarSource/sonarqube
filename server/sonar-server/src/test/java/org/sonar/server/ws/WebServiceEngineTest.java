@@ -20,9 +20,15 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
@@ -34,14 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
-import org.sonar.server.user.MockUserSession;
-
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -93,8 +92,10 @@ public class WebServiceEngineTest {
 
   }
 
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
   I18n i18n = mock(I18n.class);
-  WebServiceEngine engine = new WebServiceEngine(new WebService[] {new SystemWebService()}, i18n);
+  WebServiceEngine engine = new WebServiceEngine(new WebService[] {new SystemWebService()}, i18n, userSessionRule);
 
   @Before
   public void start() {
@@ -239,7 +240,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_i18n_message() {
-    MockUserSession.set().setLocale(Locale.ENGLISH);
+    userSessionRule.setLocale(Locale.ENGLISH);
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
@@ -271,7 +272,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_i18n_messages() {
-    MockUserSession.set().setLocale(Locale.ENGLISH);
+    userSessionRule.setLocale(Locale.ENGLISH);
 
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();

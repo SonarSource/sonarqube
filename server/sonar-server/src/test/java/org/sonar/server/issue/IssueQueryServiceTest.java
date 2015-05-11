@@ -22,9 +22,14 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
 import org.assertj.core.api.Fail;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -43,9 +48,7 @@ import org.sonar.core.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.*;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -60,6 +63,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueQueryServiceTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DbClient dbClient;
@@ -95,12 +100,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    issueQueryService = new IssueQueryService(dbClient, componentService, system);
-  }
-
-  @After
-  public void tearDown() {
-    MockUserSession.set();
+    issueQueryService = new IssueQueryService(dbClient, componentService, system, userSessionRule);
   }
 
   @Test
@@ -277,7 +277,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.VIEW));
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, viewUuid);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, viewUuid);
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.viewUuids()).containsExactly(viewUuid);
@@ -291,8 +291,6 @@ public class IssueQueryServiceTest {
     map.put("componentRootUuids", newArrayList(subViewUuid));
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.VIEW));
-
-    MockUserSession.set();
 
     IssueQuery query = issueQueryService.createFromMap(map);
     assertThat(query.viewUuids()).isNotEmpty().doesNotContain(subViewUuid);

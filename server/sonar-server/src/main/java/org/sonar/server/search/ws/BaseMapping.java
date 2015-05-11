@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import org.sonar.server.user.UserSession;
 
 /**
  * Mapping of search documents (see {@link org.sonar.server.search.BaseDoc}) to WS JSON responses
@@ -41,6 +42,11 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
 
   private final Multimap<String, String> indexFieldsByWsFields = LinkedHashMultimap.create();
   private final Multimap<String, Mapper> mappers = LinkedHashMultimap.create();
+  private final UserSession userSession;
+
+  protected BaseMapping(UserSession userSession) {
+    this.userSession = userSession;
+  }
 
   /**
    * All the WS supported fields
@@ -50,7 +56,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
   }
 
   public QueryContext newQueryOptions(SearchOptions options) {
-    QueryContext result = new QueryContext();
+    QueryContext result = new QueryContext(userSession);
     result.setPage(options.page(), options.pageSize());
     List<String> optionFields = options.fields();
     if (optionFields != null) {

@@ -19,6 +19,17 @@
  */
 package org.sonar.server.qualityprofile;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerSide;
@@ -35,17 +46,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 @ServerSide
 public class QProfileService {
 
@@ -57,9 +57,11 @@ public class QProfileService {
   private final QProfileCopier copier;
   private final QProfileReset reset;
   private final QProfileExporters exporters;
+  private final UserSession userSession;
 
   public QProfileService(DbClient db, ActivityIndex activityIndex, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters) {
+    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters,
+    UserSession userSession) {
     this.db = db;
     this.activityIndex = activityIndex;
     this.ruleActivator = ruleActivator;
@@ -68,6 +70,7 @@ public class QProfileService {
     this.copier = copier;
     this.reset = reset;
     this.exporters = exporters;
+    this.userSession = userSession;
   }
 
   public QProfileResult create(QProfileName name, @Nullable Map<String, String> xmlQProfilesByPlugin) {
@@ -207,8 +210,8 @@ public class QProfileService {
   }
 
   private void verifyAdminPermission() {
-    UserSession.get().checkLoggedIn();
-    UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSession.checkLoggedIn();
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, SearchOptions options) {

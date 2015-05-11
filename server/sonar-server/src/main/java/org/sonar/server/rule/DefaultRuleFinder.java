@@ -36,6 +36,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -45,8 +46,10 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultRuleFinder implements RuleFinder {
 
   private final RuleIndex index;
+  private final UserSession userSession;
 
-  public DefaultRuleFinder(IndexClient indexes) {
+  public DefaultRuleFinder(IndexClient indexes, UserSession userSession) {
+    this.userSession = userSession;
     this.index = indexes.get(RuleIndex.class);
   }
 
@@ -101,7 +104,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
-    Result<Rule> result = index.search(toQuery(query), new QueryContext());
+    Result<Rule> result = index.search(toQuery(query), new QueryContext(userSession));
     if (!result.getHits().isEmpty()) {
       return toRule(result.getHits().get(0));
     } else {
@@ -112,7 +115,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
-    for (Rule rule : index.search(toQuery(query), new QueryContext()).getHits()) {
+    for (Rule rule : index.search(toQuery(query), new QueryContext(userSession)).getHits()) {
       rules.add(toRule(rule));
     }
     return rules;

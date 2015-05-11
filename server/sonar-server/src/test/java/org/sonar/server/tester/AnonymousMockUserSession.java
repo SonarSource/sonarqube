@@ -17,15 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.user;
+package org.sonar.server.tester;
 
-public class UserSessionTestUtils {
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.UserSession;
 
-  private UserSessionTestUtils() {
-    // Utility class
+public class AnonymousMockUserSession extends MockUserSession {
+  public AnonymousMockUserSession() {
+    super();
   }
 
-  public static void setUserSession(UserSession session) {
-    UserSession.set(session);
+  @Override
+  public boolean isLoggedIn() {
+    return false;
   }
+
+  @Override
+  public UserSession checkLoggedIn() {
+    throw new UnauthorizedException("Authentication is required");
+  }
+
 }

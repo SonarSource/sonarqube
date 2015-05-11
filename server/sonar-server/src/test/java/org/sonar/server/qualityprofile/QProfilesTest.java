@@ -21,11 +21,13 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -33,6 +35,8 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   QProfileProjectOperations projectOperations;
@@ -47,7 +51,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() {
-    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup);
+    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, userSessionRule);
   }
 
   @Test
@@ -117,24 +121,24 @@ public class QProfilesTest {
   @Test
   public void add_project() {
     qProfiles.addProject("sonar-way-java", "ABCD");
-    verify(projectOperations).addProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
+    verify(projectOperations).addProject(eq("sonar-way-java"), eq("ABCD"), any(ThreadLocalUserSession.class));
   }
 
   @Test
   public void remove_project_by_quality_profile_key() {
     qProfiles.removeProject("sonar-way-java", "ABCD");
-    verify(projectOperations).removeProject(eq("sonar-way-java"), eq("ABCD"), any(UserSession.class));
+    verify(projectOperations).removeProject(eq("sonar-way-java"), eq("ABCD"), any(ThreadLocalUserSession.class));
   }
 
   @Test
   public void remove_project_by_language() {
     qProfiles.removeProjectByLanguage("java", 10L);
-    verify(projectOperations).removeProject(eq("java"), eq(10L), any(UserSession.class));
+    verify(projectOperations).removeProject(eq("java"), eq(10L), any(ThreadLocalUserSession.class));
   }
 
   @Test
   public void remove_all_projects() {
     qProfiles.removeAllProjects("sonar-way-java");
-    verify(projectOperations).removeAllProjects(eq("sonar-way-java"), any(UserSession.class));
+    verify(projectOperations).removeAllProjects(eq("sonar-way-java"), any(ThreadLocalUserSession.class));
   }
 }

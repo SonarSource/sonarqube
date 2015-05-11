@@ -20,6 +20,7 @@
 package org.sonar.server.source.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,14 +33,20 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   SourceService sourceService = mock(SourceService.class);
 
@@ -61,13 +68,13 @@ public class ShowActionTest {
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient)));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient, userSessionRule)));
   }
 
   @Test
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
@@ -85,7 +92,7 @@ public class ShowActionTest {
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
@@ -103,7 +110,7 @@ public class ShowActionTest {
   @Test
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
@@ -122,7 +129,6 @@ public class ShowActionTest {
   @Test(expected = ForbiddenException.class)
   public void require_code_viewer() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set();
     tester.newGetRequest("api/sources", "show").setParam("key", fileKey).execute();
   }
 }

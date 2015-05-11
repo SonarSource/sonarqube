@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
@@ -29,7 +30,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +40,8 @@ public class QProfileCreateActionTest {
 
   @ClassRule
   public static final DbTester db = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Test
   public void should_not_fail_on_no_importers() throws Exception {
@@ -48,12 +51,12 @@ public class QProfileCreateActionTest {
     String xooKey = "xoo";
     WsTester wsTester = new WsTester(new QProfilesWs(
       mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
-      new QProfileCreateAction(dbClient, new QProfileFactory(dbClient), null, LanguageTesting.newLanguages(xooKey))));
+      new QProfileCreateAction(dbClient, new QProfileFactory(dbClient), null, LanguageTesting.newLanguages(xooKey), userSessionRule)));
 
     Action create = wsTester.controller("api/qualityprofiles").action("create");
     assertThat(create.params()).hasSize(2);
 
-    MockUserSession.set().setLogin("anakin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("anakin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("language", xooKey).setParam("name", "Yeehaw!").execute().assertJson(getClass(), "create-no-importer.json");

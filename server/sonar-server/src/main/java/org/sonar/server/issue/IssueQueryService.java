@@ -72,18 +72,20 @@ public class IssueQueryService {
   private final DbClient dbClient;
   private final ComponentService componentService;
   private final System2 system;
+  private final UserSession userSession;
 
-  public IssueQueryService(DbClient dbClient, ComponentService componentService, System2 system) {
+  public IssueQueryService(DbClient dbClient, ComponentService componentService, System2 system, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentService = componentService;
     this.system = system;
+    this.userSession = userSession;
   }
 
   public IssueQuery createFromMap(Map<String, Object> params) {
     DbSession session = dbClient.openSession(false);
     try {
 
-      IssueQuery.Builder builder = IssueQuery.builder()
+      IssueQuery.Builder builder = IssueQuery.builder(userSession)
         .issueKeys(RubyUtils.toStrings(params.get(IssueFilterParameters.ISSUES)))
         .severities(RubyUtils.toStrings(params.get(IssueFilterParameters.SEVERITIES)))
         .statuses(RubyUtils.toStrings(params.get(IssueFilterParameters.STATUSES)))
@@ -156,7 +158,7 @@ public class IssueQueryService {
   public IssueQuery createFromRequest(Request request) {
     DbSession session = dbClient.openSession(false);
     try {
-      IssueQuery.Builder builder = IssueQuery.builder()
+      IssueQuery.Builder builder = IssueQuery.builder(userSession)
         .issueKeys(request.paramAsStrings(IssueFilterParameters.ISSUES))
         .severities(request.paramAsStrings(IssueFilterParameters.SEVERITIES))
         .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))
@@ -212,7 +214,7 @@ public class IssueQueryService {
       assignees.addAll(assigneesFromParams);
     }
     if (assignees.contains(LOGIN_MYSELF)) {
-      String login = UserSession.get().login();
+      String login = userSession.login();
       if (login == null) {
         assignees.add(UNKNOWN);
       } else {
@@ -337,8 +339,8 @@ public class IssueQueryService {
   private void addViewsOrSubViews(IssueQuery.Builder builder, Collection<String> componentUuids, String uniqueQualifier) {
     List<String> filteredViewUuids = newArrayList();
     for (String viewUuid : componentUuids) {
-      if ((Qualifiers.VIEW.equals(uniqueQualifier) && UserSession.get().hasProjectPermissionByUuid(UserRole.USER, viewUuid))
-        || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && UserSession.get().hasComponentUuidPermission(UserRole.USER, viewUuid))) {
+      if ((Qualifiers.VIEW.equals(uniqueQualifier) && userSession.hasProjectPermissionByUuid(UserRole.USER, viewUuid))
+        || (Qualifiers.SUBVIEW.equals(uniqueQualifier) && userSession.hasComponentUuidPermission(UserRole.USER, viewUuid))) {
         filteredViewUuids.add(viewUuid);
       }
     }

@@ -32,16 +32,18 @@ public class ActivityService {
 
   private final DbClient dbClient;
   private final ActivityIndexer indexer;
+  private final UserSession userSession;
 
-  public ActivityService(DbClient dbClient, ActivityIndexer indexer) {
+  public ActivityService(DbClient dbClient, ActivityIndexer indexer, UserSession userSession) {
     this.dbClient = dbClient;
     this.indexer = indexer;
+    this.userSession = userSession;
   }
 
   public void save(Activity activity) {
     ActivityDto dto = new ActivityDto()
       .setKey(Uuids.create())
-      .setAuthor(UserSession.get().login())
+      .setAuthor(userSession.login())
       .setAction(activity.getAction())
       .setMessage(activity.getMessage())
       .setData(KeyValueFormat.format(activity.getData()))

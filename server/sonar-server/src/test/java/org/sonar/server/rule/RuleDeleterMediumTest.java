@@ -43,6 +43,7 @@ import org.sonar.server.search.BaseIndex;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,6 +51,8 @@ public class RuleDeleterMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);

@@ -44,10 +44,12 @@ public class UpdatePluginsWsAction implements PluginsWsAction {
 
   private final UpdateCenterMatrixFactory updateCenterFactory;
   private final PluginDownloader pluginDownloader;
+  private final UserSession userSession;
 
-  public UpdatePluginsWsAction(UpdateCenterMatrixFactory updateCenterFactory, PluginDownloader pluginDownloader) {
+  public UpdatePluginsWsAction(UpdateCenterMatrixFactory updateCenterFactory, PluginDownloader pluginDownloader, UserSession userSession) {
     this.updateCenterFactory = updateCenterFactory;
     this.pluginDownloader = pluginDownloader;
+    this.userSession = userSession;
   }
 
   @Override
@@ -68,7 +70,7 @@ public class UpdatePluginsWsAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     String key = request.mandatoryParam(PARAM_KEY);
     PluginUpdate pluginUpdate = findPluginUpdateByKey(key);
     pluginDownloader.download(key, pluginUpdate.getRelease().getVersion());

@@ -20,9 +20,12 @@
 
 package org.sonar.server.test.ws;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.web.UserRole;
@@ -37,11 +40,8 @@ import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class TestsListActionTest {
   DbClient dbClient;
@@ -54,6 +54,8 @@ public class TestsListActionTest {
   public static DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Before
   public void setUp() {
@@ -63,7 +65,7 @@ public class TestsListActionTest {
     es.truncateIndices();
     testIndex = new TestIndex(es.client());
 
-    ws = new WsTester(new TestsWs(new TestsListAction(dbClient, testIndex)));
+    ws = new WsTester(new TestsWs(new TestsListAction(dbClient, testIndex, userSessionRule)));
   }
 
   @After
@@ -73,7 +75,7 @@ public class TestsListActionTest {
 
   @Test
   public void list_based_on_test_uuid() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
 
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
@@ -97,7 +99,7 @@ public class TestsListActionTest {
 
   @Test
   public void list_based_on_test_file_uuid() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
 
@@ -119,7 +121,7 @@ public class TestsListActionTest {
 
   @Test
   public void list_based_on_test_file_key() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID, TestFile1.KEY);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID, TestFile1.KEY);
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
 
@@ -143,7 +145,7 @@ public class TestsListActionTest {
   @Test
   public void list_based_on_main_file_and_line_number() throws Exception {
     String mainFileUuid = "MAIN-FILE-UUID";
-    MockUserSession.set().addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(dbSession,
       new ComponentDto()
         .setUuid(TestFile1.FILE_UUID)
@@ -201,7 +203,7 @@ public class TestsListActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_uuid() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
     ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
@@ -209,7 +211,7 @@ public class TestsListActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_test_uuid() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
     ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
@@ -217,7 +219,7 @@ public class TestsListActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_key() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     dbClient.componentDao().insert(dbSession, TestFile1.newDto());
     dbSession.commit();
     ws.newGetRequest("api/tests", "list").setParam(TestsListAction.TEST_FILE_KEY, TestFile1.KEY).execute();
@@ -225,7 +227,7 @@ public class TestsListActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficient_privilege_on_main_file_uuid() throws Exception {
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     String mainFileUuid = "MAIN-FILE-UUID";
     dbClient.componentDao().insert(dbSession, new ComponentDto().setUuid(mainFileUuid).setProjectUuid(TestFile1.PROJECT_UUID));
     dbSession.commit();

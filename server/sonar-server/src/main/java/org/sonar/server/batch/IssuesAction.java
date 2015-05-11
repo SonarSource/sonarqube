@@ -20,6 +20,11 @@
 
 package org.sonar.server.batch;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,12 +40,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Maps.newHashMap;
 
 public class IssuesAction implements BatchAction {
@@ -48,12 +47,13 @@ public class IssuesAction implements BatchAction {
   private static final String PARAM_KEY = "key";
 
   private final DbClient dbClient;
-
   private final IssueIndex issueIndex;
+  private final UserSession userSession;
 
-  public IssuesAction(DbClient dbClient, IssueIndex issueIndex) {
+  public IssuesAction(DbClient dbClient, IssueIndex issueIndex, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
+    this.userSession = userSession;
   }
 
   @Override
@@ -73,7 +73,7 @@ public class IssuesAction implements BatchAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    userSession.checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     final String moduleKey = request.mandatoryParam(PARAM_KEY);
 
     response.stream().setMediaType(MimeTypes.PROTOBUF);

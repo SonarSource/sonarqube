@@ -20,7 +20,10 @@
 
 package org.sonar.server.component.ws;
 
+import java.util.List;
+import java.util.Locale;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -43,19 +46,24 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
-import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentAppActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   static final String SUB_PROJECT_KEY = "org.codehaus.sonar:sonar-plugin-api";
   static final String COMPONENT_KEY = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java";
@@ -96,12 +104,12 @@ public class ComponentAppActionTest {
 
     when(measureDao.findByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, durations, i18n), mock(SearchAction.class)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, durations, i18n, userSessionRule), mock(SearchAction.class)));
   }
 
   @Test
   public void app() throws Exception {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.logon("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
 
     ComponentDto file = ComponentTesting.newFileDto(project)
@@ -124,7 +132,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_measures() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
     newComponent(project);
 
@@ -147,7 +155,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_overall_measure() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
     newComponent(project);
 
@@ -161,7 +169,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_ut_measure() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
     newComponent(project);
 
@@ -174,7 +182,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_it_measure() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
     newComponent(project);
 
@@ -186,7 +194,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void fail_on_unknown_component() {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.logon("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
 
     try {

@@ -41,6 +41,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
@@ -64,15 +65,17 @@ public class RuleActivator {
   private final RuleActivatorContextFactory contextFactory;
   private final IndexClient index;
   private final ActivityService activityService;
+  private final UserSession userSession;
 
   public RuleActivator(DbClient db, IndexClient index,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActivityService activityService) {
+    ActivityService activityService, UserSession userSession) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.activityService = activityService;
+    this.userSession = userSession;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
@@ -393,7 +396,7 @@ public class RuleActivator {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
     try {
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext().setScroll(true)
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
         .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
@@ -425,7 +428,7 @@ public class RuleActivator {
     try {
       RuleIndex ruleIndex = index.get(RuleIndex.class);
       BulkChangeResult result = new BulkChangeResult();
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext().setScroll(true)
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
         .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {

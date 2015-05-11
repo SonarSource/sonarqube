@@ -23,6 +23,7 @@ package org.sonar.server.qualityprofile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -33,7 +34,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +44,8 @@ public class QProfileProjectOperationsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;
@@ -52,8 +56,8 @@ public class QProfileProjectOperationsMediumTest {
   static final String PROJECT_KEY = "SonarQube";
   static final String PROJECT_UUID = "ABCD";
 
-  UserSession authorizedProfileAdminUserSession = MockUserSession.create().setLogin("john").setName("John").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  UserSession authorizedProjectAdminUserSession = MockUserSession.create().setLogin("john").setName("John").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
+  UserSession authorizedProfileAdminUserSession = new MockUserSession("john").setName("John").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  UserSession authorizedProjectAdminUserSession = new MockUserSession("john").setName("John").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
 
   @Before
   public void before() {
@@ -142,7 +146,7 @@ public class QProfileProjectOperationsMediumTest {
     db.userDao().insert(dbSession, user);
     tester.get(PermissionFacade.class).insertUserPermission(project1.getId(), user.getId(), UserRole.USER, dbSession);
     tester.get(PermissionFacade.class).insertUserPermission(project2.getId(), user.getId(), UserRole.USER, dbSession);
-    UserSession userSession = MockUserSession.set().setUserId(user.getId().intValue()).setLogin("john").setName("John")
+    UserSession userSession = userSessionRule.logon("john").setUserId(user.getId().intValue()).setName("John")
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     dbSession.commit();

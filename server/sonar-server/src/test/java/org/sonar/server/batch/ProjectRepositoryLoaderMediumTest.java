@@ -20,13 +20,14 @@
 
 package org.sonar.server.batch;
 
-import org.sonar.core.source.db.FileSourceDto.Type;
-import org.sonar.server.source.db.FileSourceDao;
-
 import com.google.common.collect.ImmutableMap;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -45,6 +46,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -53,12 +55,9 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +67,8 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbSession dbSession;
 
@@ -88,7 +89,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_project_settings() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -112,7 +113,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void not_returned_secured_settings_with_only_preview_permission() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addProjectUuidPermissions(UserRole.USER, project.uuid());
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION).addProjectUuidPermissions(UserRole.USER, project.uuid());
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -135,7 +136,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_project_with_module_settings() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -171,7 +172,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_project_with_module_settings_inherited_from_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -202,7 +203,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_project_with_module_with_sub_module() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -250,7 +251,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_project_with_two_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -295,7 +296,7 @@ public class ProjectRepositoryLoaderMediumTest {
   public void return_provisioned_project_settings() {
     // No snapshot attached on the project -> provisioned project
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -325,7 +326,7 @@ public class ProjectRepositoryLoaderMediumTest {
     // No module properties
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
 
     // Sub module properties
@@ -361,7 +362,7 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.login.secured").setValue("john").setResourceId(module.getId()), dbSession);
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
 
     // Sub module properties
@@ -395,7 +396,7 @@ public class ProjectRepositoryLoaderMediumTest {
     // No module property
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
     // No sub module property
 
@@ -428,7 +429,7 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(DbClient.class).propertiesDao().setProperty(new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER").setResourceId(module.getId()), dbSession);
 
     ComponentDto subModule = ComponentTesting.newModuleDto(module);
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, subModule);
     // No sub module property
 
@@ -449,7 +450,7 @@ public class ProjectRepositoryLoaderMediumTest {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -473,7 +474,7 @@ public class ProjectRepositoryLoaderMediumTest {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -496,7 +497,7 @@ public class ProjectRepositoryLoaderMediumTest {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -516,7 +517,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void return_quality_profiles_even_when_project_does_not_exists() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -540,7 +541,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     // No snapshot attached on the project -> provisioned project
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -562,7 +563,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void fail_when_no_quality_profile_for_a_language() {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("org.codehaus.sonar:sonar");
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     dbSession.commit();
 
@@ -577,7 +578,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_active_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -612,7 +613,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_only_active_rules_from_project_profile() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     RuleKey ruleKey1 = RuleKey.of("squid", "AvoidCycle");
@@ -650,7 +651,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_more_than_10_active_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd")
@@ -674,7 +675,7 @@ public class ProjectRepositoryLoaderMediumTest {
     Date ruleUpdatedAt = DateUtils.parseDateTime("2014-01-14T13:00:00+0100");
 
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor(ServerTester.Xoo.KEY, "SonarQube way"), "abcd").setRulesUpdatedAt(
@@ -704,7 +705,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_manual_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -724,7 +725,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void fail_if_no_permission() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions();
+    userSessionRule.logon("john").setGlobalPermissions();
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -740,7 +741,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @Test
   public void fail_when_not_preview_and_only_dry_run_permission() {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
@@ -759,7 +760,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_file_data_from_single_project() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -778,7 +779,7 @@ public class ProjectRepositoryLoaderMediumTest {
   @Test
   public void return_file_data_from_multi_modules() {
     ComponentDto project = ComponentTesting.newProjectDto();
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, project);
     addDefaultProfile();
 
@@ -814,7 +815,7 @@ public class ProjectRepositoryLoaderMediumTest {
     tester.get(FileSourceDao.class).insert(newFileSourceDto(projectFile).setSrcHash("123456"));
 
     ComponentDto module = ComponentTesting.newModuleDto(project);
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     tester.get(DbClient.class).componentDao().insert(dbSession, module);
 
     // File on module

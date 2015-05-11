@@ -21,6 +21,7 @@
 package org.sonar.server.source.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,7 +34,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -42,6 +43,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RawActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DbClient dbClient;
@@ -64,13 +67,13 @@ public class RawActionTest {
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new RawAction(dbClient, sourceService)));
+    tester = new WsTester(new SourcesWs(new RawAction(dbClient, sourceService, userSessionRule)));
   }
 
   @Test
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
@@ -85,7 +88,6 @@ public class RawActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
-    MockUserSession.set();
     tester.newGetRequest("api/sources", "raw").setParam("key", "any").execute();
   }
 }

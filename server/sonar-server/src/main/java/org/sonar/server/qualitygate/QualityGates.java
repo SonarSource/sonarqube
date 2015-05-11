@@ -19,9 +19,11 @@
  */
 package org.sonar.server.qualitygate;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
+import java.util.Collection;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -41,14 +43,18 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.exceptions.*;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 
 /**
  * @since 4.3
@@ -58,29 +64,26 @@ public class QualityGates {
   public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
   private final QualityGateDao dao;
-
   private final QualityGateConditionDao conditionDao;
-
   private final MetricFinder metricFinder;
-
   private final PropertiesDao propertiesDao;
-
   private final ComponentDao componentDao;
-
   private final MyBatis myBatis;
+  private final UserSession userSession;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-    MyBatis myBatis) {
+    MyBatis myBatis, UserSession userSession) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
     this.propertiesDao = propertiesDao;
     this.componentDao = componentDao;
     this.myBatis = myBatis;
+    this.userSession = userSession;
   }
 
   public QualityGateDto create(String name) {
-    checkPermission(UserSession.get());
+    checkPermission();
     validateQualityGate(null, name);
     QualityGateDto newQualityGate = new QualityGateDto().setName(name);
     dao.insert(newQualityGate);
@@ -96,7 +99,7 @@ public class QualityGates {
   }
 
   public QualityGateDto rename(long idToRename, String name) {
-    checkPermission(UserSession.get());
+    checkPermission();
     QualityGateDto toRename = getNonNullQgate(idToRename);
     validateQualityGate(idToRename, name);
     toRename.setName(name);
@@ -105,7 +108,7 @@ public class QualityGates {
   }
 
   public QualityGateDto copy(long sourceId, String destinationName) {
-    checkPermission(UserSession.get());
+    checkPermission();
     getNonNullQgate(sourceId);
     validateQualityGate(null, destinationName);
     QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
@@ -131,7 +134,7 @@ public class QualityGates {
   }
 
   public void delete(long idToDelete) {
-    checkPermission(UserSession.get());
+    checkPermission();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
     SqlSession session = myBatis.openSession(false);
     try {
@@ -147,7 +150,7 @@ public class QualityGates {
   }
 
   public void setDefault(@Nullable Long idToUseAsDefault) {
-    checkPermission(UserSession.get());
+    checkPermission();
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
@@ -168,7 +171,7 @@ public class QualityGates {
 
   public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
     @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    checkPermission(UserSession.get());
+    checkPermission();
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
@@ -181,7 +184,7 @@ public class QualityGates {
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
     @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    checkPermission(UserSession.get());
+    checkPermission();
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
@@ -204,7 +207,7 @@ public class QualityGates {
   }
 
   public void deleteCondition(Long condId) {
-    checkPermission(UserSession.get());
+    checkPermission();
     conditionDao.delete(getNonNullCondition(condId));
   }
 
@@ -212,7 +215,7 @@ public class QualityGates {
     DbSession session = myBatis.openSession(false);
     try {
       getNonNullQgate(qGateId);
-      checkPermission(UserSession.get(), projectId, session);
+      checkPermission(projectId, session);
       propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
     } finally {
       MyBatis.closeQuietly(session);
@@ -223,7 +226,7 @@ public class QualityGates {
     DbSession session = myBatis.openSession(false);
     try {
       getNonNullQgate(qGateId);
-      checkPermission(UserSession.get(), projectId, session);
+      checkPermission(projectId, session);
       propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
     } finally {
       MyBatis.closeQuietly(session);
@@ -242,7 +245,7 @@ public class QualityGates {
   public boolean currentUserHasWritePermission() {
     boolean hasWritePermission = false;
     try {
-      checkPermission(UserSession.get());
+      checkPermission();
       hasWritePermission = true;
     } catch (ServerException unallowed) {
       // Ignored
@@ -355,11 +358,11 @@ public class QualityGates {
 
   }
 
-  private void checkPermission(UserSession userSession) {
+  private void checkPermission() {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  private void checkPermission(UserSession userSession, Long projectId, DbSession session) {
+  private void checkPermission(Long projectId, DbSession session) {
     ComponentDto project = componentDao.getById(projectId, session);
     if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, project.key())) {
       throw new ForbiddenException("Insufficient privileges");

@@ -24,6 +24,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
@@ -41,16 +50,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
@@ -62,14 +61,16 @@ public class ComponentService {
   private final I18n i18n;
   private final ResourceIndexerDao resourceIndexerDao;
   private final InternalPermissionService permissionService;
+  private final UserSession userSession;
 
   public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-    InternalPermissionService permissionService) {
+                          InternalPermissionService permissionService, UserSession userSession) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;
     this.resourceIndexerDao = resourceIndexerDao;
     this.permissionService = permissionService;
+    this.userSession = userSession;
   }
 
   public ComponentDto getByKey(String key) {
@@ -114,7 +115,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
-      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
@@ -128,7 +129,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto project = getByKey(projectKey);
-      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
       return resourceKeyUpdaterDao.checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
@@ -140,7 +141,7 @@ public class ComponentService {
     DbSession session = dbClient.openSession(true);
     try {
       ComponentDto project = getByKey(session, projectKey);
-      UserSession.get().checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
+      userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
       resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
       session.commit();
     } finally {
@@ -149,7 +150,7 @@ public class ComponentService {
   }
 
   public String create(NewComponent newComponent) {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.PROVISIONING);
+    userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
 
     DbSession session = dbClient.openSession(false);
     try {

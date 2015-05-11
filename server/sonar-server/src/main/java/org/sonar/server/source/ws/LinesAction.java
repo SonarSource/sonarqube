@@ -20,6 +20,8 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -37,9 +39,6 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
-import java.util.List;
-
 public class LinesAction implements SourcesAction {
 
   private static final String PARAM_UUID = "uuid";
@@ -48,11 +47,13 @@ public class LinesAction implements SourcesAction {
   private final SourceLineIndex sourceLineIndex;
   private final HtmlSourceDecorator htmlSourceDecorator;
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public LinesAction(DbClient dbClient, SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator) {
+  public LinesAction(DbClient dbClient, SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator, UserSession userSession) {
     this.sourceLineIndex = sourceLineIndex;
     this.htmlSourceDecorator = htmlSourceDecorator;
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -103,7 +104,7 @@ public class LinesAction implements SourcesAction {
   @Override
   public void handle(Request request, Response response) {
     ComponentDto component = loadComponent(request);
-    UserSession.get().checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
+    userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
 
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);

@@ -47,7 +47,7 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
@@ -87,9 +87,9 @@ public class ActionPlanServiceTest {
 
   String projectKey = "org.sonar.Sample";
 
-  UserSession projectAdministratorUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").addProjectPermissions(UserRole.ADMIN, projectKey);
-  UserSession projectUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").addProjectPermissions(UserRole.USER, projectKey);
-  UserSession unauthorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas");
+  UserSession projectAdministratorUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.ADMIN, projectKey);
+  UserSession projectUserSession = new MockUserSession("nicolas").setName("Nicolas").addProjectPermissions(UserRole.USER, projectKey);
+  UserSession unauthorizedUserSession = new MockUserSession("nicolas").setName("Nicolas");
 
   private ActionPlanService actionPlanService;
 

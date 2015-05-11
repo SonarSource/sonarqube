@@ -23,6 +23,7 @@ package org.sonar.server.rule.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -40,7 +41,7 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -49,6 +50,9 @@ public class ShowActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logon()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 
@@ -72,10 +76,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
@@ -100,10 +100,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_debt_infos() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(characteristicDto, session);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
@@ -138,10 +134,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_overridden_debt() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(characteristicDto, session);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
@@ -174,10 +166,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     CharacteristicDto defaultCharacteristic = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(defaultCharacteristic, session);
     CharacteristicDto defaultSubCharacteristic = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(defaultCharacteristic.getId());
@@ -215,10 +203,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_no_default_and_no_overridden_debt() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
@@ -247,10 +231,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void show_rule_with_overridden_disable_debt() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
@@ -278,10 +258,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void encode_html_description_of_custom_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
     session.commit();
@@ -302,10 +278,6 @@ public class ShowActionMediumTest {
 
   @Test
   public void encode_html_description_of_manual_rule() throws Exception {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
-
     // Manual rule
     NewRule manualRule = NewRule.createForManualRule("MY_MANUAL")
       .setName("My manual")

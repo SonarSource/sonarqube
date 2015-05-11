@@ -20,9 +20,11 @@
 
 package org.sonar.server.issue;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
@@ -49,9 +51,7 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,6 +59,8 @@ public class IssueCommentServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   IndexClient indexClient;
@@ -91,10 +93,10 @@ public class IssueCommentServiceMediumTest {
 
     // project can be seen by anyone
     session.commit();
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
-    MockUserSession.set().setLogin("gandalf");
+    userSessionRule.logon("gandalf");
 
     session.commit();
   }
@@ -111,7 +113,7 @@ public class IssueCommentServiceMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    service.addComment(issue.getKey(), "my comment", MockUserSession.get());
+    service.addComment(issue.getKey(), "my comment", userSessionRule);
 
     List<DefaultIssueComment> comments = service.findComments(issue.getKey());
     assertThat(comments).hasSize(1);
@@ -128,7 +130,7 @@ public class IssueCommentServiceMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    service.addComment(issue.getKey(), "my comment", MockUserSession.get());
+    service.addComment(issue.getKey(), "my comment", userSessionRule);
 
     List<DefaultIssueComment> comments = service.findComments(issue.getKey());
     assertThat(comments).hasSize(1);

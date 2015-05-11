@@ -21,23 +21,24 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.server.user.MockUserSession;
-
 import java.util.Arrays;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class QueryContextTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("john").setUserGroups("sonar-users");
 
   QueryContext options;
 
   @Before
   public void setUp() {
-    MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
-    options = new QueryContext();
+    options = new QueryContext(userSessionRule);
   }
 
   @Test

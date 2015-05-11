@@ -41,6 +41,7 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -97,7 +98,7 @@ public class ActionServiceTest {
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
 
-    assertThat(actionService.execute("ABCD", "link-to-jira", mock(UserSession.class))).isNotNull();
+    assertThat(actionService.execute("ABCD", "link-to-jira", mock(ThreadLocalUserSession.class))).isNotNull();
 
     verify(function1).execute(any(Function.Context.class));
     verify(function2).execute(any(Function.Context.class));
@@ -108,7 +109,7 @@ public class ActionServiceTest {
   public void modify_issue_when_executing_a_function() {
     Function function = new TweetFunction();
 
-    UserSession userSession = mock(UserSession.class);
+    UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.login()).thenReturn("arthur");
 
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
@@ -125,7 +126,7 @@ public class ActionServiceTest {
   public void inject_project_settings_when_executing_a_function() {
     Function function = new TweetFunction();
 
-    UserSession userSession = mock(UserSession.class);
+    UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.login()).thenReturn("arthur");
 
     when(componentDao.getByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
@@ -146,7 +147,7 @@ public class ActionServiceTest {
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
-      actionService.execute("ABCD", "tweet", mock(UserSession.class));
+      actionService.execute("ABCD", "tweet", mock(ThreadLocalUserSession.class));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Action is not found : tweet");
@@ -163,7 +164,7 @@ public class ActionServiceTest {
 
     actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
     try {
-      actionService.execute("ABCD", "link-to-jira", mock(UserSession.class));
+      actionService.execute("ABCD", "link-to-jira", mock(ThreadLocalUserSession.class));
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("A condition is not respected");

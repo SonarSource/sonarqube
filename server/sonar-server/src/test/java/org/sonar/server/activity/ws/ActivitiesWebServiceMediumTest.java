@@ -21,12 +21,13 @@ package org.sonar.server.activity.ws;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +36,8 @@ public class ActivitiesWebServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   ActivitiesWebService ws;
   ActivityService service;
@@ -66,8 +69,6 @@ public class ActivitiesWebServiceMediumTest {
     activity.setMessage("THE_MSG");
     activity.setData("foo", "bar");
     service.save(activity);
-
-    MockUserSession.set();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest("api/activities", "search");
     WsTester.Result result = request.execute();

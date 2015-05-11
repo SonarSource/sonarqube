@@ -23,6 +23,9 @@ package org.sonar.server.test.ws;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -40,11 +43,6 @@ import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
-
 public class TestsListAction implements TestAction {
   public static final String TEST_UUID = "testUuid";
   public static final String TEST_FILE_UUID = "testFileUuid";
@@ -54,10 +52,12 @@ public class TestsListAction implements TestAction {
 
   private final DbClient dbClient;
   private final TestIndex testIndex;
+  private final UserSession userSession;
 
-  public TestsListAction(DbClient dbClient, TestIndex testIndex) {
+  public TestsListAction(DbClient dbClient, TestIndex testIndex, UserSession userSession) {
     this.dbClient = dbClient;
     this.testIndex = testIndex;
+    this.userSession = userSession;
   }
 
   @Override
@@ -204,7 +204,7 @@ public class TestsListAction implements TestAction {
   }
 
   private SearchResult<TestDoc> searchTestsByTestFileKey(DbSession dbSession, String testFileKey, SearchOptions searchOptions) {
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, testFileKey);
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, testFileKey);
     ComponentDto testFile = dbClient.componentDao().getByKey(dbSession, testFileKey);
 
     return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
@@ -222,6 +222,6 @@ public class TestsListAction implements TestAction {
 
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
     ComponentDto component = dbClient.componentDao().getByUuid(dbSession, componentUuid);
-    UserSession.get().checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
+    userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
   }
 }

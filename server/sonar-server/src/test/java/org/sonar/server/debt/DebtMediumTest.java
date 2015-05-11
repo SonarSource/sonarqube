@@ -22,13 +22,14 @@ package org.sonar.server.debt;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,6 +37,8 @@ public class DebtMediumTest {
 
   @ClassRule
   public static ServerTester serverTester = new ServerTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(serverTester);
 
   @Before
   public void setUp() {
@@ -56,7 +59,7 @@ public class DebtMediumTest {
 
   @Test
   public void create_characteristic() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
     int nb = debtModelService.characteristics().size();
@@ -73,7 +76,7 @@ public class DebtMediumTest {
 
   @Test
   public void create_sub_characteristic() {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
 

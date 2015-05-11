@@ -21,7 +21,9 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,10 +38,8 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
@@ -49,6 +49,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DbSession session;
@@ -73,13 +75,13 @@ public class ShowActionTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, componentDao, measureDao, parser, duplicationsJsonWriter)));
+    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, componentDao, measureDao, parser, duplicationsJsonWriter, userSessionRule)));
   }
 
   @Test
   public void show_duplications() throws Exception {
     String componentKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
@@ -102,7 +104,7 @@ public class ShowActionTest {
   public void show_duplications_by_uuid() throws Exception {
     String uuid = "ABCD";
     String componentKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     when(componentDao.getByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
 
@@ -126,7 +128,7 @@ public class ShowActionTest {
   @Test
   public void no_duplications_when_no_data() throws Exception {
     String componentKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
@@ -142,7 +144,7 @@ public class ShowActionTest {
   @Test(expected = NotFoundException.class)
   public void fail_when_file_not_found() throws Exception {
     String componentKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();

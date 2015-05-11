@@ -19,7 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Arrays;
+import java.util.Locale;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,16 +33,19 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.user.DefaultUser;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Arrays;
-import java.util.Locale;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueChangelogServiceTest {
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   IssueChangeDao changeDao;
@@ -57,7 +63,7 @@ public class IssueChangelogServiceTest {
 
   @Before
   public void setUp() {
-    service = new IssueChangelogService(changeDao, userFinder, issueService, formatter);
+    service = new IssueChangelogService(changeDao, userFinder, issueService, formatter, userSessionRule);
   }
 
   @Test
@@ -81,7 +87,7 @@ public class IssueChangelogServiceTest {
   @Test
   public void format_diffs() {
     FieldDiffs diffs = new FieldDiffs().setUserLogin("arthur").setDiff("severity", "MAJOR", "BLOCKER");
-    MockUserSession.set();
+    userSessionRule.logon();
     service.formatDiffs(diffs);
     verify(formatter).format(any(Locale.class), eq(diffs));
   }

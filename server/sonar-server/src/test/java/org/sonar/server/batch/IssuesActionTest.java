@@ -20,9 +20,13 @@
 
 package org.sonar.server.batch;
 
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -48,14 +52,9 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
-
-import javax.annotation.Nullable;
-
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,9 +69,10 @@ public class IssuesActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
-
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   IssueIndex issueIndex;
   IssueIndexer issueIndexer;
@@ -92,10 +92,10 @@ public class IssuesActionTest {
     this.session = db.myBatis().openSession(false);
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());
-    issueIndex = new IssueIndex(es.client(), System2.INSTANCE);
+    issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
-    issuesAction = new IssuesAction(dbClient, issueIndex);
+    issuesAction = new IssuesAction(dbClient, issueIndex, userSessionRule);
     componentDao = new ComponentDao();
 
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
@@ -125,7 +125,7 @@ public class IssuesActionTest {
       .setChecksum(null)
       .setAssignee(null));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
@@ -164,7 +164,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
@@ -203,7 +203,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -241,7 +241,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -278,7 +278,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
     ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -317,7 +317,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -328,7 +328,7 @@ public class IssuesActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_without_preview_permission() throws Exception {
-    MockUserSession.set().setLogin("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
     request.execute();

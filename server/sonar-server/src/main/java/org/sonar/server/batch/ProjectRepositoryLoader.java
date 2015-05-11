@@ -75,18 +75,20 @@ public class ProjectRepositoryLoader {
   private final QProfileLoader qProfileLoader;
   private final RuleService ruleService;
   private final Languages languages;
+  private final UserSession userSession;
 
   public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-    Languages languages) {
+                                 Languages languages, UserSession userSession) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
     this.ruleService = ruleService;
     this.languages = languages;
+    this.userSession = userSession;
   }
 
   public ProjectRepositories load(ProjectRepositoryQuery query) {
-    boolean hasScanPerm = UserSession.get().hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     checkPermission(query.isPreview());
 
     DbSession session = dbClient.openSession(false);
@@ -97,7 +99,7 @@ public class ProjectRepositoryLoader {
       // Current project/module can be null when analysing a new project
       if (module != null) {
         // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
-        if (query.isPreview() && !UserSession.get().hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
+        if (query.isPreview() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
           throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
         }
 
@@ -238,7 +240,7 @@ public class ProjectRepositoryLoader {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       // Load all rules of the profile language (only needed fields are loaded)
       Map<RuleKey, Rule> languageRules = ruleByRuleKey(ruleService.search(new RuleQuery().setLanguages(newArrayList(qProfile.language())),
-        new QueryContext().setLimit(100).setFieldsToReturn(newArrayList(
+        new QueryContext(userSession).setLimit(100).setFieldsToReturn(newArrayList(
           RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(), RuleNormalizer.RuleField.TEMPLATE_KEY.field()
           )).setScroll(true))
         .scroll());
@@ -277,7 +279,7 @@ public class ProjectRepositoryLoader {
   }
 
   private void addManualRules(ProjectRepositories ref) {
-    Result<Rule> ruleSearchResult = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleKey.MANUAL_REPOSITORY_KEY)), new QueryContext().setScroll(true)
+    Result<Rule> ruleSearchResult = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleKey.MANUAL_REPOSITORY_KEY)), new QueryContext(userSession).setScroll(true)
       .setFieldsToReturn(newArrayList(RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field())));
     Iterator<Rule> rules = ruleSearchResult.scroll();
     while (rules.hasNext()) {
@@ -304,7 +306,6 @@ public class ProjectRepositoryLoader {
   }
 
   private void checkPermission(boolean preview) {
-    UserSession userSession = UserSession.get();
     boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     if (!hasPreviewPerm && !hasScanPerm) {

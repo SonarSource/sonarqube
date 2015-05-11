@@ -19,7 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.Reader;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,10 +33,8 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileName;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.io.Reader;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -44,6 +44,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileRestoreActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
   @Mock
@@ -57,12 +59,12 @@ public class QProfileRestoreActionTest {
       mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
-      new QProfileRestoreAction(backuper, LanguageTesting.newLanguages("xoo"))));
+      new QProfileRestoreAction(backuper, LanguageTesting.newLanguages("xoo"), userSessionRule)));
   }
 
   @Test
   public void restore_profile() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile = QualityProfileDto.createFor("xoo-sonar-way-12345")
       .setDefault(false).setLanguage("xoo").setName("Sonar way");
@@ -76,14 +78,14 @@ public class QProfileRestoreActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_backup() throws Exception {
-    MockUserSession.set().setLogin("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newGetRequest("api/qualityprofiles", "restore").execute();
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_misssing_permission() throws Exception {
-    MockUserSession.set().setLogin("obiwan");
+    userSessionRule.logon("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute();
   }

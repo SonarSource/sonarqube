@@ -20,16 +20,17 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Strings;
+import java.util.List;
+
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
+import com.google.common.base.Strings;
 
 /**
  * Use {@link org.sonar.server.qualityprofile.QProfileService} instead
@@ -43,12 +44,14 @@ public class QProfiles {
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
   private final QProfileLookup profileLookup;
+  private final UserSession userSession;
 
   public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
-    QProfileLookup profileLookup) {
+    QProfileLookup profileLookup, UserSession userSession) {
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
     this.profileLookup = profileLookup;
+    this.userSession = userSession;
   }
 
   public List<QProfile> allProfiles() {
@@ -103,19 +106,19 @@ public class QProfiles {
   }
 
   public void addProject(String profileKey, String projectUuid) {
-    projectOperations.addProject(profileKey, projectUuid, UserSession.get());
+    projectOperations.addProject(profileKey, projectUuid, userSession);
   }
 
   public void removeProject(String profileKey, String projectUuid) {
-    projectOperations.removeProject(profileKey, projectUuid, UserSession.get());
+    projectOperations.removeProject(profileKey, projectUuid, userSession);
   }
 
   public void removeProjectByLanguage(String language, long projectId) {
-    projectOperations.removeProject(language, projectId, UserSession.get());
+    projectOperations.removeProject(language, projectId, userSession);
   }
 
   public void removeAllProjects(String profileKey) {
-    projectOperations.removeAllProjects(profileKey, UserSession.get());
+    projectOperations.removeAllProjects(profileKey, userSession);
   }
 
   private void checkProfileNameParam(String name) {

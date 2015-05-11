@@ -20,7 +20,9 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.base.Strings;
+import java.util.Collection;
+import java.util.Map;
+
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
@@ -30,8 +32,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.Map;
+import com.google.common.base.Strings;
 
 @ServerSide
 public class SetSeverityAction extends Action {
@@ -39,10 +40,12 @@ public class SetSeverityAction extends Action {
   public static final String KEY = "set_severity";
 
   private final IssueUpdater issueUpdater;
+  private final UserSession userSession;
 
-  public SetSeverityAction(IssueUpdater issueUpdater) {
+  public SetSeverityAction(IssueUpdater issueUpdater, UserSession userSession) {
     super(KEY);
     this.issueUpdater = issueUpdater;
+    this.userSession = userSession;
     super.setConditions(new IsUnResolved(), new Condition() {
       @Override
       public boolean matches(Issue issue) {
@@ -52,7 +55,7 @@ public class SetSeverityAction extends Action {
   }
 
   private boolean isCurrentUserIssueAdmin(String projectKey) {
-    return UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey);
+    return userSession.hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey);
   }
 
   @Override

@@ -20,8 +20,12 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
+
 import org.sonar.api.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
@@ -31,19 +35,18 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @ServerSide
 public class QProfileProjectLookup {
 
   private final DbClient db;
+  private final UserSession userSession;
 
-  public QProfileProjectLookup(DbClient db) {
+  public QProfileProjectLookup(DbClient db, UserSession userSession) {
     this.db = db;
+    this.userSession = userSession;
   }
 
   public List<Component> projects(int profileId) {
@@ -56,7 +59,6 @@ public class QProfileProjectLookup {
         componentsByKeys.put(component.key(), component);
       }
 
-      UserSession userSession = UserSession.get();
       List<Component> result = Lists.newArrayList();
       Collection<String> authorizedProjectKeys = db.authorizationDao().selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
       for (Map.Entry<String, Component> entry : componentsByKeys.entrySet()) {

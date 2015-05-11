@@ -21,24 +21,28 @@
 package org.sonar.server.component.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComponentsWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WebService.Controller controller;
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class)), new SearchAction(mock(DbClient.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule), new SearchAction(mock(DbClient.class), userSessionRule)));
     controller = tester.controller("api/components");
   }
 

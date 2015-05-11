@@ -21,6 +21,7 @@
 package org.sonar.server.source.ws;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -34,7 +35,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -43,6 +44,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IndexActionTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Mock
   DbClient dbClient;
@@ -65,13 +68,13 @@ public class IndexActionTest {
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService)));
+    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService, userSessionRule)));
   }
 
   @Test
   public void get_json() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, null)).thenReturn(newArrayList(
@@ -86,7 +89,7 @@ public class IndexActionTest {
   @Test
   public void limit_range() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, 2)).thenReturn(newArrayList(
@@ -101,14 +104,13 @@ public class IndexActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void requires_code_viewer_permission() throws Exception {
-    MockUserSession.set();
     tester.newGetRequest("api/sources", "index").setParam("resource", "any").execute();
   }
 
   @Test
   public void close_db_session() throws Exception {
     String fileKey = "src/Foo.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
+    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
     when(componentDao.getByKey(session, fileKey)).thenThrow(new NotFoundException());
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);

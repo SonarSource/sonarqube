@@ -20,6 +20,7 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,16 +33,16 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
 public class ShowAction implements SourcesAction {
 
   private final SourceService sourceService;
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public ShowAction(SourceService sourceService, DbClient dbClient) {
+  public ShowAction(SourceService sourceService, DbClient dbClient, UserSession userSession) {
     this.sourceService = sourceService;
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -78,7 +79,7 @@ public class ShowAction implements SourcesAction {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);

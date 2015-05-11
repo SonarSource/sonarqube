@@ -20,6 +20,10 @@
 
 package org.sonar.server.batch;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,19 +34,16 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-
 public class UsersAction implements BatchAction {
 
   private static final String PARAM_LOGINS = "logins";
 
   private final UserIndex userIndex;
+  private final UserSession userSession;
 
-  public UsersAction(UserIndex userIndex) {
+  public UsersAction(UserIndex userIndex, UserSession userSession) {
     this.userIndex = userIndex;
+    this.userSession = userSession;
   }
 
   @Override
@@ -62,7 +63,7 @@ public class UsersAction implements BatchAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
+    userSession.checkGlobalPermission(GlobalPermissions.PREVIEW_EXECUTION);
     List<String> logins = request.mandatoryParamAsStrings(PARAM_LOGINS);
 
     response.stream().setMediaType(MimeTypes.PROTOBUF);

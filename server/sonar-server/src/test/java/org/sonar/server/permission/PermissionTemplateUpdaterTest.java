@@ -34,11 +34,17 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PermissionTemplateUpdaterTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private static final UserDto DEFAULT_USER = new UserDto().setId(1L).setLogin("user").setName("user");
   private static final GroupDto DEFAULT_GROUP = new GroupDto().setId(1L).setName("group");
@@ -50,7 +56,7 @@ public class PermissionTemplateUpdaterTest {
 
   @Before
   public void setUpCommonMocks() {
-    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
@@ -63,7 +69,7 @@ public class PermissionTemplateUpdaterTest {
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao, userSessionRule) {
       @Override
       void doExecute(Long templateId, String permission) {
         permissionTemplateDao.addUserPermission(1L, 1L, UserRole.USER);
@@ -83,7 +89,7 @@ public class PermissionTemplateUpdaterTest {
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao, userSessionRule) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -100,7 +106,7 @@ public class PermissionTemplateUpdaterTest {
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", "invalid", "user", permissionTemplateDao, userDao) {
+      new PermissionTemplateUpdater("my_template", "invalid", "user", permissionTemplateDao, userDao, userSessionRule) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -113,9 +119,9 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(UnauthorizedException.class);
     expected.expectMessage("Authentication is required");
 
-    MockUserSession.set();
+    userSessionRule.anonymous();
 
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null, userSessionRule) {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -128,9 +134,9 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 
-    MockUserSession.set().setLogin("user").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.logon("user").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null, userSessionRule) {
       @Override
       void doExecute(Long templateId, String permission) {
       }

@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class DependenciesWsTest {
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new DependenciesWs(new ShowAction(mock(DbClient.class))));
+    WsTester tester = new WsTester(new DependenciesWs(new ShowAction(mock(DbClient.class), new AnonymousMockUserSession())));
     controller = tester.controller("api/dependencies");
   }
 

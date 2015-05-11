@@ -22,6 +22,10 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
@@ -41,11 +45,6 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 /**
  * @since 4.4
  */
@@ -56,14 +55,16 @@ public class AppAction implements RulesAction {
   private final I18n i18n;
   private final DebtModel debtModel;
   private final QProfileLoader profileLoader;
+  private final UserSession userSession;
 
   public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
-    DebtModel debtModel, QProfileLoader profileLoader) {
+                   DebtModel debtModel, QProfileLoader profileLoader, UserSession userSession) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
     this.debtModel = debtModel;
     this.profileLoader = profileLoader;
+    this.userSession = userSession;
   }
 
   @Override
@@ -80,7 +81,7 @@ public class AppAction implements RulesAction {
   }
 
   private void addPermissions(JsonWriter json) {
-    json.prop("canWrite", UserSession.get().hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
+    json.prop("canWrite", userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
   }
 
   private void addProfiles(JsonWriter json) {

@@ -22,13 +22,14 @@ package org.sonar.server.batch;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.batch.protocol.input.BatchInput.User;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.user.MockUserSession;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -43,6 +44,8 @@ public class UsersActionTest {
 
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   UserIndex userIndex;
 
@@ -55,7 +58,7 @@ public class UsersActionTest {
     es.truncateIndices();
 
     userIndex = new UserIndex(es.client());
-    usersAction = new UsersAction(userIndex);
+    usersAction = new UsersAction(userIndex, userSessionRule);
 
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), usersAction));
   }
@@ -66,7 +69,7 @@ public class UsersActionTest {
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
 
-    MockUserSession.set().setLogin("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.logon("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
 

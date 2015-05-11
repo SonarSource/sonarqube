@@ -19,6 +19,7 @@
  */
 package org.sonar.server.batch;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,9 +32,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,6 +41,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BatchWsTest {
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -56,9 +58,9 @@ public class BatchWsTest {
   @Before
   public void before() {
     tester = new WsTester(new BatchWs(batchIndex,
-      new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class)),
+      new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
       new ProjectRepositoryAction(mock(ProjectRepositoryLoader.class)),
-      new IssuesAction(mock(DbClient.class), mock(IssueIndex.class))));
+      new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule)));
   }
 
   @Test

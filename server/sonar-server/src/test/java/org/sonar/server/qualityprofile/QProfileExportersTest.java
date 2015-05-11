@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
+import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -57,6 +58,8 @@ public class QProfileExportersTest {
     XooRulesDefinition.class, XooProfileDefinition.class,
     XooExporter.class, StandardExporter.class,
     XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+  @org.junit.Rule
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;

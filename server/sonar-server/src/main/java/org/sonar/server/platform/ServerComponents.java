@@ -19,7 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -373,6 +379,7 @@ import org.sonar.server.user.GroupMembershipFinder;
 import org.sonar.server.user.GroupMembershipService;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
+import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
@@ -396,12 +403,7 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
+import com.google.common.collect.Lists;
 
 class ServerComponents {
 
@@ -444,6 +446,9 @@ class ServerComponents {
 
       // rack bridges
       PlatformRackBridge.class,
+
+      // user session
+      ThreadLocalUserSession.class,
 
       // DB
       DbClient.class,
@@ -1016,7 +1021,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterIssueFilters.class);
     startupContainer.addSingleton(RenameIssueWidgets.class);
 
-    DoPrivileged.execute(new DoPrivileged.Task() {
+    DoPrivileged.execute(new DoPrivileged.Task(startupContainer.getComponentByType(ThreadLocalUserSession.class)) {
       @Override
       protected void doPrivileged() {
         startupContainer.getComponentByType(IndexSynchronizer.class).executeDeprecated();

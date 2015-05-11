@@ -21,20 +21,24 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Lists;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.user.MockUserSession;
-
-import java.util.Map;
+import org.sonar.server.tester.AnonymousMockUserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CommentActionTest {
 
@@ -66,7 +70,7 @@ public class CommentActionTest {
     Map<String, Object> properties = newHashMap();
     properties.put("unknwown", "unknown value");
     try {
-      action.verify(properties, Lists.<Issue>newArrayList(), MockUserSession.create());
+      action.verify(properties, Lists.<Issue>newArrayList(), new AnonymousMockUserSession());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Missing parameter : 'comment'");

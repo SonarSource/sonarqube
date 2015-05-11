@@ -19,9 +19,12 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Date;
+import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -56,13 +59,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
-import java.util.Locale;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -72,6 +72,8 @@ public class ComponentNavigationActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbSession session;
 
@@ -123,14 +125,14 @@ public class ComponentNavigationActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_parameters() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(null, null, null, null, null)));
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(null, null, null, null, null, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unexistent_key() throws Exception {
-    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, null, null, null, null)));
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, null, null, null, null, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute();
   }
@@ -140,8 +142,7 @@ public class ComponentNavigationActionTest {
     dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd").setKey("polop"));
     session.commit();
 
-    MockUserSession.set();
-    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, null, null, null, null)));
+    wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, null, null, null, null, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute();
   }
@@ -152,9 +153,9 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop"));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "no_snapshot.json");
   }
@@ -167,10 +168,10 @@ public class ComponentNavigationActionTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId), session);
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.logon("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "no_snapshot_user_favourite.json");
   }
@@ -186,10 +187,10 @@ public class ComponentNavigationActionTest {
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.logon("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_snapshot_and_connected_user.json");
   }
@@ -203,10 +204,10 @@ public class ComponentNavigationActionTest {
     activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_dashboards.json");
   }
@@ -220,10 +221,10 @@ public class ComponentNavigationActionTest {
     activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.logon("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_default_dashboards.json");
   }
@@ -236,12 +237,12 @@ public class ComponentNavigationActionTest {
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
     Views views = createViews();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      views, i18n, resourceTypes)));
+      views, i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_extensions.json");
   }
@@ -254,14 +255,14 @@ public class ComponentNavigationActionTest {
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
-    MockUserSession.set()
+    userSessionRule
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
     Views views = createViews();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      views, i18n, resourceTypes)));
+      views, i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "admin_with_extensions.json");
   }
@@ -318,7 +319,7 @@ public class ComponentNavigationActionTest {
       }
     }
     Page adminPage = new AdminPage();
-    Views views = new Views(new Page[] {page1, page2, adminPage});
+    Views views = new Views(userSessionRule, new Page[] {page1, page2, adminPage});
     return views;
   }
 
@@ -330,7 +331,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage(language));
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+    userSessionRule.logon("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -369,7 +370,7 @@ public class ComponentNavigationActionTest {
     Page page2 = new SecondPage();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page1, page2}), i18n, resourceTypes)));
+      new Views(userSessionRule, new Page[] {page1, page2}), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_admin_rights.json");
   }
@@ -382,7 +383,7 @@ public class ComponentNavigationActionTest {
     dbClient.componentDao().insert(session, project);
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+    userSessionRule.logon("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -398,7 +399,7 @@ public class ComponentNavigationActionTest {
       .thenReturn(projectResourceType);
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "with_all_properties.json");
   }
@@ -413,12 +414,12 @@ public class ComponentNavigationActionTest {
     dbClient.componentDao().insert(session, project, module);
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+    userSessionRule.logon("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap").execute().assertJson(getClass(), "on_module.json");
   }
@@ -431,7 +432,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage(language));
     session.commit();
 
-    MockUserSession.set().setLogin("obiwan").setUserId(userId)
+    userSessionRule.logon("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
@@ -450,7 +451,7 @@ public class ComponentNavigationActionTest {
     Page page = new FirstPage();
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(new Page[] {page}), i18n, resourceTypes)));
+      new Views(userSessionRule, new Page[] {page}), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute().assertJson(getClass(), "quality_profile_admin.json");
   }
@@ -497,10 +498,10 @@ public class ComponentNavigationActionTest {
 
     session.commit();
 
-    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(), i18n, resourceTypes)));
+      new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
 
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
   }

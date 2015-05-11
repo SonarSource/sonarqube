@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collections;
+import java.util.List;
 import org.sonar.core.permission.GlobalPermissions;
 
 import java.util.Locale;
@@ -51,27 +53,63 @@ public final class DoPrivileged {
    * to the execution of the {@link #doPrivileged()} method.
    */
   public abstract static class Task {
+    private final ThreadLocalUserSession threadLocalUserSession;
+    private UserSession oldUserSession;
+
+    protected Task(ThreadLocalUserSession threadLocalUserSession) {
+      this.threadLocalUserSession = threadLocalUserSession;
+    }
 
     /**
      * Code placed in this method will be executed in a privileged environment.
      */
     protected abstract void doPrivileged();
 
+    private static class PrivilegedUserSession extends AbstractUserSession<PrivilegedUserSession> {
+
+      private PrivilegedUserSession() {
+        super(PrivilegedUserSession.class);
+      }
+
+      @Override
+      public boolean hasGlobalPermission(String globalPermission) {
+        return true;
+      }
+
+      @Override
+      public List<String> globalPermissions() {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public boolean hasProjectPermission(String permission, String projectKey) {
+        return true;
+      }
+
+      @Override
+      public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+        return true;
+      }
+
+      @Override
+      public boolean hasComponentPermission(String permission, String componentKey) {
+        return true;
+      }
+
+      @Override
+      public boolean hasComponentUuidPermission(String permission, String componentUuid) {
+        return true;
+      }
+    }
+
     private void start() {
-      UserSession.set(new UserSession() {
-        @Override
-        public boolean hasGlobalPermission(String globalPermission) {
-          return true;
-        }
-        @Override
-        public boolean hasProjectPermission(String permission, String projectKey) {
-          return true;
-        }
-      }.setLocale(Locale.getDefault()));
+      oldUserSession = threadLocalUserSession.get();
+      threadLocalUserSession.set(new PrivilegedUserSession().setLocale(Locale.getDefault()));
     }
   
     private void stop() {
-      UserSession.remove();
+      threadLocalUserSession.remove();
+      threadLocalUserSession.set(oldUserSession);
     }
   }
 }

@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.ws;
 
+import java.util.Arrays;
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -35,18 +37,17 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.user.UserSession;
 
-import java.util.Arrays;
-import java.util.Map;
-
 // FIXME replace by api/activities/search
 public class HistoryWsAction implements ComputationWsAction, RequestHandler {
 
   public static final String PARAM_TYPE = "type";
 
   private final ActivityIndex activityIndex;
+  private final UserSession userSession;
 
-  public HistoryWsAction(ActivityIndex activityIndex) {
+  public HistoryWsAction(ActivityIndex activityIndex, UserSession userSession) {
     this.activityIndex = activityIndex;
+    this.userSession = userSession;
   }
 
   @Override
@@ -63,7 +64,7 @@ public class HistoryWsAction implements ComputationWsAction, RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     ActivityQuery query = new ActivityQuery();
     query.setTypes(Arrays.asList(Activity.Type.ANALYSIS_REPORT.name()));
