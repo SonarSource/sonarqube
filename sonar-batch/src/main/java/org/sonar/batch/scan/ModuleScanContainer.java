@@ -26,12 +26,10 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -84,17 +82,16 @@ import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.timemachine.Periods;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
   private final Project module;
-  private DefaultAnalysisMode analysisMode;
 
   public ModuleScanContainer(ProjectScanContainer parent, Project module) {
     super(parent);
     this.module = module;
-    analysisMode = parent.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override

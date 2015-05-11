@@ -19,14 +19,12 @@
  */
 package org.sonar.server.debt;
 
-import org.sonar.api.ServerSide;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -74,16 +72,16 @@ public class DebtModelBackup {
   private final System2 system2;
 
   public DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
-                         DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                         DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader) {
+    DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
+    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader) {
     this(dbClient, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter,
       defLoader, System2.INSTANCE);
   }
 
   @VisibleForTesting
   DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
-                  DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                  DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2) {
+    DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
+    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2) {
     this.dbClient = dbClient;
     this.debtModelOperations = debtModelOperations;
     this.ruleOperations = ruleOperations;
@@ -235,7 +233,7 @@ public class DebtModelBackup {
   }
 
   private void restoreRules(List<CharacteristicDto> allCharacteristicDtos, List<RuleDto> rules, List<RuleDebt> ruleDebts,
-                            ValidationMessages validationMessages, Date updateDate, DbSession session) {
+    ValidationMessages validationMessages, Date updateDate, DbSession session) {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebt(rule.getRepositoryKey(), rule.getRuleKey(), ruleDebts);
       String subCharacteristicKey = ruleDebt != null ? ruleDebt.subCharacteristicKey() : null;
@@ -277,7 +275,7 @@ public class DebtModelBackup {
   }
 
   private CharacteristicDto restoreCharacteristic(DebtCharacteristic targetCharacteristic, @Nullable Integer parentId, List<CharacteristicDto> sourceCharacteristics,
-                                                  Date updateDate, DbSession session) {
+    Date updateDate, DbSession session) {
     CharacteristicDto sourceCharacteristic = characteristicByKey(targetCharacteristic.key(), sourceCharacteristics, false);
     if (sourceCharacteristic == null) {
       CharacteristicDto newCharacteristic = toDto(targetCharacteristic, parentId).setCreatedAt(updateDate);
