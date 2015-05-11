@@ -248,9 +248,36 @@
     and p.copy_resource_id is null
     <if test="query!=null">
       and (
-      p.name like #{query}
-      or p.kee like #{query}
+      UPPER(p.name) like #{query}
+      or UPPER(p.kee) like #{query}
       )
     </if>
+  </sql>
+
+  <select id="selectGhostProjects" parameterType="map" resultType="Component">
+    select distinct <include refid="componentColumns"/>
+    from projects p
+    <include refid="ghostClauses"/>
+  </select>
+
+  <select id="countGhostProjects" parameterType="map" resultType="long">
+    select count(p.id)
+    from projects p
+    <include refid="ghostClauses"/>
+  </select>
+
+  <sql id="ghostClauses">
+    inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
+    left join snapshots s2 on s2.project_id = p.id and s2.status='P'
+    where
+      s2.id is null
+      and p.qualifier=#{qualifier}
+      and p.copy_resource_id is null
+      <if test="query!=null">
+        and (
+        UPPER(p.name) like #{query}
+        or UPPER(p.kee) like #{query}
+        )
+      </if>
   </sql>
 </mapper>

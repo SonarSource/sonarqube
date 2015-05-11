@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
+  private static final String ENDPOINT = "api/projects";
+
   private final ProjectsWsAction[] actions;
 
   public ProjectsWs(ProjectsWsAction... actions) {
@@ -33,7 +35,7 @@ public class ProjectsWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/projects")
+    NewController controller = context.createController(ENDPOINT)
       .setSince("2.10")
       .setDescription("Projects management");
 

@@ -47,7 +47,7 @@ import org.sonar.test.JsonAssert;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ProvisionedProjectsActionTest {
+public class ProjectsProvisionedActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
@@ -71,7 +71,7 @@ public class ProvisionedProjectsActionTest {
     dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();
-    ws = new WsTester(new ProjectsWs(new ProvisionedProjectsAction(dbClient, userSessionRule)));
+    ws = new WsTester(new ProjectsWs(new ProjectsProvisionedAction(dbClient, userSessionRule)));
   }
 
   @Test
@@ -79,18 +79,19 @@ public class ProvisionedProjectsActionTest {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
     componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
-    analyzedProject = componentDao.insert(dbSession, analyzedProject);
+    analyzedProject = dbClient.componentDao().insert(dbSession, analyzedProject);
     SnapshotDto snapshot = SnapshotTesting.createForProject(analyzedProject);
     dbClient.snapshotDao().insert(dbSession, snapshot);
     dbSession.commit();
 
-    WsTester.TestRequest request = ws.newGetRequest("api/projects", "provisioned");
+    WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
 
-    request.execute().assertJson(getClass(), "all-projects.json");
+    result.assertJson(getClass(), "all-projects.json");
+    assertThat(result.outputAsString()).doesNotContain("analyzed-uuid-1");
   }
 
   @Test
-  public void provisioned_projects_with_correct_paginated() throws Exception {
+  public void provisioned_projects_with_correct_pagination() throws Exception {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     for (int i = 1; i <= 10; i++) {
       componentDao.insert(dbSession, newProvisionedProject(String.valueOf(i)));

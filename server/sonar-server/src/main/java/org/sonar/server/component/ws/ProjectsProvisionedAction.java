@@ -34,24 +34,26 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
-public class ProvisionedProjectsAction implements ProjectsWsAction {
-  private static final List<String> POSSIBLE_FIELDS = Arrays.asList("uuid", "key", "name", "creationDate");
+import static com.google.common.collect.Sets.newHashSet;
+
+public class ProjectsProvisionedAction implements ProjectsWsAction {
+  private static final Set<String> POSSIBLE_FIELDS = newHashSet("uuid", "key", "name", "creationDate");
 
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public ProvisionedProjectsAction(DbClient dbClient, UserSession userSession) {
+  public ProjectsProvisionedAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller
+    controller
       .createAction("provisioned")
       .setDescription(
         "Get the list of provisioned projects.<br /> " +
@@ -60,12 +62,8 @@ public class ProvisionedProjectsAction implements ProjectsWsAction {
       .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
       .setHandler(this)
       .addPagingParams(100)
+      .addSearchQuery("sonar", "names", "keys")
       .addFieldsParam(POSSIBLE_FIELDS);
-
-    action
-      .createParam(Param.TEXT_QUERY)
-      .setDescription("UTF-8 search query")
-      .setExampleValue("sonar");
   }
 
   @Override
@@ -74,8 +72,8 @@ public class ProvisionedProjectsAction implements ProjectsWsAction {
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
       request.mandatoryParamAsInt(Param.PAGE_SIZE)
-    );
-    List<String> desiredFields = desiredFields(request);
+      );
+    Set<String> desiredFields = desiredFields(request);
     String query = request.param(Param.TEXT_QUERY);
 
     DbSession dbSession = dbClient.openSession(false);
@@ -91,7 +89,7 @@ public class ProvisionedProjectsAction implements ProjectsWsAction {
     }
   }
 
-  private void writeProjects(List<ComponentDto> projects, JsonWriter json, List<String> desiredFields) {
+  private void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {
     json.name("projects");
     json.beginArray();
     for (ComponentDto project : projects) {
@@ -105,24 +103,24 @@ public class ProvisionedProjectsAction implements ProjectsWsAction {
     json.endArray();
   }
 
-  private void writeIfNeeded(JsonWriter json, String fieldName, String value, List<String> desiredFields) {
+  private void writeIfNeeded(JsonWriter json, String fieldName, String value, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
       json.prop(fieldName, value);
     }
   }
 
-  private void writeIfNeeded(JsonWriter json, String fieldName, Date date, List<String> desiredFields) {
+  private void writeIfNeeded(JsonWriter json, String fieldName, Date date, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
       json.propDateTime(fieldName, date);
     }
   }
 
-  private List<String> desiredFields(Request request) {
+  private Set<String> desiredFields(Request request) {
     List<String> desiredFields = request.paramAsStrings(Param.FIELDS);
     if (desiredFields == null) {
-      desiredFields = POSSIBLE_FIELDS;
+      return POSSIBLE_FIELDS;
     }
 
-    return desiredFields;
+    return newHashSet(desiredFields);
   }
 }

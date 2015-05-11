@@ -575,4 +575,15 @@ public class ComponentDaoTest {
 
     assertThat(numberOfProjects).isEqualTo(1);
   }
+
+  @Test
+  public void select_ghost_projects() throws Exception {
+    db.prepareDbUnit(getClass(), "select_ghost_projects.xml");
+
+    List<ComponentDto> result = sut.selectGhostProjects(session, null, new SearchOptions());
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).key()).isEqualTo("org.ghost.project");
+    assertThat(sut.countGhostProjects(session, null)).isEqualTo(1);
+  }
 }

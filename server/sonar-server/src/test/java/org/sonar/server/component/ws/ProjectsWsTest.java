@@ -31,11 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectsWsTest {
 
   WebService.Controller controller;
+  WsTester ws;
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new ProjectsWs());
-    controller = tester.controller("api/projects");
+    ws = new WsTester(new ProjectsWs());
+    controller = ws.controller("api/projects");
   }
 
   @Test

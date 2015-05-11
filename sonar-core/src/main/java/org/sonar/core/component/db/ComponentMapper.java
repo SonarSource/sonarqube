@@ -107,4 +107,8 @@ public interface ComponentMapper {
   List<ComponentDto> selectProvisionedProjects(Map<String, String> parameters, RowBounds rowBounds);
 
   int countProvisionedProjects(Map<String, String> parameters);
+
+  List<ComponentDto> selectGhostProjects(Map<String, String> parameters, RowBounds rowBounds);
+
+  long countGhostProjects(Map<String, String> parameters);
 }

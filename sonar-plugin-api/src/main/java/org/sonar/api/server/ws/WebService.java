@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -353,6 +354,20 @@ public interface WebService extends Definable<WebService.Context> {
       createParam(Param.FIELDS)
         .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
         .setPossibleValues(possibleValues);
+      return this;
+    }
+
+    /**$
+     *
+     * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
+     * used to search for a subset of fields containing the supplied string.<br />
+     * The fields must be in the <strong>plural</strong> form (ex: "names", "keys")
+     */
+    public NewAction addSearchQuery(String exampleValue, String... pluralFields) {
+      String actionDescription = String.format("Searches for %s containing the supplied string.", Joiner.on(" and ").join(pluralFields));
+      createParam(Param.TEXT_QUERY)
+        .setDescription(actionDescription)
+        .setExampleValue(exampleValue);
       return this;
     }
 

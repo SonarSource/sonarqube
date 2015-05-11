@@ -109,8 +109,9 @@ import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
+import org.sonar.server.component.ws.ProjectsGhostsAction;
 import org.sonar.server.component.ws.ProjectsWs;
-import org.sonar.server.component.ws.ProvisionedProjectsAction;
+import org.sonar.server.component.ws.ProjectsProvisionedAction;
 import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
@@ -801,7 +802,8 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.component.ws.SearchAction.class);
     pico.addSingleton(EventsWs.class);
     pico.addSingleton(ComponentCleanerService.class);
-    pico.addSingleton(ProvisionedProjectsAction.class);
+    pico.addSingleton(ProjectsProvisionedAction.class);
+    pico.addSingleton(ProjectsGhostsAction.class);
 
     // views
     pico.addSingleton(ViewIndexDefinition.class);

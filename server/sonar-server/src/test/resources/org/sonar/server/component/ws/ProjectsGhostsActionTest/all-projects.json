@@ -1,0 +1,14 @@
+{
+  "projects": [
+    {
+      "uuid": "ghost-uuid-1",
+      "key": "ghost-key-1",
+      "name": "ghost-name-1"
+    },
+    {
+      "uuid": "ghost-uuid-2",
+      "key": "ghost-key-2",
+      "name": "ghost-name-2"
+    }
+  ]
+}
