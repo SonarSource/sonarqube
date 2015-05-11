@@ -294,24 +294,27 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_modules_by_project() {
+  public void select_children_by_component_uuid() throws Exception {
     setupData("multi-modules");
 
-    List<ComponentDto> results = dao.findModulesByProject("org.struts:struts", session);
+    List<ComponentDto> results = dao.selectChildrenByComponent(session, "ABCD");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core");
 
-    results = dao.findModulesByProject("org.struts:struts-core", session);
+    results = dao.selectChildrenByComponent(session, "EFGH");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
-    assertThat(dao.findModulesByProject("org.struts:struts-data", session)).isEmpty();
+    results = dao.selectChildrenByComponent(session, "FGHI");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core:src/org/struts");
 
-    assertThat(dao.findModulesByProject("unknown", session)).isEmpty();
+    assertThat(dao.selectChildrenByComponent(session, "HIJK")).isEmpty();
+    assertThat(dao.selectChildrenByComponent(session, "unknown")).isEmpty();
   }
 
   @Test
-  public void find_sub_projects_by_component_keys() {
+  public void find_sub_projects_by_component_uuids() throws Exception {
     setupData("multi-modules");
 
     // Sub project of a file
@@ -346,7 +349,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_modules_tree() {
+  public void select_enabled_descendant_modules() throws Exception {
     setupData("multi-modules");
 
     // From root project
@@ -367,7 +370,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all_modules_tree() {
+  public void select_descendant_modules() throws Exception {
     setupData("multi-modules");
 
     // From root project, disabled sub module is returned
@@ -383,7 +386,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_module_files_tree_from_module() {
+  public void select_enabled_module_files_tree_from_module() throws Exception {
     setupData("select_module_files_tree");
 
     // From root project
@@ -414,7 +417,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_enabled_module_files_tree_from_project() {
+  public void select_enabled_module_files_tree_from_project() throws Exception {
     setupData("select_module_files_tree");
 
     // From root project
@@ -499,9 +502,9 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   @Test(expected = IllegalStateException.class)
   public void update() {
     dao.update(session, new ComponentDto()
-      .setId(1L)
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      );
+        .setId(1L)
+        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+    );
   }
 
   @Test
@@ -509,9 +512,9 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     dao.delete(session, new ComponentDto()
-      .setId(1L)
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      );
+        .setId(1L)
+        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+    );
     session.commit();
 
     checkTable("delete", "projects");

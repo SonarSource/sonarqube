@@ -1,0 +1,14 @@
+{
+  "components": [
+    {
+      "uuid": "48350893-0daa-4c88-834a-a10f91901de5",
+      "name": "src/main/java/sample",
+      "qualifier": "DIR"
+    }
+  ],
+  "dependencies": [
+    {
+      "4": 50
+    }
+  ]
+}

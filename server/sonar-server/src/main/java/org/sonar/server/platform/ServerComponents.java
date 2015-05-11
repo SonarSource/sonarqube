@@ -928,6 +928,7 @@ class ServerComponents {
     pico.addSingleton(FileDesignWidget.class);
     pico.addSingleton(DependenciesWs.class);
     pico.addSingleton(org.sonar.server.design.ws.ShowAction.class);
+    pico.addSingleton(org.sonar.server.design.ws.DsmAction.class);
 
     // System
     pico.addSingletons(Arrays.asList(

@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "uuid": "DIR1",
+      "name": "src/main/java/dir1",
+      "qualifier": "DIR"
+    },
+    {
+      "uuid": "DIR2",
+      "name": "src/main/java/dir2",
+      "qualifier": "DIR"
+    }
+  ],
+  "dependencies": [
+    {
+      "0": 10
+    }
+  ]
+}

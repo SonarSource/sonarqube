@@ -20,26 +20,7 @@
 
 package org.sonar.server.design.ws;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
-public class DependenciesWs implements WebService {
-
-  private final DependenciesAction[] actions;
-
-  public DependenciesWs(DependenciesAction... actions) {
-    this.actions = actions;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/dependencies")
-      .setSince("5.2");
-
-    for (DependenciesAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
-  }
-
+public interface DependenciesAction extends WsAction {
 }

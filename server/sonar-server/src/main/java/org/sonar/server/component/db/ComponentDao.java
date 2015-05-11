@@ -84,8 +84,8 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).countById(id) > 0;
   }
 
-  public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
-    return mapper(session).findModulesByProject(projectKey);
+  public List<ComponentDto> selectChildrenByComponent(DbSession session, String componentUuid) {
+    return mapper(session).selectChildrenByComponent(componentUuid);
   }
 
   public List<ComponentDto> findSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {

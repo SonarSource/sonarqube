@@ -34,21 +34,24 @@ public class DependenciesWsTest {
   WebService.Controller controller;
 
   @Before
-  public void setUp() {
-    WsTester tester = new WsTester(new DependenciesWs(new ShowAction(mock(DbClient.class))));
+  public void setUp() throws Exception {
+    WsTester tester = new WsTester(new DependenciesWs(
+      new ShowAction(mock(DbClient.class)),
+      new DsmAction(mock(DbClient.class))
+    ));
     controller = tester.controller("api/dependencies");
   }
 
   @Test
-  public void define_controller() {
+  public void define_controller() throws Exception {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNull();
     assertThat(controller.since()).isEqualTo("5.2");
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
-  public void define_search_action() {
+  public void define_search_action() throws Exception {
     WebService.Action action = controller.action("show");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
@@ -57,4 +60,13 @@ public class DependenciesWsTest {
     assertThat(action.params()).hasSize(2);
   }
 
+  @Test
+  public void define_scm_action() throws Exception {
+    WebService.Action action = controller.action("dsm");
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.params()).hasSize(2);
+  }
 }

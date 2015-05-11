@@ -212,6 +212,17 @@
     </where>
   </select>
 
+  <select id="selectChildrenByComponent" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND parent_snapshots.islast=${_true}
+    INNER JOIN projects parent ON parent.id=parent_snapshots.project_id AND parent.enabled=${_true} AND parent.uuid=#{componentUuid}
+    <where>
+      AND p.enabled=${_true}
+    </where>
+  </select>
+
   <sql id="insertColumns">
     (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, copy_resource_id, enabled,
     created_at, authorization_updated_at)

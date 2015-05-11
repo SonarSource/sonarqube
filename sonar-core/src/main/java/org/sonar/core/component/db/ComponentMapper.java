@@ -45,11 +45,6 @@ public interface ComponentMapper {
   ComponentDto selectByUuid(String uuid);
 
   /**
-   * Return direct modules from a project/module
-   */
-  List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
-
-  /**
    * Return sub project of component keys
    */
   List<ComponentDto> findSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
@@ -95,6 +90,11 @@ public interface ComponentMapper {
    * Return technical projects from a view or a sub-view
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
+
+  /**
+   * Return direct children from a component
+   */
+  List<ComponentDto> selectChildrenByComponent(@Param("componentUuid") String componentUuid);
 
   long countById(long id);
 

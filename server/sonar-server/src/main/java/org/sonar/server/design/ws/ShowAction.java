@@ -31,7 +31,6 @@ import org.sonar.core.design.FileDependencyDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.BaseUsersWsAction;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ShowAction implements BaseUsersWsAction {
+public class ShowAction implements DependenciesAction {
 
   private static final String PARAM_FROM_PARENT_UUID = "fromParentUuid";
   private static final String PARAM_TO_PARENT_UUID = "toParentUuid";
