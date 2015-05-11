@@ -28,7 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
@@ -190,7 +190,6 @@ public class BatchMediumTester {
       throw new IllegalStateException("Unable to read configuration file", e);
     }
     TaskBuilder builder = new TaskBuilder(this);
-    builder.property("sonar.task", "scan");
     builder.property("sonar.projectBaseDir", sonarProps.getParentFile().getAbsolutePath());
     for (Map.Entry entry : prop.entrySet()) {
       builder.property(entry.getKey().toString(), entry.getValue().toString());
@@ -263,7 +262,7 @@ public class BatchMediumTester {
     private ProjectRepositories ref = new ProjectRepositories();
 
     @Override
-    public ProjectRepositories load(ProjectReactor reactor, TaskProperties taskProperties) {
+    public ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties) {
       return ref;
     }
 

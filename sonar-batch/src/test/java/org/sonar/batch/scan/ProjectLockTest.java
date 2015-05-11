@@ -25,20 +25,26 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ProjectLockTest {
 
   ProjectLock projectLock;
   Semaphores semaphores = mock(Semaphores.class);
-  ProjectTree projectTree = mock(ProjectTree.class);
+  DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
   I18n i18n = mock(I18n.class);
   Project project;
   private DefaultAnalysisMode mode;
@@ -65,7 +71,7 @@ public class ProjectLockTest {
   public void shouldNotAcquireSemaphoreIfTheProjectIsAlreadyBeenAnalysing() {
     when(semaphores.acquire(anyString(), anyInt(), anyInt())).thenReturn(new Semaphores.Semaphore().setLocked(false).setDurationSinceLocked(1234L));
     try {
-    projectLock.start();
+      projectLock.start();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(SonarException.class);

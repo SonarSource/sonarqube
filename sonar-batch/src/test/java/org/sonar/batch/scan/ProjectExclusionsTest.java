@@ -44,8 +44,8 @@ public class ProjectExclusionsTest {
 
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
 
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNull();
@@ -56,8 +56,8 @@ public class ProjectExclusionsTest {
   public void testNoSkippedModules() {
     Settings settings = new Settings();
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNotNull();
@@ -69,8 +69,8 @@ public class ProjectExclusionsTest {
     Settings settings = new Settings();
     settings.setProperty("sonar.includedModules", "sub1");
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNotNull();
@@ -87,8 +87,8 @@ public class ProjectExclusionsTest {
     settings.setProperty("sonar.skippedModules", "sub1");
 
     ProjectReactor reactor = new ProjectReactor(root);
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
 
     assertThat(reactor.getProject("root")).isNotNull();
     assertThat(reactor.getProject("sub1")).isNull();
@@ -101,8 +101,8 @@ public class ProjectExclusionsTest {
     settings.setProperty("sonar.skippedModules", "sub1,root");
 
     ProjectReactor reactor = newReactor("root", "sub1", "sub2");
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
   }
 
   @Test
@@ -112,8 +112,8 @@ public class ProjectExclusionsTest {
     Settings settings = new Settings();
     settings.setProperty("sonar.skippedModules", "struts-taglib");
 
-    ProjectExclusions exclusions = new ProjectExclusions(settings, reactor, null);
-    exclusions.apply();
+    ProjectExclusions exclusions = new ProjectExclusions(settings);
+    exclusions.apply(reactor);
 
     assertThat(reactor.getProject("org.apache.struts:struts")).isNotNull();
     assertThat(reactor.getProject("org.apache.struts:struts-core")).isNotNull();

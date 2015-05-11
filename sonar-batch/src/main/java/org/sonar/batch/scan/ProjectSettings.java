@@ -35,16 +35,16 @@ public class ProjectSettings extends Settings {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectSettings.class);
 
   private final GlobalSettings globalSettings;
-  private final ProjectRepositories projectReferentials;
+  private final ProjectRepositories projectRepositories;
   private final DefaultAnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepositories projectReferentials, DefaultAnalysisMode mode) {
+    ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.globalSettings = globalSettings;
-    this.projectReferentials = projectReferentials;
+    this.projectRepositories = projectRepositories;
     init(reactor);
   }
 
@@ -53,7 +53,7 @@ public class ProjectSettings extends Settings {
 
     addProperties(globalSettings.getProperties());
 
-    addProperties(projectReferentials.settings(reactor.getRoot().getKeyWithBranch()));
+    addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().properties());
   }

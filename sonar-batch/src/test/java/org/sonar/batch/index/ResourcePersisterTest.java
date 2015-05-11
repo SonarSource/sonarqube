@@ -30,9 +30,13 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ScanGraph;
@@ -66,7 +70,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
 
   private ResourcePersister persister;
 
-  private ProjectTree projectTree;
+  private DefaultProjectTree projectTree;
 
   private ResourcePermissions permissions;
 
@@ -102,7 +106,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     moduleB1.setParent(moduleB);
     moduleB1.setPath("/moduleB1");
 
-    projectTree = mock(ProjectTree.class);
+    projectTree = mock(DefaultProjectTree.class);
     permissions = mock(ResourcePermissions.class);
     persister = new ResourcePersister(projectTree, getSession(), permissions, resourceCache, mock(ScanGraph.class));
   }

@@ -29,7 +29,7 @@ import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
@@ -40,7 +40,6 @@ import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
 import org.sonar.batch.deprecated.components.DefaultTimeMachine;
 import org.sonar.batch.deprecated.perspectives.BatchPerspectives;
-import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
@@ -55,7 +54,6 @@ import org.sonar.batch.phases.DecoratorsExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
 import org.sonar.batch.phases.PersistersExecutor;
 import org.sonar.batch.phases.PhaseExecutor;
-import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.phases.PostJobsExecutor;
 import org.sonar.batch.phases.ProjectInitializer;
 import org.sonar.batch.phases.SensorsExecutor;
@@ -107,7 +105,7 @@ public class ModuleScanContainer extends ComponentContainer {
   }
 
   private void addCoreComponents() {
-    ProjectDefinition moduleDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(module);
+    ProjectDefinition moduleDefinition = getComponentByType(DefaultProjectTree.class).getProjectDefinition(module);
     add(
       moduleDefinition,
       module,
@@ -121,8 +119,6 @@ public class ModuleScanContainer extends ComponentContainer {
       Periods.class,
       PhaseExecutor.class,
       RuleFinderCompatibility.class,
-      EventBus.class,
-      PhasesTimeProfiler.class,
       PostJobsExecutor.class,
       DecoratorsExecutor.class,
       SensorsExecutor.class,

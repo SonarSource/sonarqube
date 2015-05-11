@@ -29,7 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
@@ -45,10 +45,10 @@ public class IssuesReportBuilder {
   private final IssueCache issueCache;
   private final RuleFinder ruleFinder;
   private final ResourceCache resourceCache;
-  private final ProjectTree projectTree;
+  private final DefaultProjectTree projectTree;
   private final InputPathCache inputPathCache;
 
-  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache, ProjectTree projectTree, InputPathCache inputPathCache) {
+  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
     this.issueCache = issueCache;
     this.ruleFinder = ruleFinder;
     this.resourceCache = resourceCache;

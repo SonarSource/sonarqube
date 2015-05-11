@@ -25,7 +25,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.DefaultProjectTree;
 import org.sonar.core.component.ResourceComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +35,7 @@ public class IssuableFactoryTest {
 
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
-  ProjectTree projectTree = mock(ProjectTree.class);
+  DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
 
   @Test
   public void file_should_be_issuable() {

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -331,7 +331,7 @@ public class ProjectReactorBuilderTest {
   public void shouldRemoveModulePropertiesFromTaskProperties() {
     Map<String, String> props = loadProps("big-multi-module-definitions-all-in-root");
 
-    TaskProperties taskProperties = new TaskProperties(props, null);
+    AnalysisProperties taskProperties = new AnalysisProperties(props, null);
     assertThat(taskProperties.property("module1.module11.property")).isEqualTo("My module11 property");
 
     new ProjectReactorBuilder(taskProperties).execute();
@@ -433,7 +433,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(Maps.<String, String>newHashMap(), null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
@@ -445,7 +445,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -457,7 +457,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -516,7 +516,7 @@ public class ProjectReactorBuilderTest {
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
-    TaskProperties bootstrapProps = new TaskProperties(props, null);
+    AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
     ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
     return projectReactor.getRoot();
   }

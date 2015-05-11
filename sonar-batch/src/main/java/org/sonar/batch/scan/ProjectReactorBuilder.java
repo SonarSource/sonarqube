@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.TaskProperties;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.util.BatchUtils;
 
 import javax.annotation.CheckForNull;
@@ -104,10 +104,10 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private TaskProperties taskProps;
+  private AnalysisProperties taskProps;
   private File rootProjectWorkDir;
 
-  public ProjectReactorBuilder(TaskProperties props) {
+  public ProjectReactorBuilder(AnalysisProperties props) {
     this.taskProps = props;
   }
 
