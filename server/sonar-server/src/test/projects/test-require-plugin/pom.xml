@@ -16,6 +16,13 @@
       <version>4.5.4</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.tests</groupId>
+      <artifactId>test-base-plugin</artifactId>
+      <version>0.1-SNAPSHOT</version>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>

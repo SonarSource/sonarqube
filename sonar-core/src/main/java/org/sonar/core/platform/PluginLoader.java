@@ -36,6 +36,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.classloader.Mask;
 
 import static java.util.Arrays.asList;
 import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
@@ -56,7 +57,7 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
  */
 public class PluginLoader implements BatchComponent, ServerComponent {
 
-  private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins/", "com/sonar/plugins/", "com/sonarsource/plugins/"};
+  private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
 
   private final PluginExploder exploder;
 
@@ -91,7 +92,7 @@ public class PluginLoader implements BatchComponent, ServerComponent {
       def.addMainClass(info.getKey(), info.getMainClass());
 
       for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-        def.getMask().addInclusion(defaultSharedResource + info.getKey() + "/");
+        def.getMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
       }
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
         // The plugins that extend other plugins can only add some files to classloader.
@@ -110,10 +111,16 @@ public class PluginLoader implements BatchComponent, ServerComponent {
     for (ClassloaderDef def : defs) {
       builder
         .newClassloader(def.getBasePluginKey(), getClass().getClassLoader())
+        // resources to be exported to other plugin classloaders (siblings)
         .setExportMask(def.getBasePluginKey(), def.getMask())
         .setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : LoadingOrder.PARENT_FIRST);
       for (File file : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(file));
+      }
+      for (ClassloaderDef sibling : defs) {
+        if (!sibling.getBasePluginKey().equals(def.getBasePluginKey())) {
+          builder.addSibling(def.getBasePluginKey(), sibling.getBasePluginKey(), new Mask());
+        }
       }
     }
     Map<String, ClassLoader> classloadersByBasePluginKey = builder.build();
