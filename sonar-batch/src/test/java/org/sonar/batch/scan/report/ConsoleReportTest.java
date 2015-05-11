@@ -97,7 +97,7 @@ public class ConsoleReportTest {
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "        +1 issue\n\n" +
-        "        +1 blocking\n" +
+        "        +1 blocker\n" +
         "\n-------------------------------------------\n\n");
   }
 
@@ -114,7 +114,7 @@ public class ConsoleReportTest {
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "        +5 issues\n\n" +
-        "        +1 blocking\n" +
+        "        +1 blocker\n" +
         "        +1 critical\n" +
         "        +1 major\n" +
         "        +1 minor\n" +
