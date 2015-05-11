@@ -87,6 +87,11 @@ public class PluginInfo implements Comparable<PluginInfo> {
     public int hashCode() {
       return key.hashCode();
     }
+
+    @Override
+    public String toString() {
+      return new StringBuilder().append(key).append(':').append(minimalVersion.getName()).toString();
+    }
   }
 
   private final String key;

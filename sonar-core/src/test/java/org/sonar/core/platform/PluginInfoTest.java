@@ -47,6 +47,9 @@ public class PluginInfoTest {
     PluginInfo.RequiredPlugin plugin = PluginInfo.RequiredPlugin.parse("java:1.1");
     assertThat(plugin.getKey()).isEqualTo("java");
     assertThat(plugin.getMinimalVersion().getName()).isEqualTo("1.1");
+    assertThat(plugin.toString()).isEqualTo("java:1.1");
+    assertThat(plugin.equals(PluginInfo.RequiredPlugin.parse("java:1.2"))).isTrue();
+    assertThat(plugin.equals(PluginInfo.RequiredPlugin.parse("php:1.2"))).isFalse();
 
     try {
       PluginInfo.RequiredPlugin.parse("java");

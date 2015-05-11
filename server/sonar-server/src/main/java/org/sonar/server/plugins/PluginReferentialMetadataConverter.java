@@ -19,11 +19,15 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.PluginReferential;
 import org.sonar.updatecenter.common.PluginReferentialManifestConverter;
 import org.sonar.updatecenter.common.Version;
+
+import javax.annotation.Nonnull;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,8 +40,8 @@ public class PluginReferentialMetadataConverter {
     // Only static call
   }
 
-  public static PluginReferential getInstalledPluginReferential(Collection<PluginInfo> metadata) {
-    List<PluginManifest> pluginManifestList = getPluginManifestList(metadata);
+  public static PluginReferential getInstalledPluginReferential(Collection<PluginInfo> infos) {
+    List<PluginManifest> pluginManifestList = getPluginManifestList(infos);
     return PluginReferentialManifestConverter.fromPluginManifests(pluginManifestList);
   }
 
@@ -67,7 +71,17 @@ public class PluginReferentialMetadataConverter {
     pluginManifest.setHomepage(metadata.getHomepageUrl());
     pluginManifest.setIssueTrackerUrl(metadata.getIssueTrackerUrl());
     pluginManifest.setBasePlugin(metadata.getBasePlugin());
-    pluginManifest.setRequirePlugins(metadata.getRequiredPlugins().toArray(new String[] {}));
+    pluginManifest.setRequirePlugins(Collections2.transform(metadata.getRequiredPlugins(), RequiredPluginToString.INSTANCE).toArray(
+      new String[metadata.getRequiredPlugins().size()]));
     return pluginManifest;
+  }
+
+  private enum RequiredPluginToString implements Function<PluginInfo.RequiredPlugin, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull PluginInfo.RequiredPlugin requiredPlugin) {
+      return requiredPlugin.toString();
+    }
   }
 }
