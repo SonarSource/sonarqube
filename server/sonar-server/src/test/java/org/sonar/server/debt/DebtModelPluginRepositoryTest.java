@@ -106,17 +106,10 @@ public class DebtModelPluginRepositoryTest {
   }
 
   @Test
-<<<<<<< HEAD
   public void contain_default_model() {
-    modelFinder = new DebtModelPluginRepository(mock(PluginRepository.class));
-    modelFinder.start();
-    assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
-=======
-  public void contain_default_model() throws Exception {
     underTest = new DebtModelPluginRepository(mock(PluginRepository.class));
     underTest.start();
     assertThat(underTest.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
->>>>>>> SONAR-6517 apply feedback
   }
 
   private void initModel() {
