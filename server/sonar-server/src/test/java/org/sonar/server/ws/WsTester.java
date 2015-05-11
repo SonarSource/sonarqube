@@ -190,6 +190,10 @@ public class WsTester {
       return this;
     }
 
+    public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+      return assertJson(clazz, expectedJsonFilename, false);
+    }
+
     /**
      * Compares JSON response with JSON file available in classpath. For example if class
      * is org.foo.BarTest and filename is index.json, then file must be located
@@ -197,15 +201,16 @@ public class WsTester {
      *
      * @param clazz                the test class
      * @param expectedJsonFilename name of the file containing the expected JSON
+     * @param strictArrayOrder     should array order be checked or not ?
      */
-    public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+    public Result assertJson(Class clazz, String expectedJsonFilename, boolean strictArrayOrder) throws Exception {
       String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
       URL url = clazz.getResource(path);
       if (url == null) {
         throw new IllegalStateException("Cannot find " + path);
       }
       String json = outputAsString();
-      JsonAssert.assertJson(json).isSimilarTo(url);
+      JsonAssert.assertJson(json).setStrictArrayOrder(strictArrayOrder).isSimilarTo(url);
       return this;
     }
 

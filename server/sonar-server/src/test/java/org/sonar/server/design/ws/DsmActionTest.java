@@ -97,8 +97,8 @@ public class DsmActionTest {
   @Test
   public void return_dsm() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
-    ComponentDto directory1 = ComponentTesting.newDirectory(project, "/src/main/java/dir1").setUuid("DIR1").setLongName("src/main/java/dir1");
-    ComponentDto directory2 = ComponentTesting.newDirectory(project, "/src/main/java/dir2").setUuid("DIR2").setLongName("src/main/java/dir2");
+    ComponentDto directory1 = ComponentTesting.newDirectory(project, "/src/main/java/dir1").setUuid("DIR1").setName("src/main/java/dir1");
+    ComponentDto directory2 = ComponentTesting.newDirectory(project, "/src/main/java/dir2").setUuid("DIR2").setName("src/main/java/dir2");
     dbClient.componentDao().insert(session, project, directory1, directory2);
 
     SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
@@ -128,6 +128,73 @@ public class DsmActionTest {
       .setParam("componentUuid", PROJECT_UUID)
       .execute()
       .assertJson(getClass(), "return_dsm.json");
+  }
+
+  @Test
+  public void return_dsm_with_components_not_having_dependencies() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
+    ComponentDto directory1 = ComponentTesting.newDirectory(project, "/src/main/java/dir1").setUuid("DIR1").setName("src/main/java/dir1");
+    ComponentDto directory2 = ComponentTesting.newDirectory(project, "/src/main/java/dir2").setUuid("DIR2").setName("src/main/java/dir2");
+    // No dependency on directory3
+    ComponentDto directory3 = ComponentTesting.newDirectory(project, "/src/main/java/dir3").setUuid("DIR3").setName("src/main/java/dir3");
+    dbClient.componentDao().insert(session, project, directory1, directory2, directory3);
+
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    dbClient.snapshotDao().insert(session, projectSnapshot);
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory1, projectSnapshot));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory2, projectSnapshot));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory3, projectSnapshot));
+    session.commit();
+
+    DsmDb.Data dsmData = DsmDb.Data.newBuilder()
+      .addUuid(directory1.uuid())
+      .addUuid(directory2.uuid())
+      .addCell(DsmDb.Data.Cell.newBuilder()
+        .setOffset(0)
+        .setWeight(10)
+        .build())
+      .build();
+
+    dbClient.measureDao().insert(session, new MeasureDto()
+        .setMetricId(dsmMetric.getId())
+        .setSnapshotId(projectSnapshot.getId())
+        .setComponentId(project.getId())
+        .setByteData(DsmDataEncoder.encodeSourceData(dsmData))
+    );
+    session.commit();
+
+    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+
+    tester.newGetRequest("api/dependencies", "dsm")
+      .setParam("componentUuid", PROJECT_UUID)
+      .setParam("displayComponentsWithoutDep", "true")
+      .execute()
+      .assertJson(getClass(), "return_dsm_with_components_not_having_dependencies.json");
+  }
+
+  @Test
+  public void return_components_without_dependencies_sorted_by_name() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
+    ComponentDto directory1 = ComponentTesting.newDirectory(project, "/src/main/java/dir1").setUuid("DIR1").setName("src/main/java/dir1");
+    ComponentDto directory2 = ComponentTesting.newDirectory(project, "/src/main/java/dir2").setUuid("DIR2").setName("src/main/java/dir2");
+    ComponentDto directory3 = ComponentTesting.newDirectory(project, "/src/main/java/dir3").setUuid("DIR3").setName("src/main/java/dir3");
+    // Components are inserted not by alphabetic order
+    dbClient.componentDao().insert(session, project, directory2, directory3, directory1);
+
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    dbClient.snapshotDao().insert(session, projectSnapshot);
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory3, projectSnapshot));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory1, projectSnapshot));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(directory2, projectSnapshot));
+    session.commit();
+
+    MockUserSession.set().addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+
+    tester.newGetRequest("api/dependencies", "dsm")
+      .setParam("componentUuid", PROJECT_UUID)
+      .setParam("displayComponentsWithoutDep", "true")
+      .execute()
+      .assertJson(getClass(), "return_components_without_dependencies_sorted_by_name.json", true);
   }
 
 }

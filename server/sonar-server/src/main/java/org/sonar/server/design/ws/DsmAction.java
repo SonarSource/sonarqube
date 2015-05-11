@@ -20,6 +20,7 @@
 
 package org.sonar.server.design.ws;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
@@ -31,19 +32,31 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.core.util.NonNullInputPredicate;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
 import org.sonar.server.measure.ServerMetrics;
 import org.sonar.server.user.UserSession;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DsmAction implements DependenciesAction {
 
   private static final String PARAM_COMPONENT_UUID = "componentUuid";
   private static final String PARAM_DISPLAY_NO_DEP = "displayComponentsWithoutDep";
+
+  private static Comparator<ComponentDto> COMPONENT_BY_NAME_COMPARATOR = new Comparator<ComponentDto>() {
+    @Override
+    public int compare(ComponentDto c1, ComponentDto c2) {
+      return c1.name().compareTo(c2.name());
+    }
+  };
 
   private final DbClient dbClient;
 
@@ -92,7 +105,7 @@ public class DsmAction implements DependenciesAction {
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      writeComponents(json, dsmData.getUuidList(), componentsByUuid(components));
+      writeComponents(json, dsmData.getUuidList(), components);
       writeDependencies(json, dsmData.getCellList());
       json.endObject().close();
 
@@ -113,17 +126,27 @@ public class DsmAction implements DependenciesAction {
     return DsmDb.Data.newBuilder().build();
   }
 
-  private static void writeComponents(JsonWriter json, List<String> uuids, Map<String, ComponentDto> componentsByUuid) {
+  private static void writeComponents(JsonWriter json, final List<String> componentUuidsWithDependencies, List<ComponentDto> components) {
     json.name("components").beginArray();
-    for (String uuid : uuids) {
-      ComponentDto component = componentsByUuid.get(uuid);
+
+    Map<String, ComponentDto> componentsByUuid = componentsByUuid(components);
+    for (String uuid : componentUuidsWithDependencies) {
+      writeComponent(json, componentsByUuid.get(uuid));
+    }
+
+    for (ComponentDto component : componentsWithoutDependenciesSortedByName(componentUuidsWithDependencies, components)) {
+      writeComponent(json, component);
+    }
+
+    json.endArray();
+  }
+
+  private static void writeComponent(JsonWriter json, ComponentDto component){
       json.beginObject()
         .prop("uuid", component.uuid())
-        .prop("name", component.longName())
+        .prop("name", component.name())
         .prop("qualifier", component.qualifier())
         .endObject();
-    }
-    json.endArray();
   }
 
   private static void writeDependencies(JsonWriter json, List<DsmDb.Data.Cell> dsmCells) {
@@ -143,5 +166,18 @@ public class DsmAction implements DependenciesAction {
         return input.uuid();
       }
     });
+  }
+
+  private static List<ComponentDto> componentsWithoutDependenciesSortedByName(final List<String> componentUuidsWithDependencies, List<ComponentDto> components){
+    List<ComponentDto> componentsWithoutDependencies = newArrayList(components);
+    Iterables.removeIf(componentsWithoutDependencies, new NonNullInputPredicate<ComponentDto>() {
+      @Override
+      public boolean doApply(ComponentDto input) {
+        return componentUuidsWithDependencies.contains(input.uuid());
+      }
+    });
+
+    Collections.sort(componentsWithoutDependencies, COMPONENT_BY_NAME_COMPARATOR);
+    return componentsWithoutDependencies;
   }
 }

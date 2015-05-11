@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Preconditions;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
@@ -30,27 +31,26 @@ public class SnapshotTesting {
    */
   public static SnapshotDto createForComponent(ComponentDto component, SnapshotDto parentSnapshot) {
     Long parentRootId = parentSnapshot.getRootId();
-    return new SnapshotDto()
-      .setResourceId(component.getId())
-      .setRootProjectId(parentSnapshot.getRootProjectId())
+    return createSnapshot(component, parentSnapshot.getRootProjectId())
       .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
-      .setStatus(SnapshotDto.STATUS_PROCESSED)
-      .setQualifier(component.qualifier())
-      .setScope(component.scope())
       .setParentId(parentSnapshot.getId())
-      .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".")
-      .setLast(true)
-      .setBuildDate(System.currentTimeMillis());
+      .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
   }
 
   public static SnapshotDto createForProject(ComponentDto project) {
+    return createSnapshot(project, project.getId())
+      .setPath("");
+  }
+
+  private static SnapshotDto createSnapshot(ComponentDto component, Long rootProjectId) {
+    Preconditions.checkNotNull(component.getId(), "The component need to be persisted before creating this snapshot.");
+    Preconditions.checkNotNull(rootProjectId, "The rootProjectId cannot be null");
     return new SnapshotDto()
-      .setResourceId(project.getId())
-      .setRootProjectId(project.getId())
+      .setResourceId(component.getId())
+      .setRootProjectId(rootProjectId)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
-      .setQualifier(project.qualifier())
-      .setScope(project.scope())
-      .setPath("")
+      .setQualifier(component.qualifier())
+      .setScope(component.scope())
       .setLast(true)
       .setBuildDate(System.currentTimeMillis());
   }
