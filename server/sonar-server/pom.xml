@@ -256,6 +256,10 @@
         <filtering>false</filtering>
       </testResource>
       <testResource>
+        <directory>src/test/filteredresources</directory>
+        <filtering>true</filtering>
+      </testResource>
+      <testResource>
         <directory>src/test/projects</directory>
         <filtering>false</filtering>
       </testResource>

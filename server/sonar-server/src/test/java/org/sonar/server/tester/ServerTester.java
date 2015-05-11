@@ -19,8 +19,17 @@
  */
 package org.sonar.server.tester;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.Nullable;
+import javax.servlet.ServletContext;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
@@ -32,17 +41,13 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.TestUtils;
 
-import javax.annotation.Nullable;
-import javax.servlet.ServletContext;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 /**
  * Entry point to implement medium tests of server components.
@@ -63,6 +68,7 @@ public class ServerTester extends ExternalResource {
   private final List<Object> components = Lists.<Object>newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
   private final ServletContext servletContext = new AttributeHolderServletContext();
+  private URL updateCenterUrl;
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -90,6 +96,9 @@ public class ServerTester extends ExternalResource {
       properties.setProperty(ProcessProperties.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
       properties.setProperty(ProcessProperties.PATH_TEMP, createTemporaryFolderIn().getAbsolutePath());
       properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
+      if (updateCenterUrl != null) {
+        properties.setProperty(UpdateCenterClient.URL_PROPERTY, updateCenterUrl.toString());
+      }
       for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith(PROP_PREFIX)) {
@@ -159,6 +168,23 @@ public class ServerTester extends ExternalResource {
 
   public ServerTester addXoo() {
     addComponents(Xoo.class);
+    return this;
+  }
+
+  public ServerTester addPluginJar(File jar) {
+    Preconditions.checkArgument(jar.exists() && jar.isFile(), "Plugin JAR file does not exist: " + jar.getAbsolutePath());
+    try {
+      File pluginsDir = new File(homeDir, "extensions/plugins");
+      FileUtils.forceMkdir(pluginsDir);
+      FileUtils.copyFileToDirectory(jar, pluginsDir);
+      return this;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to copy plugin JAR file: " + jar.getAbsolutePath(), e);
+    }
+  }
+
+  public ServerTester setUpdateCenterUrl(URL url) {
+    this.updateCenterUrl = url;
     return this;
   }
 
