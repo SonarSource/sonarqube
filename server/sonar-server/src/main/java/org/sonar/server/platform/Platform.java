@@ -83,6 +83,10 @@ public class Platform {
 
   // Platform is injected in Pico, so do not rename this method "start"
   public void doStart() {
+    doStart(Startup.ALL);
+  }
+
+  protected void doStart(Startup startup) {
     if (started && !isInSafeMode()) {
       return;
     }
@@ -94,7 +98,7 @@ public class Platform {
       started = true;
     } else {
       startLevel34Containers();
-      executeStartupTasks();
+      executeStartupTasks(startup);
       // switch current container last to avoid giving access to a partially initialized container
       currentContainer = level4Container;
       started = true;
@@ -105,6 +109,10 @@ public class Platform {
   }
 
   public void restart() {
+    restart(Startup.ALL);
+  }
+
+  protected void restart(Startup startup) {
     // switch currentContainer on level1 now to avoid exposing a container in the process of stopping
     currentContainer = level1Container;
 
@@ -115,7 +123,7 @@ public class Platform {
     // no need to initialize database connection, so level 1 is skipped
     startLevel2Container();
     startLevel34Containers();
-    executeStartupTasks();
+    executeStartupTasks(startup);
     currentContainer = level4Container;
   }
 
@@ -175,7 +183,13 @@ public class Platform {
   }
 
   public void executeStartupTasks() {
-    serverComponents.executeStartupTasks(level4Container);
+    executeStartupTasks(Startup.ALL);
+  }
+
+  private void executeStartupTasks(Startup startup) {
+    if (startup.ordinal() >= Startup.ALL.ordinal()) {
+      serverComponents.executeStartupTasks(level4Container);
+    }
   }
 
   private void startSafeModeContainer() {
@@ -255,5 +269,9 @@ public class Platform {
 
   public enum Status {
     BOOTING, SAFEMODE, UP;
+  }
+
+  public enum Startup {
+    NO_STARTUP_TASKS, ALL
   }
 }

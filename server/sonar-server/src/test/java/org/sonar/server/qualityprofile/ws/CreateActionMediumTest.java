@@ -45,7 +45,7 @@ public class CreateActionMediumTest {
 
   // TODO Replace with simpler test with DbTester / EsTester after removal of DaoV2
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo().addComponents(
+  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo().addComponents(
     XooRulesDefinition.class, XooProfileDefinition.class,
     XooExporter.class, StandardExporter.class,
     XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);

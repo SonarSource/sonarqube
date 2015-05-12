@@ -59,7 +59,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class SearchActionComponentsMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withStartupTasks();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

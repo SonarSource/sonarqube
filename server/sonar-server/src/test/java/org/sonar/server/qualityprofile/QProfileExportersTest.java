@@ -54,7 +54,7 @@ import static org.junit.Assert.fail;
 public class QProfileExportersTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo().addComponents(
+  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo().addComponents(
     XooRulesDefinition.class, XooProfileDefinition.class,
     XooExporter.class, StandardExporter.class,
     XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);

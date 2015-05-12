@@ -46,7 +46,7 @@ import org.sonar.server.ws.WsTester;
 public class CompareActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo()
+  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo()
     .addComponents(new RulesDefinition() {
       @Override
       public void define(Context context) {
