@@ -21,7 +21,6 @@ package org.sonar.batch.mediumtest;
 
 import com.google.common.base.Function;
 import com.google.common.io.Files;
-import org.apache.commons.io.Charsets;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -47,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -176,7 +176,7 @@ public class BatchMediumTester {
 
   public TaskBuilder newScanTask(File sonarProps) {
     Properties prop = new Properties();
-    try (Reader reader = new InputStreamReader(new FileInputStream(sonarProps), Charsets.UTF_8)) {
+    try (Reader reader = new InputStreamReader(new FileInputStream(sonarProps), StandardCharsets.UTF_8)) {
       prop.load(reader);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read configuration file", e);

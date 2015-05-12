@@ -19,7 +19,6 @@
  */
 package org.sonar.api.database.model;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -28,9 +27,16 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class is the Hibernate model to store a measure in the DB
@@ -332,7 +338,7 @@ public class MeasureModel implements Cloneable {
     }
     if (metric.isDataType() && data != null) {
       try {
-        return new String(data, Charsets.UTF_8.name());
+        return new String(data, StandardCharsets.UTF_8.name());
       } catch (UnsupportedEncodingException e) {
         // how is it possible to not support UTF-8 ?
         Throwables.propagate(e);
@@ -352,7 +358,7 @@ public class MeasureModel implements Cloneable {
     } else {
       if (data.length() > TEXT_VALUE_LENGTH) {
         this.textValue = null;
-        this.data = data.getBytes(Charsets.UTF_8);
+        this.data = data.getBytes(StandardCharsets.UTF_8);
       } else {
         this.textValue = data;
         this.data = null;

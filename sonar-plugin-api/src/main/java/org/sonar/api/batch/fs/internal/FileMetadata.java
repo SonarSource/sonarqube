@@ -19,14 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.BatchSide;
-
-import com.google.common.base.Charsets;
 import com.google.common.primitives.Ints;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -41,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,14 +138,14 @@ public class FileMetadata {
     @Override
     protected void newLine() {
       sb.append(LINE_FEED);
-      globalMd5Digest.update(sb.toString().getBytes(Charsets.UTF_8));
+      globalMd5Digest.update(sb.toString().getBytes(StandardCharsets.UTF_8));
       sb.setLength(0);
     }
 
     @Override
     protected void eof() {
       if (sb.length() > 0) {
-        globalMd5Digest.update(sb.toString().getBytes(Charsets.UTF_8));
+        globalMd5Digest.update(sb.toString().getBytes(StandardCharsets.UTF_8));
       }
     }
 
@@ -175,7 +174,7 @@ public class FileMetadata {
 
     @Override
     protected void newLine() {
-      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+      consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8)) : null);
       sb.setLength(0);
       line++;
     }
@@ -183,7 +182,7 @@ public class FileMetadata {
     @Override
     protected void eof() {
       if (this.line > 0) {
-        consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(Charsets.UTF_8)) : null);
+        consumer.consume(line, sb.length() > 0 ? lineMd5Digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8)) : null);
       }
     }
 
@@ -240,7 +239,7 @@ public class FileMetadata {
    * For testing purpose
    */
   public Metadata readMetadata(Reader reader) {
-    LineCounter lineCounter = new LineCounter(new File("fromString"), Charsets.UTF_16);
+    LineCounter lineCounter = new LineCounter(new File("fromString"), StandardCharsets.UTF_16);
     FileHashComputer fileHashComputer = new FileHashComputer();
     LineOffsetCounter lineOffsetCounter = new LineOffsetCounter();
     try {

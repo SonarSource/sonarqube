@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +51,7 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.java.api.JavaClass;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +59,19 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueTrackingDecoratorTest {
 
@@ -210,9 +222,9 @@ public class IssueTrackingDecoratorTest {
     java.io.File f = temp.newFile();
     when(inputFile.path()).thenReturn(f.toPath());
     when(inputFile.file()).thenReturn(f);
-    when(inputFile.charset()).thenReturn(Charsets.UTF_8);
+    when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
     when(inputFile.lines()).thenReturn(StringUtils.countMatches(newSource, "\n") + 1);
-    FileUtils.write(f, newSource, Charsets.UTF_8);
+    FileUtils.write(f, newSource, StandardCharsets.UTF_8);
     when(inputFile.key()).thenReturn("foo:Action.java");
     when(inputPathCache.getFile("foo", "Action.java")).thenReturn(inputFile);
     when(lastSnapshots.getLineHashes("foo:Action.java")).thenReturn(computeHexHashes(originalSource));

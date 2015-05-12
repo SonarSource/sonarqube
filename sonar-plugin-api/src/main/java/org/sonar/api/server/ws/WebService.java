@@ -19,7 +19,6 @@
  */
 package org.sonar.api.server.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -36,6 +35,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -455,7 +455,7 @@ public interface WebService extends Definable<WebService.Context> {
     public String responseExampleAsString() {
       try {
         if (responseExample != null) {
-          return StringUtils.trim(IOUtils.toString(responseExample, Charsets.UTF_8));
+          return StringUtils.trim(IOUtils.toString(responseExample, StandardCharsets.UTF_8));
         }
         return null;
       } catch (IOException e) {

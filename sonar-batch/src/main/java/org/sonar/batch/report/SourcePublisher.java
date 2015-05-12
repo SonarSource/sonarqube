@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.report;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -28,7 +27,13 @@ import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class SourcePublisher implements ReportPublisherStep {
 
@@ -53,10 +58,10 @@ public class SourcePublisher implements ReportPublisherStep {
         BufferedReader reader = new BufferedReader(new InputStreamReader(bomIn, inputFile.charset()))) {
         String lineStr = reader.readLine();
         while (lineStr != null) {
-          IOUtils.write(lineStr, output, Charsets.UTF_8);
+          IOUtils.write(lineStr, output, StandardCharsets.UTF_8);
           line++;
           if (line < inputFile.lines()) {
-            IOUtils.write("\n", output, Charsets.UTF_8);
+            IOUtils.write("\n", output, StandardCharsets.UTF_8);
           }
           lineStr = reader.readLine();
         }

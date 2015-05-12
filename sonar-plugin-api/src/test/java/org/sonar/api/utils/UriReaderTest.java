@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.base.Charsets;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +26,7 @@ import org.junit.rules.ExpectedException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +54,7 @@ public class UriReaderTest {
   @Test
   public void file_readString() {
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    assertThat(uriReader.readString(testFile, Charsets.UTF_8)).isEqualTo("in foo");
+    assertThat(uriReader.readString(testFile, StandardCharsets.UTF_8)).isEqualTo("in foo");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class UriReaderTest {
   public void file_readString_fails_if_file_not_found() throws Exception {
     thrown.expect(RuntimeException.class);
     UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[0]);
-    uriReader.readString(new URI("file:/notfound"), Charsets.UTF_8);
+    uriReader.readString(new URI("file:/notfound"), StandardCharsets.UTF_8);
   }
 
   @Test
@@ -96,8 +96,8 @@ public class UriReaderTest {
   @Test
   public void register_processors() throws Exception {
     UriReader.SchemeProcessor processor = mock(UriReader.SchemeProcessor.class);
-    when(processor.getSupportedSchemes()).thenReturn(new String[]{"ftp"});
-    UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[]{processor});
+    when(processor.getSupportedSchemes()).thenReturn(new String[] {"ftp"});
+    UriReader uriReader = new UriReader(new UriReader.SchemeProcessor[] {processor});
 
     assertThat(uriReader.searchForSupportedProcessor(new URI("ftp://sonarsource.org"))).isNotNull();
   }

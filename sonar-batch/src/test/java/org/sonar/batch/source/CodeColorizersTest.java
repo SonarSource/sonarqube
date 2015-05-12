@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.source;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -28,9 +27,15 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.*;
+import org.sonar.colorizer.CDocTokenizer;
+import org.sonar.colorizer.CppDocTokenizer;
+import org.sonar.colorizer.JavadocTokenizer;
+import org.sonar.colorizer.KeywordsTokenizer;
+import org.sonar.colorizer.StringTokenizer;
+import org.sonar.colorizer.Tokenizer;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,7 +53,7 @@ public class CodeColorizersTest {
     File jsFile = new File(this.getClass().getResource("CodeColorizersTest/Person.js").toURI());
     NewHighlighting highlighting = mock(NewHighlighting.class);
 
-    codeColorizers.toSyntaxHighlighting(jsFile, Charsets.UTF_8, "js", highlighting);
+    codeColorizers.toSyntaxHighlighting(jsFile, StandardCharsets.UTF_8, "js", highlighting);
 
     verifyForJs(highlighting);
   }
@@ -76,7 +81,7 @@ public class CodeColorizersTest {
     FileUtils.write(fileWithBom, FileUtils.readFileToString(jsFile), "UTF-8", true);
 
     NewHighlighting highlighting = mock(NewHighlighting.class);
-    codeColorizers.toSyntaxHighlighting(fileWithBom, Charsets.UTF_8, "js", highlighting);
+    codeColorizers.toSyntaxHighlighting(fileWithBom, StandardCharsets.UTF_8, "js", highlighting);
 
     verifyForJs(highlighting);
   }
@@ -88,7 +93,7 @@ public class CodeColorizersTest {
     File javaFile = new File(this.getClass().getResource("CodeColorizersTest/Person.java").toURI());
 
     NewHighlighting highlighting = mock(NewHighlighting.class);
-    codeColorizers.toSyntaxHighlighting(javaFile, Charsets.UTF_8, "java", highlighting);
+    codeColorizers.toSyntaxHighlighting(javaFile, StandardCharsets.UTF_8, "java", highlighting);
 
     verify(highlighting).highlight(0, 4, TypeOfText.STRUCTURED_COMMENT);
     verify(highlighting).highlight(5, 11, TypeOfText.STRUCTURED_COMMENT);

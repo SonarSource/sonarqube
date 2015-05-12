@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +32,7 @@ import org.sonar.api.utils.PathUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -57,7 +57,7 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.encoding()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(StandardCharsets.UTF_8);
 
     // lang
     when(langDetection.language(any(InputFile.class))).thenReturn("java");
@@ -104,7 +104,7 @@ public class InputFileBuilderTest {
     FileUtils.touch(srcFile);
     FileUtils.write(srcFile, "single line");
     when(fs.baseDir()).thenReturn(basedir);
-    when(fs.encoding()).thenReturn(Charsets.UTF_8);
+    when(fs.encoding()).thenReturn(StandardCharsets.UTF_8);
 
     // lang
     when(langDetection.language(any(InputFile.class))).thenReturn(null);

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils.command;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Closeables;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -30,6 +29,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -173,7 +173,7 @@ public class CommandExecutor {
 
     @Override
     public void run() {
-      try (BufferedReader br = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8))) {
+      try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
         String line;
         while ((line = br.readLine()) != null) {
           consumeLine(line);

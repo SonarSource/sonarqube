@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +29,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ public class SourceHashHolderTest {
     when(file.file()).thenReturn(ioFile);
     when(file.path()).thenReturn(ioFile.toPath());
     when(file.lines()).thenReturn(1);
-    when(file.charset()).thenReturn(Charsets.UTF_8);
+    when(file.charset()).thenReturn(StandardCharsets.UTF_8);
 
     sourceHashHolder = new SourceHashHolder(file, lastSnapshots);
   }
@@ -65,7 +65,7 @@ public class SourceHashHolderTest {
   @Test
   public void should_lazy_load_line_hashes() throws Exception {
     final String source = "source";
-    FileUtils.write(ioFile, source + "\n", Charsets.UTF_8);
+    FileUtils.write(ioFile, source + "\n", StandardCharsets.UTF_8);
     when(file.lines()).thenReturn(2);
 
     assertThat(sourceHashHolder.getHashedSource().getHash(1)).isEqualTo(md5Hex(source));
@@ -80,7 +80,7 @@ public class SourceHashHolderTest {
   public void should_lazy_load_reference_hashes_when_status_changed() throws Exception {
     final String source = "source";
     String key = "foo:src/Foo.java";
-    FileUtils.write(ioFile, source, Charsets.UTF_8);
+    FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
     when(file.key()).thenReturn(key);
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
     when(lastSnapshots.getLineHashes(key)).thenReturn(new String[] {md5Hex(source)});
@@ -96,7 +96,7 @@ public class SourceHashHolderTest {
   public void should_not_load_reference_hashes_when_status_same() throws Exception {
     final String source = "source";
     String key = "foo:src/Foo.java";
-    FileUtils.write(ioFile, source, Charsets.UTF_8);
+    FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
     when(file.key()).thenReturn(key);
     when(file.status()).thenReturn(InputFile.Status.SAME);
 
@@ -108,7 +108,7 @@ public class SourceHashHolderTest {
   public void no_reference_hashes_when_status_added() throws Exception {
     final String source = "source";
     String key = "foo:src/Foo.java";
-    FileUtils.write(ioFile, source, Charsets.UTF_8);
+    FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
     when(file.key()).thenReturn(key);
     when(file.status()).thenReturn(InputFile.Status.ADDED);
 

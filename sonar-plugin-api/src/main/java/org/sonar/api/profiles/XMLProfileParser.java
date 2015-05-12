@@ -19,7 +19,6 @@
  */
 package org.sonar.api.profiles;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
@@ -37,6 +36,7 @@ import javax.xml.stream.XMLStreamException;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +60,7 @@ public class XMLProfileParser {
   }
 
   public RulesProfile parseResource(ClassLoader classloader, String xmlClassPath, ValidationMessages messages) {
-    Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), Charsets.UTF_8);
+    Reader reader = new InputStreamReader(classloader.getResourceAsStream(xmlClassPath), StandardCharsets.UTF_8);
     try {
       return parse(reader, messages);
 

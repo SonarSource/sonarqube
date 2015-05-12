@@ -19,22 +19,19 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.io.Closeables;
-
-import org.junit.rules.ExpectedException;
-
-import org.junit.Rule;
-
-import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -168,12 +165,12 @@ public class InputFileUtilsTest {
 
   static void write(String content, File file) throws IOException {
     file.getParentFile().mkdirs();
-    Files.write(content, file, Charsets.UTF_8);
+    Files.write(content, file, StandardCharsets.UTF_8);
   }
 
   static String read(InputStream input) throws IOException {
     try {
-      return new String(ByteStreams.toByteArray(input), Charsets.UTF_8.displayName());
+      return new String(ByteStreams.toByteArray(input), StandardCharsets.UTF_8.displayName());
     } finally {
       Closeables.closeQuietly(input);
     }

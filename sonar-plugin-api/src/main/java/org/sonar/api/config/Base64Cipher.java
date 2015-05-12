@@ -19,17 +19,18 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.codec.binary.Base64;
+
+import java.nio.charset.StandardCharsets;
 
 final class Base64Cipher extends Cipher {
   @Override
   String encrypt(String clearText) {
-    return Base64.encodeBase64String(clearText.getBytes(Charsets.UTF_8));
+    return Base64.encodeBase64String(clearText.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override
   String decrypt(String encryptedText) {
-    return new String(Base64.decodeBase64(encryptedText), Charsets.UTF_8);
+    return new String(Base64.decodeBase64(encryptedText), StandardCharsets.UTF_8);
   }
 }

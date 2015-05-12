@@ -19,13 +19,13 @@
  */
 package org.sonar.api.batch.maven;
 
-import com.google.common.base.Charsets;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.test.MavenTestUtils;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -59,6 +59,6 @@ public class MavenUtilsTest {
   @Test
   public void testSourceEncoding() {
     MavenProject pom = MavenTestUtils.loadPom("/org/sonar/api/batch/maven/MavenPomWithSourceEncoding.xml");
-    assertEquals(MavenUtils.getSourceCharset(pom), Charsets.UTF_16);
+    assertEquals(MavenUtils.getSourceCharset(pom), StandardCharsets.UTF_16);
   }
 }

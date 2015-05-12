@@ -22,7 +22,6 @@ package org.sonar.api.config;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
@@ -31,6 +30,7 @@ import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,7 +125,7 @@ public final class License {
   }
 
   public static License readBase64(String base64) {
-    return readPlainText(new String(Base64.decodeBase64(base64.getBytes(Charsets.UTF_8)), Charsets.UTF_8));
+    return readPlainText(new String(Base64.decodeBase64(base64.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
   }
 
   @VisibleForTesting

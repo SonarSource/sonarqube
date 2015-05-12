@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.mediumtest.dependency;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -34,6 +33,7 @@ import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -107,7 +107,7 @@ public class DependencyMediumTest {
       FileUtils.write(xooFile2, "foo");
       File xooDepFile = new File(srcDir, "dir1/sample" + nb + ".xoo.deps");
       for (int otherId = 1; otherId <= nbFiles; otherId++) {
-        FileUtils.write(xooDepFile, "src/dir2/sample" + otherId + ".xoo:1\n", Charsets.UTF_8, true);
+        FileUtils.write(xooDepFile, "src/dir2/sample" + otherId + ".xoo:1\n", StandardCharsets.UTF_8, true);
       }
     }
 

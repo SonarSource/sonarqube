@@ -20,7 +20,6 @@
 
 package org.sonar.batch.issue.tracking;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -41,6 +40,7 @@ import org.sonar.core.issue.db.IssueDto;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -345,7 +345,7 @@ public class IssueTrackingTest {
   }
 
   private static String load(String name) throws IOException {
-    return Resources.toString(IssueTrackingTest.class.getResource("IssueTrackingTest/" + name + ".txt"), Charsets.UTF_8);
+    return Resources.toString(IssueTrackingTest.class.getResource("IssueTrackingTest/" + name + ".txt"), StandardCharsets.UTF_8);
   }
 
   private DefaultIssue newDefaultIssue(String message, Integer line, RuleKey ruleKey, String checksum) {
@@ -371,10 +371,10 @@ public class IssueTrackingTest {
     File f = temp.newFile();
     when(inputFile.path()).thenReturn(f.toPath());
     when(inputFile.file()).thenReturn(f);
-    when(inputFile.charset()).thenReturn(Charsets.UTF_8);
+    when(inputFile.charset()).thenReturn(StandardCharsets.UTF_8);
     String data = load(newSource);
     when(inputFile.lines()).thenReturn(StringUtils.countMatches(data, "\n") + 1);
-    FileUtils.write(f, data, Charsets.UTF_8);
+    FileUtils.write(f, data, StandardCharsets.UTF_8);
     when(inputFile.key()).thenReturn("foo:Action.java");
     when(lastSnapshots.getLineHashes("foo:Action.java")).thenReturn(computeHexHashes(load(reference)));
     sourceHashHolder = new SourceHashHolder(inputFile, lastSnapshots);

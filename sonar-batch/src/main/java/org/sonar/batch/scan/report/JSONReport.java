@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +51,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -102,7 +102,7 @@ public class JSONReport implements Reporter {
     File exportFile = new File(fileSystem.workDir(), exportPath);
 
     LOG.info("Export issues to " + exportFile.getAbsolutePath());
-    try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), Charsets.UTF_8))) {
+    try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), StandardCharsets.UTF_8))) {
       writeJson(output);
 
     } catch (IOException e) {

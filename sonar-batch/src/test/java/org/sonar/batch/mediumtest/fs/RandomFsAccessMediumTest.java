@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -35,6 +34,7 @@ import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,7 +72,7 @@ public class RandomFsAccessMediumTest {
     int ISSUE_COUNT = 10000;
     for (int i = 0; i < ISSUE_COUNT; i++) {
       File xooFile = new File(srcDir, "sample" + (i / 10 + 1) + ".xoo");
-      FileUtils.write(paths, xooFile.getAbsolutePath() + "\n", Charsets.UTF_8, true);
+      FileUtils.write(paths, xooFile.getAbsolutePath() + "\n", StandardCharsets.UTF_8, true);
     }
 
     long start = System.currentTimeMillis();
@@ -102,7 +102,7 @@ public class RandomFsAccessMediumTest {
     File paths = new File(baseDir, "paths.txt");
     int ISSUE_COUNT = 10000;
     for (int i = 0; i < ISSUE_COUNT; i++) {
-      FileUtils.write(paths, "src/sample" + (i / 10 + 1) + ".xoo\n", Charsets.UTF_8, true);
+      FileUtils.write(paths, "src/sample" + (i / 10 + 1) + ".xoo\n", StandardCharsets.UTF_8, true);
     }
 
     TaskResult result = tester.newTask()

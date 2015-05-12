@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.base.Charsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +29,8 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,12 +57,12 @@ public class InputPathCacheTest {
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
       .setLines(2)
-      .setCharset(Charsets.UTF_8)
+      .setCharset(StandardCharsets.UTF_8)
       .setModuleBaseDir(temp.newFolder().toPath()));
 
     DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile("struts-core", "src/main/java/Bar.java");
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
-    assertThat(loadedFile.charset()).isEqualTo(Charsets.UTF_8);
+    assertThat(loadedFile.charset()).isEqualTo(StandardCharsets.UTF_8);
 
     assertThat(cache.filesByModule("struts")).hasSize(1);
     assertThat(cache.filesByModule("struts-core")).hasSize(1);

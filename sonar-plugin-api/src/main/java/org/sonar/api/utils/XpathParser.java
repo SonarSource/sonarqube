@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -47,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +97,7 @@ public class XpathParser {
 
     BufferedReader buffer = null;
     try {
-      buffer = new BufferedReader(new InputStreamReader(new FileInputStream(file), Charsets.UTF_8));
+      buffer = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
       parse(buffer);
 
     } catch (IOException e) {
@@ -111,7 +111,7 @@ public class XpathParser {
   public void parse(InputStream stream) {
     BufferedReader buffer = null;
     try {
-      buffer = new BufferedReader(new InputStreamReader(stream, Charsets.UTF_8));
+      buffer = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
       parse(buffer);
 
     } catch (IOException e) {
@@ -129,7 +129,7 @@ public class XpathParser {
   public void parse(String xml) {
     try {
       String fixedXml = fixUnicodeChar(xml);
-      doc = builder.parse(new ByteArrayInputStream(fixedXml.getBytes(Charsets.UTF_8)));
+      doc = builder.parse(new ByteArrayInputStream(fixedXml.getBytes(StandardCharsets.UTF_8)));
       XPathFactory factory = XPathFactory.newInstance();
       xpath = factory.newXPath();
 

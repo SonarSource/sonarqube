@@ -38,7 +38,7 @@ import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
 import java.io.File;
 import java.io.IOException;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Handler;
@@ -39,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.write;
@@ -99,7 +99,7 @@ public class ServerClientTest {
 
     File file = temp.newFile();
     newServerClient().download("/foo", file);
-    assertThat(Files.toString(file, Charsets.UTF_8)).isEqualTo("this is the content");
+    assertThat(Files.toString(file, StandardCharsets.UTF_8)).isEqualTo("this is the content");
   }
 
   @Test
