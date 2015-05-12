@@ -17,7 +17,7 @@
        transitions_by_issues[transition.key] = issues_for_transition
      end
      unresolved_issues += 1 unless issue.resolution()
-     if Java::OrgSonarServerUser::UserSession.get().hasProjectPermissionByUuid('issueadmin', issue.projectUuid)
+     if Internal.issues.isUserIssueAdmin(issue.projectUuid)
        unresolved_issues_user_can_admin += 1 unless issue.resolution()
      end
      at_least_one_issue_is_planned ||= issue.actionPlanKey()

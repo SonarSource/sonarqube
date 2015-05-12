@@ -26,12 +26,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
@@ -43,6 +37,7 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueFilterDto;
@@ -59,6 +54,14 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -660,4 +663,7 @@ public class InternalRubyIssueService {
     return issueService.listTagsForComponent(query, pageSize);
   }
 
+  public boolean isUserIssueAdmin(String projectUuid) {
+    return userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid);
+  }
 }

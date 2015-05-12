@@ -22,10 +22,6 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +32,7 @@ import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.resource.ResourceDao;
@@ -48,6 +45,11 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -717,6 +719,13 @@ public class InternalRubyIssueServiceTest {
     when(issueQueryService.createFromMap(params)).thenReturn(query);
     when(issueService.listTagsForComponent(query, pageSize)).thenReturn(tags);
     assertThat(service.listTagsForComponent(componentUuid, pageSize)).isEqualTo(tags);
+  }
+
+  @Test
+  public void is_user_issue_admin() {
+    userSessionRule.addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "bcde");
+    assertThat(service.isUserIssueAdmin("abcd")).isFalse();
+    assertThat(service.isUserIssueAdmin("bcde")).isTrue();
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {
