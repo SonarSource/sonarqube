@@ -144,7 +144,6 @@ public class IncrementalModeMediumTest {
     int openIssues = 0;
     int resolvedIssue = 0;
     for (Issue issue : result.issues()) {
-      System.out.println(issue.key() + " " + issue.line() + " " + issue.status());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {

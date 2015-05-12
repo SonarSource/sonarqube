@@ -30,7 +30,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
-import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
@@ -74,7 +73,7 @@ public class ScmMediumTest {
 
     File baseDir = prepareProject();
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -126,7 +125,7 @@ public class ScmMediumTest {
     // Clear file content
     FileUtils.write(new File(baseDir, "src/sample.xoo"), "");
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
@@ -142,7 +141,6 @@ public class ScmMediumTest {
     BatchReport.Changesets changesets = getChangesets(baseDir, 0);
 
     assertThat(changesets).isNull();
-
   }
 
   @Test
@@ -277,7 +275,7 @@ public class ScmMediumTest {
 
     File baseDir = prepareProject();
 
-    TaskResult result = tester.newTask()
+    tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
         .put("sonar.projectBaseDir", baseDir.getAbsolutePath())

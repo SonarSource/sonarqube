@@ -19,7 +19,6 @@
  */
 package org.sonar.server.tester;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
@@ -159,18 +158,6 @@ public class ServerTester extends ExternalResource {
     return this;
   }
 
-  public ServerTester addPluginJar(File jar) {
-    Preconditions.checkArgument(jar.exists() && jar.isFile(), "Plugin JAR file does not exist: " + jar.getAbsolutePath());
-    try {
-      File pluginsDir = new File(homeDir, "extensions/plugins");
-      FileUtils.forceMkdir(pluginsDir);
-      FileUtils.copyFileToDirectory(jar, pluginsDir);
-      return this;
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to copy plugin JAR file: " + jar.getAbsolutePath(), e);
-    }
-  }
-
   /**
    * Set a property available for startup. Must be called before {@link #start()}. Does not affect
    * Elasticsearch server.
@@ -219,18 +206,6 @@ public class ServerTester extends ExternalResource {
   private void checkNotStarted() {
     if (platform != null && platform.isStarted()) {
       throw new IllegalStateException("Already started");
-    }
-  }
-
-  private void checkInSafeMode() {
-    if (platform == null || !platform.isInSafeMode()) {
-      throw new IllegalStateException("Not in safe mode");
-    }
-  }
-
-  private void checkNotInSafeMode() {
-    if (platform != null && platform.isInSafeMode()) {
-      throw new IllegalStateException("Already in safe mode");
     }
   }
 

@@ -33,8 +33,6 @@ import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,16 +44,6 @@ public class EmptyFileTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-
-  private static Long date(String date) {
-    try {
-      return sdf.parse(date).getTime();
-    } catch (ParseException e) {
-      throw new IllegalStateException(e);
-    }
-  }
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))

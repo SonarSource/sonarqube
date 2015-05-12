@@ -34,12 +34,6 @@ public class Benchmark extends ErrorCollector {
     }
   }
 
-  public void expectBetween(String label, long val, long min, long max) {
-    if (ENABLED) {
-      checkThat(label, val, Matchers.allOf(Matchers.greaterThan(min), Matchers.lessThan(max)));
-    }
-  }
-
   public void expectLessThanOrEqualTo(String label, long val, long max) {
     if (ENABLED) {
       checkThat(label, val, Matchers.lessThan(max));
