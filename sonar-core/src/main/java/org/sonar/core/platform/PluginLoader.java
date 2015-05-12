@@ -27,7 +27,6 @@ import org.sonar.api.Plugin;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.classloader.ClassloaderBuilder;
-import org.sonar.classloader.ClassloaderBuilder.LoadingOrder;
 
 import java.io.Closeable;
 import java.io.File;
@@ -39,6 +38,7 @@ import java.util.Map;
 import org.sonar.classloader.Mask;
 
 import static java.util.Arrays.asList;
+import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.PARENT_FIRST;
 import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
 
 /**
@@ -58,6 +58,9 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
 public class PluginLoader implements BatchComponent, ServerComponent {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
+
+  // underscores are used to not conflict with plugin keys (if someday a plugin key is "api")
+  private static final String API_CLASSLOADER_KEY = "_api_";
 
   private final PluginExploder exploder;
 
@@ -108,12 +111,14 @@ public class PluginLoader implements BatchComponent, ServerComponent {
    */
   private void buildClassloaders(Collection<ClassloaderDef> defs) {
     ClassloaderBuilder builder = new ClassloaderBuilder();
+    builder.newClassloader(API_CLASSLOADER_KEY, baseClassloader());
     for (ClassloaderDef def : defs) {
       builder
-        .newClassloader(def.getBasePluginKey(), getClass().getClassLoader())
+        .newClassloader(def.getBasePluginKey())
+        .setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask())
         // resources to be exported to other plugin classloaders (siblings)
         .setExportMask(def.getBasePluginKey(), def.getMask())
-        .setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : LoadingOrder.PARENT_FIRST);
+        .setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File file : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(file));
       }
@@ -164,7 +169,7 @@ public class PluginLoader implements BatchComponent, ServerComponent {
   public void unload(Collection<Plugin> plugins) {
     for (Plugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
-      if (classLoader instanceof Closeable && classLoader != getClass().getClassLoader()) {
+      if (classLoader instanceof Closeable && classLoader != baseClassloader()) {
         try {
           ((Closeable) classLoader).close();
         } catch (Exception e) {
@@ -172,6 +177,10 @@ public class PluginLoader implements BatchComponent, ServerComponent {
         }
       }
     }
+  }
+
+  private ClassLoader baseClassloader() {
+    return getClass().getClassLoader();
   }
 
   /**
