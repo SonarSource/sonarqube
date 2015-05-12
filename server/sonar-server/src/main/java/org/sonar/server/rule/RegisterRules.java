@@ -144,7 +144,7 @@ public class RegisterRules implements Startable {
   }
 
   private Map<RuleKey, RuleDto> loadRules(DbSession session) {
-    Map<RuleKey, RuleDto> rules = new HashMap<RuleKey, RuleDto>();
+    Map<RuleKey, RuleDto> rules = new HashMap<>();
     for (RuleDto rule : dbClient.ruleDao().findByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
@@ -152,7 +152,7 @@ public class RegisterRules implements Startable {
   }
 
   private Map<String, CharacteristicDto> loadCharacteristics(DbSession session) {
-    Map<String, CharacteristicDto> characteristics = new HashMap<String, CharacteristicDto>();
+    Map<String, CharacteristicDto> characteristics = new HashMap<>();
     for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(session)) {
       characteristics.put(characteristicDto.getKey(), characteristicDto);
     }
@@ -182,7 +182,7 @@ public class RegisterRules implements Startable {
   }
 
   private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
-    List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<RulesDefinition.ExtendedRepository>();
+    List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<>();
     for (RulesDefinition.Repository repoDef : context.repositories()) {
       repositories.add(repoDef);
     }

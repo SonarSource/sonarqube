@@ -46,7 +46,7 @@ public class UpsertNestedItem<K extends Serializable> extends IndexAction<Update
 
   @Override
   public List<UpdateRequest> doCall(Index index) {
-    List<UpdateRequest> updates = new ArrayList<UpdateRequest>();
+    List<UpdateRequest> updates = new ArrayList<>();
     updates.addAll(normalizeItem(index, item, key));
     for (Object otherItem : items) {
       updates.addAll(normalizeItem(index, otherItem, key));

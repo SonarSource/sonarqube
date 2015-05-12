@@ -49,7 +49,7 @@ public abstract class AbstractUnmarshaller<M extends Model> implements Unmarshal
   @Override
   public final List<M> toModels(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
-    List<M> result = new ArrayList<M>();
+    List<M> result = new ArrayList<>();
     Object array = utils.parse(json);
     for (int i = 0; i < utils.getArraySize(array); i++) {
       Object elt = utils.getArrayElement(array, i);

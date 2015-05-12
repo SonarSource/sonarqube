@@ -117,7 +117,7 @@ public class ProxyPutMappingRequestBuilderTest {
   }
 
   protected static Map mapDomain() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("dynamic", false);
     mapping.put("_all", ImmutableMap.of("enabled", false));
     return mapping;

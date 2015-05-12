@@ -102,8 +102,8 @@ public final class DebtDecorator implements Decorator {
 
   private void saveMeasures(DecoratorContext context, List<Issue> issues) {
     Long total = 0L;
-    SumMap<RuleKey> ruleDebts = new SumMap<RuleKey>();
-    SumMap<Characteristic> characteristicDebts = new SumMap<Characteristic>();
+    SumMap<RuleKey> ruleDebts = new SumMap<>();
+    SumMap<Characteristic> characteristicDebts = new SumMap<>();
 
     // Aggregate rules debt from current issues (and populate current characteristic debt)
     for (Issue issue : issues) {

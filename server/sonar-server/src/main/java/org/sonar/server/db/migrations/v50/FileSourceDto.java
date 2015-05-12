@@ -118,11 +118,11 @@ class FileSourceDto {
   }
 
   private Map<Integer, String> computeDuplicationsPerLine(List<List<Block>> duplicationGroups) {
-    Map<Integer, String> result = new HashMap<Integer, String>();
+    Map<Integer, String> result = new HashMap<>();
     if (duplicationGroups.isEmpty()) {
       return result;
     }
-    Map<Integer, StringBuilder> dupPerLine = new HashMap<Integer, StringBuilder>();
+    Map<Integer, StringBuilder> dupPerLine = new HashMap<>();
     int blockId = 1;
     for (List<Block> group : duplicationGroups) {
       Block originBlock = group.get(0);

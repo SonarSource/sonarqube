@@ -40,7 +40,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
   private final StringBuilder tmpBuilder = new StringBuilder();
   private static final String DEFAULT_REGEX = "[a-zA-Z_][a-zA-Z0-9_]*+";
 
-  private Set<String> keywords = new HashSet<String>();
+  private Set<String> keywords = new HashSet<>();
 
   public KeywordsTokenizer(String tagBefore, String tagAfter, Set<String> keywords) {
     this(tagBefore, tagAfter, keywords, DEFAULT_REGEX);

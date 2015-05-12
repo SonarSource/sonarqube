@@ -112,7 +112,7 @@ public class MavenDependenciesSensor implements Sensor {
 
     private String scope;
 
-    List<InputDependency> dependencies = new ArrayList<InputDependency>();
+    List<InputDependency> dependencies = new ArrayList<>();
 
     public InputDependency(String key, String version) {
       this.key = key;

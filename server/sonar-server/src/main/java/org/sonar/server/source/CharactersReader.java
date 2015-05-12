@@ -40,7 +40,7 @@ class CharactersReader {
 
   public CharactersReader(BufferedReader stringBuffer) {
     this.stringBuffer = stringBuffer;
-    this.openTags = new ArrayDeque<String>();
+    this.openTags = new ArrayDeque<>();
   }
 
   boolean readNextChar() throws IOException {

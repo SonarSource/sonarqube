@@ -49,7 +49,7 @@ class DefaultBlameOutput implements BlameOutput {
 
   private final BatchReportWriter writer;
   private final ResourceCache componentCache;
-  private final Set<InputFile> allFilesToBlame = new HashSet<InputFile>();
+  private final Set<InputFile> allFilesToBlame = new HashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;

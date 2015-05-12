@@ -32,7 +32,7 @@ public final class DsmTopologicalSorter<V> {
   }
 
   public static <V> void sort(Dsm<V> dsm) {
-    DsmTopologicalSorter<V> partitionner = new DsmTopologicalSorter<V>(dsm);
+    DsmTopologicalSorter<V> partitionner = new DsmTopologicalSorter<>(dsm);
     boolean dsmCanBeSorted = true;
     while (dsmCanBeSorted) {
       boolean dsmCanBeSortedOnLeft = partitionner.pushToLeftVerticesWithoutIncomingEdges();

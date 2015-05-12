@@ -55,7 +55,7 @@ public class CloneGroup {
     private ClonePart origin;
     private int length;
     private int lengthInUnits;
-    private List<ClonePart> parts = new ArrayList<ClonePart>();
+    private List<ClonePart> parts = new ArrayList<>();
 
     public Builder setLength(int length) {
       this.length = length;

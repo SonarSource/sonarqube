@@ -234,7 +234,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract Map mapKey();
 
   protected Map mapDomain() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("dynamic", false);
     mapping.put("_all", ImmutableMap.of("enabled", false));
     if (mapKey() != null) {
@@ -297,10 +297,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected Map mapNestedField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("type", "nested");
     mapping.put("dynamic", "true");
-    Map<String, Object> mappings = new HashMap<String, Object>();
+    Map<String, Object> mappings = new HashMap<>();
     for (IndexField nestedField : field.nestedFields()) {
       if (nestedField != null) {
         mappings.put(nestedField.field(), mapField(nestedField));
@@ -339,7 +339,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected Map mapMultiField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     if (field.isSortable()) {
       mapping.put(IndexField.SORT_SUFFIX, ImmutableMap.of(
         "type", "string",
@@ -357,7 +357,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected Map mapStringField(IndexField field, boolean allowRecursive) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     // check if the field needs to be MultiField
     if (allowRecursive && needMultiField(field)) {
       mapping.put("type", "multi_field");
@@ -372,7 +372,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected Map mapTextField(IndexField field, boolean allowRecursive) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     // check if the field needs to be MultiField
     if (allowRecursive && needMultiField(field)) {
       mapping.put("type", "multi_field");
@@ -420,7 +420,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    List<DOMAIN> results = new ArrayList<DOMAIN>();
+    List<DOMAIN> results = new ArrayList<>();
     MultiGetRequestBuilder request = client.prepareMultiGet()
       .setPreference("_local");
     for (KEY key : keys) {
@@ -474,7 +474,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
-    Map<String, Long> counts = new HashMap<String, Long>();
+    Map<String, Long> counts = new HashMap<>();
 
     SearchRequestBuilder request = client.prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())

@@ -68,7 +68,7 @@ public class Languages {
    * @return the list of suffix files associates to languages included in the current object
    */
   public String[] getSuffixes(String... keys) {
-    List<String> suffixes = new ArrayList<String>();
+    List<String> suffixes = new ArrayList<>();
 
     for (Map.Entry<String, Language> entry : map.entrySet()) {
       if (ArrayUtils.isEmpty(keys) || ArrayUtils.contains(keys, entry.getKey())) {

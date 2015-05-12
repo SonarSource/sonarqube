@@ -64,7 +64,7 @@ public class MinimumFeedbackEdgeSetSolver {
    * Get edges tagged as feedback.
    */
   public Set<Edge> getEdges() {
-    Set<Edge> edges = new LinkedHashSet<Edge>();
+    Set<Edge> edges = new LinkedHashSet<>();
     for (FeedbackEdge fe : feedbackEdges) {
       edges.add(fe.getEdge());
     }
@@ -72,7 +72,7 @@ public class MinimumFeedbackEdgeSetSolver {
   }
 
   private void run() {
-    Set<FeedbackEdge> pendingFeedbackEdges = new LinkedHashSet<FeedbackEdge>();
+    Set<FeedbackEdge> pendingFeedbackEdges = new LinkedHashSet<>();
     if (cyclesNumber < maxNumberCyclesForSearchingMinimumFeedback) {
       searchFeedbackEdges(0, 0, pendingFeedbackEdges);
     } else {
@@ -81,7 +81,7 @@ public class MinimumFeedbackEdgeSetSolver {
   }
 
   private void lightResearchForFeedbackEdges() {
-    feedbackEdges = new LinkedHashSet<FeedbackEdge>();
+    feedbackEdges = new LinkedHashSet<>();
     for (FeedbackCycle cycle : feedbackCycles) {
       for (FeedbackEdge edge : cycle) {
         feedbackEdges.add(edge);
@@ -105,7 +105,7 @@ public class MinimumFeedbackEdgeSetSolver {
 
     if (level == cyclesNumber) {
       minimumFeedbackEdgesWeight = pendingWeight;
-      feedbackEdges = new LinkedHashSet<FeedbackEdge>(pendingFeedbackEdges);
+      feedbackEdges = new LinkedHashSet<>(pendingFeedbackEdges);
       return;
     }
 

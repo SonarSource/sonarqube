@@ -91,7 +91,7 @@ public class Project extends Resource implements Component {
 
   // modules tree
   private Project parent;
-  private List<Project> modules = new ArrayList<Project>();
+  private List<Project> modules = new ArrayList<>();
 
   public Project(String key) {
     setKey(key);

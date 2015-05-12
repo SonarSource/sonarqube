@@ -33,7 +33,7 @@ public class MinimumFeedbackEdgeSetSolverTest {
   public void testGetFeedbackEdgesOnSimpleLoop() {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B", 3).addEdge("B", "A", 1);
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());
@@ -45,7 +45,7 @@ public class MinimumFeedbackEdgeSetSolverTest {
   public void testFlagFeedbackEdgesOnSimpleLoop() {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B", 3).addEdge("B", "A", 1);
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());
@@ -58,7 +58,7 @@ public class MinimumFeedbackEdgeSetSolverTest {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B", 7).addEdge("B", "C", 3).addEdge("C", "D", 1).addEdge("D", "A", 3);
     dcg.addEdge("B", "A", 12);
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());
@@ -75,7 +75,7 @@ public class MinimumFeedbackEdgeSetSolverTest {
     dcg.addEdge("D", "E", 3).addEdge("E", "D", 5);
     dcg.addEdge("F", "G", 1).addEdge("G", "H", 4).addEdge("H", "F", 7);
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());
@@ -94,7 +94,7 @@ public class MinimumFeedbackEdgeSetSolverTest {
     dcg.addEdge("A", "B", 5).addEdge("B", "C", 9).addEdge("C", "A", 1);
     dcg.addEdge("D", "B", 5).addEdge("C", "D", 7);
     dcg.addEdge("F", "B", 5).addEdge("C", "F", 4);
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver minimumSolver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());

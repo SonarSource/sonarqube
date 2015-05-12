@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 
 public class PurgeProfiler {
 
-  private Map<String, Long> durations = new HashMap<String, Long>();
+  private Map<String, Long> durations = new HashMap<>();
   private long startTime;
   private String currentTable;
   private final Clock clock;
@@ -67,7 +67,7 @@ public class PurgeProfiler {
   }
 
   public void dump(long totalTime, Logger logger) {
-    List<Entry<String, Long>> data = new ArrayList<Map.Entry<String, Long>>(durations.entrySet());
+    List<Entry<String, Long>> data = new ArrayList<>(durations.entrySet());
     Collections.sort(data, new Comparator<Entry<String, Long>>() {
       @Override
       public int compare(Entry<String, Long> o1, Entry<String, Long> o2) {
@@ -85,7 +85,7 @@ public class PurgeProfiler {
 
   private List<Entry<String, Long>> truncateList(List<Entry<String, Long>> sortedFullList) {
     int maxSize = 10;
-    List<Entry<String, Long>> result = new ArrayList<Entry<String, Long>>(maxSize);
+    List<Entry<String, Long>> result = new ArrayList<>(maxSize);
     int i = 0;
     for (Entry<String, Long> item : sortedFullList) {
       if (i++ >= maxSize || item.getValue() == 0) {

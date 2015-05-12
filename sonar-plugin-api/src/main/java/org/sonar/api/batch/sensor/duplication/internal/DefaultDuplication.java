@@ -40,7 +40,7 @@ import java.util.List;
 public class DefaultDuplication extends DefaultStorable implements NewDuplication, Duplication {
 
   private Block originBlock;
-  private List<Block> duplicates = new LinkedList<Duplication.Block>();
+  private List<Block> duplicates = new LinkedList<>();
 
   public DefaultDuplication() {
     super();

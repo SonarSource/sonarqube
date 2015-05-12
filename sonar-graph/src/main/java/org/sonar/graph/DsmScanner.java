@@ -36,7 +36,7 @@ public final class DsmScanner {
   private static final char FEEDBACK_EDGE_FLAG = '*';
   private final DirectedGraph<String, StringEdge> graph = DirectedGraph.createStringDirectedGraph();
   private String[] vertices;
-  private Set<Edge> feedbackEdges = new LinkedHashSet<Edge>();
+  private Set<Edge> feedbackEdges = new LinkedHashSet<>();
 
   private DsmScanner(Reader reader) {
     this.reader = new LineNumberReader(reader);
@@ -51,7 +51,7 @@ public final class DsmScanner {
     } catch (IOException e) {
       throw new RuntimeException("Unable to read DSM content.", e); // NOSONAR
     }
-    Dsm<String> dsm = new Dsm<String>(graph, graph.getVertices(), feedbackEdges);
+    Dsm<String> dsm = new Dsm<>(graph, graph.getVertices(), feedbackEdges);
     DsmManualSorter.sort(dsm, Arrays.asList(vertices));
     return dsm;
   }

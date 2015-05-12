@@ -53,8 +53,8 @@ public class NewIndex {
 
   public static class NewIndexType {
     private final String name;
-    private final Map<String, Object> attributes = new TreeMap<String, Object>();
-    private final Map<String, Object> properties = new TreeMap<String, Object>();
+    private final Map<String, Object> attributes = new TreeMap<>();
+    private final Map<String, Object> properties = new TreeMap<>();
 
     private NewIndexType(String typeName) {
       this.name = typeName;
@@ -278,7 +278,7 @@ public class NewIndex {
 
   private final String indexName;
   private final ImmutableSettings.Builder settings = DefaultIndexSettings.defaults();
-  private final SortedMap<String, NewIndexType> types = new TreeMap<String, NewIndexType>();
+  private final SortedMap<String, NewIndexType> types = new TreeMap<>();
 
   NewIndex(String indexName) {
     Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);

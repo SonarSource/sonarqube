@@ -69,7 +69,7 @@ public class ScanGraph extends BeanGraph {
 
   public Iterable<ComponentVertex> getComponents() {
     Iterable<Vertex> componentVertices = componentsRoot.getVertices(Direction.OUT, COMPONENT);
-    return new BeanIterable<ComponentVertex>(this, ComponentVertex.class, componentVertices);
+    return new BeanIterable<>(this, ComponentVertex.class, componentVertices);
   }
 
   public ComponentVertex addComponent(Component component) {

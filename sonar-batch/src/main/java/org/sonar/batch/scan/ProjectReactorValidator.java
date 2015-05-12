@@ -61,7 +61,7 @@ public class ProjectReactorValidator {
     String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String rootProjectKey = ComponentKeys.createKey(reactor.getRoot().getKey(), branch);
 
-    List<String> validationMessages = new ArrayList<String>();
+    List<String> validationMessages = new ArrayList<>();
     checkDeprecatedProperties(validationMessages);
 
     for (ProjectDefinition moduleDef : reactor.getProjects()) {

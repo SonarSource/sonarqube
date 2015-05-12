@@ -341,7 +341,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfMandatoryPropertiesAreNotPresent() {
-    Map<String, String> props = new HashMap<String, String>();
+    Map<String, String> props = new HashMap<>();
     props.put("foo1", "bla");
     props.put("foo4", "bla");
 
@@ -353,7 +353,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfMandatoryPropertiesAreNotPresentButWithProjectKey() {
-    Map<String, String> props = new HashMap<String, String>();
+    Map<String, String> props = new HashMap<>();
     props.put("foo1", "bla");
     props.put("sonar.projectKey", "my-project");
 
@@ -365,7 +365,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldNotFailIfMandatoryPropertiesArePresent() {
-    Map<String, String> props = new HashMap<String, String>();
+    Map<String, String> props = new HashMap<>();
     props.put("foo1", "bla");
     props.put("foo4", "bla");
 
@@ -410,13 +410,13 @@ public class ProjectReactorBuilderTest {
     int i = (int) Math.random() * 10;
     String s1 = "value" + i;
     String s2 = "value" + i;
-    Map<String, String> parentProps = new HashMap<String, String>();
+    Map<String, String> parentProps = new HashMap<>();
     parentProps.put("toBeMergeProps", "fooParent");
     parentProps.put("existingChildProp", "barParent");
     parentProps.put("duplicatedProp", s1);
     parentProps.put("sonar.projectDescription", "Desc from Parent");
 
-    Map<String, String> childProps = new HashMap<String, String>();
+    Map<String, String> childProps = new HashMap<>();
     childProps.put("existingChildProp", "barChild");
     childProps.put("otherProp", "tutuChild");
     childProps.put("duplicatedProp", s2);
@@ -492,7 +492,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldSetModuleKeyIfNotPresent() {
-    Map<String, String> props = new HashMap<String, String>();
+    Map<String, String> props = new HashMap<>();
     props.put("sonar.projectVersion", "1.0");
 
     // should be set
@@ -532,7 +532,7 @@ public class ProjectReactorBuilderTest {
   }
 
   public Map<String, String> toMap(Properties props) {
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
     for (Map.Entry<Object, Object> entry : props.entrySet()) {
       result.put(entry.getKey().toString(), entry.getValue().toString());
     }
@@ -541,7 +541,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldGetList() {
-    Map<String, String> props = new HashMap<String, String>();
+    Map<String, String> props = new HashMap<>();
 
     props.put("prop", "  foo  ,  bar  , \n\ntoto,tutu");
     assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
@@ -635,7 +635,7 @@ public class ProjectReactorBuilderTest {
     try (FileInputStream fileInputStream = new FileInputStream(TestUtils.getResource(this.getClass(), filePath))) {
       props.load(fileInputStream);
     }
-    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> result = new HashMap<>();
     for (Map.Entry<Object, Object> entry : props.entrySet()) {
       result.put(entry.getKey().toString(), entry.getValue().toString());
     }

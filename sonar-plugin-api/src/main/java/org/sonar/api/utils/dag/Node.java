@@ -32,7 +32,7 @@ public class Node implements Comparable<Node> {
   private final Object object;
   private int order = 0;
   private boolean seen = false;
-  private final List<Node> dependencies = new ArrayList<Node>();
+  private final List<Node> dependencies = new ArrayList<>();
 
   public Node(final Object object) {
     if (object == null) {

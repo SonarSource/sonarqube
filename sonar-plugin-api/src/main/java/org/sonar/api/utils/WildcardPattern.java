@@ -61,7 +61,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class WildcardPattern {
 
-  private static final Map<String, WildcardPattern> CACHE = new HashMap<String, WildcardPattern>();
+  private static final Map<String, WildcardPattern> CACHE = new HashMap<>();
   private static final String SPECIAL_CHARS = "()[]^$.{}+|";
 
   private Pattern pattern;

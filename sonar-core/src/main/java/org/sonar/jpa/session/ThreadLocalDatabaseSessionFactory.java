@@ -23,7 +23,7 @@ import org.sonar.api.database.DatabaseSession;
 
 public class ThreadLocalDatabaseSessionFactory implements DatabaseSessionFactory {
 
-  private final ThreadLocal<JpaDatabaseSession> threadSession = new ThreadLocal<JpaDatabaseSession>();
+  private final ThreadLocal<JpaDatabaseSession> threadSession = new ThreadLocal<>();
   private final DatabaseConnector connector;
 
   public ThreadLocalDatabaseSessionFactory(DatabaseConnector connector) {

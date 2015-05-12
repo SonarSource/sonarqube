@@ -28,7 +28,7 @@ import java.util.TreeMap;
 
 public class Source extends Model {
 
-  private SortedMap<Integer, String> lines = new TreeMap<Integer, String>();
+  private SortedMap<Integer, String> lines = new TreeMap<>();
 
   public Collection<String> getLines() {
     return lines.values();

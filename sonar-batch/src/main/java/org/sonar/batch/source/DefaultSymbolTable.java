@@ -41,7 +41,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   @Override
   public List<Symbol> symbols() {
-    List<Symbol> result = new ArrayList<Symbol>();
+    List<Symbol> result = new ArrayList<>();
     for (Symbol symbol : referencesBySymbol.keySet()) {
       result.add((Symbol) symbol);
     }
@@ -55,7 +55,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private final Map<Symbol, Set<TextRange>> referencesBySymbol = new LinkedHashMap<Symbol, Set<TextRange>>();
+    private final Map<Symbol, Set<TextRange>> referencesBySymbol = new LinkedHashMap<>();
     private final DefaultInputFile inputFile;
 
     public Builder(DefaultInputFile inputFile) {
@@ -66,7 +66,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
     public Symbol newSymbol(int fromOffset, int toOffset) {
       TextRange declarationRange = inputFile.newRange(fromOffset, toOffset);
       DefaultSymbol symbol = new DefaultSymbol(declarationRange, toOffset - fromOffset);
-      referencesBySymbol.put(symbol, new TreeSet<TextRange>(new Comparator<TextRange>() {
+      referencesBySymbol.put(symbol, new TreeSet<>(new Comparator<TextRange>() {
         @Override
         public int compare(TextRange o1, TextRange o2) {
           return o1.start().compareTo(o2.start());

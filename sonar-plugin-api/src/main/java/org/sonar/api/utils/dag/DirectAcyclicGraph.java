@@ -34,8 +34,8 @@ import java.util.Map;
  */
 public class DirectAcyclicGraph {
 
-  private Map<Object, Node> registeredObjects = new HashMap<Object, Node>();
-  private List<Node> nodes = new ArrayList<Node>();
+  private Map<Object, Node> registeredObjects = new HashMap<>();
+  private List<Node> nodes = new ArrayList<>();
 
   public DirectAcyclicGraph(final Object... objects) {
     if (objects != null) {

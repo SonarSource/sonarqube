@@ -34,7 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class MeasuresDao {
 
   private final DatabaseSession session;
-  private final Map<String, Metric> metricsByName = new HashMap<String, Metric>();
+  private final Map<String, Metric> metricsByName = new HashMap<>();
 
   public MeasuresDao(DatabaseSession session) {
     this.session = session;

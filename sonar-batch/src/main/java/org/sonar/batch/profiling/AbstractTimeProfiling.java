@@ -76,7 +76,7 @@ public abstract class AbstractTimeProfiling {
         return Long.valueOf(o2.getValue().totalTime()).compareTo(o1.getValue().totalTime());
       }
     });
-    Map<Object, G> sortedMap = new LinkedHashMap<Object, G>();
+    Map<Object, G> sortedMap = new LinkedHashMap<>();
     for (Map.Entry<?, G> entry : entries) {
       sortedMap.put(entry.getKey(), entry.getValue());
     }
@@ -85,7 +85,7 @@ public abstract class AbstractTimeProfiling {
 
   static <G extends AbstractTimeProfiling> List<G> truncate(Collection<G> sortedList) {
     int maxSize = 10;
-    List<G> result = new ArrayList<G>(maxSize);
+    List<G> result = new ArrayList<>(maxSize);
     int i = 0;
     for (G item : sortedList) {
       if (i >= maxSize || item.totalTime() == 0) {

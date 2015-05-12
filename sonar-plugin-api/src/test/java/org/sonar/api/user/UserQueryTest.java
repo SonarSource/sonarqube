@@ -56,7 +56,7 @@ public class UserQueryTest {
 
   @Test
   public void should_limit_number_of_logins() {
-    List<String> logins = new ArrayList<String>();
+    List<String> logins = new ArrayList<>();
     for (int i = 0; i < 1010; i++) {
       logins.add(String.valueOf(i));
     }

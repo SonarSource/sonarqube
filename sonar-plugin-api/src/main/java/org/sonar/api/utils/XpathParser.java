@@ -172,7 +172,7 @@ public class XpathParser {
   }
 
   public List<Element> getChildElements(String elementName) {
-    List<Element> rtrVal = new ArrayList<Element>();
+    List<Element> rtrVal = new ArrayList<>();
     NodeList childrens = getRoot().getElementsByTagName(elementName);
     for (int i = 0; i < childrens.getLength(); i++) {
       Node nde = childrens.item(i);
@@ -184,7 +184,7 @@ public class XpathParser {
   }
 
   public List<Element> getChildElements(Element base, String elementName) {
-    List<Element> rtrVal = new ArrayList<Element>();
+    List<Element> rtrVal = new ArrayList<>();
     NodeList childrens = base.getElementsByTagName(elementName);
     for (int i = 0; i < childrens.getLength(); i++) {
       Node nde = childrens.item(i);

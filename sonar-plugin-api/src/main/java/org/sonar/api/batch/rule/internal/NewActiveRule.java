@@ -35,7 +35,7 @@ public class NewActiveRule {
   final RuleKey ruleKey;
   String name;
   String severity = Severity.defaultSeverity();
-  Map<String, String> params = new HashMap<String, String>();
+  Map<String, String> params = new HashMap<>();
   String internalKey, language, templateRuleKey;
   private final ActiveRulesBuilder builder;
 

@@ -251,7 +251,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     try {
       doInsert(session, item);
       if (hasIndex()) {
-        session.enqueue(new UpsertDto<DTO>(getIndexType(), item));
+        session.enqueue(new UpsertDto<>(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to insert item in db: " + item, e);
@@ -281,7 +281,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     try {
       doDeleteByKey(session, key);
       if (hasIndex()) {
-        session.enqueue(new DeleteKey<KEY>(getIndexType(), key));
+        session.enqueue(new DeleteKey<>(getIndexType(), key));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to delete item from db: " + key, e);
@@ -290,14 +290,14 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   protected final void enqueueUpdate(Object nestedItem, KEY key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new UpsertNestedItem<KEY>(
+      session.enqueue(new UpsertNestedItem<>(
         this.getIndexType(), key, nestedItem));
     }
   }
 
   public void enqueueDelete(Object nestedItem, KEY key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new DeleteNestedItem<KEY>(
+      session.enqueue(new DeleteNestedItem<>(
         this.getIndexType(), key, nestedItem));
       session.commit();
     }
@@ -329,7 +329,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
         // session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
-        getSession().enqueue(new InsertDto<DTO>(getIndexType(), dto, false));
+        getSession().enqueue(new InsertDto<>(getIndexType(), dto, false));
         count++;
         if (count % 100000 == 0) {
           LOGGER.info("Synchronized {} {}", count, getIndexType());

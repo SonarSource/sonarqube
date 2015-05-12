@@ -136,13 +136,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   @Override
   public List<UpdateRequest> normalize(RuleDto rule) {
 
-    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
+    List<UpdateRequest> requests = new ArrayList<>();
 
     DbSession session = db.openSession(false);
     try {
 
       /** Update Fields */
-      Map<String, Object> update = new HashMap<String, Object>();
+      Map<String, Object> update = new HashMap<>();
 
       update.put(RuleField.ID.field(), rule.getId());
 
@@ -314,7 +314,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   private List<UpdateRequest> nestedUpdate(RuleParamDto param, RuleKey key) {
-    Map<String, Object> newParam = new HashMap<String, Object>();
+    Map<String, Object> newParam = new HashMap<>();
     newParam.put(RuleParamField.NAME.field(), param.getName());
     newParam.put(RuleParamField.TYPE.field(), param.getType());
     newParam.put(RuleParamField.DESCRIPTION.field(), param.getDescription());

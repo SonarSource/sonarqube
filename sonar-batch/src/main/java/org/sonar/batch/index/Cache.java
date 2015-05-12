@@ -300,29 +300,29 @@ public class Cache<V> {
    * Lazy-loading values for given keys
    */
   public Iterable<V> values(Object firstKey, Object secondKey) {
-    return new ValueIterable<V>(exchange, firstKey, secondKey);
+    return new ValueIterable<>(exchange, firstKey, secondKey);
   }
 
   /**
    * Lazy-loading values for a given key
    */
   public Iterable<V> values(Object firstKey) {
-    return new ValueIterable<V>(exchange, firstKey);
+    return new ValueIterable<>(exchange, firstKey);
   }
 
   /**
    * Lazy-loading values
    */
   public Iterable<V> values() {
-    return new ValueIterable<V>(exchange);
+    return new ValueIterable<>(exchange);
   }
 
   public Iterable<Entry<V>> entries() {
-    return new EntryIterable<V>(exchange);
+    return new EntryIterable<>(exchange);
   }
 
   public Iterable<Entry<V>> entries(Object firstKey) {
-    return new EntryIterable<V>(exchange, firstKey);
+    return new EntryIterable<>(exchange, firstKey);
   }
 
   private void resetKey(Object key) {
@@ -370,7 +370,7 @@ public class Cache<V> {
       }
       originExchange.append(Key.BEFORE);
       Exchange iteratorExchange = new Exchange(originExchange);
-      return new ValueIterator<T>(iteratorExchange, filter);
+      return new ValueIterator<>(iteratorExchange, filter);
     }
   }
 
@@ -431,7 +431,7 @@ public class Cache<V> {
       }
       originExchange.append(Key.BEFORE);
       Exchange iteratorExchange = new Exchange(originExchange);
-      return new EntryIterator<T>(iteratorExchange, filter);
+      return new EntryIterator<>(iteratorExchange, filter);
     }
   }
 
@@ -468,7 +468,7 @@ public class Cache<V> {
         for (int i = 0; i < key.getDepth(); i++) {
           array[i] = key.indexTo(i - key.getDepth()).decode();
         }
-        return new Entry<T>(array, value);
+        return new Entry<>(array, value);
       }
       throw new NoSuchElementException();
     }

@@ -30,7 +30,7 @@ public class PhaseProfiling extends AbstractTimeProfiling {
 
   private final Phase phase;
 
-  private Map<String, ItemProfiling> profilingPerItem = new HashMap<String, ItemProfiling>();
+  private Map<String, ItemProfiling> profilingPerItem = new HashMap<>();
 
   PhaseProfiling(System2 system, Phase phase) {
     super(system);

@@ -54,7 +54,7 @@ public class SourceProvider {
     try {
       InputFile inputFile = (InputFile) inputPathCache.getInputPath(component);
       List<String> lines = FileUtils.readLines(inputFile.file(), fs.encoding());
-      List<String> escapedLines = new ArrayList<String>(lines.size());
+      List<String> escapedLines = new ArrayList<>(lines.size());
       for (String line : lines) {
         escapedLines.add(StringEscapeUtils.escapeHtml(line));
       }

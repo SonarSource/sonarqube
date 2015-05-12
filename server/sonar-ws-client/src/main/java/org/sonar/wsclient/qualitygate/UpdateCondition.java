@@ -32,7 +32,7 @@ public class UpdateCondition {
   private final Map<String, Object> params;
 
   private UpdateCondition() {
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
   }
 
   public static UpdateCondition create(long id) {

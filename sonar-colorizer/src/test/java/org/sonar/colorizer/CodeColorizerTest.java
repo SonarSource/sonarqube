@@ -102,7 +102,7 @@ public class CodeColorizerTest {
       }
     }
 
-    Collection<Callable<String>> tasks = new ArrayList<Callable<String>>();
+    Collection<Callable<String>> tasks = new ArrayList<>();
     for (int i = 0; i < taskCount; i++) {
       tasks.add(new ColorizerTask());
     }

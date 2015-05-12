@@ -169,7 +169,7 @@ public class DefaultIssue implements Issue {
    */
   @Override
   public List<IssueComment> comments() {
-    List<IssueComment> comments = new ArrayList<IssueComment>();
+    List<IssueComment> comments = new ArrayList<>();
     List<Map> jsonComments = (List<Map>) json.get("comments");
     if (jsonComments != null) {
       for (Map jsonComment : jsonComments) {

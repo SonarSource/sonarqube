@@ -50,7 +50,7 @@ import java.util.TreeSet;
 public class DefaultFileSystem implements FileSystem {
 
   private final Cache cache;
-  private final SortedSet<String> languages = new TreeSet<String>();
+  private final SortedSet<String> languages = new TreeSet<>();
   private final Path baseDir;
   private Path workDir;
   private Charset encoding;
@@ -256,12 +256,12 @@ public class DefaultFileSystem implements FileSystem {
    * Used only for testing
    */
   private static class MapCache extends Cache {
-    private final Map<String, InputFile> fileMap = new HashMap<String, InputFile>();
-    private final Map<String, InputDir> dirMap = new HashMap<String, InputDir>();
+    private final Map<String, InputFile> fileMap = new HashMap<>();
+    private final Map<String, InputDir> dirMap = new HashMap<>();
 
     @Override
     public Iterable<InputFile> inputFiles() {
-      return new ArrayList<InputFile>(fileMap.values());
+      return new ArrayList<>(fileMap.values());
     }
 
     @Override

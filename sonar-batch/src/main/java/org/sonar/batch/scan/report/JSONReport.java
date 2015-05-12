@@ -122,7 +122,7 @@ public class JSONReport implements Reporter {
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
-      Collection<BatchInput.User> users = userRepository.loadFromWs(new ArrayList<String>(userLogins));
+      Collection<BatchInput.User> users = userRepository.loadFromWs(new ArrayList<>(userLogins));
       writeUsers(json, users);
       json.endObject().close();
 

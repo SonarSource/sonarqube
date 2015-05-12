@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class UserParameters {
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
+  private final Map<String, Object> params = new HashMap<>();
 
   private UserParameters() {
   }

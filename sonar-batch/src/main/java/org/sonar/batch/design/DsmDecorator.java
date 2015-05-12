@@ -91,7 +91,7 @@ public abstract class DsmDecorator implements Decorator {
   }
 
   protected final Dsm<Resource> getDsm(Collection<Resource> children, Set<Edge> feedbackEdges) {
-    Dsm<Resource> dsm = new Dsm<Resource>(index, children, feedbackEdges);
+    Dsm<Resource> dsm = new Dsm<>(index, children, feedbackEdges);
     DsmTopologicalSorter.sort(dsm);
     return dsm;
   }
@@ -112,7 +112,7 @@ public abstract class DsmDecorator implements Decorator {
   }
 
   protected final List<Dependency> getEdges(Collection<Resource> vertices) {
-    List<Dependency> result = new ArrayList<Dependency>();
+    List<Dependency> result = new ArrayList<>();
     for (Resource vertice : vertices) {
       Collection<Dependency> outgoingEdges = index.getOutgoingEdges(vertice);
       if (outgoingEdges != null) {

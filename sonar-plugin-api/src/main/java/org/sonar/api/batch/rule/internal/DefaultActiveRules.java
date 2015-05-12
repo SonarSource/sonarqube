@@ -36,8 +36,8 @@ public class DefaultActiveRules implements ActiveRules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
   private final ListMultimap<String, ActiveRule> activeRulesByRepository;
-  private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndKey = new HashMap<String, Map<String, ActiveRule>>();
-  private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndInternalKey = new HashMap<String, Map<String, ActiveRule>>();
+  private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndKey = new HashMap<>();
+  private final Map<String, Map<String, ActiveRule>> activeRulesByRepositoryAndInternalKey = new HashMap<>();
   private final ListMultimap<String, ActiveRule> activeRulesByLanguage;
 
   public DefaultActiveRules(Collection<NewActiveRule> newActiveRules) {

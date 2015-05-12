@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class IncrementalCyclesAndFESSolver<V> {
 
-  private Set<Cycle> cycles = new LinkedHashSet<Cycle>();
+  private Set<Cycle> cycles = new LinkedHashSet<>();
   private long searchCyclesCalls = 0;
   private static final int DEFAULT_MAX_SEARCH_DEPTH_AT_FIRST = 3;
   private static final int DEFAULT_MAX_CYCLES_TO_FOUND_BY_ITERATION = 100;
@@ -40,7 +40,7 @@ public class IncrementalCyclesAndFESSolver<V> {
     int maxCyclesToFoundByIteration) {
 
     iterations++;
-    CycleDetector<V> cycleDetector = new CycleDetector<V>(graph, vertices);
+    CycleDetector<V> cycleDetector = new CycleDetector<>(graph, vertices);
     cycleDetector.detectCyclesWithMaxSearchDepth(maxSearchDepthAtFirst);
     searchCyclesCalls += cycleDetector.getSearchCyclesCalls();
     cycles.addAll(cycleDetector.getCycles());
@@ -49,7 +49,7 @@ public class IncrementalCyclesAndFESSolver<V> {
 
     do {
       iterations++;
-      cycleDetector = new CycleDetector<V>(graph, vertices, edgesToExclude);
+      cycleDetector = new CycleDetector<>(graph, vertices, edgesToExclude);
       cycleDetector.detectCyclesWithUpperLimit(maxCyclesToFoundByIteration);
       searchCyclesCalls += cycleDetector.getSearchCyclesCalls();
       cycles.addAll(cycleDetector.getCycles());

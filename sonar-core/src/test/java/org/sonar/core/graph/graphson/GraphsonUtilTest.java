@@ -288,7 +288,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexListPropertyNoKeysNoTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Object> list = new ArrayList<Object>();
+    List<Object> list = new ArrayList<>();
     list.add("this");
     list.add("that");
     list.add("other");
@@ -447,7 +447,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexCatArrayPropertyNoKeysNoTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Cat> cats = new ArrayList<Cat>();
+    List<Cat> cats = new ArrayList<>();
     cats.add(new Cat("smithers"));
     cats.add(new Cat("mcallister"));
 
@@ -521,7 +521,7 @@ public class GraphsonUtilTest {
     v.setProperty("y", "Y");
     v.setProperty("z", "Z");
 
-    Set<String> propertiesToInclude = new HashSet<String>();
+    Set<String> propertiesToInclude = new HashSet<>();
     propertiesToInclude.add("y");
     JSONObject json = GraphsonUtil.jsonFromElement(v, propertiesToInclude, GraphsonMode.NORMAL);
 
@@ -547,7 +547,7 @@ public class GraphsonUtilTest {
 
     v.setProperty("v", innerV);
 
-    Set<String> propertiesToInclude = new HashSet<String>();
+    Set<String> propertiesToInclude = new HashSet<>();
     propertiesToInclude.add("y");
     propertiesToInclude.add("v");
 
@@ -624,7 +624,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexListPropertiesNoKeysWithTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     list.add("this");
     list.add("this");
     list.add("this");
@@ -659,7 +659,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexBooleanListPropertiesNoKeysWithTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Boolean> list = new ArrayList<Boolean>();
+    List<Boolean> list = new ArrayList<>();
     list.add(true);
     list.add(true);
     list.add(true);
@@ -694,7 +694,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexLongListPropertiesNoKeysWithTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Long> list = new ArrayList<Long>();
+    List<Long> list = new ArrayList<>();
     list.add(1000L);
     list.add(1000L);
     list.add(1000L);
@@ -729,7 +729,7 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexIntListPropertiesNoKeysWithTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(1);
     list.add(1);
@@ -764,12 +764,12 @@ public class GraphsonUtilTest {
   @Test
   public void jsonFromElementVertexListOfListPropertiesNoKeysWithTypes() {
     Vertex v = this.graph.addVertex(1);
-    List<Integer> list = new ArrayList<Integer>();
+    List<Integer> list = new ArrayList<>();
     list.add(1);
     list.add(1);
     list.add(1);
 
-    List<List<Integer>> listList = new ArrayList<List<Integer>>();
+    List<List<Integer>> listList = new ArrayList<>();
     listList.add(list);
 
     v.setProperty("keyList", listList);
@@ -846,17 +846,17 @@ public class GraphsonUtilTest {
     Vertex v = g.addVertex(1);
     v.setProperty("key", null);
 
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
     map.put("innerkey", null);
 
-    List<String> innerList = new ArrayList<String>();
+    List<String> innerList = new ArrayList<>();
     innerList.add(null);
     innerList.add("innerstring");
     map.put("list", innerList);
 
     v.setProperty("keyMap", map);
 
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     list.add(null);
     list.add("string");
     v.setProperty("keyList", list);
@@ -888,17 +888,17 @@ public class GraphsonUtilTest {
     Vertex v = g.addVertex(1);
     v.setProperty("key", null);
 
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
     map.put("innerkey", null);
 
-    List<String> innerList = new ArrayList<String>();
+    List<String> innerList = new ArrayList<>();
     innerList.add(null);
     innerList.add("innerstring");
     map.put("list", innerList);
 
     v.setProperty("keyMap", map);
 
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     list.add(null);
     list.add("string");
     v.setProperty("keyList", list);
@@ -998,7 +998,7 @@ public class GraphsonUtilTest {
     Graph g = new TinkerGraph();
     ElementFactory factory = new ElementFactory(g);
 
-    Set<String> ignoreAge = new HashSet<String>();
+    Set<String> ignoreAge = new HashSet<>();
     ignoreAge.add("age");
     ElementPropertyConfig config = ElementPropertyConfig.excludeProperties(ignoreAge, null);
     GraphsonUtil utility = new GraphsonUtil(GraphsonMode.NORMAL, factory, config);
@@ -1062,7 +1062,7 @@ public class GraphsonUtilTest {
     Vertex v1 = GraphsonUtil.vertexFromJson((JSONObject) JSONValue.parse(vertexJson1), factory, GraphsonMode.NORMAL, null);
     Vertex v2 = GraphsonUtil.vertexFromJson((JSONObject) JSONValue.parse(vertexJson2), factory, GraphsonMode.NORMAL, null);
 
-    Set<String> ignoreWeight = new HashSet<String>();
+    Set<String> ignoreWeight = new HashSet<>();
     ignoreWeight.add("weight");
     ElementPropertyConfig config = ElementPropertyConfig.excludeProperties(null, ignoreWeight);
     GraphsonUtil utility = new GraphsonUtil(GraphsonMode.NORMAL, factory, config);

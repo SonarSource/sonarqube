@@ -2847,7 +2847,7 @@ public final class BatchReport {
             }
             case 56: {
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
-                childRef_ = new java.util.ArrayList<java.lang.Integer>();
+                childRef_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000040;
               }
               childRef_.add(input.readInt32());
@@ -2857,7 +2857,7 @@ public final class BatchReport {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
-                childRef_ = new java.util.ArrayList<java.lang.Integer>();
+                childRef_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000040;
               }
               while (input.getBytesUntilLimit() > 0) {
@@ -2879,7 +2879,7 @@ public final class BatchReport {
             }
             case 82: {
               if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                link_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ComponentLink>();
+                link_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000080;
               }
               link_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.ComponentLink.PARSER, extensionRegistry));
@@ -2887,7 +2887,7 @@ public final class BatchReport {
             }
             case 90: {
               if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
-                event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>();
+                event_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00004000;
               }
               event_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Event.PARSER, extensionRegistry));
@@ -4336,7 +4336,7 @@ public final class BatchReport {
       private java.util.List<java.lang.Integer> childRef_ = java.util.Collections.emptyList();
       private void ensureChildRefIsMutable() {
         if (!((bitField0_ & 0x00000040) == 0x00000040)) {
-          childRef_ = new java.util.ArrayList<java.lang.Integer>(childRef_);
+          childRef_ = new java.util.ArrayList<>(childRef_);
           bitField0_ |= 0x00000040;
          }
       }
@@ -4403,7 +4403,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureLinkIsMutable() {
         if (!((bitField0_ & 0x00000080) == 0x00000080)) {
-          link_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ComponentLink>(link_);
+          link_ = new java.util.ArrayList<>(link_);
           bitField0_ |= 0x00000080;
          }
       }
@@ -4628,8 +4628,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.ComponentLink, org.sonar.batch.protocol.output.BatchReport.ComponentLink.Builder, org.sonar.batch.protocol.output.BatchReport.ComponentLinkOrBuilder> 
           getLinkFieldBuilder() {
         if (linkBuilder_ == null) {
-          linkBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.ComponentLink, org.sonar.batch.protocol.output.BatchReport.ComponentLink.Builder, org.sonar.batch.protocol.output.BatchReport.ComponentLinkOrBuilder>(
+          linkBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   link_,
                   ((bitField0_ & 0x00000080) == 0x00000080),
                   getParentForChildren(),
@@ -5047,7 +5046,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureEventIsMutable() {
         if (!((bitField0_ & 0x00004000) == 0x00004000)) {
-          event_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Event>(event_);
+          event_ = new java.util.ArrayList<>(event_);
           bitField0_ |= 0x00004000;
          }
       }
@@ -5272,8 +5271,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder> 
           getEventFieldBuilder() {
         if (eventBuilder_ == null) {
-          eventBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Event, org.sonar.batch.protocol.output.BatchReport.Event.Builder, org.sonar.batch.protocol.output.BatchReport.EventOrBuilder>(
+          eventBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   event_,
                   ((bitField0_ & 0x00004000) == 0x00004000),
                   getParentForChildren(),
@@ -7763,7 +7761,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                measure_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Measure>();
+                measure_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               measure_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Measure.PARSER, extensionRegistry));
@@ -8177,7 +8175,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureMeasureIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          measure_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Measure>(measure_);
+          measure_ = new java.util.ArrayList<>(measure_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -8402,8 +8400,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Measure, org.sonar.batch.protocol.output.BatchReport.Measure.Builder, org.sonar.batch.protocol.output.BatchReport.MeasureOrBuilder> 
           getMeasureFieldBuilder() {
         if (measureBuilder_ == null) {
-          measureBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Measure, org.sonar.batch.protocol.output.BatchReport.Measure.Builder, org.sonar.batch.protocol.output.BatchReport.MeasureOrBuilder>(
+          measureBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   measure_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -12066,7 +12063,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                issue_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Issue>();
+                issue_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               issue_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Issue.PARSER, extensionRegistry));
@@ -12559,7 +12556,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureIssueIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          issue_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Issue>(issue_);
+          issue_ = new java.util.ArrayList<>(issue_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -12784,8 +12781,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Issue, org.sonar.batch.protocol.output.BatchReport.Issue.Builder, org.sonar.batch.protocol.output.BatchReport.IssueOrBuilder> 
           getIssueFieldBuilder() {
         if (issueBuilder_ == null) {
-          issueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Issue, org.sonar.batch.protocol.output.BatchReport.Issue.Builder, org.sonar.batch.protocol.output.BatchReport.IssueOrBuilder>(
+          issueBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   issue_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -13027,7 +13023,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset>();
+                changeset_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               changeset_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.PARSER, extensionRegistry));
@@ -13035,7 +13031,7 @@ public final class BatchReport {
             }
             case 24: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>();
+                changesetIndexByLine_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000004;
               }
               changesetIndexByLine_.add(input.readInt32());
@@ -13045,7 +13041,7 @@ public final class BatchReport {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004) && input.getBytesUntilLimit() > 0) {
-                changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>();
+                changesetIndexByLine_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000004;
               }
               while (input.getBytesUntilLimit() > 0) {
@@ -14250,7 +14246,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureChangesetIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          changeset_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset>(changeset_);
+          changeset_ = new java.util.ArrayList<>(changeset_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -14475,8 +14471,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder> 
           getChangesetFieldBuilder() {
         if (changesetBuilder_ == null) {
-          changesetBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset, org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder, org.sonar.batch.protocol.output.BatchReport.Changesets.ChangesetOrBuilder>(
+          changesetBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   changeset_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -14489,7 +14484,7 @@ public final class BatchReport {
       private java.util.List<java.lang.Integer> changesetIndexByLine_ = java.util.Collections.emptyList();
       private void ensureChangesetIndexByLineIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          changesetIndexByLine_ = new java.util.ArrayList<java.lang.Integer>(changesetIndexByLine_);
+          changesetIndexByLine_ = new java.util.ArrayList<>(changesetIndexByLine_);
           bitField0_ |= 0x00000004;
          }
       }
@@ -15293,8 +15288,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
           getRangeFieldBuilder() {
         if (rangeBuilder_ == null) {
-          rangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+          rangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<>(
                   getRange(),
                   getParentForChildren(),
                   isClean());
@@ -15534,7 +15528,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                duplicate_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Duplicate>();
+                duplicate_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               duplicate_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Duplicate.PARSER, extensionRegistry));
@@ -16081,8 +16075,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
           getOriginPositionFieldBuilder() {
         if (originPositionBuilder_ == null) {
-          originPositionBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+          originPositionBuilder_ = new com.google.protobuf.SingleFieldBuilder<>(
                   getOriginPosition(),
                   getParentForChildren(),
                   isClean());
@@ -16095,7 +16088,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureDuplicateIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          duplicate_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Duplicate>(duplicate_);
+          duplicate_ = new java.util.ArrayList<>(duplicate_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -16320,8 +16313,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Duplicate, org.sonar.batch.protocol.output.BatchReport.Duplicate.Builder, org.sonar.batch.protocol.output.BatchReport.DuplicateOrBuilder> 
           getDuplicateFieldBuilder() {
         if (duplicateBuilder_ == null) {
-          duplicateBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Duplicate, org.sonar.batch.protocol.output.BatchReport.Duplicate.Builder, org.sonar.batch.protocol.output.BatchReport.DuplicateOrBuilder>(
+          duplicateBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   duplicate_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -16438,7 +16430,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                duplication_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Duplication>();
+                duplication_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               duplication_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Duplication.PARSER, extensionRegistry));
@@ -16852,7 +16844,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureDuplicationIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          duplication_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Duplication>(duplication_);
+          duplication_ = new java.util.ArrayList<>(duplication_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -17077,8 +17069,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Duplication, org.sonar.batch.protocol.output.BatchReport.Duplication.Builder, org.sonar.batch.protocol.output.BatchReport.DuplicationOrBuilder> 
           getDuplicationFieldBuilder() {
         if (duplicationBuilder_ == null) {
-          duplicationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Duplication, org.sonar.batch.protocol.output.BatchReport.Duplication.Builder, org.sonar.batch.protocol.output.BatchReport.DuplicationOrBuilder>(
+          duplicationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   duplication_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -17962,7 +17953,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                symbol_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol>();
+                symbol_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               symbol_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol.PARSER, extensionRegistry));
@@ -18118,7 +18109,7 @@ public final class BatchReport {
               }
               case 18: {
                 if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                  reference_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Range>();
+                  reference_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000002;
                 }
                 reference_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Range.PARSER, extensionRegistry));
@@ -18617,8 +18608,7 @@ public final class BatchReport {
             org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
             getDeclarationFieldBuilder() {
           if (declarationBuilder_ == null) {
-            declarationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-                org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+            declarationBuilder_ = new com.google.protobuf.SingleFieldBuilder<>(
                     getDeclaration(),
                     getParentForChildren(),
                     isClean());
@@ -18631,7 +18621,7 @@ public final class BatchReport {
           java.util.Collections.emptyList();
         private void ensureReferenceIsMutable() {
           if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-            reference_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Range>(reference_);
+            reference_ = new java.util.ArrayList<>(reference_);
             bitField0_ |= 0x00000002;
            }
         }
@@ -18856,8 +18846,7 @@ public final class BatchReport {
             org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
             getReferenceFieldBuilder() {
           if (referenceBuilder_ == null) {
-            referenceBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+            referenceBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                     reference_,
                     ((bitField0_ & 0x00000002) == 0x00000002),
                     getParentForChildren(),
@@ -19244,7 +19233,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureSymbolIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          symbol_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol>(symbol_);
+          symbol_ = new java.util.ArrayList<>(symbol_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -19469,8 +19458,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol, org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol.Builder, org.sonar.batch.protocol.output.BatchReport.Symbols.SymbolOrBuilder> 
           getSymbolFieldBuilder() {
         if (symbolBuilder_ == null) {
-          symbolBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol, org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol.Builder, org.sonar.batch.protocol.output.BatchReport.Symbols.SymbolOrBuilder>(
+          symbolBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   symbol_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -21107,8 +21095,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder> 
           getRangeFieldBuilder() {
         if (rangeBuilder_ == null) {
-          rangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.Range, org.sonar.batch.protocol.output.BatchReport.Range.Builder, org.sonar.batch.protocol.output.BatchReport.RangeOrBuilder>(
+          rangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<>(
                   getRange(),
                   getParentForChildren(),
                   isClean());
@@ -22220,7 +22207,7 @@ public final class BatchReport {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                coveredFile_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile>();
+                coveredFile_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000002;
               }
               coveredFile_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile.PARSER, extensionRegistry));
@@ -22353,7 +22340,7 @@ public final class BatchReport {
               }
               case 16: {
                 if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                  coveredLine_ = new java.util.ArrayList<java.lang.Integer>();
+                  coveredLine_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000002;
                 }
                 coveredLine_.add(input.readInt32());
@@ -22363,7 +22350,7 @@ public final class BatchReport {
                 int length = input.readRawVarint32();
                 int limit = input.pushLimit(length);
                 if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
-                  coveredLine_ = new java.util.ArrayList<java.lang.Integer>();
+                  coveredLine_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000002;
                 }
                 while (input.getBytesUntilLimit() > 0) {
@@ -22756,7 +22743,7 @@ public final class BatchReport {
         private java.util.List<java.lang.Integer> coveredLine_ = java.util.Collections.emptyList();
         private void ensureCoveredLineIsMutable() {
           if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-            coveredLine_ = new java.util.ArrayList<java.lang.Integer>(coveredLine_);
+            coveredLine_ = new java.util.ArrayList<>(coveredLine_);
             bitField0_ |= 0x00000002;
            }
         }
@@ -23269,7 +23256,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureCoveredFileIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          coveredFile_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile>(coveredFile_);
+          coveredFile_ = new java.util.ArrayList<>(coveredFile_);
           bitField0_ |= 0x00000002;
          }
       }
@@ -23494,8 +23481,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile.Builder, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFileOrBuilder> 
           getCoveredFileFieldBuilder() {
         if (coveredFileBuilder_ == null) {
-          coveredFileBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFile.Builder, org.sonar.batch.protocol.output.BatchReport.CoverageDetail.CoveredFileOrBuilder>(
+          coveredFileBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   coveredFile_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
@@ -24073,7 +24059,7 @@ public final class BatchReport {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                dep_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency>();
+                dep_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000001;
               }
               dep_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.PARSER, extensionRegistry));
@@ -24263,7 +24249,7 @@ public final class BatchReport {
               }
               case 34: {
                 if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                  child_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency>();
+                  child_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000008;
                 }
                 child_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.PARSER, extensionRegistry));
@@ -25024,7 +25010,7 @@ public final class BatchReport {
           java.util.Collections.emptyList();
         private void ensureChildIsMutable() {
           if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-            child_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency>(child_);
+            child_ = new java.util.ArrayList<>(child_);
             bitField0_ |= 0x00000008;
            }
         }
@@ -25249,8 +25235,7 @@ public final class BatchReport {
             org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.Builder, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependencyOrBuilder> 
             getChildFieldBuilder() {
           if (childBuilder_ == null) {
-            childBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.Builder, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependencyOrBuilder>(
+            childBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                     child_,
                     ((bitField0_ & 0x00000008) == 0x00000008),
                     getParentForChildren(),
@@ -25570,7 +25555,7 @@ public final class BatchReport {
         java.util.Collections.emptyList();
       private void ensureDepIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          dep_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency>(dep_);
+          dep_ = new java.util.ArrayList<>(dep_);
           bitField0_ |= 0x00000001;
          }
       }
@@ -25795,8 +25780,7 @@ public final class BatchReport {
           org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.Builder, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependencyOrBuilder> 
           getDepFieldBuilder() {
         if (depBuilder_ == null) {
-          depBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependency.Builder, org.sonar.batch.protocol.output.BatchReport.ModuleDependencies.ModuleDependencyOrBuilder>(
+          depBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   dep_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),

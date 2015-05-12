@@ -110,7 +110,7 @@ public class SparkLinesChartTest extends BaseChartWebTest {
   }
 
   private Map<String, String> getDefaultParams() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.SPARKLINES_CHART);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "1,1,2,4,3,3,4,5,5,5,6,7,7,7,8,8");
     return params;

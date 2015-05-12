@@ -43,7 +43,7 @@ public class InsertDto<DTO extends Dto> extends IndexAction<ActionRequest> {
 
   @Override
   public List<ActionRequest> doCall(Index index) {
-    List<ActionRequest> inserts = new ArrayList<ActionRequest>();
+    List<ActionRequest> inserts = new ArrayList<>();
     List<UpdateRequest> updates = index.getNormalizer().normalize(dto);
     for (UpdateRequest update : updates) {
       if (update.doc() != null) {

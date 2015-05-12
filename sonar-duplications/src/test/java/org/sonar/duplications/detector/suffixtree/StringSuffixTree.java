@@ -38,7 +38,7 @@ public class StringSuffixTree {
   private StringSuffixTree(String text) {
     suffixTree = SuffixTree.create(new StringText(text));
 
-    Queue<Node> queue = new LinkedList<Node>();
+    Queue<Node> queue = new LinkedList<>();
     queue.add(suffixTree.getRootNode());
     while (!queue.isEmpty()) {
       Node node = queue.remove();

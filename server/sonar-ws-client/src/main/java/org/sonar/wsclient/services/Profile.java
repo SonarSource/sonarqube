@@ -34,7 +34,7 @@ public class Profile extends Model {
   private String name;
   private boolean defaultProfile;
   private String parentName;
-  private List<Rule> rules = new ArrayList<Rule>();
+  private List<Rule> rules = new ArrayList<>();
 
   @CheckForNull
   public String getLanguage() {
@@ -153,7 +153,7 @@ public class Profile extends Model {
 
     public Rule addParameter(@Nullable String key, @Nullable String value) {
       if (parameters==null) {
-        parameters = new HashMap<String,String>();
+        parameters = new HashMap<>();
       }
       parameters.put(key, value);
       return this;

@@ -46,7 +46,7 @@ public class Result<K> {
     this.scrollId = response.getScrollId();
     this.facets = new Facets(response);
     this.total = (int) response.getHits().totalHits();
-    this.hits = new ArrayList<K>();
+    this.hits = new ArrayList<>();
     if (index != null) {
       for (SearchHit hit : response.getHits()) {
         this.hits.add(index.toDoc(hit.getSource()));

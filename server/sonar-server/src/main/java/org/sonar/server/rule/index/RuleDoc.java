@@ -141,7 +141,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public List<RuleParam> params() {
-    List<RuleParam> params = new ArrayList<RuleParam>();
+    List<RuleParam> params = new ArrayList<>();
     final List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.field());
     if (esParams != null) {
       for (final Map<String, Object> esParam : esParams) {

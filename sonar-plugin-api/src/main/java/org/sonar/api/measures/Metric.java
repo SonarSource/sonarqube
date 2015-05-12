@@ -801,7 +801,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
         this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
         this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
       }
-      return new Metric<G>(this);
+      return new Metric<>(this);
     }
   }
 

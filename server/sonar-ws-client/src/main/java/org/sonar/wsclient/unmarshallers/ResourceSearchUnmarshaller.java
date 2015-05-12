@@ -40,7 +40,7 @@ public class ResourceSearchUnmarshaller extends AbstractUnmarshaller<ResourceSea
     result.setPageSize(utils.getInteger(json, "page_size"));
     result.setTotal(utils.getInteger(json, "total"));
 
-    List<ResourceSearchResult.Resource> resources = new ArrayList<ResourceSearchResult.Resource>();
+    List<ResourceSearchResult.Resource> resources = new ArrayList<>();
     JSONArray dataJson = JsonUtils.getArray((JSONObject) json, "data");
     if (dataJson != null) {
       for (Object jsonResource : dataJson) {

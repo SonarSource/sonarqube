@@ -112,7 +112,7 @@ class Facets {
   }
 
   public List<String> getFacetKeys(String facetName) {
-    List<String> keys = new ArrayList<String>();
+    List<String> keys = new ArrayList<>();
     if (this.facetValues.containsKey(facetName)) {
       for (FacetValue facetValue : facetValues.get(facetName)) {
         keys.add(facetValue.getKey());

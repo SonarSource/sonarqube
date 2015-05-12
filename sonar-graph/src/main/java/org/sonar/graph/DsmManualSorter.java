@@ -34,7 +34,7 @@ public final class DsmManualSorter<V> {
   }
 
   public static <V> void sort(Dsm<V> dsm, List<V> vertices) {
-    DsmManualSorter<V> sorter = new DsmManualSorter<V>(dsm, vertices);
+    DsmManualSorter<V> sorter = new DsmManualSorter<>(dsm, vertices);
     sorter.sort();
   }
 

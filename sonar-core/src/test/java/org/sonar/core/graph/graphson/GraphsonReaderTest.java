@@ -235,7 +235,7 @@ public class GraphsonReaderTest {
 
     StringWriter stream = new StringWriter();
 
-    Set<String> edgeKeys = new HashSet<String>();
+    Set<String> edgeKeys = new HashSet<>();
     edgeKeys.add(GraphsonTokens._ID);
     edgeKeys.add(GraphsonTokens._IN_V);
     edgeKeys.add(GraphsonTokens._OUT_V);
@@ -293,7 +293,7 @@ public class GraphsonReaderTest {
 
     StringWriter stream = new StringWriter();
 
-    Set<String> edgeKeys = new HashSet<String>();
+    Set<String> edgeKeys = new HashSet<>();
     edgeKeys.add(GraphsonTokens._IN_V);
     edgeKeys.add(GraphsonTokens._OUT_V);
     edgeKeys.add(GraphsonTokens._LABEL);

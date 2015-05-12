@@ -40,7 +40,7 @@ public class ActiveRule implements Cloneable {
   private Rule rule;
   private RulePriority severity;
   private RulesProfile rulesProfile;
-  private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
+  private List<ActiveRuleParam> activeRuleParams = new ArrayList<>();
   private String inheritance;
 
   /**

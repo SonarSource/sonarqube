@@ -37,7 +37,7 @@ import static org.junit.Assert.assertThat;
 public class DsmSerializerTest {
   @Test
   public void serializeEmptyDsm() {
-    Dsm<Resource> dsm = new Dsm<Resource>(new DirectedGraph<Resource, Edge<Resource>>());
+    Dsm<Resource> dsm = new Dsm<>(new DirectedGraph<Resource, Edge<Resource>>());
     assertThat(DsmSerializer.serialize(dsm), is("[]"));
   }
 
@@ -47,12 +47,12 @@ public class DsmSerializerTest {
     Resource bar = Directory.create("src/org/bar").setId(8);
     Dependency dep = new Dependency(foo, bar).setId(30l).setWeight(1);
 
-    DirectedGraph<Resource, Dependency> graph = new DirectedGraph<Resource, Dependency>();
+    DirectedGraph<Resource, Dependency> graph = new DirectedGraph<>();
     graph.addVertex(foo);
     graph.addVertex(bar);
     graph.addEdge(dep);
 
-    Dsm<Resource> dsm = new Dsm<Resource>(graph);
+    Dsm<Resource> dsm = new Dsm<>(graph);
     DsmManualSorter.sort(dsm, bar, foo); // for test reproductibility
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/batch/design/DsmSerializerTest/dsm.json")).trim();
     assertThat(DsmSerializer.serialize(dsm), is(json));

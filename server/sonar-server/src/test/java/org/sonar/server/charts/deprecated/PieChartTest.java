@@ -99,7 +99,7 @@ public class PieChartTest extends BaseChartWebTest {
   }
 
   private Map<String, String> getDefaultParams() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.PIE_CHART);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "100,50");
     params.put(BaseChartWeb.CHART_PARAM_DIMENSIONS, "50x50");

@@ -59,7 +59,7 @@ public final class ScmConfiguration implements Startable {
 
   private final ProjectReactor projectReactor;
   private final Settings settings;
-  private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<String, ScmProvider>();
+  private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<>();
   private final AnalysisMode analysisMode;
 
   private ScmProvider provider;

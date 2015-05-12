@@ -61,7 +61,7 @@ public class ProjectDsmDecorator extends DsmDecorator {
 
   @Override
   protected Set<Edge> doProcess(List<Resource> children, DecoratorContext context) {
-    CycleDetector<Resource> cycleDetector = new CycleDetector<Resource>(getIndex(), children);
+    CycleDetector<Resource> cycleDetector = new CycleDetector<>(getIndex(), children);
     Set<Cycle> cycles = cycleDetector.getCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);

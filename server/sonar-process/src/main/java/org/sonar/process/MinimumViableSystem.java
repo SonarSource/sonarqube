@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class MinimumViableSystem {
 
-  private final Map<String, String> requiredJavaOptions = new HashMap<String, String>();
+  private final Map<String, String> requiredJavaOptions = new HashMap<>();
 
   public MinimumViableSystem setRequiredJavaOption(String propertyKey, String expectedValue) {
     requiredJavaOptions.put(propertyKey, expectedValue);

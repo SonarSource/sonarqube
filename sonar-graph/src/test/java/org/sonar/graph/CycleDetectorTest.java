@@ -36,7 +36,7 @@ public class CycleDetectorTest {
     dag.addEdge("B", "D");
     dag.addEdge("A", "D");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dag);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dag);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.isAcyclicGraph()).isTrue();
   }
@@ -46,7 +46,7 @@ public class CycleDetectorTest {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "A");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.isAcyclicGraph()).isFalse();
   }
@@ -62,7 +62,7 @@ public class CycleDetectorTest {
     dcg.addEdge("E", "F");
     dcg.addEdge("F", "C");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles()).hasSize(8);
     assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(11);
@@ -75,11 +75,11 @@ public class CycleDetectorTest {
     dcg.addEdge("C", "A");
     dcg.addEdge("B", "A");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCyclesWithMaxSearchDepth(3);
     assertThat(cycleDetector.getCycles()).hasSize(2);
 
-    cycleDetector = new CycleDetector<String>(dcg);
+    cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCyclesWithMaxSearchDepth(2);
     assertThat(cycleDetector.getCycles()).hasSize(1);
   }
@@ -91,11 +91,11 @@ public class CycleDetectorTest {
     dcg.addEdge("C", "A");
     dcg.addEdge("B", "A");
 
-    Set<Edge> excludedEdges = new HashSet<Edge>();
+    Set<Edge> excludedEdges = new HashSet<>();
     excludedEdges.add(dcg.getEdge("C", "A"));
     excludedEdges.add(dcg.getEdge("B", "A"));
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg, excludedEdges);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg, excludedEdges);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles()).hasSize(1);
   }
@@ -106,7 +106,7 @@ public class CycleDetectorTest {
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "D").addEdge("D", "E");
     dcg.addEdge("B", "A");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles()).hasSize(1);
     Cycle cycle = cycleDetector.getCycles().iterator().next();
@@ -121,12 +121,12 @@ public class CycleDetectorTest {
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "A");
 
     // C must not be used to find cycles
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg, Arrays.asList("A", "B"));
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg, Arrays.asList("A", "B"));
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles()).isEmpty();
 
     // C is used to find cycles
-    cycleDetector = new CycleDetector<String>(dcg, Arrays.asList("A", "B", "C"));
+    cycleDetector = new CycleDetector<>(dcg, Arrays.asList("A", "B", "C"));
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles().size()).isEqualTo(1);
   }
@@ -136,7 +136,7 @@ public class CycleDetectorTest {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "A");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
     cycleDetector.detectCycles();
   }
@@ -147,7 +147,7 @@ public class CycleDetectorTest {
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "D").addEdge("D", "A");
     dcg.addEdge("B", "A");
 
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     assertThat(cycleDetector.detectCyclesWithUpperLimit(1)).hasSize(1);
   }
 }

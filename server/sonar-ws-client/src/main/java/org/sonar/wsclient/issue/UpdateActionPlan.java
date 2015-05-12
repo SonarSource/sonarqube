@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class UpdateActionPlan {
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
+  private final Map<String, Object> params = new HashMap<>();
 
   private UpdateActionPlan() {
   }

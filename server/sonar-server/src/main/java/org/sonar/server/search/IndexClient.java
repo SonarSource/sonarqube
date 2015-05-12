@@ -35,7 +35,7 @@ public class IndexClient {
 
   public IndexClient(Index<?, ?, ?>... indexComponents) {
 
-    this.indexComponents = new HashMap<Class<?>, Index<?, ?, ?>>();
+    this.indexComponents = new HashMap<>();
 
     for (Index<?, ?, ?> indexComponent : indexComponents) {
       this.indexComponents.put(indexComponent.getClass(), indexComponent);

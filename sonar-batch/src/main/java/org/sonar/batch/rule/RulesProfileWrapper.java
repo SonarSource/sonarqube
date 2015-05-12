@@ -85,7 +85,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public List<ActiveRule> getActiveRules() {
-    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    List<ActiveRule> activeRules = new ArrayList<>();
     for (RulesProfile profile : profiles) {
       activeRules.addAll(profile.getActiveRules());
     }
@@ -105,7 +105,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public List<ActiveRule> getActiveRulesByRepository(String repositoryKey) {
-    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    List<ActiveRule> activeRules = new ArrayList<>();
     for (RulesProfile profile : profiles) {
       activeRules.addAll(profile.getActiveRulesByRepository(repositoryKey));
     }
@@ -114,7 +114,7 @@ public class RulesProfileWrapper extends RulesProfile {
 
   @Override
   public List<ActiveRule> getActiveRules(boolean acceptDisabledRules) {
-    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    List<ActiveRule> activeRules = new ArrayList<>();
     for (RulesProfile profile : profiles) {
       activeRules.addAll(profile.getActiveRules(acceptDisabledRules));
     }

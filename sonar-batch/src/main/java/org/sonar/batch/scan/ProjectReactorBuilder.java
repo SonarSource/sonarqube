@@ -125,9 +125,9 @@ public class ProjectReactorBuilder {
   }
 
   private Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
-    Map<String, String> allProperties = new HashMap<String, String>();
+    Map<String, String> allProperties = new HashMap<>();
     allProperties.putAll(parentProperties);
-    Map<String, String> currentModuleProperties = new HashMap<String, String>();
+    Map<String, String> currentModuleProperties = new HashMap<>();
     String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
     // By default all properties starting with module prefix belong to current module
     for (Map.Entry<String, String> entry : allProperties.entrySet()) {
@@ -138,11 +138,11 @@ public class ProjectReactorBuilder {
         parentProperties.remove(key);
       }
     }
-    List<String> moduleIds = new ArrayList<String>(Arrays.asList(getListFromProperty(currentModuleProperties, PROPERTY_MODULES)));
+    List<String> moduleIds = new ArrayList<>(Arrays.asList(getListFromProperty(currentModuleProperties, PROPERTY_MODULES)));
     // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
     Collections.sort(moduleIds);
     Collections.reverse(moduleIds);
-    Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+    Map<String, Map<String, String>> result = new HashMap<>();
     for (String moduleId : moduleIds) {
       result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));
     }
@@ -445,7 +445,7 @@ public class ProjectReactorBuilder {
       dirPath = pattern.substring(0, i);
       filePattern = pattern.substring(i + 1);
     }
-    List<IOFileFilter> filters = new ArrayList<IOFileFilter>();
+    List<IOFileFilter> filters = new ArrayList<>();
     if (pattern.indexOf('*') >= 0) {
       filters.add(FileFileFilter.FILE);
     }

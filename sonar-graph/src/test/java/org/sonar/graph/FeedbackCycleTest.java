@@ -46,7 +46,7 @@ public class FeedbackCycleTest {
 
   @Test
   public void testBuildFeedbackCycles() {
-    Set<Cycle> cycles = new HashSet<Cycle>();
+    Set<Cycle> cycles = new HashSet<>();
     cycles.add(AB_Cycle);
     cycles.add(ABC_Cycle);
     cycles.add(BCDA_Cycle);

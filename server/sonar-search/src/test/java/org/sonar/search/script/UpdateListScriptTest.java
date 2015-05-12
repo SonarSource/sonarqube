@@ -43,7 +43,7 @@ public class UpdateListScriptTest {
 
   @Test
   public void fail_missing_attributes_field() {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
 
     // Missing everything
     try {
@@ -105,11 +105,11 @@ public class UpdateListScriptTest {
 
     String listField = "listField";
     Collection<Map<String, Object>> mapFields;
-    Map source = new HashMap<String, Object>();
+    Map source = new HashMap<>();
     source.put("field1", "value1");
 
     // 0 Create list when field does not exists
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, listField);
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
@@ -124,7 +124,7 @@ public class UpdateListScriptTest {
     assertThat(mapFields).hasSize(1);
 
     // Add item to existing list
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, listField);
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, "2");
@@ -136,7 +136,7 @@ public class UpdateListScriptTest {
     assertThat(mapFields).hasSize(2);
 
     // updated first item in list
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, listField);
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
@@ -148,7 +148,7 @@ public class UpdateListScriptTest {
     assertThat(mapFields).hasSize(2);
 
     // updated second item in list
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, listField);
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, "2");
@@ -160,7 +160,7 @@ public class UpdateListScriptTest {
     assertThat(mapFields).hasSize(2);
 
     // delete first item
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, listField);
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
     params.put(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
@@ -173,7 +173,7 @@ public class UpdateListScriptTest {
   }
 
   private Map<String, Object> mapOf(String k, String v, String k1, String v1) {
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
     map.put(k, v);
     map.put(k1, v1);
     return map;

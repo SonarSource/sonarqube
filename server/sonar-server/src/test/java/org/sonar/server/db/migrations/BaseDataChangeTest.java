@@ -78,7 +78,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void read_column_types() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Object[]> persons = new ArrayList<Object[]>();
+    final List<Object[]> persons = new ArrayList<>();
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -100,7 +100,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void parameterized_query() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Long> ids = new ArrayList<Long>();
+    final List<Long> ids = new ArrayList<>();
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -156,7 +156,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void bad_parameterized_query() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Long> ids = new ArrayList<Long>();
+    final List<Long> ids = new ArrayList<>();
     BaseDataChange change = new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -174,7 +174,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void scroll() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Long> ids = new ArrayList<Long>();
+    final List<Long> ids = new ArrayList<>();
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
@@ -435,7 +435,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void read_not_null_fields() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Object[]> persons = new ArrayList<Object[]>();
+    final List<Object[]> persons = new ArrayList<>();
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {

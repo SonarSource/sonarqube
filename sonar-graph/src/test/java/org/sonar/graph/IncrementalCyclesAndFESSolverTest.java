@@ -37,7 +37,7 @@ public class IncrementalCyclesAndFESSolverTest {
     dcg.addEdge("E", "F");
     dcg.addEdge("F", "C");
 
-    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<String>(dcg, dcg.getVertices(), 3,
+    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<>(dcg, dcg.getVertices(), 3,
         Integer.MAX_VALUE);
     assertThat(cyclesAndFESSolver.getCycles().size(), is(4));
     assertThat(cyclesAndFESSolver.getFeedbackEdgeSet().size(), is(2));
@@ -49,7 +49,7 @@ public class IncrementalCyclesAndFESSolverTest {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B").addEdge("B", "C").addEdge("C", "D").addEdge("D", "A");
 
-    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<String>(dcg, dcg.getVertices(), 2,
+    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<>(dcg, dcg.getVertices(), 2,
         Integer.MAX_VALUE);
     assertThat(cyclesAndFESSolver.getCycles().size(), is(1));
     assertThat(cyclesAndFESSolver.getFeedbackEdgeSet().size(), is(1));
@@ -63,7 +63,7 @@ public class IncrementalCyclesAndFESSolverTest {
     dcg.addEdge("E", "F").addEdge("F", "G").addEdge("G", "E");
     dcg.addEdge("H", "I").addEdge("I", "H");
 
-    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<String>(dcg, dcg.getVertices(), 2, 1);
+    IncrementalCyclesAndFESSolver<String> cyclesAndFESSolver = new IncrementalCyclesAndFESSolver<>(dcg, dcg.getVertices(), 2, 1);
     assertThat(cyclesAndFESSolver.getCycles().size(), is(3));
     assertThat(cyclesAndFESSolver.getIterations(), is(4));
     cyclesAndFESSolver.getFeedbackEdgeSet();

@@ -122,7 +122,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   }
 
   private List<File> keepOnlyDirs(List<File> dirsOrFiles) {
-    List<File> result = new ArrayList<File>();
+    List<File> result = new ArrayList<>();
     for (File f : dirsOrFiles) {
       if (f.isDirectory()) {
         result.add(f);

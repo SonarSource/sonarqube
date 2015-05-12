@@ -129,7 +129,7 @@ public class DefaultFilePredicates implements FilePredicates {
 
   @Override
   public FilePredicate hasLanguages(Collection<String> languages) {
-    List<FilePredicate> list = new ArrayList<FilePredicate>();
+    List<FilePredicate> list = new ArrayList<>();
     for (String language : languages) {
       list.add(hasLanguage(language));
     }
@@ -138,7 +138,7 @@ public class DefaultFilePredicates implements FilePredicates {
 
   @Override
   public FilePredicate hasLanguages(String... languages) {
-    List<FilePredicate> list = new ArrayList<FilePredicate>();
+    List<FilePredicate> list = new ArrayList<>();
     for (String language : languages) {
       list.add(hasLanguage(language));
     }

@@ -54,7 +54,7 @@ public final class Node {
   public Node(SuffixTree suffixTree, Node suffixNode) {
     this.suffixTree = suffixTree;
     this.suffixNode = suffixNode;
-    edges = new HashMap<Object, Edge>();
+    edges = new HashMap<>();
   }
 
   public Object symbolAt(int index) {

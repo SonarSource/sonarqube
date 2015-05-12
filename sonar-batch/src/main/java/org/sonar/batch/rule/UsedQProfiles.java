@@ -103,7 +103,7 @@ public class UsedQProfiles {
   }
 
   public Map<String, QProfile> profilesByKey() {
-    Map<String, QProfile> map = new HashMap<String, QProfile>();
+    Map<String, QProfile> map = new HashMap<>();
     for (QProfile profile : profiles) {
       map.put(profile.getKey(), profile);
     }

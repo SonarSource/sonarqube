@@ -77,7 +77,7 @@ public class ProjectDefinition {
   private static final char SEPARATOR = ',';
 
   private File baseDir, workDir, buildDir;
-  private Map<String, String> properties = new HashMap<String, String>();
+  private Map<String, String> properties = new HashMap<>();
   private ProjectDefinition parent = null;
   private List<ProjectDefinition> subProjects = new ArrayList<>();
   private List<Object> containerExtensions = new ArrayList<>();

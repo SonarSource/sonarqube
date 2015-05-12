@@ -214,7 +214,7 @@ public class PermissionFacade {
    */
   private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
     List<PermissionTemplateDto> allPermissionTemplates = permissionTemplateDao.selectAllPermissionTemplates(session);
-    List<PermissionTemplateDto> matchingTemplates = new ArrayList<PermissionTemplateDto>();
+    List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();
       if (StringUtils.isNotBlank(keyPattern) && componentKey.matches(keyPattern)) {

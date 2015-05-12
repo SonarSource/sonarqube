@@ -48,7 +48,7 @@ public class LocalizedMessages extends ResourceBundle {
    */
   public LocalizedMessages(Locale locale, String... basenames) {
     this.locale = locale;
-    bundles = new ArrayList<ResourceBundle>(basenames.length);
+    bundles = new ArrayList<>(basenames.length);
     for (String basename : basenames) {
       bundles.add(getBundle("sonar.bundles." + basename, locale));
     }
@@ -108,7 +108,7 @@ public class LocalizedMessages extends ResourceBundle {
   }
 
   private class KeyEnumeration implements Enumeration<String> {
-    private Set<String> keys = new HashSet<String>();
+    private Set<String> keys = new HashSet<>();
 
     // Set iterator to simulate enumeration
     private Iterator<String> i;

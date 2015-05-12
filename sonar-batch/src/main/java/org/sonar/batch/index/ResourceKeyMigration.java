@@ -80,9 +80,9 @@ public class ResourceKeyMigration {
 
   void migrateIfNeeded(Project module, Iterable<InputFile> inputFiles, DefaultModuleFileSystem fs) {
     logger.info("Update component keys");
-    Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<String, InputFile>();
-    Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
-    Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
+    Map<String, InputFile> deprecatedFileKeyMapper = new HashMap<>();
+    Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<>();
+    Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<>();
     for (InputFile inputFile : inputFiles) {
       String deprecatedKey = computeDeprecatedKey(module.getKey(), (DeprecatedDefaultInputFile) inputFile, fs);
       if (deprecatedKey != null) {
@@ -225,7 +225,7 @@ public class ResourceKeyMigration {
       .setParameter("rootId", moduleId)
       .setParameter("enabled", false)
       .getResultList();
-    Map<String, ResourceModel> disabledResourceByKey = new HashMap<String, ResourceModel>();
+    Map<String, ResourceModel> disabledResourceByKey = new HashMap<>();
     for (ResourceModel disabledResourceModel : disabledResources) {
       disabledResourceByKey.put(disabledResourceModel.getKey(), disabledResourceModel);
     }

@@ -29,7 +29,7 @@ public class ActionPlanQuery {
 
   public static final String BASE_URL = "/api/action_plans/search";
 
-  private final Map<String, Object> params = new HashMap<String, Object>();
+  private final Map<String, Object> params = new HashMap<>();
 
   private ActionPlanQuery() {
   }

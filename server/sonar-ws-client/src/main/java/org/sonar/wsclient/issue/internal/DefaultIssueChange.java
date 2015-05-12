@@ -51,7 +51,7 @@ public class DefaultIssueChange implements IssueChange {
 
   @Override
   public List<IssueChangeDiff> diffs() {
-    List<IssueChangeDiff> diffs = new ArrayList<IssueChangeDiff>();
+    List<IssueChangeDiff> diffs = new ArrayList<>();
     List<Map> jsonDiffs = (List<Map>) json.get("diffs");
     for (Map jsonDiff : jsonDiffs) {
       diffs.add(new DefaultIssueChangeDiff(jsonDiff));

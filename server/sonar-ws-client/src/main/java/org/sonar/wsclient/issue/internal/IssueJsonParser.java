@@ -111,7 +111,7 @@ public class IssueJsonParser {
   }
 
   List<String> parseTransitions(String json) {
-    List<String> transitions = new ArrayList<String>();
+    List<String> transitions = new ArrayList<>();
     Map jRoot = (Map) JSONValue.parse(json);
     List<String> jTransitions = (List<String>) jRoot.get("transitions");
     for (String jTransition : jTransitions) {
@@ -121,7 +121,7 @@ public class IssueJsonParser {
   }
 
   List<IssueChange> parseChangelog(String json) {
-    List<IssueChange> changes = new ArrayList<IssueChange>();
+    List<IssueChange> changes = new ArrayList<>();
     Map jRoot = (Map) JSONValue.parse(json);
     List<Map> jChanges = (List<Map>) jRoot.get("changelog");
     if (jChanges != null) {
@@ -133,7 +133,7 @@ public class IssueJsonParser {
   }
 
   List<String> parseActions(String json) {
-    List<String> actions = new ArrayList<String>();
+    List<String> actions = new ArrayList<>();
     Map jRoot = (Map) JSONValue.parse(json);
     List<String> jActions = (List<String>) jRoot.get("actions");
     for (String jAction : jActions) {

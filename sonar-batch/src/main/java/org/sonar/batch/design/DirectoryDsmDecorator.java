@@ -42,7 +42,7 @@ public class DirectoryDsmDecorator extends DsmDecorator {
   @Override
   protected List<Resource> getChildren(Resource resource, DecoratorContext context) {
     List<DecoratorContext> fileContexts = context.getChildren();
-    List<Resource> files = new ArrayList<Resource>(fileContexts.size());
+    List<Resource> files = new ArrayList<>(fileContexts.size());
     for (DecoratorContext decoratorContext : fileContexts) {
       files.add(decoratorContext.getResource());
     }
@@ -51,7 +51,7 @@ public class DirectoryDsmDecorator extends DsmDecorator {
 
   @Override
   protected Set<Edge> doProcess(List<Resource> children, DecoratorContext context) {
-    IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<Resource>(getIndex(), children);
+    IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<>(getIndex(), children);
     Set<Cycle> cycles = cycleDetector.getCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);

@@ -81,7 +81,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
 
   static class DecoratorsProfiler {
     List<Decorator> decorators = Lists.newArrayList();
-    Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
+    Map<Decorator, Long> durations = new IdentityHashMap<>();
     long startTime;
     Decorator currentDecorator;
 

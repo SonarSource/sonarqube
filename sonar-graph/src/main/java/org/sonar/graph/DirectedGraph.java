@@ -30,9 +30,9 @@ import java.util.Set;
 public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccessor<V, E> {
 
   private EdgeFactory<V, E> edgeFactory;
-  private Map<V, Map<V, E>> outgoingEdgesByVertex = new HashMap<V, Map<V, E>>();
-  private Map<V, Map<V, E>> incomingEdgesByVertex = new HashMap<V, Map<V, E>>();
-  private Set<V> vertices = new LinkedHashSet<V>();
+  private Map<V, Map<V, E>> outgoingEdgesByVertex = new HashMap<>();
+  private Map<V, Map<V, E>> incomingEdgesByVertex = new HashMap<>();
+  private Set<V> vertices = new LinkedHashSet<>();
 
   public DirectedGraph() {
   }
@@ -42,7 +42,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   }
 
   public static DirectedGraph<String, StringEdge> createStringDirectedGraph() {
-    return new DirectedGraph<String, StringEdge>(new StringEdgeFactory());
+    return new DirectedGraph<>(new StringEdgeFactory());
   }
 
   public DirectedGraph<V, E> addEdge(V from, V to) {
@@ -75,7 +75,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   private void addEdgeToMap(V vertexKey1, V vertexKey2, E edge, Map<V, Map<V, E>> edgesByVertex) {
     Map<V, E> edges = edgesByVertex.get(vertexKey1);
     if (edges == null) {
-      edges = new HashMap<V, E>();
+      edges = new HashMap<>();
       edgesByVertex.put(vertexKey1, edges);
     }
     if (edges.containsKey(vertexKey2)) {
@@ -119,7 +119,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   }
 
   public List<E> getEdges(Collection<V> vertices) {
-    List<E> result = new ArrayList<E>();
+    List<E> result = new ArrayList<>();
     for (V vertice : vertices) {
       Collection<E> outgoingEdges = getOutgoingEdges(vertice);
       if (outgoingEdges != null) {
@@ -133,7 +133,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   public Collection<E> getOutgoingEdges(V from) {
     Map<V, E> outgoingEdges = outgoingEdgesByVertex.get(from);
     if (outgoingEdges == null) {
-      return new LinkedHashSet<E>();
+      return new LinkedHashSet<>();
     }
     return outgoingEdges.values();
   }
@@ -142,7 +142,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   public Collection<E> getIncomingEdges(V to) {
     Map<V, E> incomingEdges = incomingEdgesByVertex.get(to);
     if (incomingEdges == null) {
-      return new LinkedHashSet<E>();
+      return new LinkedHashSet<>();
     }
     return incomingEdges.values();
   }

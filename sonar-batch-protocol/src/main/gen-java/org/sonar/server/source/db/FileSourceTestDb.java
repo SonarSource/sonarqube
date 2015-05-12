@@ -209,7 +209,7 @@ public final class FileSourceTestDb {
             }
             case 58: {
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
-                coverageBlock_ = new java.util.ArrayList<org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock>();
+                coverageBlock_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000040;
               }
               coverageBlock_.add(input.readMessage(org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock.PARSER, extensionRegistry));
@@ -409,7 +409,7 @@ public final class FileSourceTestDb {
               }
               case 32: {
                 if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                  lines_ = new java.util.ArrayList<java.lang.Integer>();
+                  lines_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000008;
                 }
                 lines_.add(input.readInt32());
@@ -419,7 +419,7 @@ public final class FileSourceTestDb {
                 int length = input.readRawVarint32();
                 int limit = input.pushLimit(length);
                 if (!((mutable_bitField0_ & 0x00000008) == 0x00000008) && input.getBytesUntilLimit() > 0) {
-                  lines_ = new java.util.ArrayList<java.lang.Integer>();
+                  lines_ = new java.util.ArrayList<>();
                   mutable_bitField0_ |= 0x00000008;
                 }
                 while (input.getBytesUntilLimit() > 0) {
@@ -1220,7 +1220,7 @@ public final class FileSourceTestDb {
         private java.util.List<java.lang.Integer> lines_ = java.util.Collections.emptyList();
         private void ensureLinesIsMutable() {
           if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-            lines_ = new java.util.ArrayList<java.lang.Integer>(lines_);
+            lines_ = new java.util.ArrayList<>(lines_);
             bitField0_ |= 0x00000008;
            }
         }
@@ -2444,7 +2444,7 @@ public final class FileSourceTestDb {
         java.util.Collections.emptyList();
       private void ensureCoverageBlockIsMutable() {
         if (!((bitField0_ & 0x00000040) == 0x00000040)) {
-          coverageBlock_ = new java.util.ArrayList<org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock>(coverageBlock_);
+          coverageBlock_ = new java.util.ArrayList<>(coverageBlock_);
           bitField0_ |= 0x00000040;
          }
       }
@@ -2668,8 +2668,7 @@ public final class FileSourceTestDb {
           org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock, org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock.Builder, org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlockOrBuilder> 
           getCoverageBlockFieldBuilder() {
         if (coverageBlockBuilder_ == null) {
-          coverageBlockBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock, org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlock.Builder, org.sonar.server.source.db.FileSourceTestDb.Test.CoverageBlockOrBuilder>(
+          coverageBlockBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   coverageBlock_,
                   ((bitField0_ & 0x00000040) == 0x00000040),
                   getParentForChildren(),
@@ -2771,7 +2770,7 @@ public final class FileSourceTestDb {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                test_ = new java.util.ArrayList<org.sonar.server.source.db.FileSourceTestDb.Test>();
+                test_ = new java.util.ArrayList<>();
                 mutable_bitField0_ |= 0x00000001;
               }
               test_.add(input.readMessage(org.sonar.server.source.db.FileSourceTestDb.Test.PARSER, extensionRegistry));
@@ -3118,7 +3117,7 @@ public final class FileSourceTestDb {
         java.util.Collections.emptyList();
       private void ensureTestIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          test_ = new java.util.ArrayList<org.sonar.server.source.db.FileSourceTestDb.Test>(test_);
+          test_ = new java.util.ArrayList<>(test_);
           bitField0_ |= 0x00000001;
          }
       }
@@ -3342,8 +3341,7 @@ public final class FileSourceTestDb {
           org.sonar.server.source.db.FileSourceTestDb.Test, org.sonar.server.source.db.FileSourceTestDb.Test.Builder, org.sonar.server.source.db.FileSourceTestDb.TestOrBuilder> 
           getTestFieldBuilder() {
         if (testBuilder_ == null) {
-          testBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.server.source.db.FileSourceTestDb.Test, org.sonar.server.source.db.FileSourceTestDb.Test.Builder, org.sonar.server.source.db.FileSourceTestDb.TestOrBuilder>(
+          testBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<>(
                   test_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),

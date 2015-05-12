@@ -54,7 +54,7 @@ public class DefaultLanguagesRepository implements LanguagesRepository {
   @Override
   public Collection<Language> all() {
     org.sonar.api.resources.Language[] all = languages.all();
-    Collection<Language> result = new ArrayList<Language>(all.length);
+    Collection<Language> result = new ArrayList<>(all.length);
     for (org.sonar.api.resources.Language language : all) {
       result.add(new Language(language.getKey(), language.getName(), language.getFileSuffixes()));
     }

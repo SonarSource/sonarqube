@@ -89,7 +89,7 @@ public class ReportSummary {
   }
 
   public List<RuleReport> getRuleReports() {
-    List<RuleReport> result = new ArrayList<RuleReport>(ruleReportByRuleKey.values());
+    List<RuleReport> result = new ArrayList<>(ruleReportByRuleKey.values());
     Collections.sort(result, new RuleReportComparator());
     return result;
   }

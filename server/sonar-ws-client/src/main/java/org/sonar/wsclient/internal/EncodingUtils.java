@@ -40,7 +40,7 @@ public class EncodingUtils {
     if (array.length%2==1) {
       throw new IllegalArgumentException("Not an even number of arguments");
     }
-    Map<String, Object> map = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<>();
     for (int i = 0; i < array.length; i += 2) {
       Object value = array[i + 1];
       if (value != null) {

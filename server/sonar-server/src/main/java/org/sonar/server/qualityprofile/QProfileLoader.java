@@ -107,7 +107,7 @@ public class QProfileLoader {
   }
 
   public Map<String, Long> countAllActiveRules() {
-    Map<String, Long> counts = new HashMap<String, Long>();
+    Map<String, Long> counts = new HashMap<>();
     for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
       counts.put(entry.getKey(), entry.getValue());
     }

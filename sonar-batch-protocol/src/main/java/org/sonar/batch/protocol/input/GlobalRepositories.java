@@ -33,8 +33,8 @@ import java.util.Map;
 public class GlobalRepositories {
 
   private long timestamp;
-  private Collection<Metric> metrics = new ArrayList<Metric>();
-  private Map<String, String> globalSettings = new HashMap<String, String>();
+  private Collection<Metric> metrics = new ArrayList<>();
+  private Map<String, String> globalSettings = new HashMap<>();
 
   public Map<String, String> globalSettings() {
     return globalSettings;

@@ -223,7 +223,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    */
   public Measure<String> build(boolean allowEmptyData) {
     if (isValid && (!isEmpty || allowEmptyData)) {
-      return new Measure<String>(metric, KeyValueFormat.format(countBag, -1));
+      return new Measure<>(metric, KeyValueFormat.format(countBag, -1));
     }
     return null;
   }

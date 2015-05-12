@@ -61,7 +61,7 @@ public class DefaultQualityGateClient implements QualityGateClient {
 
   @Override
   public QualityGate rename(long qGateId, String qGateName) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("id", qGateId);
     params.put("name", qGateName);
     String json = requestFactory.post(RENAME_URL, params);
@@ -123,7 +123,7 @@ public class DefaultQualityGateClient implements QualityGateClient {
   }
 
   private Map<String, Object> selectionParams(long qGateId, long projectId) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("gateId", Long.toString(qGateId));
     params.put("projectId", Long.toString(projectId));
     return params;
@@ -152,7 +152,7 @@ public class DefaultQualityGateClient implements QualityGateClient {
   private Collection<QualityGateCondition> jsonToConditions(String json) {
     Map jsonRoot = (Map) JSONValue.parse(json);
     Collection<Map> conditionArray = (Collection<Map>) jsonRoot.get("conditions");
-    Collection<QualityGateCondition> conditions = new ArrayList<QualityGateCondition>();
+    Collection<QualityGateCondition> conditions = new ArrayList<>();
     if (conditionArray != null) {
       for (Map conditionJson: conditionArray) {
         conditions.add(new DefaultQualityGateCondition(conditionJson));

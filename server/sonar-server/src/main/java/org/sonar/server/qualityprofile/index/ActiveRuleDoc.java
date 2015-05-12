@@ -88,7 +88,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   @Override
   public Map<String, String> params() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     List<Map<String, String>> allParams = getNullableField(ActiveRuleNormalizer.ActiveRuleField.PARAMS.field());
     if (allParams != null) {
       for (Map<String, String> param : allParams) {

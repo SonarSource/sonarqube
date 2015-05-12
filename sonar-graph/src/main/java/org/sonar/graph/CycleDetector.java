@@ -30,7 +30,7 @@ public class CycleDetector<V> {
   private Set<V> vertices;
   private DirectedGraphAccessor<V, ? extends Edge> graph;
   private Set<V> analyzedVertices;
-  private Set<Cycle> cycles = new LinkedHashSet<Cycle>();
+  private Set<Cycle> cycles = new LinkedHashSet<>();
   private Set<Edge> edgesToExclude;
   private long searchCyclesCalls = 0;
   private int maxSearchDepth = -1;
@@ -55,8 +55,8 @@ public class CycleDetector<V> {
 
   private void init(DirectedGraphAccessor<V, ? extends Edge> graph, Collection<V> vertices, Set<Edge> edgesToExclude) {
     this.graph = graph;
-    this.vertices = new LinkedHashSet<V>(vertices);
-    this.analyzedVertices = new LinkedHashSet<V>();
+    this.vertices = new LinkedHashSet<>(vertices);
+    this.analyzedVertices = new LinkedHashSet<>();
     this.edgesToExclude = edgesToExclude;
   }
 
@@ -87,7 +87,7 @@ public class CycleDetector<V> {
     try {
       for (V vertex : vertices) {
         if (maxSearchDepthActivated || !analyzedVertices.contains(vertex)) {
-          Set<V> tmpAnalyzedVertices = new LinkedHashSet<V>();
+          Set<V> tmpAnalyzedVertices = new LinkedHashSet<>();
           searchCycles(vertex, new ArrayList<V>(), tmpAnalyzedVertices);
           analyzedVertices.addAll(tmpAnalyzedVertices);
         }
@@ -124,7 +124,7 @@ public class CycleDetector<V> {
   }
 
   private Cycle convertListOfVerticesToCycle(List<V> vertices) {
-    List<Edge> edges = new ArrayList<Edge>();
+    List<Edge> edges = new ArrayList<>();
     V firstVertex = vertices.get(0);
     V from = firstVertex;
     for (int index = 1; index < vertices.size(); index++) {

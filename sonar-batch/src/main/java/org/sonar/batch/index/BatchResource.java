@@ -37,7 +37,7 @@ public class BatchResource {
   private final Resource r;
   private Snapshot s;
   private final BatchResource parent;
-  private final Collection<BatchResource> children = new ArrayList<BatchResource>();
+  private final Collection<BatchResource> children = new ArrayList<>();
   private InputPath inputPath;
 
   public BatchResource(int batchId, Resource r, @Nullable BatchResource parent) {

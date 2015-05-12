@@ -213,7 +213,7 @@ public class JpaDatabaseSession extends DatabaseSession {
       return defaultValue;
 
     } else {
-      Set<T> uniqueResult = new HashSet<T>(result);
+      Set<T> uniqueResult = new HashSet<>(result);
       if (uniqueResult.size() > 1) {
         throw new NonUniqueResultException("Expected single result, but got : " + result.toString());
       } else {

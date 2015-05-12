@@ -36,7 +36,7 @@ public final class ResourceReport {
   private final IssueVariation total = new IssueVariation();
   private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
 
-  private List<Issue> issues = new ArrayList<Issue>();
+  private List<Issue> issues = new ArrayList<>();
   private Map<Integer, List<Issue>> issuesPerLine = Maps.newHashMap();
   private Map<Integer, List<Issue>> newIssuesPerLine = Maps.newHashMap();
   private Map<Rule, AtomicInteger> issuesByRule = Maps.newHashMap();
@@ -146,7 +146,7 @@ public final class ResourceReport {
   }
 
   public List<RuleReport> getRuleReports() {
-    List<RuleReport> result = new ArrayList<RuleReport>(ruleReportByRuleKey.values());
+    List<RuleReport> result = new ArrayList<>(ruleReportByRuleKey.values());
     Collections.sort(result, new RuleReportComparator());
     return result;
   }

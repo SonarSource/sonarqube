@@ -135,18 +135,18 @@ public final class PropertyDefinitions {
    * @since 3.7
    */
   public Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> propertiesByCategory(@Nullable String qualifier) {
-    Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> byCategory = new HashMap<Category, Map<SubCategory, Collection<PropertyDefinition>>>();
+    Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> byCategory = new HashMap<>();
     if (qualifier == null) {
       // Special categories on global page
-      Map<SubCategory, Collection<PropertyDefinition>> emailSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      Map<SubCategory, Collection<PropertyDefinition>> emailSubCategories = new HashMap<>();
       emailSubCategories.put(new SubCategory("email", true), new ArrayList<PropertyDefinition>());
       byCategory.put(new Category(CoreProperties.CATEGORY_GENERAL, false), emailSubCategories);
 
-      HashMap<SubCategory, Collection<PropertyDefinition>> licenseSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      HashMap<SubCategory, Collection<PropertyDefinition>> licenseSubCategories = new HashMap<>();
       licenseSubCategories.put(new SubCategory("server_id", true), new ArrayList<PropertyDefinition>());
       byCategory.put(new Category(CoreProperties.CATEGORY_LICENSES, false), licenseSubCategories);
 
-      HashMap<SubCategory, Collection<PropertyDefinition>> encryptionSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      HashMap<SubCategory, Collection<PropertyDefinition>> encryptionSubCategories = new HashMap<>();
       encryptionSubCategories.put(new SubCategory("encryption", true), new ArrayList<PropertyDefinition>());
       byCategory.put(new Category(CoreProperties.CATEGORY_SECURITY, false), encryptionSubCategories);
     }

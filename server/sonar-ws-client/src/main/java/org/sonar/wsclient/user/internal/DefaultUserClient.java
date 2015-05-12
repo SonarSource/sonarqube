@@ -54,7 +54,7 @@ public class DefaultUserClient implements UserClient {
   @Override
   public List<User> find(UserQuery query) {
     String json = requestFactory.get(SEARCH_URL, query.urlParams());
-    List<User> result = new ArrayList<User>();
+    List<User> result = new ArrayList<>();
     Map jsonRoot = (Map) JSONValue.parse(json);
     List<Map> jsonUsers = (List<Map>) jsonRoot.get("users");
     if (jsonUsers != null) {
@@ -83,7 +83,7 @@ public class DefaultUserClient implements UserClient {
 
   @Override
   public void deactivate(String login) {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = new HashMap<>();
     params.put("login", login);
     requestFactory.post(DEACTIVATE_URL, params);
   }

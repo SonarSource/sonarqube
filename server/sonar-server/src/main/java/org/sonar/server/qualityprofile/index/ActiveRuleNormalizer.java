@@ -74,12 +74,12 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   @Override
   public List<UpdateRequest> normalize(ActiveRuleDto activeRuleDto) {
 
-    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
+    List<UpdateRequest> requests = new ArrayList<>();
 
     ActiveRuleKey key = activeRuleDto.getKey();
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleDto with null key");
 
-    Map<String, Object> newRule = new HashMap<String, Object>();
+    Map<String, Object> newRule = new HashMap<>();
     newRule.put("_parent", key.ruleKey().toString());
     newRule.put(ActiveRuleField.RULE_KEY.field(), key.ruleKey().toString());
     newRule.put(ActiveRuleField.KEY.field(), key.toString());
@@ -157,7 +157,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   private List<UpdateRequest> nestedUpdate(ActiveRuleParamDto param, ActiveRuleKey key) {
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
 
-    Map<String, Object> newParam = new HashMap<String, Object>();
+    Map<String, Object> newParam = new HashMap<>();
     newParam.put(ActiveRuleParamField.NAME.field(), param.getKey());
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 

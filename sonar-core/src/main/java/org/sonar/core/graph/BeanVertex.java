@@ -25,10 +25,10 @@ import com.tinkerpop.blueprints.Vertex;
 public abstract class BeanVertex extends BeanElement<Vertex, BeanVertex> {
 
   protected final <T extends BeanEdge> Iterable<T> getEdges(Class<T> edgeClass, Direction direction, String... labels) {
-    return new BeanIterable<T>(beanGraph(), edgeClass, element().getEdges(direction, labels));
+    return new BeanIterable<>(beanGraph(), edgeClass, element().getEdges(direction, labels));
   }
 
   protected final <T extends BeanVertex> Iterable<T> getVertices(Class<T> vertexClass, Direction direction, String... labels) {
-    return new BeanIterable<T>(beanGraph(), vertexClass, element().getVertices(direction, labels));
+    return new BeanIterable<>(beanGraph(), vertexClass, element().getVertices(direction, labels));
   }
 }

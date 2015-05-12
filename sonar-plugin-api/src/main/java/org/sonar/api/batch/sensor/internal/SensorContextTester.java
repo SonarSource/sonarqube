@@ -224,7 +224,7 @@ public class SensorContextTester implements SensorContext {
     if (syntaxHighlightingData == null) {
       return Collections.emptyList();
     }
-    List<TypeOfText> result = new ArrayList<TypeOfText>();
+    List<TypeOfText> result = new ArrayList<>();
     DefaultTextPointer location = new DefaultTextPointer(line, lineOffset);
     for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.getSyntaxHighlightingRuleSet()) {
       if (sortedRule.range().start().compareTo(location) <= 0 && sortedRule.range().end().compareTo(location) > 0) {

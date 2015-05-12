@@ -33,10 +33,10 @@ import java.util.*;
 public class ProjectRepositories {
 
   private long timestamp;
-  private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
-  private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
-  private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
-  private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<String, Map<String, FileData>>();
+  private Map<String, QProfile> qprofilesByLanguage = new HashMap<>();
+  private Collection<ActiveRule> activeRules = new ArrayList<>();
+  private Map<String, Map<String, String>> settingsByModule = new HashMap<>();
+  private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<>();
   private Date lastAnalysisDate;
 
   public Map<String, String> settings(String moduleKey) {

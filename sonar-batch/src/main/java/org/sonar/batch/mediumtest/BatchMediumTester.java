@@ -296,7 +296,7 @@ public class BatchMediumTester {
   }
 
   private static class FakeServerLineHashesLoader implements ServerLineHashesLoader {
-    private Map<String, String[]> byKey = new HashMap<String, String[]>();
+    private Map<String, String[]> byKey = new HashMap<>();
 
     @Override
     public String[] getLineHashes(String fileKey) {

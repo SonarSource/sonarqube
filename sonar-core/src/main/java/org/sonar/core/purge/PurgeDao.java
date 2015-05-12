@@ -134,7 +134,7 @@ public class PurgeDao {
   }
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
-    final List<IdUuidPair> componentIdUuids = new ArrayList<IdUuidPair>();
+    final List<IdUuidPair> componentIdUuids = new ArrayList<>();
     session.select("org.sonar.core.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getId(), new ResultHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {

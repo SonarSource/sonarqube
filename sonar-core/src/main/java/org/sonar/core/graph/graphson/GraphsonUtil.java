@@ -224,7 +224,7 @@ class GraphsonUtil {
   }
 
   static Map<String, Object> readProperties(JSONObject node, boolean ignoreReservedKeys, boolean hasEmbeddedTypes) {
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
 
     for (Object objKey : node.keySet()) {
       String key = (String) objKey;
@@ -398,7 +398,7 @@ class GraphsonUtil {
   }
 
   private static Map createPropertyMap(Element element, Set<String> propertyKeys, ElementPropertiesRule rule) {
-    Map map = new HashMap<String, Object>();
+    Map map = new HashMap<>();
 
     if (propertyKeys == null) {
       for (String key : element.getPropertyKeys()) {

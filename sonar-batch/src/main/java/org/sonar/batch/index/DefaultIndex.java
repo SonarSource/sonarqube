@@ -223,7 +223,7 @@ public class DefaultIndex extends SonarIndex {
     } else {
       unfiltered = measureCache.byResource(indexedResource);
     }
-    Collection<Measure> all = new ArrayList<Measure>();
+    Collection<Measure> all = new ArrayList<>();
     if (unfiltered != null) {
       for (Measure measure : unfiltered) {
         all.add(measure);
@@ -300,7 +300,7 @@ public class DefaultIndex extends SonarIndex {
   private void registerOutgoingDependency(Dependency dependency) {
     Map<Resource, Dependency> outgoingDeps = outgoingDependenciesByResource.get(dependency.getFrom());
     if (outgoingDeps == null) {
-      outgoingDeps = new HashMap<Resource, Dependency>();
+      outgoingDeps = new HashMap<>();
       outgoingDependenciesByResource.put(dependency.getFrom(), outgoingDeps);
     }
     outgoingDeps.put(dependency.getTo(), dependency);
@@ -309,7 +309,7 @@ public class DefaultIndex extends SonarIndex {
   private void registerIncomingDependency(Dependency dependency) {
     Map<Resource, Dependency> incomingDeps = incomingDependenciesByResource.get(dependency.getTo());
     if (incomingDeps == null) {
-      incomingDeps = new HashMap<Resource, Dependency>();
+      incomingDeps = new HashMap<>();
       incomingDependenciesByResource.put(dependency.getTo(), incomingDeps);
     }
     incomingDeps.put(dependency.getFrom(), dependency);

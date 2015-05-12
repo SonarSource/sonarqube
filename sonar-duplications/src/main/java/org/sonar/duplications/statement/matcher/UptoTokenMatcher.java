@@ -31,7 +31,7 @@ import org.sonar.duplications.token.TokenQueue;
  */
 public class UptoTokenMatcher extends TokenMatcher {
 
-  private final Set<String> uptoMatchTokens = new HashSet<String>();
+  private final Set<String> uptoMatchTokens = new HashSet<>();
 
   public UptoTokenMatcher(String[] uptoMatchTokens) {
     if (uptoMatchTokens == null) {

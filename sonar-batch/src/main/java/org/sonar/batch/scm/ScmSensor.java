@@ -91,7 +91,7 @@ public final class ScmSensor implements Sensor {
     if (configuration.forceReloadAll()) {
       LOG.warn("Forced reloading of SCM data for all files.");
     }
-    List<InputFile> filesToBlame = new LinkedList<InputFile>();
+    List<InputFile> filesToBlame = new LinkedList<>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
       if (configuration.forceReloadAll()) {
         addIfNotEmpty(filesToBlame, f);

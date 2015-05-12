@@ -135,7 +135,7 @@ public class IssueService {
       return Collections.emptyList();
     }
     List<Transition> outTransitions = workflow.outTransitions(issue);
-    List<Transition> allowedTransitions = new ArrayList<Transition>();
+    List<Transition> allowedTransitions = new ArrayList<>();
     for (Transition transition : outTransitions) {
       String projectUuid = issue.projectUuid();
       if (StringUtils.isBlank(transition.requiredProjectPermission()) ||

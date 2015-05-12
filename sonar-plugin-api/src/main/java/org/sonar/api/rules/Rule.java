@@ -136,7 +136,7 @@ public class Rule {
 
   @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
   @OneToMany(mappedBy = "rule")
-  private List<RuleParam> params = new ArrayList<RuleParam>();
+  private List<RuleParam> params = new ArrayList<>();
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created_at", updatable = true, nullable = true)

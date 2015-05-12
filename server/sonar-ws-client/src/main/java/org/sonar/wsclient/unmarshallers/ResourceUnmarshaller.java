@@ -77,7 +77,7 @@ public class ResourceUnmarshaller extends AbstractUnmarshaller<Resource> {
 
   private List<Measure> parseMeasures(Object measuresJson) {
     WSUtils utils = WSUtils.getINSTANCE();
-    List<Measure> projectMeasures = new ArrayList<Measure>();
+    List<Measure> projectMeasures = new ArrayList<>();
     int len = utils.getArraySize(measuresJson);
     for (int i = 0; i < len; i++) {
       Object measureJson = utils.getArrayElement(measuresJson, i);

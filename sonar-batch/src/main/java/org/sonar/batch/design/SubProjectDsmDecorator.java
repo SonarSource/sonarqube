@@ -43,7 +43,7 @@ public class SubProjectDsmDecorator extends DsmDecorator {
   @Override
   protected List<Resource> getChildren(Resource resource, DecoratorContext context) {
     List<DecoratorContext> directoryContexts = context.getChildren();
-    List<Resource> directories = new ArrayList<Resource>(directoryContexts.size());
+    List<Resource> directories = new ArrayList<>(directoryContexts.size());
     for (DecoratorContext decoratorContext : directoryContexts) {
       directories.add(decoratorContext.getResource());
     }
@@ -52,7 +52,7 @@ public class SubProjectDsmDecorator extends DsmDecorator {
 
   @Override
   protected Set<Edge> doProcess(List<Resource> children, DecoratorContext context) {
-    IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<Resource>(getIndex(), children);
+    IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<>(getIndex(), children);
     Set<Cycle> cycles = cycleDetector.getCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);

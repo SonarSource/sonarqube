@@ -32,17 +32,17 @@ public class PropertiesBuilder<K, V> {
   private Map<K, V> props;
 
   public PropertiesBuilder(Metric metric, Map<K, V> map) {
-    this.props = new TreeMap<K, V>(map);
+    this.props = new TreeMap<>(map);
     this.metric = metric;
   }
 
   public PropertiesBuilder(Metric metric) {
-    this.props = new TreeMap<K, V>();
+    this.props = new TreeMap<>();
     this.metric = metric;
   }
 
   public PropertiesBuilder() {
-    this.props = new TreeMap<K, V>();
+    this.props = new TreeMap<>();
   }
 
   public PropertiesBuilder<K, V> clear() {

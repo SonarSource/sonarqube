@@ -59,7 +59,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @VisibleForTesting
   ModuleProfiling totalProfiling;
 
-  private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<Project, ModuleProfiling>();
+  private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<>();
   private DecoratorsProfiler decoratorsProfiler;
 
   private final System2 system;
@@ -258,7 +258,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   class DecoratorsProfiler {
     private List<Decorator> decorators = Lists.newArrayList();
-    private Map<Decorator, Long> durations = new IdentityHashMap<Decorator, Long>();
+    private Map<Decorator, Long> durations = new IdentityHashMap<>();
     private long startTime;
     private Decorator currentDecorator;
 

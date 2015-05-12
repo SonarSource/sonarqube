@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class RulesBuilder {
 
-  private final Map<RuleKey, NewRule> map = new HashMap<RuleKey, NewRule>();
+  private final Map<RuleKey, NewRule> map = new HashMap<>();
 
   public NewRule add(RuleKey key) {
     if (map.containsKey(key)) {

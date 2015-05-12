@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Monitor {
 
-  private final List<ProcessRef> processes = new CopyOnWriteArrayList<ProcessRef>();
+  private final List<ProcessRef> processes = new CopyOnWriteArrayList<>();
   private final TerminatorThread terminator;
   private final JavaProcessLauncher launcher;
   private final Lifecycle lifecycle = new Lifecycle();
@@ -39,7 +39,7 @@ public class Monitor {
   private Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
 
   // used by awaitStop() to block until all processes are shutdown
-  private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<WatcherThread>();
+  private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<>();
   static int nextProcessId = 0;
 
   Monitor(JavaProcessLauncher launcher, SystemExit exit, TerminatorThread terminator) {

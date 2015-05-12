@@ -328,13 +328,13 @@ public class RuleDto extends Dto<RuleKey> {
   public Set<String> getTags() {
     return tags == null ?
       new HashSet<String>() :
-      new TreeSet<String>(Arrays.asList(StringUtils.split(tags, ',')));
+      new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
   public Set<String> getSystemTags() {
     return systemTags == null ?
       new HashSet<String>() :
-      new TreeSet<String>(Arrays.asList(StringUtils.split(systemTags, ',')));
+      new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
   }
 
   private String getTagsField() {

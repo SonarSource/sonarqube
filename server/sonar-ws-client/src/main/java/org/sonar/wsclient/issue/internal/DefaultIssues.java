@@ -39,13 +39,13 @@ import java.util.Map;
  */
 public class DefaultIssues implements Issues {
 
-  private final List<Issue> list = new ArrayList<Issue>();
-  private final Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
-  private final Map<String, User> usersByKey = new HashMap<String, User>();
-  private final Map<Long, Component> componentsById = new HashMap<Long, Component>();
-  private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
-  private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
-  private final Map<String, ActionPlan> actionPlansByKey = new HashMap<String, ActionPlan>();
+  private final List<Issue> list = new ArrayList<>();
+  private final Map<String, Rule> rulesByKey = new HashMap<>();
+  private final Map<String, User> usersByKey = new HashMap<>();
+  private final Map<Long, Component> componentsById = new HashMap<>();
+  private final Map<String, Component> componentsByKey = new HashMap<>();
+  private final Map<String, Component> projectsByKey = new HashMap<>();
+  private final Map<String, ActionPlan> actionPlansByKey = new HashMap<>();
   private Paging paging;
 
   @Override

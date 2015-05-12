@@ -39,7 +39,7 @@ public final class DecoratorsSelector {
   }
 
   public Collection<Decorator> select(Project project) {
-    List<Decorator> decorators = new ArrayList<Decorator>(batchExtDictionnary.select(Decorator.class, project, false, null));
+    List<Decorator> decorators = new ArrayList<>(batchExtDictionnary.select(Decorator.class, project, false, null));
     SetMultimap<Metric, Decorator> decoratorsByGeneratedMetric = getDecoratorsByMetric(decorators);
     for (Metric metric : batchExtDictionnary.select(Metric.class, null, false, null)) {
       if (metric.getFormula() != null) {

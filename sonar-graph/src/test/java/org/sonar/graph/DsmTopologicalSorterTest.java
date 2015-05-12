@@ -91,12 +91,12 @@ public class DsmTopologicalSorterTest {
   public void sortCyclicGraphWithFlaggedFeedbackEdges() {
     DirectedGraph<String, StringEdge> dcg = DirectedGraph.createStringDirectedGraph();
     dcg.addEdge("A", "B", 3).addEdge("B", "A", 1);
-    CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
+    CycleDetector<String> cycleDetector = new CycleDetector<>(dcg);
     cycleDetector.detectCycles();
 
     MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycleDetector.getCycles());
 
-    Dsm<String> dsm = new Dsm<String>(dcg, solver.getEdges());
+    Dsm<String> dsm = new Dsm<>(dcg, solver.getEdges());
     DsmTopologicalSorter.sort(dsm);
 
     StringPrintWriter expectedDsm = new StringPrintWriter();

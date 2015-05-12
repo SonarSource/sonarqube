@@ -49,7 +49,7 @@ public class IssueBulkChangeQuery {
   private boolean hasComment;
   private boolean sendNotifications;
 
-  Map<String, Map<String, Object>> propertiesByActions = new HashMap<String, Map<String, Object>>();
+  Map<String, Map<String, Object>> propertiesByActions = new HashMap<>();
 
   public IssueBulkChangeQuery(Map<String, Object> props, String comment, boolean sendNotifications) {
     this.sendNotifications = sendNotifications;

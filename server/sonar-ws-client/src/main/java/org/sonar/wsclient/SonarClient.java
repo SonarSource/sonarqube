@@ -199,7 +199,7 @@ public class SonarClient {
       throw new IllegalArgumentException(String.format(
         "Expecting even number of elements. Got %s", Arrays.toString(params)));
     }
-    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> map = new HashMap<>();
     for (int index = 0; index < params.length; index++) {
       if (params[index] == null) {
         throw new IllegalArgumentException(String.format(

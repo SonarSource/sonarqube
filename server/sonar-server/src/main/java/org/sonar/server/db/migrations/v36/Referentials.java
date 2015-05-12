@@ -109,7 +109,7 @@ class Referentials {
       stmt = connection.createStatement();
       stmt.setFetchSize(10000);
       rs = stmt.executeQuery("select id from rule_failures");
-      Queue<long[]> queue = new ConcurrentLinkedQueue<long[]>();
+      Queue<long[]> queue = new ConcurrentLinkedQueue<>();
 
       totalViolations = 0;
       long[] block = new long[VIOLATION_GROUP_SIZE];

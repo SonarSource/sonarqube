@@ -27,7 +27,7 @@ public abstract class AbstractText implements Text {
   protected final List<Object> symbols;
 
   public AbstractText(int size) {
-    this.symbols = new ArrayList<Object>(size);
+    this.symbols = new ArrayList<>(size);
   }
 
   public AbstractText(List<Object> symbols) {

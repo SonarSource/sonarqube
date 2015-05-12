@@ -68,7 +68,7 @@ public class IndexQueue implements WorkQueue<IndexAction<?>> {
     boolean refreshRequired = false;
 
     Map<String, Index> indexes = getIndexMap();
-    Set<String> indices = new HashSet<String>();
+    Set<String> indices = new HashSet<>();
     for (IndexAction action : actions) {
       Index index = indexes.get(action.getIndexType());
       action.setIndex(index);
@@ -139,7 +139,7 @@ public class IndexQueue implements WorkQueue<IndexAction<?>> {
   }
 
   private Map<String, Index> getIndexMap() {
-    Map<String, Index> indexes = new HashMap<String, Index>();
+    Map<String, Index> indexes = new HashMap<>();
     for (Index index : container.getComponentsByType(Index.class)) {
       indexes.put(index.getIndexType(), index);
     }

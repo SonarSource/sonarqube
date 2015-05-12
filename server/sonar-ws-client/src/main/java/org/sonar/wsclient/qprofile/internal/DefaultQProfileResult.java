@@ -36,7 +36,7 @@ public class DefaultQProfileResult implements QProfileResult {
 
   @Override
   public List<String> infos() {
-    List<String> infos = new ArrayList<String>();
+    List<String> infos = new ArrayList<>();
     List<String> jsonInfos = (List<String>) json.get("infos");
     if (jsonInfos != null) {
       for (String info : jsonInfos) {
@@ -48,7 +48,7 @@ public class DefaultQProfileResult implements QProfileResult {
 
   @Override
   public List<String> warnings() {
-    List<String> warnings = new ArrayList<String>();
+    List<String> warnings = new ArrayList<>();
     List<String> jsonWarnings = (List<String>) json.get("warnings");
     if (jsonWarnings != null) {
       for (String warning : jsonWarnings) {

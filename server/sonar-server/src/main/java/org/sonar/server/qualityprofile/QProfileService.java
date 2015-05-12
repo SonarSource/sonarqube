@@ -218,7 +218,7 @@ public class QProfileService {
     DbSession session = db.openSession(false);
     try {
       SearchResponse response = activityIndex.doSearch(query, options);
-      Result<QProfileActivity> result = new Result<QProfileActivity>(response);
+      Result<QProfileActivity> result = new Result<>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
         RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());

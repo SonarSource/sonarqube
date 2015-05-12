@@ -37,7 +37,7 @@ public class DsmPrinterTest {
     graph.addEdge("A", "B", 3).addEdge("A", "C", 2);
     graph.addEdge("C", "B", 4).addEdge("C", "A", 1);
     HashSet<Edge> feedbackEdges = Sets.<Edge>newHashSet(graph.getEdge("C", "A"));
-    dsm = new Dsm<String>(graph, feedbackEdges);
+    dsm = new Dsm<>(graph, feedbackEdges);
     DsmManualSorter.sort(dsm, "A", "C", "B");
   }
 

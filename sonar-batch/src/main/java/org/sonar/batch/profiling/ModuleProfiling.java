@@ -30,8 +30,8 @@ import java.util.Map.Entry;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
-  private Map<Phase, PhaseProfiling> profilingPerPhase = new HashMap<Phase, PhaseProfiling>();
-  private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<String, ItemProfiling>();
+  private Map<Phase, PhaseProfiling> profilingPerPhase = new HashMap<>();
+  private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<>();
   private final Project module;
 
   public ModuleProfiling(@Nullable Project module, System2 system) {

@@ -43,7 +43,7 @@ public class DeleteKey<K extends Serializable> extends IndexAction<DeleteRequest
 
   @Override
   public List<DeleteRequest> doCall(Index index) {
-    List<DeleteRequest> requests = new ArrayList<DeleteRequest>();
+    List<DeleteRequest> requests = new ArrayList<>();
     requests.add(Requests.deleteRequest(index.getIndexName())
       .id(getKey())
       .type(indexType)

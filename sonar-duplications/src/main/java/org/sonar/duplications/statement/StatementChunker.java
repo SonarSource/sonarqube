@@ -42,7 +42,7 @@ public final class StatementChunker {
     if (tokenQueue == null) {
       throw new IllegalArgumentException();
     }
-    List<Statement> statements = new ArrayList<Statement>();
+    List<Statement> statements = new ArrayList<>();
     try {
       channelDispatcher.consume(tokenQueue, statements);
       return statements;
@@ -58,7 +58,7 @@ public final class StatementChunker {
    */
   public static final class Builder {
 
-    private List<StatementChannel> channels = new ArrayList<StatementChannel>();
+    private List<StatementChannel> channels = new ArrayList<>();
 
     private Builder() {
     }

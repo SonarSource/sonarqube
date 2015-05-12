@@ -39,18 +39,18 @@ public class JavaCommand {
   private File workDir;
 
   // for example -Xmx1G
-  private final List<String> javaOptions = new ArrayList<String>();
+  private final List<String> javaOptions = new ArrayList<>();
 
   // entry point
   private String className;
 
   // relative path to JAR files
-  private final List<String> classpath = new ArrayList<String>();
+  private final List<String> classpath = new ArrayList<>();
 
   // program arguments (parameters of main(String[])
-  private final Map<String, String> arguments = new LinkedHashMap<String, String>();
+  private final Map<String, String> arguments = new LinkedHashMap<>();
 
-  private final Map<String, String> envVariables = new HashMap<String, String>(System.getenv());
+  private final Map<String, String> envVariables = new HashMap<>(System.getenv());
 
   private File tempDir = null;
 

@@ -41,7 +41,7 @@ public final class ManifestUtils {
    * @return the values, an empty list if the property is not found.
    */
   public static List<String> getPropertyValues(ClassLoader classloader, String key) {
-    List<String> values = new ArrayList<String>();
+    List<String> values = new ArrayList<>();
     try {
       Enumeration<URL> resources = classloader.getResources("META-INF/MANIFEST.MF");
       while (resources.hasMoreElements()) {

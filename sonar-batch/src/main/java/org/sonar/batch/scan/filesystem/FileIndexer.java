@@ -90,7 +90,7 @@ public class FileIndexer {
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     executorService = Executors.newFixedThreadPool(Math.max(1, Runtime.getRuntime().availableProcessors() - 1));
-    tasks = new ArrayList<Future<Void>>();
+    tasks = new ArrayList<>();
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
 

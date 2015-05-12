@@ -42,7 +42,7 @@ public class Result<T> {
   }
 
   public static <T> Result<T> of() {
-    return new Result<T>(null);
+    return new Result<>(null);
   }
 
   public Result<T> set(@Nullable T object) {

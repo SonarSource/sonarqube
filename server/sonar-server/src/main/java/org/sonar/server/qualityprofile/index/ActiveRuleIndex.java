@@ -64,14 +64,14 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
   @Override
   protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.KEY.field());
     return mapping;
   }
 
   @Override
   protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     for (IndexField field : ActiveRuleNormalizer.ActiveRuleField.ALL_FIELDS) {
       mapping.put(field.field(), mapField(field));
     }
@@ -80,7 +80,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
   @Override
   protected Map mapDomain() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("dynamic", false);
     mapping.put("_id", mapKey());
     mapping.put("_parent", mapParent());
@@ -90,14 +90,14 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   private Map mapRouting() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("required", true);
     mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.field());
     return mapping;
   }
 
   private Object mapParent() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("type", this.getParentType());
     return mapping;
   }
@@ -123,7 +123,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
     SearchResponse response = request.get();
 
-    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    List<ActiveRule> activeRules = new ArrayList<>();
     for (SearchHit hit : response.getHits()) {
       activeRules.add(toDoc(hit.getSource()));
     }
@@ -185,7 +185,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setSize(0)
       .setTypes(this.getIndexType());
     SearchResponse response = request.get();
-    Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
+    Map<String, Multimap<String, FacetValue>> stats = new HashMap<>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
       stats.put(value.getKey()

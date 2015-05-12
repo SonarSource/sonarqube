@@ -40,7 +40,7 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
     ResultSet rs = pstmt.executeQuery();
     Select.Row row = new Select.Row(rs);
     try {
-      List<T> rows = new ArrayList<T>();
+      List<T> rows = new ArrayList<>();
       while (rs.next()) {
         rows.add(reader.read(row));
       }

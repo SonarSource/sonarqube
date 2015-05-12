@@ -99,7 +99,7 @@ public class ListUpdate extends AbstractExecutableScript {
 
       if (fieldValue == null && value != null) {
         // 0. The field does not exist (this is a upsert then)
-        List values = new ArrayList<Object>(1);
+        List values = new ArrayList<>(1);
         values.add(value);
         source.put(field, values);
       } else if (!XContentMapValues.isArray(fieldValue) && value != null) {
@@ -108,7 +108,7 @@ public class ListUpdate extends AbstractExecutableScript {
         if (XContentMapValues.nodeStringValue(currentFieldValue.get(idField), null).equals(idValue)) {
           source.put(field, value);
         } else {
-          List values = new ArrayList<Object>(2);
+          List values = new ArrayList<>(2);
           values.add(fieldValue);
           values.add(value);
           source.put(field, values);

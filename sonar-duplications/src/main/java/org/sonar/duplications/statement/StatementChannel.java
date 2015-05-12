@@ -48,7 +48,7 @@ public final class StatementChannel {
   }
 
   public boolean consume(TokenQueue tokenQueue, List<Statement> output) {
-    List<Token> matchedTokenList = new ArrayList<Token>();
+    List<Token> matchedTokenList = new ArrayList<>();
     for (TokenMatcher tokenMatcher : tokenMatchers) {
       if (!tokenMatcher.matchToken(tokenQueue, matchedTokenList)) {
         tokenQueue.pushForward(matchedTokenList);

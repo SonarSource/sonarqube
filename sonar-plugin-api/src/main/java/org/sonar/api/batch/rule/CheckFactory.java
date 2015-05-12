@@ -37,6 +37,6 @@ public class CheckFactory {
   }
 
   public <C> Checks<C> create(String repository) {
-    return new Checks<C>(activeRules, repository);
+    return new Checks<>(activeRules, repository);
   }
 }

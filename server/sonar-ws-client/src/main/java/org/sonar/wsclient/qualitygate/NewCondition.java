@@ -32,7 +32,7 @@ public class NewCondition {
   private final Map<String, Object> params;
 
   private NewCondition() {
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
   }
 
   public static NewCondition create(long qGateId) {

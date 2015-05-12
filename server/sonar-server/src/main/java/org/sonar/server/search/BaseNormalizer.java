@@ -41,7 +41,7 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
   }
 
   protected Map<String, Object> getUpsertFor(Set<IndexField> fields, Map<String, Object> update) {
-    Map<String, Object> upsert = new HashMap<String, Object>(update);
+    Map<String, Object> upsert = new HashMap<>(update);
     for (IndexField field : fields) {
       if (!upsert.containsKey(field.field())) {
         if (field.type().equals(IndexField.Type.OBJECT)) {

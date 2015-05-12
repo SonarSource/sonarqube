@@ -96,7 +96,7 @@ public class ActiveRuleParamDto {
   }
 
   public static Map<String,ActiveRuleParamDto> groupByKey(Collection<ActiveRuleParamDto> params) {
-    Map<String, ActiveRuleParamDto> result = new HashMap<String, ActiveRuleParamDto>();
+    Map<String, ActiveRuleParamDto> result = new HashMap<>();
     for (ActiveRuleParamDto param : params) {
       result.put(param.getKey(), param);
     }

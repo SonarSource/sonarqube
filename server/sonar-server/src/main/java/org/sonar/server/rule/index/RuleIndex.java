@@ -99,14 +99,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   @Override
   protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     mapping.put("path", RuleNormalizer.RuleField.KEY.field());
     return mapping;
   }
 
   @Override
   protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
+    Map<String, Object> mapping = new HashMap<>();
     for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
       mapping.put(field.field(), mapField(field));
     }
@@ -115,7 +115,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   private void setFields(QueryContext options, SearchRequestBuilder esSearch) {
     /* integrate Option's Fields */
-    Set<String> fields = new HashSet<String>();
+    Set<String> fields = new HashSet<>();
     if (!options.getFieldsToReturn().isEmpty()) {
       for (String fieldToReturn : options.getFieldsToReturn()) {
         if (!fieldToReturn.isEmpty()) {
@@ -210,7 +210,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   /* Build main filter (match based) */
   protected Map<String, FilterBuilder> getFilters(RuleQuery query, QueryContext options) {
 
-    Map<String, FilterBuilder> filters = new HashMap<String, FilterBuilder>();
+    Map<String, FilterBuilder> filters = new HashMap<>();
 
     /* Add enforced filter on rules that are REMOVED */
     filters.put(RuleNormalizer.RuleField.STATUS.field(),
@@ -300,7 +300,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     Collection<RuleStatus> statusValues = query.getStatuses();
     if (statusValues != null && !statusValues.isEmpty()) {
-      Collection<String> stringStatus = new ArrayList<String>();
+      Collection<String> stringStatus = new ArrayList<>();
       for (RuleStatus status : statusValues) {
         stringStatus.add(status.name());
       }
@@ -350,7 +350,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   protected Map<String, AggregationBuilder> getFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
-    Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
+    Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
 
     addDefaultFacets(query, options, queryBuilder, filters, aggregations, stickyFacetBuilder);
@@ -528,7 +528,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
     SearchResponse esResult = esSearch.get();
-    return new Result<Rule>(this, esResult);
+    return new Result<>(this, esResult);
   }
 
   @Override
@@ -542,7 +542,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public Set<String> terms(String fields, @Nullable String query, int size) {
-    Set<String> tags = new HashSet<String>();
+    Set<String> tags = new HashSet<>();
     String key = "_ref";
 
     TermsBuilder terms = AggregationBuilders.terms(key)

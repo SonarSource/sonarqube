@@ -27,7 +27,7 @@ import org.junit.Test;
 public class PropertiesBuilderTest {
   @Test
   public void buildMeasure() {
-    PropertiesBuilder<Integer, Integer> builder = new PropertiesBuilder<Integer, Integer>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    PropertiesBuilder<Integer, Integer> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
         .add(1, 30)
         .add(2, 27)
@@ -39,7 +39,7 @@ public class PropertiesBuilderTest {
 
   @Test
   public void sortKeys() {
-    PropertiesBuilder<String, String> builder = new PropertiesBuilder<String, String>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
         .add("foo", "fooooo")
         .add("bar", "baaaaar")
@@ -51,7 +51,7 @@ public class PropertiesBuilderTest {
 
   @Test
   public void valueIsOptional() {
-    PropertiesBuilder<String, String> builder = new PropertiesBuilder<String, String>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     Measure measure = builder
         .add("foo", null)
         .add("bar", "bar")
@@ -63,7 +63,7 @@ public class PropertiesBuilderTest {
 
   @Test
   public void clearBeforeBuildingOtherMeasure() {
-    PropertiesBuilder<String, String> builder = new PropertiesBuilder<String, String>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    PropertiesBuilder<String, String> builder = new PropertiesBuilder<>(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     builder
         .add("foo", "foo")
         .add("bar", "bar")

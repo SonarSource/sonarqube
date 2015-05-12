@@ -69,7 +69,7 @@ public class QProfileExporters {
   }
 
   public List<ProfileExporter> exportersForLanguage(String language) {
-    List<ProfileExporter> result = new ArrayList<ProfileExporter>();
+    List<ProfileExporter> result = new ArrayList<>();
     for (ProfileExporter exporter : exporters) {
       if (exporter.getSupportedLanguages() == null || exporter.getSupportedLanguages().length == 0 || ArrayUtils.contains(exporter.getSupportedLanguages(), language)) {
         result.add(exporter);
@@ -127,7 +127,7 @@ public class QProfileExporters {
    * Used by rails
    */
   public List<ProfileImporter> findProfileImportersForLanguage(String language) {
-    List<ProfileImporter> result = new ArrayList<ProfileImporter>();
+    List<ProfileImporter> result = new ArrayList<>();
     for (ProfileImporter importer : importers) {
       if (importer.getSupportedLanguages() == null || importer.getSupportedLanguages().length == 0 || ArrayUtils.contains(importer.getSupportedLanguages(), language)) {
         result.add(importer);

@@ -31,7 +31,7 @@ public class DsmManualSorterTest {
     graph.addEdge("A", "B", 2);
     graph.addEdge("A", "C", 3);
     graph.addEdge("C", "B", 1);
-    Dsm<String> dsm = new Dsm<String>(graph);
+    Dsm<String> dsm = new Dsm<>(graph);
     DsmManualSorter.sort(dsm, "B", "A", "C");
 
     StringPrintWriter expectedDsm = new StringPrintWriter();

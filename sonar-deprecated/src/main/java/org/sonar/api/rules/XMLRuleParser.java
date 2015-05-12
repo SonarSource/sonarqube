@@ -98,7 +98,7 @@ public final class XMLRuleParser {
     try {
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <rules>
-      List<Rule> rules = new ArrayList<Rule>();
+      List<Rule> rules = new ArrayList<>();
 
       SMInputCursor rulesC = rootC.childElementCursor("rule");
       while (rulesC.getNext() != null) {

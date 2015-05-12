@@ -30,7 +30,7 @@ public class CustomBarChartTest extends BaseChartWebTest {
 
   @Test
   public void testEmptyParameters() throws IOException {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     CustomBarChart chart = new CustomBarChart(params);
     BufferedImage img = chart.getChartImage();
     saveChart(img, "custom-horizontal-bar-chart-empty.png");
@@ -81,7 +81,7 @@ public class CustomBarChartTest extends BaseChartWebTest {
   }
 
   private Map<String, String> getDefaultParams() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.BAR_CHART_HORIZONTAL);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "100,50");
     return params;

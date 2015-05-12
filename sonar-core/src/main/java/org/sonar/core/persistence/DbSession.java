@@ -44,7 +44,7 @@ public class DbSession implements SqlSession {
     this.actionCount = 0;
     this.session = session;
     this.queue = queue;
-    this.actions = new ArrayList<ClusterAction>();
+    this.actions = new ArrayList<>();
   }
 
   public void enqueue(ClusterAction action) {

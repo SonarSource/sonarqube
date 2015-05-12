@@ -44,7 +44,7 @@ public class JdbcLeakPrevention {
   public List<String> unregisterDrivers() throws SQLException {
     Set<Driver> registeredDrivers = registeredDrivers();
 
-    List<String> unregisteredNames = new ArrayList<String>();
+    List<String> unregisteredNames = new ArrayList<>();
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
@@ -60,7 +60,7 @@ public class JdbcLeakPrevention {
   }
 
   private Set<Driver> registeredDrivers() {
-    Set<Driver> registeredDrivers = new HashSet<Driver>();
+    Set<Driver> registeredDrivers = new HashSet<>();
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();

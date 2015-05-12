@@ -37,7 +37,7 @@ public final class Encryption {
   private static final String AES_ALGORITHM = "aes";
   private final AesCipher aesCipher;
 
-  private final Map<String, Cipher> ciphers = new HashMap<String, Cipher>();
+  private final Map<String, Cipher> ciphers = new HashMap<>();
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   public Encryption(@Nullable String pathToSecretKey) {

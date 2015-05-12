@@ -47,7 +47,7 @@ public class DeleteKeyTest {
   @Test
   public void get_delete_request() {
     String key = "test_key";
-    DeleteKey<String> deleteAction = new DeleteKey<String>(TEST_INDEX.getIndexType(), key);
+    DeleteKey<String> deleteAction = new DeleteKey<>(TEST_INDEX.getIndexType(), key);
 
     try {
       deleteAction.call();

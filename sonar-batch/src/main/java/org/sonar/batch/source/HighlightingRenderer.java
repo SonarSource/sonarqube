@@ -32,7 +32,7 @@ import java.util.List;
 public class HighlightingRenderer {
 
   public void render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers, NewHighlighting highlighting) {
-    List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<Channel<HtmlCodeBuilder>>();
+    List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<>();
     HighlightingCodeBuilder codeBuilder = new HighlightingCodeBuilder(highlighting);
 
     allTokenizers.addAll(tokenizers);

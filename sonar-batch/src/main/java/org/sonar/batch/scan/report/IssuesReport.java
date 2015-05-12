@@ -75,11 +75,11 @@ public class IssuesReport {
   }
 
   public List<ResourceReport> getResourceReports() {
-    return new ArrayList<ResourceReport>(resourceReportsByResource.values());
+    return new ArrayList<>(resourceReportsByResource.values());
   }
 
   public List<BatchResource> getResourcesWithReport() {
-    return new ArrayList<BatchResource>(resourceReportsByResource.keySet());
+    return new ArrayList<>(resourceReportsByResource.keySet());
   }
 
   public void addIssueOnResource(BatchResource resource, Issue issue, Rule rule, RulePriority severity) {

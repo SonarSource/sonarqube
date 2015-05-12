@@ -30,11 +30,11 @@ public class TokenQueue implements Iterable<Token> {
   private final Deque<Token> tokenQueue;
 
   public TokenQueue(List<Token> tokenList) {
-    tokenQueue = new LinkedList<Token>(tokenList);
+    tokenQueue = new LinkedList<>(tokenList);
   }
 
   public TokenQueue() {
-    tokenQueue = new LinkedList<Token>();
+    tokenQueue = new LinkedList<>();
   }
 
   /**

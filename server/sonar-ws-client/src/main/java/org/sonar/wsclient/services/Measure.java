@@ -147,7 +147,7 @@ public class Measure extends Model {
     if (data == null) {
       return null;
     }
-    Map<String, String> map = new LinkedHashMap<String, String>();
+    Map<String, String> map = new LinkedHashMap<>();
     String[] parts = data.split(separator);
     for (String part : parts) {
       String[] kv = part.split("=");

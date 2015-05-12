@@ -40,7 +40,7 @@ public final class MeasuresFilters {
     return new MeasuresFilter<Collection<Measure>>() {
       @Override
       public Collection<Measure> filter(Collection<Measure> measures) {
-        Collection<Measure> all = new ArrayList<Measure>();
+        Collection<Measure> all = new ArrayList<>();
         for (Measure measure : measures) {
           if (measure != null) {
             all.add(measure);
@@ -174,7 +174,7 @@ public final class MeasuresFilters {
         if (measures == null) {
           return null;
         }
-        List<RuleMeasure> result = new ArrayList<RuleMeasure>();
+        List<RuleMeasure> result = new ArrayList<>();
         for (Measure measure : measures) {
           if (apply(measure)) {
             result.add((RuleMeasure) measure);

@@ -34,7 +34,7 @@ public class TokenQueueTest {
 
   @Before
   public void initTest() {
-    List<Token> tokenList = new ArrayList<Token>();
+    List<Token> tokenList = new ArrayList<>();
     tokenList.add(new Token("a", 1, 0));
     tokenList.add(new Token("bc", 1, 2));
     tokenList.add(new Token("def", 1, 5));
@@ -58,7 +58,7 @@ public class TokenQueueTest {
   @Test
   public void shouldPushTokenAtBegining() {
     Token pushedToken = new Token("push", 1, 0);
-    List<Token> pushedTokenList = new ArrayList<Token>();
+    List<Token> pushedTokenList = new ArrayList<>();
     pushedTokenList.add(pushedToken);
     tokenQueue.pushForward(pushedTokenList);
     assertThat(tokenQueue.peek(), is(pushedToken));

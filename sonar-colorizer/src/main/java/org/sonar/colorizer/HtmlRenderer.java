@@ -45,7 +45,7 @@ public class HtmlRenderer extends Renderer {
   @Override
   public String render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers) {
     try {
-      List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<Channel<HtmlCodeBuilder>>();
+      List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<>();
       HtmlCodeBuilder codeBuilder = new HtmlCodeBuilder();
       HtmlDecorator htmlDecorator = new HtmlDecorator(options);
 

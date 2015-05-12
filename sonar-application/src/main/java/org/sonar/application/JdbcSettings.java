@@ -59,7 +59,7 @@ public class JdbcSettings {
     if (!dir.exists()) {
       throw new MessageException("Directory does not exist: " + dirPath);
     }
-    List<File> files = new ArrayList<File>(FileUtils.listFiles(dir, new String[] {"jar"}, false));
+    List<File> files = new ArrayList<>(FileUtils.listFiles(dir, new String[] {"jar"}, false));
     if (files.isEmpty()) {
       throw new MessageException("Directory does not contain JDBC driver: " + dirPath);
     }

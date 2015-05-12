@@ -160,7 +160,7 @@ public class BatchExtensionDictionnary {
    * Extension dependencies
    */
   private <T> List<Object> getDependencies(T extension) {
-    List<Object> result = new ArrayList<Object>();
+    List<Object> result = new ArrayList<>();
     result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
     return result;
   }
@@ -169,7 +169,7 @@ public class BatchExtensionDictionnary {
    * Objects that depend upon this extension.
    */
   public <T> List<Object> getDependents(T extension) {
-    List<Object> result = new ArrayList<Object>();
+    List<Object> result = new ArrayList<>();
     result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
     return result;
   }

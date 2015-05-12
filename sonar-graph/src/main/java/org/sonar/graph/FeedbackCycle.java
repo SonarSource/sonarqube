@@ -39,7 +39,7 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
   private final Cycle cycle;
 
   private FeedbackCycle(Cycle cycle) {
-    orderedFeedbackEdges = new ArrayList<FeedbackEdge>();
+    orderedFeedbackEdges = new ArrayList<>();
     totalOccurrencesOfEdgesInCycle = 0;
     this.cycle = cycle;
   }
@@ -51,7 +51,7 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
   public static List<FeedbackCycle> buildFeedbackCycles(Set<Cycle> cycles) {
     Multiset<Edge> edgesBag = createBagWithAllEdgesOfCycles(cycles);
 
-    List<FeedbackCycle> feedbackCycles = new ArrayList<FeedbackCycle>();
+    List<FeedbackCycle> feedbackCycles = new ArrayList<>();
     for (Cycle cycle : cycles) {
       FeedbackCycle feedbackCycle = new FeedbackCycle(cycle);
       int totalOccurrences = 0;

@@ -110,7 +110,7 @@ public class BarChartTest extends BaseChartWebTest {
 
   @Test
   public void testStackedBarCharteightyTwenty() throws IOException {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.STACKED_BAR_CHART);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "80,20");
     BarChart chart = new BarChart(params);
@@ -121,7 +121,7 @@ public class BarChartTest extends BaseChartWebTest {
 
   @Test
   public void testStackedBarChartfiftyFifty() throws IOException {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.STACKED_BAR_CHART);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "50,50");
     BarChart chart = new BarChart(params);
@@ -131,7 +131,7 @@ public class BarChartTest extends BaseChartWebTest {
   }
 
   private Map<String, String> getDefaultParams() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     params.put(BaseChartWeb.CHART_PARAM_TYPE, BaseChartWeb.BAR_CHART_HORIZONTAL);
     params.put(BaseChartWeb.CHART_PARAM_VALUES, "100,50");
     return params;

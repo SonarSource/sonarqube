@@ -91,7 +91,7 @@ public class Caches implements Startable {
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
       exchange.setMaximumValueSize(Value.MAXIMUM_SIZE);
-      Cache<V> cache = new Cache<V>(cacheName, exchange);
+      Cache<V> cache = new Cache<>(cacheName, exchange);
       cacheNames.add(cacheName);
       return cache;
     } catch (Exception e) {

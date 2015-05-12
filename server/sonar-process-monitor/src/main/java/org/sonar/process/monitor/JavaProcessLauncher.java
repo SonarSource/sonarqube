@@ -64,7 +64,7 @@ public class JavaProcessLauncher {
   }
 
   private ProcessBuilder create(JavaCommand javaCommand) {
-    List<String> commands = new ArrayList<String>();
+    List<String> commands = new ArrayList<>();
     commands.add(buildJavaPath());
     commands.addAll(javaCommand.getJavaOptions());
     // TODO warning - does it work if temp dir contains a whitespace ?

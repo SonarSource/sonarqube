@@ -67,7 +67,7 @@ public class ChartParameters {
    * @param  queryString string
    */
   public ChartParameters(String queryString) {
-    this.params = new HashMap<String, String>();
+    this.params = new HashMap<>();
     String[] groups = StringUtils.split(queryString, "&");
     for (String group : groups) {
       String[] keyval = StringUtils.split(group, "=");

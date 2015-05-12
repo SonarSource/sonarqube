@@ -139,7 +139,7 @@ public class DirectoryDsmDecoratorTest {
     when(index.getOutgoingEdges(file1)).thenReturn(Arrays.asList(dependency));
     when(index.getIncomingEdges(file2)).thenReturn(Arrays.asList(dependency));
 
-    List<DecoratorContext> contexts = new ArrayList<DecoratorContext>(201);
+    List<DecoratorContext> contexts = new ArrayList<>(201);
     contexts.add(file1Context);
     contexts.add(file2Context);
     for (int i = 0; i < 199; i++) {

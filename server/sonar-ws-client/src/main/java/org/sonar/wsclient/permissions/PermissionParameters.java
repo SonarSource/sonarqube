@@ -28,7 +28,7 @@ public class PermissionParameters {
   private final Map<String, Object> params;
 
   private PermissionParameters(){
-    params = new HashMap<String, Object>();
+    params = new HashMap<>();
   }
 
   public static PermissionParameters create() {

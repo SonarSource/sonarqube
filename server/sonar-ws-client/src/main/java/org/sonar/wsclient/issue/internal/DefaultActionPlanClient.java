@@ -45,7 +45,7 @@ public class DefaultActionPlanClient implements ActionPlanClient {
   @Override
   public List<ActionPlan> find(String projectKey) {
     String json = requestFactory.get(ActionPlanQuery.BASE_URL, EncodingUtils.toMap("project", projectKey));
-    List<ActionPlan> result = new ArrayList<ActionPlan>();
+    List<ActionPlan> result = new ArrayList<>();
     Map jsonRoot = (Map) JSONValue.parse(json);
     List<Map> jsonActionPlans = (List<Map>) jsonRoot.get("actionPlans");
     if (jsonActionPlans != null) {

@@ -54,7 +54,7 @@ public class XooBlameCommand extends BlameCommand {
 
     try {
       List<String> lines = FileUtils.readLines(scmDataFile, Charsets.UTF_8.name());
-      List<BlameLine> blame = new ArrayList<BlameLine>(lines.size());
+      List<BlameLine> blame = new ArrayList<>(lines.size());
       int lineNumber = 0;
       for (String line : lines) {
         lineNumber++;

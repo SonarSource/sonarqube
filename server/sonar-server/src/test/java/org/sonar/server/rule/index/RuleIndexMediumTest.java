@@ -1093,7 +1093,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void scroll_byIds() {
-    Set<Integer> ids = new HashSet<Integer>();
+    Set<Integer> ids = new HashSet<>();
     for (int i = 0; i < 150; i++) {
       RuleDto rule = RuleTesting.newDto(RuleKey.of("scroll", "r_" + i));
       dao.insert(dbSession, rule);

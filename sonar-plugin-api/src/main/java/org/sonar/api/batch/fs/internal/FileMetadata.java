@@ -191,7 +191,7 @@ public class FileMetadata {
 
   private static class LineOffsetCounter extends CharHandler {
     private int currentOriginalOffset = 0;
-    private List<Integer> originalLineOffsets = new ArrayList<Integer>();
+    private List<Integer> originalLineOffsets = new ArrayList<>();
     private int lastValidOffset = 0;
 
     public LineOffsetCounter() {

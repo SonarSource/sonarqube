@@ -193,7 +193,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
       return Collections.emptyList();
     }
     TextPointer pointer = file.newPointer(line, lineOffset);
-    List<TypeOfText> result = new ArrayList<TypeOfText>();
+    List<TypeOfText> result = new ArrayList<>();
     InputStream inputStream = null;
     try {
       inputStream = FileUtils.openInputStream(highlightingFile);

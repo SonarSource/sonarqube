@@ -53,7 +53,7 @@ public class CodeColorizers {
   private final Map<String, CodeColorizerFormat> byLang;
 
   public CodeColorizers(List<CodeColorizerFormat> formats) {
-    byLang = new HashMap<String, CodeColorizerFormat>();
+    byLang = new HashMap<>();
     for (CodeColorizerFormat format : formats) {
       byLang.put(format.getLanguageKey(), format);
     }

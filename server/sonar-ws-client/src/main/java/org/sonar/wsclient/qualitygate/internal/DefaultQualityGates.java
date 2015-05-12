@@ -38,7 +38,7 @@ public class DefaultQualityGates implements QualityGates {
 
   @SuppressWarnings("unchecked")
   public DefaultQualityGates(Map<String, Object> json) {
-    qualityGates = new LinkedHashMap<Long, QualityGate>();
+    qualityGates = new LinkedHashMap<>();
     JSONArray gatesJson = JsonUtils.getArray(json, "qualitygates");
     if (gatesJson != null) {
       for (Object entry: gatesJson) {
