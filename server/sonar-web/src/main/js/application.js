@@ -474,6 +474,31 @@ function closeModalWindow () {
 
 
 /*
+ * Users
+ */
+
+(function() {
+
+  /**
+   * Convert the result of api/users/search to select2 format
+   */
+  window.usersToSelect2 = function (response) {
+    return {
+      more: false,
+      results: _.map(response.users, function(user) {
+        return {
+          id: user.login,
+          text: user.name + ' (' + user.login + ')'
+        };
+      })
+    };
+  };
+
+})();
+
+
+
+/*
  * Misc
  */
 

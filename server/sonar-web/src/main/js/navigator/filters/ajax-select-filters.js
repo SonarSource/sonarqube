@@ -72,13 +72,9 @@ define([
     },
 
     parse: function(response) {
-      this.more = false;
-      this.results = _.map(response.users, function(user) {
-        return {
-          id: user.login,
-          text: user.name + ' (' + user.login + ')'
-        };
-      });
+      var parsedResponse = window.usersToSelect2(response);
+      this.more = parsedResponse.more;
+      this.results = parsedResponse.results;
     }
 
   });
