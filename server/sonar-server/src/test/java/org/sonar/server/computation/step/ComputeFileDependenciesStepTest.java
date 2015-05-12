@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -38,10 +39,14 @@ import org.sonar.server.computation.measure.MeasuresCache;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
 import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.util.CloseableIterator;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -134,27 +139,27 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // Dependencies on file FILE_A
-    assertThat(fileDependenciesCache.traverse(3)).hasSize(2);
-    Iterator<FileDependency> fileDependencies = fileDependenciesCache.traverse(3);
-    FileDependency fileDependency = fileDependencies.next();
+    assertThat(getFileDependencies(3)).hasSize(2);
+    List<FileDependency> fileDependencies = getFileDependencies(3);
+    FileDependency fileDependency = fileDependencies.get(0);
     assertThat(fileDependency.getFrom()).isEqualTo(3);
     assertThat(fileDependency.getTo()).isEqualTo(5);
     assertThat(fileDependency.getWeight()).isEqualTo(1);
 
-    fileDependency = fileDependencies.next();
+    fileDependency = fileDependencies.get(1);
     assertThat(fileDependency.getFrom()).isEqualTo(3);
     assertThat(fileDependency.getTo()).isEqualTo(6);
     assertThat(fileDependency.getWeight()).isEqualTo(1);
 
     // Dependency on directory DIRECTORY_A
-    assertThat(fileDependenciesCache.traverse(2)).hasSize(1);
-    FileDependency directorDependency = fileDependenciesCache.traverse(2).next();
+    assertThat(getFileDependencies(2)).hasSize(1);
+    FileDependency directorDependency = getFileDependencies(2).get(0);
     assertThat(directorDependency.getFrom()).isEqualTo(2);
     assertThat(directorDependency.getTo()).isEqualTo(4);
     assertThat(directorDependency.getWeight()).isEqualTo(2);
 
     // No dependency on project
-    assertThat(fileDependenciesCache.traverse(1)).isEmpty();
+    assertThat(getFileDependencies(1)).isEmpty();
   }
 
   @Test
@@ -188,20 +193,20 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(4)
         .setWeight(1)
         .build()
-    ));
+      ));
 
     sut.execute(context);
 
     // Dependencies on file FILE_A
-    assertThat(fileDependenciesCache.traverse(3)).hasSize(1);
-    Iterator<FileDependency> fileDependencies = fileDependenciesCache.traverse(3);
-    FileDependency fileDependency = fileDependencies.next();
+    assertThat(getFileDependencies(3)).hasSize(1);
+    List<FileDependency> fileDependencies = getFileDependencies(3);
+    FileDependency fileDependency = fileDependencies.get(0);
     assertThat(fileDependency.getFrom()).isEqualTo(3);
     assertThat(fileDependency.getTo()).isEqualTo(4);
     assertThat(fileDependency.getWeight()).isEqualTo(1);
 
     // No dependency on directory DIRECTORY_A because children dependencies are in the same folder
-    assertThat(fileDependenciesCache.traverse(2)).isEmpty();
+    assertThat(getFileDependencies(2)).isEmpty();
   }
 
   @Test
@@ -241,16 +246,12 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(5)
         .setWeight(1)
         .build()
-      ));
+    ));
 
     sut.execute(context);
 
     // On project
-    assertThat(measuresCache.traverse(1)).hasSize(1);
-
-    Measure projectMeasure = measuresCache.traverse(1).next();
-    assertThat(projectMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
-    assertThat(projectMeasure.getComponentUuid()).isEqualTo(PROJECT_UUID);
+    Measure projectMeasure = getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getByteValue()).isNotNull();
 
     DsmDb.Data projectDsmData = DsmDataEncoder.decodeDsmData(projectMeasure.getByteValue());
@@ -261,11 +262,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(projectDsmData.getUuid(1)).isEqualTo("DIRECTORY_B");
 
     // On directory
-    assertThat(measuresCache.traverse(2)).hasSize(1);
-
-    Measure directoryMeasure = measuresCache.traverse(2).next();
+    Measure directoryMeasure = getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(directoryMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
-    assertThat(directoryMeasure.getComponentUuid()).isEqualTo("DIRECTORY_A");
     assertThat(directoryMeasure.getByteValue()).isNotNull();
 
     DsmDb.Data directoryDsmData = DsmDataEncoder.decodeDsmData(directoryMeasure.getByteValue());
@@ -276,8 +274,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(directoryDsmData.getUuid(1)).isEqualTo("FILE_B");
 
     // Nothing on file
-    assertThat(measuresCache.traverse(3)).isEmpty();
-    assertThat(measuresCache.traverse(5)).isEmpty();
+    assertThat(getMeasure(3, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(5, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
   }
 
   @Test
@@ -323,19 +321,16 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
         .setToFileRef(6)
         .setWeight(1)
         .build()
-      ));
+    ));
 
     sut.execute(context);
 
     // Nothing on project
-    assertThat(measuresCache.traverse(1)).isEmpty();
+    assertThat(getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
 
     // On sub project
-    assertThat(measuresCache.traverse(2)).hasSize(1);
-
-    Measure projectMeasure = measuresCache.traverse(2).next();
+    Measure projectMeasure = getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
-    assertThat(projectMeasure.getComponentUuid()).isEqualTo("MODULE");
     assertThat(projectMeasure.getByteValue()).isNotNull();
   }
 
@@ -380,14 +375,184 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
           .setToFileRef(i)
           .setWeight(1)
           .build()
-        ));
+      ));
     }
     writer.writeComponent(directoryBuilder.build());
 
     sut.execute(context);
 
     // No measure
-    assertThat(measuresCache.traverse(1)).isEmpty();
-    assertThat(measuresCache.traverse(2)).isEmpty();
+    assertThat(getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
   }
+
+  @Test
+  public void compute_measures() throws Exception {
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid(PROJECT_UUID)
+      .addChildRef(2)
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setUuid("DIRECTORY_A")
+      .addChildRef(3)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_A")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setUuid("DIRECTORY_B")
+      .addChildRef(5)
+      .addChildRef(6)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(5)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_B")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(6)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_C")
+      .build());
+
+    writer.writeFileDependencies(3, Collections.singletonList(
+      BatchReport.FileDependency.newBuilder()
+        .setToFileRef(5)
+        .setWeight(2)
+        .build()
+    ));
+    writer.writeFileDependencies(6, Collections.singletonList(
+      BatchReport.FileDependency.newBuilder()
+        .setToFileRef(3)
+        .setWeight(3)
+        .build()
+    ));
+
+    sut.execute(context);
+
+    // On project
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_CYCLES_KEY).getValue()).isEqualTo(1d);
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY).getValue()).isEqualTo(1d);
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_TANGLES_KEY).getValue()).isEqualTo(1d);
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY).getValue()).isEqualTo(2d);
+
+    assertThat(getMeasure(1, CoreMetrics.FILE_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_EDGES_WEIGHT_KEY)).isNull();
+
+    // On directory
+    assertThat(getMeasure(2, CoreMetrics.DIRECTORY_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(2, CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(2, CoreMetrics.DIRECTORY_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(2, CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY)).isNull();
+
+    assertThat(getMeasure(2, CoreMetrics.FILE_CYCLES_KEY).getValue()).isEqualTo(0d);
+    assertThat(getMeasure(2, CoreMetrics.FILE_FEEDBACK_EDGES_KEY).getValue()).isEqualTo(0d);
+    assertThat(getMeasure(2, CoreMetrics.FILE_TANGLES_KEY).getValue()).isEqualTo(0d);
+    assertThat(getMeasure(2, CoreMetrics.FILE_EDGES_WEIGHT_KEY).getValue()).isEqualTo(2d);
+
+    // Nothing on file
+    assertThat(getMeasure(3, CoreMetrics.DIRECTORY_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.DIRECTORY_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY)).isNull();
+
+    assertThat(getMeasure(3, CoreMetrics.FILE_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.FILE_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.FILE_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(3, CoreMetrics.FILE_EDGES_WEIGHT_KEY)).isNull();
+  }
+
+  @Test
+  public void not_compute_measures_on_root_project_of_multi_modules_project() throws Exception {
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid(PROJECT_UUID)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setUuid("MODULE")
+      .addChildRef(3)
+      .addChildRef(5)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setUuid("DIRECTORY_A")
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_A")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(5)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setUuid("DIRECTORY_B")
+      .addChildRef(6)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(6)
+      .setType(Constants.ComponentType.FILE)
+      .setUuid("FILE_B")
+      .build());
+
+    writer.writeFileDependencies(4, Collections.singletonList(
+      BatchReport.FileDependency.newBuilder()
+        .setToFileRef(6)
+        .setWeight(1)
+        .build()
+    ));
+
+    sut.execute(context);
+
+    // Nothing on project
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY)).isNull();
+
+    assertThat(getMeasure(1, CoreMetrics.FILE_CYCLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_FEEDBACK_EDGES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_TANGLES_KEY)).isNull();
+    assertThat(getMeasure(1, CoreMetrics.FILE_EDGES_WEIGHT_KEY)).isNull();
+  }
+
+  @CheckForNull
+  private Measure getMeasure(int componentRef, String metricKey) {
+    try (CloseableIterator<Measure> traverse = measuresCache.traverse(componentRef)) {
+      while (traverse.hasNext()) {
+        Measure measure = traverse.next();
+        if (measure.getMetricKey().equals(metricKey)) {
+          return measure;
+        }
+      }
+    }
+    return null;
+  }
+
+  private List<FileDependency> getFileDependencies(int componentRef) {
+    List<FileDependency> fileDependencies = new ArrayList<>();
+    try (CloseableIterator<FileDependency> traverse = fileDependenciesCache.traverse(componentRef)) {
+      while (traverse.hasNext()) {
+        fileDependencies.add(traverse.next());
+      }
+    }
+    return fileDependencies;
+  }
+
 }

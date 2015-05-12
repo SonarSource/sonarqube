@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -93,9 +94,6 @@ public class PersistComputeMeasuresStepTest extends BaseStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
     session = dbClient.openSession(false);
 
-    dbClient.metricDao().insert(session, new MetricDto().setKey(METRIC_KEY).setEnabled(true));
-    session.commit();
-
     sut = (PersistComputeMeasuresStep) step();
   }
 
@@ -115,6 +113,8 @@ public class PersistComputeMeasuresStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, project);
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(project);
     dbClient.snapshotDao().insert(session, snapshotDto);
+    dbClient.metricDao().insert(session, new MetricDto().setKey(METRIC_KEY).setEnabled(true));
+    session.commit();
 
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -124,11 +124,11 @@ public class PersistComputeMeasuresStepTest extends BaseStepTest {
       .setSnapshotId(snapshotDto.getId())
       .build());
     DiskCacheById<Measure>.DiskAppender measureAppender = measuresCache.newAppender(1);
-    measureAppender.append(new Measure().setComponentUuid(PROJECT_UUID).setMetricKey(METRIC_KEY).setValue(2d));
+    measureAppender.append(new Measure().setMetricKey(METRIC_KEY).setValue(2d));
     measureAppender.close();
     session.commit();
 
-    sut.execute(context);
+    new PersistComputeMeasuresStep(dbClient, new MetricCache(dbClient), measuresCache).execute(context);
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
     MeasureDto measureDto = dbClient.measureDao().findByComponentKeyAndMetricKey(session, "ProjectKey", METRIC_KEY);
@@ -136,6 +136,32 @@ public class PersistComputeMeasuresStepTest extends BaseStepTest {
     assertThat(measureDto.getComponentId()).isEqualTo(project.getId());
     assertThat(measureDto.getSnapshotId()).isEqualTo(snapshotDto.getId());
     assertThat(measureDto.getValue()).isEqualTo(2d);
+  }
+
+  @Test
+  public void not_persist_design_measures() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID).setKey("ProjectKey");
+    dbClient.componentDao().insert(session, project);
+    SnapshotDto snapshotDto = SnapshotTesting.createForProject(project);
+    dbClient.snapshotDao().insert(session, snapshotDto);
+    dbClient.metricDao().insert(session, new MetricDto().setKey(CoreMetrics.DIRECTORY_CYCLES_KEY).setEnabled(true));
+    session.commit();
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setUuid(PROJECT_UUID)
+      .setId(project.getId())
+      .setSnapshotId(snapshotDto.getId())
+      .build());
+    DiskCacheById<Measure>.DiskAppender measureAppender = measuresCache.newAppender(1);
+    measureAppender.append(new Measure().setMetricKey(CoreMetrics.DIRECTORY_CYCLES_KEY).setValue(2d));
+    measureAppender.close();
+    session.commit();
+
+    new PersistComputeMeasuresStep(dbClient, new MetricCache(dbClient), measuresCache).execute(context);
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(0);
   }
 
 }

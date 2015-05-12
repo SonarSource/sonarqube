@@ -24,6 +24,7 @@ import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -57,6 +58,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,11 +100,16 @@ public class ComputeFileDependenciesStep implements ComputationStep {
       recursivelyProcessComponent(context, uuidsByRef, directoryByFile, childRef, componentRef);
     }
 
-    readFileDependenciesReport(context, component);
-    processDependencies(context, uuidsByRef, directoryByFile, component);
+    if (component.getType().equals(Constants.ComponentType.FILE)) {
+      processFile(context, component);
+    } else if (component.getType().equals(Constants.ComponentType.DIRECTORY)) {
+      processDirectory(context, component, uuidsByRef, directoryByFile);
+    } else {
+      processSubProject(context, component, uuidsByRef, directoryByFile);
+    }
   }
 
-  private void readFileDependenciesReport(ComputationContext context, BatchReport.Component component) {
+  private void processFile(ComputationContext context, BatchReport.Component component) {
     File fileDependencyReport = context.getReportReader().readFileDependencies(component.getRef());
     if (fileDependencyReport != null) {
       ReportIterator<BatchReport.FileDependency> fileDependenciesIterator = new ReportIterator<>(fileDependencyReport, BatchReport.FileDependency.PARSER);
@@ -120,8 +127,38 @@ public class ComputeFileDependenciesStep implements ComputationStep {
     }
   }
 
-  private void processDependencies(ComputationContext context, ComponentUuidsCache uuidsByRef, Map<Integer, Integer> directoryByFile, BatchReport.Component component) {
+  private void processDirectory(ComputationContext context, BatchReport.Component component, ComponentUuidsCache uuidsByRef, Map<Integer, Integer> directoryByFile) {
     Collection<FileDependency> fileDependencies = getDependenciesFromChildren(context, component.getRef());
+    DsmData dsmData = computeDsm(fileDependencies, component);
+    if (dsmData != null) {
+      feedParentDependencies(context, fileDependencies, directoryByFile, component.getRef());
+
+      List<Measure> measures = new ArrayList<>();
+      addDsmMeasure(dsmData, uuidsByRef, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.FILE_CYCLES_KEY, dsmData.cycleSize, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.FILE_FEEDBACK_EDGES_KEY, dsmData.feedbackEdgeSize, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.FILE_TANGLES_KEY, dsmData.tangles, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.FILE_EDGES_WEIGHT_KEY, dsmData.edgesWeight, component.getRef(), measures);
+      saveMeasures(measures, component.getRef());
+    }
+  }
+
+  private void processSubProject(ComputationContext context, BatchReport.Component component, ComponentUuidsCache uuidsByRef, Map<Integer, Integer> directoryByFile) {
+    Collection<FileDependency> fileDependencies = getDependenciesFromChildren(context, component.getRef());
+    DsmData dsmData = computeDsm(fileDependencies, component);
+    if (dsmData != null) {
+      List<Measure> measures = new ArrayList<>();
+      addDsmMeasure(dsmData, uuidsByRef, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.DIRECTORY_CYCLES_KEY, dsmData.cycleSize, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY, dsmData.feedbackEdgeSize, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.DIRECTORY_TANGLES_KEY, dsmData.tangles, component.getRef(), measures);
+      addPositiveMeasure(CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY, dsmData.edgesWeight, component.getRef(), measures);
+      saveMeasures(measures, component.getRef());
+    }
+  }
+
+  @CheckForNull
+  private DsmData computeDsm(Collection<FileDependency> fileDependencies, BatchReport.Component component) {
     if (!fileDependencies.isEmpty()) {
       DependenciesGraph dependenciesGraph = new DependenciesGraph();
       for (FileDependency fileDependency : fileDependencies) {
@@ -130,23 +167,54 @@ public class ComputeFileDependenciesStep implements ComputationStep {
 
       if (dependenciesGraph.getVertices().size() > MAX_DSM_DIMENSION) {
         LOG.warn(String.format("Too many components under component '%s'. DSM will not be computed.", component.getPath()));
-        return;
+      } else {
+        IncrementalCyclesAndFESSolver<Integer> cycleDetector = new IncrementalCyclesAndFESSolver<>(dependenciesGraph, dependenciesGraph.getVertices());
+        Set<Cycle> cycles = cycleDetector.getCycles();
+        MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
+        Set<Edge> feedbackEdges = solver.getEdges();
+        Dsm<Integer> dsm = new Dsm<>(dependenciesGraph, dependenciesGraph.getVertices(), feedbackEdges);
+        DsmTopologicalSorter.sort(dsm);
+
+        return new DsmData(dsm, cycles.size(), feedbackEdges.size(), solver.getWeightOfFeedbackEdgeSet(), getEdgesWeight(dependenciesGraph));
       }
+    }
+    return null;
+  }
 
-      DsmDb.Data dsmData = computeDsmData(dependenciesGraph, uuidsByRef);
+  protected static int getEdgesWeight(DependenciesGraph dependenciesGraph) {
+    int total = 0;
+    for (Integer vertice : dependenciesGraph.getVertices()) {
+      Collection<FileDependency> outgoingEdges = dependenciesGraph.getOutgoingEdges(vertice);
+      if (outgoingEdges != null) {
+        for (FileDependency edge : outgoingEdges) {
+          total += edge.getWeight();
+        }
+      }
+    }
+    return total;
+  }
 
-      Measure measure = new Measure();
-      measure.setMetricKey(ServerMetrics.DEPENDENCY_MATRIX_KEY);
-      measure.setComponentUuid(component.getUuid());
-      measure.setByteValue(DsmDataEncoder.encodeSourceData(dsmData));
+  private void addDsmMeasure(DsmData dsmData, ComponentUuidsCache uuidsByRef, int ref, List<Measure> measures) {
+    DsmDb.Data dsmDb = DsmDataBuilder.build(dsmData.dsm, uuidsByRef);
+    measures.add(new Measure()
+      .setMetricKey(ServerMetrics.DEPENDENCY_MATRIX_KEY)
+      .setByteValue(DsmDataEncoder.encodeSourceData(dsmDb)));
+  }
 
-      DiskCacheById<Measure>.DiskAppender measureAppender = measuresCache.newAppender(component.getRef());
-      try {
+  private void addPositiveMeasure(String metricKey, int value, int ref, List<Measure> measures) {
+    if (value >= 0d) {
+      measures.add(new Measure().setMetricKey(metricKey).setValue((double) value));
+    }
+  }
+
+  private void saveMeasures(List<Measure> measures, int ref) {
+    DiskCacheById<Measure>.DiskAppender measureAppender = measuresCache.newAppender(ref);
+    try {
+      for (Measure measure : measures) {
         measureAppender.append(measure);
-      } finally {
-        measureAppender.close();
       }
-      feedParentDependencies(context, fileDependencies, directoryByFile, component.getRef());
+    } finally {
+      measureAppender.close();
     }
   }
 
@@ -187,16 +255,6 @@ public class ComputeFileDependenciesStep implements ComputationStep {
     return dependencies;
   }
 
-  private static DsmDb.Data computeDsmData(DependenciesGraph dependenciesGraph, ComponentUuidsCache uuidsByRef) {
-    IncrementalCyclesAndFESSolver<Integer> cycleDetector = new IncrementalCyclesAndFESSolver<>(dependenciesGraph, dependenciesGraph.getVertices());
-    Set<Cycle> cycles = cycleDetector.getCycles();
-    MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
-    Set<Edge> feedbackEdges = solver.getEdges();
-    Dsm<Integer> dsm = new Dsm<>(dependenciesGraph, dependenciesGraph.getVertices(), feedbackEdges);
-    DsmTopologicalSorter.sort(dsm);
-    return DsmDataBuilder.build(dsm, uuidsByRef);
-  }
-
   /**
    * Browse all components of the report to create a map of directory ref by file ref
    */
@@ -216,6 +274,22 @@ public class ComputeFileDependenciesStep implements ComputationStep {
 
     for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessDirectoryByFile(context, directoryByFile, childRef, componentRef);
+    }
+  }
+
+  private static class DsmData {
+    private final Dsm<Integer> dsm;
+    private final int cycleSize;
+    private final int feedbackEdgeSize;
+    private final int tangles;
+    private final int edgesWeight;
+
+    public DsmData(Dsm<Integer> dsm, int cycleSize, int feedbackEdgeSize, int tangles, int edgesWeight) {
+      this.cycleSize = cycleSize;
+      this.dsm = dsm;
+      this.feedbackEdgeSize = feedbackEdgeSize;
+      this.tangles = tangles;
+      this.edgesWeight = edgesWeight;
     }
   }
 

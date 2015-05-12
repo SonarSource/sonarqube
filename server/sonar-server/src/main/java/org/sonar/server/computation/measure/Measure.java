@@ -28,21 +28,10 @@ import java.io.Serializable;
 public class Measure implements Serializable {
 
   private String metricKey;
-  private String componentUuid;
 
   private Double value;
   private String textValue;
   private byte[] byteValue;
-
-  public String getComponentUuid() {
-    return componentUuid;
-  }
-
-  // TODO Is it usefull as it will be stored in a cache by component ref ?
-  public Measure setComponentUuid(String componentUuid) {
-    this.componentUuid = componentUuid;
-    return this;
-  }
 
   public String getMetricKey() {
     return metricKey;

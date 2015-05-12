@@ -21,6 +21,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -34,11 +35,22 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.util.CloseableIterator;
 
 import java.util.Iterator;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Read measures from the measures cache and persist it
  */
 public class PersistComputeMeasuresStep implements ComputationStep {
+
+  /**
+   * List of metrics that should not be persisted for the moment, as they should be aggregated
+   */
+  private static final List<String> METRIC_KEYS_NOT_TO_PERSIST = newArrayList(
+    CoreMetrics.FILE_CYCLES_KEY, CoreMetrics.FILE_FEEDBACK_EDGES_KEY, CoreMetrics.FILE_TANGLES_KEY, CoreMetrics.FILE_EDGES_WEIGHT_KEY,
+    CoreMetrics.DIRECTORY_CYCLES_KEY, CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY, CoreMetrics.DIRECTORY_TANGLES_KEY, CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY
+  );
 
   private final DbClient dbClient;
   private final MetricCache metricCache;
@@ -85,7 +97,10 @@ public class PersistComputeMeasuresStep implements ComputationStep {
 
   private void persistMeasures(DbSession dbSession,  Iterator<Measure> measures, final BatchReport.Component component) {
     while (measures.hasNext()) {
-      dbClient.measureDao().insert(dbSession, toMeasureDto(measures.next(), component));
+      Measure measure = measures.next();
+      if (!METRIC_KEYS_NOT_TO_PERSIST.contains(measure.getMetricKey())) {
+        dbClient.measureDao().insert(dbSession, toMeasureDto(measure, component));
+      }
     }
   }
 
