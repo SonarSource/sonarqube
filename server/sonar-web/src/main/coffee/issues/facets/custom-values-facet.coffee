@@ -52,12 +52,13 @@ define [
         formatSearching: -> t 'select2.searching'
         formatInputTooShort: -> tp 'select2.tooShort', 2
         width: '100%'
-        ajax:
-          quietMillis: 300
-          url: @getUrl()
-          data: (term, page) -> { s: term, p: page }
-          results: (data) -> { more: data.more, results: data.results }
+        ajax: @prepareAjaxSearch()
 
+    prepareAjaxSearch: ->
+      quietMillis: 300
+      url: @getUrl()
+      data: (term, page) -> { s: term, p: page }
+      results: (data) -> { more: data.more, results: data.results }
 
     addCustomValue: ->
       property = @model.get 'property'
