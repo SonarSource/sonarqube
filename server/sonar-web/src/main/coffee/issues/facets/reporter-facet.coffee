@@ -28,8 +28,18 @@ define [
   class extends CustomValuesFacet
 
     getUrl: ->
-      "#{baseUrl}/api/users/search?f=s2"
+      "#{baseUrl}/api/users/search2"
 
+    prepareAjaxSearch: ->
+      quietMillis: 300
+      url: @getUrl()
+      data: (term, page) -> { q: term, p: page }
+      results: (data) ->
+        more: false,
+        results: _.map(data.users, (user) ->
+            id: user.login,
+            text: "#{user.name} (#{user.login})"
+          )
 
     getValuesWithLabels: ->
       values = @model.getValues()

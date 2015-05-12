@@ -68,7 +68,17 @@ define([
   var UserSuggestions = Suggestions.extend({
 
     url: function() {
-      return baseUrl + '/api/users/search?f=s2';
+      return baseUrl + '/api/users/search2';
+    },
+
+    parse: function(response) {
+      this.more = false;
+      this.results = _.map(response.users, function(user) {
+        return {
+          id: user.login,
+          text: user.name + ' (' + user.login + ')'
+        };
+      });
     }
 
   });
@@ -434,9 +444,9 @@ define([
       var that = this;
       return $j
           .ajax({
-            url: baseUrl + '/api/users/search',
+            url: baseUrl + '/api/users/search2',
             type: 'GET',
-            data: { logins: v }
+            data: { q: v }
           })
           .done(function (r) {
             that.choices.add(new Backbone.Model({
@@ -467,9 +477,9 @@ define([
       var that = this;
       return $j
           .ajax({
-            url: baseUrl + '/api/users/search',
+            url: baseUrl + '/api/users/search2',
             type: 'GET',
-            data: { logins: v }
+            data: { q: v }
           })
           .done(function (r) {
             that.choices.add(new Backbone.Model({

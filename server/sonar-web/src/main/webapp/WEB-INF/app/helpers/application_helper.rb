@@ -723,8 +723,28 @@ module ApplicationHelper
   # * <tt>:select2_options</tt> - hash of select2 options
   #
   def user_select_tag(name, options={})
-    ws_url="#{ApplicationController::root_context}/api/users/search?f=s2"
+    ws_url="#{ApplicationController::root_context}/api/users/search2"
     options[:min_length]=2
+    options[:select2_ajax_options]={
+      'data' => %{
+        function (term, page) {
+          return { q: term, p: page };
+        }
+      },
+      'results' => %{
+        function (data, page) {
+          return {
+            more: false,
+            results: _.map(data.users, function(user) {
+              return {
+                id: user.login,
+                text: '' +  user.name + ' (' + user.login + ')'
+              };
+            })
+          };
+        }
+      }
+    }
 
     user = options[:selected_user]
     if user

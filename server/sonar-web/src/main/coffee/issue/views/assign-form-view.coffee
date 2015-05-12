@@ -119,7 +119,7 @@ define [
 
     search: (query) ->
       if query.length > 1
-        $.get "#{baseUrl}/api/users/search", s: query
+        $.get "#{baseUrl}/api/users/search2", q: query
         .done (data) =>
           @resetAssignees data.users
       else
