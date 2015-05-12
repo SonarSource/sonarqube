@@ -22,7 +22,7 @@ define(function () {
   var $ = jQuery;
 
   var dashboardL10n = function(name) {
-    var l10nKey = 'dashboard.' + dashboard.name + '.name';
+    var l10nKey = 'dashboard.' + name + '.name';
     var l10nLabel = t(l10nKey);
     if (l10nLabel !== l10nKey) {
       return l10nLabel;
