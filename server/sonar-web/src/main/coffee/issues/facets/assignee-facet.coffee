@@ -39,12 +39,7 @@ define [
       quietMillis: 300
       url: @getUrl()
       data: (term, page) -> { q: term, p: page }
-      results: (data) ->
-        more: false,
-        results: _.map(data.users, (user) ->
-            id: user.login,
-            text: "#{user.name} (#{user.login})"
-          )
+      results: window.usersToSelect2
 
     onRender: ->
       super

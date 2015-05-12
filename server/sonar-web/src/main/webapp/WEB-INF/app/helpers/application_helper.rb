@@ -731,19 +731,7 @@ module ApplicationHelper
           return { q: term, p: page };
         }
       },
-      'results' => %{
-        function (data, page) {
-          return {
-            more: false,
-            results: _.map(data.users, function(user) {
-              return {
-                id: user.login,
-                text: '' +  user.name + ' (' + user.login + ')'
-              };
-            })
-          };
-        }
-      }
+      'results' => 'window.usersToSelect2'
     }
 
     user = options[:selected_user]
