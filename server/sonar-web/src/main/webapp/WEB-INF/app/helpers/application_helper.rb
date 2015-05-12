@@ -594,6 +594,14 @@ module ApplicationHelper
     js_options['placeholder']= "'#{options[:placeholder]}'" if options.has_key?(:placeholder)
     js_options['width']= "'#{width}'" if width
 
+    ajax_options={
+      'quietMillis' => 300,
+      'url' => "'#{ws_url}'",
+      'data' => 'function (term, page) {return {s:term, p:page}}',
+      'results' => 'function (data, page) {return {more: data.more, results: data.results}}'
+    }
+    ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
+
     choices = options[:include_choices]
     if choices && !choices.empty?
       js_options['minimumInputLength']=0
@@ -602,22 +610,16 @@ module ApplicationHelper
           if (query.term.length == 0) {
             query.callback({results: [{#{ choices.map { |id, text| "id:'#{id}',text:'#{text}'" }.join('}, {')}}]});
           } else if (query.term.length >= #{min_length}) {
+            var dataFormatter = #{ajax_options['data']};
+            var resultFormatter = #{ajax_options['results']};
             $j.ajax('#{ws_url}', {
-                data: {s: query.term},
-                dataType: 'jsonp'
+                data: dataFormatter(query.term)
               }).done(function(data) {
-                query.callback(data);
+                query.callback(resultFormatter(data));
             });
           }
       }"
     else
-      ajax_options={
-          'quietMillis' => 300,
-          'url' => "'#{ws_url}'",
-          'data' => 'function (term, page) {return {s:term, p:page}}',
-          'results' => 'function (data, page) {return {more: data.more, results: data.results}}'
-      }
-      ajax_options.merge!(options[:select2_ajax_options]) if options[:select2_ajax_options]
       js_options['ajax']='{' + ajax_options.map { |k, v| "#{k}:#{v}" }.join(',') + '}'
     end
 
@@ -726,11 +728,7 @@ module ApplicationHelper
     ws_url="#{ApplicationController::root_context}/api/users/search2"
     options[:min_length]=2
     options[:select2_ajax_options]={
-      'data' => %{
-        function (term, page) {
-          return { q: term, p: page };
-        }
-      },
+      'data' => 'function (term, page) { return { q: term, p: page } }',
       'results' => 'window.usersToSelect2'
     }
 
