@@ -38,6 +38,7 @@ import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.components.DefaultProjectClasspath;
 import org.sonar.batch.deprecated.components.DefaultTimeMachine;
 import org.sonar.batch.deprecated.perspectives.BatchPerspectives;
+import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
@@ -113,6 +114,7 @@ public class ModuleScanContainer extends ComponentContainer {
     module.setSettings(moduleSettings);
 
     add(
+      EventBus.class,
       Periods.class,
       PhaseExecutor.class,
       RuleFinderCompatibility.class,

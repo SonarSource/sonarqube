@@ -21,7 +21,6 @@ package org.sonar.api.batch.events;
 
 import org.sonar.api.BatchSide;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.InstantiationStrategy;
 
 /**
  * Common interface for event handlers.
@@ -30,7 +29,6 @@ import org.sonar.api.batch.InstantiationStrategy;
  * @since 2.8
  */
 @BatchSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ExtensionPoint
 public interface EventHandler {
 
