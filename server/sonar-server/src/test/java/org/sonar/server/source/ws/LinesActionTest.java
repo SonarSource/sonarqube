@@ -155,7 +155,7 @@ public class LinesActionTest {
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, line1, line2, line3);
 
-    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
     request.execute().assertJson(getClass(), "show_source.json");
@@ -165,7 +165,7 @@ public class LinesActionTest {
   public void fail_to_show_source_if_no_source_found() {
     newFile();
 
-    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     try {
       WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", FILE_UUID);
@@ -180,7 +180,7 @@ public class LinesActionTest {
   public void show_source_with_from_and_to_params() throws Exception {
     newFile();
 
-    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       new SourceLineDoc()
@@ -236,7 +236,7 @@ public class LinesActionTest {
         .setUpdateDate(new Date())
     );
 
-    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
     request.execute().assertJson(getClass(), "show_source_by_file_key.json");
@@ -245,7 +245,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     newFile();
-    userSessionRule.logon("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
 
     try {
@@ -260,7 +260,7 @@ public class LinesActionTest {
   public void should_check_permission() throws Exception {
     newFile();
 
-    userSessionRule.logon("login");
+    userSessionRule.login("login");
 
     wsTester.newGetRequest("api/sources", "lines")
       .setParam("uuid", FILE_UUID)

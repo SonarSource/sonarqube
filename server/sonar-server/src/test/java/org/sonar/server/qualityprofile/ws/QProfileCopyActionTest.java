@@ -60,7 +60,7 @@ public class QProfileCopyActionTest {
 
   @Test
   public void copy_nominal() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -80,7 +80,7 @@ public class QProfileCopyActionTest {
 
   @Test
   public void copy_with_parent() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     String fromProfileKey = "xoo-sonar-way-23456";
     String toName = "Other Sonar Way";
@@ -101,7 +101,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_key() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("name", "Other Sonar Way")
@@ -110,7 +110,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_name() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")
@@ -119,7 +119,7 @@ public class QProfileCopyActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logon("obiwan");
+    userSessionRule.login("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "copy")
       .setParam("key", "sonar-way-xoo1-13245")

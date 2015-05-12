@@ -82,7 +82,7 @@ public class InternalPermissionServiceMediumTest {
   @Test
   public void add_project_permission_to_user() {
     // init
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.login("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     UserDto user = new UserDto().setLogin("john").setName("John");
     db.userDao().insert(session, user);
     session.commit();
@@ -102,7 +102,7 @@ public class InternalPermissionServiceMediumTest {
 
   @Test
   public void remove_project_permission_to_user() {
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.login("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user1 = new UserDto().setLogin("user1").setName("User1");
     db.userDao().insert(session, user1);
@@ -126,7 +126,7 @@ public class InternalPermissionServiceMediumTest {
 
   @Test
   public void remove_all_component_user_permissions() {
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.login("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user = new UserDto().setLogin("user1").setName("User1");
     db.userDao().insert(session, user);
@@ -154,7 +154,7 @@ public class InternalPermissionServiceMediumTest {
   @Test
   public void add_and_remove_permission_to_group() {
     // init
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    userSessionRule.login("admin").addProjectPermissions(UserRole.ADMIN, project.key());
     GroupDto group = new GroupDto().setName("group1");
     db.groupDao().insert(session, group);
     session.commit();

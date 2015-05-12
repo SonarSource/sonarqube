@@ -49,10 +49,10 @@ public class RubyUserSessionTest {
     UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
-    assertThat(session.login()).isEqualTo("karadoc");
-    assertThat(session.name()).isEqualTo("Karadoc");
-    assertThat(session.userId()).isEqualTo(123);
-    assertThat(session.userGroups()).containsOnly("sonar-users", "Anyone");
+    assertThat(session.getLogin()).isEqualTo("karadoc");
+    assertThat(session.getName()).isEqualTo("Karadoc");
+    assertThat(session.getUserId()).isEqualTo(123);
+    assertThat(session.getUserGroups()).containsOnly("sonar-users", "Anyone");
     assertThat(session.isLoggedIn()).isTrue();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }
@@ -64,10 +64,10 @@ public class RubyUserSessionTest {
     UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
-    assertThat(session.login()).isNull();
-    assertThat(session.name()).isNull();
-    assertThat(session.userId()).isNull();
-    assertThat(session.userGroups()).containsOnly("Anyone");
+    assertThat(session.getLogin()).isNull();
+    assertThat(session.getName()).isNull();
+    assertThat(session.getUserId()).isNull();
+    assertThat(session.getUserGroups()).containsOnly("Anyone");
     assertThat(session.isLoggedIn()).isFalse();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }

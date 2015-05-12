@@ -49,7 +49,7 @@ public class ActivityServiceTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone().logon();
+  public UserSessionRule userSession = UserSessionRule.standalone().login();
 
   System2 system = mock(System2.class);
   ActivityService service;

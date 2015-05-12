@@ -51,8 +51,8 @@ public class QueryContext {
   private Set<String> userGroups = newHashSet();
 
   public QueryContext(UserSession userSession) {
-    this.userLogin = userSession.login();
-    this.userGroups = userSession.userGroups();
+    this.userLogin = userSession.getLogin();
+    this.userGroups = userSession.getUserGroups();
   }
 
   /**

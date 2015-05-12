@@ -436,7 +436,7 @@ public class IssueShowActionTest {
     when(i18n.ageFromNow(any(Locale.class), eq(date1))).thenReturn("9 days");
     when(i18n.ageFromNow(any(Locale.class), eq(date2))).thenReturn("10 days");
 
-    userSessionRule.logon("arthur");
+    userSessionRule.login("arthur");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_comments.json");
   }
@@ -450,7 +450,7 @@ public class IssueShowActionTest {
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_transitions.json");
   }
@@ -461,7 +461,7 @@ public class IssueShowActionTest {
       .setStatus("OPEN");
     when(issueService.getByKey(issue.key())).thenReturn(issue);
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_actions.json");
   }

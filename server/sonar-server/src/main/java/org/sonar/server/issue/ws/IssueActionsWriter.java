@@ -66,7 +66,7 @@ public class IssueActionsWriter {
 
   private List<String> actions(Issue issue) {
     List<String> actions = newArrayList();
-    String login = userSession.login();
+    String login = userSession.getLogin();
     if (login != null) {
       actions.add("comment");
       if (issue.resolution() == null) {

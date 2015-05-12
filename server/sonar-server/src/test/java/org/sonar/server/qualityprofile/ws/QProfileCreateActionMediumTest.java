@@ -74,7 +74,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test
   public void create_nominal() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")
@@ -85,7 +85,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test
   public void create_with_messages() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")
@@ -97,7 +97,7 @@ public class QProfileCreateActionMediumTest {
 
   @Test(expected = BadRequestException.class)
   public void fail_on_error_from_importer() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("backup_XooProfileImporter", "a value for xoo importer")

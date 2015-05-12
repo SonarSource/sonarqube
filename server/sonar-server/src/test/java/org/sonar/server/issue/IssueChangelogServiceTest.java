@@ -87,7 +87,7 @@ public class IssueChangelogServiceTest {
   @Test
   public void format_diffs() {
     FieldDiffs diffs = new FieldDiffs().setUserLogin("arthur").setDiff("severity", "MAJOR", "BLOCKER");
-    userSessionRule.logon();
+    userSessionRule.login();
     service.formatDiffs(diffs);
     verify(formatter).format(any(Locale.class), eq(diffs));
   }

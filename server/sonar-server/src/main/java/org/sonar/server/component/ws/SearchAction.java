@@ -95,7 +95,7 @@ public class SearchAction implements RequestHandler {
       userSession.checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
 
       Set<Long> projectIds = newLinkedHashSet(dbClient.componentIndexDao().selectProjectIdsFromQueryAndViewOrSubViewUuid(session, query, componentDto.uuid()));
-      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.userId(), UserRole.USER);
+      Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(session, projectIds, userSession.getUserId(), UserRole.USER);
 
       SearchOptions options = new SearchOptions();
       options.setPage(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));

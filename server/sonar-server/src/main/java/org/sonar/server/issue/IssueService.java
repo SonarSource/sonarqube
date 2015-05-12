@@ -152,7 +152,7 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue defaultIssue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       checkTransitionPermission(transitionKey, userSession, defaultIssue);
       if (workflow.doTransition(defaultIssue, transitionKey, context)) {
         saveIssue(session, defaultIssue, context, null);
@@ -187,7 +187,7 @@ public class IssueService {
           throw new NotFoundException("Unknown user: " + assignee);
         }
       }
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.assign(issue, user, context)) {
         saveIssue(session, issue, context, null);
       }
@@ -212,7 +212,7 @@ public class IssueService {
       }
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
 
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.plan(issue, actionPlan, context)) {
         saveIssue(session, issue, context, null);
       }
@@ -231,7 +231,7 @@ public class IssueService {
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
       userSession.checkProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
 
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
         saveIssue(session, issue, context, null);
       }
@@ -267,7 +267,7 @@ public class IssueService {
         .severity(Objects.firstNonNull(severity, Severity.MAJOR))
         .effortToFix(effortToFix)
         .ruleKey(ruleKey)
-        .reporter(userSession.login())
+        .reporter(userSession.getLogin())
         .assignee(findSourceLineUser(component.uuid(), line))
         .build();
 
@@ -346,7 +346,7 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.setTags(issue, tags, context)) {
         saveIssue(session, issue, context, null);
       }

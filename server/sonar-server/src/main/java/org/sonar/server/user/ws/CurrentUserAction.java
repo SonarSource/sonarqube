@@ -54,8 +54,8 @@ public class CurrentUserAction implements BaseUsersWsAction {
 
   private void writeUserDetails(JsonWriter json, UserSession session) {
     json.prop("isLoggedIn", session.isLoggedIn())
-      .prop("login", session.login())
-      .prop("name", session.name());
+      .prop("login", session.getLogin())
+      .prop("name", session.getName());
     writePermissions(json, session);
   }
 

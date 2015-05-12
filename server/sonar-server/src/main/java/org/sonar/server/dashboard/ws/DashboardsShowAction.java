@@ -62,7 +62,7 @@ public class DashboardsShowAction implements DashboardsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      Integer userId = userSession.userId();
+      Integer userId = userSession.getUserId();
       DashboardDto dashboard = dbClient.dashboardDao().getAllowedByKey(dbSession, request.mandatoryParamAsLong(PARAM_KEY),
         userId != null ? userId.longValue() : null);
       if (dashboard == null) {

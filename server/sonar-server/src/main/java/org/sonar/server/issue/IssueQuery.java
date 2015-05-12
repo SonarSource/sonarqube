@@ -321,8 +321,8 @@ public class IssueQuery {
     private boolean checkAuthorization = true;
 
     private Builder(UserSession userSession) {
-      this.userLogin = userSession.login();
-      this.userGroups = userSession.userGroups();
+      this.userLogin = userSession.getLogin();
+      this.userGroups = userSession.getUserGroups();
     }
 
     public Builder issueKeys(@Nullable Collection<String> l) {

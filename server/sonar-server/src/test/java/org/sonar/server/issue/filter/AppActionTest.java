@@ -62,14 +62,14 @@ public class AppActionTest {
 
   @Test
   public void logged_in_app() throws Exception {
-    userSessionRule.logon("eric").setUserId(123);
+    userSessionRule.login("eric").setUserId(123);
     tester.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page.json");
   }
 
   @Test
   public void logged_in_app_with_favorites() throws Exception {
-    userSessionRule.logon("eric").setUserId(123);
+    userSessionRule.login("eric").setUserId(123);
     when(service.findFavoriteFilters(userSessionRule)).thenReturn(Arrays.asList(
       new IssueFilterDto().setId(6L).setName("My issues"),
       new IssueFilterDto().setId(13L).setName("Blocker issues")
@@ -80,7 +80,7 @@ public class AppActionTest {
 
   @Test
   public void logged_in_app_with_selected_filter() throws Exception {
-    userSessionRule.logon("eric").setUserId(123);
+    userSessionRule.login("eric").setUserId(123);
     when(service.find(13L, userSessionRule)).thenReturn(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("eric")
     );
@@ -92,7 +92,7 @@ public class AppActionTest {
   @Test
   public void app_selected_filter_can_not_be_modified() throws Exception {
     // logged-in user is 'eric' but filter is owned by 'simon'
-    userSessionRule.logon("eric").setUserId(123).setGlobalPermissions("none");
+    userSessionRule.login("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(13L, userSessionRule)).thenReturn(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     );

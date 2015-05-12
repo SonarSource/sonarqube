@@ -84,7 +84,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_key() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
@@ -105,7 +105,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Sonar way").execute().assertNoContent();
 
@@ -115,7 +115,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_key() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
@@ -130,7 +130,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_to_set_default_profile_using_language_and_name() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Unknown").execute();
@@ -144,7 +144,7 @@ public class QProfileSetDefaultActionTest {
 
   @Test
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logon("obiwan");
+    userSessionRule.login("obiwan");
 
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();

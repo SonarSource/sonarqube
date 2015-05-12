@@ -95,7 +95,7 @@ public class DefaultUserServiceTest {
   @Test
   public void self_deactivation_is_not_possible() {
     try {
-      userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+      userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
       service.deactivate("simon");
       fail();
     } catch (BadRequestException e) {
@@ -107,7 +107,7 @@ public class DefaultUserServiceTest {
   @Test
   public void user_deactivation_requires_admin_permission() {
     try {
-      userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
       service.deactivate("julien");
       fail();
     } catch (ForbiddenException e) {
@@ -117,14 +117,14 @@ public class DefaultUserServiceTest {
 
   @Test
   public void deactivate_user() {
-    userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     service.deactivate("julien");
     verify(userUpdater).deactivateUserByLogin("julien");
   }
 
   @Test
   public void fail_to_deactivate_when_blank_login() {
-    userSessionRule.logon("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("simon").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     try {
       service.deactivate("");
       fail();

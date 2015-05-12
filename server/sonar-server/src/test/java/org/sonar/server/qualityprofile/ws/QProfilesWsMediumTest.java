@@ -60,7 +60,7 @@ public class QProfilesWsMediumTest {
   public static ServerTester tester = new ServerTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester)
-      .logon("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      .login("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   QProfilesWs ws;
   DbClient db;

@@ -61,7 +61,7 @@ public class SearchActionTest {
   @Test
   public void return_projects_from_view() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_view.json");
@@ -70,7 +70,7 @@ public class SearchActionTest {
   @Test
   public void return_projects_from_subview() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    userSessionRule.logon("john").addComponentUuidPermission(UserRole.USER, "EFGH", "FGHI");
+    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, "EFGH", "FGHI");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "FGHI").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_projects_from_subview.json");
@@ -79,7 +79,7 @@ public class SearchActionTest {
   @Test
   public void return_only_authorized_projects_from_view() throws Exception {
     dbTester.prepareDbUnit(getClass(), "return_only_authorized_projects_from_view.xml");
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st");
     request.execute().assertJson(getClass(), "return_only_authorized_projects_from_view.json");
@@ -88,7 +88,7 @@ public class SearchActionTest {
   @Test
   public void return_paged_result() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "2").setParam("ps", "1");
     request.execute().assertJson(getClass(), "return_paged_result.json");
@@ -97,7 +97,7 @@ public class SearchActionTest {
   @Test
   public void return_only_first_page() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "1").setParam("ps", "1");
     request.execute().assertJson(getClass(), "return_only_first_page.json");
@@ -106,7 +106,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_search_param_is_too_short() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "s");
 

@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 
 public class QueryContextTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("john").setUserGroups("sonar-users");
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("john").setUserGroups("sonar-users");
 
   QueryContext options;
 

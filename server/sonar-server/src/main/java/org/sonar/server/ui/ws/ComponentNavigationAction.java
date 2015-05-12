@@ -136,7 +136,7 @@ public class ComponentNavigationAction implements NavigationAction {
       .prop("canBeFavorite", userSession.isLoggedIn())
       .prop("isFavorite", isFavourite(session, component, userSession));
 
-    List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.login());
+    List<DashboardDto> dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, userSession.getLogin());
     if (dashboards.isEmpty()) {
       dashboards = activeDashboardDao.selectProjectDashboardsForUserLogin(session, ANONYMOUS);
     }
@@ -153,7 +153,7 @@ public class ComponentNavigationAction implements NavigationAction {
 
   private boolean isFavourite(DbSession session, ComponentDto component, UserSession userSession) {
     PropertyQuery propertyQuery = PropertyQuery.builder()
-      .setUserId(userSession.userId())
+      .setUserId(userSession.getUserId())
       .setKey("favourite")
       .setComponentId(component.getId())
       .build();

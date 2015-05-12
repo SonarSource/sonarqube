@@ -64,7 +64,7 @@ public class QProfileRestoreActionTest {
 
   @Test
   public void restore_profile() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile = QualityProfileDto.createFor("xoo-sonar-way-12345")
       .setDefault(false).setLanguage("xoo").setName("Sonar way");
@@ -78,14 +78,14 @@ public class QProfileRestoreActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_missing_backup() throws Exception {
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     tester.newGetRequest("api/qualityprofiles", "restore").execute();
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_misssing_permission() throws Exception {
-    userSessionRule.logon("obiwan");
+    userSessionRule.login("obiwan");
 
     tester.newPostRequest("api/qualityprofiles", "restore").setParam("backup", "<polop><palap/></polop>").execute();
   }

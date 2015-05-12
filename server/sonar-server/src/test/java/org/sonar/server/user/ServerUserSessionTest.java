@@ -42,7 +42,7 @@ public class ServerUserSessionTest {
   @Test
   public void login_should_not_be_empty() {
     UserSession session = newServerUserSession().setLogin("");
-    assertThat(session.login()).isNull();
+    assertThat(session.getLogin()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
   }
 

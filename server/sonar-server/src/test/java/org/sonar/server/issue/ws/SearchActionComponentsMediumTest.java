@@ -363,7 +363,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
@@ -382,7 +382,7 @@ public class SearchActionComponentsMediumTest {
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -402,7 +402,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
@@ -423,7 +423,7 @@ public class SearchActionComponentsMediumTest {
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
-    userSessionRule.logon("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
+    userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
@@ -445,7 +445,7 @@ public class SearchActionComponentsMediumTest {
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
-    userSessionRule.logon("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
+    userSessionRule.login("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
@@ -549,7 +549,7 @@ public class SearchActionComponentsMediumTest {
   }
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
   }
 

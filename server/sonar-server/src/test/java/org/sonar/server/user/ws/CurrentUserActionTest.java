@@ -44,7 +44,7 @@ public class CurrentUserActionTest {
 
   @Test
   public void authenticated() throws Exception {
-    userSessionRule.logon("obiwan.kenobi").setName("Obiwan Kenobi")
+    userSessionRule.login("obiwan.kenobi").setName("Obiwan Kenobi")
       .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
     tester.newGetRequest("api/users", "current").execute().assertJson(getClass(), "authenticated.json");
   }

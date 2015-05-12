@@ -80,7 +80,7 @@ public class IssueCommentServiceTest {
   @Rule
   public ExpectedException throwable = ExpectedException.none();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   @Before
   public void setUp() {

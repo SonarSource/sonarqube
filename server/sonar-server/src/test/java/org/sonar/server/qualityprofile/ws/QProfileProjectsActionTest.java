@@ -84,7 +84,7 @@ public class QProfileProjectsActionTest {
       mock(ProjectAssociationActions.class),
       new QProfileProjectsAction(dbClient, userSessionRule)));
 
-    userSessionRule.logon("obiwan").setUserId(userId.intValue());
+    userSessionRule.login("obiwan").setUserId(userId.intValue());
     new UserDao(dbTester.myBatis(), mock(System2.class))
       .insert(session, new UserDto()
         .setActive(true)

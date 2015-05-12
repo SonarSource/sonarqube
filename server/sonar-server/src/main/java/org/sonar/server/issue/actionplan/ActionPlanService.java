@@ -104,7 +104,7 @@ public class ActionPlanService {
    */
   private void unplanIssues(DefaultActionPlan actionPlan, UserSession userSession) {
     List<IssueDto> dtos = findIssuesByActionPlan(actionPlan.key());
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     List<DefaultIssue> issues = newArrayList();
     for (IssueDto issueDto : dtos) {
       DefaultIssue issue = issueDto.toDefaultIssue();

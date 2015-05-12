@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 
 public class SystemInfoWsActionTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("login")
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("login")
       .setName("name");
 
   Monitor monitor1 = mock(Monitor.class);

@@ -50,7 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
  * In both cases, one can define user session behavior which should apply on all tests directly on the property, eg.:
  * <pre>
  * {@literal @}Rule
- * public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+ * public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
  * </pre>
  * </p>
  * <p>
@@ -71,8 +71,9 @@ import static com.google.common.base.Preconditions.checkState;
  * {@code UserSessionRule.standalone().anonymous()}.
  * </p>
  * <p>
- * To emulate an identified user, either use method {@link #logon(String)} if you want to specify the user's login, or
- * method {@link #logon()} which will do the same but using the value of {@link #DEFAULT_LOGIN} as the user's login.
+ * To emulate an identified user, either use method {@link #login(String)} if you want to specify the user's login, or
+ * method {@link #login()} which will do the same but using the value of {@link #DEFAULT_LOGIN} as the user's login
+ * (use the latest override if you don't care about the actual value of the login, it will save noise in your test).
  * </p>
  */
 public class UserSessionRule implements TestRule, UserSession {
@@ -96,16 +97,16 @@ public class UserSessionRule implements TestRule, UserSession {
   }
 
   /**
-   * Log on with the default login {@link #DEFAULT_LOGIN}
+   * Log in with the default login {@link #DEFAULT_LOGIN}
    */
-  public UserSessionRule logon() {
-    return logon(DEFAULT_LOGIN);
+  public UserSessionRule login() {
+    return login(DEFAULT_LOGIN);
   }
 
   /**
-   * Log on with the specified login
+   * Log in with the specified login
    */
-  public UserSessionRule logon(String login) {
+  public UserSessionRule login(String login) {
     setCurrentUserSession(new MockUserSession(login));
     return this;
   }
@@ -241,25 +242,25 @@ public class UserSessionRule implements TestRule, UserSession {
 
   @Override
   @CheckForNull
-  public String login() {
-    return currentUserSession.login();
+  public String getLogin() {
+    return currentUserSession.getLogin();
   }
 
   @Override
   @CheckForNull
-  public String name() {
-    return currentUserSession.name();
+  public String getName() {
+    return currentUserSession.getName();
   }
 
   @Override
   @CheckForNull
-  public Integer userId() {
-    return currentUserSession.userId();
+  public Integer getUserId() {
+    return currentUserSession.getUserId();
   }
 
   @Override
-  public Set<String> userGroups() {
-    return currentUserSession.userGroups();
+  public Set<String> getUserGroups() {
+    return currentUserSession.getUserGroups();
   }
 
   @Override

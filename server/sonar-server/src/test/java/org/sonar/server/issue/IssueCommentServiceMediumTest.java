@@ -93,10 +93,10 @@ public class IssueCommentServiceMediumTest {
 
     // project can be seen by anyone
     session.commit();
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
-    userSessionRule.logon("gandalf");
+    userSessionRule.login("gandalf");
 
     session.commit();
   }

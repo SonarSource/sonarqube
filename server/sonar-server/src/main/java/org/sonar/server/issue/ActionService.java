@@ -110,7 +110,7 @@ public class ActionService {
         throw new IllegalStateException("A condition is not respected");
       }
 
-      IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       Component project = dbClient.componentDao().getByKey(session, issue.projectKey());
       FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
       for (Function function : action.functions()) {

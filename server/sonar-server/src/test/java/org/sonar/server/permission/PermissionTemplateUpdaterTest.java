@@ -56,7 +56,7 @@ public class PermissionTemplateUpdaterTest {
 
   @Before
   public void setUpCommonMocks() {
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
@@ -134,7 +134,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(ForbiddenException.class);
     expected.expectMessage("Insufficient privileges");
 
-    userSessionRule.logon("user").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    userSessionRule.login("user").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null, userSessionRule) {
       @Override

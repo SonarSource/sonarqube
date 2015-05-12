@@ -109,7 +109,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app() throws Exception {
-    userSessionRule.logon("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.login("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     ComponentDto project = newProject();
 
     ComponentDto file = ComponentTesting.newFileDto(project)
@@ -194,7 +194,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void fail_on_unknown_component() {
-    userSessionRule.logon("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    userSessionRule.login("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
 
     try {

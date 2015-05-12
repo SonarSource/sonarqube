@@ -125,7 +125,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void set_markdown_note() {
-    userSessionRule.logon("me");
+    userSessionRule.login("me");
 
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData(null)

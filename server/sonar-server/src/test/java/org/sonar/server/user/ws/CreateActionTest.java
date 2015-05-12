@@ -116,7 +116,7 @@ public class CreateActionTest {
 
   @Test
   public void create_user() throws Exception {
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")
@@ -136,7 +136,7 @@ public class CreateActionTest {
 
   @Test
   public void reactivate_user() throws Exception {
-    userSessionRule.logon("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setLocale(Locale.FRENCH).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     dbClient.userDao().insert(session, new UserDto()
       .setEmail("john@email.com")
@@ -163,7 +163,7 @@ public class CreateActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    userSessionRule.logon("not_admin");
+    userSessionRule.login("not_admin");
 
     tester.newPostRequest("api/users", "create")
       .setParam("login", "john")

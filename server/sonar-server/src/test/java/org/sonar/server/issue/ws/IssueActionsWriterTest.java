@@ -72,7 +72,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    userSessionRule.logon("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
 
     testActions(issue,
       "{\"actions\": " +
@@ -89,7 +89,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     Action action = mock(Action.class);
     when(action.key()).thenReturn("link-to-jira");
     when(actionService.listAvailableActions(eq(issue))).thenReturn(newArrayList(action));
@@ -110,7 +110,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setResolution("CLOSED");
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     testActions(issue,
       "{\"actions\": " +
@@ -140,7 +140,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setAssignee("john");
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     testActions(issue,
       "{\"actions\": " +
@@ -158,7 +158,7 @@ public class IssueActionsWriterTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     testTransitions(issue,
       "{\"transitions\": [\n" +
@@ -174,7 +174,7 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     testTransitions(issue,
       "{\"transitions\": []}");

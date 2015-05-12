@@ -51,7 +51,7 @@ public class CreateActionMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).logon()
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).login()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;

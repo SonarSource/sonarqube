@@ -191,7 +191,7 @@ public class IssueShowAction implements BaseIssuesWsAction {
 
   private void writeComments(Issue issue, JsonWriter json) {
     json.name("comments").beginArray();
-    String login = userSession.login();
+    String login = userSession.getLogin();
 
     Map<String, User> usersByLogin = newHashMap();
     List<DefaultIssueComment> comments = commentService.findComments(issue.key());

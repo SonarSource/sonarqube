@@ -163,7 +163,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_comment.json");
   }
@@ -197,7 +197,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.outputAsString()).doesNotContain("fabrice");
@@ -271,7 +271,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json");
@@ -405,7 +405,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
@@ -429,7 +429,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
@@ -472,7 +472,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam("assignees", "__me__")
@@ -483,7 +483,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_assigned_to_me_unauthenticated() throws Exception {
-    userSessionRule.logon();
+    userSessionRule.login();
 
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
@@ -544,7 +544,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    userSessionRule.logon("john-bob.polop");
+    userSessionRule.login("john-bob.polop");
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam("assignees", "alice")
@@ -681,9 +681,9 @@ public class SearchActionMediumTest {
 
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    userSessionRule.logon();
+    userSessionRule.login();
   }
 
   private ComponentDto insertComponent(ComponentDto component) {

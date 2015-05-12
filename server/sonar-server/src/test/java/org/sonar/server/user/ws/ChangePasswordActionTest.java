@@ -62,7 +62,7 @@ public class ChangePasswordActionTest {
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   WebService.Controller controller;
 
@@ -105,7 +105,7 @@ public class ChangePasswordActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    userSessionRule.logon("polop");
+    userSessionRule.login("polop");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
       .execute();

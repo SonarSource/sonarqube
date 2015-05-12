@@ -28,8 +28,8 @@ public class MockUserSessionTest {
   public void set_mock_session() {
     MockUserSession mock = new MockUserSession("simon").setUserGroups("sonar-users");
 
-    assertThat(mock.login()).isEqualTo("simon");
-    assertThat(mock.userGroups()).containsOnly("sonar-users", "Anyone");
+    assertThat(mock.getLogin()).isEqualTo("simon");
+    assertThat(mock.getUserGroups()).containsOnly("sonar-users", "Anyone");
     assertThat(mock.globalPermissions()).isEmpty();
     assertThat(mock.isLoggedIn()).isTrue();
   }

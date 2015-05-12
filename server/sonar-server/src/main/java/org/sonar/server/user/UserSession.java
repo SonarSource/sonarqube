@@ -27,15 +27,15 @@ import javax.annotation.Nullable;
 
 public interface UserSession {
   @CheckForNull
-  String login();
+  String getLogin();
 
   @CheckForNull
-  String name();
+  String getName();
 
   @CheckForNull
-  Integer userId();
+  Integer getUserId();
 
-  Set<String> userGroups();
+  Set<String> getUserGroups();
 
   boolean isLoggedIn();
 

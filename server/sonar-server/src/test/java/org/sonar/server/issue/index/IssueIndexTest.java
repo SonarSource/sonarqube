@@ -1122,19 +1122,19 @@ public class IssueIndexTest {
     // project3 can be seen by nobody
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    userSessionRule.logon().setUserGroups("sonar-users");
+    userSessionRule.login().setUserGroups("sonar-users");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.logon().setUserGroups("sonar-admins");
+    userSessionRule.login().setUserGroups("sonar-admins");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.logon().setUserGroups("sonar-users", "sonar-admins");
+    userSessionRule.login().setUserGroups("sonar-users", "sonar-admins");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(2);
 
-    userSessionRule.logon().setUserGroups("another group");
+    userSessionRule.login().setUserGroups("another group");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).isEmpty();
 
-    userSessionRule.logon().setUserGroups("sonar-users", "sonar-admins");
+    userSessionRule.login().setUserGroups("sonar-users", "sonar-admins");
     assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project3.uuid())).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
@@ -1153,17 +1153,17 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
     indexIssue(IssueTesting.newDoc("ISSUE3", file3), null, null);
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.logon("max");
+    userSessionRule.login("max");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    userSessionRule.logon("another guy");
+    userSessionRule.login("another guy");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(0);
 
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
     assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project3.key())).build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
@@ -1179,7 +1179,7 @@ public class IssueIndexTest {
     indexIssue(IssueTesting.newDoc("ISSUE1", file1), "sonar-users", "john");
     indexIssue(IssueTesting.newDoc("ISSUE2", file2), null, "max");
 
-    userSessionRule.logon("john").setUserGroups("sonar-users");
+    userSessionRule.login("john").setUserGroups("sonar-users");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
   }
 

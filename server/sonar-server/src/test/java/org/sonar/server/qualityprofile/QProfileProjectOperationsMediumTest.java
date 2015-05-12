@@ -146,7 +146,7 @@ public class QProfileProjectOperationsMediumTest {
     db.userDao().insert(dbSession, user);
     tester.get(PermissionFacade.class).insertUserPermission(project1.getId(), user.getId(), UserRole.USER, dbSession);
     tester.get(PermissionFacade.class).insertUserPermission(project2.getId(), user.getId(), UserRole.USER, dbSession);
-    UserSession userSession = userSessionRule.logon("john").setUserId(user.getId().intValue()).setName("John")
+    UserSession userSession = userSessionRule.login("john").setUserId(user.getId().intValue()).setName("John")
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     dbSession.commit();

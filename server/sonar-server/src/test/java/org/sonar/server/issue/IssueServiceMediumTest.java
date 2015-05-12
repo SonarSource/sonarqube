@@ -157,7 +157,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
 
@@ -173,7 +173,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -194,7 +194,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setAssignee("perceval"));
 
@@ -215,7 +215,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -232,7 +232,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -253,7 +253,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     String actionPlanKey = "EFGH";
     db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
@@ -271,7 +271,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
     try {
@@ -287,7 +287,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
@@ -302,7 +302,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -328,7 +328,7 @@ public class IssueServiceMediumTest {
     newSourceLine(file, 1, "arthur");
     createDefaultGroup();
     newUser("arthur");
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -352,7 +352,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue_with_major_severity_when_no_severity() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -368,7 +368,7 @@ public class IssueServiceMediumTest {
   public void create_manual_issue_with_rule_name_when_no_message() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey").setName("Manual rule name");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -388,7 +388,7 @@ public class IssueServiceMediumTest {
     newSourceLine(file, 1, "unknown");
     createDefaultGroup();
     newUser("arthur");
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -406,7 +406,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     // No author on line 1
     newSourceLine(file, 1, "");
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -423,7 +423,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     try {
       service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null, 2d);
@@ -437,7 +437,7 @@ public class IssueServiceMediumTest {
   public void fail_create_manual_issue_if_rule_does_not_exists() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john").addProjectPermissions(UserRole.USER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null, 2d);
   }
@@ -449,7 +449,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
 
     // User has not the 'user' role on the project
-    userSessionRule.logon("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
+    userSessionRule.login("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
 
     RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
     tester.get(RuleDao.class).insert(session, manualRule);
@@ -492,7 +492,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.logon("john");
+    userSessionRule.login("john");
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
@@ -570,12 +570,12 @@ public class IssueServiceMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
 
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").addProjectPermissions(UserRole.USER, project.key()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     session.commit();
 
     // project can be seen by group "anyone"
     tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
-    userSessionRule.logon();
+    userSessionRule.login();
 
     return project;
   }

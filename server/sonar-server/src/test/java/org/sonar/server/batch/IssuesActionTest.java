@@ -125,7 +125,7 @@ public class IssuesActionTest {
       .setChecksum(null)
       .setAssignee(null));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
@@ -164,7 +164,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
 
@@ -203,7 +203,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -241,7 +241,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", FILE_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -278,7 +278,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", MODULE_KEY);
     ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -317,7 +317,7 @@ public class IssuesActionTest {
       .setChecksum("123456")
       .setAssignee("john"));
 
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
     ServerIssue serverIssue = ServerIssue.parseDelimitedFrom(new ByteArrayInputStream(request.execute().output()));
@@ -328,7 +328,7 @@ public class IssuesActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_without_preview_permission() throws Exception {
-    userSessionRule.logon("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
+    userSessionRule.login("henry").setGlobalPermissions(GlobalPermissions.PROVISIONING);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "issues").setParam("key", PROJECT_KEY);
     request.execute();

@@ -59,7 +59,7 @@ public class UpdateActionTest {
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
-  public final UserSessionRule userSessionRule = UserSessionRule.standalone().logon("admin")
+  public final UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
       .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   WebService.Controller controller;
@@ -104,7 +104,7 @@ public class UpdateActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    userSessionRule.logon("polop");
+    userSessionRule.login("polop");
     tester.newPostRequest("api/users", "update")
       .setParam("login", "john")
       .execute();

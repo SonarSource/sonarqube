@@ -343,7 +343,7 @@ public class SearchAction implements BaseIssuesWsAction {
     collectFacetsData(request, result, projectUuids, componentUuids, userLogins, actionPlanKeys);
 
     if (userSession.isLoggedIn()) {
-      userLogins.add(userSession.login());
+      userLogins.add(userSession.getLogin());
     }
 
     DbSession session = dbClient.openSession(false);
@@ -418,7 +418,7 @@ public class SearchAction implements BaseIssuesWsAction {
       assignees.remove(IssueQueryService.LOGIN_MYSELF);
     }
     addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assignees);
-    addMandatoryFacetValues(results, IssueFilterParameters.FACET_ASSIGNED_TO_ME, Arrays.asList(userSession.login()));
+    addMandatoryFacetValues(results, IssueFilterParameters.FACET_ASSIGNED_TO_ME, Arrays.asList(userSession.getLogin()));
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
@@ -574,7 +574,7 @@ public class SearchAction implements BaseIssuesWsAction {
   private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
     if (!issueComments.isEmpty()) {
       json.name("comments").beginArray();
-      String login = userSession.login();
+      String login = userSession.getLogin();
       for (IssueComment comment : issueComments) {
         String userLogin = comment.userLogin();
         User user = userLogin != null ? usersByLogin.get(userLogin) : null;

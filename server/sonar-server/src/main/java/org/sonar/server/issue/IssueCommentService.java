@@ -97,7 +97,7 @@ public class IssueCommentService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       updater.addComment(issue, text, context);
 
       issueService.saveIssue(session, issue, context, text);
@@ -118,7 +118,7 @@ public class IssueCommentService {
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
-    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
+    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.getLogin())) {
       throw new ForbiddenException("You can only delete your own comments");
     }
 
@@ -137,7 +137,7 @@ public class IssueCommentService {
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
-    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
+    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.getLogin())) {
       throw new ForbiddenException("You can only edit your own comments");
     }
 

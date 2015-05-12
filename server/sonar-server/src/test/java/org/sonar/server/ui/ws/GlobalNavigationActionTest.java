@@ -133,7 +133,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_user() throws Exception {
     nominalSetup();
 
-    userSessionRule.logon("obiwan");
+    userSessionRule.login("obiwan");
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "user.json");
   }
@@ -142,7 +142,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_admin() throws Exception {
     nominalSetup();
 
-    userSessionRule.logon("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "admin.json");
   }
@@ -151,7 +151,7 @@ public class GlobalNavigationActionTest {
   public void nominal_call_for_user_without_configured_dashboards() throws Exception {
     nominalSetup();
 
-    userSessionRule.logon("anakin");
+    userSessionRule.login("anakin");
 
     wsTester.newGetRequest("api/navigation", "global").execute().assertJson(getClass(), "anonymous.json");
   }

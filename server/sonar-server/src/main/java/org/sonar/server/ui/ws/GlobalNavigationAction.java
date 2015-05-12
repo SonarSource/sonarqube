@@ -65,7 +65,7 @@ public class GlobalNavigationAction implements NavigationAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<DashboardDto> dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(userSession.login());
+    List<DashboardDto> dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(userSession.getLogin());
     if (dashboards.isEmpty()) {
       dashboards = activeDashboardDao.selectGlobalDashboardsForUserLogin(ANONYMOUS);
     }

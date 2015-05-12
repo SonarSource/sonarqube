@@ -121,7 +121,7 @@ public class ComponentAppAction implements RequestHandler {
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
       .setKey("favourite")
       .setComponentId(component.getId())
-      .setUserId(userSession.userId())
+      .setUserId(userSession.getUserId())
       .build(),
       session
       );

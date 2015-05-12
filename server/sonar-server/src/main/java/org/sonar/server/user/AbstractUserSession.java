@@ -60,7 +60,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
 
   @Override
   @CheckForNull
-  public String login() {
+  public String getLogin() {
     return login;
   }
 
@@ -71,7 +71,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
 
   @Override
   @CheckForNull
-  public String name() {
+  public String getName() {
     return name;
   }
 
@@ -82,7 +82,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
 
   @Override
   @CheckForNull
-  public Integer userId() {
+  public Integer getUserId() {
     return userId;
   }
 
@@ -92,7 +92,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   }
 
   @Override
-  public Set<String> userGroups() {
+  public Set<String> getUserGroups() {
     return userGroups;
   }
 

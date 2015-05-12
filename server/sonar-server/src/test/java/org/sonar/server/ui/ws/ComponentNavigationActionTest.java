@@ -168,7 +168,7 @@ public class ComponentNavigationActionTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId), session);
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
       new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
@@ -187,7 +187,7 @@ public class ComponentNavigationActionTest {
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
       new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
@@ -221,7 +221,7 @@ public class ComponentNavigationActionTest {
     activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
     session.commit();
 
-    userSessionRule.logon("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
+    userSessionRule.login("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
 
     wsTester = new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
       new Views(userSessionRule), i18n, resourceTypes, userSessionRule)));
@@ -331,7 +331,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage(language));
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId)
+    userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -383,7 +383,7 @@ public class ComponentNavigationActionTest {
     dbClient.componentDao().insert(session, project);
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId)
+    userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -414,7 +414,7 @@ public class ComponentNavigationActionTest {
     dbClient.componentDao().insert(session, project, module);
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId)
+    userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .addProjectUuidPermissions(UserRole.ADMIN, "abcd");
 
@@ -432,7 +432,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage(language));
     session.commit();
 
-    userSessionRule.logon("obiwan").setUserId(userId)
+    userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 

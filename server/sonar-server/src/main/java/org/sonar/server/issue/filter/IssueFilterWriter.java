@@ -44,7 +44,7 @@ public class IssueFilterWriter {
 
   private boolean canModifyFilter(UserSession session, IssueFilterDto filter) {
     return session.isLoggedIn() &&
-      (StringUtils.equals(filter.getUserLogin(), session.login()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
+      (StringUtils.equals(filter.getUserLogin(), session.getLogin()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
   }
 
 }

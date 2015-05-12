@@ -214,7 +214,7 @@ public class IssueQueryService {
       assignees.addAll(assigneesFromParams);
     }
     if (assignees.contains(LOGIN_MYSELF)) {
-      String login = userSession.login();
+      String login = userSession.getLogin();
       if (login == null) {
         assignees.add(UNKNOWN);
       } else {

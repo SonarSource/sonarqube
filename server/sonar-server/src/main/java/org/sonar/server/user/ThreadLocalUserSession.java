@@ -51,25 +51,25 @@ public class ThreadLocalUserSession implements UserSession {
 
   @Override
   @CheckForNull
-  public String login() {
-    return get().login();
+  public String getLogin() {
+    return get().getLogin();
   }
 
   @Override
   @CheckForNull
-  public String name() {
-    return get().name();
+  public String getName() {
+    return get().getName();
   }
 
   @Override
   @CheckForNull
-  public Integer userId() {
-    return get().userId();
+  public Integer getUserId() {
+    return get().getUserId();
   }
 
   @Override
-  public Set<String> userGroups() {
-    return get().userGroups();
+  public Set<String> getUserGroups() {
+    return get().getUserGroups();
   }
 
   @Override

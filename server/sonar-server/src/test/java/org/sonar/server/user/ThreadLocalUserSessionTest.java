@@ -43,8 +43,8 @@ public class ThreadLocalUserSessionTest {
     UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
-    assertThat(session.login()).isNull();
-    assertThat(session.userId()).isNull();
+    assertThat(session.getLogin()).isNull();
+    assertThat(session.getUserId()).isNull();
     assertThat(session.isLoggedIn()).isFalse();
     // default locale
     assertThat(session.locale()).isEqualTo(Locale.ENGLISH);
@@ -56,8 +56,8 @@ public class ThreadLocalUserSessionTest {
 
     UserSession session = threadLocalUserSession.get();
     assertThat(session).isNotNull();
-    assertThat(session.userId()).isEqualTo(123);
-    assertThat(session.login()).isEqualTo("karadoc");
+    assertThat(session.getUserId()).isEqualTo(123);
+    assertThat(session.getLogin()).isEqualTo("karadoc");
     assertThat(session.isLoggedIn()).isTrue();
     assertThat(session.locale()).isEqualTo(Locale.FRENCH);
   }

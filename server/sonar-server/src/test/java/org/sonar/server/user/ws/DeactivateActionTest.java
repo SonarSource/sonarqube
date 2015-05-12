@@ -108,7 +108,7 @@ public class DeactivateActionTest {
   public void deactivate_user() throws Exception {
     createUser();
 
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john")
       .execute()
@@ -122,14 +122,14 @@ public class DeactivateActionTest {
   public void fail_on_missing_permission() throws Exception {
     createUser();
 
-    userSessionRule.logon("not_admin");
+    userSessionRule.login("not_admin");
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/users", "deactivate")
       .setParam("login", "john").execute();
   }

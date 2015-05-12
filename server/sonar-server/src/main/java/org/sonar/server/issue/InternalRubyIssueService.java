@@ -352,7 +352,7 @@ public class InternalRubyIssueService {
     if (result.ok()) {
       DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
         .setDescription(description)
-        .setUserLogin(userSession.login())
+        .setUserLogin(userSession.getLogin())
         .setDeadLine(deadLine);
 
       // Can only set project on creation

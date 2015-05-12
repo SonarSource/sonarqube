@@ -252,7 +252,7 @@ public class RuleUpdater {
       context.rule.setNoteData(update.getMarkdownNote());
       context.rule.setNoteCreatedAt(context.rule.getNoteCreatedAt() != null ? context.rule.getNoteCreatedAt() : now);
       context.rule.setNoteUpdatedAt(now);
-      context.rule.setNoteUserLogin(userSession.login());
+      context.rule.setNoteUserLogin(userSession.getLogin());
     }
   }
 

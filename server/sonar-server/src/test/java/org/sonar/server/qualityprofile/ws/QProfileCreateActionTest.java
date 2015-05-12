@@ -56,7 +56,7 @@ public class QProfileCreateActionTest {
     Action create = wsTester.controller("api/qualityprofiles").action("create");
     assertThat(create.params()).hasSize(2);
 
-    userSessionRule.logon("anakin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("anakin").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     wsTester.newPostRequest("api/qualityprofiles", "create")
       .setParam("language", xooKey).setParam("name", "Yeehaw!").execute().assertJson(getClass(), "create-no-importer.json");

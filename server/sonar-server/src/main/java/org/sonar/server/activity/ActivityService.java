@@ -43,7 +43,7 @@ public class ActivityService {
   public void save(Activity activity) {
     ActivityDto dto = new ActivityDto()
       .setKey(Uuids.create())
-      .setAuthor(userSession.login())
+      .setAuthor(userSession.getLogin())
       .setAction(activity.getAction())
       .setMessage(activity.getMessage())
       .setData(KeyValueFormat.format(activity.getData()))

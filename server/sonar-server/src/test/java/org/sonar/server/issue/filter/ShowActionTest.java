@@ -59,7 +59,7 @@ public class ShowActionTest {
   @Test
   public void show_filter() throws Exception {
     // logged-in user is 'eric' but filter is owned by 'simon'
-    userSessionRule.logon("eric").setUserId(123).setGlobalPermissions("none");
+    userSessionRule.login("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(13L, userSessionRule)).thenReturn(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setDescription("All Blocker Issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     );
@@ -70,7 +70,7 @@ public class ShowActionTest {
 
   @Test
   public void show_unknown_filter() throws Exception {
-    userSessionRule.logon("eric").setUserId(123).setGlobalPermissions("none");
+    userSessionRule.login("eric").setUserId(123).setGlobalPermissions("none");
     when(service.find(42L, userSessionRule)).thenThrow(new NotFoundException("Filter 42 does not exist"));
 
     try {

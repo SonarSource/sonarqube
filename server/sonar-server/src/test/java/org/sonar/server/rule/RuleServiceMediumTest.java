@@ -71,7 +71,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_rule_by_key() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -87,7 +87,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_non_null_rule_by_key() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -106,7 +106,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void get_rule_by_key_escape_description_on_manual_rule() {
-    userSessionRule.logon().logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleDto manualRule = RuleTesting.newManualRule("My manual")
       .setDescription("<div>Manual rule desc</div>");
@@ -157,7 +157,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void update_rule() {
-    userSessionRule.logon("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey key = RuleKey.of("java", "S001");
 
@@ -192,7 +192,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void create_rule() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
@@ -223,7 +223,7 @@ public class RuleServiceMediumTest {
 
   @Test
   public void delete_rule() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");

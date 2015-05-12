@@ -521,7 +521,7 @@ public class IssueIndex extends BaseIndex {
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
-    String login = userSession.login();
+    String login = userSession.getLogin();
 
     if (!options.getFacets().contains(IssueFilterParameters.FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(login)) {
       return;
@@ -713,7 +713,7 @@ public class IssueIndex extends BaseIndex {
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
     BoolFilterBuilder filter = FilterBuilders.boolFilter()
-      .must(createAuthorizationFilter(true, userSession.login(), userSession.userGroups()))
+      .must(createAuthorizationFilter(true, userSession.getLogin(), userSession.getUserGroups()))
       .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
 
     switch (component.scope()) {

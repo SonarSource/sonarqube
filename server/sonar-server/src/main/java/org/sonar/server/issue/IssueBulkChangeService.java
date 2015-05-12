@@ -95,7 +95,7 @@ public class IssueBulkChangeService {
     Repository repository = new Repository(issues);
 
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
-    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     Set<String> concernedProjects = new HashSet<>();
     for (Issue issue : issues) {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext);

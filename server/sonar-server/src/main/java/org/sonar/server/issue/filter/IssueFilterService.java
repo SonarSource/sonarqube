@@ -213,14 +213,14 @@ public class IssueFilterService {
 
   public boolean canShareFilter(UserSession userSession) {
     if (userSession.isLoggedIn()) {
-      String user = userSession.login();
+      String user = userSession.getLogin();
       return hasUserSharingPermission(user);
     }
     return false;
   }
 
   public String getLoggedLogin(UserSession userSession) {
-    String user = userSession.login();
+    String user = userSession.getLogin();
     if (!userSession.isLoggedIn()) {
       throw new UnauthorizedException("User is not logged in");
     }

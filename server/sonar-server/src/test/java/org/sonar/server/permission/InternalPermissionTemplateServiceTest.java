@@ -90,7 +90,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Before
   public void setUp() {
-    userSessionRule.logon("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
@@ -216,7 +216,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_retrieve_all_permission_templates_from_project() {
-    userSessionRule.logon("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
+    userSessionRule.login("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
 
     PermissionTemplateDto template1 =
       new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");

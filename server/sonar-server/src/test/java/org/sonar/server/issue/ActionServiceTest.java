@@ -110,7 +110,7 @@ public class ActionServiceTest {
     Function function = new TweetFunction();
 
     UserSession userSession = mock(ThreadLocalUserSession.class);
-    when(userSession.login()).thenReturn("arthur");
+    when(userSession.getLogin()).thenReturn("arthur");
 
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
@@ -127,7 +127,7 @@ public class ActionServiceTest {
     Function function = new TweetFunction();
 
     UserSession userSession = mock(ThreadLocalUserSession.class);
-    when(userSession.login()).thenReturn("arthur");
+    when(userSession.getLogin()).thenReturn("arthur");
 
     when(componentDao.getByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setProjectKey("struts"));

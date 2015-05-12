@@ -57,7 +57,7 @@ public class FavoritesActionTest {
 
   @Test
   public void favorites_of_anonymous() throws Exception {
-    userSessionRule.logon();
+    userSessionRule.login();
 
     tester.newGetRequest("api/issue_filters", "favorites").execute()
       .assertJson("{\"favoriteFilters\": []}");
@@ -65,7 +65,7 @@ public class FavoritesActionTest {
 
   @Test
   public void favorites_of_logged_in_user() throws Exception {
-    userSessionRule.logon("eric").setUserId(123);
+    userSessionRule.login("eric").setUserId(123);
     when(service.findFavoriteFilters(userSessionRule)).thenReturn(Arrays.asList(
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     ));

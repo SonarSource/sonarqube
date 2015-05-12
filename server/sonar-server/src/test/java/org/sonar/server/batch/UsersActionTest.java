@@ -69,7 +69,7 @@ public class UsersActionTest {
       new UserDoc().setLogin("ada.lovelace").setName("Ada Lovelace").setActive(false),
       new UserDoc().setLogin("grace.hopper").setName("Grace Hopper").setActive(true));
 
-    userSessionRule.logon("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
+    userSessionRule.login("sonarqtech").setGlobalPermissions(GlobalPermissions.PREVIEW_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "users").setParam("logins", "ada.lovelace,grace.hopper");
 

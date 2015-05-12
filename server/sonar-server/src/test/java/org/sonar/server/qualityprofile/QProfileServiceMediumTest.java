@@ -100,7 +100,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void create_profile() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile = service.create(QProfileName.createFor("xoo", "New Profile"), null).profile();
 
@@ -111,7 +111,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void create_profile_with_xml() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
     dbSession.commit();
@@ -129,7 +129,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_all_profiles() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -144,7 +144,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void stat_for_all_profiles() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("MINOR"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
@@ -161,7 +161,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void count_by_deprecated() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
@@ -179,7 +179,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity() {
-    userSessionRule.logon("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     db.userDao().insert(dbSession, user);
@@ -212,7 +212,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity_without_severity() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
 
@@ -231,7 +231,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity_with_user_not_found() {
-    userSessionRule.logon("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // We need an actual rule in DB to test RuleName in Activity
     db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
@@ -254,7 +254,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity_with_rule_not_found() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
 
@@ -310,7 +310,7 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void set_default() {
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     assertThat(service.getDefault("xoo")).isNull();
 

@@ -357,7 +357,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create a profile and activate rule
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -387,7 +387,7 @@ public class RegisterRulesMediumTest {
     register(rules);
 
     // create a profile and activate rule
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
@@ -419,7 +419,7 @@ public class RegisterRulesMediumTest {
     });
 
     // Create profile and activate rule
-    userSessionRule.logon().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
