@@ -36,7 +36,7 @@ import org.sonar.core.util.NonNullInputPredicate;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
-import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.measure.InternalMetrics;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -94,14 +94,10 @@ public class DsmAction implements DependenciesAction {
       ComponentDto component = dbClient.componentDao().getByUuid(session, componentUuid);
       UserSession.get().checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
-      // TODO manage old dsm measure
       DsmDb.Data dsmData = loadDsmData(session, component.key());
-      List<ComponentDto> components;
-      if (!displayComponentWithoutDep) {
-        components = dbClient.componentDao().getByUuids(session, dsmData.getUuidList());
-      } else {
-        components = dbClient.componentDao().selectChildrenByComponent(session, componentUuid);
-      }
+      List<ComponentDto> components = !displayComponentWithoutDep ?
+        dbClient.componentDao().getByUuids(session, dsmData.getUuidList()) :
+        dbClient.componentDao().selectChildrenByComponent(session, componentUuid);
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
@@ -116,7 +112,7 @@ public class DsmAction implements DependenciesAction {
 
   private DsmDb.Data loadDsmData(DbSession session, String componentKey) {
     // TODO replace component key by uuid
-    MeasureDto measureDto = dbClient.measureDao().findByComponentKeyAndMetricKey(session, componentKey, ServerMetrics.DEPENDENCY_MATRIX_KEY);
+    MeasureDto measureDto = dbClient.measureDao().findByComponentKeyAndMetricKey(session, componentKey, InternalMetrics.DEPENDENCY_MATRIX_KEY);
     if (measureDto != null) {
       byte[] data = measureDto.getByteData();
       if (data != null) {

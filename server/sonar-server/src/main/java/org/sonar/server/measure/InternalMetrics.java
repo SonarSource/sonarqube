@@ -26,9 +26,12 @@ import org.sonar.api.measures.Metric;
 
 import java.util.List;
 
-public class ServerMetrics {
+/**
+ * Contains list of metrics that should not be available in the API
+ */
+public class InternalMetrics {
 
-  private ServerMetrics() {
+  private InternalMetrics() {
     // only static stuff
   }
 

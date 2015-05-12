@@ -38,7 +38,7 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasuresCache;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
-import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.measure.InternalMetrics;
 import org.sonar.server.util.CloseableIterator;
 
 import javax.annotation.CheckForNull;
@@ -251,7 +251,7 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // On project
-    Measure projectMeasure = getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY);
+    Measure projectMeasure = getMeasure(1, InternalMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getByteValue()).isNotNull();
 
     DsmDb.Data projectDsmData = DsmDataEncoder.decodeDsmData(projectMeasure.getByteValue());
@@ -262,8 +262,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(projectDsmData.getUuid(1)).isEqualTo("DIRECTORY_B");
 
     // On directory
-    Measure directoryMeasure = getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY);
-    assertThat(directoryMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
+    Measure directoryMeasure = getMeasure(2, InternalMetrics.DEPENDENCY_MATRIX_KEY);
+    assertThat(directoryMeasure.getMetricKey()).isEqualTo(InternalMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(directoryMeasure.getByteValue()).isNotNull();
 
     DsmDb.Data directoryDsmData = DsmDataEncoder.decodeDsmData(directoryMeasure.getByteValue());
@@ -274,8 +274,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     assertThat(directoryDsmData.getUuid(1)).isEqualTo("FILE_B");
 
     // Nothing on file
-    assertThat(getMeasure(3, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
-    assertThat(getMeasure(5, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(3, InternalMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(5, InternalMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
   }
 
   @Test
@@ -326,11 +326,11 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // Nothing on project
-    assertThat(getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(1, InternalMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
 
     // On sub project
-    Measure projectMeasure = getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY);
-    assertThat(projectMeasure.getMetricKey()).isEqualTo(ServerMetrics.DEPENDENCY_MATRIX_KEY);
+    Measure projectMeasure = getMeasure(2, InternalMetrics.DEPENDENCY_MATRIX_KEY);
+    assertThat(projectMeasure.getMetricKey()).isEqualTo(InternalMetrics.DEPENDENCY_MATRIX_KEY);
     assertThat(projectMeasure.getByteValue()).isNotNull();
   }
 
@@ -382,8 +382,8 @@ public class ComputeFileDependenciesStepTest extends BaseStepTest {
     sut.execute(context);
 
     // No measure
-    assertThat(getMeasure(1, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
-    assertThat(getMeasure(2, ServerMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(1, InternalMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
+    assertThat(getMeasure(2, InternalMetrics.DEPENDENCY_MATRIX_KEY)).isNull();
   }
 
   @Test

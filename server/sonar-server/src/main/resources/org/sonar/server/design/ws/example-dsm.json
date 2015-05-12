@@ -1,14 +1,30 @@
 {
   "components": [
     {
-      "uuid": "48350893-0daa-4c88-834a-a10f91901de5",
-      "name": "src/main/java/sample",
+      "uuid": "a931c896-59f4-4477-a986-b8c09c6f5005",
+      "name": "src/main/java/org/sonar/plugins/issuesdensity/batch",
+      "qualifier": "DIR"
+    },
+    {
+      "uuid": "3b93c4a9-19b3-4cc8-98ce-db21a034aaa2",
+      "name": "src/main/java/org/sonar/plugins/issuesdensity",
+      "qualifier": "DIR"
+    },
+    {
+      "uuid": "09b58c56-b0db-427b-bcd0-e4c8075d4900",
+      "name": "src/main/java/org/sonar/plugins/issuesdensity/ui",
       "qualifier": "DIR"
     }
   ],
   "dependencies": [
     {
-      "4": 50
+      "1": 2
+    },
+    {
+      "3": 2
+    },
+    {
+      "7": 1
     }
   ]
 }

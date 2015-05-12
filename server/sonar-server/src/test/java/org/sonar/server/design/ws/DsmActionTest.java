@@ -40,7 +40,7 @@ import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
-import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.measure.InternalMetrics;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.user.MockUserSession;
@@ -71,7 +71,7 @@ public class DsmActionTest {
     tester = new WsTester(new DependenciesWs(new DsmAction(dbClient)));
     controller = tester.controller("api/dependencies");
 
-    dsmMetric = new MetricDto().setKey(ServerMetrics.DEPENDENCY_MATRIX_KEY).setEnabled(true);
+    dsmMetric = new MetricDto().setKey(InternalMetrics.DEPENDENCY_MATRIX_KEY).setEnabled(true);
     dbClient.metricDao().insert(session, dsmMetric);
     session.commit();
   }

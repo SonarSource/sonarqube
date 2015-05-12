@@ -30,17 +30,17 @@ public final class DsmDataBuilder {
   private final Dsm<Integer> dsm;
   private final ComponentUuidsCache uuidByRef;
 
-  private final DsmDb.Data.Builder dsmBuilder;
+  private final DsmDb.Data.Builder dbBuilder;
 
   private DsmDataBuilder(Dsm<Integer> dsm, ComponentUuidsCache uuidByRef) {
     this.dsm = dsm;
     this.uuidByRef = uuidByRef;
-    this.dsmBuilder = DsmDb.Data.newBuilder();
+    this.dbBuilder = DsmDb.Data.newBuilder();
   }
 
   private DsmDb.Data build() {
     processRows();
-    return dsmBuilder.build();
+    return dbBuilder.build();
   }
 
   private void processRows() {
@@ -55,7 +55,7 @@ public final class DsmDataBuilder {
     if (uuid == null) {
       throw new IllegalArgumentException(String.format("Reference '%s' has no associate uuid", ref));
     }
-    dsmBuilder.addUuid(uuid);
+    dbBuilder.addUuid(uuid);
     for (int x = 0; x < dsm.getDimension(); x++) {
       processCell(y, x);
     }
@@ -65,7 +65,7 @@ public final class DsmDataBuilder {
     DsmCell cell = dsm.cell(x, y);
     if (cell != null && cell.getEdge() != null && cell.getWeight() > 0) {
       int offset = dsm.getDimension() * y + x;
-      dsmBuilder.addCellBuilder()
+      dbBuilder.addCellBuilder()
         .setOffset(offset)
         .setWeight(cell.getWeight())
         .build();

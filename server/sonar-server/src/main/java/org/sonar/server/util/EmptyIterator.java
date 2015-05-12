@@ -20,6 +20,9 @@
 
 package org.sonar.server.util;
 
+/**
+ * Return a CloseableIterator containing no item
+ */
 public class EmptyIterator<O> extends CloseableIterator<O> {
 
   @Override

@@ -24,10 +24,10 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ServerMetricsTest {
+public class InternalMetricsTest {
 
   @Test
   public void read_metrics() throws Exception {
-    assertThat(ServerMetrics.getMetrics()).hasSize(1);
+    assertThat(InternalMetrics.getMetrics()).hasSize(1);
   }
 }

@@ -45,7 +45,7 @@ import org.sonar.server.computation.measure.MeasuresCache;
 import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.design.db.DsmDataEncoder;
 import org.sonar.server.design.db.DsmDb;
-import org.sonar.server.measure.ServerMetrics;
+import org.sonar.server.measure.InternalMetrics;
 import org.sonar.server.util.CloseableIterator;
 import org.sonar.server.util.cache.DiskCacheById;
 
@@ -197,7 +197,7 @@ public class ComputeFileDependenciesStep implements ComputationStep {
   private void addDsmMeasure(DsmData dsmData, ComponentUuidsCache uuidsByRef, int ref, List<Measure> measures) {
     DsmDb.Data dsmDb = DsmDataBuilder.build(dsmData.dsm, uuidsByRef);
     measures.add(new Measure()
-      .setMetricKey(ServerMetrics.DEPENDENCY_MATRIX_KEY)
+      .setMetricKey(InternalMetrics.DEPENDENCY_MATRIX_KEY)
       .setByteValue(DsmDataEncoder.encodeSourceData(dsmDb)));
   }
 
