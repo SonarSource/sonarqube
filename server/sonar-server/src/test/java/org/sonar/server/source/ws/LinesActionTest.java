@@ -21,14 +21,12 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -46,10 +44,11 @@ import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Date;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class LinesActionTest {
 
@@ -81,7 +80,7 @@ public class LinesActionTest {
 
     htmlSourceDecorator = new HtmlSourceDecorator();
     sourceLineIndex = new SourceLineIndex(esTester.client());
-    componentDao = new ComponentDao(mock(System2.class));
+    componentDao = new ComponentDao();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), componentDao);
     session = dbClient.openSession(false);
     wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator, userSessionRule)));
@@ -203,7 +202,7 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-    );
+      );
 
     WsTester.TestRequest request = wsTester
       .newGetRequest("api/sources", "lines")
@@ -236,7 +235,7 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-    );
+      );
 
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
@@ -269,7 +268,7 @@ public class LinesActionTest {
       .execute();
   }
 
-  private void newFile(){
+  private void newFile() {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
     ComponentDto file = ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY);
     componentDao.insert(session, project, file);

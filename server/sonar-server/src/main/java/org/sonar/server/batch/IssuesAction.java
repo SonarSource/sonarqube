@@ -80,7 +80,7 @@ public class IssuesAction implements BatchWsAction {
     response.stream().setMediaType(MimeTypes.PROTOBUF);
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(session, moduleKey);
+      ComponentDto component = dbClient.componentDao().selectByKey(session, moduleKey);
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();

@@ -73,7 +73,7 @@ public class QProfileDeleteActionTest {
   public void setUp() {
     dbTester.truncateTables();
     qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
-    componentDao = new ComponentDao(mock(System2.class));
+    componentDao = new ComponentDao();
 
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao, new ActiveRuleDao(qualityProfileDao, new RuleDao(system2), system2));
     session = dbClient.openSession(false);

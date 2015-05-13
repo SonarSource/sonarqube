@@ -20,13 +20,13 @@
 
 package org.sonar.server.component.db;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.persistence.DbSession;
@@ -35,29 +35,26 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ComponentDaoTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   ComponentDao sut;
 
   @ClassRule
   public static DbTester db = new DbTester();
   DbSession session;
-  System2 system2;
-
 
   @Before
   public void createDao() {
     session = db.myBatis().openSession(false);
-    system2 = mock(System2.class);
-    sut = new ComponentDao(system2);
+    sut = new ComponentDao();
   }
 
   @After
@@ -120,8 +117,10 @@ public class ComponentDaoTest {
     assertThat(result.isEnabled()).isFalse();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void fail_to_get_by_uuid_when_component_not_found() {
+    thrown.expect(NotFoundException.class);
+
     loadBasicDataInDatabase();
 
     sut.getByUuid(session, "unknown");
@@ -131,7 +130,7 @@ public class ComponentDaoTest {
   public void get_by_key() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
+    ComponentDto result = sut.selectNullableByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -142,14 +141,23 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.getNullableByKey(session, "unknown")).isNull();
+    assertThat(sut.selectNullableByKey(session, "unknown")).isNull();
+  }
+
+  @Test
+  public void fail_to_get_by_key_when_component_not_found() {
+    thrown.expect(NotFoundException.class);
+
+    loadBasicDataInDatabase();
+
+    sut.getByUuid(session, "unknown");
   }
 
   @Test
   public void get_by_key_on_disabled_component() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByKey(session, "org.disabled.project");
+    ComponentDto result = sut.selectByKey(session, "org.disabled.project");
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
   }
@@ -158,7 +166,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_a_root_project() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByKey(session, "org.struts:struts");
+    ComponentDto result = sut.selectByKey(session, "org.struts:struts");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
@@ -176,7 +184,7 @@ public class ComponentDaoTest {
   public void get_by_keys() {
     loadBasicDataInDatabase();
 
-    List<ComponentDto> results = sut.getByKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
+    List<ComponentDto> results = sut.selectByKeys(session, Collections.singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -190,7 +198,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.getByKeys(session, "unknown")).isEmpty();
+    assertThat(sut.selectByKeys(session, Collections.singletonList("unknown"))).isEmpty();
   }
 
   @Test
@@ -446,7 +454,6 @@ public class ComponentDaoTest {
 
   @Test
   public void insert() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
     db.prepareDbUnit(getClass(), "empty.xml");
 
     ComponentDto componentDto = new ComponentDto()
@@ -466,6 +473,7 @@ public class ComponentDaoTest {
       .setParentProjectId(3L)
       .setCopyResourceId(5L)
       .setEnabled(true)
+      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
 
     sut.insert(session, componentDto);
@@ -477,7 +485,6 @@ public class ComponentDaoTest {
 
   @Test
   public void insert_disabled_component() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
     db.prepareDbUnit(getClass(), "empty.xml");
 
     ComponentDto componentDto = new ComponentDto()
@@ -495,6 +502,7 @@ public class ComponentDaoTest {
       .setPath("src/org/struts/RequestContext.java")
       .setParentProjectId(3L)
       .setEnabled(false)
+      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
 
     sut.insert(session, componentDto);
@@ -504,37 +512,11 @@ public class ComponentDaoTest {
     db.assertDbUnit(getClass(), "insert_disabled_component-result.xml", "projects");
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void update() {
-    sut.update(session, new ComponentDto()
-        .setId(1L)
-        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-    );
-  }
-
-  @Test
-  public void delete() {
-    loadBasicDataInDatabase();
-
-    sut.delete(session, new ComponentDto()
-        .setId(1L)
-        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-    );
-    session.commit();
-
-    db.assertDbUnit(getClass(), "delete-result.xml", "projects");
-  }
-
   @Test
   public void find_project_uuids() {
     db.prepareDbUnit(getClass(), "find_project_uuids.xml");
 
     assertThat(sut.findProjectUuids(session)).containsExactly("ABCD");
-  }
-
-  @Test(expected = PersistenceException.class)
-  public void synchronize_after() {
-    sut.synchronizeAfter(session, new Date(0L));
   }
 
   @Test

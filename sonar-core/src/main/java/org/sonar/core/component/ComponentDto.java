@@ -22,14 +22,13 @@ package org.sonar.core.component;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
 
-public class ComponentDto extends Dto<String> implements Component {
+public class ComponentDto implements Component {
 
   public static final String MODULE_UUID_PATH_SEP = ".";
 
@@ -51,6 +50,8 @@ public class ComponentDto extends Dto<String> implements Component {
   private String longName;
   private String language;
   private boolean enabled = true;
+
+  private Date createdAt;
   private Long authorizationUpdatedAt;
 
   public Long getId() {
@@ -212,6 +213,15 @@ public class ComponentDto extends Dto<String> implements Component {
     return this;
   }
 
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public ComponentDto setCreatedAt(Date datetime) {
+    this.createdAt = datetime;
+    return this;
+  }
+
   /**
    * Only available on projects
    */
@@ -225,7 +235,6 @@ public class ComponentDto extends Dto<String> implements Component {
     return this;
   }
 
-  @Override
   public String getKey() {
     return key();
   }
@@ -284,15 +293,4 @@ public class ComponentDto extends Dto<String> implements Component {
       .toString();
   }
 
-  @Override
-  public ComponentDto setCreatedAt(Date datetime) {
-    super.setCreatedAt(datetime);
-    return this;
-  }
-
-  @Override
-  public ComponentDto setUpdatedAt(Date datetime) {
-    super.setUpdatedAt(datetime);
-    return this;
-  }
 }

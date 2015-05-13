@@ -107,7 +107,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     DbSession session = dbClient.openSession(false);
 
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
 
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 

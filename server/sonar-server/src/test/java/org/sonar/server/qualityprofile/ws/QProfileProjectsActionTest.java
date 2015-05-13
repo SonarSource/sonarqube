@@ -32,7 +32,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.user.*;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDto;
+import org.sonar.core.user.UserRoleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -75,7 +79,7 @@ public class QProfileProjectsActionTest {
     dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new QualityProfileDao(dbTester.myBatis(), system2),
-      new ComponentDao(system2),
+      new ComponentDao(),
       new AuthorizationDao(dbTester.myBatis()));
     roleDao = new RoleDao();
     session = dbClient.openSession(false);

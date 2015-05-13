@@ -22,8 +22,6 @@ package org.sonar.server.source.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.ws.Request;
@@ -39,6 +37,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
+
+import java.util.Date;
+import java.util.List;
 
 public class ScmAction implements SourcesWsAction {
 
@@ -101,7 +102,7 @@ public class ScmAction implements SourcesWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto fileDto = dbClient.componentDao().getByKey(session, fileKey);
+      ComponentDto fileDto = dbClient.componentDao().selectByKey(session, fileKey);
       userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, fileDto.projectUuid());
       List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(fileDto.uuid(), from, to);
       if (sourceLines.isEmpty()) {

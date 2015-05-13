@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ui.ws;
 
-import java.util.Date;
-import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -64,6 +62,9 @@ import org.sonar.server.ui.Views;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Date;
+import java.util.Locale;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -101,7 +102,7 @@ public class ComponentNavigationActionTest {
     activeDashboardDao = new ActiveDashboardDao(dbTester.myBatis());
     dbClient = new DbClient(
       dbTester.database(), dbTester.myBatis(), userDao, dashboardDao, activeDashboardDao,
-      new ComponentDao(system), new SnapshotDao(system), new PropertiesDao(dbTester.myBatis()),
+      new ComponentDao(), new SnapshotDao(system), new PropertiesDao(dbTester.myBatis()),
       new MeasureDao());
 
     i18n = mock(I18n.class);
@@ -163,8 +164,9 @@ public class ComponentNavigationActionTest {
   @Test
   public void no_snapshot_connected_user_and_favorite() throws Exception {
     int userId = 42;
-    ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop"));
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop");
+    dbClient.componentDao().insert(session, project);
     dbClient.propertiesDao().setProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId), session);
     session.commit();
 
@@ -181,8 +183,9 @@ public class ComponentNavigationActionTest {
     Date snapshotDate = DateUtils.parseDateTime("2015-04-22T11:44:00+0200");
 
     int userId = 42;
-    ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop"));
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop");
+    dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto().setCreatedAt(snapshotDate.getTime()).setVersion("3.14")
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
@@ -231,8 +234,9 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void with_extensions() throws Exception {
-    ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop").setLanguage("xoo"));
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop").setLanguage("xoo");
+    dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto()
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
@@ -249,8 +253,9 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void admin_with_extensions() throws Exception {
-    ComponentDto project = dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
-      .setKey("polop").setName("Polop").setLanguage("xoo"));
+    ComponentDto project = ComponentTesting.newProjectDto("abcd")
+      .setKey("polop").setName("Polop").setLanguage("xoo");
+    dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto()
       .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();

@@ -97,7 +97,7 @@ public class QProfileSearchActionTest {
       QualityProfileDto.createFor("my-sonar-way-xoo2-34567").setLanguage(xoo2.getKey()).setName("My Sonar way").setParentKee("sonar-way-xoo2-23456"),
       QualityProfileDto.createFor("sonar-way-other-666").setLanguage("other").setName("Sonar way").setDefault(true)
       );
-    new ComponentDao(mock(System2.class)).insert(session,
+    new ComponentDao().insert(session,
       ComponentTesting.newProjectDto("project-uuid1"),
       ComponentTesting.newProjectDto("project-uuid2"));
     qualityProfileDao.insertProjectProfileAssociation("project-uuid1", "sonar-way-xoo2-23456", session);

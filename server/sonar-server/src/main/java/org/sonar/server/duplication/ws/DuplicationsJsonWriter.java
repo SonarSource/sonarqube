@@ -90,7 +90,7 @@ public class DuplicationsJsonWriter {
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
-      ComponentDto file = componentDao.getNullableByKey(session, componentKey);
+      ComponentDto file = componentDao.selectNullableByKey(session, componentKey);
       if (file != null) {
         json.name(ref).beginObject();
 

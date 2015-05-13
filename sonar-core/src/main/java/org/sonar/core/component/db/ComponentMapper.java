@@ -102,8 +102,6 @@ public interface ComponentMapper {
 
   void insert(ComponentDto rule);
 
-  void deleteByKey(String key);
-
   List<ComponentDto> selectProvisionedProjects(Map<String, String> parameters, RowBounds rowBounds);
 
   int countProvisionedProjects(Map<String, String> parameters);

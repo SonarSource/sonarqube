@@ -66,7 +66,7 @@ public class HashAction implements SourcesWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession session = dbClient.openSession(false)) {
       final String componentKey = request.mandatoryParam("key");
-      final ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      final ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
       response.stream().setMediaType("text/plain");

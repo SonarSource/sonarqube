@@ -128,7 +128,7 @@ public class ComputationService {
   private ComponentDto loadProject(ReportQueue.Item item) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getByKey(session, item.dto.getProjectKey());
+      return dbClient.componentDao().selectByKey(session, item.dto.getProjectKey());
     } finally {
       MyBatis.closeQuietly(session);
     }

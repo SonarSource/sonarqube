@@ -71,7 +71,7 @@ public class ReportQueueTest {
     settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(system), new AnalysisReportDao(system));
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
     sut = new ReportQueue(dbClient, settings);
 
     try (DbSession session = dbClient.openSession(false)) {

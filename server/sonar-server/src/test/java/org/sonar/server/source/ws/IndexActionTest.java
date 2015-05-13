@@ -75,7 +75,7 @@ public class IndexActionTest {
   public void get_json() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
@@ -90,7 +90,7 @@ public class IndexActionTest {
   public void limit_range() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, 2)).thenReturn(newArrayList(
       "public class HelloWorld {",
@@ -111,7 +111,7 @@ public class IndexActionTest {
   public void close_db_session() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenThrow(new NotFoundException());
+    when(componentDao.selectByKey(session, fileKey)).thenThrow(new NotFoundException());
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
     try {

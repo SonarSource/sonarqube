@@ -56,7 +56,7 @@ public class ComponentCleanerService {
   public void delete(String projectKey) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = dbClient.componentDao().getByKey(dbSession, projectKey);
+      ComponentDto project = dbClient.componentDao().selectByKey(dbSession, projectKey);
       if (!Scopes.PROJECT.equals(project.scope())) {
         throw new IllegalArgumentException("Only projects can be deleted");
       }

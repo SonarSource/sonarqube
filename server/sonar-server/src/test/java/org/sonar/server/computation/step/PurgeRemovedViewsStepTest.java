@@ -20,10 +20,13 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -60,7 +63,7 @@ public class PurgeRemovedViewsStepTest extends BaseStepTest {
   public void setUp() {
     esTester.truncateIndices();
     session = db.myBatis().openSession(false);
-    dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao(mock(System2.class)));
+    dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());
     sut = new PurgeRemovedViewsStep(new ViewIndex(esTester.client()), dbClient);
   }
 

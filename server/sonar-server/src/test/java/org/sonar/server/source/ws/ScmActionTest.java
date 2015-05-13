@@ -20,7 +20,6 @@
 
 package org.sonar.server.source.ws;
 
-import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -44,7 +42,7 @@ import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static org.mockito.Mockito.mock;
+import java.util.Date;
 
 public class ScmActionTest {
 
@@ -69,7 +67,7 @@ public class ScmActionTest {
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(mock(System2.class)));
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
     session = dbClient.openSession(false);
 
     tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule)));

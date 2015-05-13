@@ -95,7 +95,7 @@ public class ProjectRepositoryLoader {
     try {
       ProjectRepositories ref = new ProjectRepositories();
       String projectKey = query.getModuleKey();
-      ComponentDto module = dbClient.componentDao().getNullableByKey(session, query.getModuleKey());
+      ComponentDto module = dbClient.componentDao().selectNullableByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
       if (module != null) {
         // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access

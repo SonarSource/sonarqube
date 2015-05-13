@@ -21,7 +21,6 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +39,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
@@ -84,7 +85,7 @@ public class ShowActionTest {
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
+    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
@@ -109,7 +110,7 @@ public class ShowActionTest {
     when(componentDao.getByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
+    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
@@ -131,7 +132,7 @@ public class ShowActionTest {
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
+    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
 

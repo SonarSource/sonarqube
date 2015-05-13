@@ -37,7 +37,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicationsJsonWriterTest {
@@ -70,8 +74,8 @@ public class DuplicationsJsonWriterTest {
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
     ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setParentProjectId(5L);
 
-    when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
+    when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
+    when(componentDao.selectNullableByKey(session, key2)).thenReturn(file2);
     when(componentDao.getNullableById(5L, session)).thenReturn(
       new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
     when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
@@ -116,7 +120,7 @@ public class DuplicationsJsonWriterTest {
         "  }" +
         "}");
 
-    verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
+    verify(componentDao, times(2)).selectNullableByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
     verify(componentDao, times(1)).getNullableByUuid(eq(session), eq(project.uuid()));
     verify(componentDao, times(1)).getNullableById(eq(5L), eq(session));
@@ -129,8 +133,8 @@ public class DuplicationsJsonWriterTest {
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
     ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
 
-    when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
+    when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
+    when(componentDao.selectNullableByKey(session, key2)).thenReturn(file2);
     when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
@@ -175,7 +179,7 @@ public class DuplicationsJsonWriterTest {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
 
-    when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
+    when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();

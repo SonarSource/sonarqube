@@ -60,7 +60,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
     System2 system = mock(System2.class);
     when(system.now()).thenReturn(2000000000L);
     dbClient = new DbClient(getDatabase(), getMyBatis(),
-      new ComponentDao(system),
+      new ComponentDao(),
       new IssueDao(getMyBatis()),
       new ResourceDao(getMyBatis(), system));
     session = dbClient.openSession(false);

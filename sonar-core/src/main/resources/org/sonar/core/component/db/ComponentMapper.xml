@@ -223,10 +223,6 @@
     #{language}, #{parentProjectId}, #{path}, #{copyResourceId}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
-  <delete id="deleteByKey" parameterType="String">
-    delete from projects where kee=#{key}
-  </delete>
-
   <select id="selectProvisionedProjects" parameterType="map" resultType="Component">
     select <include refid="componentColumns"/>
     from projects p

@@ -20,12 +20,6 @@
 
 package org.sonar.server.permission;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import org.sonar.api.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
@@ -41,6 +35,12 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Used by ruby code <pre>Internal.permissions</pre>
@@ -124,7 +124,7 @@ public class InternalPermissionService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
       ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
       if (provisioned == null) {
         checkProjectAdminPermission(componentKey);
@@ -162,7 +162,7 @@ public class InternalPermissionService {
       }
 
       for (String componentKey : query.getSelectedComponents()) {
-        ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+        ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
         projectsChanged = true;
       }
@@ -256,7 +256,7 @@ public class InternalPermissionService {
     if (componentKey == null) {
       return null;
     } else {
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
       return component.getId();
     }
   }

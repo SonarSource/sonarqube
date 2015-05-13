@@ -93,7 +93,7 @@ public class IssuesActionTest {
     es.truncateIndices();
     this.session = db.myBatis().openSession(false);
 
-    componentDao = new ComponentDao(mock(System2.class));
+    componentDao = new ComponentDao();
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), componentDao);
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());

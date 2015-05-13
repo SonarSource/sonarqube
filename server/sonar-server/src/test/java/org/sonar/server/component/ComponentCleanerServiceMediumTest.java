@@ -85,7 +85,7 @@ public class ComponentCleanerServiceMediumTest {
 
     service.delete(project.getKey());
 
-    assertThat(db.componentDao().getNullableByKey(session, project.key())).isNull();
+    assertThat(db.componentDao().selectNullableByKey(session, project.key())).isNull();
   }
 
   @Test

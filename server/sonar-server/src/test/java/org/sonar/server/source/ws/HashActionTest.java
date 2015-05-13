@@ -19,13 +19,10 @@
  */
 package org.sonar.server.source.ws;
 
-import org.junit.Rule;
-import org.sonar.api.utils.System2;
-import org.sonar.server.source.db.FileSourceDao;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -37,12 +34,13 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 @Category(DbTests.class)
@@ -65,7 +63,7 @@ public class HashActionTest {
     db.truncateTables();
     this.session = db.myBatis().openSession(false);
 
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao(mock(System2.class)));
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
 
     tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule)));
   }

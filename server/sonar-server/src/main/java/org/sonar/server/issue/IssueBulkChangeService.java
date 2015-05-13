@@ -240,11 +240,11 @@ public class IssueBulkChangeService {
           rules.put(rule.ruleKey(), rule);
         }
 
-        for (ComponentDto file : dbClient.componentDao().getByKeys(session, componentKeys)) {
+        for (ComponentDto file : dbClient.componentDao().selectByKeys(session, componentKeys)) {
           components.put(file.getKey(), file);
         }
 
-        for (ComponentDto project : dbClient.componentDao().getByKeys(session, projectKeys)) {
+        for (ComponentDto project : dbClient.componentDao().selectByKeys(session, projectKeys)) {
           projects.put(project.getKey(), project);
         }
       } finally {

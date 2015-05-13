@@ -19,16 +19,8 @@
  */
 package org.sonar.server.issue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
 import org.sonar.api.issue.ActionPlan;
@@ -65,8 +57,15 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Strings;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @ServerSide
 public class IssueService {
@@ -247,7 +246,7 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
       ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
       userSession.checkProjectPermission(UserRole.USER, project.getKey());
@@ -302,8 +301,8 @@ public class IssueService {
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule != null ? rule.getName() : null)
-      .setProject(dbClient.componentDao().getByKey(session, projectKey))
-      .setComponent(dbClient.componentDao().getNullableByKey(session, issue.componentKey()))
+      .setProject(dbClient.componentDao().selectByKey(session, projectKey))
+      .setComponent(dbClient.componentDao().selectNullableByKey(session, issue.componentKey()))
       .setComment(comment));
   }
 

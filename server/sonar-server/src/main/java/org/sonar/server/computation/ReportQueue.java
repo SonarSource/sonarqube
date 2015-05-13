@@ -90,7 +90,7 @@ public class ReportQueue {
   }
 
   private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
-    dbClient.componentDao().getByKey(session, projectKey);
+    dbClient.componentDao().selectByKey(session, projectKey);
   }
 
   public void remove(Item item) {

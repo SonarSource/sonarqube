@@ -74,7 +74,7 @@ public class RawActionTest {
   public void get_txt() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
 
     when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
       "public class HelloWorld {",

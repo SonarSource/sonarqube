@@ -60,7 +60,7 @@ public class ProjectsGhostsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(System2.INSTANCE), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new ProjectsWs(new ProjectsGhostsAction(dbClient, userSessionRule)));
     db.truncateTables();
@@ -150,14 +150,14 @@ public class ProjectsGhostsActionTest {
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
-    hBaseProject = dbClient.componentDao().insert(dbSession, hBaseProject);
+    dbClient.componentDao().insert(dbSession, hBaseProject);
     dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(hBaseProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
-    roslynProject = dbClient.componentDao().insert(dbSession, roslynProject);
+    dbClient.componentDao().insert(dbSession, roslynProject);
     dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(roslynProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     dbSession.commit();
@@ -179,7 +179,7 @@ public class ProjectsGhostsActionTest {
       .newProjectDto("ghost-uuid-" + id)
       .setName("ghost-name-" + id)
       .setKey("ghost-key-" + id);
-    project = dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = SnapshotTesting.createForProject(project)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED);
     dbClient.snapshotDao().insert(dbSession, snapshot);
@@ -191,7 +191,7 @@ public class ProjectsGhostsActionTest {
       .newProjectDto("analyzed-uuid-" + id)
       .setName("analyzed-name-" + id)
       .setKey("analyzed-key-" + id);
-    project = dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = SnapshotTesting.createForProject(project);
     dbClient.snapshotDao().insert(dbSession, snapshot);
     dbSession.commit();

@@ -58,14 +58,14 @@ public class IssueBulkChangeServiceTest {
 //      .setLongName("My Project")
 //      .setQualifier(Qualifiers.PROJECT)
 //      .setScope(Scopes.PROJECT);
-//    when(componentDao.getByKeys(dbSession, newHashSet(project.key()))).thenReturn(newArrayList(project));
+//    when(componentDao.selectByKeys(dbSession, newHashSet(project.key()))).thenReturn(newArrayList(project));
 //
 //    file = new ComponentDto()
 //      .setId(2L)
 //      .setParentProjectId(project.getId())
 //      .setKey("MyComponent")
 //      .setLongName("My Component");
-//    when(componentDao.getByKeys(dbSession, newHashSet(file.key()))).thenReturn(newArrayList(file));
+//    when(componentDao.selectByKeys(dbSession, newHashSet(file.key()))).thenReturn(newArrayList(file));
 //
 //    IssueDoc issueDto = IssueTesting.newDoc("ABCD", file).setRuleKey(rule.ruleKey().toString());
 //    issue = issueDto.toDefaultIssue();

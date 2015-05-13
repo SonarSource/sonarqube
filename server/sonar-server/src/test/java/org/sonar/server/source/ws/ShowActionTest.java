@@ -75,7 +75,7 @@ public class ShowActionTest {
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
@@ -93,7 +93,7 @@ public class ShowActionTest {
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
       "",
@@ -111,7 +111,7 @@ public class ShowActionTest {
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.getByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
     when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
       "",

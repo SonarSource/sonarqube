@@ -68,7 +68,7 @@ public class RawAction implements SourcesWsAction {
     String fileKey = request.mandatoryParam("key");
     userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
+      ComponentDto componentDto = dbClient.componentDao().selectByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
       response.stream().setMediaType("text/plain");
       IOUtils.writeLines(lines, "\n", response.stream().output(), StandardCharsets.UTF_8);

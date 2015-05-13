@@ -24,17 +24,10 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -49,6 +42,16 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
@@ -61,15 +64,17 @@ public class ComponentService {
   private final ResourceIndexerDao resourceIndexerDao;
   private final InternalPermissionService permissionService;
   private final UserSession userSession;
+  private final System2 system2;
 
   public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-    InternalPermissionService permissionService, UserSession userSession) {
+                          InternalPermissionService permissionService, UserSession userSession, System2 system2) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;
     this.resourceIndexerDao = resourceIndexerDao;
     this.permissionService = permissionService;
     this.userSession = userSession;
+    this.system2 = system2;
   }
 
   public ComponentDto getByKey(String key) {
@@ -163,8 +168,7 @@ public class ComponentService {
       }
 
       String uuid = Uuids.create();
-      ComponentDto component = dbClient.componentDao().insert(session,
-        new ComponentDto()
+      ComponentDto component = new ComponentDto()
           .setUuid(uuid)
           .setModuleUuid(null)
           .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
@@ -175,7 +179,9 @@ public class ComponentService {
           .setLongName(newComponent.name())
           .setScope(Scopes.PROJECT)
           .setQualifier(newComponent.qualifier())
-          .setCreatedAt(new Date()));
+          .setCreatedAt(new Date(system2.now()))
+        ;
+      dbClient.componentDao().insert(session, component);
       resourceIndexerDao.indexResource(session, component.getId());
       session.commit();
 
@@ -198,7 +204,7 @@ public class ComponentService {
   public Collection<String> componentUuids(DbSession session, @Nullable Collection<String> componentKeys, boolean ignoreMissingComponents) {
     Collection<String> componentUuids = newArrayList();
     if (componentKeys != null && !componentKeys.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().getByKeys(session, componentKeys);
+      List<ComponentDto> components = dbClient.componentDao().selectByKeys(session, componentKeys);
 
       if (!ignoreMissingComponents && components.size() < componentKeys.size()) {
         Collection<String> foundKeys = Collections2.transform(components, new Function<ComponentDto, String>() {
@@ -264,10 +270,10 @@ public class ComponentService {
 
   @CheckForNull
   private ComponentDto getNullableByKey(DbSession session, String key) {
-    return dbClient.componentDao().getNullableByKey(session, key);
+    return dbClient.componentDao().selectNullableByKey(session, key);
   }
 
   private ComponentDto getByKey(DbSession session, String key) {
-    return dbClient.componentDao().getByKey(session, key);
+    return dbClient.componentDao().selectByKey(session, key);
   }
 }

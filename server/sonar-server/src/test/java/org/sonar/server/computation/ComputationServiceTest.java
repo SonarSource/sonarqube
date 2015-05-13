@@ -52,7 +52,12 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ComputationServiceTest {
 
@@ -74,7 +79,7 @@ public class ComputationServiceTest {
 
   @Before
   public void setUp() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(system), new SnapshotDao(system));
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
     sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system);
 
     // db contains project with key "P1"

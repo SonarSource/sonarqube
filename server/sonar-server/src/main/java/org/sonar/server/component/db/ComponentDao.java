@@ -21,11 +21,11 @@
 package org.sonar.server.component.db;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.UuidWithProjectUuidDto;
@@ -33,12 +33,12 @@ import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.BaseDao;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -50,11 +50,7 @@ import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
  * @since 4.3
  */
 @ServerSide
-public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements DaoComponent {
-
-  public ComponentDao(System2 system) {
-    super(ComponentMapper.class, system);
-  }
+public class ComponentDao implements DaoComponent {
 
   public ComponentDto getById(Long id, DbSession session) {
     ComponentDto componentDto = getNullableById(id, session);
@@ -140,26 +136,35 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     });
   }
 
-  @Override
-  protected List<ComponentDto> doGetByKeys(DbSession session, Collection<String> keys) {
+  public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).findByKeys(keys);
   }
 
-  @Override
-  @CheckForNull
-  protected ComponentDto doGetNullableByKey(DbSession session, String key) {
+  public ComponentDto selectByKey(DbSession session, String key) {
+    ComponentDto value = selectNullableByKey(session, key);
+    if (value == null) {
+      throw new NotFoundException(String.format("Component key '%s' not found", key));
+    }
     return mapper(session).selectByKey(key);
   }
 
-  @Override
-  protected ComponentDto doInsert(DbSession session, ComponentDto item) {
-    mapper(session).insert(item);
-    return item;
+  @CheckForNull
+  public ComponentDto selectNullableByKey(DbSession session, String key) {
+    return mapper(session).selectByKey(key);
   }
 
-  @Override
-  protected void doDeleteByKey(DbSession session, String key) {
-    mapper(session).deleteByKey(key);
+  public void insert(DbSession session, ComponentDto item) {
+    mapper(session).insert(item);
+  }
+
+  public void insert(DbSession session, Collection<ComponentDto> items) {
+    for (ComponentDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public void insert(DbSession session, ComponentDto item, ComponentDto... others) {
+    insert(session, Lists.asList(item, others));
   }
 
   public List<String> findProjectUuids(DbSession session) {
@@ -214,5 +219,9 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   private void addProjectQualifier(Map<String, String> parameters) {
     parameters.put("qualifier", Qualifiers.PROJECT);
+  }
+
+  private ComponentMapper mapper(DbSession session) {
+    return session.getMapper(ComponentMapper.class);
   }
 }

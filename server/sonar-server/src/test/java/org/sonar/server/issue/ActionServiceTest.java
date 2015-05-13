@@ -49,7 +49,14 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class ActionServiceTest {
 
@@ -93,7 +100,7 @@ public class ActionServiceTest {
     Function function1 = mock(Function.class);
     Function function2 = mock(Function.class);
 
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
@@ -112,7 +119,7 @@ public class ActionServiceTest {
     UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.getLogin()).thenReturn("arthur");
 
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -129,7 +136,7 @@ public class ActionServiceTest {
     UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.getLogin()).thenReturn("arthur");
 
-    when(componentDao.getByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
+    when(componentDao.selectByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setProjectKey("struts"));
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -142,7 +149,7 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_not_found() {
     Function function = mock(Function.class);
 
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -159,7 +166,7 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_is_not_supported() {
     Function function = mock(Function.class);
 
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
@@ -174,7 +181,7 @@ public class ActionServiceTest {
 
   @Test
   public void list_available_supported_actions() {
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch());
@@ -184,7 +191,7 @@ public class ActionServiceTest {
 
   @Test
   public void return_no_action() {
-    when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     assertThat(actionService.listAvailableActions("ABCD")).isEmpty();

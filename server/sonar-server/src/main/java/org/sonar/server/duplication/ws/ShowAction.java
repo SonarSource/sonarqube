@@ -22,8 +22,6 @@ package org.sonar.server.duplication.ws;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
-import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -40,6 +38,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 public class ShowAction implements RequestHandler {
 
@@ -113,7 +115,7 @@ public class ShowAction implements RequestHandler {
   }
 
   private ComponentDto findComponent(String key, DbSession session) {
-    ComponentDto componentDto = componentDao.getNullableByKey(session, key);
+    ComponentDto componentDto = componentDao.selectNullableByKey(session, key);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Component with key '%s' not found", key));
     }

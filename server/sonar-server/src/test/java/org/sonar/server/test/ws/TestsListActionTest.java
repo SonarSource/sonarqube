@@ -20,15 +20,12 @@
 
 package org.sonar.server.test.ws;
 
-import java.util.Arrays;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -44,7 +41,8 @@ import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import static org.mockito.Mockito.mock;
+import java.util.Arrays;
+import java.util.List;
 
 public class TestsListActionTest {
   DbClient dbClient;
@@ -62,7 +60,7 @@ public class TestsListActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(mock(System2.class)));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
     es.truncateIndices();

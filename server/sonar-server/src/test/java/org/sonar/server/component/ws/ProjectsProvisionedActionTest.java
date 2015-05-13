@@ -67,7 +67,7 @@ public class ProjectsProvisionedActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(system2), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
     dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();
@@ -78,8 +78,7 @@ public class ProjectsProvisionedActionTest {
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
-    componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
-    analyzedProject = dbClient.componentDao().insert(dbSession, analyzedProject);
+    componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
     SnapshotDto snapshot = SnapshotTesting.createForProject(analyzedProject);
     dbClient.snapshotDao().insert(dbSession, snapshot);
     dbSession.commit();
@@ -140,11 +139,11 @@ public class ProjectsProvisionedActionTest {
     assertThat(componentDao.countProvisionedProjects(dbSession, "visioned-name-")).isEqualTo(2);
   }
 
-  private static ComponentDto newProvisionedProject(String id) {
+  private static ComponentDto newProvisionedProject(String uuid) {
     return ComponentTesting
-      .newProjectDto("provisioned-uuid-" + id)
-      .setName("provisioned-name-" + id)
-      .setKey("provisioned-key-" + id);
+      .newProjectDto("provisioned-uuid-" + uuid)
+      .setName("provisioned-name-" + uuid)
+      .setKey("provisioned-key-" + uuid);
   }
 
   @Test

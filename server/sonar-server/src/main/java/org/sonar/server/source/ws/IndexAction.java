@@ -21,7 +21,6 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,6 +31,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
+
+import java.util.List;
 
 public class IndexAction implements SourcesWsAction {
 
@@ -77,7 +78,7 @@ public class IndexAction implements SourcesWsAction {
     Integer from = request.mandatoryParamAsInt("from");
     Integer to = request.paramAsInt("to");
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
+      ComponentDto componentDto = dbClient.componentDao().selectByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), from, to == null ? null : to - 1);
       JsonWriter json = response.newJsonWriter().beginArray().beginObject();
       Integer lineCounter = from;

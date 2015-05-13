@@ -20,8 +20,6 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,6 +36,9 @@ import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
+
+import java.util.Date;
+import java.util.List;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -153,7 +154,7 @@ public class LinesAction implements SourcesWsAction {
       }
       String fileKey = request.param(PARAM_KEY);
       if (fileKey != null) {
-        return dbClient.componentDao().getByKey(session, fileKey);
+        return dbClient.componentDao().selectByKey(session, fileKey);
       }
       throw new IllegalArgumentException(String.format("Param %s or param %s is missing", PARAM_UUID, PARAM_KEY));
     } finally {
