@@ -1,22 +1,12 @@
 language: java
+sudo: false
+install: true
 
 jdk:
   - oraclejdk8
 
 script:
-  - mvn clean verify -B -e -V
-
-before_install:
-  # Maven 3.2.5
-  - wget http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
-  - tar xvf apache-maven-3.2.5-bin.tar.gz > /dev/null
-  - export MVN_HOME=`pwd`/apache-maven-3.2.5
-  - export PATH=${MVN_HOME}/bin/:${PATH}
-  - mvn --version
-  
-install: true
-
-sudo: false
+  - mvn verify -B -e -V
 
 cache:
   directories:
