@@ -24,19 +24,21 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.MeasuresFilters.MetricFilter;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -106,25 +108,17 @@ public class DefaultDecoratorContext implements DecoratorContext {
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     Collection<Measure> unfiltered;
     if (filter instanceof MeasuresFilters.MetricFilter) {
-      unfiltered = getMeasuresOfASingleMetric(filter);
+      // optimization
+      unfiltered = getMeasuresOfASingleMetric((MetricFilter<M>) filter);
     } else {
       unfiltered = measuresByMetric.values();
     }
     return filter.filter(unfiltered);
   }
 
-  private <M> Collection<Measure> getMeasuresOfASingleMetric(MeasuresFilter<M> filter) {
-    Collection<Measure> unfiltered;
+  private <M> Collection<Measure> getMeasuresOfASingleMetric(MeasuresFilters.MetricFilter<M> filter) {
     String metricKey = ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey();
-    if (CoreMetrics.DUPLICATIONS_DATA_KEY.equals(metricKey)) {
-      // Hack for SONAR-5765
-      Iterable<DefaultDuplication> group = duplicationCache.byComponent(resource.getEffectiveKey());
-      unfiltered = Arrays.asList(new Measure(CoreMetrics.DUPLICATIONS_DATA, DuplicationUtils.toXml(group)));
-    } else {
-      // optimization
-      unfiltered = measuresByMetric.get(metricKey);
-    }
-    return unfiltered;
+    return measuresByMetric.get(metricKey);
   }
 
   @Override
