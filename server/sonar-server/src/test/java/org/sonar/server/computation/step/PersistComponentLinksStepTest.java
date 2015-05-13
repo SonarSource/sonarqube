@@ -20,7 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.i18n.I18n;
@@ -59,7 +63,7 @@ public class PersistComponentLinksStepTest extends BaseStepTest {
 
   I18n i18n;
 
-  PersistComponentLinksStep step;
+  PersistProjectLinksStep step;
 
   @Before
   public void setup() {
@@ -74,7 +78,7 @@ public class PersistComponentLinksStepTest extends BaseStepTest {
     when(i18n.message(Locale.ENGLISH, "project_links.ci", null)).thenReturn("Continuous integration");
     when(i18n.message(Locale.ENGLISH, "project_links.issue", null)).thenReturn("Issues");
 
-    step = new PersistComponentLinksStep(dbClient, i18n);
+    step = new PersistProjectLinksStep(dbClient, i18n);
   }
 
   @Override

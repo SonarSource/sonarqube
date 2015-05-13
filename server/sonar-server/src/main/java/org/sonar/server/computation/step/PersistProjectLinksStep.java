@@ -43,7 +43,10 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class PersistComponentLinksStep implements ComputationStep {
+/**
+ * Persist project and module links
+ */
+public class PersistProjectLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final I18n i18n;
@@ -56,7 +59,7 @@ public class PersistComponentLinksStep implements ComputationStep {
     Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
     );
 
-  public PersistComponentLinksStep(DbClient dbClient, I18n i18n) {
+  public PersistProjectLinksStep(DbClient dbClient, I18n i18n) {
     this.dbClient = dbClient;
     this.i18n = i18n;
   }

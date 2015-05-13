@@ -37,11 +37,14 @@ import org.sonar.server.db.DbClient;
 
 import java.util.List;
 
-public class PersistDuplicationMeasuresStep implements ComputationStep {
+/**
+ * Persist duplications into
+ */
+public class PersistDuplicationsStep implements ComputationStep {
 
   private final DbClient dbClient;
 
-  public PersistDuplicationMeasuresStep(DbClient dbClient) {
+  public PersistDuplicationsStep(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 

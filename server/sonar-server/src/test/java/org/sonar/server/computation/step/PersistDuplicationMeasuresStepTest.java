@@ -20,7 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
@@ -61,7 +65,7 @@ public class
 
   DbClient dbClient;
 
-  PersistDuplicationMeasuresStep sut;
+  PersistDuplicationsStep sut;
 
   @Before
   public void setup() throws Exception {
@@ -71,7 +75,7 @@ public class
 
     reportDir = temp.newFolder();
 
-    sut = new PersistDuplicationMeasuresStep(dbClient);
+    sut = new PersistDuplicationsStep(dbClient);
   }
 
   @Override
