@@ -61,13 +61,7 @@ import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
-import org.sonar.server.batch.BatchIndex;
-import org.sonar.server.batch.BatchWs;
-import org.sonar.server.batch.GlobalAction;
-import org.sonar.server.batch.IssuesAction;
-import org.sonar.server.batch.ProjectAction;
-import org.sonar.server.batch.ProjectRepositoryLoader;
-import org.sonar.server.batch.UsersAction;
+import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentService;
@@ -82,7 +76,6 @@ import org.sonar.server.computation.ws.ComputationWs;
 import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
 import org.sonar.server.computation.ws.QueueAction;
-import org.sonar.server.computation.ws.SubmitReportAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.ws.DashboardsWs;
 import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
@@ -328,14 +321,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ActivityIndex.class,
 
       // batch
-      BatchIndex.class,
-      GlobalAction.class,
-      ProjectAction.class,
-      ProjectRepositoryLoader.class,
-      SubmitReportAction.class,
-      IssuesAction.class,
-      UsersAction.class,
-      BatchWs.class,
+      BatchWsModule.class,
 
       // Dashboard
       DashboardsWs.class,
