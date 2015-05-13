@@ -246,12 +246,10 @@
     and p.enabled=${_true}
     and p.qualifier=#{qualifier}
     and p.copy_resource_id is null
-    <if test="query!=null">
       and (
       UPPER(p.name) like #{query}
       or UPPER(p.kee) like #{query}
       )
-    </if>
   </sql>
 
   <select id="selectGhostProjects" parameterType="map" resultType="Component">
@@ -273,11 +271,9 @@
       s2.id is null
       and p.qualifier=#{qualifier}
       and p.copy_resource_id is null
-      <if test="query!=null">
         and (
         UPPER(p.name) like #{query}
         or UPPER(p.kee) like #{query}
         )
-      </if>
   </sql>
 </mapper>

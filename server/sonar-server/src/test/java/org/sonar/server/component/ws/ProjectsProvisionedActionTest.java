@@ -129,7 +129,7 @@ public class ProjectsProvisionedActionTest {
     dbSession.commit();
 
     String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
-      .setParam(Param.TEXT_QUERY, "provisioned-name-2")
+      .setParam(Param.TEXT_QUERY, "PROVISIONED-name-2")
       .execute().outputAsString();
 
     assertThat(jsonOutput)
