@@ -34,8 +34,6 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
 import org.sonar.wsclient.system.SystemClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
-import org.sonar.wsclient.user.UserClient;
-import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import javax.annotation.Nullable;
 
@@ -95,13 +93,6 @@ public class SonarClient {
    */
   public ActionPlanClient actionPlanClient() {
     return new DefaultActionPlanClient(requestFactory);
-  }
-
-  /**
-   * New client to interact with web services related to users
-   */
-  public UserClient userClient() {
-    return new DefaultUserClient(requestFactory);
   }
 
   /**
