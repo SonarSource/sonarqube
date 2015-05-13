@@ -41,7 +41,7 @@ public class ProjectQgateAssociationDao {
     SqlSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = ImmutableMap.of("query", query, "gateId", gateId.toString());
-      return session.selectList("org.sonar.core.qualitygate.db.ProjectQgateAssociationMapper.selectProjects", params, new RowBounds(offset, limit));
+      return mapper(session).selectProjects(params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -50,6 +50,10 @@ public class ProjectQgateAssociationDao {
   @VisibleForTesting
   List<ProjectQgateAssociationDto> selectProjects(ProjectQgateAssociationQuery query, Long gateId) {
     return selectProjects(query, gateId, 0, Integer.MAX_VALUE);
+  }
+
+  private ProjectQgateAssociationMapper mapper(SqlSession session) {
+    return session.getMapper(ProjectQgateAssociationMapper.class);
   }
 
 }

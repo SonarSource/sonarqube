@@ -64,7 +64,7 @@ public class PermissionTemplateDao {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);
       params.put(TEMPLATE_ID_PARAMETER, templateId);
-      return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectUsers", params, new RowBounds(offset, limit));
+      return mapper(session).selectUsers(params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -87,7 +87,7 @@ public class PermissionTemplateDao {
       params.put(QUERY_PARAMETER, query);
       params.put(TEMPLATE_ID_PARAMETER, templateId);
       params.put("anyoneGroup", DefaultGroups.ANYONE);
-      return session.selectList("org.sonar.core.permission.PermissionTemplateMapper.selectGroups", params);
+      return mapper(session).selectGroups(params);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -95,7 +95,7 @@ public class PermissionTemplateDao {
 
   @CheckForNull
   public PermissionTemplateDto selectTemplateByKey(DbSession session, String templateKey) {
-    return session.getMapper(PermissionTemplateMapper.class).selectByKey(templateKey);
+    return mapper(session).selectByKey(templateKey);
   }
 
   @CheckForNull
@@ -111,7 +111,7 @@ public class PermissionTemplateDao {
   @CheckForNull
   public PermissionTemplateDto selectPermissionTemplate(DbSession session, String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
-    PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+    PermissionTemplateMapper mapper = mapper(session);
     permissionTemplate = mapper.selectByKey(templateKey);
     PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
     if (templateUsersPermissions != null) {
@@ -158,8 +158,7 @@ public class PermissionTemplateDao {
       .setUpdatedAt(creationDate);
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.insert(permissionTemplate);
+      mapper(session).insert(permissionTemplate);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -170,7 +169,7 @@ public class PermissionTemplateDao {
   public void deletePermissionTemplate(Long templateId) {
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+      PermissionTemplateMapper mapper = mapper(session);
       mapper.deleteUsersPermissions(templateId);
       mapper.deleteGroupsPermissions(templateId);
       mapper.delete(templateId);
@@ -189,8 +188,7 @@ public class PermissionTemplateDao {
       .setUpdatedAt(now());
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.update(permissionTemplate);
+      mapper(session).update(permissionTemplate);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -206,8 +204,7 @@ public class PermissionTemplateDao {
       .setUpdatedAt(now());
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.insertUserPermission(permissionTemplateUser);
+      mapper(session).insertUserPermission(permissionTemplateUser);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -221,8 +218,7 @@ public class PermissionTemplateDao {
       .setUserId(userId);
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.deleteUserPermission(permissionTemplateUser);
+      mapper(session).deleteUserPermission(permissionTemplateUser);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -238,8 +234,7 @@ public class PermissionTemplateDao {
       .setUpdatedAt(now());
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.insertGroupPermission(permissionTemplateGroup);
+      mapper(session).insertGroupPermission(permissionTemplateGroup);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -253,8 +248,7 @@ public class PermissionTemplateDao {
       .setGroupId(groupId);
     SqlSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      mapper.deleteGroupPermission(permissionTemplateGroup);
+      mapper(session).deleteGroupPermission(permissionTemplateGroup);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -278,5 +272,9 @@ public class PermissionTemplateDao {
 
   private Date now() {
     return new Date(system.now());
+  }
+
+  private PermissionTemplateMapper mapper(SqlSession session) {
+    return session.getMapper(PermissionTemplateMapper.class);
   }
 }

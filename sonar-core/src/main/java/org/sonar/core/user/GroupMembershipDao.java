@@ -50,17 +50,21 @@ public class GroupMembershipDao implements DaoComponent {
 
   public List<GroupMembershipDto> selectGroups(SqlSession session, GroupMembershipQuery query, Long userId, int offset, int limit) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
-    return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));
+    return mapper(session).selectGroups(params, new RowBounds(offset, limit));
   }
 
   public int countGroups(SqlSession session, GroupMembershipQuery query, Long userId) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
-    return session.selectOne("org.sonar.core.user.GroupMembershipMapper.countGroups", params);
+    return mapper(session).countGroups(params);
   }
 
   @VisibleForTesting
   List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId) {
     return selectGroups(query, userId, 0, Integer.MAX_VALUE);
+  }
+
+  private GroupMembershipMapper mapper(SqlSession session) {
+    return session.getMapper(GroupMembershipMapper.class);
   }
 
 }

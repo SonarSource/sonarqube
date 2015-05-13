@@ -20,6 +20,11 @@
 
 package org.sonar.core.permission;
 
+import org.apache.ibatis.session.RowBounds;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * @since 3.7
  */
@@ -50,4 +55,8 @@ public interface PermissionTemplateMapper {
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   void deleteByGroupId(long groupId);
+
+  List<GroupWithPermissionDto> selectGroups(Map<String, Object> params);
+
+  List<UserWithPermissionDto> selectUsers(Map<String, Object> params, RowBounds rowBounds);
 }

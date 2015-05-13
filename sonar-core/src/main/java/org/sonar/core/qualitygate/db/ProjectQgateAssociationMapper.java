@@ -19,10 +19,14 @@
  */
 package org.sonar.core.qualitygate.db;
 
+import org.apache.ibatis.session.RowBounds;
+
 import java.util.List;
+import java.util.Map;
 
 public interface ProjectQgateAssociationMapper {
 
   List<ProjectQgateAssociationDto> selectProjects(ProjectQgateAssociationQuery query);
 
+  List<ProjectQgateAssociationDto> selectProjects(Map<String, Object> params, RowBounds rowBounds);
 }

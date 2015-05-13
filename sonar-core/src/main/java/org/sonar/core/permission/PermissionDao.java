@@ -55,7 +55,8 @@ public class PermissionDao {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);
       params.put(COMPONENT_ID_PARAMETER, componentId);
-      return session.selectList("org.sonar.core.permission.PermissionMapper.selectUsers", params, new RowBounds(offset, limit));
+
+      return mapper(session).selectUsers(params, new RowBounds(offset, limit));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -78,10 +79,15 @@ public class PermissionDao {
       params.put(QUERY_PARAMETER, query);
       params.put(COMPONENT_ID_PARAMETER, componentId);
       params.put("anyoneGroup", DefaultGroups.ANYONE);
-      return session.selectList("org.sonar.core.permission.PermissionMapper.selectGroups", params);
+
+      return mapper(session).selectGroups(params);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private PermissionMapper mapper(SqlSession session) {
+    return session.getMapper(PermissionMapper.class);
   }
 
 }
