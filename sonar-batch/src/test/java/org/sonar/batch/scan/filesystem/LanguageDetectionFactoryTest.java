@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.repository.language.DefaultLanguagesRepository;
-import org.sonar.batch.repository.language.LanguagesRepository;
-
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
+import org.sonar.batch.repository.language.DefaultLanguagesRepository;
+import org.sonar.batch.repository.language.LanguagesRepository;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LanguageDetectionFactoryTest {

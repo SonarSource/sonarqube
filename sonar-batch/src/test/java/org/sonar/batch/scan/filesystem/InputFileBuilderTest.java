@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -68,7 +68,7 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
-    DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
+    DefaultInputFile inputFile = builder.create(srcFile);
     builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
     assertThat(inputFile.type()).isEqualTo(InputFile.Type.MAIN);
@@ -91,7 +91,7 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
-    DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
+    DefaultInputFile inputFile = builder.create(srcFile);
 
     assertThat(inputFile).isNull();
   }
@@ -111,7 +111,7 @@ public class InputFileBuilderTest {
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
       langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
-    DeprecatedDefaultInputFile inputFile = builder.create(srcFile);
+    DefaultInputFile inputFile = builder.create(srcFile);
     inputFile = builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
     assertThat(inputFile).isNull();

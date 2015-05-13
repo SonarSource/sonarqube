@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.components;
 
-import org.sonar.batch.components.PastSnapshot;
-
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;

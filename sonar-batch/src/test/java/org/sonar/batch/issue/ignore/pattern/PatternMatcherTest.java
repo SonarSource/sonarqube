@@ -19,11 +19,6 @@
  */
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-import org.sonar.batch.issue.ignore.pattern.LineRange;
-import org.sonar.batch.issue.ignore.pattern.PatternDecoder;
-import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
-
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;

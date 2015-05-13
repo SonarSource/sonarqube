@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,10 +36,10 @@ public class AdditionalFilePredicatesTest {
   public void key() {
     FilePredicate predicate = new AdditionalFilePredicates.KeyPredicate("struts:Action.java");
 
-    DefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "Action.java");
+    DefaultInputFile inputFile = new DefaultInputFile("struts", "Action.java");
     assertThat(predicate.apply(inputFile)).isTrue();
 
-    inputFile = new DeprecatedDefaultInputFile("struts", "Filter.java");
+    inputFile = new DefaultInputFile("struts", "Filter.java");
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 }

@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.components.PastSnapshot;
-
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PastSnapshotFinderByVersionTest extends AbstractDbUnitTestCase {

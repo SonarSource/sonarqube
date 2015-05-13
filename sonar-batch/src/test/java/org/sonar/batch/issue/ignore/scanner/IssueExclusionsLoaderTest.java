@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
@@ -105,10 +105,10 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
+    fs.add(new DefaultInputFile("polop", "src/main/java/Foo.java")
       .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
+    fs.add(new DefaultInputFile("polop", "src/test/java/FooTest.java")
       .setType(InputFile.Type.TEST));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
@@ -126,10 +126,10 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
+    fs.add(new DefaultInputFile("polop", "src/main/java/Foo.java")
       .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
+    fs.add(new DefaultInputFile("polop", "src/test/java/FooTest.java")
       .setType(InputFile.Type.TEST));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
@@ -145,7 +145,7 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
-    fs.add(new DeprecatedDefaultInputFile("polop", "src/Foo.php")
+    fs.add(new DefaultInputFile("polop", "src/Foo.php")
       .setType(InputFile.Type.MAIN));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);

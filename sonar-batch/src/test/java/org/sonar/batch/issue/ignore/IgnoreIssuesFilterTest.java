@@ -20,15 +20,14 @@
 
 package org.sonar.batch.issue.ignore;
 
-import org.sonar.batch.issue.ignore.IgnoreIssuesFilter;
-import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilterChain;
+import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssuePattern;
+import org.sonar.batch.issue.ignore.pattern.PatternMatcher;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
@@ -52,7 +52,7 @@ public class JavaCpdEngineTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   SensorContext context = mock(SensorContext.class);
-  DeprecatedDefaultInputFile inputFile;
+  DefaultInputFile inputFile;
   private SensorStorage storage = mock(SensorStorage.class);
 
   @Before
@@ -69,7 +69,7 @@ public class JavaCpdEngineTest {
         return new DefaultDuplication(storage);
       }
     });
-    inputFile = (DeprecatedDefaultInputFile) new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java").setLines(300);
+    inputFile = (DefaultInputFile) new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(300);
     inputFile.setModuleBaseDir(temp.newFolder().toPath());
   }
 

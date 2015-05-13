@@ -26,16 +26,18 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.api.utils.HttpDownloader;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGateProviderTest {

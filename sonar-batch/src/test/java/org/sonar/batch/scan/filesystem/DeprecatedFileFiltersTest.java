@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 
@@ -49,7 +49,7 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
+    InputFile inputFile = new DefaultInputFile("foo", "src/main/java/Foo.java");
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
@@ -59,7 +59,7 @@ public class DeprecatedFileFiltersTest {
 
     File basedir = temp.newFolder();
     File file = new File(basedir, "src/main/java/Foo.java");
-    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java")
+    InputFile inputFile = new DefaultInputFile("foo", "src/main/java/Foo.java")
       .setModuleBaseDir(basedir.toPath())
       .setType(InputFile.Type.MAIN);
     when(filter.accept(eq(file), any(DeprecatedFileFilters.DeprecatedContext.class))).thenReturn(false);

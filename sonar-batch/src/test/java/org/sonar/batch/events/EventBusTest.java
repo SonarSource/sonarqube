@@ -19,12 +19,11 @@
  */
 package org.sonar.batch.events;
 
+import org.junit.Test;
 import org.sonar.api.batch.events.EventHandler;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import org.junit.Test;
 
 public class EventBusTest {
 

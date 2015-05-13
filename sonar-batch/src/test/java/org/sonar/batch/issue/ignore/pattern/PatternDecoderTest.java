@@ -20,9 +20,6 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-import org.sonar.batch.issue.ignore.pattern.PatternDecoder;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

@@ -72,7 +72,6 @@ public class DefaultIndexTest {
     DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
     ResourceCache resourceCache = new ResourceCache();
     index = new DefaultIndex(resourceCache, null, projectTree, metricFinder,
-      mock(ResourceKeyMigration.class),
       mock(MeasureCache.class));
 
     baseDir = temp.newFolder();

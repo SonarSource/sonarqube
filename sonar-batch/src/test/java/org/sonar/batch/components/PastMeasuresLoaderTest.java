@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.components;
 
-import org.sonar.batch.components.PastMeasuresLoader;
-
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
@@ -29,10 +27,10 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
 

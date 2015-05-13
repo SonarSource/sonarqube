@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.cpd.decorators;
 
-import org.sonar.batch.cpd.decorators.SumDuplicationsDecorator;
-
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -28,6 +26,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
+
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

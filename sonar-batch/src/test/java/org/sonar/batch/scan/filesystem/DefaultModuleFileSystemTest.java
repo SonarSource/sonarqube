@@ -27,7 +27,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
@@ -136,8 +136,8 @@ public class DefaultModuleFileSystemTest {
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     File baseDir = temp.newFile();
-    InputFile mainInput = new DeprecatedDefaultInputFile("foo", "Main.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.MAIN);
-    InputFile testInput = new DeprecatedDefaultInputFile("foo", "Test.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.TEST);
+    InputFile mainInput = new DefaultInputFile("foo", "Main.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.MAIN);
+    InputFile testInput = new DefaultInputFile("foo", "Test.java").setModuleBaseDir(baseDir.toPath()).setType(InputFile.Type.TEST);
     when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput));
 
     fs.index();

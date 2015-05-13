@@ -27,7 +27,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.annotation.Nullable;
@@ -42,23 +41,20 @@ public class ComponentIndexer {
 
   private final Languages languages;
   private final SonarIndex sonarIndex;
-  private final ResourceKeyMigration migration;
   private final Project module;
   private final ResourcePersister resourcePersister;
   private final ResourceCache resourceCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache, @Nullable ResourceKeyMigration migration,
-    @Nullable ResourcePersister resourcePersister) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache, @Nullable ResourcePersister resourcePersister) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.resourceCache = resourceCache;
-    this.migration = migration;
     this.resourcePersister = resourcePersister;
   }
 
   public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache) {
-    this(module, languages, sonarIndex, resourceCache, null, null);
+    this(module, languages, sonarIndex, resourceCache, null);
   }
 
   public void execute(DefaultModuleFileSystem fs) {
@@ -67,10 +63,6 @@ public class ComponentIndexer {
     if (resourcePersister != null) {
       // Force persistence of module structure in order to know if project should be migrated
       resourcePersister.persist();
-    }
-
-    if (migration != null) {
-      migration.migrateIfNeeded(module, fs);
     }
 
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {

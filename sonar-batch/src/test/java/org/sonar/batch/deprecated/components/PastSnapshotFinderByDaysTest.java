@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
-
 import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;

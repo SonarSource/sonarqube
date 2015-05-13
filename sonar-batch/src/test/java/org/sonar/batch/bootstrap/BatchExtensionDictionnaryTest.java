@@ -32,11 +32,11 @@ import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.postjob.PostJobOptimizer;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.SensorOptimizer;
+import org.sonar.core.platform.ComponentContainer;
 
 import java.util.Arrays;
 import java.util.Collection;

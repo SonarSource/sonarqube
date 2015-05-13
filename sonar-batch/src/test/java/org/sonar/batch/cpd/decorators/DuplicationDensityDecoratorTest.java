@@ -19,13 +19,17 @@
  */
 package org.sonar.batch.cpd.decorators;
 
-import org.sonar.batch.cpd.decorators.DuplicationDensityDecorator;
-
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DuplicationDensityDecoratorTest {
 

@@ -24,8 +24,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
 

@@ -30,7 +30,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.util.ProgressReport;
@@ -135,7 +135,7 @@ public class FileIndexer {
   }
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, File sourceFile, InputFile.Type type) {
-    DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+    DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
     if (inputFile != null) {
       // Set basedir on input file prior to adding it to the FS since exclusions filters may require the absolute path
       inputFile.setModuleBaseDir(fileSystem.baseDirPath());
@@ -148,12 +148,12 @@ public class FileIndexer {
   }
 
   private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
-    final Progress status, final DeprecatedDefaultInputFile inputFile, final InputFile.Type type) {
+    final Progress status, final DefaultInputFile inputFile, final InputFile.Type type) {
 
     tasks.add(executorService.submit(new Callable<Void>() {
       @Override
       public Void call() {
-        DeprecatedDefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
+        DefaultInputFile completedInputFile = inputFileBuilder.completeAndComputeMetadata(inputFile, type);
         if (completedInputFile != null && accept(completedInputFile)) {
           fs.add(completedInputFile);
           status.markAsIndexed(completedInputFile);

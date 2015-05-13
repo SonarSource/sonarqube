@@ -28,7 +28,6 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
 import java.nio.charset.StandardCharsets;
 
@@ -52,7 +51,7 @@ public class InputPathCacheTest {
     InputPathCache cache = new InputPathCache();
     DefaultInputFile fooFile = new DefaultInputFile("foo", "src/main/java/Foo.java").setModuleBaseDir(temp.newFolder().toPath());
     cache.put("struts", fooFile);
-    cache.put("struts-core", new DeprecatedDefaultInputFile("foo", "src/main/java/Bar.java")
+    cache.put("struts-core", new DefaultInputFile("foo", "src/main/java/Bar.java")
       .setLanguage("bla")
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)

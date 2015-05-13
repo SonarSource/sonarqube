@@ -30,7 +30,7 @@ import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -119,7 +119,7 @@ public class DefaultCpdEngine extends CpdEngine {
     try {
       for (InputFile inputFile : sourceFiles) {
         LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
+        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 
         Iterable<CloneGroup> filtered;
@@ -144,7 +144,7 @@ public class DefaultCpdEngine extends CpdEngine {
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
+      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
       List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
       index.insert(inputFile, blocks2);
     }

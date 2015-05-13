@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.cpd.index;
 
-import org.sonar.batch.cpd.index.IndexFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,6 +29,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.core.duplication.DuplicationDao;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

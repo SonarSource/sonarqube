@@ -48,7 +48,6 @@ import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
@@ -227,7 +226,6 @@ public class ProjectScanContainer extends ComponentContainer {
     add(
       PastMeasuresLoader.class,
       ResourcePersister.class,
-      ResourceKeyMigration.class,
       GraphPersister.class,
 
       // Users

@@ -20,9 +20,8 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.pattern.LineRange;
-
 import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class LineRangeTest {

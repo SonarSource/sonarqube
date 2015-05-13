@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.deprecated.decorator;
 
-import org.sonar.batch.deprecated.decorator.FormulaDecorator;
-
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;

@@ -20,10 +20,6 @@
 
 package org.sonar.batch.issue.ignore;
 
-import org.sonar.batch.issue.ignore.EnforceIssuesFilter;
-import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
-import org.sonar.batch.issue.ignore.pattern.IssuePattern;
-
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +27,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilterChain;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WildcardPattern;
+import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
+import org.sonar.batch.issue.ignore.pattern.IssuePattern;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

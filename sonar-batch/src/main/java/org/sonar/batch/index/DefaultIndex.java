@@ -96,7 +96,6 @@ public class DefaultIndex extends SonarIndex {
   private final ResourceCache resourceCache;
   private final MetricFinder metricFinder;
   private final MeasureCache measureCache;
-  private final ResourceKeyMigration migration;
   private final DependencyPersister dependencyPersister;
   // caches
   private Project currentProject;
@@ -108,22 +107,11 @@ public class DefaultIndex extends SonarIndex {
   private ModuleIssues moduleIssues;
 
   public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
-    DefaultProjectTree projectTree, MetricFinder metricFinder,
-    ResourceKeyMigration migration, MeasureCache measureCache) {
+    DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.dependencyPersister = dependencyPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
-    this.migration = migration;
-    this.measureCache = measureCache;
-  }
-
-  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
-    this.resourceCache = resourceCache;
-    this.dependencyPersister = dependencyPersister;
-    this.projectTree = projectTree;
-    this.metricFinder = metricFinder;
-    this.migration = null;
     this.measureCache = measureCache;
   }
 
@@ -137,9 +125,6 @@ public class DefaultIndex extends SonarIndex {
   void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
     addBucket(rootProject, bucket);
-    if (migration != null) {
-      migration.checkIfMigrationNeeded(rootProject);
-    }
     resourceCache.add(rootProject, null);
     currentProject = rootProject;
 

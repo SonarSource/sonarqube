@@ -24,9 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
 
 import static org.mockito.Matchers.anyString;

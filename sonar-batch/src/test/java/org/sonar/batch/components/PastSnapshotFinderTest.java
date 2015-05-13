@@ -19,12 +19,6 @@
  */
 package org.sonar.batch.components;
 
-import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -34,6 +28,11 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.issue.tracking.IssueHandlers;
-
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.issue.IssueHandler;
@@ -30,7 +28,10 @@ import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Date;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class IssueHandlersTest {
   @Test

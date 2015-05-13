@@ -37,7 +37,9 @@ import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Event;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.protocol.output.FileStructure;
 
 import java.io.File;
 import java.util.Arrays;

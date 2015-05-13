@@ -20,9 +20,6 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.batch.components.Period;
-
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
@@ -45,14 +42,18 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.NewDebtDecorator;
+import org.sonar.batch.components.Period;
+import org.sonar.batch.components.TimeMachineConfiguration;
 
 import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NewDebtDecoratorTest {

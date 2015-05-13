@@ -29,8 +29,12 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchResource;
 import org.sonar.batch.index.ResourceCache;
 
@@ -120,7 +124,7 @@ public class ComponentIndexerTest {
   private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
-    return new DeprecatedDefaultInputFile("foo", path)
+    return new DefaultInputFile("foo", path)
       .setLanguage(languageKey)
       .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }

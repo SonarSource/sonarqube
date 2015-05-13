@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -80,20 +80,20 @@ class InputFileBuilder {
   }
 
   @CheckForNull
-  DeprecatedDefaultInputFile create(File file) {
+  DefaultInputFile create(File file) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
-    return new DeprecatedDefaultInputFile(moduleKey, relativePath);
+    return new DefaultInputFile(moduleKey, relativePath);
   }
 
   /**
    * Optimization to not compute InputFile metadata if the file is excluded from analysis.
    */
   @CheckForNull
-  DeprecatedDefaultInputFile completeAndComputeMetadata(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
+  DefaultInputFile completeAndComputeMetadata(DefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setModuleBaseDir(fs.baseDir().toPath());
     inputFile.setCharset(fs.encoding());

@@ -19,10 +19,9 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.internal.AbstractFilePredicate;
-
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.AbstractFilePredicate;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 /**
  * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
@@ -43,7 +42,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return key.equals(((DeprecatedDefaultInputFile) f).key());
+      return key.equals(((DefaultInputFile) f).key());
     }
   }
 

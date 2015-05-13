@@ -24,11 +24,15 @@ import org.junit.Test;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.measures.*;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.measures.Formula;
+import org.sonar.api.measures.FormulaContext;
+import org.sonar.api.measures.FormulaData;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
+import org.sonar.core.platform.ComponentContainer;
 
 import java.util.Arrays;
 import java.util.Collection;

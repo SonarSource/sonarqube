@@ -29,7 +29,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
@@ -62,7 +62,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class JavaCpdEngine extends CpdEngine {
 
@@ -125,7 +130,7 @@ public class JavaCpdEngine extends CpdEngine {
 
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
+      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
 
       List<Statement> statements;
 
@@ -151,7 +156,7 @@ public class JavaCpdEngine extends CpdEngine {
     try {
       for (InputFile inputFile : sourceFiles) {
         LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
+        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
 
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 
