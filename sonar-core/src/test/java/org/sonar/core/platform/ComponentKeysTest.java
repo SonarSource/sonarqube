@@ -38,7 +38,7 @@ public class ComponentKeysTest {
   }
 
   @Test
-  public void generate_key_of_object() throws Exception {
+  public void generate_key_of_object() {
     assertThat(keys.of(new FakeComponent())).isEqualTo("org.sonar.core.platform.ComponentKeysTest.FakeComponent-fake");
   }
 

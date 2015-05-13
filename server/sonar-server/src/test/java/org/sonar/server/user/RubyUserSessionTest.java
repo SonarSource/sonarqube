@@ -37,7 +37,7 @@ public class RubyUserSessionTest {
   RubyUserSession underTest = new RubyUserSession(platform);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(platform.getContainer()).thenReturn(componentContainer);
     when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
   }

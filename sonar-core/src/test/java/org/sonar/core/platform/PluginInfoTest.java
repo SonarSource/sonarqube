@@ -190,7 +190,7 @@ public class PluginInfoTest {
   }
 
   @Test
-  public void create_from_file() throws Exception {
+  public void create_from_file() {
     File checkstyleJar = FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/sonar-checkstyle-plugin-2.8.jar"));
     PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
 
@@ -207,7 +207,7 @@ public class PluginInfoTest {
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1 / SHA1]");
   }
 
-  PluginInfo withMinSqVersion(@Nullable String version) throws IOException {
+  PluginInfo withMinSqVersion(@Nullable String version) {
     PluginInfo pluginInfo = new PluginInfo("foo");
     if (version != null) {
       pluginInfo.setMinimalSqVersion(Version.create(version));

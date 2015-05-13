@@ -118,7 +118,7 @@ public class DebtModelBackupTest {
   DebtModelBackup debtModelBackup;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     when(system2.now()).thenReturn(now.getTime());

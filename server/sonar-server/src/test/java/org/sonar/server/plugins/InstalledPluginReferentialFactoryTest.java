@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class InstalledPluginReferentialFactoryTest {
 
   @Test
-  public void should_create_plugin_referential() throws IOException {
+  public void should_create_plugin_referential() {
     PluginInfo info = new PluginInfo("foo");
     PluginRepository pluginRepository = mock(PluginRepository.class);
     when(pluginRepository.getPluginInfos()).thenReturn(newArrayList(info));

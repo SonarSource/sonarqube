@@ -38,18 +38,18 @@ public class IsAliveMapperTest {
   IsAliveMapper underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     session = dbTester.myBatis().openSession(false);
     underTest = session.getMapper(IsAliveMapper.class);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 
   @Test
-  public void isAlive_works_for_current_vendors() throws Exception {
+  public void isAlive_works_for_current_vendors() {
     assertThat(underTest.isAlive()).isEqualTo(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
   }
 }

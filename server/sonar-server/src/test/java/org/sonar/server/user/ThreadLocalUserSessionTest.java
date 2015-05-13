@@ -34,12 +34,12 @@ public class ThreadLocalUserSessionTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     threadLocalUserSession.remove();
   }
 
   @Test
-  public void getSession_get_anonymous_by_default() throws Exception {
+  public void getSession_get_anonymous_by_default() {
     UserSession session = threadLocalUserSession.get();
 
     assertThat(session).isNotNull();
@@ -51,7 +51,7 @@ public class ThreadLocalUserSessionTest {
   }
 
   @Test
-  public void get_session() throws Exception {
+  public void get_session() {
     threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH));
 
     UserSession session = threadLocalUserSession.get();

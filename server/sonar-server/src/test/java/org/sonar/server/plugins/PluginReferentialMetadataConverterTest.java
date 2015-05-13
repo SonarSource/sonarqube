@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PluginReferentialMetadataConverterTest {
 
   @Test
-  public void should_convert_info_to_plugin_referential() throws IOException {
+  public void should_convert_info_to_plugin_referential() {
     PluginInfo info = new PluginInfo("foo");
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));
@@ -41,7 +41,7 @@ public class PluginReferentialMetadataConverterTest {
   }
 
   @Test
-  public void should_not_add_core_plugin() throws IOException {
+  public void should_not_add_core_plugin() {
     PluginInfo info = new PluginInfo("foo").setCore(true);
 
     PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));

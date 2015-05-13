@@ -38,7 +38,7 @@ public class MimeTypesTest {
   }
 
   @Test
-  public void only_statics() throws Exception {
+  public void only_statics() {
     assertThat(TestUtils.hasOnlyPrivateConstructors(MimeTypes.class)).isTrue();
   }
 }

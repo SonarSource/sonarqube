@@ -262,7 +262,7 @@ public class FileSystemMediumTest {
   }
 
   @Test
-  public void scanMultiModuleProject() throws IOException {
+  public void scanMultiModuleProject() {
     File projectDir = new File("src/test/resources/mediumtest/xoo/multi-modules-sample");
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))

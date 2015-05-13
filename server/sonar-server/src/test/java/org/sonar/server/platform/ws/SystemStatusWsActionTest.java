@@ -69,13 +69,13 @@ public class SystemStatusWsActionTest {
   private Request request = mock(Request.class);
 
   @Before
-  public void wireMocks() throws Exception {
+  public void wireMocks() {
     when(dbClient.openSession(anyBoolean())).thenReturn(dbSession);
     when(dbSession.getMapper(IsAliveMapper.class)).thenReturn(isAliveMapper);
   }
 
   @Test
-  public void action_status_is_defined() throws Exception {
+  public void action_status_is_defined() {
     WsTester wsTester = new WsTester();
     WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
 

@@ -44,7 +44,7 @@ public class PluginsMonitorTest {
   }
 
   @Test
-  public void plugin_name_and_version() throws Exception {
+  public void plugin_name_and_version() {
     when(repo.getPluginInfos()).thenReturn(Arrays.asList(
       new PluginInfo("key-1")
         .setName("plugin-1")

@@ -39,7 +39,7 @@ public class BatchPluginRepositoryTest {
   BatchPluginRepository underTest = new BatchPluginRepository(installer, loader);
 
   @Test
-  public void install_and_load_plugins() throws Exception {
+  public void install_and_load_plugins() {
     PluginInfo info = new PluginInfo("squid");
     ImmutableMap<String, PluginInfo> infos = ImmutableMap.of("squid", info);
     Plugin instance = mock(Plugin.class);
@@ -57,7 +57,7 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void fail_if_requesting_missing_plugin() throws Exception {
+  public void fail_if_requesting_missing_plugin() {
     underTest.start();
 
     try {

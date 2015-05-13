@@ -74,7 +74,7 @@ public class ServerPluginRepositoryTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     underTest.stop();
   }
 
@@ -124,7 +124,7 @@ public class ServerPluginRepositoryTest {
    * to test sensibility to null values.
    */
   @Test
-  public void no_plugins_at_all_on_startup() throws Exception {
+  public void no_plugins_at_all_on_startup() {
     underTest.start();
 
     assertThat(underTest.getPluginInfos()).isEmpty();
@@ -301,7 +301,7 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void fail_to_get_missing_plugins() throws Exception {
+  public void fail_to_get_missing_plugins() {
     try {
       underTest.getPluginInfo("unknown");
       fail();
@@ -318,7 +318,7 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void plugin_is_incompatible_if_no_entry_point_class() throws Exception {
+  public void plugin_is_incompatible_if_no_entry_point_class() {
     PluginInfo plugin = new PluginInfo("foo").setName("Foo");
     assertThat(ServerPluginRepository.isCompatible(plugin, server, Collections.<String, PluginInfo>emptyMap())).isFalse();
     assertThat(logs.logs()).contains("Plugin Foo [foo] is ignored because entry point class is not defined");
@@ -328,7 +328,7 @@ public class ServerPluginRepositoryTest {
    * Some plugins can only extend the classloader of base plugin, without declaring new extensions.
    */
   @Test
-  public void plugin_is_compatible_if_no_entry_point_class_but_extend_other_plugin() throws Exception {
+  public void plugin_is_compatible_if_no_entry_point_class_but_extend_other_plugin() {
     PluginInfo basePlugin = new PluginInfo("base").setMainClass("org.bar.Bar");
     PluginInfo plugin = new PluginInfo("foo").setBasePlugin("base");
     Map<String, PluginInfo> plugins = ImmutableMap.of("base", basePlugin, "foo", plugin);

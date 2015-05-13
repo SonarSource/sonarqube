@@ -43,7 +43,7 @@ public class PluginLoaderTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void load_and_unload_plugins() throws Exception {
+  public void load_and_unload_plugins() {
     File checkstyleJar = FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/sonar-checkstyle-plugin-2.8.jar"));
     PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
 

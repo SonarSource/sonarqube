@@ -208,7 +208,7 @@ public class PendingPluginsWsActionTest {
       .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   }
 
-  public PluginInfo newPluginInfo(int id) throws IOException {
+  public PluginInfo newPluginInfo(int id) {
     return new PluginInfo("key" + id).setName("name" + id);
   }
 }

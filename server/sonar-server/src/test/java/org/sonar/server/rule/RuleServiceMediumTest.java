@@ -244,7 +244,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test(expected = UnauthorizedException.class)
-  public void do_not_delete_if_not_granted() throws Exception {
+  public void do_not_delete_if_not_granted() {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     service.delete(RuleKey.of("java", "S001"));
