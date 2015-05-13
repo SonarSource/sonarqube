@@ -111,7 +111,7 @@
             </goals>
             <configuration>
               <nodeVersion>v0.12.2</nodeVersion>
-              <npmVersion>2.7.4</npmVersion>
+              <npmVersion>2.9.1</npmVersion>
             </configuration>
           </execution>
           <execution>
