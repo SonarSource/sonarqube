@@ -23,8 +23,6 @@ import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.PluginReferential;
 
-import java.io.IOException;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 

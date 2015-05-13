@@ -38,8 +38,6 @@ import org.sonar.updatecenter.common.Version;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;

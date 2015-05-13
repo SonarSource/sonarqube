@@ -28,8 +28,6 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Version;
 
-import java.io.IOException;
-
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
