@@ -113,7 +113,7 @@ public class QProfileChangelogActionTest {
 
   @Test
   public void changelog_nominal() throws Exception {
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date(), "max", "10");
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_nominal.json");
@@ -121,7 +121,7 @@ public class QProfileChangelogActionTest {
 
   @Test
   public void changelog_no_param() throws Exception {
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR);
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date());
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_no_param.json");
@@ -129,7 +129,7 @@ public class QProfileChangelogActionTest {
 
   @Test
   public void changelog_system_user() throws Exception {
-    createActivity(null, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR);
+    createActivity(null, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date());
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY)
       .execute().assertJson(getClass(), "changelog_no_login.json");
@@ -140,7 +140,7 @@ public class QProfileChangelogActionTest {
     Date yesterday = DateTime.now().minusDays(1).toDate();
     Date tomorrow = DateTime.now().plusDays(1).toDate();
 
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, new Date(), "max", "10");
 
     // Tests with "since"
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("since",
@@ -167,8 +167,10 @@ public class QProfileChangelogActionTest {
 
   @Test
   public void changelog_with_pagination() throws Exception {
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, "max", "10");
-    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, "max", "20");
+    Date farthest = new Date(1_500_000_000_000L);
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MAJOR, farthest, "max", "10");
+    Date nearest = new Date(1_500_000_100_000L);
+    createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, nearest, "max", "20");
 
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("ps", "1")
       .execute().assertJson(getClass(), "changelog_page1.json");
@@ -183,7 +185,7 @@ public class QProfileChangelogActionTest {
     wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", "unknown-profile").execute();
   }
 
-  private void createActivity(String login, Type type, ActiveRuleKey activeRuleKey, String severity, String... params) throws Exception {
+  private void createActivity(String login, Type type, ActiveRuleKey activeRuleKey, String severity, Date createdAt, String... params) throws Exception {
     Map<String, String> details = Maps.newHashMap();
     details.put("key", activeRuleKey.toString());
     details.put("ruleKey", activeRuleKey.ruleKey().toString());
@@ -194,7 +196,7 @@ public class QProfileChangelogActionTest {
     }
     ActivityDoc doc = new ActivityDoc(Maps.<String, Object>newHashMap());
     doc.setAction(type.toString());
-    doc.setCreatedAt(new Date());
+    doc.setCreatedAt(createdAt);
     doc.setDetails(details);
     doc.setKey(Uuids.create());
     doc.setLogin(login);
