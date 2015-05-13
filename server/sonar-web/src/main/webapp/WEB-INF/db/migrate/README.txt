@@ -9,7 +9,7 @@ HOW TO ADD A MIGRATION
 * If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
 * Changes in bulk must be handled using Java migrations based on org.sonar.server.db.migrations.MassUpdate :
   + Create the class for the Java migration in package package org.sonar.server.db.migrations.vXYZ, where XYZ is the version of SQ without dots
-  + Add the class to org.sonar.server.db.migrations.MigrationSteps.CLASSES
+  + Add the class to org.sonar.server.db.migrations.MigrationStepModule
   + Create a Ruby migration which calls execute_java_migration('org.sonar.server.db.migrations.vXYZ.MyMigration')
   + Simple, "one to one" migrations that only need to be split by 1000 can rely on class org.sonar.server.db.migrations.BaseDataChange
 
