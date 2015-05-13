@@ -29,7 +29,11 @@ import org.sonar.api.utils.PathUtils;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -37,11 +41,11 @@ import java.util.Arrays;
 /**
  * @since 4.2
  */
-public class DefaultInputFile implements InputFile {
+public class DefaultInputFile implements InputFile, org.sonar.api.resources.InputFile {
 
   private final String relativePath;
   private final String moduleKey;
-  protected Path moduleBaseDir;
+  private Path moduleBaseDir;
   private String language;
   private Type type = Type.MAIN;
   private Status status;
@@ -286,6 +290,26 @@ public class DefaultInputFile implements InputFile {
   @Override
   public String toString() {
     return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", basedir=" + moduleBaseDir + "]";
+  }
+
+  @Override
+  public File getFileBaseDir() {
+    return moduleBaseDir.toFile();
+  }
+
+  @Override
+  public File getFile() {
+    return file();
+  }
+
+  @Override
+  public String getRelativePath() {
+    return relativePath();
+  }
+
+  @Override
+  public InputStream getInputStream() throws FileNotFoundException {
+    return new BufferedInputStream(new FileInputStream(file()));
   }
 
 }

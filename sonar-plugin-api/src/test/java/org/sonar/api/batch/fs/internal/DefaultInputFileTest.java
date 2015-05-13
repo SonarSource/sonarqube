@@ -25,6 +25,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,14 +37,17 @@ public class DefaultInputFileTest {
 
   @Test
   public void test() throws Exception {
+    Path baseDir = temp.newFolder().toPath();
     DefaultInputFile inputFile = new DefaultInputFile("ABCDE", "src/Foo.php")
-      .setModuleBaseDir(temp.newFolder().toPath())
+      .setModuleBaseDir(baseDir)
       .setLines(42)
       .setLanguage("php")
       .setStatus(InputFile.Status.ADDED)
       .setType(InputFile.Type.TEST);
 
     assertThat(inputFile.relativePath()).isEqualTo("src/Foo.php");
+    assertThat(inputFile.getRelativePath()).isEqualTo("src/Foo.php");
+    assertThat(inputFile.getFile()).isEqualTo(new File(baseDir.toFile(), "src/Foo.php"));
     assertThat(new File(inputFile.relativePath())).isRelative();
     assertThat(inputFile.absolutePath()).endsWith("Foo.php");
     assertThat(new File(inputFile.absolutePath())).isAbsolute();
