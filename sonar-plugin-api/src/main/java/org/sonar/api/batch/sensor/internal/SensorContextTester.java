@@ -35,9 +35,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.dependency.NewDependency;
-import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
@@ -59,7 +56,12 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class to help testing {@link Sensor}.
@@ -243,15 +245,6 @@ public class SensorContextTester implements SensorContext {
     return sensorStorage.duplications;
   }
 
-  @Override
-  public NewDependency newDependency() {
-    return new DefaultDependency(sensorStorage);
-  }
-
-  public Collection<Dependency> dependencies() {
-    return sensorStorage.dependencies;
-  }
-
   public static class MockAnalysisMode implements AnalysisMode {
     private boolean isIncremental = false;
     private boolean isPreview = false;
@@ -287,7 +280,6 @@ public class SensorContextTester implements SensorContext {
     private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
 
     private List<Duplication> duplications = new ArrayList<>();
-    private List<Dependency> dependencies = new ArrayList<>();
 
     @Override
     public void store(Measure measure) {
@@ -318,11 +310,6 @@ public class SensorContextTester implements SensorContext {
     @Override
     public void store(Duplication duplication) {
       duplications.add(duplication);
-    }
-
-    @Override
-    public void store(Dependency dependency) {
-      dependencies.add(dependency);
     }
 
     @Override

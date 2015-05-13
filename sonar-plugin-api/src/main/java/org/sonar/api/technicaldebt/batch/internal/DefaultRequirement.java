@@ -29,6 +29,7 @@ import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.utils.internal.WorkDuration;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
 
@@ -207,7 +208,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
-  public static WorkDuration.UNIT toUnit(String requirementUnit){
+  public static WorkDuration.UNIT toUnit(String requirementUnit) {
     if (WorkUnit.DAYS.equals(requirementUnit)) {
       return WorkDuration.UNIT.DAYS;
     } else if (WorkUnit.HOURS.equals(requirementUnit)) {
@@ -218,7 +219,7 @@ public class DefaultRequirement implements Requirement {
     throw new IllegalStateException("Invalid unit : " + requirementUnit);
   }
 
-  private static String fromUnit(WorkDuration.UNIT unit){
+  private static String fromUnit(WorkDuration.UNIT unit) {
     if (WorkDuration.UNIT.DAYS.equals(unit)) {
       return WorkUnit.DAYS;
     } else if (WorkDuration.UNIT.HOURS.equals(unit)) {

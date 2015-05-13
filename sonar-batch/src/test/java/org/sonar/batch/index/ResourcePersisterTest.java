@@ -32,7 +32,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
@@ -48,7 +47,6 @@ import javax.persistence.Query;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -108,7 +106,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
 
     projectTree = mock(DefaultProjectTree.class);
     permissions = mock(ResourcePermissions.class);
-    persister = new ResourcePersister(projectTree, getSession(), permissions, resourceCache, mock(ScanGraph.class));
+    persister = new ResourcePersister(getSession(), permissions, resourceCache, mock(ScanGraph.class));
   }
 
   @Test
@@ -225,8 +223,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
     when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
 
-    DefaultIndex index = new DefaultIndex(resourceCache, null, projectTree, mock(MetricFinder.class),
-      mock(MeasureCache.class));
+    DefaultIndex index = new DefaultIndex(resourceCache, projectTree, mock(MetricFinder.class), mock(MeasureCache.class));
 
     index.start();
 
@@ -235,12 +232,9 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     index.setCurrentProject(moduleB1, null);
     index.index(file);
 
-    // Emulate another project having library dependency on moduleA
-    index.addResource(new Library(moduleA.getKey(), "1.0"));
-
     persister.persist();
 
-    checkTables("shouldSaveNewMultiModulesProjectAndLibrary",
+    checkTables("shouldSaveNewMultiModulesProjectUsingIndex",
       new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"}, "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
@@ -321,33 +315,6 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     query.setParameter("resourceId", resourceId);
     query.executeUpdate();
     getSession().commit();
-  }
-
-  @Test
-  public void shouldSaveNewLibrary() {
-    setupData("shared");
-
-    persister.persist(null, singleProject, null);
-    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));
-    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do
-    // nothing,
-    // already
-    // saved
-    persister.persistLibrary(singleProject.getAnalysisDate(), (Library) new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
-
-    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
-      "projects", "snapshots");
-
-    // Need to enable snapshot to make resource visible using ComponentMapper
-    enableSnapshot(1002);
-    try (SqlSession session = getMyBatis().openSession(false)) {
-      // FIXME selectByKey returns duplicates for libraries because of the join on snapshots table
-      ComponentDto newLib = session.getMapper(ComponentMapper.class).selectByKeys(Arrays.asList("junit:junit")).get(0);
-      assertThat(newLib.uuid()).isNotNull();
-      assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
-      assertThat(newLib.moduleUuid()).isNull();
-      assertThat(newLib.moduleUuidPath()).isEqualTo(MODULE_UUID_PATH_SEPARATOR + newLib.uuid() + MODULE_UUID_PATH_SEPARATOR);
-    }
   }
 
   @Test

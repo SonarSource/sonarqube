@@ -37,16 +37,6 @@ public class ScopesTest {
   }
 
   @Test
-  public void testLibrary() {
-    Resource resource = new Library("key", "1.0");
-    assertThat(Scopes.isProject(resource), is(true));
-    assertThat(Scopes.isDirectory(resource), is(false));
-    assertThat(Scopes.isFile(resource), is(false));
-    assertThat(Scopes.isBlockUnit(resource), is(false));
-    assertThat(Scopes.isProgramUnit(resource), is(false));
-  }
-
-  @Test
   public void testDirectory() {
     Resource resource = Directory.create("org/foo");
     assertThat(Scopes.isProject(resource), is(false));

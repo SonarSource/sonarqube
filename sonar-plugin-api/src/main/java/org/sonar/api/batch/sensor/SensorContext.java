@@ -25,7 +25,6 @@ import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
-import org.sonar.api.batch.sensor.dependency.NewDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -105,15 +104,5 @@ public interface SensorContext {
    * Don't forget to call {@link NewDuplication#save()}.
    */
   NewCoverage newCoverage();
-
-  // TODO
-
-  // ------------ DEPENDENCIES ------------
-
-  /**
-   * Create a new dependency.
-   * Don't forget to call {@link NewDependency#save()} once all parameters are provided.
-   */
-  NewDependency newDependency();
 
 }

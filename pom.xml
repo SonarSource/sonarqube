@@ -19,7 +19,6 @@
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
     <module>sonar-duplications</module>
-    <module>sonar-graph</module>
     <module>sonar-home</module>
     <module>sonar-java-api</module>
     <module>sonar-markdown</module>
@@ -637,7 +636,7 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-graph</artifactId>
-        <version>${project.version}</version>
+        <version>5.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>

@@ -46,7 +46,6 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DependencyPersister;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
@@ -197,9 +196,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Duplications
       DuplicationCache.class,
-
-      // Dependencies
-      DependencyPersister.class,
 
       // Quality Gate
       new QualityGateProvider(),
