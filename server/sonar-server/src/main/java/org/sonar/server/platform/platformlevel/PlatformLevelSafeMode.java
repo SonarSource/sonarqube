@@ -33,7 +33,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  protected void configureLevel() {
     add(
       // DB access required by DatabaseSessionFilter wired into ROR
       DefaultDatabaseConnector.class,
@@ -49,7 +49,5 @@ public class PlatformLevelSafeMode extends PlatformLevel {
 
       // WS engine
       WebServiceEngine.class);
-
-    return this;
   }
 }

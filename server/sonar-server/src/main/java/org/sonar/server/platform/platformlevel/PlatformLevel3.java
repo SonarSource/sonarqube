@@ -34,7 +34,7 @@ public class PlatformLevel3 extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  protected void configureLevel() {
     add(
       PersistentSettings.class,
       DefaultDatabaseConnector.class,
@@ -44,6 +44,5 @@ public class PlatformLevel3 extends PlatformLevel {
       DefaultHttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class);
-    return this;
   }
 }
