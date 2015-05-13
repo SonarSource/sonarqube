@@ -29,6 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * This servlet filter sets response headers that enable browser protection against several classes if Web attacks.
+ * The list of headers is mirrored in environment.rb as a workaround to Rack swallowing the headers..
+ */
 public class SecurityServletFilter implements Filter {
 
   @Override
