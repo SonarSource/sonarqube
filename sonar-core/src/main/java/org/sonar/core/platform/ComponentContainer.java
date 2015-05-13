@@ -260,4 +260,8 @@ public class ComponentContainer {
   public MutablePicoContainer getPicoContainer() {
     return pico;
   }
+
+  public int size() {
+    return pico.getComponentAdapters().size();
+  }
 }
