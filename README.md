@@ -10,4 +10,4 @@ Licensed under the GNU Lesser General Public License, Version 3.0: http://www.gn
 
 ### Build status
 
-[![Build Status](https://api.travis-ci.org/SonarSource/sonarqube.png)](https://travis-ci.org/SonarSource/sonarqube)
+[![Build Status](https://api.travis-ci.org/SonarSource/sonarqube.svg)](https://travis-ci.org/SonarSource/sonarqube)
