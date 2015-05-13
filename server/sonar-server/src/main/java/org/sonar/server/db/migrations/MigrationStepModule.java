@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.migrations;
 
-import com.google.common.collect.ImmutableList;
+import org.sonar.core.component.Module;
 import org.sonar.server.db.migrations.v36.ViolationMigrationStep;
 import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigrationStep;
 import org.sonar.server.db.migrations.v42.PackageKeysMigrationStep;
@@ -73,78 +73,77 @@ import org.sonar.server.db.migrations.v52.FeedFileSourcesDataType;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 
-import java.util.List;
+public class MigrationStepModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      // 3.6
+      ViolationMigrationStep.class,
 
-public interface MigrationSteps {
+      // 4.2
+      PackageKeysMigrationStep.class, CompleteIssueMessageMigrationStep.class,
 
-  List<Class<? extends MigrationStep>> CLASSES = ImmutableList.of(
-    // 3.6
-    ViolationMigrationStep.class,
+      // 4.3
+      ConvertIssueDebtToMinutesMigrationStep.class,
+      IssueChangelogMigrationStep.class,
+      TechnicalDebtMeasuresMigrationStep.class,
+      DevelopmentCostMeasuresMigrationStep.class,
+      RequirementMeasuresMigrationStep.class,
+      NotResolvedIssuesOnRemovedComponentsMigrationStep.class,
 
-    // 4.2
-    PackageKeysMigrationStep.class, CompleteIssueMessageMigrationStep.class,
+      // 4.4
+      IssueActionPlanKeyMigrationStep.class,
+      MeasureDataMigrationStep.class,
+      FeedQProfileKeysMigrationStep.class,
+      FeedQProfileDatesMigrationStep.class,
+      ChangeLogMigrationStep.class,
+      ConvertProfileMeasuresMigrationStep.class,
 
-    // 4.3
-    ConvertIssueDebtToMinutesMigrationStep.class,
-    IssueChangelogMigrationStep.class,
-    TechnicalDebtMeasuresMigrationStep.class,
-    DevelopmentCostMeasuresMigrationStep.class,
-    RequirementMeasuresMigrationStep.class,
-    NotResolvedIssuesOnRemovedComponentsMigrationStep.class,
+      // 4.5
+      AddMissingRuleParameterDefaultValuesMigrationStep.class,
+      DeleteMeasuresOnDeletedProfilesMigrationStep.class,
 
-    // 4.4
-    IssueActionPlanKeyMigrationStep.class,
-    MeasureDataMigrationStep.class,
-    FeedQProfileKeysMigrationStep.class,
-    FeedQProfileDatesMigrationStep.class,
-    ChangeLogMigrationStep.class,
-    ConvertProfileMeasuresMigrationStep.class,
+      // 4.5.1
+      AddMissingCustomRuleParametersMigrationStep.class,
+      DeleteUnescapedActivities.class,
 
-    // 4.5
-    AddMissingRuleParameterDefaultValuesMigrationStep.class,
-    DeleteMeasuresOnDeletedProfilesMigrationStep.class,
+      // 5.0
+      InsertProjectsAuthorizationUpdatedAtMigrationStep.class,
+      PopulateProjectsUuidColumnsMigrationStep.class,
+      ReplaceIssueFiltersProjectKeyByUuid.class,
+      FeedSnapshotSourcesUpdatedAt.class,
+      FeedFileSources.class,
+      FeedIssueLongDates.class,
+      RemoveSortFieldFromIssueFiltersMigrationStep.class,
 
-    // 4.5.1
-    AddMissingCustomRuleParametersMigrationStep.class,
-    DeleteUnescapedActivities.class,
+      // 5.1
+      FeedIssueTags.class,
+      FeedUsersLongDates.class,
+      RenameComponentRelatedParamsInIssueFilters.class,
+      CopyScmAccountsFromAuthorsToUsers.class,
+      FeedIssueChangesLongDates.class,
+      FeedAnalysisReportsLongDates.class,
+      UpdateProjectsModuleUuidPath.class,
+      FeedIssueComponentUuids.class,
+      FeedSnapshotsLongDates.class,
+      FeedIssuesLongDates.class,
+      FeedFileSourcesBinaryData.class,
+      FeedSemaphoresLongDates.class,
+      FeedManualMeasuresLongDates.class,
+      FeedEventsLongDates.class,
+      AddNewCharacteristics.class,
+      RemovePermissionsOnModulesMigrationStep.class,
+      AddIssuesColumns.class,
+      DropIssuesColumns.class,
 
-    // 5.0
-    InsertProjectsAuthorizationUpdatedAtMigrationStep.class,
-    PopulateProjectsUuidColumnsMigrationStep.class,
-    ReplaceIssueFiltersProjectKeyByUuid.class,
-    FeedSnapshotSourcesUpdatedAt.class,
-    FeedFileSources.class,
-    FeedIssueLongDates.class,
-    RemoveSortFieldFromIssueFiltersMigrationStep.class,
-
-    // 5.1
-    FeedIssueTags.class,
-    FeedUsersLongDates.class,
-    RenameComponentRelatedParamsInIssueFilters.class,
-    CopyScmAccountsFromAuthorsToUsers.class,
-    FeedIssueChangesLongDates.class,
-    FeedAnalysisReportsLongDates.class,
-    UpdateProjectsModuleUuidPath.class,
-    FeedIssueComponentUuids.class,
-    FeedSnapshotsLongDates.class,
-    FeedIssuesLongDates.class,
-    FeedFileSourcesBinaryData.class,
-    FeedSemaphoresLongDates.class,
-    FeedManualMeasuresLongDates.class,
-    FeedEventsLongDates.class,
-    AddNewCharacteristics.class,
-    RemovePermissionsOnModulesMigrationStep.class,
-    AddIssuesColumns.class,
-    DropIssuesColumns.class,
-
-    // 5.2
-    FeedProjectLinksComponentUuid.class,
-    FeedEventsComponentUuid.class,
-    MoveProjectProfileAssociation.class,
-    AddDependenciesComponentUuidColumns.class,
-    FeedDependenciesComponentUuids.class,
-    DropDependenciesComponentColumns.class,
-    FeedFileSourcesDataType.class,
-    AddDependenciesColumns.class
-    );
+      // 5.2
+      FeedProjectLinksComponentUuid.class,
+      FeedEventsComponentUuid.class,
+      MoveProjectProfileAssociation.class,
+      AddDependenciesComponentUuidColumns.class,
+      FeedDependenciesComponentUuids.class,
+      DropDependenciesComponentColumns.class,
+      FeedFileSourcesDataType.class,
+      AddDependenciesColumns.class);
+  }
 }

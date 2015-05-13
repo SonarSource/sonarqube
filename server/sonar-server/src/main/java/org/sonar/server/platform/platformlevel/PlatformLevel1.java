@@ -47,7 +47,7 @@ import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
-import org.sonar.server.db.migrations.MigrationSteps;
+import org.sonar.server.db.migrations.MigrationStepModule;
 import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
@@ -162,7 +162,7 @@ public class PlatformLevel1 extends PlatformLevel {
       FileSourceDao.class,
       FileDependencyDao.class);
     addAll(CorePropertyDefinitions.all());
-    addAll(MigrationSteps.CLASSES);
+    add(MigrationStepModule.class);
     addAll(DaoUtils.getDaoClasses());
   }
 
