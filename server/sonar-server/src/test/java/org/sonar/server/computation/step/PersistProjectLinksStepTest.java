@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
-public class PersistComponentLinksStepTest extends BaseStepTest {
+public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

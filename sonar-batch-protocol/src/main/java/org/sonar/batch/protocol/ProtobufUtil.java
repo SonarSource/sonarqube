@@ -21,8 +21,16 @@ package org.sonar.batch.protocol;
 
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
+import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class ProtobufUtil {
   private ProtobufUtil() {
@@ -30,36 +38,52 @@ public class ProtobufUtil {
   }
 
   public static <T extends Message> T readFile(File file, Parser<T> parser) {
-    try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
+    InputStream input = null;
+    try {
+      input = new BufferedInputStream(new FileInputStream(file));
       return parser.parseFrom(input);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read file: " + file, e);
+    } finally {
+      IOUtils.closeQuietly(input);
     }
   }
 
   public static void writeToFile(Message message, File toFile) {
-    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(toFile, false))) {
+    OutputStream out = null;
+    try {
+      out = new BufferedOutputStream(new FileOutputStream(toFile, false));
       message.writeTo(out);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write protocol buffer data to file " + toFile, e);
+    } finally {
+      IOUtils.closeQuietly(out);
     }
   }
 
   public static void appendToFile(Message message, File toFile) {
-    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(toFile, true))) {
+    OutputStream out = null;
+    try {
+      out = new BufferedOutputStream(new FileOutputStream(toFile, true));
       message.writeDelimitedTo(out);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to append protocol buffer data to file " + toFile, e);
+    } finally {
+      IOUtils.closeQuietly(out);
     }
   }
 
   public static <MESSAGE extends Message> void writeMessagesToFile(Iterable<MESSAGE> messages, File file) {
-    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+    OutputStream out = null;
+    try {
+      out = new BufferedOutputStream(new FileOutputStream(file, true));
       for (MESSAGE message : messages) {
         message.writeDelimitedTo(out);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read file: " + file, e);
+    } finally {
+      IOUtils.closeQuietly(out);
     }
   }
 

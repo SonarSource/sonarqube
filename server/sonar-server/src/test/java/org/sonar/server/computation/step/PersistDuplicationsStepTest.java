@@ -50,8 +50,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
-public class
-  PersistDuplicationMeasuresStepTest extends BaseStepTest {
+public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
