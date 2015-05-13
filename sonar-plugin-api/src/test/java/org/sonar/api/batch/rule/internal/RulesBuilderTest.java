@@ -20,6 +20,7 @@
 package org.sonar.api.batch.rule.internal;
 
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
@@ -29,9 +30,11 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class RulesBuilderTest {
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void no_rules() {
     RulesBuilder builder = new RulesBuilder();
@@ -98,12 +101,11 @@ public class RulesBuilderTest {
   public void fail_to_add_twice_the_same_rule() {
     RulesBuilder builder = new RulesBuilder();
     builder.add(RuleKey.of("squid", "S0001"));
-    try {
-      builder.add(RuleKey.of("squid", "S0001"));
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Rule 'squid:S0001' already exists");
-    }
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Rule 'squid:S0001' already exists");
+
+    builder.add(RuleKey.of("squid", "S0001"));
   }
 
   @Test
@@ -112,11 +114,10 @@ public class RulesBuilderTest {
     NewRule newRule = builder.add(RuleKey.of("squid", "S0001"));
     newRule.addParam("min");
     newRule.addParam("max");
-    try {
-      newRule.addParam("min");
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Parameter 'min' already exists on rule 'squid:S0001'");
-    }
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Parameter 'min' already exists on rule 'squid:S0001'");
+
+    newRule.addParam("min");
   }
 }

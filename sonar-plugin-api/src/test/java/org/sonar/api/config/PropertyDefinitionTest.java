@@ -19,7 +19,9 @@
  */
 package org.sonar.api.config;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyField;
@@ -28,9 +30,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.AnnotationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class PropertyDefinitionTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void should_override_toString() {
@@ -268,42 +271,34 @@ public class PropertyDefinitionTest {
 
   @Test
   public void should_not_authorise_empty_key() {
-    try {
-      PropertyDefinition.builder(null).build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Key must be set").isInstanceOf(IllegalArgumentException.class);
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Key must be set");
+
+    PropertyDefinition.builder(null).build();
   }
 
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_hidden() {
-    try {
-      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
+
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).hidden().build();
   }
 
   @Test
   public void should_not_authorize_defining_ony_on_qualifiers_and_hidden() {
-    try {
-      PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Cannot be hidden and defining qualifiers on which to display").isInstanceOf(IllegalArgumentException.class);
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Cannot be hidden and defining qualifiers on which to display");
+
+    PropertyDefinition.builder("foo").name("foo").onlyOnQualifiers(Qualifiers.FILE).hidden().build();
   }
 
   @Test
   public void should_not_authorize_defining_on_qualifiers_and_only_on_qualifiers() {
-    try {
-      PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Cannot define both onQualifiers and onlyOnQualifiers").isInstanceOf(IllegalArgumentException.class);
-    }
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Cannot define both onQualifiers and onlyOnQualifiers");
+
+    PropertyDefinition.builder("foo").name("foo").onQualifiers(Qualifiers.FILE).onlyOnQualifiers(Qualifiers.PROJECT).build();
   }
 
   @Properties(@Property(key = "hello", name = "Hello", defaultValue = "world", description = "desc",

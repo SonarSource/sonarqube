@@ -20,16 +20,19 @@
 
 package org.sonar.api.issue.action;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ActionTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   Condition condition1 = mock(Condition.class);
   Condition condition2 = mock(Condition.class);
@@ -49,12 +52,9 @@ public class ActionTest {
 
   @Test
   public void key_should_be_set() {
-    try {
-      new Action("");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Action key must be set");
-    }
+    thrown.expectMessage("Action key must be set");
+
+    new Action("");
   }
 
   @Test

@@ -19,16 +19,20 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class ActiveRulesBuilderTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void no_rules() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
@@ -81,11 +85,10 @@ public class ActiveRulesBuilderTest {
   public void fail_to_add_twice_the_same_rule() {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     builder.create(RuleKey.of("squid", "S0001")).activate();
-    try {
-      builder.create(RuleKey.of("squid", "S0001")).activate();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Rule 'squid:S0001' is already activated");
-    }
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Rule 'squid:S0001' is already activated");
+
+    builder.create(RuleKey.of("squid", "S0001")).activate();
   }
 }

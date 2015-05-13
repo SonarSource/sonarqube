@@ -24,13 +24,13 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class ProxyNodesStatsRequestBuilderTest {
 
@@ -39,6 +39,9 @@ public class ProxyNodesStatsRequestBuilderTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void stats() {
@@ -62,32 +65,26 @@ public class ProxyNodesStatsRequestBuilderTest {
 
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() {
-    try {
-      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get("1");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Not yet implemented");
+
+    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get("1");
   }
 
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() {
-    try {
-      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Not yet implemented");
+
+    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).get(TimeValue.timeValueMinutes(1));
   }
 
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() {
-    try {
-      esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
-    }
+    thrown.expect(UnsupportedOperationException.class);
+    thrown.expectMessage("execute() should not be called as it's used for asynchronous");
+
+    esTester.client().prepareNodesStats(FakeIndexDefinition.INDEX).execute();
   }
 
 }
