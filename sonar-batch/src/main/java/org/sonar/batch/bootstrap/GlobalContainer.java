@@ -55,7 +55,6 @@ import org.sonar.core.persistence.SemaphoreUpdater;
 import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
@@ -99,7 +98,7 @@ public class GlobalContainer extends ComponentContainer {
     add(
       // plugins
       BatchPluginRepository.class,
-      PluginLoader.class,
+      BatchPluginLoader.class,
       BatchPluginExploder.class,
       BatchPluginPredicate.class,
       ExtensionInstaller.class,

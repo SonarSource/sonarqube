@@ -55,7 +55,7 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
  * <p/>
  * This class is stateless. It does not keep classloaders and {@link Plugin} in memory.
  */
-public class PluginLoader implements BatchComponent, ServerComponent {
+public class PluginLoader {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
 
@@ -179,7 +179,10 @@ public class PluginLoader implements BatchComponent, ServerComponent {
     }
   }
 
-  private ClassLoader baseClassloader() {
+  /**
+   * This method can be overridden to change the base classloader.
+   */
+  protected ClassLoader baseClassloader() {
     return getClass().getClassLoader();
   }
 
