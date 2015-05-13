@@ -58,54 +58,54 @@ public class SearchActionTest {
 
   @Test
   public void search_empty() throws Exception {
-    tester.newGetRequest("api/users", "search2").execute().assertJson(getClass(), "empty.json");
+    tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "empty.json");
   }
 
   @Test
   public void search_without_parameters() throws Exception {
     injectUsers(5);
 
-    tester.newGetRequest("api/users", "search2").execute().assertJson(getClass(), "five_users.json");
+    tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "five_users.json");
   }
 
   @Test
   public void search_with_query() throws Exception {
     injectUsers(5);
 
-    tester.newGetRequest("api/users", "search2").setParam("q", "user-1").execute().assertJson(getClass(), "user_one.json");
+    tester.newGetRequest("api/users", "search").setParam("q", "user-1").execute().assertJson(getClass(), "user_one.json");
   }
 
   @Test
   public void search_with_paging() throws Exception {
     injectUsers(10);
 
-    tester.newGetRequest("api/users", "search2").setParam("ps", "5").execute().assertJson(getClass(), "page_one.json");
-    tester.newGetRequest("api/users", "search2").setParam("ps", "5").setParam("p", "2").execute().assertJson(getClass(), "page_two.json");
+    tester.newGetRequest("api/users", "search").setParam("ps", "5").execute().assertJson(getClass(), "page_one.json");
+    tester.newGetRequest("api/users", "search").setParam("ps", "5").setParam("p", "2").execute().assertJson(getClass(), "page_two.json");
   }
 
   @Test
   public void search_with_fields() throws Exception {
     injectUsers(1);
 
-    assertThat(tester.newGetRequest("api/users", "search2").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts");
 
-    assertThat(tester.newGetRequest("api/users", "search2").setParam("f", "").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts");
 
-    assertThat(tester.newGetRequest("api/users", "search2").setParam("f", "login").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "login").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts");
 
-    assertThat(tester.newGetRequest("api/users", "search2").setParam("f", "scmAccounts").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "scmAccounts").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")

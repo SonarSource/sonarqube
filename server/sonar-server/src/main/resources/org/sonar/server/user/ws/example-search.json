@@ -9,7 +9,8 @@
     {
       "login": "sbrandhof",
       "name": "Simon",
-      "active": true
+      "active": true,
+      "scmAccounts": ["simon.brandhof", "s.brandhof@company.tld"]
     }
   ]
 }

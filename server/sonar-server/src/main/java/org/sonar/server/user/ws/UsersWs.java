@@ -20,8 +20,6 @@
 
 package org.sonar.server.user.ws;
 
-import com.google.common.io.Resources;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class UsersWs implements WebService {
@@ -38,34 +36,10 @@ public class UsersWs implements WebService {
       .setSince("3.6")
       .setDescription("Users management");
 
-    defineSearchAction(controller);
     for (UsersWsAction action : actions) {
       action.define(controller);
     }
 
     controller.done();
-  }
-
-  private void defineSearchAction(NewController controller) {
-    NewAction action = controller.createAction("search")
-      .setDescription("Get a list of users")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
-
-    action.createParam("includeDeactivated")
-      .setDescription("Include deactivated users")
-      .setDefaultValue("false")
-      .setPossibleValues("true", "false");
-
-    action.createParam("logins")
-      .setDescription("Comma-separated list of user logins")
-      .setExampleValue("admin,sbrandhof");
-
-    action.createParam("s")
-      .setDescription("UTF-8 search query on login or name")
-      .setExampleValue("bran");
-
-    RailsHandler.addFormatParam(action);
   }
 }
