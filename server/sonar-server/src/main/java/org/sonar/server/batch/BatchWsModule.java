@@ -17,35 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.server.batch;
 
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.component.Module;
+import org.sonar.server.computation.ws.SubmitReportAction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public abstract class Module {
-  private ComponentContainer container;
-
-  public Module configure(ComponentContainer container) {
-    this.container = checkNotNull(container);
-
-    configureModule();
-
-    return this;
+public class BatchWsModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      BatchIndex.class,
+      GlobalAction.class,
+      ProjectAction.class,
+      ProjectRepositoryLoader.class,
+      SubmitReportAction.class,
+      IssuesAction.class,
+      UsersAction.class,
+      BatchWs.class);
   }
-
-  protected abstract void configureModule();
-
-  protected <T> T getComponentByType(Class<T> tClass) {
-    return container.getComponentByType(tClass);
-  }
-
-  protected void add(Object... objects) {
-    for (Object object : objects) {
-      if (object != null) {
-        container.addComponent(object, true);
-      }
-    }
-  }
-
 }

@@ -17,35 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.server.batch;
 
+import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public abstract class Module {
-  private ComponentContainer container;
-
-  public Module configure(ComponentContainer container) {
-    this.container = checkNotNull(container);
-
-    configureModule();
-
-    return this;
-  }
-
-  protected abstract void configureModule();
-
-  protected <T> T getComponentByType(Class<T> tClass) {
-    return container.getComponentByType(tClass);
-  }
-
-  protected void add(Object... objects) {
-    for (Object object : objects) {
-      if (object != null) {
-        container.addComponent(object, true);
-      }
-    }
+public class BatchWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() throws Exception {
+    ComponentContainer container = new ComponentContainer();
+    new BatchWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(10);
   }
 
 }
