@@ -32,20 +32,20 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActivitiesWebServiceMediumTest {
+public class ActivitiesWsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  ActivitiesWebService ws;
+  ActivitiesWs ws;
   ActivityService service;
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
-    ws = tester.get(ActivitiesWebService.class);
+    ws = tester.get(ActivitiesWs.class);
     service = tester.get(ActivityService.class);
   }
 
@@ -54,7 +54,7 @@ public class ActivitiesWebServiceMediumTest {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
-    WebService.Controller controller = context.controller(ActivitiesWebService.API_ENDPOINT);
+    WebService.Controller controller = context.controller(ActivitiesWs.ENDPOINT);
 
     assertThat(controller).isNotNull();
     assertThat(controller.actions()).hasSize(1);

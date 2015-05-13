@@ -43,7 +43,7 @@ public class QueueWsActionTest {
   @Before
   public void setup() {
     queue = mock(ReportQueue.class);
-    tester = new WsTester(new ComputationWebService(new QueueWsAction(queue)));
+    tester = new WsTester(new ComputationWs(new QueueWsAction(queue)));
   }
 
   @Test
@@ -59,12 +59,12 @@ public class QueueWsActionTest {
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
     when(queue.all()).thenReturn(reports);
 
-    WsTester.TestRequest request = tester.newGetRequest(ComputationWebService.API_ENDPOINT, "queue");
+    WsTester.TestRequest request = tester.newGetRequest(ComputationWs.ENDPOINT, "queue");
     request.execute().assertJson(getClass(), "list_queue_reports.json");
   }
 
   @Test
   public void define() {
-    assertThat(tester.controller(ComputationWebService.API_ENDPOINT).action("queue")).isNotNull();
+    assertThat(tester.controller(ComputationWs.ENDPOINT).action("queue")).isNotNull();
   }
 }

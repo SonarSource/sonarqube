@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
 
 public class WebServiceTest {
 
-  static class MetricWebService implements WebService {
+  static class MetricWs implements WebService {
     boolean showCalled = false, createCalled = false;
 
     @Override
@@ -89,7 +89,7 @@ public class WebServiceTest {
 
   @Test
   public void define_web_service() {
-    MetricWebService metricWs = new MetricWebService();
+    MetricWs metricWs = new MetricWs();
 
     metricWs.define(context);
 
@@ -125,7 +125,7 @@ public class WebServiceTest {
 
   @Test
   public void fail_if_duplicated_ws_keys() {
-    MetricWebService metricWs = new MetricWebService();
+    MetricWs metricWs = new MetricWs();
     metricWs.define(context);
     try {
       new WebService() {
@@ -240,7 +240,7 @@ public class WebServiceTest {
 
   @Test
   public void handle_request() throws Exception {
-    MetricWebService metricWs = new MetricWebService();
+    MetricWs metricWs = new MetricWs();
     metricWs.define(context);
 
     assertThat(metricWs.showCalled).isFalse();
@@ -416,7 +416,7 @@ public class WebServiceTest {
 
   @Test
   public void response_example() {
-    MetricWebService metricWs = new MetricWebService();
+    MetricWs metricWs = new MetricWs();
     metricWs.define(context);
     WebService.Action action = context.controller("api/metric").action("create");
 

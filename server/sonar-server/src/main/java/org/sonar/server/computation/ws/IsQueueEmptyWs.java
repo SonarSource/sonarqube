@@ -33,12 +33,12 @@ import java.util.List;
 /**
  * Internal WebService with one action
  */
-public class IsQueueEmptyWebService implements WebService {
+public class IsQueueEmptyWs implements WebService {
   public static final String API_ENDPOINT = "api/analysis_reports";
 
   private final IsQueueEmptyWsAction action;
 
-  public IsQueueEmptyWebService(ReportQueue queue) {
+  public IsQueueEmptyWs(ReportQueue queue) {
     this.action = new IsQueueEmptyWsAction(queue);
   }
 

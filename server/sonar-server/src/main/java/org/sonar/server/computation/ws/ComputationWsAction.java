@@ -22,7 +22,7 @@ package org.sonar.server.computation.ws;
 import org.sonar.api.server.ws.WebService;
 
 /**
- * Used by {@link ComputationWebService} to
+ * Used by {@link ComputationWs} to
  * loop over all its actions
  */
 interface ComputationWsAction {

@@ -87,7 +87,7 @@ import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.activity.ws.ActivitiesWebService;
+import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.batch.BatchIndex;
@@ -116,9 +116,9 @@ import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.ReportQueueCleaner;
 import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.computation.ws.ComputationWebService;
+import org.sonar.server.computation.ws.ComputationWs;
 import org.sonar.server.computation.ws.HistoryWsAction;
-import org.sonar.server.computation.ws.IsQueueEmptyWebService;
+import org.sonar.server.computation.ws.IsQueueEmptyWs;
 import org.sonar.server.computation.ws.QueueWsAction;
 import org.sonar.server.computation.ws.SubmitReportWsAction;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -126,7 +126,7 @@ import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.dashboard.ws.DashboardsShowAction;
-import org.sonar.server.dashboard.ws.DashboardsWebService;
+import org.sonar.server.dashboard.ws.DashboardsWs;
 import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
@@ -322,7 +322,7 @@ import org.sonar.server.rule.ws.AppAction;
 import org.sonar.server.rule.ws.DeleteAction;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapping;
-import org.sonar.server.rule.ws.RulesWebService;
+import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.rule.ws.UpdateAction;
@@ -625,7 +625,7 @@ class ServerComponents {
     pico.addSingleton(BatchWs.class);
 
     // Dashboard
-    pico.addSingleton(DashboardsWebService.class);
+    pico.addSingleton(DashboardsWs.class);
     pico.addSingleton(DashboardsShowAction.class);
 
     // update center
@@ -691,7 +691,7 @@ class ServerComponents {
     pico.addSingleton(RuleCreator.class);
     pico.addSingleton(RuleDeleter.class);
     pico.addSingleton(UpdateAction.class);
-    pico.addSingleton(RulesWebService.class);
+    pico.addSingleton(RulesWs.class);
     pico.addSingleton(SearchAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.ShowAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.CreateAction.class);
@@ -708,7 +708,7 @@ class ServerComponents {
     pico.addSingleton(ListAction.class);
 
     // activity
-    pico.addSingleton(ActivitiesWebService.class);
+    pico.addSingleton(ActivitiesWs.class);
     pico.addSingleton(org.sonar.server.activity.ws.SearchAction.class);
     pico.addSingleton(ActivityMapping.class);
 
@@ -970,8 +970,8 @@ class ServerComponents {
     // Compute engine
     pico.addSingleton(ReportQueue.class);
     pico.addSingleton(ComputationThreadLauncher.class);
-    pico.addSingleton(ComputationWebService.class);
-    pico.addSingleton(IsQueueEmptyWebService.class);
+    pico.addSingleton(ComputationWs.class);
+    pico.addSingleton(IsQueueEmptyWs.class);
     pico.addSingleton(QueueWsAction.class);
     pico.addSingleton(HistoryWsAction.class);
     pico.addSingleton(DefaultPeriodCleaner.class);

@@ -17,33 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.rule.ws;
 
-package org.sonar.server.computation.ws;
-
-import org.junit.Test;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+public class RulesWs implements WebService {
 
-public class ComputationWebServiceTest {
+  private final RulesAction[] actions;
 
-  @Test
-  public void define() {
-    ComputationWebService ws = new ComputationWebService(new ComputationWsAction() {
-      @Override
-      public void define(WebService.NewController controller) {
-        WebService.NewAction upload = controller.createAction("upload");
-        upload.setHandler(mock(RequestHandler.class));
-      }
-    });
-    WebService.Context context = new WebService.Context();
-    ws.define(context);
+  public RulesWs(RulesAction... actions) {
+    this.actions = actions;
+  }
 
-    WebService.Controller controller = context.controller("api/computation");
-    assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+  @Override
+  public void define(Context context) {
+    NewController controller = context
+      .createController("api/rules")
+      .setDescription("Coding rules");
+
+    for (RulesAction action : actions) {
+      action.define(controller);
+    }
+
+    controller.done();
   }
 }

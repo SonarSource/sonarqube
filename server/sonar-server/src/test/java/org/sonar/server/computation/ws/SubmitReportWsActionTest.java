@@ -52,7 +52,7 @@ public class SubmitReportWsActionTest {
   @Before
   public void before() {
     sut = new SubmitReportWsAction(queue, workerLauncher, userSessionRule);
-    wsTester = new WsTester(new ComputationWebService(sut));
+    wsTester = new WsTester(new ComputationWs(sut));
   }
 
   @Test
@@ -75,7 +75,7 @@ public class SubmitReportWsActionTest {
     when(queue.add(any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
 
     WsTester.TestRequest request = wsTester
-      .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")
+      .newGetRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "P1")
       .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
     WsTester.Result response = request.execute();
@@ -90,7 +90,7 @@ public class SubmitReportWsActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
 
     WsTester.TestRequest request = wsTester
-      .newGetRequest(ComputationWebService.API_ENDPOINT, "submit_report")
+      .newGetRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportWsAction.PARAM_PROJECT_KEY, "P1")
       .setParam(SubmitReportWsAction.PARAM_REPORT_DATA, null);
     request.execute();

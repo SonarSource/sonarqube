@@ -73,7 +73,7 @@ public class RequestTest {
     }
   }
 
-  private static class SimpleWebService implements WebService {
+  private static class SimpleWs implements WebService {
 
     @Override
     public void define(Context context) {
@@ -114,7 +114,7 @@ public class RequestTest {
   @Before
   public void before() {
     WebService.Context context = new WebService.Context();
-    new SimpleWebService().define(context);
+    new SimpleWs().define(context);
     request.setAction(context.controller("my_controller").action("my_action"));
   }
 

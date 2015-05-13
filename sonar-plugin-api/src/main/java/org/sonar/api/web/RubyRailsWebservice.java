@@ -29,7 +29,7 @@ package org.sonar.api.web;
  * and will call the index controller method if not specified.
  *
  * @since 1.11
- * @deprecated in 4.2. Replaced by {@link org.sonar.api.web.ws.WebService}
+ * @deprecated in 4.2. Replaced by {@link org.sonar.api.server.ws.WebService}
  */
 @Deprecated
 public interface RubyRailsWebservice extends Webservice {

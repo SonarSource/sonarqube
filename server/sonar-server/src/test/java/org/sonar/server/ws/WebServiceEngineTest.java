@@ -20,11 +20,6 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +36,12 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -95,7 +96,7 @@ public class WebServiceEngineTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   I18n i18n = mock(I18n.class);
-  WebServiceEngine engine = new WebServiceEngine(new WebService[] {new SystemWebService()}, i18n, userSessionRule);
+  WebServiceEngine engine = new WebServiceEngine(new WebService[] {new SystemWs()}, i18n, userSessionRule);
 
   @Before
   public void start() {
@@ -290,7 +291,7 @@ public class WebServiceEngineTest {
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
 
-  static class SystemWebService implements WebService {
+  static class SystemWs implements WebService {
     @Override
     public void define(Context context) {
       NewController newController = context.createController("api/system");

@@ -42,7 +42,7 @@ public class RepositoriesActionTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new RulesWebService(new RepositoriesAction(repositories)));
+    tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
 
     RuleRepositories.Repository repo1 = mock(RuleRepositories.Repository.class);
     when(repo1.key()).thenReturn("xoo");
@@ -67,7 +67,7 @@ public class RepositoriesActionTest {
   @Test
   public void should_list_repositories() throws Exception {
 
-    tester = new WsTester(new RulesWebService(new RepositoriesAction(repositories)));
+    tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
 
     newRequest().execute().assertJson(this.getClass(), "repositories.json");
     newRequest().setParam("language", "xoo").execute().assertJson(this.getClass(), "repositories_xoo.json");

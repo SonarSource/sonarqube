@@ -36,16 +36,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IsQueueEmptyWebServiceTest {
+public class IsQueueEmptyWsTest {
 
-  IsQueueEmptyWebService.IsQueueEmptyWsAction sut;
+  IsQueueEmptyWs.IsQueueEmptyWsAction sut;
   ReportQueue queue;
   Response response;
 
   @Before
   public void before() {
     queue = mock(ReportQueue.class);
-    sut = new IsQueueEmptyWebService.IsQueueEmptyWsAction(queue);
+    sut = new IsQueueEmptyWs.IsQueueEmptyWsAction(queue);
 
     response = mock(Response.class);
     when(response.stream()).thenReturn(new FakeStream());

@@ -20,33 +20,30 @@
 
 package org.sonar.server.computation.ws;
 
+import org.junit.Test;
+import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 
-/**
- * Web service to interact with the "computation" stack :
- * <ul>
- *   <li>queue of analysis reports to be integrated</li>
- *   <li>consolidation and aggregation of analysis measures</li>
- *   <li>persistence in datastores (database/elasticsearch)</li>
- * </ul>
- */
-public class ComputationWebService implements WebService {
-  public static final String API_ENDPOINT = "api/computation";
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  private final ComputationWsAction[] actions;
+public class ComputationWsTest {
 
-  public ComputationWebService(ComputationWsAction... actions) {
-    this.actions = actions;
-  }
+  @Test
+  public void define() {
+    ComputationWs ws = new ComputationWs(new ComputationWsAction() {
+      @Override
+      public void define(WebService.NewController controller) {
+        WebService.NewAction upload = controller.createAction("upload");
+        upload.setHandler(mock(RequestHandler.class));
+      }
+    });
+    WebService.Context context = new WebService.Context();
+    ws.define(context);
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context
-      .createController(API_ENDPOINT)
-      .setDescription("Analysis reports processed");
-    for (ComputationWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+    WebService.Controller controller = context.controller("api/computation");
+    assertThat(controller).isNotNull();
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(1);
   }
 }

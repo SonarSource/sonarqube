@@ -57,7 +57,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RulesWebServiceMediumTest {
+public class RulesWsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -70,7 +70,7 @@ public class RulesWebServiceMediumTest {
   private static final String API_TAGS_METHOD = "tags";
 
   DbClient db;
-  RulesWebService ws;
+  RulesWs ws;
   RuleDao ruleDao;
   DbSession session;
   int softReliabilityId, hardReliabilityId;
@@ -80,7 +80,7 @@ public class RulesWebServiceMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     ruleDao = tester.get(RuleDao.class);
-    ws = tester.get(RulesWebService.class);
+    ws = tester.get(RulesWs.class);
     session = tester.get(DbClient.class).openSession(false);
   }
 

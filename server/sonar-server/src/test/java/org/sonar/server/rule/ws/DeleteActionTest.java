@@ -41,7 +41,7 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new RulesWebService(new DeleteAction(ruleService)));
+    tester = new WsTester(new RulesWs(new DeleteAction(ruleService)));
   }
 
   @Test

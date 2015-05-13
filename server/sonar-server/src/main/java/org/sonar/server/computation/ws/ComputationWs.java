@@ -17,28 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule.ws;
+
+package org.sonar.server.computation.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-public class RulesWebService implements WebService {
+/**
+ * Web service to interact with the "computation" stack :
+ * <ul>
+ *   <li>queue of analysis reports to be integrated</li>
+ *   <li>consolidation and aggregation of analysis measures</li>
+ *   <li>persistence in datastores (database/elasticsearch)</li>
+ * </ul>
+ */
+public class ComputationWs implements WebService {
+  public static final String ENDPOINT = "api/computation";
 
-  private final RulesAction[] actions;
+  private final ComputationWsAction[] actions;
 
-  public RulesWebService(RulesAction... actions) {
+  public ComputationWs(ComputationWsAction... actions) {
     this.actions = actions;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context
-      .createController("api/rules")
-      .setDescription("Coding rules");
-
-    for (RulesAction action : actions) {
+      .createController(ENDPOINT)
+      .setDescription("Analysis reports processed");
+    for (ComputationWsAction action : actions) {
       action.define(controller);
     }
-
     controller.done();
   }
 }

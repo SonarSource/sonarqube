@@ -70,7 +70,7 @@ public class AppActionTest {
   @Test
   public void should_generate_app_init_info() throws Exception {
     AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader, userSessionRule);
-    WsTester tester = new WsTester(new RulesWebService(app));
+    WsTester tester = new WsTester(new RulesWs(app));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 

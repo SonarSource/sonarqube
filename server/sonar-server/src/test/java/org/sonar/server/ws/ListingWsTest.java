@@ -55,13 +55,13 @@ public class ListingWsTest {
 
   @Test
   public void list() throws Exception {
-    WsTester tester = new WsTester(ws, new MetricWebService());
+    WsTester tester = new WsTester(ws, new MetricWs());
     tester.newGetRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
   }
 
   @Test
   public void list_including_internals() throws Exception {
-    WsTester tester = new WsTester(ws, new MetricWebService());
+    WsTester tester = new WsTester(ws, new MetricWs());
     tester.newGetRequest("api/webservices", "list")
       .setParam("include_internals", "true")
       .execute()
@@ -70,7 +70,7 @@ public class ListingWsTest {
 
   @Test
   public void response_example() throws Exception {
-    WsTester tester = new WsTester(ws, new MetricWebService());
+    WsTester tester = new WsTester(ws, new MetricWs());
     tester
       .newGetRequest("api/webservices", "response_example")
       .setParam("controller", "api/metric")
@@ -78,7 +78,7 @@ public class ListingWsTest {
       .execute().assertJson(getClass(), "response_example.json");
   }
 
-  static class MetricWebService implements WebService {
+  static class MetricWs implements WebService {
     @Override
     public void define(Context context) {
       NewController newController = context.createController("api/metric")

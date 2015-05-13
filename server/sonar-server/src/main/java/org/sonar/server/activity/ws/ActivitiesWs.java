@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.dashboard.ws;
+package org.sonar.server.activity.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-public class DashboardsWebService implements WebService {
+public class ActivitiesWs implements WebService {
 
-  private final DashboardsAction[] actions;
+  public static final String ENDPOINT = "api/activities";
 
-  public DashboardsWebService(DashboardsAction... actions) {
-    this.actions = actions;
+  private final SearchAction search;
+
+  public ActivitiesWs(SearchAction search) {
+    this.search = search;
   }
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/dashboards");
-    controller.setSince("5.0");
-    controller.setDescription("Management of dashboards and widgets");
-    for (DashboardsAction action : actions) {
-      action.define(controller);
-    }
+    NewController controller = context
+      .createController(ENDPOINT)
+      .setDescription("Tracking of activities");
+
+    search.define(controller);
     controller.done();
   }
-
 }
