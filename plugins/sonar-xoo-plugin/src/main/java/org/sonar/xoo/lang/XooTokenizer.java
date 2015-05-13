@@ -25,13 +25,14 @@ import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
 
 import java.io.File;
 import java.io.IOException;
 
-public class XooTokenizer implements Tokenizer, BatchComponent {
+@BatchSide
+public class XooTokenizer implements Tokenizer {
 
   private FileSystem fs;
 

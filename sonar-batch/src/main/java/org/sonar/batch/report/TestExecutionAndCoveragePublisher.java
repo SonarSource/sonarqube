@@ -36,6 +36,8 @@ import org.sonar.batch.protocol.output.BatchReport.Test;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.test.TestPlanBuilder;
 
+import javax.annotation.Nonnull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,7 +52,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     }
 
     @Override
-    public Test apply(MutableTestCase testCase) {
+    public Test apply(@Nonnull MutableTestCase testCase) {
       builder.clear();
       builder.setName(testCase.name());
       if (testCase.doesCover()) {
@@ -86,7 +88,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     }
 
     @Override
-    public CoverageDetail apply(String testName) {
+    public CoverageDetail apply(@Nonnull String testName) {
       // Take first test with provided name
       MutableTestCase testCase = testPlan.testCasesByName(testName).iterator().next();
       builder.clear();

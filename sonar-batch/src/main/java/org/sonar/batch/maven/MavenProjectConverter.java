@@ -38,6 +38,7 @@ import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.MessageException;
 import org.sonar.java.api.JavaUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.File;
@@ -292,7 +293,7 @@ public class MavenProjectConverter implements TaskExtension {
   private static String[] toPaths(Collection<File> dirs) {
     Collection<String> paths = Collections2.transform(dirs, new Function<File, String>() {
       @Override
-      public String apply(File dir) {
+      public String apply(@Nonnull File dir) {
         return dir.getAbsolutePath();
       }
     });

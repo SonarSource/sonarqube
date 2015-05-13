@@ -32,6 +32,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.Arrays;
@@ -82,23 +83,35 @@ public class RuleFinderCompatibility implements RuleFinder {
   public Collection<Rule> findAll(RuleQuery query) {
     if (query.getConfigKey() != null) {
       if (query.getRepositoryKey() != null && query.getKey() == null) {
-        Rule rule = toRule(activeRules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
-        return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+        return byInternalKey(query);
       }
     } else if (query.getRepositoryKey() != null) {
       if (query.getKey() != null) {
-        Rule rule = toRule(activeRules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));
-        return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+        return byKey(query);
       } else {
-        return Collections2.transform(activeRules.findByRepository(query.getRepositoryKey()), new Function<ActiveRule, Rule>() {
-          @Override
-          public Rule apply(ActiveRule input) {
-            return toRule(input);
-          }
-        });
+        return byRepository(query);
       }
     }
     throw new UnsupportedOperationException("Unable to find rule by query");
+  }
+
+  private Collection<Rule> byRepository(RuleQuery query) {
+    return Collections2.transform(activeRules.findByRepository(query.getRepositoryKey()), new Function<ActiveRule, Rule>() {
+      @Override
+      public Rule apply(@Nonnull ActiveRule input) {
+        return toRule(input);
+      }
+    });
+  }
+
+  private Collection<Rule> byKey(RuleQuery query) {
+    Rule rule = toRule(activeRules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));
+    return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+  }
+
+  private Collection<Rule> byInternalKey(RuleQuery query) {
+    Rule rule = toRule(activeRules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
+    return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
   }
 
   @CheckForNull
