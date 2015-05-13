@@ -21,24 +21,11 @@ define(function () {
 
   var $ = jQuery;
 
-  var dashboardL10n = function(name) {
-    var l10nKey = 'dashboard.' + name + '.name';
-    var l10nLabel = t(l10nKey);
-    if (l10nLabel !== l10nKey) {
-      return l10nLabel;
-    } else {
-      return name;
-    }
-  };
-
   return Backbone.Model.extend({
 
     fetchGlobal: function () {
       var that = this;
       return $.get(baseUrl + '/api/navigation/global').done(function (r) {
-        _.each(r.globalDashboards, function(dashboard) {
-          dashboard.name = dashboardL10n(dashboard.name);
-        });
         that.set(r);
       });
     },
@@ -48,9 +35,6 @@ define(function () {
           url = baseUrl + '/api/navigation/component',
           data = { componentKey: this.get('componentKey') };
       return $.get(url, data).done(function (r) {
-        _.each(r.dashboards, function(dashboard) {
-          dashboard.name = dashboardL10n(dashboard.name);
-        });
         that.set({ component: r });
       });
     },

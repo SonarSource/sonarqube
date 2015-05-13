@@ -97,7 +97,7 @@
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
         {{#withoutFirst component.dashboards}}
           <li>
-            <a href="{{componentDashboardPermalink ../component.key key}}">{{name}}</a>
+            <a href="{{componentDashboardPermalink ../component.key key}}">{{dashboardL10n name}}</a>
           </li>
         {{/withoutFirst}}
         {{#if canManageContextDashboards}}
