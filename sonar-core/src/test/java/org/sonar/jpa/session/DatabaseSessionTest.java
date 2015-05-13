@@ -73,14 +73,9 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
     assertNull(getSession().getSingleResult(ResourceModel.class, "name", "test"));
   }
 
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void testGetSingleResultWithNoCriterias() {
-    try {
-      assertNull(getSession().getSingleResult(ResourceModel.class, (Object[]) null));
-      fail("No IllegalStateException raised");
-    } catch (IllegalStateException ex) {
-      // error raised correctly
-    }
+    assertNull(getSession().getSingleResult(ResourceModel.class, (Object[]) null));
   }
 
   @Test
@@ -91,15 +86,10 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
     assertEquals(project1, hit);
   }
 
-  @Test
+  @Test(expected = NonUniqueResultException.class)
   public void testGetSingleResultWithTwoResults() {
     getSession().save(project1, project2);
-    try {
-      getSession().getSingleResult(ResourceModel.class, "qualifier", "JAV");
-      fail("No NonUniqueResultException raised");
-    } catch (NonUniqueResultException ex) {
-      // error raised correctly
-    }
+    getSession().getSingleResult(ResourceModel.class, "qualifier", "JAV");
   }
 
   @Test
