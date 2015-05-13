@@ -7,3 +7,7 @@ Licensed under the GNU Lesser General Public License, Version 3.0: http://www.gn
  [1]: http://www.sonarqube.org/
  [2]: http://jira.codehaus.org/browse/SONAR
  [3]: http://docs.sonarqube.org/display/SONAR
+
+### Build status
+
+[![Build Status](https://api.travis-ci.org/SonarSource/sonarqube.png)](https://travis-ci.org/SonarSource/sonarqube)
