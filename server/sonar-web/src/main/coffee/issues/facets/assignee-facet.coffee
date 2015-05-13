@@ -33,7 +33,7 @@ define [
 
 
     getUrl: ->
-      "#{baseUrl}/api/users/search2"
+      "#{baseUrl}/api/users/search"
 
     prepareAjaxSearch: ->
       quietMillis: 300

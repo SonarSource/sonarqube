@@ -68,7 +68,7 @@ define([
   var UserSuggestions = Suggestions.extend({
 
     url: function() {
-      return baseUrl + '/api/users/search2';
+      return baseUrl + '/api/users/search';
     },
 
     parse: function(response) {
@@ -440,7 +440,7 @@ define([
       var that = this;
       return $j
           .ajax({
-            url: baseUrl + '/api/users/search2',
+            url: baseUrl + '/api/users/search',
             type: 'GET',
             data: { q: v }
           })
@@ -473,7 +473,7 @@ define([
       var that = this;
       return $j
           .ajax({
-            url: baseUrl + '/api/users/search2',
+            url: baseUrl + '/api/users/search',
             type: 'GET',
             data: { q: v }
           })

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserUpdater;
@@ -46,7 +45,8 @@ public class UsersWsTest {
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
       new CurrentUserAction(userSessionRule),
       new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
-    new ChangePasswordAction(mock(UserUpdater.class), userSessionRule)));
+      new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
+      new SearchAction(mock(UserIndex.class))));
     controller = tester.controller("api/users");
   }
 
@@ -63,7 +63,6 @@ public class UsersWsTest {
     WebService.Action action = controller.action("search");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
   }

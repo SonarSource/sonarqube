@@ -52,10 +52,11 @@ public class SearchAction implements BaseUsersWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("search2")
+    WebService.NewAction action = controller.createAction("search")
       .setDescription("Get a list of active users.")
       .setSince("3.6")
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(getClass().getResource("example-search.json"));
 
     action.addFieldsParam(FIELDS);
     action.addPagingParams(50);
