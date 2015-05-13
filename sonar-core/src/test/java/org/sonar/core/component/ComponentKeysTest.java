@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +36,6 @@ public class ComponentKeysTest {
 
     Directory dir = Directory.create("src/org/foo");
     assertThat(ComponentKeys.createEffectiveKey(project, dir)).isEqualTo("my_project:src/org/foo");
-
-    Library library = new Library("junit:junit", "4.7");
-    assertThat(ComponentKeys.createEffectiveKey(project, library)).isEqualTo("junit:junit");
 
     InputFile file = new DefaultInputFile("foo", "foo/Bar.php");
     assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");

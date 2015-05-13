@@ -27,7 +27,6 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -35,15 +34,12 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
-import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -59,7 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -236,106 +231,4 @@ public class DefaultSensorStorageTest {
     assertThat(issue.effortToFix()).isEqualTo(10.0);
   }
 
-  @Test
-  public void shouldStoreDependencyInSameFolder() {
-
-    Resource foo = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
-    Resource bar = File.create("src/Bar.java").setEffectiveKey("foo:src/Bar.java");
-    resourceCache.add(foo, null);
-    resourceCache.add(bar, null);
-
-    sensorStorage.store(new DefaultDependency()
-      .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
-      .to(new DefaultInputFile("foo", "src/Bar.java").setType(Type.MAIN))
-      .weight(3));
-
-    ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
-
-    verify(sonarIndex).addDependency(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getFrom()).isEqualTo(foo);
-    assertThat(argumentCaptor.getValue().getTo()).isEqualTo(bar);
-    assertThat(argumentCaptor.getValue().getWeight()).isEqualTo(3);
-    assertThat(argumentCaptor.getValue().getUsage()).isEqualTo("USES");
-  }
-
-  @Test
-  public void throw_if_attempt_to_save_same_dep_twice() {
-
-    Resource foo = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
-    Resource bar = File.create("src/Bar.java").setEffectiveKey("foo:src/Bar.java");
-    resourceCache.add(foo, null);
-    resourceCache.add(bar, null);
-
-    when(sonarIndex.getEdge(foo, bar)).thenReturn(new Dependency(foo, bar));
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Dependency between foo:src/Foo.java and foo:src/Bar.java was already saved.");
-
-    sensorStorage.store(new DefaultDependency()
-      .from(new DefaultInputFile("foo", "src/Foo.java").setType(Type.MAIN))
-      .to(new DefaultInputFile("foo", "src/Bar.java").setType(Type.MAIN))
-      .weight(3));
-  }
-
-  @Test
-  public void shouldStoreDependencyInDifferentFolder() {
-
-    Resource foo = File.create("src1/Foo.java").setEffectiveKey("foo:src1/Foo.java");
-    Resource bar = File.create("src2/Bar.java").setEffectiveKey("foo:src2/Bar.java");
-    resourceCache.add(foo, null);
-    resourceCache.add(bar, null);
-
-    sensorStorage.store(new DefaultDependency()
-      .from(new DefaultInputFile("foo", "src1/Foo.java").setType(Type.MAIN))
-      .to(new DefaultInputFile("foo", "src2/Bar.java").setType(Type.MAIN))
-      .weight(3));
-
-    ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
-
-    verify(sonarIndex, times(2)).addDependency(argumentCaptor.capture());
-    assertThat(argumentCaptor.getAllValues()).hasSize(2);
-    Dependency value1 = argumentCaptor.getAllValues().get(0);
-    assertThat(value1.getFrom()).isEqualTo(Directory.create("src1"));
-    assertThat(value1.getTo()).isEqualTo(Directory.create("src2"));
-    assertThat(value1.getWeight()).isEqualTo(1);
-    assertThat(value1.getUsage()).isEqualTo("USES");
-
-    Dependency value2 = argumentCaptor.getAllValues().get(1);
-    assertThat(value2.getFrom()).isEqualTo(foo);
-    assertThat(value2.getTo()).isEqualTo(bar);
-    assertThat(value2.getWeight()).isEqualTo(3);
-    assertThat(value2.getUsage()).isEqualTo("USES");
-  }
-
-  @Test
-  public void shouldIncrementParentWeight() {
-
-    Resource src1 = Directory.create("src1").setEffectiveKey("foo:src1");
-    Resource src2 = Directory.create("src2").setEffectiveKey("foo:src2");
-    Resource foo = File.create("src1/Foo.java").setEffectiveKey("foo:src1/Foo.java");
-    Resource bar = File.create("src2/Bar.java").setEffectiveKey("foo:src2/Bar.java");
-    resourceCache.add(src1, null);
-    resourceCache.add(src2, null);
-    resourceCache.add(foo, src1);
-    resourceCache.add(bar, src2);
-    Dependency parentDep = new Dependency(src1, src2).setWeight(4);
-    when(sonarIndex.getEdge(src1, src2)).thenReturn(parentDep);
-
-    sensorStorage.store(new DefaultDependency()
-      .from(new DefaultInputFile("foo", "src1/Foo.java").setType(Type.MAIN))
-      .to(new DefaultInputFile("foo", "src2/Bar.java").setType(Type.MAIN))
-      .weight(3));
-
-    ArgumentCaptor<Dependency> argumentCaptor = ArgumentCaptor.forClass(Dependency.class);
-
-    verify(sonarIndex).addDependency(argumentCaptor.capture());
-
-    assertThat(parentDep.getWeight()).isEqualTo(5);
-
-    Dependency value = argumentCaptor.getValue();
-    assertThat(value.getFrom()).isEqualTo(foo);
-    assertThat(value.getTo()).isEqualTo(bar);
-    assertThat(value.getWeight()).isEqualTo(3);
-    assertThat(value.getUsage()).isEqualTo("USES");
-  }
 }

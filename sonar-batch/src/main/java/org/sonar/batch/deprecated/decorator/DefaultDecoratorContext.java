@@ -35,13 +35,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
@@ -55,19 +53,15 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private ListMultimap<String, Measure> measuresByMetric = ArrayListMultimap.create();
   private MeasureCache measureCache;
   private MetricFinder metricFinder;
-  private final DuplicationCache duplicationCache;
   private final CoverageExclusions coverageFilter;
 
-  public DefaultDecoratorContext(Resource resource,
-    SonarIndex index,
-    List<DecoratorContext> childrenContexts,
-    MeasureCache measureCache, MetricFinder metricFinder, DuplicationCache duplicationCache, CoverageExclusions coverageFilter) {
+  public DefaultDecoratorContext(Resource resource, SonarIndex index, List<DecoratorContext> childrenContexts,
+    MeasureCache measureCache, MetricFinder metricFinder, CoverageExclusions coverageFilter) {
     this.sonarIndex = index;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
-    this.duplicationCache = duplicationCache;
     this.coverageFilter = coverageFilter;
   }
 
@@ -190,23 +184,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
 
   @Override
   public Dependency saveDependency(Dependency dependency) {
-    checkReadOnly("addDependency");
-    return sonarIndex.addDependency(dependency);
-  }
-
-  @Override
-  public Set<Dependency> getDependencies() {
-    return sonarIndex.getDependencies();
-  }
-
-  @Override
-  public Collection<Dependency> getIncomingDependencies() {
-    return sonarIndex.getIncomingEdges(resource);
-  }
-
-  @Override
-  public Collection<Dependency> getOutgoingDependencies() {
-    return sonarIndex.getOutgoingEdges(resource);
+    return null;
   }
 
   @Override

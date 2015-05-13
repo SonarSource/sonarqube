@@ -20,6 +20,8 @@
 
 package org.sonar.api.technicaldebt.batch.internal;
 
+import java.util.Date;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -27,10 +29,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.utils.internal.WorkDuration;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Date;
 
 /**
  * @deprecated since 4.3
@@ -207,7 +205,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
-  public static WorkDuration.UNIT toUnit(String requirementUnit){
+  public static WorkDuration.UNIT toUnit(String requirementUnit) {
     if (WorkUnit.DAYS.equals(requirementUnit)) {
       return WorkDuration.UNIT.DAYS;
     } else if (WorkUnit.HOURS.equals(requirementUnit)) {
@@ -218,7 +216,7 @@ public class DefaultRequirement implements Requirement {
     throw new IllegalStateException("Invalid unit : " + requirementUnit);
   }
 
-  private static String fromUnit(WorkDuration.UNIT unit){
+  private static String fromUnit(WorkDuration.UNIT unit) {
     if (WorkDuration.UNIT.DAYS.equals(unit)) {
       return WorkUnit.DAYS;
     } else if (WorkDuration.UNIT.HOURS.equals(unit)) {

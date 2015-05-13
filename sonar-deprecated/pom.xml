@@ -24,7 +24,6 @@
       <scope>provided</scope>
     </dependency>
 
-
     <!-- unit test -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

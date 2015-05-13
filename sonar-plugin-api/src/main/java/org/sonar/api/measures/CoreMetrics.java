@@ -1604,7 +1604,7 @@ public final class CoreMetrics {
    * @deprecated since 4.0. See SONAR-4643
    */
   @Deprecated
-  public static final Metric<Integer> DEPTH_IN_TREE = new Metric.Builder(DEPTH_IN_TREE_KEY, "Depth in Tree", Metric.ValueType.INT)
+  public static final transient Metric<Integer> DEPTH_IN_TREE = new Metric.Builder(DEPTH_IN_TREE_KEY, "Depth in Tree", Metric.ValueType.INT)
     .setDescription("Depth in Inheritance Tree")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -1621,7 +1621,7 @@ public final class CoreMetrics {
    * @deprecated since 4.0. See SONAR-4643
    */
   @Deprecated
-  public static final Metric<Integer> NUMBER_OF_CHILDREN = new Metric.Builder(NUMBER_OF_CHILDREN_KEY, "Number of Children", Metric.ValueType.INT)
+  public static final transient Metric<Integer> NUMBER_OF_CHILDREN = new Metric.Builder(NUMBER_OF_CHILDREN_KEY, "Number of Children", Metric.ValueType.INT)
     .setDescription("Number of Children")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -1639,7 +1639,7 @@ public final class CoreMetrics {
    * @deprecated since 4.2. See SONAR-5042
    */
   @Deprecated
-  public static final Metric<Integer> RFC = new Metric.Builder(RFC_KEY, "RFC", Metric.ValueType.INT)
+  public static final transient Metric<Integer> RFC = new Metric.Builder(RFC_KEY, "RFC", Metric.ValueType.INT)
     .setDescription("Response for Class")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1658,7 +1658,7 @@ public final class CoreMetrics {
    * @deprecated since 4.2. See SONAR-5042
    */
   @Deprecated
-  public static final Metric<String> RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", Metric.ValueType.DISTRIB)
+  public static final transient Metric<String> RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class distribution /RFC", Metric.ValueType.DISTRIB)
     .setDescription("Class distribution /RFC")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
@@ -1677,7 +1677,7 @@ public final class CoreMetrics {
    * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
    */
   @Deprecated
-  public static final Metric<Double> LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
+  public static final transient Metric<Double> LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
     .setDescription("Lack of Cohesion of Functions")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1696,7 +1696,7 @@ public final class CoreMetrics {
    * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
    */
   @Deprecated
-  public static final Metric<String> LCOM4_BLOCKS = new Metric.Builder(LCOM4_BLOCKS_KEY, "LCOM4 blocks", Metric.ValueType.DATA)
+  public static final transient Metric<String> LCOM4_BLOCKS = new Metric.Builder(LCOM4_BLOCKS_KEY, "LCOM4 blocks", Metric.ValueType.DATA)
     .setDescription("LCOM4 blocks")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -1715,7 +1715,7 @@ public final class CoreMetrics {
    * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
    */
   @Deprecated
-  public static final Metric<String> LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4", Metric.ValueType.DISTRIB)
+  public static final transient Metric<String> LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4", Metric.ValueType.DISTRIB)
     .setDescription("Class distribution /LCOM4")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
@@ -1734,7 +1734,7 @@ public final class CoreMetrics {
    * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
    */
   @Deprecated
-  public static final Metric<Double> SUSPECT_LCOM4_DENSITY = new Metric.Builder(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density", Metric.ValueType.PERCENT)
+  public static final transient Metric<Double> SUSPECT_LCOM4_DENSITY = new Metric.Builder(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density", Metric.ValueType.PERCENT)
     .setDescription("Density of classes having LCOM4>1")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1751,7 +1751,7 @@ public final class CoreMetrics {
    * @deprecated since 5.0 this is an internal metric that should not be accessed by plugins
    */
   @Deprecated
-  public static final Metric<String> DEPENDENCY_MATRIX = new Metric.Builder(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", Metric.ValueType.DATA)
+  public static final transient Metric<String> DEPENDENCY_MATRIX = new Metric.Builder(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", Metric.ValueType.DATA)
     .setDescription("Dependency Matrix")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -1759,8 +1759,16 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String DIRECTORY_CYCLES_KEY = "package_cycles";
-  public static final Metric<Integer> DIRECTORY_CYCLES = new Metric.Builder(DIRECTORY_CYCLES_KEY, "Directory cycles", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> DIRECTORY_CYCLES = new Metric.Builder(DIRECTORY_CYCLES_KEY, "Directory cycles", Metric.ValueType.INT)
     .setDescription("Directory cycles")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1780,8 +1788,16 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<Integer> PACKAGE_CYCLES = DIRECTORY_CYCLES;
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String DIRECTORY_TANGLE_INDEX_KEY = "package_tangle_index";
-  public static final Metric<Double> DIRECTORY_TANGLE_INDEX = new Metric.Builder(DIRECTORY_TANGLE_INDEX_KEY, "Directory tangle index", Metric.ValueType.PERCENT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Double> DIRECTORY_TANGLE_INDEX = new Metric.Builder(DIRECTORY_TANGLE_INDEX_KEY, "Directory tangle index", Metric.ValueType.PERCENT)
     .setDescription("Directory tangle index")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1800,8 +1816,16 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<Double> PACKAGE_TANGLE_INDEX = DIRECTORY_TANGLE_INDEX;
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String DIRECTORY_TANGLES_KEY = "package_tangles";
-  public static final Metric<Integer> DIRECTORY_TANGLES = new Metric.Builder(DIRECTORY_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> DIRECTORY_TANGLES = new Metric.Builder(DIRECTORY_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
     .setDescription("File dependencies to cut")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1820,8 +1844,16 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<Integer> PACKAGE_TANGLES = DIRECTORY_TANGLES;
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String DIRECTORY_FEEDBACK_EDGES_KEY = "package_feedback_edges";
-  public static final Metric<Integer> DIRECTORY_FEEDBACK_EDGES = new Metric.Builder(DIRECTORY_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> DIRECTORY_FEEDBACK_EDGES = new Metric.Builder(DIRECTORY_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
     .setDescription("Package dependencies to cut")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1841,8 +1873,16 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<Integer> PACKAGE_FEEDBACK_EDGES = DIRECTORY_FEEDBACK_EDGES;
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String DIRECTORY_EDGES_WEIGHT_KEY = "package_edges_weight";
-  public static final Metric<Integer> DIRECTORY_EDGES_WEIGHT = new Metric.Builder(DIRECTORY_EDGES_WEIGHT_KEY, "Directory edges weight", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> DIRECTORY_EDGES_WEIGHT = new Metric.Builder(DIRECTORY_EDGES_WEIGHT_KEY, "Directory edges weight", Metric.ValueType.INT)
     .setDescription("Directory edges weight")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
@@ -1863,8 +1903,16 @@ public final class CoreMetrics {
   @Deprecated
   public static final transient Metric<Integer> PACKAGE_EDGES_WEIGHT = DIRECTORY_EDGES_WEIGHT;
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String FILE_CYCLES_KEY = "file_cycles";
-  public static final Metric<Integer> FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File cycles", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File cycles", Metric.ValueType.INT)
     .setDescription("File cycles")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1874,8 +1922,16 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .create();
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String FILE_TANGLE_INDEX_KEY = "file_tangle_index";
-  public static final Metric<Double> FILE_TANGLE_INDEX = new Metric.Builder(FILE_TANGLE_INDEX_KEY, "File tangle index", Metric.ValueType.PERCENT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Double> FILE_TANGLE_INDEX = new Metric.Builder(FILE_TANGLE_INDEX_KEY, "File tangle index", Metric.ValueType.PERCENT)
     .setDescription("File tangle index")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -1885,8 +1941,16 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .create();
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String FILE_TANGLES_KEY = "file_tangles";
-  public static final Metric<Integer> FILE_TANGLES = new Metric.Builder(FILE_TANGLES_KEY, "File tangles", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> FILE_TANGLES = new Metric.Builder(FILE_TANGLES_KEY, "File tangles", Metric.ValueType.INT)
     .setDescription("Files tangles")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1895,8 +1959,16 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String FILE_FEEDBACK_EDGES_KEY = "file_feedback_edges";
-  public static final Metric<Integer> FILE_FEEDBACK_EDGES = new Metric.Builder(FILE_FEEDBACK_EDGES_KEY, "Suspect file dependencies", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> FILE_FEEDBACK_EDGES = new Metric.Builder(FILE_FEEDBACK_EDGES_KEY, "Suspect file dependencies", Metric.ValueType.INT)
     .setDescription("Suspect file dependencies")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1906,8 +1978,16 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .create();
 
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
   public static final String FILE_EDGES_WEIGHT_KEY = "file_edges_weight";
-  public static final Metric<Integer> FILE_EDGES_WEIGHT = new Metric.Builder(FILE_EDGES_WEIGHT_KEY, "File edges weight", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.2 No more design features
+   */
+  @Deprecated
+  public static final transient Metric<Integer> FILE_EDGES_WEIGHT = new Metric.Builder(FILE_EDGES_WEIGHT_KEY, "File edges weight", Metric.ValueType.INT)
     .setDescription("File edges weight")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
@@ -1938,7 +2018,7 @@ public final class CoreMetrics {
    * @deprecated since 5.0 SCM data will no more be stored as measures
    */
   @Deprecated
-  public static final Metric<String> SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
+  public static final transient Metric<String> SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();
 
@@ -1958,7 +2038,7 @@ public final class CoreMetrics {
    * @deprecated since 5.0 SCM data will no more be stored as measures
    */
   @Deprecated
-  public static final Metric<String> SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
+  public static final transient Metric<String> SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();
 
@@ -1978,7 +2058,7 @@ public final class CoreMetrics {
    * @deprecated since 5.0 SCM data will no more be stored as measures
    */
   @Deprecated
-  public static final Metric<String> SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line",
+  public static final transient Metric<String> SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last commit dates by line",
     Metric.ValueType.DATA)
     .setDomain(DOMAIN_SCM)
     .create();

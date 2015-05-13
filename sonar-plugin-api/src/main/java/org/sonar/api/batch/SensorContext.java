@@ -32,7 +32,6 @@ import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * @since 1.10
@@ -191,25 +190,11 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
+  /**
+   * @deprecated since 5.2 No more design features. No-op
+   */
+  @Deprecated
   Dependency saveDependency(Dependency dependency);
-
-  /**
-   * @deprecated since 5.1 Sensors should not read but only save data
-   */
-  @Deprecated
-  Set<Dependency> getDependencies();
-
-  /**
-   * @deprecated since 5.1 Sensors should not read but only save data
-   */
-  @Deprecated
-  Collection<Dependency> getIncomingDependencies(Resource to);
-
-  /**
-   * @deprecated since 5.1 Sensors should not read but only save data
-   */
-  @Deprecated
-  Collection<Dependency> getOutgoingDependencies(Resource from);
 
   // ----------- FILE SOURCES --------------
 
