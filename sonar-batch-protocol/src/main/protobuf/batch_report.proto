@@ -79,6 +79,8 @@ message Component {
   optional string key = 14;
   // Only available on FILE type
   optional int32 lines = 15;
+  // Only available on PROJECT and MODULE types
+  optional string description = 16;
 
   // temporary fields during development of computation stack
   optional int64 id = 13;
