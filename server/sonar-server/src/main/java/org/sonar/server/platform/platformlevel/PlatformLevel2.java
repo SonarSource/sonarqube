@@ -41,7 +41,7 @@ public class PlatformLevel2 extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  protected void configureLevel() {
     add(
       DefaultServerUpgradeStatus.class,
       DatabaseMigrator.class,
@@ -66,6 +66,5 @@ public class PlatformLevel2 extends PlatformLevel {
       // DB migration
       PlatformDatabaseMigrationExecutorServiceImpl.class,
       PlatformDatabaseMigration.class);
-    return this;
   }
 }

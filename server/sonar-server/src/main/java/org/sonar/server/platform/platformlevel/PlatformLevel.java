@@ -20,9 +20,11 @@
 package org.sonar.server.platform.platformlevel;
 
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.component.Module;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -62,7 +64,18 @@ public abstract class PlatformLevel {
     return parent.createChild();
   }
 
-  public abstract PlatformLevel configure();
+  public PlatformLevel configure() {
+    configureLevel();
+
+    List<Module> modules = container.getComponentsByType(Module.class);
+    for (Module module : modules) {
+      module.configure(container);
+    }
+
+    return this;
+  }
+
+  protected abstract void configureLevel();
 
   /**
    * Intended to be override by subclasses if needed

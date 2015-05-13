@@ -90,7 +90,7 @@ public class PlatformLevel1 extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  public void configureLevel() {
     add(platform, properties);
     addExtraRootComponents();
     add(
@@ -166,8 +166,6 @@ public class PlatformLevel1 extends PlatformLevel {
     addAll(CorePropertyDefinitions.all());
     addAll(MigrationSteps.CLASSES);
     addAll(DaoUtils.getDaoClasses());
-
-    return this;
   }
 
   private void addExtraRootComponents() {

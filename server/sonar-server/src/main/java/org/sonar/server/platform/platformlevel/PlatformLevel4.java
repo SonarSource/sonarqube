@@ -301,7 +301,7 @@ public class PlatformLevel4 extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  protected void configureLevel() {
     add(
       PluginDownloader.class,
       ChartFactory.class,
@@ -692,8 +692,6 @@ public class PlatformLevel4 extends PlatformLevel {
       NavigationWs.class);
 
     addAll(level4AddedComponents);
-
-    return this;
   }
 
   @Override

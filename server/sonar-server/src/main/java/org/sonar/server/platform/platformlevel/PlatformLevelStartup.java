@@ -48,7 +48,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   }
 
   @Override
-  public PlatformLevel configure() {
+  protected void configureLevel() {
     add(
       IndexSynchronizer.class,
       RegisterMetrics.class,
@@ -68,8 +68,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       ReportQueueCleaner.class,
       RegisterIssueFilters.class,
       RenameIssueWidgets.class);
-
-    return this;
   }
 
   @Override
