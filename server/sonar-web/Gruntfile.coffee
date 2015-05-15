@@ -502,6 +502,9 @@ module.exports = (grunt) ->
       ['dev', 'express:test', 'casper:testfile']
 
   # tasks used by Maven build (see pom.xml)
+  grunt.registerTask 'maven-quick-build',
+      ['dev']
+
   grunt.registerTask 'maven-build-skip-tests-true-nocoverage',
       ['build']
 
