@@ -50,7 +50,8 @@ public class ShowAction implements RequestHandler {
   private final DuplicationsJsonWriter duplicationsJsonWriter;
   private final UserSession userSession;
 
-  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession) {
+  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser,
+    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentDao = componentDao;
     this.measureDao = measureDao;

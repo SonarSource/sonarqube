@@ -55,7 +55,8 @@ public class QProfileCreateAction implements BaseQProfileWsAction {
   private final ProfileImporter[] importers;
   private final UserSession userSession;
 
-  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters, Languages languages, ProfileImporter[] importers, UserSession userSession) {
+  public QProfileCreateAction(DbClient dbClient, QProfileFactory profileFactory, QProfileExporters exporters,
+    Languages languages, ProfileImporter[] importers, UserSession userSession) {
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.exporters = exporters;

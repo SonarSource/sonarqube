@@ -51,7 +51,8 @@ public class ProjectAssociationActions {
   private final Languages languages;
   private final UserSession userSession;
 
-  public ProjectAssociationActions(QProfileProjectOperations profileProjectOperations, QProfileLookup profileLookup, ComponentService componentService, Languages languages, UserSession userSession) {
+  public ProjectAssociationActions(QProfileProjectOperations profileProjectOperations, QProfileLookup profileLookup,
+    ComponentService componentService, Languages languages, UserSession userSession) {
     this.profileProjectOperations = profileProjectOperations;
     this.profileLookup = profileLookup;
     this.componentService = componentService;

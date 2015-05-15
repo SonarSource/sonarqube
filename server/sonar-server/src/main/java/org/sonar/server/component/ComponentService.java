@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
@@ -64,7 +63,7 @@ public class ComponentService {
   private final UserSession userSession;
 
   public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-                          InternalPermissionService permissionService, UserSession userSession) {
+    InternalPermissionService permissionService, UserSession userSession) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;

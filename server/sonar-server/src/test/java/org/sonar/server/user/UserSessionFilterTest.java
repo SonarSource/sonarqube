@@ -41,11 +41,13 @@ public class UserSessionFilterTest {
   private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
   private Platform platform = mock(Platform.class);
   private ComponentContainer componentContainer = mock(ComponentContainer.class);
+  private HttpServletRequest httpRequest = mock(HttpServletRequest.class);
+  private ServletResponse httpResponse = mock(ServletResponse.class);
+  private FilterChain chain = mock(FilterChain.class);
 
   @Before
   public void setUp() {
     when(platform.getContainer()).thenReturn(componentContainer);
-    when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
     // for test isolation
     threadLocalUserSession.remove();
   }
@@ -57,9 +59,7 @@ public class UserSessionFilterTest {
 
   @Test
   public void should_cleanup_user_session_after_request_handling() throws IOException, ServletException {
-    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
-    ServletResponse httpResponse = mock(ServletResponse.class);
-    FilterChain chain = mock(FilterChain.class);
+    when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
 
     threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123));
     assertThat(threadLocalUserSession.hasSession()).isTrue();
@@ -68,6 +68,12 @@ public class UserSessionFilterTest {
 
     verify(chain).doFilter(httpRequest, httpResponse);
     assertThat(threadLocalUserSession.hasSession()).isFalse();
+  }
+
+  @Test
+  public void does_not_fail_if_container_has_no_ThreadLocalUserSession() throws Exception {
+    UserSessionFilter filter = new UserSessionFilter(platform);
+    filter.doFilter(httpRequest, httpResponse, chain);
   }
 
   @Test

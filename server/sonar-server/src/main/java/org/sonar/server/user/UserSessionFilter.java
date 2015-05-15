@@ -56,8 +56,7 @@ public class UserSessionFilter implements Filter {
       ThreadLocalUserSession userSession = platform.getContainer().getComponentByType(ThreadLocalUserSession.class);
       if (userSession == null) {
         Loggers.get(UserSessionFilter.class).error("Can not retrieve ThreadLocalUserSession from Platform");
-      }
-      else {
+      } else {
         userSession.remove();
       }
     }

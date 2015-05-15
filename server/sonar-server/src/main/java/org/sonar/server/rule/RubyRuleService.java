@@ -109,7 +109,8 @@ public class RubyRuleService implements Startable {
    * Used in manual_rules_controller.rb
    */
   public List<Rule> searchManualRules() {
-    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryContext(userSession)).getHits();
+    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY))
+      .setSortField(RuleNormalizer.RuleField.NAME), new QueryContext(userSession)).getHits();
   }
 
   // sqale
