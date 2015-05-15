@@ -16,7 +16,11 @@
     <ul class="tabs">
       <% subcategories.each do |subcategory| -%>
         <li>
-          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category.key, :subcategory => subcategory.key, :id => (@resource && @resource.id)}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+          <% if @resource %>
+            <a <% if @subcategory==subcategory %>class="selected"<% end -%> href="<%= url_for(:controller => 'project', :action => 'settings', :id => nil) -%>?id=<%= url_encode(@resource.key) -%>&category=<%= url_encode(@category.key) -%>&subcategory=<%= url_encode(subcategory.key) -%>"><%= h subcategory_name(@category, subcategory) -%></a>
+          <% else %>
+            <%= link_to subcategory_name(@category, subcategory), {:controller => 'settings', :action =>'index', :category => @category.key, :subcategory => subcategory.key}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+          <% end %>
         </li>
       <% end -%>
     </ul>
