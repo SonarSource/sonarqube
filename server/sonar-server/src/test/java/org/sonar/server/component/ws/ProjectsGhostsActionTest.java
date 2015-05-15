@@ -60,7 +60,7 @@ public class ProjectsGhostsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(System2.INSTANCE), new SnapshotDao(System2.INSTANCE));
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new ProjectsWs(new ProjectsGhostsAction(dbClient, userSessionRule)));
     db.truncateTables();
