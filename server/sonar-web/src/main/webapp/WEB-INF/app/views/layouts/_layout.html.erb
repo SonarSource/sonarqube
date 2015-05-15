@@ -42,6 +42,12 @@
         <div><%= footer.getHtml().to_s %></div>
       <% end %>
     <% end %>
+    <% unless DatabaseVersion.production? %>
+      <div class="alert alert-danger">
+        <p class="big" id="evaluation_warning">Embedded database should be used for evaluation purpose only</p>
+        <p>The embedded database will not scale, it will not support upgrading to newer versions of SonarQube, and there is no support for migrating your data out of it into a different database engine.</p>
+      </div>
+    <% end %>
     <%= render 'branding/footer' -%>
     <div>
       Version <%= sonar_version -%> -
@@ -51,12 +57,6 @@
       <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
       <a href="http://redirect.sonarsource.com/doc/plugin-library.html" target="plugins">Plugins</a> -
       <a href="<%= ApplicationController.root_context -%>/api_documentation">Web Service API</a>
-      <% unless DatabaseVersion.production? %>
-        <div class="spacer-top alert alert-danger">
-          <p class="big" id="evaluation_warning">Embedded database should be used for evaluation purpose only</p>
-          <p>The embedded database will not scale, it will not support upgrading to newer versions of SonarQube, and there is no support for migrating your data out of it into a different database engine.</p>
-        </div>
-      <% end %>
     </div>
     <!--[if lte IE 8 ]><p class="spacer-top alert alert-danger">IE 8 is not supported. Some widgets may not be properly displayed. Please switch to a <a target="_blank" href="http://redirect.sonarsource.com/doc/requirements.html">supported version or another supported browser</a>.</p><!--<![endif]-->
   </div>
