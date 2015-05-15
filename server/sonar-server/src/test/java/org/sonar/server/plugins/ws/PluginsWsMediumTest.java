@@ -20,21 +20,29 @@
 package org.sonar.server.plugins.ws;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 public class PluginsWsMediumTest {
+  private static final String ENCODING = "UTF-8";
+
+  @ClassRule
+  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
   @ClassRule
   public static ServerTester serverTester = new ServerTester()
     .addPluginJar(getFile("sonar-decoy-plugin-1.0.jar"))
-    .setUpdateCenterUrl(getFileUrl("update-center.properties"));
+    .setUpdateCenterUrl(createUpdateCenterPropertiesFile());
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(serverTester);
 
@@ -153,6 +161,21 @@ public class PluginsWsMediumTest {
     userSessionRule.anonymous();
     // must use a new WsTester to reference the right PluginWs instance
     return new WsTester(serverTester.get(PluginsWs.class));
+  }
+
+  private static URL createUpdateCenterPropertiesFile() {
+    try {
+      temporaryFolder.create();
+      String content = FileUtils.readFileToString(getFile("update-center.properties"), ENCODING)
+          .replace("[[decoy.10.jar]]", getFileUrl("sonar-decoy-plugin-1.0.jar").toString())
+          .replace("[[decoy.11.jar]]", getFileUrl("sonar-decoy-plugin-1.1.jar").toString())
+          .replace("[[foo.10.jar]]", getFileUrl("sonar-foo-plugin-1.0.jar").toString());
+      File res = temporaryFolder.newFile("update-center.properties");
+      FileUtils.write(res, content, "UTF-8");
+      return res.toURI().toURL();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static File getFile(String jarFileName) {
