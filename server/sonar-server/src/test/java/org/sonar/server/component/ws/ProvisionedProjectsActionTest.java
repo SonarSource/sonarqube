@@ -45,6 +45,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProvisionedProjectsActionTest {
 
@@ -57,6 +58,7 @@ public class ProvisionedProjectsActionTest {
   DbClient dbClient;
   DbSession dbSession;
   ComponentDao componentDao;
+  System2 system2 = mock(System2.class);
 
   @After
   public void tearDown() {
@@ -65,7 +67,7 @@ public class ProvisionedProjectsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(system2), new SnapshotDao(System2.INSTANCE));
     dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();

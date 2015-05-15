@@ -20,7 +20,6 @@
 
 package org.sonar.server.qualityprofile.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
@@ -36,6 +35,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
@@ -54,11 +54,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   private final RuleDao ruleDao;
   private final QualityProfileDao profileDao;
 
-  public ActiveRuleDao(QualityProfileDao profileDao, RuleDao ruleDao) {
-    this(profileDao, ruleDao, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
   public ActiveRuleDao(QualityProfileDao profileDao, RuleDao ruleDao, System2 system) {
     super(IndexDefinition.ACTIVE_RULE, ActiveRuleMapper.class, system);
     this.ruleDao = ruleDao;

@@ -68,12 +68,7 @@ public class DefaultI18n implements I18n, Startable {
   private ClassLoader classloader;
   private Map<String, String> propertyToBundles;
 
-  public DefaultI18n(PluginRepository pluginRepository) {
-    this(pluginRepository, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  DefaultI18n(PluginRepository pluginRepository, System2 system2) {
+  public DefaultI18n(PluginRepository pluginRepository, System2 system2) {
     this.pluginRepository = pluginRepository;
     this.system2 = system2;
     // SONAR-2927

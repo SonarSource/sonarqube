@@ -94,7 +94,7 @@ public class CreateActionTest {
     System2 system2 = new System2();
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     UserGroupDao userGroupDao = new UserGroupDao();
-    GroupDao groupDao = new GroupDao();
+    GroupDao groupDao = new GroupDao(system2);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
     session = dbClient.openSession(false);
     groupDao.insert(session, new GroupDto().setName("sonar-users"));

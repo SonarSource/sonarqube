@@ -27,6 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -38,6 +39,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class ViewIndexerTest {
@@ -54,7 +56,7 @@ public class ViewIndexerTest {
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
-    indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao()), esTester.client());
+    indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(mock(System2.class))), esTester.client());
     indexer.setEnabled(true);
   }
 

@@ -74,14 +74,6 @@ public class DebtModelBackup {
 
   public DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
     DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, UserSession userSession) {
-    this(dbClient, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter,
-      defLoader, System2.INSTANCE, userSession);
-  }
-
-  @VisibleForTesting
-  DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
-    DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
     DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2, UserSession userSession) {
     this.dbClient = dbClient;
     this.debtModelOperations = debtModelOperations;

@@ -38,10 +38,6 @@ public class AnalysisReportDao implements DaoComponent {
 
   private System2 system2;
 
-  public AnalysisReportDao() {
-    this(System2.INSTANCE);
-  }
-
   public AnalysisReportDao(System2 system2) {
     this.system2 = system2;
   }

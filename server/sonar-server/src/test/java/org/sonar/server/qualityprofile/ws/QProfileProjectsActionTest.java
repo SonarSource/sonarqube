@@ -68,12 +68,14 @@ public class QProfileProjectsActionTest {
 
   private RoleDao roleDao;
 
+  System2 system2 = mock(System2.class);
+
   @Before
   public void setUp() {
     dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-      new QualityProfileDao(dbTester.myBatis(), mock(System2.class)),
-      new ComponentDao(),
+      new QualityProfileDao(dbTester.myBatis(), system2),
+      new ComponentDao(system2),
       new AuthorizationDao(dbTester.myBatis()));
     roleDao = new RoleDao();
     session = dbClient.openSession(false);

@@ -85,8 +85,9 @@ public class IssueCommentServiceTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.issueChangeDao()).thenReturn(changeDao);
 
-    issueCommentService = new IssueCommentService(dbClient, issueService, updater, changeDao);
+    issueCommentService = new IssueCommentService(dbClient, issueService, updater);
   }
 
   @Test

@@ -74,7 +74,7 @@ public class ComputationServiceTest {
 
   @Before
   public void setUp() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(system), new SnapshotDao(system));
     sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system);
 
     // db contains project with key "P1"

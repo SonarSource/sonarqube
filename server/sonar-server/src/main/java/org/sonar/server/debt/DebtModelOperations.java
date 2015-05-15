@@ -52,12 +52,7 @@ public class DebtModelOperations {
   private final System2 system2;
   private final UserSession userSession;
 
-  public DebtModelOperations(DbClient dbClient, UserSession userSession) {
-    this(dbClient, System2.INSTANCE, userSession);
-  }
-
-  @VisibleForTesting
-  DebtModelOperations(DbClient dbClient, System2 system2, UserSession userSession) {
+  public DebtModelOperations(DbClient dbClient, System2 system2, UserSession userSession) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.userSession = userSession;

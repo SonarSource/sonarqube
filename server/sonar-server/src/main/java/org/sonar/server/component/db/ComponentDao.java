@@ -53,10 +53,6 @@ import java.util.Map;
 @ServerSide
 public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements DaoComponent {
 
-  public ComponentDao() {
-    this(System2.INSTANCE);
-  }
-
   public ComponentDao(System2 system) {
     super(ComponentMapper.class, system);
   }

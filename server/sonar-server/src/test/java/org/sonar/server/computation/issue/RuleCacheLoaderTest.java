@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
@@ -31,6 +32,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class RuleCacheLoaderTest {
 
@@ -45,7 +47,7 @@ public class RuleCacheLoaderTest {
   @Test
   public void load_by_key() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao());
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(mock(System2.class)));
     RuleCacheLoader loader = new RuleCacheLoader(dbClient);
 
     assertThat(loader.load(RuleKey.of("squid", "R001")).getName()).isEqualTo("Rule One");
@@ -54,7 +56,7 @@ public class RuleCacheLoaderTest {
 
   @Test
   public void load_by_keys_is_not_supported() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao());
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(mock(System2.class)));
     RuleCacheLoader loader = new RuleCacheLoader(dbClient);
     try {
       loader.loadAll(Collections.<RuleKey>emptyList());

@@ -20,9 +20,6 @@
 
 package org.sonar.server.batch;
 
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -55,6 +52,11 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
+
+import javax.annotation.Nullable;
+
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,12 +93,12 @@ public class IssuesActionTest {
     es.truncateIndices();
     this.session = db.myBatis().openSession(false);
 
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), new ComponentDao());
+    componentDao = new ComponentDao(mock(System2.class));
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), componentDao);
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
     issuesAction = new IssuesAction(dbClient, issueIndex, userSessionRule);
-    componentDao = new ComponentDao();
 
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
   }

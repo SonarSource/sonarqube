@@ -46,6 +46,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
 
 public class ShowActionTest {
 
@@ -74,7 +75,7 @@ public class ShowActionTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE), new FileDependencyDao());
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(mock(System2.class)), new SnapshotDao(System2.INSTANCE), new FileDependencyDao());
     session = dbClient.openSession(false);
     tester = new WsTester(new DependenciesWs(new ShowAction(dbClient, userSessionRule)));
     controller = tester.controller("api/dependencies");

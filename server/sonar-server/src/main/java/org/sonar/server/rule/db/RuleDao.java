@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
@@ -31,15 +30,11 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
-  public RuleDao() {
-    this(System2.INSTANCE);
-  }
-
-  @VisibleForTesting
   public RuleDao(System2 system) {
     super(IndexDefinition.RULE, RuleMapper.class, system);
   }

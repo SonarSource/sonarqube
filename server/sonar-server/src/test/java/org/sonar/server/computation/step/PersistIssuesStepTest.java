@@ -69,7 +69,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void setup() throws Exception {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao());
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao(system2));
 
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);

@@ -20,7 +20,6 @@
 
 package org.sonar.server.user.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
@@ -34,11 +33,6 @@ import java.util.List;
  */
 public class GroupDao extends BaseDao<GroupMapper, GroupDto, String> {
 
-  public GroupDao() {
-    this(System2.INSTANCE);
-  }
-
-  @VisibleForTesting
   public GroupDao(System2 system) {
     super(GroupMapper.class, system);
   }

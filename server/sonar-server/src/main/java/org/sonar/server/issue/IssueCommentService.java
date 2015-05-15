@@ -54,13 +54,11 @@ public class IssueCommentService {
   private final DbClient dbClient;
   private final IssueService issueService;
   private final IssueUpdater updater;
-  private final IssueChangeDao changeDao;
 
-  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater, IssueChangeDao changeDao) {
+  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.updater = updater;
-    this.changeDao = changeDao;
   }
 
   public List<DefaultIssueComment> findComments(String issueKey) {
@@ -81,11 +79,11 @@ public class IssueCommentService {
   }
 
   public List<DefaultIssueComment> findComments(DbSession session, Collection<String> issueKeys) {
-    return changeDao.selectCommentsByIssues(session, issueKeys);
+    return dbClient.issueChangeDao().selectCommentsByIssues(session, issueKeys);
   }
 
   public IssueComment findComment(String commentKey) {
-    return changeDao.selectCommentByKey(commentKey);
+    return dbClient.issueChangeDao().selectCommentByKey(commentKey);
   }
 
   public IssueComment addComment(String issueKey, String text, UserSession userSession) {
@@ -114,7 +112,7 @@ public class IssueCommentService {
   }
 
   public IssueComment deleteComment(String commentKey, UserSession userSession) {
-    DefaultIssueComment comment = changeDao.selectCommentByKey(commentKey);
+    DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
@@ -125,12 +123,12 @@ public class IssueCommentService {
     // check authorization
     issueService.getByKey(comment.issueKey());
 
-    changeDao.delete(commentKey);
+    dbClient.issueChangeDao().delete(commentKey);
     return comment;
   }
 
   public IssueComment editComment(String commentKey, String text, UserSession userSession) {
-    DefaultIssueComment comment = changeDao.selectCommentByKey(commentKey);
+    DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
     if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
     }
@@ -147,7 +145,7 @@ public class IssueCommentService {
     IssueChangeDto dto = IssueChangeDto.of(comment);
     dto.setUpdatedAt(System2.INSTANCE.now());
     dto.setChangeData(text);
-    changeDao.update(dto);
+    dbClient.issueChangeDao().update(dto);
 
     return comment;
   }

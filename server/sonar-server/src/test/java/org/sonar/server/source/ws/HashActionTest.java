@@ -20,6 +20,7 @@
 package org.sonar.server.source.ws;
 
 import org.junit.Rule;
+import org.sonar.api.utils.System2;
 import org.sonar.server.source.db.FileSourceDao;
 
 import org.junit.After;
@@ -41,6 +42,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 @Category(DbTests.class)
@@ -63,7 +65,7 @@ public class HashActionTest {
     db.truncateTables();
     this.session = db.myBatis().openSession(false);
 
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao(mock(System2.class)));
 
     tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule)));
   }

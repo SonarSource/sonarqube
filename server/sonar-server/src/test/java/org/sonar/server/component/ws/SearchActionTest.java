@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.AuthorizationDao;
@@ -53,7 +54,7 @@ public class SearchActionTest {
   public void setUp() {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-      new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()
+      new ComponentDao(mock(System2.class)), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()
       );
     tester = new WsTester(new ComponentsWs(mock(ComponentAppAction.class), new SearchAction(dbClient, userSessionRule)));
   }
