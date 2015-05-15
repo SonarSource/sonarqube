@@ -47,11 +47,14 @@ define([
 
     serializeData: function () {
       var row = this.options.row || {},
-          files = this.model.get('files'),
-          tests = _.groupBy(this.model.get('tests'), '_ref'),
+          tests = _.groupBy(this.collection.toJSON(), 'fileUuid'),
           testFiles = _.map(tests, function (testSet, fileRef) {
+            var test = testSet[0];
             return {
-              file: files[fileRef],
+              file: {
+                uuid: test.fileUuid,
+                longName: test.fileLongName
+              },
               tests: testSet
             };
           });

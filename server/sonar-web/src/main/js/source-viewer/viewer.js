@@ -388,14 +388,15 @@ define([
           this.clearTooltips();
           var line = $(e.currentTarget).data('line-number'),
               row = _.findWhere(this.model.get('source'), { line: line }),
-              url = baseUrl + '/api/tests/test_cases',
+              url = baseUrl + '/api/tests/list',
               options = {
-                uuid: this.model.id,
-                line: line
+                sourceFileUuid: this.model.id,
+                sourceFileLineNumber: line,
+                ps: 1000
               };
           return $.get(url, options).done(function (data) {
             var popup = new CoveragePopupView({
-              model: new Backbone.Model(data),
+              collection: new Backbone.Collection(data.tests),
               row: row,
               tests: $(e.currentTarget).data('tests'),
               triggerEl: $(e.currentTarget)

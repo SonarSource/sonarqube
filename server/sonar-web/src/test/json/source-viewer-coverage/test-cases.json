@@ -1,17 +1,15 @@
 {
+  "p": 1,
+  "ps": 1000,
+  "total": 1,
   "tests": [
     {
       "name": "sampleTest",
       "status": "OK",
       "durationInMs": 2,
-      "_ref": "1"
+      "fileKey": "test:sample",
+      "fileUuid": "uuid",
+      "fileLongName": "SampleTest"
     }
-  ],
-  "files": {
-    "1": {
-      "uuid": "uuid",
-      "key": "test:sample",
-      "longName": "SampleTest"
-    }
-  }
+  ]
 }

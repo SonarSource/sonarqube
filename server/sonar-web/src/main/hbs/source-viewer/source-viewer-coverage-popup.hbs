@@ -14,6 +14,7 @@
   </div>
 
   {{#each testFiles}}
+    {{log this}}
     <div class="bubble-popup-section">
       <a class="component-viewer-popup-test-file link-action" data-uuid="{{file.uuid}}" title="{{file.longName}}">
         <span>{{collapsedDirFromPath file.longName}}</span><span class="component-name-file">{{fileFromPath file.longName}}</span>

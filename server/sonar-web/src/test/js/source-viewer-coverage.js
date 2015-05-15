@@ -37,7 +37,8 @@ casper.test.begin(testName(), 12, function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
-        lib.mockRequestFromFile('/api/tests/test_cases', 'test-cases.json', { data: { uuid: 'uuid', line: '11' } });
+        lib.mockRequestFromFile('/api/tests/list', 'test-cases.json',
+            { data: { sourceFileUuid: 'uuid', sourceFileLineNumber: '11' } });
       })
 
       .then(function () {
