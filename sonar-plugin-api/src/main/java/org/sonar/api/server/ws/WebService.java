@@ -115,7 +115,8 @@ public interface WebService extends Definable<WebService.Context> {
      *
      * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
      *             and to use lower-case format with underscores, for example "api/coding_rules". Usual actions
-     *             are "search", "list", "show", "create" and "delete"
+     *             are "search", "list", "show", "create" and "delete".
+     *             the plural form is recommended - ex: api/projects
      */
     public NewController createController(String path) {
       return new NewController(this, path);
