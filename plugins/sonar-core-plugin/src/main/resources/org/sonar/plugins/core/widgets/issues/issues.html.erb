@@ -118,8 +118,8 @@
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=BLOCKER|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-blocker-issues"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=BLOCKER|createdAfter=<%= url_encode(period_date) -%>"
+               class="widget-link <% if variation_value(new_blocker_issues).to_i > 0 %>varw text-danger<% end -%> link-<%= widget.key %>-new-blocker-issues"
                title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_blocker_issues, :style => 'none', :default => '-') -%></a>
           <% end %>
         </td>
@@ -137,8 +137,8 @@
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=CRITICAL|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-critical-issues"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=CRITICAL|createdAfter=<%= url_encode(period_date) -%>"
+               class="widget-link <% if variation_value(new_critical_issues).to_i > 0 %>varw text-danger<% end -%> link-<%= widget.key %>-new-critical-issues"
                title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_critical_issues, :style => 'none', :default => '-') -%></a>
           <% end %>
         </td>
@@ -156,8 +156,8 @@
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MAJOR|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-major-issues"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MAJOR|createdAfter=<%= url_encode(period_date) -%>"
+               class="widget-link <% if variation_value(new_major_issues).to_i > 0 %>varw text-danger<% end -%> link-<%= widget.key %>-new-major-issues"
                title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_major_issues, :style => 'none', :default => '-') -%></a>
           <% end %>
         </td>
@@ -175,8 +175,8 @@
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MINOR|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-minor-issues"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=MINOR|createdAfter=<%= url_encode(period_date) -%>"
+               class="widget-link <% if variation_value(new_minor_issues).to_i > 0 %>varw text-danger<% end -%> link-<%= widget.key %>-new-minor-issues"
                title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_minor_issues, :style => 'none', :default => '-') -%></a>
           <% end %>
         </td>
@@ -194,8 +194,8 @@
         </td>
         <td class="thin nowrap">
           <% if @dashboard_configuration.selected_period? %>
-            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=INFO|createdAfter=<%= period_date -%>"
-               class="varw widget-link widget-link-red link-<%= widget.key %>-new-info-issues"
+            <a href="<%= url_for(:controller => 'component_issues', :action => 'index') -%>?id=<%= url_encode(@project.key) -%>#resolved=false|severities=INFO|createdAfter=<%= url_encode(period_date) -%>"
+               class="widget-link <% if variation_value(new_info_issues).to_i > 0 %>varw text-danger<% end -%> link-<%= widget.key %>-new-info-issues"
                title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_info_issues, :style => 'none', :default => '-') -%></a>
           <% end %>
         </td>
