@@ -456,7 +456,7 @@ module.exports = (grunt) ->
 
       less:
         files: '<%= pkg.sources %>less/**/*.less'
-        tasks: ['less:dev']
+        tasks: ['less:build']
 
       coffee:
         files: '<%= pkg.sources %>coffee/**/*.coffee'
