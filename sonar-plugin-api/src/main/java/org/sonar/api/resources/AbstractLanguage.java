@@ -81,18 +81,17 @@ public abstract class AbstractLanguage implements Language {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Language)) {
+    if (o == null || !(o instanceof Language)) {
       return false;
     }
-
-    Language language = (Language) o;
-    return !(key != null ? !key.equals(language.getKey()) : language.getKey() != null);
+    Language that = (Language) o;
+    return key.equals(that.getKey());
 
   }
 
   @Override
   public int hashCode() {
-    return key != null ? key.hashCode() : 0;
+    return key.hashCode();
   }
 
   @Override

@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 
 import java.util.Map;
 
-public interface PluginInstaller extends BatchComponent {
+@BatchSide
+public interface PluginInstaller {
 
   /**
    * Gets the list of plugins installed on server and downloads them if not

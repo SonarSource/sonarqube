@@ -112,7 +112,7 @@ public class ActiveRuleCompleter {
   private String writeActiveRule(ActiveRule activeRule, JsonWriter json) {
     json
       .beginObject()
-      .prop("qProfile", activeRule.key().qProfile().toString())
+      .prop("qProfile", activeRule.key().qProfile())
       .prop("inherit", activeRule.inheritance().toString())
       .prop("severity", activeRule.severity());
     ActiveRuleKey parentKey = activeRule.parentKey();

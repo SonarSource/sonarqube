@@ -20,11 +20,11 @@
 package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginExploder;
 import org.sonar.core.platform.ExplodedPlugin;
+import org.sonar.core.platform.PluginExploder;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -32,7 +32,8 @@ import java.io.File;
 import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
-public class ServerPluginExploder extends PluginExploder implements ServerComponent {
+@ServerSide
+public class ServerPluginExploder extends PluginExploder {
 
   private final DefaultServerFileSystem fs;
 

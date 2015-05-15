@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginExploder;
@@ -31,7 +31,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class BatchPluginExploder extends PluginExploder implements BatchComponent {
+@BatchSide
+public class BatchPluginExploder extends PluginExploder {
 
   private final FileCache fileCache;
 

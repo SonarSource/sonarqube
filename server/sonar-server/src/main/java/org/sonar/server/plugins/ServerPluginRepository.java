@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -255,13 +256,14 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     }
 
     for (PluginInfo.RequiredPlugin requiredPlugin : plugin.getRequiredPlugins()) {
-      PluginInfo available = allPluginsByKeys.get(requiredPlugin.getKey());
-      if (available == null) {
+      PluginInfo installedRequirement = allPluginsByKeys.get(requiredPlugin.getKey());
+      if (installedRequirement == null) {
         // it requires a plugin that is not installed
         LOG.warn("Plugin {} [{}] is ignored because the required plugin [{}] is not installed", plugin.getName(), plugin.getKey(), requiredPlugin.getKey());
         return false;
       }
-      if (requiredPlugin.getMinimalVersion().compareToIgnoreQualifier(available.getVersion()) > 0) {
+      Version installedRequirementVersion = installedRequirement.getVersion();
+      if (installedRequirementVersion != null && requiredPlugin.getMinimalVersion().compareToIgnoreQualifier(installedRequirementVersion) > 0) {
         // it requires a more recent version
         LOG.warn("Plugin {} [{}] is ignored because the version {} of required plugin [{}] is not supported", plugin.getName(), plugin.getKey(),
           requiredPlugin.getKey(), requiredPlugin.getMinimalVersion());

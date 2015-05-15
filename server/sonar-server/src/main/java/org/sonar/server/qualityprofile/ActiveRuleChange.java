@@ -96,7 +96,7 @@ public class ActiveRuleChange {
     activity.setAction(type.name());
     activity.setData("key", getKey().toString());
     activity.setData("ruleKey", getKey().ruleKey().toString());
-    activity.setData("profileKey", getKey().qProfile().toString());
+    activity.setData("profileKey", getKey().qProfile());
 
     for (Map.Entry<String, String> param : parameters.entrySet()) {
       if (!param.getKey().isEmpty()) {

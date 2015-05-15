@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 public class AbstractLanguageTest {
 
@@ -32,13 +31,34 @@ public class AbstractLanguageTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void a_language_should_equal_itself() {
-    assertEquals(new Language1(), new Language1());
-  }
+  public void test_equals_and_hashcode() {
+    final Language1 lang1 = new Language1();
+    assertThat(lang1.equals(lang1)).isTrue();
+    assertThat(lang1.equals(new Language2())).isFalse();
+    assertThat(lang1.equals(new Language1Too())).isTrue();
+    assertThat(lang1.equals("not a language")).isFalse();
+    assertThat(lang1.equals(null)).isFalse();
 
-  @Test
-  public void should_be_equal_to_another_language_implementation_having_same_key() {
-    assertThat(new Language1()).isEqualTo(new Language2());
+    // not an AbstractLanguage but a Language
+    assertThat(lang1.equals(new Language() {
+      @Override
+      public String getKey() {
+        return lang1.getKey();
+      }
+
+      @Override
+      public String getName() {
+        return lang1.getName();
+      }
+
+      @Override
+      public String[] getFileSuffixes() {
+        return lang1.getFileSuffixes();
+      }
+    })).isTrue();
+
+    assertThat(lang1.hashCode()).isEqualTo(lang1.hashCode());
+    assertThat(lang1.hashCode()).isEqualTo(new Language1Too().hashCode());
   }
 
   @Test
@@ -62,7 +82,17 @@ public class AbstractLanguageTest {
 
   static class Language1 extends AbstractLanguage {
     public Language1() {
-      super("language_key");
+      super("lang1");
+    }
+
+    public String[] getFileSuffixes() {
+      return new String[0];
+    }
+  }
+
+  static class Language1Too extends AbstractLanguage {
+    public Language1Too() {
+      super("lang1");
     }
 
     public String[] getFileSuffixes() {
@@ -72,12 +102,11 @@ public class AbstractLanguageTest {
 
   static class Language2 extends AbstractLanguage {
     public Language2() {
-      super("language_key");
+      super("lang2");
     }
 
     public String[] getFileSuffixes() {
       return new String[0];
     }
   }
-
 }

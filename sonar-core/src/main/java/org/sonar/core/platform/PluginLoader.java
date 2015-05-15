@@ -22,11 +22,10 @@ package org.sonar.core.platform;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.Plugin;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.classloader.ClassloaderBuilder;
+import org.sonar.classloader.Mask;
 
 import java.io.Closeable;
 import java.io.File;
@@ -35,7 +34,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.sonar.classloader.Mask;
 
 import static java.util.Arrays.asList;
 import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.PARENT_FIRST;
@@ -157,7 +155,7 @@ public class PluginLoader {
         } catch (UnsupportedClassVersionError e) {
           throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
             pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
-        } catch (ClassNotFoundException|IllegalAccessException|InstantiationException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
           throw new IllegalStateException(String.format(
             "Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }

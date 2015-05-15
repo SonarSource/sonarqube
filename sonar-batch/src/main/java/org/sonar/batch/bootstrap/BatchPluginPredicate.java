@@ -24,7 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
+import org.sonar.api.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
@@ -41,7 +41,8 @@ import static com.google.common.collect.Sets.newHashSet;
 /**
  * Filters the plugins to be enabled during analysis
  */
-public class BatchPluginPredicate implements Predicate<String>, BatchComponent {
+@BatchSide
+public class BatchPluginPredicate implements Predicate<String>{
 
   private static final Logger LOG = Loggers.get(BatchPluginPredicate.class);
 

@@ -22,7 +22,7 @@ package org.sonar.server.startup;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
-import org.sonar.api.ServerComponent;
+import org.sonar.api.ServerSide;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.plugins.RemotePlugin;
@@ -35,7 +35,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
-public final class GeneratePluginIndex implements ServerComponent {
+@ServerSide
+public final class GeneratePluginIndex {
 
   private DefaultServerFileSystem fileSystem;
   private PluginRepository repository;
