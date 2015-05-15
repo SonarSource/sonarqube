@@ -23,7 +23,6 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
-import org.apache.commons.io.Charsets;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,7 +33,14 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.sonar.core.graph.graphson.ElementPropertyConfig.ElementPropertiesRule;
 
@@ -549,7 +555,7 @@ class GraphsonUtil {
    * Creates a vertex from GraphSON using settings supplied in the constructor.
    */
   Vertex vertexFromJson(InputStream json) throws ParseException, IOException {
-    return this.vertexFromJson((JSONObject) parser.parse(new InputStreamReader(json, Charsets.UTF_8)));
+    return this.vertexFromJson((JSONObject) parser.parse(new InputStreamReader(json, StandardCharsets.UTF_8)));
   }
 
   /**
@@ -563,7 +569,7 @@ class GraphsonUtil {
    * Creates an edge from GraphSON using settings supplied in the constructor.
    */
   Edge edgeFromJson(InputStream json, Vertex out, Vertex in) throws IOException, ParseException {
-    return this.edgeFromJson((JSONObject) parser.parse(new InputStreamReader(json, Charsets.UTF_8)), out, in);
+    return this.edgeFromJson((JSONObject) parser.parse(new InputStreamReader(json, StandardCharsets.UTF_8)), out, in);
   }
 
   /**

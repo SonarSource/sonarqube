@@ -19,10 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Charsets;
-import java.io.OutputStreamWriter;
-import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerSide;
 import org.sonar.api.i18n.I18n;
@@ -37,6 +33,12 @@ import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
+
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @since 4.2
@@ -120,7 +122,7 @@ public class WebServiceEngine implements Startable {
     stream.reset();
     stream.setStatus(status);
     stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), Charsets.UTF_8));
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
 
     try {
       json.beginObject();

@@ -19,14 +19,7 @@
  */
 package org.sonar.server.ui.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -52,6 +45,15 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class ComponentNavigationAction implements NavigationWsAction {
 
@@ -163,7 +165,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private void writeExtensions(JsonWriter json, ComponentDto component, List<ViewProxy<Page>> pages, Locale locale) {
     json.name("extensions").beginArray();
-    for (ViewProxy<Page> page: pages) {
+    for (ViewProxy<Page> page : pages) {
       if (page.isUserAuthorized(component)) {
         writePage(json, getPageUrl(page, component), i18n.message(locale, page.getId() + ".page", page.getTitle()));
       }
@@ -185,7 +187,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private static String encodeComponentKey(ComponentDto component) {
     String componentKey = component.getKey();
     try {
-      componentKey = URLEncoder.encode(componentKey, Charsets.UTF_8.name());
+      componentKey = URLEncoder.encode(componentKey, StandardCharsets.UTF_8.name());
     } catch (UnsupportedEncodingException unknownEncoding) {
       throw new IllegalStateException(unknownEncoding);
     }

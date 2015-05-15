@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Strings;
-import org.apache.commons.io.Charsets;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -37,6 +36,7 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @since 4.4
@@ -168,7 +168,7 @@ public class CreateAction implements RulesWsAction {
     Response.Stream stream = response.stream();
     stream.setStatus(409);
     stream.setMediaType(MimeTypes.JSON);
-    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), Charsets.UTF_8)).beginObject().name("rule");
+    JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8)).beginObject().name("rule");
     mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
     json.endObject().close();
   }

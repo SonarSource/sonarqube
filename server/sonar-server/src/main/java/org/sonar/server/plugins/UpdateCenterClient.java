@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -34,6 +33,7 @@ import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -100,9 +100,9 @@ public class UpdateCenterClient {
   private UpdateCenter init() {
     InputStream input = null;
     try {
-      String content = uriReader.readString(uri, Charsets.UTF_8);
+      String content = uriReader.readString(uri, StandardCharsets.UTF_8);
       java.util.Properties properties = new java.util.Properties();
-      input = IOUtils.toInputStream(content, Charsets.UTF_8.name());
+      input = IOUtils.toInputStream(content, StandardCharsets.UTF_8);
       properties.load(input);
       return new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
 

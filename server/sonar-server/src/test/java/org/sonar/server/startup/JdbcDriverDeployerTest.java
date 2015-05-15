@@ -19,7 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.junit.Rule;
@@ -29,6 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,7 +60,7 @@ public class JdbcDriverDeployerTest {
     assertThat(deployedFile).exists();
     assertThat(deployedFile).hasContentEqualTo(driver);
 
-    assertThat(Files.toString(deployedIndex, Charsets.UTF_8)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
+    assertThat(Files.toString(deployedIndex, StandardCharsets.UTF_8)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
   }
 
   @Test

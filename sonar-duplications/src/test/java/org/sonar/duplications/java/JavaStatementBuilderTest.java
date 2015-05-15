@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.java;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
@@ -32,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -327,7 +327,7 @@ public class JavaStatementBuilderTest {
   private List<Statement> chunk(File file) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8);
+      reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
       return statementChunker.chunk(tokenChunker.chunk(reader));
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);

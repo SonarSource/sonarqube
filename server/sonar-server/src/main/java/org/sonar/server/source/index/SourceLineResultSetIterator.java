@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.index;
 
-import org.apache.commons.io.Charsets;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.source.db.FileSourceDto;
@@ -32,6 +31,7 @@ import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -77,7 +77,7 @@ public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUp
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
       // all the fields must be present, even if value is null
-      JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, Charsets.UTF_8)).setSerializeNulls(true);
+      JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, StandardCharsets.UTF_8)).setSerializeNulls(true);
       writer.beginObject();
       writer.prop(SourceLineIndexDefinition.FIELD_PROJECT_UUID, projectUuid);
       writer.prop(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid);

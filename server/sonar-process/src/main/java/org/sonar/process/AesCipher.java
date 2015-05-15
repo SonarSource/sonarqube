@@ -20,7 +20,6 @@
 
 package org.sonar.process;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +31,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 
@@ -74,7 +74,7 @@ final class AesCipher implements Cipher {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
-      return new String(cipherData, Charsets.UTF_8);
+      return new String(cipherData, StandardCharsets.UTF_8);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {

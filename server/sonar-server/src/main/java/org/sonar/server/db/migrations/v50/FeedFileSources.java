@@ -19,13 +19,6 @@
  */
 package org.sonar.server.db.migrations.v50;
 
-import static com.google.common.base.Charsets.UTF_8;
-
-import java.sql.SQLException;
-import java.util.Date;
-
-import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -34,6 +27,12 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
 import org.sonar.server.db.migrations.SqlStatement;
+
+import javax.annotation.Nullable;
+
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Used in the Active Record Migration 714
@@ -220,7 +219,7 @@ public class FeedFileSources extends BaseDataChange {
     } else {
       result = shortBytes;
     }
-    return new String(result, UTF_8);
+    return new String(result, StandardCharsets.UTF_8);
   }
 
   private final System2 system;

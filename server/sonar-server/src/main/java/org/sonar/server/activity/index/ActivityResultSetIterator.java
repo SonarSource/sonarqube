@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity.index;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
@@ -31,7 +30,12 @@ import org.sonar.server.util.DateCollector;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.sql.*;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -77,7 +81,7 @@ class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
   protected UpdateRequest read(ResultSet rs) throws SQLException {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     // all the fields must be present, even if value is null
-    JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, Charsets.UTF_8)).setSerializeNulls(true);
+    JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, StandardCharsets.UTF_8)).setSerializeNulls(true);
     writer.beginObject();
     String key = rs.getString(1);
     writer.prop(ActivityIndexDefinition.FIELD_KEY, key);

@@ -19,10 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +31,10 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class QProfileRestoreAction implements QProfileWsAction {
 
@@ -70,7 +71,7 @@ public class QProfileRestoreAction implements QProfileWsAction {
 
     try {
       Preconditions.checkArgument(backup != null, "A backup file must be provided");
-      reader = new InputStreamReader(backup, Charsets.UTF_8);
+      reader = new InputStreamReader(backup, StandardCharsets.UTF_8);
       BulkChangeResult result = backuper.restore(reader, null);
       writeResponse(response.newJsonWriter(), result);
     } finally {

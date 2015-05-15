@@ -20,7 +20,6 @@
 
 package org.sonar.server.duplication.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
@@ -39,6 +38,7 @@ import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -229,10 +229,10 @@ public class DuplicationsParserTest {
   }
 
   private String getData(String file) throws IOException {
-    return Files.toString(new File(Resources.getResource(this.getClass(), "DuplicationsParserTest/" + file).getFile()), Charsets.UTF_8);
+    return Files.toString(new File(Resources.getResource(this.getClass(), "DuplicationsParserTest/" + file).getFile()), StandardCharsets.UTF_8);
   }
 
-  private static DuplicationsParser.Duplication duplication(List<DuplicationsParser.Duplication> duplications, @Nullable final String componentKey){
+  private static DuplicationsParser.Duplication duplication(List<DuplicationsParser.Duplication> duplications, @Nullable final String componentKey) {
     return Iterables.find(duplications, new Predicate<DuplicationsParser.Duplication>() {
       @Override
       public boolean apply(@Nullable DuplicationsParser.Duplication input) {

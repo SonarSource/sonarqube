@@ -29,7 +29,7 @@ import java.security.MessageDigest;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.base.Charsets.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ComputeFileSourceData {
 

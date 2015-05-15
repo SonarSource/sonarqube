@@ -22,7 +22,6 @@ package org.sonar.server.debt;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.apache.commons.io.Charsets;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
 import org.sonar.api.ServerSide;
@@ -31,6 +30,7 @@ import org.sonar.core.platform.PluginRepository;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -123,7 +123,7 @@ public class DebtModelPluginRepository implements Startable {
   public Reader createReaderForXMLFile(String pluginKey) {
     ClassLoader classLoader = contributingPluginKeyToClassLoader.get(pluginKey);
     String xmlFilePath = getXMLFilePath(pluginKey);
-    return new InputStreamReader(classLoader.getResourceAsStream(xmlFilePath), Charsets.UTF_8);
+    return new InputStreamReader(classLoader.getResourceAsStream(xmlFilePath), StandardCharsets.UTF_8);
   }
 
   @VisibleForTesting

@@ -21,9 +21,6 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
-import java.io.IOException;
-import java.util.List;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,6 +31,10 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class RawAction implements SourcesWsAction {
 
@@ -48,7 +49,7 @@ public class RawAction implements SourcesWsAction {
   }
 
   @Override
-  public void  define(WebService.NewController controller) {
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("raw")
       .setDescription("Get source code as plain text. Require See Source Code permission on file")
       .setSince("5.0")
@@ -70,7 +71,7 @@ public class RawAction implements SourcesWsAction {
       ComponentDto componentDto = dbClient.componentDao().getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
       response.stream().setMediaType("text/plain");
-      IOUtils.writeLines(lines, "\n", response.stream().output(), Charsets.UTF_8);
+      IOUtils.writeLines(lines, "\n", response.stream().output(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
     }

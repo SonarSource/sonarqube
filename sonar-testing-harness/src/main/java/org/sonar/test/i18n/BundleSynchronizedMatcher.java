@@ -19,7 +19,6 @@
  */
 package org.sonar.test.i18n;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -30,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Properties;
 import java.util.SortedMap;
@@ -121,7 +121,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
       dumpFile.delete();
     }
     dumpFile.getParentFile().mkdirs();
-    try (Writer writer = new OutputStreamWriter(new FileOutputStream(dumpFile), Charsets.UTF_8)) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(dumpFile), StandardCharsets.UTF_8)) {
       writer.write(details);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write the report to 'target/l10n/" + bundleName + ".report.txt'", e);

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,13 +31,21 @@ import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.*;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.COMPONENT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.DEBT;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.SEVERITY;
+import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG;
 
 public class NewIssuesEmailTemplateTest {
 
@@ -104,7 +111,7 @@ public class NewIssuesEmailTemplateTest {
     EmailMessage message = template.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_all_details.txt"), Charsets.UTF_8);
+    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
     assertThat(message.getMessage()).startsWith(expectedContent);
   }
 
@@ -115,7 +122,7 @@ public class NewIssuesEmailTemplateTest {
     EmailMessage message = template.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_partial_details.txt"), Charsets.UTF_8);
+    String expectedContent = IOUtils.toString(getClass().getResource("NewIssuesEmailTemplateTest/email_with_partial_details.txt"), StandardCharsets.UTF_8);
     assertThat(message.getMessage()).startsWith(expectedContent);
   }
 

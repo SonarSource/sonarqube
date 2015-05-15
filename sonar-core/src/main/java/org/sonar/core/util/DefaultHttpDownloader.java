@@ -29,7 +29,6 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
@@ -50,6 +49,7 @@ import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -282,7 +282,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
         // allow both GZip and Deflate (ZLib) encodings
         connection.setRequestProperty("Accept-Encoding", "gzip");
         if (!Strings.isNullOrEmpty(login)) {
-          String encoded = Base64.encodeBase64String((login + ":" + password).getBytes(Charsets.UTF_8));
+          String encoded = Base64.encodeBase64String((login + ":" + password).getBytes(StandardCharsets.UTF_8));
           connection.setRequestProperty("Authorization", "Basic " + encoded);
         }
         connection.setConnectTimeout(TIMEOUT_MILLISECONDS);

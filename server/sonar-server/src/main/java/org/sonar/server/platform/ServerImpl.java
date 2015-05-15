@@ -20,7 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
@@ -39,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -142,9 +142,9 @@ public final class ServerImpl extends Server implements Startable {
   private static String readVersion(String filename) throws IOException {
     URL url = ServerImpl.class.getResource(filename);
     if (url != null) {
-      String version = Resources.toString(url, Charsets.UTF_8);
+      String version = Resources.toString(url, StandardCharsets.UTF_8);
       if (!StringUtils.isBlank(version)) {
-        return  StringUtils.deleteWhitespace(version);
+        return StringUtils.deleteWhitespace(version);
       }
     }
     throw new IllegalStateException("Unknown SonarQube version");

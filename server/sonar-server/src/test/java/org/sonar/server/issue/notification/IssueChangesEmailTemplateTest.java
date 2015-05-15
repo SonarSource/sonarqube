@@ -20,7 +20,6 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.io.Resources;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,8 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -73,7 +74,7 @@ public class IssueChangesEmailTemplateTest {
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_assignee_change.txt"),
-      Charsets.UTF_8
+      StandardCharsets.UTF_8
       );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
@@ -93,7 +94,7 @@ public class IssueChangesEmailTemplateTest {
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_action_plan_change.txt"),
-      Charsets.UTF_8
+      StandardCharsets.UTF_8
       );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
@@ -113,7 +114,7 @@ public class IssueChangesEmailTemplateTest {
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_should_display_resolution_change.txt"),
-      Charsets.UTF_8
+      StandardCharsets.UTF_8
       );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
@@ -132,7 +133,7 @@ public class IssueChangesEmailTemplateTest {
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
       "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/display_component_key_if_no_component_name.txt"),
-      Charsets.UTF_8
+      StandardCharsets.UTF_8
       );
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
@@ -154,7 +155,7 @@ public class IssueChangesEmailTemplateTest {
 
     String message = email.getMessage();
     String expected = Resources.toString(Resources.getResource(
-      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_multiple_changes.txt"), Charsets.UTF_8);
+      "org/sonar/server/issue/notification/IssueChangesEmailTemplateTest/email_with_multiple_changes.txt"), StandardCharsets.UTF_8);
     expected = StringUtils.remove(expected, '\r');
     assertThat(message).isEqualTo(expected);
     assertThat(email.getFrom()).isNull();

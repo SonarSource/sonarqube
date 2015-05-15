@@ -19,7 +19,6 @@
  */
 package org.sonar.application;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,6 +28,7 @@ import org.sonar.process.Props;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,7 +122,7 @@ public class PropsBuilderTest {
 
   @Test
   public void utf8_file_encoding() throws Exception {
-    FileUtils.write(new File(homeDir, "conf/sonar.properties"), "utf8prop=Thônes", Charsets.UTF_8);
+    FileUtils.write(new File(homeDir, "conf/sonar.properties"), "utf8prop=Thônes", StandardCharsets.UTF_8);
     Props props = new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
     assertThat(props.value("utf8prop")).isEqualTo("Thônes");
   }

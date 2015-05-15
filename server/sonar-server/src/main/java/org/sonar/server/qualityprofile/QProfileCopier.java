@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 @ServerSide
 public class QProfileCopier {
@@ -100,7 +100,7 @@ public class QProfileCopier {
   private void backup(String profileKey, File backupFile) {
     Writer writer = null;
     try {
-      writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), Charsets.UTF_8);
+      writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile), StandardCharsets.UTF_8);
       backuper.backup(profileKey, writer);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open temporary backup file: " + backupFile, e);
@@ -112,7 +112,7 @@ public class QProfileCopier {
   private void restore(File backupFile, QProfileName profileName) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(FileUtils.openInputStream(backupFile), Charsets.UTF_8);
+      reader = new InputStreamReader(FileUtils.openInputStream(backupFile), StandardCharsets.UTF_8);
       backuper.restore(reader, profileName);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temporary backup file: " + backupFile, e);

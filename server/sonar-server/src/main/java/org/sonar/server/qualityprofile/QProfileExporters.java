@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
@@ -42,6 +41,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -141,7 +141,7 @@ public class QProfileExporters {
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, InputStream xml, DbSession dbSession) {
-    return importXml(profileDto, importerKey, new InputStreamReader(xml, Charsets.UTF_8), dbSession);
+    return importXml(profileDto, importerKey, new InputStreamReader(xml, StandardCharsets.UTF_8), dbSession);
   }
 
   public QProfileResult importXml(QualityProfileDto profileDto, String importerKey, Reader xml, DbSession dbSession) {

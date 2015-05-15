@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +33,7 @@ import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
 
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class QProfileBackupAction implements QProfileWsAction {
 
@@ -62,12 +62,11 @@ public class QProfileBackupAction implements QProfileWsAction {
     QProfileIdentificationParamUtils.defineProfileParams(backup, languages);
   }
 
-
   @Override
   public void handle(Request request, Response response) throws Exception {
     Stream stream = response.stream();
     stream.setMediaType(MimeTypes.XML);
-    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), Charsets.UTF_8);
+    OutputStreamWriter writer = new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8);
     DbSession session = dbClient.openSession(false);
     try {
       String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);

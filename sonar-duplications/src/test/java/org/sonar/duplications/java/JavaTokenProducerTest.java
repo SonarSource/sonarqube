@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.java;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
@@ -35,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -284,11 +284,11 @@ public class JavaTokenProducerTest {
   @Test
   public void shouldPreserveSeparators() {
     assertThat(chunk("(){}[];,."), isTokens(
-        new Token("(", 1, 0), new Token(")", 1, 1),
-        new Token("{", 1, 2), new Token("}", 1, 3),
-        new Token("[", 1, 4), new Token("]", 1, 5),
-        new Token(";", 1, 6), new Token(",", 1, 7),
-        new Token(".", 1, 8)));
+      new Token("(", 1, 0), new Token(")", 1, 1),
+      new Token("{", 1, 2), new Token("}", 1, 3),
+      new Token("[", 1, 4), new Token("]", 1, 5),
+      new Token(";", 1, 6), new Token(",", 1, 7),
+      new Token(".", 1, 8)));
   }
 
   /**
@@ -312,7 +312,7 @@ public class JavaTokenProducerTest {
   private TokenQueue chunk(File file) {
     Reader reader = null;
     try {
-      reader = new InputStreamReader(new FileInputStream(file), Charsets.UTF_8);
+      reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
       return chunker.chunk(reader);
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);

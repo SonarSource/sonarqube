@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.custommonkey.xmlunit.Diff;
@@ -39,13 +38,14 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.tester.UserSessionRule;
 
 import javax.xml.stream.XMLStreamException;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -108,7 +108,7 @@ public class QProfileBackuperMediumTest {
     XMLUnit.setIgnoreWhitespace(true);
     XMLUnit.setIgnoreComments(true);
     Diff diff = XMLUnit.compareXML(output.toString(),
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/expected-backup.xml"), Charsets.UTF_8));
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/expected-backup.xml"), StandardCharsets.UTF_8));
 
     assertThat(diff.identical()).as(diff.toString()).isTrue();
   }
@@ -127,7 +127,7 @@ public class QProfileBackuperMediumTest {
   public void restore_and_create_profile() throws Exception {
     // Backup file declares profile P1 on xoo
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       null);
 
     QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo");
@@ -158,7 +158,7 @@ public class QProfileBackuperMediumTest {
     // restore backup, which activates only x1
     // -> update x1 and deactivate x2
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)), null);
 
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
@@ -185,7 +185,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of child profile -> overrides x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), Charsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), StandardCharsets.UTF_8)), null);
 
     // parent profile is unchanged
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
@@ -220,7 +220,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of parent profile -> update x1 and propagates to child
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), Charsets.UTF_8)), null);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), StandardCharsets.UTF_8)), null);
 
     // parent profile is updated
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
@@ -255,7 +255,7 @@ public class QProfileBackuperMediumTest {
 
     // backup of child profile contains x2 but not x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), Charsets.UTF_8)), QProfileTesting.XOO_P2_NAME);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), StandardCharsets.UTF_8)), QProfileTesting.XOO_P2_NAME);
 
     // x1 and x2
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY));
@@ -266,7 +266,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_not_xml_backup() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), Charsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), StandardCharsets.UTF_8)), null);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to restore Quality profile backup");
@@ -278,7 +278,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_bad_xml_format() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/bad-xml-backup.xml"), Charsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/bad-xml-backup.xml"), StandardCharsets.UTF_8)), null);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
@@ -289,7 +289,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_duplicate_rule() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/duplicates-xml-backup.xml"), Charsets.UTF_8)), null);
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/duplicates-xml-backup.xml"), StandardCharsets.UTF_8)), null);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("The quality profile cannot be restored as it contains duplicates for the following rules: xoo:x1, xoo:x2");
@@ -299,7 +299,7 @@ public class QProfileBackuperMediumTest {
   @Test
   public void restore_and_override_profile_name() throws Exception {
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       QProfileTesting.XOO_P3_NAME);
 
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
@@ -314,7 +314,7 @@ public class QProfileBackuperMediumTest {
   @Test
   public void restore_profile_with_zero_rules() throws Exception {
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), Charsets.UTF_8)),
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), StandardCharsets.UTF_8)),
       null);
 
     dbSession.clearCache();

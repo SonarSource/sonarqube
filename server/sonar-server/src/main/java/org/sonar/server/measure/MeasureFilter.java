@@ -185,7 +185,7 @@ public class MeasureFilter {
 
   @VisibleForTesting
   static List<String> sanitize(@Nullable List<String> list) {
-    return isEmptyList(list) ? Collections.<String> emptyList() : Lists.newArrayList(list);
+    return isEmptyList(list) ? Collections.<String>emptyList() : Lists.newArrayList(list);
   }
 
   private static boolean isEmptyList(@Nullable List<String> list) {

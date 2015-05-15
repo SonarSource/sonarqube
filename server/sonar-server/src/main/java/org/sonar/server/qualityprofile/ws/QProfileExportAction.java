@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.profiles.ProfileExporter;
@@ -42,6 +41,7 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class QProfileExportAction implements QProfileWsAction {
@@ -86,8 +86,8 @@ public class QProfileExportAction implements QProfileWsAction {
       .setRequired(true);
 
     List<String> exporterKeys = Lists.newArrayList();
-    for (Language lang: languages.all()) {
-      for(ProfileExporter exporter: exporters.exportersForLanguage(lang.getKey())) {
+    for (Language lang : languages.all()) {
+      for (ProfileExporter exporter : exporters.exportersForLanguage(lang.getKey())) {
         exporterKeys.add(exporter.getKey());
       }
     }
@@ -111,10 +111,10 @@ public class QProfileExportAction implements QProfileWsAction {
     DbSession dbSession = dbClient.openSession(false);
     Stream stream = response.stream();
     OutputStream output = stream.output();
-    Writer writer = new OutputStreamWriter(output, Charsets.UTF_8);
+    Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
 
     try {
-      QualityProfileDto profile = null;
+      QualityProfileDto profile;
       if (name == null) {
         profile = profileFactory.getDefault(dbSession, language);
       } else {

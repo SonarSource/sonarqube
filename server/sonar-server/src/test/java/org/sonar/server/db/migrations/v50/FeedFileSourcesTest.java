@@ -21,7 +21,6 @@
 package org.sonar.server.db.migrations.v50;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.io.Charsets;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbTester;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -137,84 +137,84 @@ public class FeedFileSourcesTest {
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(1, 6, ?)");
-      revisionStmt.setBytes(1, "1=aef12a;2=abe465;3=afb789;4=afb789".getBytes(Charsets.UTF_8));
+      revisionStmt.setBytes(1, "1=aef12a;2=abe465;3=afb789;4=afb789".getBytes(StandardCharsets.UTF_8));
       revisionStmt.executeUpdate();
 
       PreparedStatement authorStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(2, 6, ?)");
-      authorStmt.setBytes(1, "1=alice;2=bob;3=carol;4=carol".getBytes(Charsets.UTF_8));
+      authorStmt.setBytes(1, "1=alice;2=bob;3=carol;4=carol".getBytes(StandardCharsets.UTF_8));
       authorStmt.executeUpdate();
 
       PreparedStatement dateStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(3, 6, ?)");
-      dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(Charsets.UTF_8));
+      dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(StandardCharsets.UTF_8));
       dateStmt.executeUpdate();
 
       PreparedStatement utHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(4, 6, ?)");
-      utHitsStmt.setBytes(1, "1=1;3=0".getBytes(Charsets.UTF_8));
+      utHitsStmt.setBytes(1, "1=1;3=0".getBytes(StandardCharsets.UTF_8));
       utHitsStmt.executeUpdate();
 
       PreparedStatement utCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(5, 6, ?)");
-      utCondStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
+      utCondStmt.setBytes(1, "1=4".getBytes(StandardCharsets.UTF_8));
       utCondStmt.executeUpdate();
 
       PreparedStatement utCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(6, 6, ?)");
-      utCoveredCondStmt.setBytes(1, "1=2".getBytes(Charsets.UTF_8));
+      utCoveredCondStmt.setBytes(1, "1=2".getBytes(StandardCharsets.UTF_8));
       utCoveredCondStmt.executeUpdate();
 
       PreparedStatement itHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(7, 6, ?)");
-      itHitsStmt.setBytes(1, "1=2;3=0".getBytes(Charsets.UTF_8));
+      itHitsStmt.setBytes(1, "1=2;3=0".getBytes(StandardCharsets.UTF_8));
       itHitsStmt.executeUpdate();
 
       PreparedStatement itCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(8, 6, ?)");
-      itCondStmt.setBytes(1, "1=5".getBytes(Charsets.UTF_8));
+      itCondStmt.setBytes(1, "1=5".getBytes(StandardCharsets.UTF_8));
       itCondStmt.executeUpdate();
 
       PreparedStatement itCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(9, 6, ?)");
-      itCoveredCondStmt.setBytes(1, "1=3".getBytes(Charsets.UTF_8));
+      itCoveredCondStmt.setBytes(1, "1=3".getBytes(StandardCharsets.UTF_8));
       itCoveredCondStmt.executeUpdate();
 
       PreparedStatement overallHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(10, 6, ?)");
-      overallHitsStmt.setBytes(1, "1=3;3=0".getBytes(Charsets.UTF_8));
+      overallHitsStmt.setBytes(1, "1=3;3=0".getBytes(StandardCharsets.UTF_8));
       overallHitsStmt.executeUpdate();
 
       PreparedStatement overallCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(11, 6, ?)");
-      overallCondStmt.setBytes(1, "1=6".getBytes(Charsets.UTF_8));
+      overallCondStmt.setBytes(1, "1=6".getBytes(StandardCharsets.UTF_8));
       overallCondStmt.executeUpdate();
 
       PreparedStatement overallCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(12, 6, ?)");
-      overallCoveredCondStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
+      overallCoveredCondStmt.setBytes(1, "1=4".getBytes(StandardCharsets.UTF_8));
       overallCoveredCondStmt.executeUpdate();
 
       PreparedStatement duplicationDataStmt = connection.prepareStatement("insert into project_measures " +
@@ -225,7 +225,7 @@ public class FeedFileSourcesTest {
         .setBytes(
           1,
           "<duplications><g><b s=\"1\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"2\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"3\" l=\"1\" r=\"MyProject:src/main/xoo/prj/AnotherFile.xoo\"/></g></duplications>"
-            .getBytes(Charsets.UTF_8));
+            .getBytes(StandardCharsets.UTF_8));
       duplicationDataStmt.executeUpdate();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);
@@ -283,7 +283,7 @@ public class FeedFileSourcesTest {
         .setBytes(
           1,
           "<duplications><g><b s=\"1\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"2\" l=\"1\" r=\"MyProject:src/main/xoo/prj/MyFile.xoo\"/><b s=\"3\" l=\"1\" r=\"MyProject:src/main/xoo/prj/AnotherFile.xoo\"/"
-            .getBytes(Charsets.UTF_8));
+            .getBytes(StandardCharsets.UTF_8));
       duplicationDataStmt.executeUpdate();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);

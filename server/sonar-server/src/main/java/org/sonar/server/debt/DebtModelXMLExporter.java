@@ -24,7 +24,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerSide;
@@ -45,6 +44,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -170,10 +170,10 @@ public class DebtModelXMLExporter {
       serializer.setOutputProperty(OutputKeys.INDENT, "yes");
       serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", DEFAULT_INDENT);
-      Source xmlSource = new SAXSource(new InputSource(new ByteArrayInputStream(xml.getBytes(Charsets.UTF_8))));
+      Source xmlSource = new SAXSource(new InputSource(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))));
       StreamResult res = new StreamResult(new ByteArrayOutputStream());
       serializer.transform(xmlSource, res);
-      return new String(((ByteArrayOutputStream) res.getOutputStream()).toByteArray(), Charsets.UTF_8);
+      return new String(((ByteArrayOutputStream) res.getOutputStream()).toByteArray(), StandardCharsets.UTF_8);
     } catch (TransformerException ignored) {
       // Ignore, raw XML will be returned
     }

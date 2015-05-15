@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Charsets;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
@@ -30,6 +29,7 @@ import javax.annotation.CheckForNull;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 public class ServletResponse implements Response {
 
@@ -65,7 +65,7 @@ public class ServletResponse implements Response {
     }
 
     public String outputAsString() {
-      return new String(output.toByteArray(), Charsets.UTF_8);
+      return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public ServletStream reset() {
@@ -79,13 +79,13 @@ public class ServletResponse implements Response {
   @Override
   public JsonWriter newJsonWriter() {
     stream.setMediaType(MimeTypes.JSON);
-    return JsonWriter.of(new OutputStreamWriter(stream.output(), Charsets.UTF_8));
+    return JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
   }
 
   @Override
   public XmlWriter newXmlWriter() {
     stream.setMediaType(MimeTypes.XML);
-    return XmlWriter.of(new OutputStreamWriter(stream.output(), Charsets.UTF_8));
+    return XmlWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
   }
 
   @Override

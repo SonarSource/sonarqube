@@ -19,7 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
@@ -34,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 public final class GeneratePluginIndex implements ServerComponent {
 
@@ -51,7 +51,7 @@ public final class GeneratePluginIndex implements ServerComponent {
 
   void writeIndex(File indexFile) throws IOException {
     FileUtils.forceMkdir(indexFile.getParentFile());
-    Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), Charsets.UTF_8);
+    Writer writer = new OutputStreamWriter(new FileOutputStream(indexFile), StandardCharsets.UTF_8);
     try {
       for (PluginInfo pluginInfo : repository.getPluginInfos()) {
         writer.append(RemotePlugin.create(pluginInfo).marshal());

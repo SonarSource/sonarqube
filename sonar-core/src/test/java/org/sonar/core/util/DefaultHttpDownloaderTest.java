@@ -19,7 +19,6 @@
  */
 package org.sonar.core.util;
 
-import com.google.common.base.Charsets;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.AfterClass;
@@ -49,6 +48,7 @@ import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
@@ -132,19 +132,19 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void readString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
   @Test
   public void readGzipString() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/gzip/"), StandardCharsets.UTF_8);
     assertThat(text).isEqualTo("GZIP response");
   }
 
   @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
-    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    String text = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
@@ -160,7 +160,7 @@ public class DefaultHttpDownloaderTest {
       public void describeTo(Description arg0) {
       }
     });
-    new DefaultHttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    new DefaultHttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), StandardCharsets.UTF_8);
   }
 
   @Test
@@ -201,7 +201,7 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void followRedirect() throws URISyntaxException {
-    String content = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/redirect/"), Charsets.UTF_8);
+    String content = new DefaultHttpDownloader(new Settings()).readString(new URI(baseUrl + "/redirect/"), StandardCharsets.UTF_8);
     assertThat(content).contains("agent");
   }
 

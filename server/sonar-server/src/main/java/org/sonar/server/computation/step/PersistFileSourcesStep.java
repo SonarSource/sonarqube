@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
@@ -51,6 +50,7 @@ import org.sonar.server.source.db.FileSourceDb;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +118,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private static LineIterator sourceLinesIterator(File file) {
     try {
-      return IOUtils.lineIterator(FileUtils.openInputStream(file), Charsets.UTF_8);
+      return IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
     }

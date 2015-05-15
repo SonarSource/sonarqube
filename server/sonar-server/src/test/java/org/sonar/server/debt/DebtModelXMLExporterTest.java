@@ -19,7 +19,6 @@
  */
 package org.sonar.server.debt;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -31,6 +30,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -65,7 +65,7 @@ public class DebtModelXMLExporterTest {
     List<RuleDebt> rules = newArrayList(
       new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
         .setSubCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name()).setCoefficient("3d").setOffset("15min")
-    );
+      );
 
     assertSimilarXml(getFileContent("export_xml.xml"), xmlExporter.export(debtModel, rules));
   }
@@ -109,7 +109,7 @@ public class DebtModelXMLExporterTest {
     List<RuleDebt> rules = newArrayList(
       new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
         .setSubCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("3d")
-    );
+      );
     assertThat(xmlExporter.export(debtModel, rules)).isEqualTo(
       "<sqale>" + SystemUtils.LINE_SEPARATOR +
         "  <chc>" + SystemUtils.LINE_SEPARATOR +
@@ -138,10 +138,10 @@ public class DebtModelXMLExporterTest {
         "    </chc>" + SystemUtils.LINE_SEPARATOR +
         "  </chc>" + SystemUtils.LINE_SEPARATOR +
         "</sqale>" + SystemUtils.LINE_SEPARATOR
-    );
+      );
   }
 
   private String getFileContent(String file) throws Exception {
-    return Resources.toString(Resources.getResource(getClass(), "DebtModelXMLExporterTest/" + file), Charsets.UTF_8);
+    return Resources.toString(Resources.getResource(getClass(), "DebtModelXMLExporterTest/" + file), StandardCharsets.UTF_8);
   }
 }

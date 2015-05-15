@@ -20,11 +20,12 @@
 
 package org.sonar.core.measure.db;
 
-import com.google.common.base.Charsets;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.nio.charset.StandardCharsets;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -75,7 +76,7 @@ public class MeasureDto {
   @CheckForNull
   public String getData() {
     if (dataValue != null) {
-      return new String(dataValue, Charsets.UTF_8);
+      return new String(dataValue, StandardCharsets.UTF_8);
     }
     return textValue;
   }
@@ -86,7 +87,7 @@ public class MeasureDto {
       this.dataValue = null;
     } else if (data.length() > MAX_TEXT_VALUE_LENGTH) {
       this.textValue = null;
-      this.dataValue = data.getBytes(Charsets.UTF_8);
+      this.dataValue = data.getBytes(StandardCharsets.UTF_8);
     } else {
       this.textValue = data;
       this.dataValue = null;

@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue.notification;
 
-import com.google.common.base.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,7 @@ import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
 
@@ -95,7 +95,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = sut.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"), Charsets.UTF_8);
+    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
     assertThat(message.getMessage()).startsWith(file);
   }
 
@@ -124,7 +124,7 @@ public class MyNewIssuesEmailTemplateTest {
     EmailMessage message = sut.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
-    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"), Charsets.UTF_8);
+    String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"), StandardCharsets.UTF_8);
     assertThat(message.getMessage()).startsWith(file);
   }
 

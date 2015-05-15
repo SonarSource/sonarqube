@@ -22,12 +22,12 @@ package org.sonar.test;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.junit.ComparisonFailure;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Assertion to compare JSON documents. Comparison is not strict:
@@ -100,7 +100,7 @@ public class JsonAssert {
 
   private static String urlToString(URL url) {
     try {
-      return IOUtils.toString(url, Charsets.UTF_8);
+      return IOUtils.toString(url, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to load JSON from " + url, e);
     }

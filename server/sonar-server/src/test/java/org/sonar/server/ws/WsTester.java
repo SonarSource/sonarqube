@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -39,6 +38,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -137,12 +137,12 @@ public class WsTester {
 
     @Override
     public JsonWriter newJsonWriter() {
-      return JsonWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
+      return JsonWriter.of(new OutputStreamWriter(output, StandardCharsets.UTF_8));
     }
 
     @Override
     public XmlWriter newXmlWriter() {
-      return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
+      return XmlWriter.of(new OutputStreamWriter(output, StandardCharsets.UTF_8));
     }
 
     @Override
@@ -161,7 +161,7 @@ public class WsTester {
     }
 
     public String outputAsString() {
-      return new String(output.toByteArray(), Charsets.UTF_8);
+      return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
   }
 
@@ -177,7 +177,7 @@ public class WsTester {
     }
 
     public String outputAsString() {
-      return new String(response.output.toByteArray(), Charsets.UTF_8);
+      return new String(response.output.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public byte[] output() {

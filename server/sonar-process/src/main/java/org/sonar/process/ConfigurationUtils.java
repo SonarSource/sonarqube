@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
@@ -28,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -60,7 +60,7 @@ public final class ConfigurationUtils {
     Properties properties = new Properties();
     Reader reader = null;
     try {
-      reader = new InputStreamReader(new FileInputStream(propertyFile), Charsets.UTF_8);
+      reader = new InputStreamReader(new FileInputStream(propertyFile), StandardCharsets.UTF_8);
       properties.load(reader);
     } catch (Exception e) {
       throw new IllegalStateException("Could not read properties from file: " + args[0], e);
