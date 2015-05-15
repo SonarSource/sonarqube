@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.test.ws;
+package org.sonar.server.ui.ws;
 
 import org.sonar.server.ws.WsAction;
 
-public interface TestAction extends WsAction {
-  // marker interface
+public interface NavigationWsAction extends WsAction {
+  // Marker interface for navigation related actions
 }

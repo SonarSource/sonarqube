@@ -29,7 +29,7 @@ import org.sonar.server.rule.RuleService;
 /**
  * @since 4.4
  */
-public class DeleteAction implements RulesAction {
+public class DeleteAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
 

@@ -31,7 +31,7 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-public class UpdateAction implements BaseUsersWsAction {
+public class UpdateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_NAME = "name";

@@ -58,7 +58,7 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssueShowAction implements BaseIssuesWsAction {
+public class IssueShowAction implements IssuesWsAction {
 
   public static final String SHOW_ACTION = "show";
 

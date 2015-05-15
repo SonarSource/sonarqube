@@ -25,7 +25,6 @@ import org.sonar.server.ws.WsAction;
  * Marker interface for coding rule related actions
  *
  */
-interface RulesAction extends WsAction {
-
+interface RulesWsAction extends WsAction {
   // Marker interface
 }

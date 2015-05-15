@@ -23,9 +23,9 @@ import org.sonar.api.server.ws.WebService;
 
 public class NavigationWs implements WebService {
 
-  private final NavigationAction[] actions;
+  private final NavigationWsAction[] actions;
 
-  public NavigationWs(NavigationAction... actions) {
+  public NavigationWs(NavigationWsAction... actions) {
     this.actions = actions;
   }
 
@@ -35,7 +35,7 @@ public class NavigationWs implements WebService {
       .setDescription("Get information required to build navigation UI components")
       .setSince("5.2");
 
-    for (NavigationAction action : actions) {
+    for (NavigationWsAction action : actions) {
       action.define(navigation);
     }
 

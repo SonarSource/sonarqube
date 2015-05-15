@@ -33,7 +33,7 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-public class SettingsNavigationAction implements NavigationAction {
+public class SettingsNavigationAction implements NavigationWsAction {
 
   private final Settings settings;
   private final Views views;

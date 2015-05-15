@@ -32,7 +32,7 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-public class CreateAction implements BaseUsersWsAction {
+public class CreateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";

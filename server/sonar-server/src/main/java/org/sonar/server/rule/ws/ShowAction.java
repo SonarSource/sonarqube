@@ -32,7 +32,7 @@ import org.sonar.server.rule.RuleService;
 /**
  * @since 4.4
  */
-public class ShowAction implements RulesAction {
+public class ShowAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";

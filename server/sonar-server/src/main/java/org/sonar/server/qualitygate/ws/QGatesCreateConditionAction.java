@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesCreateConditionAction implements BaseQGateWsAction {
+public class QGatesCreateConditionAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 

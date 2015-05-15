@@ -27,7 +27,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesRenameAction implements BaseQGateWsAction {
+public class QGatesRenameAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 

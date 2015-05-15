@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public class QProfileSetDefaultAction implements BaseQProfileWsAction {
+public class QProfileSetDefaultAction implements QProfileWsAction {
 
   private static final String PARAM_LANGUAGE = "language";
   private static final String PARAM_PROFILE_NAME = "profileName";

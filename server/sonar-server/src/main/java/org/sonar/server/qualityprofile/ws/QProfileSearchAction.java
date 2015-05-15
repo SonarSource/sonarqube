@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class QProfileSearchAction implements BaseQProfileWsAction {
+public class QProfileSearchAction implements QProfileWsAction {
 
   private static final String FIELD_KEY = "key";
   private static final String FIELD_NAME = "name";

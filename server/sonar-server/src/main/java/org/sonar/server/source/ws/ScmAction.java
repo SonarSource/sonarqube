@@ -40,7 +40,7 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
-public class ScmAction implements SourcesAction {
+public class ScmAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final SourceLineIndex sourceLineIndex;

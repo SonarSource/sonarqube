@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.user.UserSession;
 
-public class CurrentUserAction implements BaseUsersWsAction {
+public class CurrentUserAction implements UsersWsAction {
   private final UserSession userSession;
 
   public CurrentUserAction(UserSession userSession) {

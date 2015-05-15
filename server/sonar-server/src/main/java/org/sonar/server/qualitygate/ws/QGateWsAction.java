@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+package org.sonar.server.qualitygate.ws;
 
 import org.sonar.server.ws.WsAction;
 
-interface BaseIssuesWsAction extends WsAction {
+public interface QGateWsAction extends WsAction {
 
   // Marker interface
-
 }
-

@@ -42,7 +42,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-public class QProfileProjectsAction implements BaseQProfileWsAction {
+public class QProfileProjectsAction implements QProfileWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_SELECTED = "selected";

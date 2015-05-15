@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 /**
  * @since 5.1
  */
-public class RepositoriesAction implements RulesAction {
+public class RepositoriesAction implements RulesWsAction {
 
   private static final String LANGUAGE = "language";
   private static final String MATCH_ALL = ".*";

@@ -43,7 +43,7 @@ import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 
-public class TestsListAction implements TestAction {
+public class TestsListAction implements TestsWsAction {
   public static final String TEST_UUID = "testUuid";
   public static final String TEST_FILE_UUID = "testFileUuid";
   public static final String TEST_FILE_KEY = "testFileKey";

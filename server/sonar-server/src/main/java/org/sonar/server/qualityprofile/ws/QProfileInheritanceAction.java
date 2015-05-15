@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class QProfileInheritanceAction implements BaseQProfileWsAction {
+public class QProfileInheritanceAction implements QProfileWsAction {
 
   private final DbClient dbClient;
 

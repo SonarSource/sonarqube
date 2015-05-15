@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class QProfileCompareAction implements BaseQProfileWsAction {
+public class QProfileCompareAction implements QProfileWsAction {
 
   private static final String ATTRIBUTE_LEFT = "left";
   private static final String ATTRIBUTE_RIGHT = "right";

@@ -24,9 +24,9 @@ import org.sonar.api.server.ws.WebService;
 
 public class SourcesWs implements WebService {
 
-  private final SourcesAction[] actions;
+  private final SourcesWsAction[] actions;
 
-  public SourcesWs(SourcesAction... actions) {
+  public SourcesWs(SourcesWsAction... actions) {
     this.actions = actions;
   }
 
@@ -35,7 +35,7 @@ public class SourcesWs implements WebService {
     NewController controller = context.createController("api/sources")
       .setSince("4.2")
       .setDescription("Display sources information");
-    for (SourcesAction action : actions) {
+    for (SourcesWsAction action : actions) {
       action.define(controller);
     }
     controller.done();

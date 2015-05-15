@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class GroupsAction implements BaseUsersWsAction {
+public class GroupsAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_SELECTED = "selected";

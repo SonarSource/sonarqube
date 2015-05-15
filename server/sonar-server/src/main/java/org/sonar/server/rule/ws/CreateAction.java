@@ -41,7 +41,7 @@ import java.io.OutputStreamWriter;
 /**
  * @since 4.4
  */
-public class CreateAction implements RulesAction {
+public class CreateAction implements RulesWsAction {
 
   public static final String PARAM_CUSTOM_KEY = "custom_key";
   public static final String PARAM_MANUAL_KEY = "manual_key";

@@ -27,7 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
-public class QProfileRenameAction implements BaseQProfileWsAction {
+public class QProfileRenameAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_PROFILE_KEY = "key";

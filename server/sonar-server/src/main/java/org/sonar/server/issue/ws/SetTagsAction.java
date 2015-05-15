@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Set tags on an issue
  */
-public class SetTagsAction implements BaseIssuesWsAction {
+public class SetTagsAction implements IssuesWsAction {
 
   private final IssueService service;
 

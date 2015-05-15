@@ -32,7 +32,7 @@ import org.sonar.server.issue.IssueService;
  * List issue tags matching a given query.
  * @since 5.1
  */
-public class TagsAction implements BaseIssuesWsAction {
+public class TagsAction implements IssuesWsAction {
 
   private final IssueService service;
 

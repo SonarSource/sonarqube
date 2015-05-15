@@ -29,7 +29,7 @@ import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 
-public class QGatesSearchAction implements BaseQGateWsAction {
+public class QGatesSearchAction implements QGateWsAction {
 
   private final QgateProjectFinder projectFinder;
 

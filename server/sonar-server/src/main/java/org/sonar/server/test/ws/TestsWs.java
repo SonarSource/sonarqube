@@ -24,9 +24,9 @@ import org.sonar.api.server.ws.WebService;
 
 public class TestsWs implements WebService {
 
-  private final TestAction[] actions;
+  private final TestsWsAction[] actions;
 
-  public TestsWs(TestAction... actions) {
+  public TestsWs(TestsWsAction... actions) {
     this.actions = actions;
   }
 
@@ -36,7 +36,7 @@ public class TestsWs implements WebService {
       .setSince("4.4")
       .setDescription("Tests management");
 
-    for (TestAction action : actions) {
+    for (TestsWsAction action : actions) {
       action.define(controller);
     }
 

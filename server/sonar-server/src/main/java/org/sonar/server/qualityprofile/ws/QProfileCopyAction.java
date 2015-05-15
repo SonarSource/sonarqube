@@ -30,7 +30,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
 
-public class QProfileCopyAction implements BaseQProfileWsAction {
+public class QProfileCopyAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "toName";
   private static final String PARAM_PROFILE_KEY = "fromKey";

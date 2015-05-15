@@ -35,7 +35,7 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-public class GlobalNavigationAction implements NavigationAction {
+public class GlobalNavigationAction implements NavigationWsAction {
 
   private static final String ANONYMOUS = null;
 

@@ -25,9 +25,9 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
-  private final ProjectsAction[] actions;
+  private final ProjectsWsAction[] actions;
 
-  public ProjectsWs(ProjectsAction... actions) {
+  public ProjectsWs(ProjectsWsAction... actions) {
     this.actions = actions;
   }
 
@@ -41,7 +41,7 @@ public class ProjectsWs implements WebService {
     defineCreateAction(controller);
     defineDestroyAction(controller);
 
-    for (ProjectsAction action : actions) {
+    for (ProjectsWsAction action : actions) {
       action.define(controller);
     }
 

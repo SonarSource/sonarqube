@@ -52,7 +52,7 @@ import org.sonar.server.user.UserSession;
 /**
  * @since 4.4
  */
-public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implements RulesAction {
+public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implements RulesWsAction {
 
   public static final String PARAM_REPOSITORIES = "repositories";
   public static final String PARAM_KEY = "rule_key";

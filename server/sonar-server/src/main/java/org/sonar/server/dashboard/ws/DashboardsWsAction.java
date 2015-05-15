@@ -17,14 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.dashboard.ws;
 
 import org.sonar.server.ws.WsAction;
 
-/**
- * Marker interface for quality profile related web service end points
- */
-public interface BaseQProfileWsAction extends WsAction {
+public interface DashboardsWsAction extends WsAction {
 
   // Marker interface
+
 }

@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ui.ws;
+
+package org.sonar.server.component.ws;
 
 import org.sonar.server.ws.WsAction;
 
-public interface NavigationAction extends WsAction {
-
-  // Marker interface for navigation related actions
+public interface ProjectsWsAction extends WsAction {
+  // marker interface
 }

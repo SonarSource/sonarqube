@@ -31,7 +31,7 @@ import org.sonar.server.qualitygate.QualityGates;
 
 import java.util.Locale;
 
-public class QGatesAppAction implements BaseQGateWsAction {
+public class QGatesAppAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 

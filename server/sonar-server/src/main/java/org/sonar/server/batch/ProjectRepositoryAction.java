@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.server.plugins.MimeTypes;
 
-public class ProjectRepositoryAction implements BatchAction {
+public class ProjectRepositoryAction implements BatchWsAction {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";

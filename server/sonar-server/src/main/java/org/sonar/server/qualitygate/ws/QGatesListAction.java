@@ -28,7 +28,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
-public class QGatesListAction implements BaseQGateWsAction {
+public class QGatesListAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 

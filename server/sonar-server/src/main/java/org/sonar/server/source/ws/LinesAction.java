@@ -39,7 +39,7 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
-public class LinesAction implements SourcesAction {
+public class LinesAction implements SourcesWsAction {
 
   private static final String PARAM_UUID = "uuid";
   private static final String PARAM_KEY = "key";

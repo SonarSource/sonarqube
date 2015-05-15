@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 
-public class QGatesShowAction implements BaseQGateWsAction {
+public class QGatesShowAction implements QGateWsAction {
 
   private final QualityGates qualityGates;
 

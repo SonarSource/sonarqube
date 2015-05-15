@@ -53,7 +53,7 @@ import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
-public class ComponentNavigationAction implements NavigationAction {
+public class ComponentNavigationAction implements NavigationWsAction {
 
   private static final String PARAM_COMPONENT_KEY = "componentKey";
 

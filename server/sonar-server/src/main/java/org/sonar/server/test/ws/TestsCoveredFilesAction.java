@@ -39,7 +39,7 @@ import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
 
-public class TestsCoveredFilesAction implements TestAction {
+public class TestsCoveredFilesAction implements TestsWsAction {
 
   public static final String TEST_UUID = "testUuid";
 

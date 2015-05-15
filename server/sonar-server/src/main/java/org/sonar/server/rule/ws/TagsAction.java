@@ -30,7 +30,7 @@ import org.sonar.server.rule.RuleService;
 
 import java.util.Set;
 
-public class TagsAction implements RulesAction {
+public class TagsAction implements RulesWsAction {
 
   private final RuleService service;
 

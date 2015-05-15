@@ -36,7 +36,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-public class GlobalRepositoryAction implements BatchAction {
+public class GlobalRepositoryAction implements BatchWsAction {
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;

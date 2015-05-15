@@ -28,7 +28,7 @@ import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 
-public class ChangePasswordAction implements BaseUsersWsAction {
+public class ChangePasswordAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";

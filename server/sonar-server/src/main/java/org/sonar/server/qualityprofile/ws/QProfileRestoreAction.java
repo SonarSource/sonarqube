@@ -35,7 +35,7 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.user.UserSession;
 
-public class QProfileRestoreAction implements BaseQProfileWsAction {
+public class QProfileRestoreAction implements QProfileWsAction {
 
   private static final String PARAM_BACKUP = "backup";
   private final QProfileBackuper backuper;

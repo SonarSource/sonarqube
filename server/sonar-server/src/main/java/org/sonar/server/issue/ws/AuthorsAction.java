@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueService;
 
-public class AuthorsAction implements BaseIssuesWsAction {
+public class AuthorsAction implements IssuesWsAction {
 
   private final IssueService service;
 

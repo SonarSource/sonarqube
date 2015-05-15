@@ -31,8 +31,8 @@ public class IssuesWsTest {
 
   @Test
   public void define_actions() {
-    BaseIssuesWsAction action1 = mock(BaseIssuesWsAction.class);
-    BaseIssuesWsAction action2 = mock(BaseIssuesWsAction.class);
+    IssuesWsAction action1 = mock(IssuesWsAction.class);
+    IssuesWsAction action2 = mock(IssuesWsAction.class);
     IssuesWs ws = new IssuesWs(action1, action2);
     WebService.Context context = new WebService.Context();
     ws.define(context);

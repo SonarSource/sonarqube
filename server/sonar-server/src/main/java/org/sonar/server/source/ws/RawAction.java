@@ -35,7 +35,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
-public class RawAction implements SourcesAction {
+public class RawAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final SourceService sourceService;

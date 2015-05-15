@@ -44,7 +44,7 @@ import org.sonar.server.search.Result;
 import java.util.Date;
 import java.util.Map.Entry;
 
-public class QProfileChangelogAction implements BaseQProfileWsAction {
+public class QProfileChangelogAction implements QProfileWsAction {
 
   private static final String PARAM_SINCE = "since";
   private static final String PARAM_TO = "to";

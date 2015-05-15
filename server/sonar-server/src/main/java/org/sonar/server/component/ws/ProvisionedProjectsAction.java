@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class ProvisionedProjectsAction implements ProjectsAction {
+public class ProvisionedProjectsAction implements ProjectsWsAction {
   private static final List<String> POSSIBLE_FIELDS = Arrays.asList("uuid", "key", "name", "creationDate");
 
   private final DbClient dbClient;

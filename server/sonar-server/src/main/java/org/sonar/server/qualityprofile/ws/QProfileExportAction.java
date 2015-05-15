@@ -44,7 +44,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 
-public class QProfileExportAction implements BaseQProfileWsAction {
+public class QProfileExportAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_LANGUAGE = "language";

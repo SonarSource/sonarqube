@@ -42,9 +42,9 @@ public class IssuesWs implements WebService {
   public static final String DO_ACTION_ACTION = "do_action";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
 
-  private final BaseIssuesWsAction[] actions;
+  private final IssuesWsAction[] actions;
 
-  public IssuesWs(BaseIssuesWsAction... actions) {
+  public IssuesWs(IssuesWsAction... actions) {
     this.actions = actions;
   }
 
@@ -53,7 +53,7 @@ public class IssuesWs implements WebService {
     NewController controller = context.createController(API_ENDPOINT);
     controller.setDescription("Coding rule issues");
     controller.setSince("3.6");
-    for (BaseIssuesWsAction action : actions) {
+    for (IssuesWsAction action : actions) {
       action.define(controller);
     }
     defineRailsActions(controller);

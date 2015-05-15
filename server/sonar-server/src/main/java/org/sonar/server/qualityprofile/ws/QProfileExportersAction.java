@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 
-public class QProfileExportersAction implements BaseQProfileWsAction {
+public class QProfileExportersAction implements QProfileWsAction {
 
   private ProfileExporter[] exporters;
 

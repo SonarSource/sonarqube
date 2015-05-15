@@ -23,9 +23,9 @@ import org.sonar.api.server.ws.WebService;
 
 public class DashboardsWs implements WebService {
 
-  private final DashboardsAction[] actions;
+  private final DashboardsWsAction[] actions;
 
-  public DashboardsWs(DashboardsAction... actions) {
+  public DashboardsWs(DashboardsWsAction... actions) {
     this.actions = actions;
   }
 
@@ -34,7 +34,7 @@ public class DashboardsWs implements WebService {
     NewController controller = context.createController("api/dashboards");
     controller.setSince("5.0");
     controller.setDescription("Management of dashboards and widgets");
-    for (DashboardsAction action : actions) {
+    for (DashboardsWsAction action : actions) {
       action.define(controller);
     }
     controller.done();

@@ -33,7 +33,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
-public class ShowAction implements SourcesAction {
+public class ShowAction implements SourcesWsAction {
 
   private final SourceService sourceService;
   private final DbClient dbClient;

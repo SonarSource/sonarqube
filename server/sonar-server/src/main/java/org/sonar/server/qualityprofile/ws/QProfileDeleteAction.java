@@ -30,7 +30,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
-public class QProfileDeleteAction implements BaseQProfileWsAction {
+public class QProfileDeleteAction implements QProfileWsAction {
 
   private final Languages languages;
   private final QProfileFactory profileFactory;

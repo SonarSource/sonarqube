@@ -38,7 +38,7 @@ import org.sonar.server.qualityprofile.QProfileResult;
 import java.io.InputStream;
 import org.sonar.server.user.UserSession;
 
-public class QProfileCreateAction implements BaseQProfileWsAction {
+public class QProfileCreateAction implements QProfileWsAction {
 
   private static final String PARAM_PROFILE_NAME = "name";
   private static final String PARAM_LANGUAGE = "language";

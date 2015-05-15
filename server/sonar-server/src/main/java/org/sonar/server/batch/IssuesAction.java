@@ -20,11 +20,6 @@
 
 package org.sonar.server.batch;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,9 +35,15 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import static com.google.common.collect.Maps.newHashMap;
 
-public class IssuesAction implements BatchAction {
+public class IssuesAction implements BatchWsAction {
 
   private static final String PARAM_KEY = "key";
 

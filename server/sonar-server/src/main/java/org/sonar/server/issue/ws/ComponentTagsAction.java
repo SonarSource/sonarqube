@@ -38,7 +38,7 @@ import java.util.Map;
  * List issue tags matching a given query.
  * @since 5.1
  */
-public class ComponentTagsAction implements BaseIssuesWsAction {
+public class ComponentTagsAction implements IssuesWsAction {
 
   private static final String PARAM_COMPONENT_UUID = "componentUuid";
   private static final String PARAM_CREATED_AT = "createdAfter";

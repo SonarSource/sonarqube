@@ -42,9 +42,9 @@ public class QGatesWs implements WebService {
   static final String PARAM_PROJECT_ID = "projectId";
   static final String PARAM_ID = "id";
 
-  private final BaseQGateWsAction[] actions;
+  private final QGateWsAction[] actions;
 
-  public QGatesWs(BaseQGateWsAction... actions) {
+  public QGatesWs(QGateWsAction... actions) {
     this.actions = actions;
   }
 
@@ -54,7 +54,7 @@ public class QGatesWs implements WebService {
       .setSince("4.3")
       .setDescription("This service manages quality gates, including conditions and project association");
 
-    for (BaseQGateWsAction action : actions) {
+    for (QGateWsAction action : actions) {
       action.define(controller);
     }
 

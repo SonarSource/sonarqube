@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-public class SearchAction implements BaseUsersWsAction {
+public class SearchAction implements UsersWsAction {
 
   private static final String FIELD_LOGIN = "login";
   private static final String FIELD_NAME = "name";

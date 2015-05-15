@@ -35,7 +35,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-public class HashAction implements SourcesAction {
+public class HashAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;

@@ -48,7 +48,7 @@ import org.sonar.server.user.UserSession;
 /**
  * @since 4.4
  */
-public class AppAction implements RulesAction {
+public class AppAction implements RulesWsAction {
 
   private final Languages languages;
   private final RuleRepositories ruleRepositories;

@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-public class UsersAction implements BatchAction {
+public class UsersAction implements BatchWsAction {
 
   private static final String PARAM_LOGINS = "logins";
 

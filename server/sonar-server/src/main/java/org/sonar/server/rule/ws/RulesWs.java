@@ -23,9 +23,9 @@ import org.sonar.api.server.ws.WebService;
 
 public class RulesWs implements WebService {
 
-  private final RulesAction[] actions;
+  private final RulesWsAction[] actions;
 
-  public RulesWs(RulesAction... actions) {
+  public RulesWs(RulesWsAction... actions) {
     this.actions = actions;
   }
 
@@ -35,7 +35,7 @@ public class RulesWs implements WebService {
       .createController("api/rules")
       .setDescription("Coding rules");
 
-    for (RulesAction action : actions) {
+    for (RulesWsAction action : actions) {
       action.define(controller);
     }
 

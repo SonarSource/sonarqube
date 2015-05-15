@@ -35,7 +35,7 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 
 import java.io.OutputStreamWriter;
 
-public class QProfileBackupAction implements BaseQProfileWsAction {
+public class QProfileBackupAction implements QProfileWsAction {
 
   private final QProfileBackuper backuper;
 

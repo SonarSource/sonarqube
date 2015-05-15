@@ -34,7 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public class QProfileChangeParentAction implements BaseQProfileWsAction {
+public class QProfileChangeParentAction implements QProfileWsAction {
 
   private static final String PARAM_PARENT_KEY = "parentKey";
 

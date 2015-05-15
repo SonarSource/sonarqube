@@ -37,7 +37,7 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdate;
 
-public class UpdateAction implements RulesAction {
+public class UpdateAction implements RulesWsAction {
 
   public static final String PARAM_KEY = "key";
   public static final String PARAM_TAGS = "tags";
