@@ -90,16 +90,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-deprecated</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.maven</groupId>
-          <artifactId>maven-project</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-home</artifactId>
     </dependency>
     <dependency>
@@ -136,6 +126,10 @@
         <exclusion>
           <groupId>org.apache.maven.shared</groupId>
           <artifactId>maven-common-artifact-filters</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-project</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
