@@ -835,6 +835,13 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-annotations</artifactId>
         <version>3.4.0.GA</version>
+        <exclusions>
+          <exclusion>
+            <!-- provided by Java 1.7 -->
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
@@ -941,6 +948,13 @@
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>woodstox-core-lgpl</artifactId>
         <version>4.4.0</version>
+        <exclusions>
+          <exclusion>
+            <!-- provided by Java 1.7 -->
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.staxmate</groupId>
