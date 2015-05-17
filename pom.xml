@@ -18,7 +18,6 @@
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
-    <module>sonar-deprecated</module>
     <module>sonar-duplications</module>
     <module>sonar-graph</module>
     <module>sonar-home</module>
@@ -623,11 +622,6 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-batch-protocol</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-deprecated</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

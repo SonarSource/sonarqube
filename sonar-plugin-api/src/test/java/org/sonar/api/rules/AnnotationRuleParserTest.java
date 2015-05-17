@@ -19,14 +19,13 @@
  */
 package org.sonar.api.rules;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
