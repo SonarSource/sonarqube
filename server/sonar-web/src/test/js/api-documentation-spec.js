@@ -37,7 +37,7 @@ casper.test.begin(testName('Should Show List'), 12, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/api-documentation/app.js'], function (App) {
+          require(['apps/api-documentation/app'], function (App) {
             App.start({ el: '#api-documentation' });
           });
         });
@@ -94,7 +94,7 @@ casper.test.begin(testName('Should Show Actions'), 10, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/api-documentation/app.js'], function (App) {
+          require(['apps/api-documentation/app'], function (App) {
             App.start({ el: '#api-documentation' });
           });
         });
@@ -142,7 +142,7 @@ casper.test.begin(testName('Should Show Example Response'), 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/api-documentation/app.js'], function (App) {
+          require(['apps/api-documentation/app'], function (App) {
             App.start({ el: '#api-documentation' });
           });
         });
@@ -182,7 +182,7 @@ casper.test.begin(testName('Web Service Permalink'), 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/api-documentation/app.js'], function (App) {
+          require(['apps/api-documentation/app'], function (App) {
             App.start({ el: '#api-documentation' });
           });
         });
@@ -216,7 +216,7 @@ casper.test.begin(testName('Action Permalink'), 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/api-documentation/app.js'], function (App) {
+          require(['apps/api-documentation/app'], function (App) {
             App.start({ el: '#api-documentation' });
           });
         });

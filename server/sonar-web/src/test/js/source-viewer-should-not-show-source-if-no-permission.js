@@ -40,7 +40,7 @@ casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permissio
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 

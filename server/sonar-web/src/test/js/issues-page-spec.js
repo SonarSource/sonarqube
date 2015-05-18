@@ -40,7 +40,7 @@ casper.test.begin(testName('Base'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -104,7 +104,7 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -154,7 +154,7 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -205,7 +205,7 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -247,7 +247,7 @@ casper.test.begin(testName('Issue Box', 'Rule'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -293,7 +293,7 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -332,7 +332,7 @@ casper.test.begin(testName('Severity Facet'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -372,7 +372,7 @@ casper.test.begin(testName('Bulk Change'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 
@@ -411,7 +411,7 @@ casper.test.begin(testName('Filter Similar Issues'), 12, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 

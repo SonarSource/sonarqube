@@ -40,7 +40,7 @@ casper.test.begin(testName('Activate', 'Success'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -106,7 +106,7 @@ casper.test.begin(testName('Activate', 'Failed'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -170,7 +170,7 @@ casper.test.begin(testName('Filter Profiles by Language'), 4, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -224,7 +224,7 @@ casper.test.begin(testName('Change Selected Profile'), 4, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })

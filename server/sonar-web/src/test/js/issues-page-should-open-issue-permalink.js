@@ -45,7 +45,7 @@ casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) 
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/issues/app-new.js']);
+          require(['apps/issues/app-new']);
         });
       })
 

@@ -41,7 +41,7 @@ casper.test.begin('coding-rules-page-should-delete-manual-rules', 1, function (t
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 

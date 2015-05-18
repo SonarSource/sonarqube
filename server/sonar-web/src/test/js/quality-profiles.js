@@ -40,7 +40,7 @@ casper.test.begin(testName('Should Show List'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -85,7 +85,7 @@ casper.test.begin(testName('Should Filter List By Language'), 15, function (test
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -154,7 +154,7 @@ casper.test.begin(testName('Should Show Details'), 10, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -209,7 +209,7 @@ casper.test.begin(testName('Should Show Details', 'Admin'), 10, function (test) 
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -263,7 +263,7 @@ casper.test.begin(testName('Should Show Inheritance Details'), 10, function (tes
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -317,7 +317,7 @@ casper.test.begin(testName('Should Show Selected Projects'), 2, function (test) 
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -365,7 +365,7 @@ casper.test.begin(testName('Should Move Between Profiles'), 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -421,7 +421,7 @@ casper.test.begin(testName('Copy Profile'), 5, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -484,7 +484,7 @@ casper.test.begin(testName('Rename Profile'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -547,7 +547,7 @@ casper.test.begin(testName('Make Profile Default'), 4, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -604,7 +604,7 @@ casper.test.begin(testName('Delete Profile'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -662,7 +662,7 @@ casper.test.begin(testName('Create Profile'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -718,7 +718,7 @@ casper.test.begin(testName('Restore Profile'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -768,7 +768,7 @@ casper.test.begin(testName('Importers'), 6, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -833,7 +833,7 @@ casper.test.begin(testName('Restore Built-in Profiles'), 3, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -893,7 +893,7 @@ casper.test.begin(testName('Change Parent'), 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -954,7 +954,7 @@ casper.test.begin(testName('Permalink'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -1006,7 +1006,7 @@ casper.test.begin(testName('Changelog'), 22, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -1098,7 +1098,7 @@ casper.test.begin(testName('Changelog Permalink'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -1145,7 +1145,7 @@ casper.test.begin(testName('Comparison'), 12, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 
@@ -1204,7 +1204,7 @@ casper.test.begin(testName('Comparison Permalink'), 4, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-profiles/app.js']);
+          require(['apps/quality-profiles/app']);
         });
       })
 

@@ -39,7 +39,7 @@ casper.test.begin('Quality Gates', function suite (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/quality-gate/app.js']);
+          require(['apps/quality-gate/app']);
         });
       })
 

@@ -18,7 +18,6 @@
     "grunt-contrib-requirejs": "0.4.3",
     "grunt-contrib-uglify": "0.4.0",
     "grunt-contrib-watch": "0.5.3",
-    "grunt-css-url-rewrite": "0.3.5",
     "grunt-curl": "2.1.0",
     "grunt-express-server": "0.4.17",
     "grunt-parallel": "0.4.1",
@@ -29,14 +28,15 @@
     "istanbul-middleware": "0.2.0",
     "jade": "1.4.2",
     "jit-grunt": "0.9.1",
-    "serve-static": "1.5.0"
+    "serve-static": "1.5.0",
+    "time-grunt": "1.2.0"
   },
   "scripts": {
-    "build-fast": "./node_modules/.bin/grunt dev",
+    "build-fast": "./node_modules/.bin/grunt build-fast",
     "build": "./node_modules/.bin/grunt build",
+    "build-test": "./node_modules/.bin/grunt build-test",
+    "build-coverage": "./node_modules/.bin/grunt build-coverage",
     "test": "./node_modules/.bin/grunt test",
-    "coverage": "./node_modules/.bin/grunt testCoverage"
-  },
-  "sources": "src/main/",
-  "assets": "src/main/webapp/"
+    "coverage": "./node_modules/.bin/grunt coverage"
+  }
 }

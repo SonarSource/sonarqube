@@ -52,7 +52,7 @@ casper.test.begin(testName('Characteristic'), 6, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -129,7 +129,7 @@ casper.test.begin(testName('Characteristic', 'Disable'), 6, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -233,7 +233,7 @@ casper.test.begin(testName('Template'), 4, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -302,7 +302,7 @@ casper.test.begin(testName('Language'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })

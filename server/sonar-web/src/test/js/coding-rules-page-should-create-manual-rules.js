@@ -42,7 +42,7 @@ casper.test.begin(testName('Create'), 3, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 
@@ -96,7 +96,7 @@ casper.test.begin(testName('Reactivate'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })

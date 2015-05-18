@@ -39,7 +39,7 @@ casper.test.begin(testName('Reload'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -83,7 +83,7 @@ casper.test.begin(testName('New Search'), 3, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -131,7 +131,7 @@ casper.test.begin(testName('Go Back'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })

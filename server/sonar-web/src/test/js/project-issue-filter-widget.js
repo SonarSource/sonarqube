@@ -40,7 +40,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -101,7 +101,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -171,7 +171,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -234,7 +234,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Different
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
