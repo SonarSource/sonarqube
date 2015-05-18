@@ -212,14 +212,6 @@ module.exports = (grunt) ->
         name: 'source-viewer/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/source-viewer/app.js'
 
-      design: options:
-        name: 'design/app'
-        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/design/app.js'
-
-      libraries: options:
-        name: 'libraries/app'
-        out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/libraries/app.js'
-
       monitoring: options:
         name: 'analysis-reports/app'
         out: '<%= grunt.option("assetsDir") || pkg.assets %>build/js/analysis-reports/app.js'
@@ -254,8 +246,6 @@ module.exports = (grunt) ->
           'requirejs:apiDocumentation'
           'requirejs:drilldown'
           'requirejs:sourceViewer'
-          'requirejs:design'
-          'requirejs:libraries'
           'requirejs:monitoring'
           'requirejs:nav'
           'requirejs:issueFilterWidget'
@@ -302,12 +292,6 @@ module.exports = (grunt) ->
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/api-documentation.js': [
             '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
-          ]
-          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/design.js': [
-            '<%= pkg.sources %>hbs/design/**/*.hbs'
-          ]
-          '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/libraries.js': [
-            '<%= pkg.sources %>hbs/libraries/**/*.hbs'
           ]
           '<%= grunt.option("assetsDir") || pkg.assets %>js/templates/analysis-reports.js': [
             '<%= pkg.sources %>hbs/analysis-reports/**/*.hbs'

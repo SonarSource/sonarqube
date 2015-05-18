@@ -143,7 +143,6 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.design.FileDesignWidget;
 import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.design.ws.DependenciesWs;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
@@ -936,7 +935,6 @@ class ServerComponents {
     pico.addSingleton(StringListTypeValidation.class);
 
     // Design
-    pico.addSingleton(FileDesignWidget.class);
     pico.addSingleton(DependenciesWs.class);
     pico.addSingleton(org.sonar.server.design.ws.ShowAction.class);
 

@@ -23,7 +23,7 @@ define([
 
   var $ = jQuery,
       MORE_URLS = [
-          '/design', '/libraries', '/dashboards', '/plugins/resource'
+          '/dashboards', '/plugins/resource'
       ],
       SETTINGS_URLS = [
         '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
