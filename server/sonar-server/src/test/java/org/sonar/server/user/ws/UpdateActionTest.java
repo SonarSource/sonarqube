@@ -118,7 +118,7 @@ public class UpdateActionTest {
       .setParam("login", "john")
       .setParam("name", "Jon Snow")
       .setParam("email", "jon.snow@thegreatw.all")
-      .setParam("scm_accounts", "jon.snow")
+      .setParam("scmAccounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_user.json");
   }
@@ -147,6 +147,17 @@ public class UpdateActionTest {
 
   @Test
   public void update_only_scm_accounts() throws Exception {
+    createUser();
+
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .setParam("scmAccounts", "jon.snow")
+      .execute()
+      .assertJson(getClass(), "update_scm_accounts.json");
+  }
+
+  @Test
+  public void update_only_scm_accounts_with_deprecated_parameter() throws Exception {
     createUser();
 
     tester.newPostRequest("api/users", "update")

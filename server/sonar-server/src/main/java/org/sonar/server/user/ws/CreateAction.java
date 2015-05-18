@@ -36,10 +36,10 @@ public class CreateAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
-  private static final String PARAM_PASSWORD_CONFIRMATION = "password_confirmation";
   private static final String PARAM_NAME = "name";
   private static final String PARAM_EMAIL = "email";
-  private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
+  private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
+  private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
   private final UserIndex index;
   private final UserUpdater userUpdater;
@@ -71,11 +71,6 @@ public class CreateAction implements UsersWsAction {
       .setRequired(true)
       .setExampleValue("mypassword");
 
-    action.createParam(PARAM_PASSWORD_CONFIRMATION)
-      .setDescription("Must be the same value as \"password\"")
-      .setRequired(true)
-      .setExampleValue("mypassword");
-
     action.createParam(PARAM_NAME)
       .setDescription("User name")
       .setRequired(true)
@@ -87,7 +82,8 @@ public class CreateAction implements UsersWsAction {
 
     action.createParam(PARAM_SCM_ACCOUNTS)
       .setDescription("SCM accounts. This parameter has been added in 5.1")
-      .setExampleValue("myscmaccount1, myscmaccount2");
+      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED)
+      .setExampleValue("myscmaccount1,myscmaccount2");
   }
 
   @Override
@@ -95,13 +91,14 @@ public class CreateAction implements UsersWsAction {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
+    String password = request.mandatoryParam(PARAM_PASSWORD);
     NewUser newUser = NewUser.create()
       .setLogin(login)
       .setName(request.mandatoryParam(PARAM_NAME))
       .setEmail(request.param(PARAM_EMAIL))
       .setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS))
-      .setPassword(request.mandatoryParam(PARAM_PASSWORD))
-      .setPasswordConfirmation(request.mandatoryParam(PARAM_PASSWORD_CONFIRMATION));
+      .setPassword(password)
+      .setPasswordConfirmation(password);
 
     boolean isUserReactivated = userUpdater.create(newUser);
     writeResponse(response, login, isUserReactivated);

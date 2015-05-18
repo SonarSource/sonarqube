@@ -36,7 +36,8 @@ public class UpdateAction implements UsersWsAction {
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_NAME = "name";
   private static final String PARAM_EMAIL = "email";
-  private static final String PARAM_SCM_ACCOUNTS = "scm_accounts";
+  private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
+  private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
   private final UserIndex index;
   private final UserUpdater userUpdater;
@@ -72,7 +73,8 @@ public class UpdateAction implements UsersWsAction {
 
     action.createParam(PARAM_SCM_ACCOUNTS)
       .setDescription("SCM accounts. This parameter has been added in 5.1")
-      .setExampleValue("myscmaccount1, myscmaccount2");
+      .setDeprecatedKey(PARAM_SCM_ACCOUNTS_DEPRECATED)
+      .setExampleValue("myscmaccount1,myscmaccount2");
   }
 
   @Override
@@ -87,7 +89,7 @@ public class UpdateAction implements UsersWsAction {
     if (request.hasParam(PARAM_EMAIL)) {
       updateUser.setEmail(request.param(PARAM_EMAIL));
     }
-    if (request.hasParam(PARAM_SCM_ACCOUNTS)) {
+    if (request.hasParam(PARAM_SCM_ACCOUNTS) || request.hasParam(PARAM_SCM_ACCOUNTS_DEPRECATED)) {
       updateUser.setScmAccounts(request.paramAsStrings(PARAM_SCM_ACCOUNTS));
     }
 

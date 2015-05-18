@@ -122,9 +122,27 @@ public class CreateActionTest {
       .setParam("login", "john")
       .setParam("name", "John")
       .setParam("email", "john@email.com")
+      .setParam("scmAccounts", "jn")
+      .setParam("password", "1234").execute()
+      .assertJson(getClass(), "create_user.json");
+
+    UserDoc user = index.getByLogin("john");
+    assertThat(user.login()).isEqualTo("john");
+    assertThat(user.name()).isEqualTo("John");
+    assertThat(user.email()).isEqualTo("john@email.com");
+    assertThat(user.scmAccounts()).containsOnly("jn");
+  }
+
+  @Test
+  public void create_user_with_deprecated_scm_parameter() throws Exception {
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    tester.newPostRequest("api/users", "create")
+      .setParam("login", "john")
+      .setParam("name", "John")
+      .setParam("email", "john@email.com")
       .setParam("scm_accounts", "jn")
-      .setParam("password", "1234")
-      .setParam("password_confirmation", "1234").execute()
+      .setParam("password", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
     UserDoc user = index.getByLogin("john");
@@ -154,8 +172,7 @@ public class CreateActionTest {
       .setParam("name", "John")
       .setParam("email", "john@email.com")
       .setParam("scm_accounts", "jn")
-      .setParam("password", "1234")
-      .setParam("password_confirmation", "1234").execute()
+      .setParam("password", "1234").execute()
       .assertJson(getClass(), "reactivate_user.json");
 
     assertThat(index.getByLogin("john").active()).isTrue();
@@ -170,7 +187,6 @@ public class CreateActionTest {
       .setParam("name", "John")
       .setParam("email", "john@email.com")
       .setParam("scm_accounts", "jn")
-      .setParam("password", "1234")
-      .setParam("password_confirmation", "1234").execute();
+      .setParam("password", "1234").execute();
   }
 }
