@@ -17,19 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.server.usergroups.ws;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.server.ws.WebService;
 
-public interface GroupMembershipMapper {
+public class UserGroupsWs implements WebService {
 
-  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
+  private UserGroupsWsAction[] actions;
 
-  List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
+  public UserGroupsWs(UserGroupsWsAction... actions) {
+    this.actions = actions;
+  }
 
-  int countGroups(Map<String, Object> params);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/usergroups")
+      .setDescription("User groups management")
+      .setSince("5.2");
 
-  List<GroupUserCount> countUsersByGroup();
+    for (UserGroupsWsAction action : actions) {
+      action.define(controller);
+    }
+
+    controller.done();
+  }
+
 }

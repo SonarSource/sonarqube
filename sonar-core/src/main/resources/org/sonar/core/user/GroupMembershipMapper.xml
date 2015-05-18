@@ -32,4 +32,11 @@
     <include refid="commonClauses" />
   </select>
 
+  <select id="countUsersByGroup" resultType="org.sonar.core.user.GroupUserCount">
+    SELECT g.name as groupName, count(gu.user_id) as userCount
+    FROM groups g
+    LEFT JOIN groups_users gu ON gu.group_id=g.id
+    GROUP BY g.name
+  </select>
+
 </mapper>

@@ -1,0 +1,13 @@
+{
+  "p": 1,
+  "ps": 100,
+  "total": 1,
+  "groups": [
+    {
+      "key": 1,
+      "name": "sonar-users",
+      "description": "Any new users created...",
+      "membersCount": 17
+    }
+  ]
+}

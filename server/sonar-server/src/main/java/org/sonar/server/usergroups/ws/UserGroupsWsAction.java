@@ -17,19 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.server.usergroups.ws;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.server.ws.WsAction;
 
-public interface GroupMembershipMapper {
+public interface UserGroupsWsAction extends WsAction {
 
-  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
-
-  List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
-
-  int countGroups(Map<String, Object> params);
-
-  List<GroupUserCount> countUsersByGroup();
+  // Marker interface
 }

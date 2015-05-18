@@ -19,13 +19,12 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-
 import javax.annotation.Nullable;
-
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -110,8 +109,8 @@ import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ProjectsGhostsAction;
-import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.component.ws.ProjectsProvisionedAction;
+import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
@@ -225,8 +224,8 @@ import org.sonar.server.platform.ws.UpgradesSystemWsAction;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.ServerPluginExploder;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
@@ -390,6 +389,7 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.FavoritesWs;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
+import org.sonar.server.usergroups.ws.UserGroupsWs;
 import org.sonar.server.util.BooleanTypeValidation;
 import org.sonar.server.util.FloatTypeValidation;
 import org.sonar.server.util.IntegerTypeValidation;
@@ -402,8 +402,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
-
-import com.google.common.collect.Lists;
 
 class ServerComponents {
 
@@ -782,6 +780,8 @@ class ServerComponents {
     // groups
     pico.addSingleton(GroupMembershipService.class);
     pico.addSingleton(GroupMembershipFinder.class);
+    pico.addSingleton(org.sonar.server.usergroups.ws.SearchAction.class);
+    pico.addSingleton(UserGroupsWs.class);
 
     // permissions
     pico.addSingleton(PermissionFacade.class);

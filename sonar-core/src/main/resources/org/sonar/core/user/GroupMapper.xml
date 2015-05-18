@@ -35,4 +35,16 @@
     VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
   </insert>
 
+  <select id="selectByQuery" parameterType="map" resultType="Group">
+    SELECT <include refid="groupColumns" />
+    FROM groups g
+    WHERE UPPER(g.name) LIKE #{query}
+    ORDER BY UPPER(g.name)
+  </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    SELECT count(g.id)
+    FROM groups g
+    WHERE UPPER(g.name) LIKE #{query}
+  </select>
 </mapper>

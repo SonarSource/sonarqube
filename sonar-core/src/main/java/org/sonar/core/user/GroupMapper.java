@@ -20,6 +20,8 @@
 
 package org.sonar.core.user;
 
+import org.apache.ibatis.session.RowBounds;
+
 import javax.annotation.CheckForNull;
 
 import java.util.List;
@@ -33,4 +35,7 @@ public interface GroupMapper {
 
   void insert(GroupDto groupDto);
 
+  List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
+
+  int countByQuery(String query);
 }

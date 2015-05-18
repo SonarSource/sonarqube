@@ -1,0 +1,9 @@
+{
+  "p": 2,
+  "ps": 3,
+  "total": 5,
+  "groups": [
+    {"name": "customer3", "description": "Customer3", "membersCount": 0},
+    {"name": "users", "description": "Users", "membersCount": 0}
+  ]
+}

@@ -20,6 +20,7 @@
 
 package org.sonar.core.user;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,9 +29,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 
 @Category(DbTests.class)
 public class GroupMembershipDaoTest {
@@ -165,6 +165,19 @@ public class GroupMembershipDaoTest {
       // 999 is member of 0 group
       assertThat(dao.countGroups(session, GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.IN).build(), 999L)).isZero();
       assertThat(dao.countGroups(session, GroupMembershipQuery.builder().login("arthur").membership(GroupMembershipQuery.OUT).build(), 2999L)).isEqualTo(3);
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void count_users_by_group() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      assertThat(dao.countUsersByGroup(session)).containsOnly(
+        entry("sonar-users", 2), entry("sonar-reviewers", 1), entry("sonar-administrators", 1), entry("sonar-nobody", 0));
     } finally {
       session.close();
     }
