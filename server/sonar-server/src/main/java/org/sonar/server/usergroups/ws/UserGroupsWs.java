@@ -17,25 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.usergroups.ws;
 
-package org.sonar.core.user;
+import org.sonar.api.server.ws.WebService;
 
-import org.apache.ibatis.session.RowBounds;
+public class UserGroupsWs implements WebService {
 
-import javax.annotation.CheckForNull;
+  private UserGroupsWsAction[] actions;
 
-import java.util.List;
+  public UserGroupsWs(UserGroupsWsAction... actions) {
+    this.actions = actions;
+  }
 
-public interface GroupMapper {
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/usergroups")
+      .setDescription("User groups management")
+      .setSince("5.2");
 
-  @CheckForNull
-  GroupDto selectByKey(String name);
+    for (UserGroupsWsAction action : actions) {
+      action.define(controller);
+    }
 
-  List<GroupDto> selectByUserLogin(String userLogin);
+    controller.done();
+  }
 
-  void insert(GroupDto groupDto);
-
-  List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
-
-  int countByQuery(String query);
 }

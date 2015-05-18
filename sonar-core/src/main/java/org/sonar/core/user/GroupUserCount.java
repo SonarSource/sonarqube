@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.user;
 
-import org.apache.ibatis.session.RowBounds;
+public class GroupUserCount {
 
-import javax.annotation.CheckForNull;
+  private String groupName;
+  private int userCount;
 
-import java.util.List;
+  public String groupName() {
+    return groupName;
+  }
 
-public interface GroupMapper {
-
-  @CheckForNull
-  GroupDto selectByKey(String name);
-
-  List<GroupDto> selectByUserLogin(String userLogin);
-
-  void insert(GroupDto groupDto);
-
-  List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
-
-  int countByQuery(String query);
+  public int userCount() {
+    return userCount;
+  }
 }

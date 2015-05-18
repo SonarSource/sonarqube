@@ -20,20 +20,23 @@
 
 package org.sonar.server.user.db;
 
+import java.util.Date;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupMapper;
 
-import java.util.Date;
-import java.util.List;
-
 /**
  * @since 3.2
  */
 public class GroupDao implements DaoComponent {
 
+  private static final String SQL_WILDCARD = "%";
   private System2 system;
 
   public GroupDao(System2 system) {
@@ -42,6 +45,14 @@ public class GroupDao implements DaoComponent {
 
   public GroupDto selectByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  public int countByQuery(DbSession session, @Nullable String query) {
+    return mapper(session).countByQuery(groupSearchToSql(query));
+  }
+
+  public List<GroupDto> selectByQuery(DbSession session, @Nullable String query, int offset, int limit) {
+    return mapper(session).selectByQuery(groupSearchToSql(query), new RowBounds(offset, limit));
   }
 
   public GroupDto insert(DbSession session, GroupDto item) {
@@ -58,5 +69,15 @@ public class GroupDao implements DaoComponent {
 
   private GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
+  }
+
+  private String groupSearchToSql(@Nullable String query) {
+    String sql = SQL_WILDCARD;
+    if (query != null) {
+      sql = StringUtils.replace(StringUtils.upperCase(query), SQL_WILDCARD, "/%");
+      sql = StringUtils.replace(sql, "_", "/_");
+      sql = SQL_WILDCARD + sql + SQL_WILDCARD;
+    }
+    return sql;
   }
 }

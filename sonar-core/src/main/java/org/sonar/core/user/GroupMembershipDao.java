@@ -21,14 +21,19 @@
 package org.sonar.core.user;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import java.util.List;
-import java.util.Map;
 
 public class GroupMembershipDao implements DaoComponent {
 
@@ -58,6 +63,21 @@ public class GroupMembershipDao implements DaoComponent {
     return mapper(session).countGroups(params);
   }
 
+  public Map<String, Integer> countUsersByGroups(final DbSession session, Collection<Long> groupIds) {
+    final Map<String, Integer> result = Maps.newHashMap();
+    DaoUtils.executeLargeInputs(groupIds, new Function<List<Long>, List<GroupUserCount>>() {
+      @Override
+      public List<GroupUserCount> apply(@Nonnull List<Long> input) {
+        List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
+        for (GroupUserCount count : userCounts) {
+          result.put(count.groupName(), count.userCount());
+        }
+        return userCounts;
+      }
+    });
+    return result;
+  }
+
   @VisibleForTesting
   List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId) {
     return selectGroups(query, userId, 0, Integer.MAX_VALUE);
@@ -66,5 +86,4 @@ public class GroupMembershipDao implements DaoComponent {
   private GroupMembershipMapper mapper(SqlSession session) {
     return session.getMapper(GroupMembershipMapper.class);
   }
-
 }

@@ -22,18 +22,25 @@ package org.sonar.server.user.db;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GroupDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class GroupDaoTest {
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
 
   GroupDao dao;
   DbSession session;
@@ -41,7 +48,8 @@ public class GroupDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    this.session = getMyBatis().openSession(false);
+    dbTester.truncateTables();
+    this.session = dbTester.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.dao = new GroupDao(system2);
   }
@@ -53,7 +61,7 @@ public class GroupDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_by_key() {
-    setupData("select_by_key");
+    dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
 
     GroupDto group = new GroupDao(system2).selectByKey(session, "sonar-users");
     assertThat(group).isNotNull();
@@ -66,7 +74,7 @@ public class GroupDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void find_by_user_login() {
-    setupData("find_by_user_login");
+    dbTester.prepareDbUnit(getClass(), "find_by_user_login.xml");
 
     assertThat(dao.findByUserLogin(session, "john")).hasSize(2);
     assertThat(dao.findByUserLogin(session, "max")).isEmpty();
@@ -76,7 +84,7 @@ public class GroupDaoTest extends AbstractDaoTestCase {
   public void insert() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-08").getTime());
 
-    setupData("empty");
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     GroupDto dto = new GroupDto()
       .setId(1L)
@@ -86,6 +94,54 @@ public class GroupDaoTest extends AbstractDaoTestCase {
     dao.insert(session, dto);
     session.commit();
 
-    checkTables("insert", "groups");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", "groups");
+  }
+
+  @Test
+  public void select_by_query() {
+    dbTester.prepareDbUnit(getClass(), "select_by_query.xml");
+
+    /*
+     * Ordering and paging are not fully tested, case insensitive sort is broken on MySQL
+     */
+
+    // Null query
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 0, 10))
+      .hasSize(5)
+      .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
+
+    // Empty query
+    assertThat(new GroupDao(system2).selectByQuery(session, "", 0, 10))
+      .hasSize(5)
+      .extracting("name").containsOnly("customers-group1", "customers-group2", "customers-group3", "SONAR-ADMINS", "sonar-users");
+
+    // Filter on name
+    assertThat(new GroupDao(system2).selectByQuery(session, "sonar", 0, 10))
+      .hasSize(2)
+      .extracting("name").containsOnly("SONAR-ADMINS", "sonar-users");
+
+    // Pagination
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 0, 3))
+      .hasSize(3);
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 3, 3))
+      .hasSize(2);
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 6, 3)).isEmpty();
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 0, 5))
+      .hasSize(5);
+    assertThat(new GroupDao(system2).selectByQuery(session, null, 5, 5)).isEmpty();
+  }
+
+  @Test
+  public void count_by_query() {
+    dbTester.prepareDbUnit(getClass(), "select_by_query.xml");
+
+    // Null query
+    assertThat(new GroupDao(system2).countByQuery(session, null)).isEqualTo(5);
+
+    // Empty query
+    assertThat(new GroupDao(system2).countByQuery(session, "")).isEqualTo(5);
+
+    // Filter on name
+    assertThat(new GroupDao(system2).countByQuery(session, "sonar")).isEqualTo(2);
   }
 }
