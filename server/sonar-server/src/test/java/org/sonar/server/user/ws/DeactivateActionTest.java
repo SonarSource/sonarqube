@@ -38,6 +38,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -116,6 +117,16 @@ public class DeactivateActionTest {
 
     UserDoc user = index.getByLogin("john");
     assertThat(user.active()).isFalse();
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void cannot_deactivate_self() throws Exception {
+    createUser();
+
+    userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.newPostRequest("api/users", "deactivate")
+      .setParam("login", "admin")
+      .execute();
   }
 
   @Test(expected = ForbiddenException.class)

@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
@@ -64,6 +65,9 @@ public class DeactivateAction implements UsersWsAction {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     String login = request.mandatoryParam(PARAM_LOGIN);
+    if (login.equals(userSession.getLogin())) {
+      throw new BadRequestException("Self-deactivation is not possible");
+    }
     userUpdater.deactivateUserByLogin(login);
 
     writeResponse(response, login);
