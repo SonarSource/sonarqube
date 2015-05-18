@@ -679,11 +679,6 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-squid</artifactId>
-        <version>4.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-testing-harness</artifactId>
         <version>${project.version}</version>
       </dependency>

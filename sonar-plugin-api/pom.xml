@@ -59,20 +59,6 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-graph</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-squid</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.picocontainer</groupId>
-          <artifactId>picocontainer</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
 
     <!-- TODO we can't remove hibernate-annotations, because currently it's used
     moreover it contains transitive dependency on dom4j, which is used in some plugins
