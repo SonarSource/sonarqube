@@ -7,7 +7,6 @@ module.exports = (grunt) ->
   require('time-grunt')(grunt);
 
   expressPort = '<%= grunt.option("port") || 3000 %>'
-  isWindows = process.platform == 'win32'
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -184,6 +183,26 @@ module.exports = (grunt) ->
           'requirejs:issueFilterWidget'
           'requirejs:markdown'
         ]
+      casper:
+        options:
+          grunt: true
+        tasks: [
+          'casper:apiDocumentation'
+          'casper:application'
+          'casper:codingRules'
+          'casper:issueFilterWidget'
+          'casper:handlebarsHelpers'
+          'casper:issues'
+          'casper:markdown'
+          'casper:nav'
+          'casper:process'
+          'casper:qualityGates'
+          'casper:qualityProfiles'
+          'casper:sourceViewer'
+          'casper:treemap'
+          'casper:ui'
+          'casper:workspace'
+        ]
       'build-test':
         options:
           grunt: true
@@ -286,46 +305,61 @@ module.exports = (grunt) ->
 
 
     casper:
+      options:
+        test: true
+        'fail-fast': true
+        concise: true
+        'no-colors': true
+        port: expressPort
       test:
-        options:
-          test: true
-          'no-colors': true
-          'fail-fast': true
-          concise: true
-          parallel: !isWindows
-          port: expressPort
         src: ['src/test/js/**/*.js']
       testCoverage:
         options:
-          test: true
-          'no-colors': true
-          concise: true
-          parallel: !isWindows
-          port: expressPort
+          'fail-fast': false
         src: ['src/test/js/**/*.js']
       testCoverageLight:
         options:
-          test: true
-          'fail-fast': true
           verbose: true
-          parallel: !isWindows
-          port: expressPort
         src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
       single:
         options:
-          test: true
           verbose: true
-          'fail-fast': true
-          port: expressPort
         src: ['src/test/js/<%= grunt.option("spec") %>-spec.js']
       testfile:
         options:
-          test: true
           verbose: true
-          'fail-fast': true
-          port: expressPort
         src: ['<%= grunt.option("file") %>']
 
+      apiDocumentation:
+        src: ['src/test/js/api-documentation*.js']
+      application:
+        src: ['src/test/js/application*.js']
+      codingRules:
+        src: ['src/test/js/coding-rules*.js']
+      issueFilterWidget:
+        src: ['src/test/js/*issue-filter-widget*.js']
+      handlebarsHelpers:
+        src: ['src/test/js/handlebars-helpers*.js']
+      issues:
+        src: ['src/test/js/issues*.js']
+      markdown:
+        src: ['src/test/js/markdown*.js']
+      nav:
+        src: ['src/test/js/nav*.js']
+      process:
+        src: ['src/test/js/process*.js']
+      qualityGates:
+        src: ['src/test/js/quality-gates*.js']
+      qualityProfiles:
+        src: ['src/test/js/quality-profiles*.js']
+      sourceViewer:
+        src: ['src/test/js/source-viewer*.js']
+      treemap:
+        src: ['src/test/js/treemap*.js']
+      ui:
+        src: ['src/test/js/ui*.js']
+      workspace:
+        src: ['src/test/js/workspace*.js']
 
     uglify:
       build:
@@ -404,7 +438,7 @@ module.exports = (grunt) ->
       ['copy:assets-css', 'copy:assets-js', 'parallel:build']
 
   grunt.registerTask 'test-suffix',
-      ['express:test', 'casper:test']
+      ['express:test', 'parallel:casper']
 
   grunt.registerTask 'coverage-suffix',
       ['express:testCoverage', 'curl:resetCoverage', 'casper:testCoverage', 'curl:downloadCoverage', 'unzip',
