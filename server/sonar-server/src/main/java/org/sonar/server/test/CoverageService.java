@@ -20,24 +20,18 @@
 
 package org.sonar.server.test;
 
+import com.google.common.collect.Maps;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.ServerSide;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.api.test.Testable;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
-
-import com.google.common.collect.Maps;
 
 @ServerSide
 public class CoverageService {
@@ -48,13 +42,11 @@ public class CoverageService {
 
   private final MyBatis myBatis;
   private final MeasureDao measureDao;
-  private final SnapshotPerspectives snapshotPerspectives;
   private final UserSession userSession;
 
-  public CoverageService(MyBatis myBatis, MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives, UserSession userSession) {
+  public CoverageService(MyBatis myBatis, MeasureDao measureDao, UserSession userSession) {
     this.myBatis = myBatis;
     this.measureDao = measureDao;
-    this.snapshotPerspectives = snapshotPerspectives;
     this.userSession = userSession;
   }
 
@@ -93,19 +85,6 @@ public class CoverageService {
       default:
         return findDataFromComponent(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
     }
-  }
-
-  /**
-   * Test cases is only return for unit tests
-   */
-  public Map<Integer, Integer> getTestCases(String fileKey, CoverageService.TYPE type) {
-    if (TYPE.UT.equals(type)) {
-      Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
-      if (testable != null) {
-        return testable.testCasesByLines();
-      }
-    }
-    return Maps.newHashMap();
   }
 
   @CheckForNull

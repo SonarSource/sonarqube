@@ -31,7 +31,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
-import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
@@ -637,7 +636,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // graphs and perspective related classes
       TestablePerspectiveLoader.class,
       TestPlanPerspectiveLoader.class,
-      SnapshotPerspectives.class,
 
       // Type validation
       TypeValidations.class,

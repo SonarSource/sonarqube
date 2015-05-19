@@ -49,8 +49,6 @@ public interface PurgeMapper {
 
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotGraphs(@Param("snapshotIds") List<Long> snapshotIds);
-
   List<Long> selectMetricIdsWithoutHistoricalData();
 
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
@@ -82,8 +80,6 @@ public interface PurgeMapper {
   void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 
   void deleteResourceActionPlans(@Param("resourceIds") List<Long> resourceIds);
-
-  void deleteResourceGraphs(@Param("resourceIds") List<Long> resourceIds);
 
   void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
 
