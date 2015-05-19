@@ -69,7 +69,7 @@ public class SettingsNavigationAction implements NavigationWsAction {
     json.prop("showUpdateCenter", isAdmin && settings.getBoolean(UpdateCenterClient.ACTIVATION_PROPERTY));
     json.prop("showProvisioning", userSession.hasGlobalPermission(GlobalPermissions.PROVISIONING));
 
-    json.name("plugins").beginArray();
+    json.name("extensions").beginArray();
     if (isAdmin) {
       for (ViewProxy<Page> page : views.getPages(NavigationSection.CONFIGURATION, null, null, null, null)) {
         json.beginObject()

@@ -1,7 +1,7 @@
 {
   "showUpdateCenter": false,
   "showProvisioning": false,
-  "plugins": [
+  "extensions": [
     {
       "name": "First Page",
       "url": "/plugins/configuration/first_page"
