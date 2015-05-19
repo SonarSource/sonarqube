@@ -58,7 +58,7 @@ public class ProjectsGhostsAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     context
       .createAction(ACTION)
-      .setDescription("List ghost projects.<br /> Requires admin role.")
+      .setDescription("List ghost projects.<br /> Requires 'Administer System' permission.")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-ghosts.json"))
       .setSince("5.2")
       .addPagingParams(100)
