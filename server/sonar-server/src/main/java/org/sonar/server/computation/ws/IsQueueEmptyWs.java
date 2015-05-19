@@ -36,10 +36,10 @@ import java.util.List;
 public class IsQueueEmptyWs implements WebService {
   public static final String API_ENDPOINT = "api/analysis_reports";
 
-  private final IsQueueEmptyWsAction action;
+  private final IsQueueEmptyAction action;
 
   public IsQueueEmptyWs(ReportQueue queue) {
-    this.action = new IsQueueEmptyWsAction(queue);
+    this.action = new IsQueueEmptyAction(queue);
   }
 
   @Override
@@ -51,10 +51,10 @@ public class IsQueueEmptyWs implements WebService {
     controller.done();
   }
 
-  static class IsQueueEmptyWsAction implements RequestHandler {
+  static class IsQueueEmptyAction implements RequestHandler {
     private final ReportQueue queue;
 
-    public IsQueueEmptyWsAction(ReportQueue queue) {
+    public IsQueueEmptyAction(ReportQueue queue) {
       this.queue = queue;
     }
 

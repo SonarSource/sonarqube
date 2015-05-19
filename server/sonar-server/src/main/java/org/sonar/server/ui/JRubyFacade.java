@@ -58,6 +58,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
@@ -382,9 +383,9 @@ public final class JRubyFacade {
   /**
    * Checks whether the SQ instance is up and running (ie. not in safemode and with an up-to-date database).
    * <p>
-   * This method duplicates most of the logic code written in {@link org.sonar.server.platform.ws.UpgradesSystemWsAction}
+   * This method duplicates most of the logic code written in {@link UpgradesAction}
    * class. There is no need to refactor code to avoid this duplication since this method is only used by RoR code
-   * which will soon be replaced by pure JS code based on the {@link org.sonar.server.platform.ws.UpgradesSystemWsAction}
+   * which will soon be replaced by pure JS code based on the {@link UpgradesAction}
    * WebService.
    * </p>
    */

@@ -92,9 +92,9 @@ import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.batch.BatchIndex;
 import org.sonar.server.batch.BatchWs;
-import org.sonar.server.batch.GlobalRepositoryAction;
+import org.sonar.server.batch.GlobalAction;
 import org.sonar.server.batch.IssuesAction;
-import org.sonar.server.batch.ProjectRepositoryAction;
+import org.sonar.server.batch.ProjectAction;
 import org.sonar.server.batch.ProjectRepositoryLoader;
 import org.sonar.server.batch.UsersAction;
 import org.sonar.server.charts.ChartFactory;
@@ -106,27 +106,25 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
-import org.sonar.server.component.ws.ProjectsGhostsAction;
-import org.sonar.server.component.ws.ProjectsWs;
-import org.sonar.server.component.ws.ProjectsProvisionedAction;
+import org.sonar.server.project.ws.GhostsAction;
+import org.sonar.server.project.ws.ProjectsWs;
+import org.sonar.server.project.ws.ProvisionedAction;
 import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.ReportQueueCleaner;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.computation.ws.ComputationWs;
-import org.sonar.server.computation.ws.HistoryWsAction;
+import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
-import org.sonar.server.computation.ws.QueueWsAction;
-import org.sonar.server.computation.ws.SubmitReportWsAction;
+import org.sonar.server.computation.ws.QueueAction;
+import org.sonar.server.computation.ws.SubmitReportAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
-import org.sonar.server.dashboard.ws.DashboardsShowAction;
 import org.sonar.server.dashboard.ws.DashboardsWs;
 import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
@@ -189,11 +187,9 @@ import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.ws.ComponentTagsAction;
 import org.sonar.server.issue.ws.IssueActionsWriter;
-import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.issue.ws.SetTagsAction;
 import org.sonar.server.language.ws.LanguageWs;
-import org.sonar.server.language.ws.ListAction;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -215,13 +211,13 @@ import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
 import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.MigrateDbSystemWsAction;
+import org.sonar.server.platform.ws.MigrateDbSystemAction;
 import org.sonar.server.platform.ws.ServerWs;
-import org.sonar.server.platform.ws.SystemInfoWsAction;
-import org.sonar.server.platform.ws.SystemRestartWsAction;
-import org.sonar.server.platform.ws.SystemStatusWsAction;
+import org.sonar.server.platform.ws.InfoAction;
+import org.sonar.server.platform.ws.RestartAction;
+import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.platform.ws.UpgradesSystemWsAction;
+import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -229,36 +225,31 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.ServerPluginExploder;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.plugins.ws.AvailablePluginsWsAction;
-import org.sonar.server.plugins.ws.CancelAllPluginsWsAction;
-import org.sonar.server.plugins.ws.InstallPluginsWsAction;
-import org.sonar.server.plugins.ws.InstalledPluginsWsAction;
-import org.sonar.server.plugins.ws.PendingPluginsWsAction;
+import org.sonar.server.plugins.ws.AvailableAction;
+import org.sonar.server.plugins.ws.CancelAllAction;
+import org.sonar.server.plugins.ws.InstallAction;
+import org.sonar.server.plugins.ws.InstalledAction;
+import org.sonar.server.plugins.ws.PendingAction;
 import org.sonar.server.plugins.ws.PluginUpdateAggregator;
 import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
-import org.sonar.server.plugins.ws.UninstallPluginsWsAction;
-import org.sonar.server.plugins.ws.UpdatePluginsWsAction;
-import org.sonar.server.plugins.ws.UpdatesPluginsWsAction;
+import org.sonar.server.plugins.ws.UninstallAction;
+import org.sonar.server.plugins.ws.UpdateAction;
+import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.RegisterQualityGates;
-import org.sonar.server.qualitygate.ws.QGatesAppAction;
-import org.sonar.server.qualitygate.ws.QGatesCopyAction;
-import org.sonar.server.qualitygate.ws.QGatesCreateAction;
-import org.sonar.server.qualitygate.ws.QGatesCreateConditionAction;
-import org.sonar.server.qualitygate.ws.QGatesDeleteConditionAction;
-import org.sonar.server.qualitygate.ws.QGatesDeselectAction;
-import org.sonar.server.qualitygate.ws.QGatesDestroyAction;
-import org.sonar.server.qualitygate.ws.QGatesListAction;
-import org.sonar.server.qualitygate.ws.QGatesRenameAction;
-import org.sonar.server.qualitygate.ws.QGatesSearchAction;
-import org.sonar.server.qualitygate.ws.QGatesSelectAction;
-import org.sonar.server.qualitygate.ws.QGatesSetAsDefaultAction;
-import org.sonar.server.qualitygate.ws.QGatesShowAction;
-import org.sonar.server.qualitygate.ws.QGatesUnsetDefaultAction;
-import org.sonar.server.qualitygate.ws.QGatesUpdateConditionAction;
+import org.sonar.server.qualitygate.ws.AppAction;
+import org.sonar.server.qualitygate.ws.CreateConditionAction;
+import org.sonar.server.qualitygate.ws.DeleteConditionAction;
+import org.sonar.server.qualitygate.ws.DeselectAction;
+import org.sonar.server.qualitygate.ws.DestroyAction;
+import org.sonar.server.qualitygate.ws.SelectAction;
+import org.sonar.server.qualitygate.ws.SetAsDefaultAction;
+import org.sonar.server.qualitygate.ws.ShowAction;
+import org.sonar.server.qualitygate.ws.UnsetDefaultAction;
+import org.sonar.server.qualitygate.ws.UpdateConditionAction;
 import org.sonar.server.qualitygate.ws.QGatesWs;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -282,23 +273,23 @@ import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.ProjectAssociationActions;
-import org.sonar.server.qualityprofile.ws.QProfileBackupAction;
-import org.sonar.server.qualityprofile.ws.QProfileChangeParentAction;
-import org.sonar.server.qualityprofile.ws.QProfileChangelogAction;
-import org.sonar.server.qualityprofile.ws.QProfileCompareAction;
-import org.sonar.server.qualityprofile.ws.QProfileCopyAction;
-import org.sonar.server.qualityprofile.ws.QProfileCreateAction;
-import org.sonar.server.qualityprofile.ws.QProfileDeleteAction;
-import org.sonar.server.qualityprofile.ws.QProfileExportAction;
-import org.sonar.server.qualityprofile.ws.QProfileExportersAction;
-import org.sonar.server.qualityprofile.ws.QProfileImportersAction;
-import org.sonar.server.qualityprofile.ws.QProfileInheritanceAction;
-import org.sonar.server.qualityprofile.ws.QProfileProjectsAction;
-import org.sonar.server.qualityprofile.ws.QProfileRenameAction;
-import org.sonar.server.qualityprofile.ws.QProfileRestoreAction;
-import org.sonar.server.qualityprofile.ws.QProfileRestoreBuiltInAction;
-import org.sonar.server.qualityprofile.ws.QProfileSearchAction;
-import org.sonar.server.qualityprofile.ws.QProfileSetDefaultAction;
+import org.sonar.server.qualityprofile.ws.BackupAction;
+import org.sonar.server.qualityprofile.ws.ChangeParentAction;
+import org.sonar.server.qualityprofile.ws.ChangelogAction;
+import org.sonar.server.qualityprofile.ws.CompareAction;
+import org.sonar.server.qualityprofile.ws.CopyAction;
+import org.sonar.server.qualityprofile.ws.CreateAction;
+import org.sonar.server.qualityprofile.ws.DeleteAction;
+import org.sonar.server.qualityprofile.ws.ExportAction;
+import org.sonar.server.qualityprofile.ws.ExportersAction;
+import org.sonar.server.qualityprofile.ws.ImportersAction;
+import org.sonar.server.qualityprofile.ws.InheritanceAction;
+import org.sonar.server.qualityprofile.ws.ProjectsAction;
+import org.sonar.server.qualityprofile.ws.RenameAction;
+import org.sonar.server.qualityprofile.ws.RestoreAction;
+import org.sonar.server.qualityprofile.ws.RestoreBuiltInAction;
+import org.sonar.server.qualityprofile.ws.SearchAction;
+import org.sonar.server.qualityprofile.ws.SetDefaultAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.qualityprofile.ws.RuleActivationActions;
 import org.sonar.server.ruby.PlatformRackBridge;
@@ -318,14 +309,10 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
-import org.sonar.server.rule.ws.AppAction;
-import org.sonar.server.rule.ws.DeleteAction;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapping;
 import org.sonar.server.rule.ws.RulesWs;
-import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.rule.ws.TagsAction;
-import org.sonar.server.rule.ws.UpdateAction;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.IndexQueue;
 import org.sonar.server.search.IndexSynchronizer;
@@ -341,7 +328,6 @@ import org.sonar.server.source.ws.IndexAction;
 import org.sonar.server.source.ws.LinesAction;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
-import org.sonar.server.source.ws.ShowAction;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules;
 import org.sonar.server.startup.GeneratePluginIndex;
@@ -360,8 +346,8 @@ import org.sonar.server.test.CoverageService;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
-import org.sonar.server.test.ws.TestsCoveredFilesAction;
-import org.sonar.server.test.ws.TestsListAction;
+import org.sonar.server.test.ws.CoveredFilesAction;
+import org.sonar.server.test.ws.ListAction;
 import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
@@ -387,6 +373,7 @@ import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.user.ws.CurrentAction;
 import org.sonar.server.user.ws.FavoritesWs;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
@@ -565,8 +552,8 @@ class ServerComponents {
       ThreadLocalDatabaseSessionFactory.class,
 
       // Server WS
-      SystemStatusWsAction.class,
-      MigrateDbSystemWsAction.class,
+      StatusAction.class,
+      MigrateDbSystemAction.class,
       SystemWs.class,
 
       // Listing WS
@@ -616,17 +603,17 @@ class ServerComponents {
 
     // batch
     pico.addSingleton(BatchIndex.class);
-    pico.addSingleton(GlobalRepositoryAction.class);
-    pico.addSingleton(ProjectRepositoryAction.class);
+    pico.addSingleton(GlobalAction.class);
+    pico.addSingleton(ProjectAction.class);
     pico.addSingleton(ProjectRepositoryLoader.class);
-    pico.addSingleton(SubmitReportWsAction.class);
+    pico.addSingleton(SubmitReportAction.class);
     pico.addSingleton(IssuesAction.class);
     pico.addSingleton(UsersAction.class);
     pico.addSingleton(BatchWs.class);
 
     // Dashboard
     pico.addSingleton(DashboardsWs.class);
-    pico.addSingleton(DashboardsShowAction.class);
+    pico.addSingleton(org.sonar.server.dashboard.ws.ShowAction.class);
 
     // update center
     pico.addSingleton(UpdateCenterClient.class);
@@ -643,23 +630,23 @@ class ServerComponents {
     pico.addSingleton(QProfileProjectLookup.class);
     pico.addSingleton(QProfileComparison.class);
     pico.addSingleton(BuiltInProfiles.class);
-    pico.addSingleton(QProfileRestoreBuiltInAction.class);
-    pico.addSingleton(QProfileSearchAction.class);
-    pico.addSingleton(QProfileSetDefaultAction.class);
-    pico.addSingleton(QProfileProjectsAction.class);
-    pico.addSingleton(QProfileDeleteAction.class);
-    pico.addSingleton(QProfileRenameAction.class);
-    pico.addSingleton(QProfileCopyAction.class);
-    pico.addSingleton(QProfileBackupAction.class);
-    pico.addSingleton(QProfileRestoreAction.class);
-    pico.addSingleton(QProfileCreateAction.class);
-    pico.addSingleton(QProfileImportersAction.class);
-    pico.addSingleton(QProfileInheritanceAction.class);
-    pico.addSingleton(QProfileChangeParentAction.class);
-    pico.addSingleton(QProfileChangelogAction.class);
-    pico.addSingleton(QProfileCompareAction.class);
-    pico.addSingleton(QProfileExportAction.class);
-    pico.addSingleton(QProfileExportersAction.class);
+    pico.addSingleton(RestoreBuiltInAction.class);
+    pico.addSingleton(SearchAction.class);
+    pico.addSingleton(SetDefaultAction.class);
+    pico.addSingleton(ProjectsAction.class);
+    pico.addSingleton(DeleteAction.class);
+    pico.addSingleton(RenameAction.class);
+    pico.addSingleton(CopyAction.class);
+    pico.addSingleton(BackupAction.class);
+    pico.addSingleton(RestoreAction.class);
+    pico.addSingleton(CreateAction.class);
+    pico.addSingleton(ImportersAction.class);
+    pico.addSingleton(InheritanceAction.class);
+    pico.addSingleton(ChangeParentAction.class);
+    pico.addSingleton(ChangelogAction.class);
+    pico.addSingleton(CompareAction.class);
+    pico.addSingleton(ExportAction.class);
+    pico.addSingleton(ExportersAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
@@ -690,22 +677,22 @@ class ServerComponents {
     pico.addSingleton(RuleUpdater.class);
     pico.addSingleton(RuleCreator.class);
     pico.addSingleton(RuleDeleter.class);
-    pico.addSingleton(UpdateAction.class);
+    pico.addSingleton(org.sonar.server.rule.ws.UpdateAction.class);
     pico.addSingleton(RulesWs.class);
-    pico.addSingleton(SearchAction.class);
+    pico.addSingleton(org.sonar.server.rule.ws.SearchAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.ShowAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.CreateAction.class);
-    pico.addSingleton(DeleteAction.class);
+    pico.addSingleton(org.sonar.server.rule.ws.DeleteAction.class);
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(RuleMapping.class);
     pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(RepositoriesAction.class);
-    pico.addSingleton(AppAction.class);
+    pico.addSingleton(org.sonar.server.rule.ws.AppAction.class);
 
     // languages
     pico.addSingleton(Languages.class);
     pico.addSingleton(LanguageWs.class);
-    pico.addSingleton(ListAction.class);
+    pico.addSingleton(org.sonar.server.language.ws.ListAction.class);
 
     // activity
     pico.addSingleton(ActivitiesWs.class);
@@ -730,21 +717,21 @@ class ServerComponents {
     pico.addSingleton(ProjectQgateAssociationDao.class);
     pico.addSingleton(QgateProjectFinder.class);
 
-    pico.addSingleton(QGatesListAction.class);
-    pico.addSingleton(QGatesSearchAction.class);
-    pico.addSingleton(QGatesShowAction.class);
-    pico.addSingleton(QGatesCreateAction.class);
-    pico.addSingleton(QGatesRenameAction.class);
-    pico.addSingleton(QGatesCopyAction.class);
-    pico.addSingleton(QGatesDestroyAction.class);
-    pico.addSingleton(QGatesSetAsDefaultAction.class);
-    pico.addSingleton(QGatesUnsetDefaultAction.class);
-    pico.addSingleton(QGatesSelectAction.class);
-    pico.addSingleton(QGatesDeselectAction.class);
-    pico.addSingleton(QGatesCreateConditionAction.class);
-    pico.addSingleton(QGatesDeleteConditionAction.class);
-    pico.addSingleton(QGatesUpdateConditionAction.class);
-    pico.addSingleton(QGatesAppAction.class);
+    pico.addSingleton(org.sonar.server.qualitygate.ws.ListAction.class);
+    pico.addSingleton(org.sonar.server.qualitygate.ws.SearchAction.class);
+    pico.addSingleton(ShowAction.class);
+    pico.addSingleton(org.sonar.server.qualitygate.ws.CreateAction.class);
+    pico.addSingleton(org.sonar.server.qualitygate.ws.RenameAction.class);
+    pico.addSingleton(org.sonar.server.qualitygate.ws.CopyAction.class);
+    pico.addSingleton(DestroyAction.class);
+    pico.addSingleton(SetAsDefaultAction.class);
+    pico.addSingleton(UnsetDefaultAction.class);
+    pico.addSingleton(SelectAction.class);
+    pico.addSingleton(DeselectAction.class);
+    pico.addSingleton(CreateConditionAction.class);
+    pico.addSingleton(DeleteConditionAction.class);
+    pico.addSingleton(UpdateConditionAction.class);
+    pico.addSingleton(AppAction.class);
     pico.addSingleton(QGatesWs.class);
 
     // web services
@@ -768,7 +755,7 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.user.ws.UpdateAction.class);
     pico.addSingleton(org.sonar.server.user.ws.DeactivateAction.class);
     pico.addSingleton(org.sonar.server.user.ws.ChangePasswordAction.class);
-    pico.addSingleton(org.sonar.server.user.ws.CurrentUserAction.class);
+    pico.addSingleton(CurrentAction.class);
     pico.addSingleton(org.sonar.server.user.ws.SearchAction.class);
     pico.addSingleton(org.sonar.server.user.ws.GroupsAction.class);
     pico.addSingleton(org.sonar.server.issue.ws.AuthorsAction.class);
@@ -797,12 +784,12 @@ class ServerComponents {
     pico.addSingleton(ResourcesWs.class);
     pico.addSingleton(ComponentsWs.class);
     pico.addSingleton(ProjectsWs.class);
-    pico.addSingleton(ComponentAppAction.class);
+    pico.addSingleton(org.sonar.server.component.ws.AppAction.class);
     pico.addSingleton(org.sonar.server.component.ws.SearchAction.class);
     pico.addSingleton(EventsWs.class);
     pico.addSingleton(ComponentCleanerService.class);
-    pico.addSingleton(ProjectsProvisionedAction.class);
-    pico.addSingleton(ProjectsGhostsAction.class);
+    pico.addSingleton(ProvisionedAction.class);
+    pico.addSingleton(GhostsAction.class);
 
     // views
     pico.addSingleton(ViewIndexDefinition.class);
@@ -825,7 +812,7 @@ class ServerComponents {
     pico.addSingleton(IssueBulkChangeService.class);
     pico.addSingleton(IssueChangelogFormatter.class);
     pico.addSingleton(IssuesWs.class);
-    pico.addSingleton(IssueShowAction.class);
+    pico.addSingleton(org.sonar.server.issue.ws.ShowAction.class);
     pico.addSingleton(org.sonar.server.issue.ws.SearchAction.class);
     pico.addSingleton(org.sonar.server.issue.ws.TagsAction.class);
     pico.addSingleton(SetTagsAction.class);
@@ -882,7 +869,7 @@ class ServerComponents {
     pico.addSingleton(HtmlSourceDecorator.class);
     pico.addSingleton(SourceService.class);
     pico.addSingleton(SourcesWs.class);
-    pico.addSingleton(ShowAction.class);
+    pico.addSingleton(org.sonar.server.source.ws.ShowAction.class);
     pico.addSingleton(LinesAction.class);
     pico.addSingleton(HashAction.class);
     pico.addSingleton(RawAction.class);
@@ -911,8 +898,8 @@ class ServerComponents {
     // Tests
     pico.addSingleton(CoverageService.class);
     pico.addSingleton(TestsWs.class);
-    pico.addSingleton(TestsCoveredFilesAction.class);
-    pico.addSingleton(TestsListAction.class);
+    pico.addSingleton(CoveredFilesAction.class);
+    pico.addSingleton(ListAction.class);
     pico.addSingleton(TestIndexDefinition.class);
     pico.addSingleton(TestIndex.class);
     pico.addSingleton(TestIndexer.class);
@@ -940,11 +927,11 @@ class ServerComponents {
 
     // System
     pico.addSingletons(Arrays.asList(
-      SystemRestartWsAction.class,
-      SystemInfoWsAction.class,
-      UpgradesSystemWsAction.class,
-      MigrateDbSystemWsAction.class,
-      SystemStatusWsAction.class,
+      RestartAction.class,
+      InfoAction.class,
+      UpgradesAction.class,
+      MigrateDbSystemAction.class,
+      StatusAction.class,
       SystemWs.class,
       SystemMonitor.class,
       SonarQubeMonitor.class,
@@ -957,14 +944,14 @@ class ServerComponents {
     // Plugins WS
     pico.addSingleton(PluginWSCommons.class);
     pico.addSingleton(PluginUpdateAggregator.class);
-    pico.addSingleton(InstalledPluginsWsAction.class);
-    pico.addSingleton(AvailablePluginsWsAction.class);
-    pico.addSingleton(UpdatesPluginsWsAction.class);
-    pico.addSingleton(PendingPluginsWsAction.class);
-    pico.addSingleton(InstallPluginsWsAction.class);
-    pico.addSingleton(UpdatePluginsWsAction.class);
-    pico.addSingleton(UninstallPluginsWsAction.class);
-    pico.addSingleton(CancelAllPluginsWsAction.class);
+    pico.addSingleton(InstalledAction.class);
+    pico.addSingleton(AvailableAction.class);
+    pico.addSingleton(UpdatesAction.class);
+    pico.addSingleton(PendingAction.class);
+    pico.addSingleton(InstallAction.class);
+    pico.addSingleton(UpdateAction.class);
+    pico.addSingleton(UninstallAction.class);
+    pico.addSingleton(CancelAllAction.class);
     pico.addSingleton(PluginsWs.class);
 
     // Compute engine
@@ -972,8 +959,8 @@ class ServerComponents {
     pico.addSingleton(ComputationThreadLauncher.class);
     pico.addSingleton(ComputationWs.class);
     pico.addSingleton(IsQueueEmptyWs.class);
-    pico.addSingleton(QueueWsAction.class);
-    pico.addSingleton(HistoryWsAction.class);
+    pico.addSingleton(QueueAction.class);
+    pico.addSingleton(HistoryAction.class);
     pico.addSingleton(DefaultPeriodCleaner.class);
     pico.addSingleton(DefaultPurgeTask.class);
     pico.addSingleton(ProjectCleaner.class);

@@ -60,18 +60,18 @@ public class QGatesWsTest {
   private QgateProjectFinder projectFinder;
 
   @Mock
-  private QGatesAppAction appHandler;
+  private AppAction appHandler;
 
   WsTester tester;
 
   @Before
   public void setUp() {
     tester = new WsTester(new QGatesWs(
-      new QGatesListAction(qGates), new QGatesShowAction(qGates), new QGatesSearchAction(projectFinder),
-      new QGatesCreateAction(qGates), new QGatesCopyAction(qGates), new QGatesDestroyAction(qGates), new QGatesRenameAction(qGates),
-      new QGatesSetAsDefaultAction(qGates), new QGatesUnsetDefaultAction(qGates),
-      new QGatesCreateConditionAction(qGates), new QGatesUpdateConditionAction(qGates), new QGatesDeleteConditionAction(qGates),
-      new QGatesSelectAction(qGates), new QGatesDeselectAction(qGates), new QGatesAppAction(qGates, mock(Periods.class), mock(I18n.class))));
+      new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
+      new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
+      new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
+      new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
+      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, mock(Periods.class), mock(I18n.class))));
   }
 
   @Test

@@ -21,29 +21,29 @@
 package org.sonar.server.computation.ws;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.computation.ComputationThreadLauncher;
+import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComputationWsTest {
 
+  WsTester ws = new WsTester(new ComputationWs(
+    new QueueAction(mock(ReportQueue.class)),
+    new SubmitReportAction(mock(ReportQueue.class), mock(ComputationThreadLauncher.class), mock(UserSession.class)),
+    new HistoryAction(mock(ActivityIndex.class), mock(UserSession.class))));
+
   @Test
   public void define() {
-    ComputationWs ws = new ComputationWs(new ComputationWsAction() {
-      @Override
-      public void define(WebService.NewController controller) {
-        WebService.NewAction upload = controller.createAction("upload");
-        upload.setHandler(mock(RequestHandler.class));
-      }
-    });
-    WebService.Context context = new WebService.Context();
-    ws.define(context);
+    WebService.Controller controller = ws.controller("api/computation");
 
-    WebService.Controller controller = context.controller("api/computation");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(3);
   }
 }
