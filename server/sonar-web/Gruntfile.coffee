@@ -4,7 +4,6 @@ module.exports = (grunt) ->
     unzip: 'grunt-zip'
     replace: 'grunt-text-replace'
   });
-  require('time-grunt')(grunt);
 
   expressPort = '<%= grunt.option("port") || 3000 %>'
 
@@ -184,8 +183,7 @@ module.exports = (grunt) ->
           'requirejs:markdown'
         ]
       casper:
-        options:
-          grunt: true
+        options: grunt: true
         tasks: [
           'casper:apiDocumentation'
           'casper:application'
@@ -203,14 +201,6 @@ module.exports = (grunt) ->
           'casper:ui'
           'casper:workspace'
         ]
-      'build-test':
-        options:
-          grunt: true
-        tasks: ['build-suffix', 'test-suffix']
-      'build-coverage':
-        options:
-          grunt: true
-        tasks: ['build-suffix', 'coverage-suffix']
 
 
     handlebars:
@@ -224,7 +214,6 @@ module.exports = (grunt) ->
           pieces = name.split '/'
           fileName = pieces[pieces.length - 1]
           fileName.split('.')[0]
-
       build:
         files:
           '<%= BUILD_PATH %>/js/components/navigator/templates.js': [
@@ -311,12 +300,6 @@ module.exports = (grunt) ->
         concise: true
         'no-colors': true
         port: expressPort
-      test:
-        src: ['src/test/js/**/*.js']
-      testCoverage:
-        options:
-          'fail-fast': false
-        src: ['src/test/js/**/*.js']
       testCoverageLight:
         options:
           verbose: true
@@ -412,19 +395,19 @@ module.exports = (grunt) ->
 
       less:
         files: '<%= SOURCE_PATH %>/less/**/*.less'
-        tasks: ['less:build']
+        tasks: ['less:build', 'copy:assets-css']
 
       coffee:
         files: '<%= SOURCE_PATH %>/coffee/**/*.coffee'
-        tasks: ['coffee:build', 'copy:js', 'concat:build']
+        tasks: ['coffee:build', 'copy:js', 'concat:build', 'copy:assets-all-js']
 
       js:
         files: '<%= SOURCE_PATH %>/js/**/*.js'
-        tasks: ['copy:js', 'concat:build']
+        tasks: ['copy:js', 'concat:build', 'copy:assets-all-js']
 
       handlebars:
         files: '<%= SOURCE_PATH %>/hbs/**/*.hbs'
-        tasks: ['handlebars:build']
+        tasks: ['handlebars:build', 'copy:assets-all-js']
 
 
   # Basic tasks
@@ -441,7 +424,7 @@ module.exports = (grunt) ->
       ['express:test', 'parallel:casper']
 
   grunt.registerTask 'coverage-suffix',
-      ['express:testCoverage', 'curl:resetCoverage', 'casper:testCoverage', 'curl:downloadCoverage', 'unzip',
+      ['express:testCoverage', 'curl:resetCoverage', 'parallel:casper', 'curl:downloadCoverage', 'unzip',
        'replace:lcov']
 
   # Output tasks
@@ -452,10 +435,10 @@ module.exports = (grunt) ->
       ['prepare', 'build-suffix']
 
   grunt.registerTask 'build-test',
-      ['prepare', 'parallel:build-test']
+      ['prepare', 'build-suffix', 'test-suffix']
 
   grunt.registerTask 'build-coverage',
-      ['prepare', 'parallel:build-coverage']
+      ['prepare', 'build-suffix', 'coverage-suffix']
 
   grunt.registerTask 'test',
       ['prepare', 'test-suffix']

@@ -22,14 +22,12 @@
     "grunt-express-server": "0.4.17",
     "grunt-parallel": "0.4.1",
     "grunt-text-replace": "0.4.0",
-    "grunt-uglify-parallel": "0.0.1",
     "grunt-zip": "0.16.2",
     "istanbul": "0.3.5",
     "istanbul-middleware": "0.2.0",
     "jade": "1.4.2",
     "jit-grunt": "0.9.1",
-    "serve-static": "1.5.0",
-    "time-grunt": "1.2.0"
+    "serve-static": "1.5.0"
   },
   "scripts": {
     "build-fast": "./node_modules/.bin/grunt build-fast",
