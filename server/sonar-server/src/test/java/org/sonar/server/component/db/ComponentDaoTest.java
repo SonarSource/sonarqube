@@ -173,6 +173,7 @@ public class ComponentDaoTest {
     assertThat(result.path()).isNull();
     assertThat(result.name()).isEqualTo("Struts");
     assertThat(result.longName()).isEqualTo("Apache Struts");
+    assertThat(result.description()).isEqualTo("the description");
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
@@ -453,70 +454,13 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void insert() {
-    db.prepareDbUnit(getClass(), "empty.xml");
+  public void select_components_from_project() {
+    db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    ComponentDto componentDto = new ComponentDto()
-      .setId(1L)
-      .setUuid("GHIJ")
-      .setProjectUuid("ABCD")
-      .setModuleUuid("EFGH")
-      .setModuleUuidPath(".ABCD.EFGH.")
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      .setName("RequestContext.java")
-      .setLongName("org.struts.RequestContext")
-      .setQualifier("FIL")
-      .setScope("FIL")
-      .setLanguage("java")
-      .setPath("src/org/struts/RequestContext.java")
-      .setParentProjectId(3L)
-      .setCopyResourceId(5L)
-      .setEnabled(true)
-      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-      .setAuthorizationUpdatedAt(123456789L);
+    List<ComponentDto> components = sut.selectComponentsFromProjectUuid(session, "ABCD");
+    assertThat(components).hasSize(5);
 
-    sut.insert(session, componentDto);
-    session.commit();
-
-    assertThat(componentDto.getId()).isNotNull();
-    db.assertDbUnit(getClass(), "insert-result.xml", "projects");
-  }
-
-  @Test
-  public void insert_disabled_component() {
-    db.prepareDbUnit(getClass(), "empty.xml");
-
-    ComponentDto componentDto = new ComponentDto()
-      .setId(1L)
-      .setUuid("GHIJ")
-      .setProjectUuid("ABCD")
-      .setModuleUuid("EFGH")
-      .setModuleUuidPath(".ABCD.EFGH.")
-      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
-      .setName("RequestContext.java")
-      .setLongName("org.struts.RequestContext")
-      .setQualifier("FIL")
-      .setScope("FIL")
-      .setLanguage("java")
-      .setPath("src/org/struts/RequestContext.java")
-      .setParentProjectId(3L)
-      .setEnabled(false)
-      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
-      .setAuthorizationUpdatedAt(123456789L);
-
-    sut.insert(session, componentDto);
-    session.commit();
-
-    assertThat(componentDto.getId()).isNotNull();
-    db.assertDbUnit(getClass(), "insert_disabled_component-result.xml", "projects");
-  }
-
-  @Test
-  public void find_project_uuids() {
-    db.prepareDbUnit(getClass(), "find_project_uuids.xml");
-
-    assertThat(sut.selectProjectUuids(session)).containsExactly("ABCD");
+    assertThat(sut.selectComponentsFromProjectUuid(session, "UNKNOWN")).isEmpty();
   }
 
   @Test
@@ -567,5 +511,95 @@ public class ComponentDaoTest {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("org.ghost.project");
     assertThat(sut.countGhostProjects(session, null)).isEqualTo(1);
+  }
+
+  @Test
+  public void insert() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    ComponentDto componentDto = new ComponentDto()
+      .setId(1L)
+      .setUuid("GHIJ")
+      .setProjectUuid("ABCD")
+      .setModuleUuid("EFGH")
+      .setModuleUuidPath(".ABCD.EFGH.")
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setName("RequestContext.java")
+      .setLongName("org.struts.RequestContext")
+      .setQualifier("FIL")
+      .setScope("FIL")
+      .setLanguage("java")
+      .setDescription("description")
+      .setPath("src/org/struts/RequestContext.java")
+      .setParentProjectId(3L)
+      .setCopyResourceId(5L)
+      .setEnabled(true)
+      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
+      .setAuthorizationUpdatedAt(123456789L);
+
+    sut.insert(session, componentDto);
+    session.commit();
+
+    assertThat(componentDto.getId()).isNotNull();
+    db.assertDbUnit(getClass(), "insert-result.xml", "projects");
+  }
+
+  @Test
+  public void insert_disabled_component() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    ComponentDto componentDto = new ComponentDto()
+      .setId(1L)
+      .setUuid("GHIJ")
+      .setProjectUuid("ABCD")
+      .setModuleUuid("EFGH")
+      .setModuleUuidPath(".ABCD.EFGH.")
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setName("RequestContext.java")
+      .setLongName("org.struts.RequestContext")
+      .setQualifier("FIL")
+      .setScope("FIL")
+      .setLanguage("java")
+      .setPath("src/org/struts/RequestContext.java")
+      .setParentProjectId(3L)
+      .setEnabled(false)
+      .setCreatedAt(DateUtils.parseDate("2014-06-18"))
+      .setAuthorizationUpdatedAt(123456789L);
+
+    sut.insert(session, componentDto);
+    session.commit();
+
+    assertThat(componentDto.getId()).isNotNull();
+    db.assertDbUnit(getClass(), "insert_disabled_component-result.xml", "projects");
+  }
+
+  @Test
+  public void update() {
+    db.prepareDbUnit(getClass(), "update.xml");
+
+    ComponentDto componentDto = new ComponentDto()
+      .setUuid("GHIJ")
+      .setProjectUuid("DCBA")
+      .setModuleUuid("HGFE")
+      .setModuleUuidPath(".DCBA.HGFE.")
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext2.java")
+      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext2.java")
+      .setName("RequestContext2.java")
+      .setLongName("org.struts.RequestContext2")
+      .setQualifier("LIF")
+      .setScope("LIF")
+      .setLanguage("java2")
+      .setDescription("description2")
+      .setPath("src/org/struts/RequestContext2.java")
+      .setParentProjectId(4L)
+      .setCopyResourceId(6L)
+      .setEnabled(false)
+      .setAuthorizationUpdatedAt(12345678910L);
+
+    sut.update(session, componentDto);
+    session.commit();
+
+    db.assertDbUnit(getClass(), "update-result.xml", "projects");
   }
 }

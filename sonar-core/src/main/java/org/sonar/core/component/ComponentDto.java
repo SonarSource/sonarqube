@@ -49,6 +49,7 @@ public class ComponentDto implements Component {
   private String name;
   private String longName;
   private String language;
+  private String description;
   private boolean enabled = true;
 
   private Date createdAt;
@@ -182,6 +183,16 @@ public class ComponentDto implements Component {
 
   public ComponentDto setLanguage(@Nullable String language) {
     this.language = language;
+    return this;
+  }
+
+  @CheckForNull
+  public String description() {
+    return description;
+  }
+
+  public ComponentDto setDescription(@Nullable String description) {
+    this.description = description;
     return this;
   }
 

@@ -94,13 +94,16 @@ public interface ComponentMapper {
   List<UuidWithProjectUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
 
   /**
+   * Return all components of a project
+   */
+  List<ComponentDto> selectComponentsFromProjectUuid(@Param("projectUuid") String projectUuid);
+
+  /**
    * Return technical projects from a view or a sub-view
    */
   List<String> selectProjectsFromView(@Param("viewUuidLikeQuery") String viewUuidLikeQuery, @Param("projectViewUuid") String projectViewUuid);
 
   long countById(long id);
-
-  void insert(ComponentDto rule);
 
   List<ComponentDto> selectProvisionedProjects(Map<String, String> parameters, RowBounds rowBounds);
 
@@ -109,4 +112,8 @@ public interface ComponentMapper {
   List<ComponentDto> selectGhostProjects(Map<String, String> parameters, RowBounds rowBounds);
 
   long countGhostProjects(Map<String, String> parameters);
+
+  void insert(ComponentDto componentDto);
+
+  void update(ComponentDto componentDto);
 }

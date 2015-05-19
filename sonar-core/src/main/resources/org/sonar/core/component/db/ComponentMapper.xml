@@ -12,6 +12,7 @@
     p.deprecated_kee as deprecatedKey,
     p.name as name,
     p.long_name as longName,
+    p.description as description,
     p.qualifier as qualifier,
     p.scope as scope,
     p.language as language,
@@ -212,16 +213,14 @@
     </where>
   </select>
 
-  <sql id="insertColumns">
-    (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, copy_resource_id, enabled,
-    created_at, authorization_updated_at)
-  </sql>
-
-  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into projects <include refid="insertColumns"/>
-    values (#{kee}, #{deprecatedKey}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope},
-    #{language}, #{parentProjectId}, #{path}, #{copyResourceId}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
-  </insert>
+  <select id="selectComponentsFromProjectUuid" parameterType="map" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      AND p.project_uuid=#{projectUuid}
+      AND p.enabled=${_true}
+    </where>
+  </select>
 
   <select id="selectProvisionedProjects" parameterType="map" resultType="Component">
     select <include refid="componentColumns"/>
@@ -266,14 +265,45 @@
     inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
     left join snapshots s2 on s2.project_id = p.id and s2.status='P'
     where
-      s2.id is null
-      and p.qualifier=#{qualifier}
-      and p.copy_resource_id is null
-      <if test="query!=null">
-        and (
-        UPPER(p.name) like #{query}
-        or UPPER(p.kee) like #{query}
-        )
-      </if>
+    s2.id is null
+    and p.qualifier=#{qualifier}
+    and p.copy_resource_id is null
+    <if test="query!=null">
+      and (
+      UPPER(p.name) like #{query}
+      or UPPER(p.kee) like #{query}
+      )
+    </if>
   </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO projects (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, description, root_id, path, copy_resource_id, enabled,
+    created_at, authorization_updated_at)
+    VALUES (#{kee,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR}, #{moduleUuidPath,jdbcType=VARCHAR},
+            #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+            #{parentProjectId,jdbcType=BIGINT}, #{path,jdbcType=VARCHAR}, #{copyResourceId,jdbcType=BIGINT}, #{enabled,jdbcType=BOOLEAN},
+            #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
+  </insert>
+
+  <insert id="update" parameterType="Component">
+    UPDATE projects SET
+      kee=#{kee,jdbcType=VARCHAR},
+      deprecated_kee=#{deprecatedKey,jdbcType=VARCHAR},
+      project_uuid=#{projectUuid,jdbcType=VARCHAR},
+      module_uuid=#{moduleUuid,jdbcType=VARCHAR},
+      module_uuid_path=#{moduleUuidPath,jdbcType=VARCHAR},
+      name=#{name,jdbcType=VARCHAR},
+      long_name=#{longName,jdbcType=VARCHAR},
+      qualifier=#{qualifier,jdbcType=VARCHAR},
+      scope=#{scope,jdbcType=VARCHAR},
+      language=#{language,jdbcType=VARCHAR},
+      description=#{description,jdbcType=VARCHAR},
+      root_id=#{parentProjectId,jdbcType=BIGINT},
+      path=#{path,jdbcType=VARCHAR},
+      copy_resource_id=#{copyResourceId,jdbcType=BIGINT},
+      enabled=#{enabled,jdbcType=BOOLEAN},
+      authorization_updated_at=#{authorizationUpdatedAt,jdbcType=BIGINT}
+    WHERE uuid=#{uuid}
+  </insert>
+
 </mapper>

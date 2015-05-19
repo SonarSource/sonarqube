@@ -136,6 +136,10 @@ public class ComponentDao implements DaoComponent {
     });
   }
 
+  public List<ComponentDto> selectComponentsFromProjectUuid(DbSession session, String projectKey) {
+    return mapper(session).selectComponentsFromProjectUuid(projectKey);
+  }
+
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).selectByKeys(keys);
   }
@@ -151,24 +155,6 @@ public class ComponentDao implements DaoComponent {
   @CheckForNull
   public ComponentDto selectNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
-  }
-
-  public void insert(DbSession session, ComponentDto item) {
-    mapper(session).insert(item);
-  }
-
-  public void insert(DbSession session, Collection<ComponentDto> items) {
-    for (ComponentDto item : items) {
-      insert(session, item);
-    }
-  }
-
-  public void insert(DbSession session, ComponentDto item, ComponentDto... others) {
-    insert(session, Lists.asList(item, others));
-  }
-
-  public List<String> selectProjectUuids(DbSession session) {
-    return mapper(session).selectProjectUuids();
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {
@@ -219,6 +205,24 @@ public class ComponentDao implements DaoComponent {
 
   private void addProjectQualifier(Map<String, String> parameters) {
     parameters.put("qualifier", Qualifiers.PROJECT);
+  }
+
+  public void insert(DbSession session, ComponentDto item) {
+    mapper(session).insert(item);
+  }
+
+  public void insert(DbSession session, Collection<ComponentDto> items) {
+    for (ComponentDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public void insert(DbSession session, ComponentDto item, ComponentDto... others) {
+    insert(session, Lists.asList(item, others));
+  }
+
+  public void update(DbSession session, ComponentDto item) {
+    mapper(session).update(item);
   }
 
   private ComponentMapper mapper(DbSession session) {
