@@ -168,17 +168,6 @@ public class SensorContextTesterTest {
   }
 
   @Test
-  public void testDependencies() {
-    assertThat(tester.dependencies()).isEmpty();
-    tester.newDependency()
-      .from(new DefaultInputFile("foo", "src/Foo.java"))
-      .to(new DefaultInputFile("foo", "src/Foo2.java"))
-      .weight(3)
-      .save();
-    assertThat(tester.dependencies()).hasSize(1);
-  }
-
-  @Test
   public void testLineHits() {
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 1)).isNull();
     assertThat(tester.lineHits("foo:src/Foo.java", CoverageType.UNIT, 4)).isNull();

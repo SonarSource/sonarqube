@@ -23,9 +23,12 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Resource;
-import org.sonar.graph.Edge;
 
-public class Dependency implements Edge<Resource> {
+/**
+ * @deprecated since 5.2 No more design features
+ */
+@Deprecated
+public class Dependency {
 
   private Resource from;
   private Resource to;
@@ -45,7 +48,6 @@ public class Dependency implements Edge<Resource> {
     this.to = to;
   }
 
-  @Override
   public Resource getFrom() {
     return from;
   }
@@ -57,7 +59,6 @@ public class Dependency implements Edge<Resource> {
     this.from = from;
   }
 
-  @Override
   public Resource getTo() {
     return to;
   }
@@ -78,7 +79,6 @@ public class Dependency implements Edge<Resource> {
     return this;
   }
 
-  @Override
   public int getWeight() {
     return weight;
   }

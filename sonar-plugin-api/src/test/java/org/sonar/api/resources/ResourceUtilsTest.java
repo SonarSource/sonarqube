@@ -72,7 +72,6 @@ public class ResourceUtilsTest {
     assertThat(ResourceUtils.isPersistable(File.create("Foo.java"))).isTrue();
     assertThat(ResourceUtils.isPersistable(Directory.create("bar/Foo.java"))).isTrue();
     assertThat(ResourceUtils.isPersistable(new Project("foo"))).isTrue();
-    assertThat(ResourceUtils.isPersistable(new Library("foo", "1.2"))).isTrue();
   }
 
   @Test

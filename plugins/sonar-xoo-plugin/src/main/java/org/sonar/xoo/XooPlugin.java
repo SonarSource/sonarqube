@@ -25,8 +25,22 @@ import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
-import org.sonar.xoo.lang.*;
-import org.sonar.xoo.rule.*;
+import org.sonar.xoo.lang.MeasureSensor;
+import org.sonar.xoo.lang.SymbolReferencesSensor;
+import org.sonar.xoo.lang.SyntaxHighlightingSensor;
+import org.sonar.xoo.lang.XooCpdMapping;
+import org.sonar.xoo.lang.XooTokenizer;
+import org.sonar.xoo.rule.ChecksSensor;
+import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
+import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
+import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
+import org.sonar.xoo.rule.OneIssuePerLineSensor;
+import org.sonar.xoo.rule.RandomAccessSensor;
+import org.sonar.xoo.rule.XooFakeExporter;
+import org.sonar.xoo.rule.XooFakeImporter;
+import org.sonar.xoo.rule.XooFakeImporterWithMessages;
+import org.sonar.xoo.rule.XooQualityProfile;
+import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
@@ -66,7 +80,6 @@ public class XooPlugin extends SonarPlugin {
       MeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
-      DependencySensor.class,
       ChecksSensor.class,
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,

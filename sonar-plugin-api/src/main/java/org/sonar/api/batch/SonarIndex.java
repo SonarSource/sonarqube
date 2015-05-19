@@ -26,18 +26,16 @@ import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
-import org.sonar.graph.DirectedGraphAccessor;
 
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * @deprecated since 4.5.2 should not be used by plugins. Everything should be accessed using {@link SensorContext}.
  */
 @Deprecated
-public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
+public abstract class SonarIndex {
 
   /**
    * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
@@ -101,9 +99,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
 
   public abstract Project getProject();
 
-  public final Collection<Resource> getResources() {
-    return getVertices();
-  }
+  public abstract Collection<Resource> getResources();
 
   /**
    * Indexes the resource.
@@ -140,15 +136,9 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
    */
   public abstract Measure addMeasure(Resource resource, Measure measure);
 
+  /**
+   * @deprecated since 5.2 No more design features. No op.
+   */
+  @Deprecated
   public abstract Dependency addDependency(Dependency dependency);
-
-  public abstract Set<Dependency> getDependencies();
-
-  public final Collection<Dependency> getOutgoingDependencies(Resource from) {
-    return getOutgoingEdges(from);
-  }
-
-  public final Collection<Dependency> getIncomingDependencies(Resource to) {
-    return getIncomingEdges(to);
-  }
 }

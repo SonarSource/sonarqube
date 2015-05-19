@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.deprecated;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
@@ -36,7 +35,10 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.sensor.DefaultSensorContext;
@@ -44,7 +46,6 @@ import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 
 public class DeprecatedSensorContext extends DefaultSensorContext implements SensorContext {
 
@@ -70,26 +71,15 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public boolean index(Resource resource) {
     // SONAR-5006
-    if (indexedByCore(resource)) {
-      logWarning();
-      return true;
-    }
-    return index.index(resource);
-  }
-
-  private boolean indexedByCore(Resource resource) {
-    return StringUtils.equals(Qualifiers.DIRECTORY, resource.getQualifier()) ||
-      StringUtils.equals(Qualifiers.FILE, resource.getQualifier());
+    logWarning();
+    return true;
   }
 
   @Override
   public boolean index(Resource resource, Resource parentReference) {
     // SONAR-5006
-    if (indexedByCore(resource)) {
-      logWarning();
-      return true;
-    }
-    return index.index(resource, parentReference);
+    logWarning();
+    return true;
   }
 
   private void logWarning() {
@@ -206,22 +196,7 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   @Override
   public Dependency saveDependency(Dependency dependency) {
-    return index.addDependency(dependency);
-  }
-
-  @Override
-  public Set<Dependency> getDependencies() {
-    return index.getDependencies();
-  }
-
-  @Override
-  public Collection<Dependency> getIncomingDependencies(Resource to) {
-    return index.getIncomingEdges(resourceOrProject(to));
-  }
-
-  @Override
-  public Collection<Dependency> getOutgoingDependencies(Resource from) {
-    return index.getOutgoingEdges(resourceOrProject(from));
+    return null;
   }
 
   @Override

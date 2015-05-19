@@ -27,7 +27,11 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.*;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -39,11 +43,12 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol;
+import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
@@ -56,7 +61,12 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
@@ -265,23 +275,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
           return test;
         }
         test = BatchReport.Test.PARSER.parseDelimitedFrom(inputStream);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
-    return null;
-  }
-
-  public BatchReport.FileDependency fileDependencyFor(InputFile file, InputFile anotherFile) {
-    int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    int otherRef = reportComponents.get(((DefaultInputFile) anotherFile).key()).getRef();
-    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readFileDependencies(ref))) {
-      BatchReport.FileDependency dep = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
-      while (dep != null) {
-        if (dep.getToFileRef() == otherRef) {
-          return dep;
-        }
-        dep = BatchReport.FileDependency.PARSER.parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);

@@ -29,7 +29,6 @@ import org.sonar.api.rules.Violation;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 1.10
@@ -88,17 +87,13 @@ public interface DecoratorContext {
   DecoratorContext saveMeasure(Metric metric, Double value);
 
   // DEPENDENCIES
-
+  /**
+   * @deprecated since 5.2 No more design features. No-op.
+   */
+  @Deprecated
   Dependency saveDependency(Dependency dependency);
 
-  Set<Dependency> getDependencies();
-
-  Collection<Dependency> getIncomingDependencies();
-
-  Collection<Dependency> getOutgoingDependencies();
-
   // RULES
-
   /**
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
    * 

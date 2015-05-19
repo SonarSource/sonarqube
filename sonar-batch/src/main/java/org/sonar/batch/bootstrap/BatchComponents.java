@@ -27,12 +27,6 @@ import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.debt.SqaleRatingDecorator;
 import org.sonar.batch.debt.SqaleRatingSettings;
-import org.sonar.batch.design.DirectoryDsmDecorator;
-import org.sonar.batch.design.DirectoryTangleIndexDecorator;
-import org.sonar.batch.design.FileTangleIndexDecorator;
-import org.sonar.batch.design.MavenDependenciesSensor;
-import org.sonar.batch.design.ProjectDsmDecorator;
-import org.sonar.batch.design.SubProjectDsmDecorator;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
 import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
@@ -71,13 +65,6 @@ public class BatchComponents {
     List components = Lists.newArrayList(
       // Maven
       MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,
-
-      // Design
-      ProjectDsmDecorator.class,
-      SubProjectDsmDecorator.class,
-      DirectoryDsmDecorator.class,
-      DirectoryTangleIndexDecorator.class,
-      FileTangleIndexDecorator.class,
 
       // SCM
       ScmConfiguration.class,
@@ -130,9 +117,6 @@ public class BatchComponents {
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
-    if (!analysisMode.isMediumTest()) {
-      components.add(MavenDependenciesSensor.class);
-    }
     return components;
   }
 }
