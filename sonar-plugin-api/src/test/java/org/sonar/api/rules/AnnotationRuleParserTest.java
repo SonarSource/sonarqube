@@ -19,15 +19,13 @@
  */
 package org.sonar.api.rules;
 
-import org.assertj.core.api.Assertions;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,14 +83,14 @@ public class AnnotationRuleParserTest {
 
   @Test
   public void should_recognize_type() {
-    Assertions.assertThat(AnnotationRuleParser.guessType(Integer.class)).isEqualTo(PropertyType.INTEGER);
-    Assertions.assertThat(AnnotationRuleParser.guessType(int.class)).isEqualTo(PropertyType.INTEGER);
-    Assertions.assertThat(AnnotationRuleParser.guessType(Float.class)).isEqualTo(PropertyType.FLOAT);
-    Assertions.assertThat(AnnotationRuleParser.guessType(float.class)).isEqualTo(PropertyType.FLOAT);
-    Assertions.assertThat(AnnotationRuleParser.guessType(Boolean.class)).isEqualTo(PropertyType.BOOLEAN);
-    Assertions.assertThat(AnnotationRuleParser.guessType(boolean.class)).isEqualTo(PropertyType.BOOLEAN);
-    Assertions.assertThat(AnnotationRuleParser.guessType(String.class)).isEqualTo(PropertyType.STRING);
-    Assertions.assertThat(AnnotationRuleParser.guessType(Object.class)).isEqualTo(PropertyType.STRING);
+    assertThat(AnnotationRuleParser.guessType(Integer.class)).isEqualTo(PropertyType.INTEGER);
+    assertThat(AnnotationRuleParser.guessType(int.class)).isEqualTo(PropertyType.INTEGER);
+    assertThat(AnnotationRuleParser.guessType(Float.class)).isEqualTo(PropertyType.FLOAT);
+    assertThat(AnnotationRuleParser.guessType(float.class)).isEqualTo(PropertyType.FLOAT);
+    assertThat(AnnotationRuleParser.guessType(Boolean.class)).isEqualTo(PropertyType.BOOLEAN);
+    assertThat(AnnotationRuleParser.guessType(boolean.class)).isEqualTo(PropertyType.BOOLEAN);
+    assertThat(AnnotationRuleParser.guessType(String.class)).isEqualTo(PropertyType.STRING);
+    assertThat(AnnotationRuleParser.guessType(Object.class)).isEqualTo(PropertyType.STRING);
   }
 
   @Test
