@@ -40,7 +40,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
@@ -907,10 +906,9 @@ class ServerComponents {
     // Properties
     pico.addSingleton(PropertiesWs.class);
 
-    // graphs and perspective related classes
+    // deprecated tests
     pico.addSingleton(TestablePerspectiveLoader.class);
     pico.addSingleton(TestPlanPerspectiveLoader.class);
-    pico.addSingleton(SnapshotPerspectives.class);
 
     // Type validation
     pico.addSingleton(TypeValidations.class);

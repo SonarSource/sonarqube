@@ -66,8 +66,6 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.event.db.EventMapper;
-import org.sonar.core.graph.jdbc.GraphDto;
-import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanMapper;
 import org.sonar.core.issue.db.ActionPlanStatsDto;
@@ -197,7 +195,6 @@ public class MyBatis {
     loadAlias(conf, "ComponentLink", ComponentLinkDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
-    loadAlias(conf, "Graph", GraphDto.class);
     loadAlias(conf, "Group", GroupDto.class);
     loadAlias(conf, "GroupRole", GroupRoleDto.class);
     loadAlias(conf, "GroupMembership", GroupMembershipDto.class);
@@ -253,7 +250,7 @@ public class MyBatis {
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      FileDependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
+      FileDependencyMapper.class, DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,

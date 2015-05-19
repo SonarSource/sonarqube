@@ -103,13 +103,6 @@
     </foreach>
   </delete>
 
-  <delete id="deleteSnapshotGraphs" parameterType="map">
-    delete from graphs where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
-  </delete>
-
   <delete id="deleteSnapshotDependenciesFromSnapshotId" parameterType="map">
     delete from dependencies where from_snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
@@ -247,13 +240,6 @@
 
   <delete id="deleteResourceActionPlans" parameterType="map">
     delete from action_plans where project_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
-    </foreach>
-  </delete>
-
-  <delete id="deleteResourceGraphs" parameterType="map">
-    delete from graphs where resource_id in
     <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
       #{resourceId}
     </foreach>

@@ -29,9 +29,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.test.MutableTestable;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -57,15 +55,13 @@ public class CoverageServiceTest {
   DbSession session;
   @Mock
   MeasureDao measureDao;
-  @Mock
-  SnapshotPerspectives snapshotPerspectives;
   CoverageService service;
 
   @Before
   public void setUp() {
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new CoverageService(myBatis, measureDao, snapshotPerspectives, userSessionRule);
+    service = new CoverageService(myBatis, measureDao, userSessionRule);
   }
 
   @Test
@@ -117,23 +113,4 @@ public class CoverageServiceTest {
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
     verify(measureDao).findByComponentKeyAndMetricKey(session, COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
   }
-
-  @Test
-  public void get_test_cases_by_lines() {
-    MutableTestable testable = mock(MutableTestable.class);
-    when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(testable);
-
-    service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(testable).testCasesByLines();
-
-    assertThat(service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.IT)).isEmpty();
-  }
-
-  @Test
-  public void not_get_test_cases_by_lines_if_no_testable() {
-    when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(null);
-
-    assertThat(service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
-  }
-
 }

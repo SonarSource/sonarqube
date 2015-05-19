@@ -39,7 +39,7 @@ import java.sql.SQLException;
 public class BackendCleanup {
 
   private static final String[] INSPECTION_TABLES = {
-    "action_plans", "authors", "dependencies", "duplications_index", "events", "graphs", "issues", "issue_changes", "manual_measures",
+    "action_plans", "authors", "dependencies", "duplications_index", "events", "issues", "issue_changes", "manual_measures",
     "notifications", "project_links", "project_measures", "projects", "resource_index",
     "semaphores", "snapshots", "file_sources"
   };

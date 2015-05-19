@@ -132,13 +132,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteResourceGraphs (graphs)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceGraphs(partResourceIds);
-    }
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteResource (projects)");
     for (List<Long> partResourceIds : componentIdPartitions) {
       purgeMapper.deleteResource(partResourceIds);
@@ -181,8 +174,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    deleteSnapshotGraphs(snapshotIdsPartition);
-
     profiler.start("deleteSnapshot (snapshots)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshot(partSnapshotIds);
@@ -204,8 +195,6 @@ class PurgeCommands {
 
     deleteSnapshotDuplications(snapshotIdsPartition);
 
-    deleteSnapshotGraphs(snapshotIdsPartition);
-
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
@@ -217,15 +206,6 @@ class PurgeCommands {
     profiler.start("updatePurgeStatusToOne (snapshots)");
     for (Long snapshotId : snapshotIds) {
       purgeMapper.updatePurgeStatusToOne(snapshotId);
-    }
-    session.commit();
-    profiler.stop();
-  }
-
-  private void deleteSnapshotGraphs(final List<List<Long>> snapshotIdsPartition) {
-    profiler.start("deleteSnapshotGraphs (graphs)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotGraphs(partSnapshotIds);
     }
     session.commit();
     profiler.stop();
