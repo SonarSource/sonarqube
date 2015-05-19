@@ -312,7 +312,7 @@ public class UserUpdater {
         return input != null && input.getKey().equals(defaultGroup);
       }
     })) {
-      GroupDto groupDto = dbClient.groupDao().getByKey(dbSession, defaultGroup);
+      GroupDto groupDto = dbClient.groupDao().selectByKey(dbSession, defaultGroup);
       dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
     }
   }
