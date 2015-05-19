@@ -28,6 +28,7 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -102,6 +103,7 @@ public class DbClient {
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final FileDependencyDao fileDependencyDao;
+  private final PurgeDao purgeDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -142,6 +144,7 @@ public class DbClient {
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     fileDependencyDao = getDao(map, FileDependencyDao.class);
+    purgeDao = getDao(map, PurgeDao.class);
   }
 
   public Database database() {
@@ -274,6 +277,10 @@ public class DbClient {
 
   public FileDependencyDao fileDependencyDao() {
     return fileDependencyDao;
+  }
+
+  public PurgeDao purgeDao() {
+    return purgeDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

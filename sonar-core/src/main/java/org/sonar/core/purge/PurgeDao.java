@@ -27,6 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
@@ -43,7 +44,7 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 /**
  * @since 2.14
  */
-public class PurgeDao {
+public class PurgeDao implements DaoComponent {
   private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
@@ -163,25 +164,27 @@ public class PurgeDao {
   }
 
   public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId, DbSession session) {
-    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     List<PurgeableSnapshotDto> result = Lists.newArrayList();
-    result.addAll(mapper.selectPurgeableSnapshotsWithEvents(resourceId));
-    result.addAll(mapper.selectPurgeableSnapshotsWithoutEvents(resourceId));
+    result.addAll(mapper(session).selectPurgeableSnapshotsWithEvents(resourceId));
+    result.addAll(mapper(session).selectPurgeableSnapshotsWithoutEvents(resourceId));
     // sort by date
     Collections.sort(result);
     return result;
   }
 
   public PurgeDao deleteResourceTree(IdUuidPair rootIdUuid) {
-    final DbSession session = mybatis.openSession(true);
-    final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    DbSession session = mybatis.openSession(true);
     try {
-      deleteProject(rootIdUuid, mapper, new PurgeCommands(session, profiler));
-      deleteFileSources(rootIdUuid.getUuid(), new PurgeCommands(session, profiler));
-      return this;
+      return deleteResourceTree(session, rootIdUuid);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public PurgeDao deleteResourceTree(DbSession session, IdUuidPair rootIdUuid) {
+    deleteProject(rootIdUuid, mapper(session), new PurgeCommands(session, profiler));
+    deleteFileSources(rootIdUuid.getUuid(), new PurgeCommands(session, profiler));
+    return this;
   }
 
   private void deleteFileSources(String rootUuid, PurgeCommands commands) {
@@ -233,7 +236,10 @@ public class PurgeDao {
   }
 
   public List<String> selectPurgeableFiles(DbSession dbSession, Long projectId) {
-    PurgeMapper mapper = dbSession.getMapper(PurgeMapper.class);
-    return mapper.selectPurgeableFileUuids(projectId);
+    return mapper(dbSession).selectPurgeableFileUuids(projectId);
+  }
+
+  private PurgeMapper mapper(DbSession session) {
+    return session.getMapper(PurgeMapper.class);
   }
 }

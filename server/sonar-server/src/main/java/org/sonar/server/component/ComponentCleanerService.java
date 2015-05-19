@@ -21,52 +21,65 @@
 package org.sonar.server.component;
 
 import org.sonar.api.ServerSide;
+import org.sonar.api.resources.ResourceType;
+import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
+import java.util.List;
+
 @ServerSide
 public class ComponentCleanerService {
 
   private final DbClient dbClient;
-  private final PurgeDao purgeDao;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
   private final SourceLineIndexer sourceLineIndexer;
   private final TestIndexer testIndexer;
+  private final ResourceTypes resourceTypes;
 
-  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-                                 SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer) {
+  public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+    SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
-    this.purgeDao = purgeDao;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.sourceLineIndexer = sourceLineIndexer;
     this.testIndexer = testIndexer;
+    this.resourceTypes = resourceTypes;
+  }
+
+  public void delete(DbSession dbSession, List<ComponentDto> projects) {
+    for (ComponentDto project : projects) {
+      delete(dbSession, project);
+    }
   }
 
   public void delete(String projectKey) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto project = dbClient.componentDao().selectByKey(dbSession, projectKey);
-      if (!Scopes.PROJECT.equals(project.scope())) {
-        throw new IllegalArgumentException("Only projects can be deleted");
-      }
-      purgeDao.deleteResourceTree(new IdUuidPair(project.getId(), project.uuid()));
-      dbSession.commit();
-
-      deleteFromIndices(project.uuid());
+      delete(dbSession, project);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
+  }
+
+  private void delete(DbSession dbSession, ComponentDto project) {
+    if (hasNotProjectScope(project) || isNotDeletable(project)) {
+      throw new IllegalArgumentException("Only projects can be deleted");
+    }
+    dbClient.purgeDao().deleteResourceTree(dbSession, new IdUuidPair(project.getId(), project.uuid()));
+    dbSession.commit();
+
+    deleteFromIndices(project.uuid());
   }
 
   private void deleteFromIndices(String projectUuid) {
@@ -77,4 +90,12 @@ public class ComponentCleanerService {
     testIndexer.deleteByProject(projectUuid);
   }
 
+  private boolean hasNotProjectScope(ComponentDto project) {
+    return !Scopes.PROJECT.equals(project.scope());
+  }
+
+  private boolean isNotDeletable(ComponentDto project) {
+    ResourceType resourceType = resourceTypes.get(project.qualifier());
+    return resourceType == null || !resourceType.getBooleanProperty("deletable");
+  }
 }
