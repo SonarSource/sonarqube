@@ -21,29 +21,33 @@
 package org.sonar.server.user.db;
 
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupMapper;
-import org.sonar.server.db.BaseDao;
 
+import java.util.Date;
 import java.util.List;
 
 /**
  * @since 3.2
  */
-public class GroupDao extends BaseDao<GroupMapper, GroupDto, String> {
+public class GroupDao implements DaoComponent {
+
+  private System2 system;
 
   public GroupDao(System2 system) {
-    super(GroupMapper.class, system);
+    this.system = system;
   }
 
-  @Override
-  protected GroupDto doGetNullableByKey(DbSession session, String key) {
+  public GroupDto selectByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  @Override
-  protected GroupDto doInsert(DbSession session, GroupDto item) {
+  public GroupDto insert(DbSession session, GroupDto item) {
+    Date createdAt = new Date(system.now());
+    item.setCreatedAt(createdAt)
+      .setUpdatedAt(createdAt);
     mapper(session).insert(item);
     return item;
   }
@@ -52,4 +56,7 @@ public class GroupDao extends BaseDao<GroupMapper, GroupDto, String> {
     return mapper(session).selectByUserLogin(login);
   }
 
+  private GroupMapper mapper(DbSession session) {
+    return session.getMapper(GroupMapper.class);
+  }
 }
