@@ -129,7 +129,7 @@ public class DuplicationsJsonWriter {
   private ComponentDto getProject(String projectUuid, Map<String, ComponentDto> projectsByUuid, DbSession session) {
     ComponentDto project = projectsByUuid.get(projectUuid);
     if (project == null) {
-      project = componentDao.getNullableByUuid(session, projectUuid);
+      project = componentDao.selectNullableByUuid(session, projectUuid);
       if (project != null) {
         projectsByUuid.put(project.uuid(), project);
       }
@@ -140,7 +140,7 @@ public class DuplicationsJsonWriter {
   private ComponentDto getParentProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
     ComponentDto project = subProjectsById.get(projectId);
     if (project == null && projectId != null) {
-      project = componentDao.getNullableById(projectId, session);
+      project = componentDao.selectNullableById(projectId, session);
       if (project != null) {
         subProjectsById.put(project.getId(), project);
       }

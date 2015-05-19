@@ -93,8 +93,8 @@ public class NewIssuesNotificationTest {
       .setLongName("project-long-name");
     addIssueNTimes(newIssue1(), 5);
     addIssueNTimes(newIssue2(), 3);
-    when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
-    when(dbClient.componentDao().getByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
+    when(dbClient.componentDao().selectByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
+    when(dbClient.componentDao().selectByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
 

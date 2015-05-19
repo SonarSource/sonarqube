@@ -55,7 +55,7 @@ public class QProfileProjectOperations {
   }
 
   void addProject(String profileKey, String projectUuid, UserSession userSession, DbSession session) {
-    ComponentDto project = db.componentDao().getByUuid(session, projectUuid);
+    ComponentDto project = db.componentDao().selectByUuid(session, projectUuid);
     checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
@@ -77,7 +77,7 @@ public class QProfileProjectOperations {
   public void removeProject(String profileKey, String projectUuid, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().getByUuid(session, projectUuid);
+      ComponentDto project = db.componentDao().selectByUuid(session, projectUuid);
       checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
@@ -91,7 +91,7 @@ public class QProfileProjectOperations {
   public void removeProject(String language, long projectId, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().getById(projectId, session);
+      ComponentDto project = db.componentDao().selectById(projectId, session);
       checkPermission(userSession, project.key());
 
       QualityProfileDto associatedProfile = db.qualityProfileDao().getByProjectAndLanguage(project.getKey(), language, session);

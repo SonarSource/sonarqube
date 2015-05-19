@@ -91,7 +91,7 @@ public class SearchAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto componentDto = dbClient.componentDao().getByUuid(session, viewOrSubUuid);
+      ComponentDto componentDto = dbClient.componentDao().selectByUuid(session, viewOrSubUuid);
       userSession.checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
 
       Set<Long> projectIds = newLinkedHashSet(dbClient.componentIndexDao().selectProjectIdsFromQueryAndViewOrSubViewUuid(session, query, componentDto.uuid()));
@@ -101,7 +101,7 @@ public class SearchAction implements RequestHandler {
       options.setPage(request.mandatoryParamAsInt(PAGE), request.mandatoryParamAsInt(PAGE_SIZE));
       Set<Long> pagedProjectIds = pagedProjectIds(authorizedProjectIds, options);
 
-      List<ComponentDto> projects = dbClient.componentDao().getByIds(session, pagedProjectIds);
+      List<ComponentDto> projects = dbClient.componentDao().selectByIds(session, pagedProjectIds);
 
       options.writeJson(json, authorizedProjectIds.size());
       json.name("components").beginArray();

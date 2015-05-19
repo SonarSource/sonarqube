@@ -342,7 +342,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
     enableSnapshot(1002);
     try (SqlSession session = getMyBatis().openSession(false)) {
       // FIXME selectByKey returns duplicates for libraries because of the join on snapshots table
-      ComponentDto newLib = session.getMapper(ComponentMapper.class).findByKeys(Arrays.asList("junit:junit")).get(0);
+      ComponentDto newLib = session.getMapper(ComponentMapper.class).selectByKeys(Arrays.asList("junit:junit")).get(0);
       assertThat(newLib.uuid()).isNotNull();
       assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
       assertThat(newLib.moduleUuid()).isNull();

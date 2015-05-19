@@ -115,7 +115,7 @@ public class NewIssuesNotification extends Notification {
     try {
       for (int i = 0; i < 5 && i < componentStats.size(); i++) {
         String uuid = componentStats.get(i).getElement();
-        String componentName = dbClient.componentDao().getByUuid(dbSession, uuid).name();
+        String componentName = dbClient.componentDao().selectByUuid(dbSession, uuid).name();
         setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
         setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
       }

@@ -262,7 +262,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       SnapshotDto currentSnapshot = snapshot;
       while (currentSnapshot.getParentId() != null) {
         currentSnapshot = dbClient.snapshotDao().getByKey(session, currentSnapshot.getParentId());
-        componentPath.add(0, dbClient.componentDao().getById(currentSnapshot.getResourceId(), session));
+        componentPath.add(0, dbClient.componentDao().selectById(currentSnapshot.getResourceId(), session));
       }
     }
 

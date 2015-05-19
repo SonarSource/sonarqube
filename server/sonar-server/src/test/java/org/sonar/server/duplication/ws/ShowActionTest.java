@@ -107,7 +107,7 @@ public class ShowActionTest {
     String componentKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
-    when(componentDao.getByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
+    when(componentDao.selectByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
     when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);

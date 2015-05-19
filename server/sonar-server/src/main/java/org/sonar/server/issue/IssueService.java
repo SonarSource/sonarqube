@@ -247,7 +247,7 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
-      ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
+      ComponentDto project = dbClient.componentDao().selectByUuid(session, component.projectUuid());
 
       userSession.checkProjectPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {

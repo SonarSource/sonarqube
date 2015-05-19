@@ -78,8 +78,8 @@ public class ShowAction implements UsersWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto fromParent = dbClient.componentDao().getByUuid(session, fromParentUuid);
-      ComponentDto project = dbClient.componentDao().getByUuid(session, fromParent.projectUuid());
+      ComponentDto fromParent = dbClient.componentDao().selectByUuid(session, fromParentUuid);
+      ComponentDto project = dbClient.componentDao().selectByUuid(session, fromParent.projectUuid());
       userSession.checkProjectUuidPermission(UserRole.USER, project.uuid());
 
       List<FileDependencyDto> fileDependencies = dbClient.fileDependencyDao().selectFromParents(session, fromParentUuid, toParentUuid, project.getId());
@@ -113,7 +113,7 @@ public class ShowAction implements UsersWsAction {
       uuids.add(fileDependency.getToComponentUuid());
     }
     Map<String, ComponentDto> componentsByUuid = new HashMap<>();
-    for (ComponentDto componentDto : dbClient.componentDao().getByUuids(session, uuids)) {
+    for (ComponentDto componentDto : dbClient.componentDao().selectByUuids(session, uuids)) {
       componentsByUuid.put(componentDto.uuid(), componentDto);
     }
     return componentsByUuid;

@@ -99,7 +99,7 @@ public class ComponentService {
   public ComponentDto getByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getByUuid(session, uuid);
+      return dbClient.componentDao().selectByUuid(session, uuid);
     } finally {
       session.close();
     }
@@ -109,7 +109,7 @@ public class ComponentService {
   public ComponentDto getNullableByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getNullableByUuid(session, uuid);
+      return dbClient.componentDao().selectNullableByUuid(session, uuid);
     } finally {
       session.close();
     }
@@ -229,7 +229,7 @@ public class ComponentService {
   public Set<String> getDistinctQualifiers(DbSession session, @Nullable Collection<String> componentUuids) {
     Set<String> componentQualifiers = Sets.newHashSet();
     if (componentUuids != null && !componentUuids.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+      List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
 
       for (ComponentDto component : components) {
         componentQualifiers.add(component.qualifier());
@@ -241,7 +241,7 @@ public class ComponentService {
   public Collection<ComponentDto> getByUuids(DbSession session, Collection<String> componentUuids) {
     Set<ComponentDto> directoryPaths = Sets.newHashSet();
     if (componentUuids != null && !componentUuids.isEmpty()) {
-      List<ComponentDto> components = dbClient.componentDao().getByUuids(session, componentUuids);
+      List<ComponentDto> components = dbClient.componentDao().selectByUuids(session, componentUuids);
 
       for (ComponentDto component : components) {
         directoryPaths.add(component);

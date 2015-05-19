@@ -66,7 +66,7 @@ public class ComponentDaoTest {
   public void get_by_uuid() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByUuid(session, "KLMN");
+    ComponentDto result = sut.selectNullableByUuid(session, "KLMN");
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
@@ -91,7 +91,7 @@ public class ComponentDaoTest {
   public void get_by_uuid_on_technical_project_copy() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByUuid(session, "STUV");
+    ComponentDto result = sut.selectNullableByUuid(session, "STUV");
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("STUV");
     assertThat(result.moduleUuid()).isEqualTo("OPQR");
@@ -112,7 +112,7 @@ public class ComponentDaoTest {
   public void get_by_uuid_on_disabled_component() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableByUuid(session, "DCBA");
+    ComponentDto result = sut.selectNullableByUuid(session, "DCBA");
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
   }
@@ -123,7 +123,7 @@ public class ComponentDaoTest {
 
     loadBasicDataInDatabase();
 
-    sut.getByUuid(session, "unknown");
+    sut.selectByUuid(session, "unknown");
   }
 
   @Test
@@ -150,7 +150,7 @@ public class ComponentDaoTest {
 
     loadBasicDataInDatabase();
 
-    sut.getByUuid(session, "unknown");
+    sut.selectByUuid(session, "unknown");
   }
 
   @Test
@@ -205,7 +205,7 @@ public class ComponentDaoTest {
   public void get_by_ids() {
     loadBasicDataInDatabase();
 
-    List<ComponentDto> results = sut.getByIds(session, newArrayList(4L));
+    List<ComponentDto> results = sut.selectByIds(session, newArrayList(4L));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -219,14 +219,14 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.getByIds(session, newArrayList(555L))).isEmpty();
+    assertThat(sut.selectByIds(session, newArrayList(555L))).isEmpty();
   }
 
   @Test
   public void get_by_uuids() {
     loadBasicDataInDatabase();
 
-    List<ComponentDto> results = sut.getByUuids(session, newArrayList("KLMN"));
+    List<ComponentDto> results = sut.selectByUuids(session, newArrayList("KLMN"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -244,14 +244,14 @@ public class ComponentDaoTest {
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
 
-    assertThat(sut.getByUuids(session, newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectByUuids(session, newArrayList("unknown"))).isEmpty();
   }
 
   @Test
   public void get_by_uuids_on_removed_components() {
     loadBasicDataInDatabase();
 
-    List<ComponentDto> results = sut.getByUuids(session, newArrayList("DCBA"));
+    List<ComponentDto> results = sut.selectByUuids(session, newArrayList("DCBA"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -274,14 +274,14 @@ public class ComponentDaoTest {
   public void get_by_id() {
     loadBasicDataInDatabase();
 
-    assertThat(sut.getById(4L, session)).isNotNull();
+    assertThat(sut.selectById(4L, session)).isNotNull();
   }
 
   @Test
   public void get_by_id_on_disabled_component() {
     loadBasicDataInDatabase();
 
-    ComponentDto result = sut.getNullableById(10L, session);
+    ComponentDto result = sut.selectNullableById(10L, session);
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
   }
@@ -290,15 +290,15 @@ public class ComponentDaoTest {
   public void fail_to_get_by_id_when_project_not_found() {
     loadBasicDataInDatabase();
 
-    sut.getById(111L, session);
+    sut.selectById(111L, session);
   }
 
   @Test
   public void get_nullable_by_id() {
     loadBasicDataInDatabase();
 
-    assertThat(sut.getNullableById(4L, session)).isNotNull();
-    assertThat(sut.getNullableById(111L, session)).isNull();
+    assertThat(sut.selectNullableById(4L, session)).isNotNull();
+    assertThat(sut.selectNullableById(111L, session)).isNull();
   }
 
   @Test
@@ -313,17 +313,17 @@ public class ComponentDaoTest {
   public void find_modules_by_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> results = sut.findModulesByProject("org.struts:struts", session);
+    List<ComponentDto> results = sut.selectModulesByProject("org.struts:struts", session);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core");
 
-    results = sut.findModulesByProject("org.struts:struts-core", session);
+    results = sut.selectModulesByProject("org.struts:struts-core", session);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
-    assertThat(sut.findModulesByProject("org.struts:struts-data", session)).isEmpty();
+    assertThat(sut.selectModulesByProject("org.struts:struts-data", session)).isEmpty();
 
-    assertThat(sut.findModulesByProject("unknown", session)).isEmpty();
+    assertThat(sut.selectModulesByProject("unknown", session)).isEmpty();
   }
 
   @Test
@@ -331,34 +331,34 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
     // Sub project of a file
-    List<ComponentDto> results = sut.findSubProjectsByComponentUuids(session, newArrayList("HIJK"));
+    List<ComponentDto> results = sut.selectSubProjectsByComponentUuids(session, newArrayList("HIJK"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a directory
-    results = sut.findSubProjectsByComponentUuids(session, newArrayList("GHIJ"));
+    results = sut.selectSubProjectsByComponentUuids(session, newArrayList("GHIJ"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a sub module
-    results = sut.findSubProjectsByComponentUuids(session, newArrayList("FGHI"));
+    results = sut.selectSubProjectsByComponentUuids(session, newArrayList("FGHI"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a module
-    results = sut.findSubProjectsByComponentUuids(session, newArrayList("EFGH"));
+    results = sut.selectSubProjectsByComponentUuids(session, newArrayList("EFGH"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a project
-    assertThat(sut.findSubProjectsByComponentUuids(session, newArrayList("ABCD"))).isEmpty();
+    assertThat(sut.selectSubProjectsByComponentUuids(session, newArrayList("ABCD"))).isEmpty();
 
     // SUb projects of a component and a sub module
-    assertThat(sut.findSubProjectsByComponentUuids(session, newArrayList("HIJK", "FGHI"))).hasSize(2);
+    assertThat(sut.selectSubProjectsByComponentUuids(session, newArrayList("HIJK", "FGHI"))).hasSize(2);
 
-    assertThat(sut.findSubProjectsByComponentUuids(session, newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectSubProjectsByComponentUuids(session, newArrayList("unknown"))).isEmpty();
 
-    assertThat(sut.findSubProjectsByComponentUuids(session, Collections.<String>emptyList())).isEmpty();
+    assertThat(sut.selectSubProjectsByComponentUuids(session, Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
@@ -516,7 +516,7 @@ public class ComponentDaoTest {
   public void find_project_uuids() {
     db.prepareDbUnit(getClass(), "find_project_uuids.xml");
 
-    assertThat(sut.findProjectUuids(session)).containsExactly("ABCD");
+    assertThat(sut.selectProjectUuids(session)).containsExactly("ABCD");
   }
 
   @Test

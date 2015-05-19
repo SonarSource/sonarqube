@@ -170,7 +170,7 @@ public class TestsListAction implements TestsWsAction {
         return testDoc.fileUuid();
       }
     });
-    List<ComponentDto> components = dbClient.componentDao().getByUuids(dbSession, fileUuids);
+    List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, fileUuids);
 
     return Maps.uniqueIndex(components, new NonNullInputFunction<ComponentDto, String>() {
       @Override
@@ -223,7 +223,7 @@ public class TestsListAction implements TestsWsAction {
   }
 
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
-    ComponentDto component = dbClient.componentDao().getByUuid(dbSession, componentUuid);
+    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
     userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
   }
 }

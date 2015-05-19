@@ -76,9 +76,9 @@ public class DuplicationsJsonWriterTest {
 
     when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.selectNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(5L, session)).thenReturn(
+    when(componentDao.selectNullableById(5L, session)).thenReturn(
       new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
-    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -122,8 +122,8 @@ public class DuplicationsJsonWriterTest {
 
     verify(componentDao, times(2)).selectNullableByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
-    verify(componentDao, times(1)).getNullableByUuid(eq(session), eq(project.uuid()));
-    verify(componentDao, times(1)).getNullableById(eq(5L), eq(session));
+    verify(componentDao, times(1)).selectNullableByUuid(eq(session), eq(project.uuid()));
+    verify(componentDao, times(1)).selectNullableById(eq(5L), eq(session));
   }
 
   @Test
@@ -135,7 +135,7 @@ public class DuplicationsJsonWriterTest {
 
     when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.selectNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -180,7 +180,7 @@ public class DuplicationsJsonWriterTest {
     ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
 
     when(componentDao.selectNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
 

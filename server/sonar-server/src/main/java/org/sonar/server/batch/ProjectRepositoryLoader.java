@@ -140,7 +140,7 @@ public class ProjectRepositoryLoader {
 
   private ComponentDto getProject(ComponentDto module, DbSession session) {
     if (!module.isRootProject()) {
-      return dbClient.componentDao().getNullableByUuid(session, module.projectUuid());
+      return dbClient.componentDao().selectNullableByUuid(session, module.projectUuid());
     } else {
       return module;
     }
@@ -161,7 +161,7 @@ public class ProjectRepositoryLoader {
   private void aggregateParentModules(ComponentDto component, List<ComponentDto> parents, DbSession session) {
     String moduleUuid = component.moduleUuid();
     if (moduleUuid != null) {
-      ComponentDto parent = dbClient.componentDao().getByUuid(session, moduleUuid);
+      ComponentDto parent = dbClient.componentDao().selectByUuid(session, moduleUuid);
       if (parent != null) {
         parents.add(parent);
         aggregateParentModules(parent, parents, session);

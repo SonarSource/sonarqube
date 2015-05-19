@@ -363,7 +363,7 @@ public class QualityGates {
   }
 
   private void checkPermission(Long projectId, DbSession session) {
-    ComponentDto project = componentDao.getById(projectId, session);
+    ComponentDto project = componentDao.selectById(projectId, session);
     if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, project.key())) {
       throw new ForbiddenException("Insufficient privileges");
     }

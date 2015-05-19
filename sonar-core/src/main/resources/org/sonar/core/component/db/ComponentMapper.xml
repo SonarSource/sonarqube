@@ -63,7 +63,7 @@
     </where>
   </select>
 
-  <select id="findModulesByProject" parameterType="String" resultType="Component">
+  <select id="selectModulesByProject" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
@@ -75,7 +75,7 @@
     </where>
   </select>
 
-  <select id="findByKeys" parameterType="String" resultType="Component">
+  <select id="selectByKeys" parameterType="String" resultType="Component">
     select <include refid="componentColumns"/>
     from projects p
     <where>
@@ -87,7 +87,7 @@
     </where>
   </select>
 
-  <select id="findByIds" parameterType="long" resultType="Component">
+  <select id="selectByIds" parameterType="long" resultType="Component">
     select
     <include refid="componentColumns"/>
     from projects p
@@ -100,7 +100,7 @@
     </where>
   </select>
 
-  <select id="findByUuids" parameterType="String" resultType="Component">
+  <select id="selectByUuids" parameterType="String" resultType="Component">
     select <include refid="componentColumns"/>
     from projects p
     <where>
@@ -122,7 +122,7 @@
     </where>
   </select>
 
-  <select id="findSubProjectsByComponentUuids" parameterType="String" resultType="Component">
+  <select id="selectSubProjectsByComponentUuids" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN projects child ON child.root_id=p.id AND child.enabled=${_true}
@@ -182,7 +182,7 @@
     <include refid="modulesTreeQuery"/>
   </select>
 
-  <select id="findProjectUuids" resultType="String">
+  <select id="selectProjectUuids" resultType="String">
     SELECT p.uuid
     FROM projects p
     <where>

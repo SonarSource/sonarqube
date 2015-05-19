@@ -88,7 +88,7 @@ public class ShowAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     if (fileKey == null) {
-      fileKey = componentDao.getByUuid(session, fileUuid).key();
+      fileKey = componentDao.selectByUuid(session, fileUuid).key();
     }
 
     userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);

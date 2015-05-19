@@ -351,7 +351,7 @@ public class IssueQueryService {
   }
 
   private void addDeveloperTechnicalProjects(IssueQuery.Builder builder, DbSession session, Collection<String> componentUuids, Collection<String> authors) {
-    Collection<ComponentDto> technicalProjects = dbClient.componentDao().getByUuids(session, componentUuids);
+    Collection<ComponentDto> technicalProjects = dbClient.componentDao().selectByUuids(session, componentUuids);
     Collection<String> developerUuids = Collections2.transform(technicalProjects, new Function<ComponentDto, String>() {
       @Override
       public String apply(ComponentDto input) {
@@ -366,7 +366,7 @@ public class IssueQueryService {
         return input.getCopyResourceId();
       }
     });
-    List<ComponentDto> originalProjects = dbClient.componentDao().getByIds(session, projectIds);
+    List<ComponentDto> originalProjects = dbClient.componentDao().selectByIds(session, projectIds);
     Collection<String> projectUuids = Collections2.transform(originalProjects, new Function<ComponentDto, String>() {
       @Override
       public String apply(ComponentDto input) {

@@ -357,15 +357,15 @@ public class SearchAction implements IssuesWsAction {
       }
       usersByLogin = getUsersByLogin(userLogins);
 
-      List<ComponentDto> fileDtos = dbClient.componentDao().getByUuids(session, componentUuids);
-      List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentUuids(session, componentUuids);
+      List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(session, componentUuids);
+      List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(session, componentUuids);
       componentDtos.addAll(fileDtos);
       componentDtos.addAll(subProjectDtos);
       for (ComponentDto component : componentDtos) {
         projectUuids.add(component.projectUuid());
       }
 
-      List<ComponentDto> projectDtos = dbClient.componentDao().getByUuids(session, projectUuids);
+      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(session, projectUuids);
       componentDtos.addAll(projectDtos);
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);

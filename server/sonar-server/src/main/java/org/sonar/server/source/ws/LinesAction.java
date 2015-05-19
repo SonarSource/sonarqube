@@ -150,7 +150,7 @@ public class LinesAction implements SourcesWsAction {
     try {
       String fileUuid = request.param(PARAM_UUID);
       if (fileUuid != null) {
-        return dbClient.componentDao().getByUuid(session, fileUuid);
+        return dbClient.componentDao().selectByUuid(session, fileUuid);
       }
       String fileKey = request.param(PARAM_KEY);
       if (fileKey != null) {

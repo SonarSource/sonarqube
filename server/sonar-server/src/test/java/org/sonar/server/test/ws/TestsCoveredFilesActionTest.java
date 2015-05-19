@@ -66,7 +66,7 @@ public class TestsCoveredFilesActionTest {
       new CoveredFileDoc().setFileUuid("bar-uuid").setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
       new CoveredFileDoc().setFileUuid("file-uuid").setCoveredLines(Arrays.asList(1, 2, 3))
       ));
-    when(dbClient.componentDao().getByUuids(any(DbSession.class), anyList())).thenReturn(
+    when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
         newFileDto(newProjectDto(), "bar-uuid").setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
         newFileDto(newProjectDto(), "file-uuid").setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));

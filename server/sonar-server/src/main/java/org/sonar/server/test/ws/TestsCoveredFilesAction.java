@@ -105,7 +105,7 @@ public class TestsCoveredFilesAction implements TestsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     List<ComponentDto> components;
     try {
-      components = dbClient.componentDao().getByUuids(dbSession, sourceFileUuids);
+      components = dbClient.componentDao().selectByUuids(dbSession, sourceFileUuids);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }

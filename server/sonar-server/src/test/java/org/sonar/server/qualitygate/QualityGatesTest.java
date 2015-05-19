@@ -106,7 +106,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    when(componentDao.getById(anyLong(), eq(session))).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
+    when(componentDao.selectById(anyLong(), eq(session))).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
 
     when(myBatis.openSession(false)).thenReturn(session);
     qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis, userSessionRule);

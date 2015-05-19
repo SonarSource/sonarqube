@@ -49,25 +49,25 @@ public interface ComponentMapper {
   /**
    * Return direct modules from a project/module
    */
-  List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
+  List<ComponentDto> selectModulesByProject(@Param("projectKey") String projectKey);
 
   /**
    * Return sub project of component keys
    */
-  List<ComponentDto> findSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
+  List<ComponentDto> selectSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
-  List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
+  List<ComponentDto> selectByKeys(@Param("keys") Collection<String> keys);
 
-  List<ComponentDto> findByIds(@Param("ids") Collection<Long> ids);
+  List<ComponentDto> selectByIds(@Param("ids") Collection<Long> ids);
 
-  List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
+  List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
   List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
   /**
    * Return all project (PRJ/TRK) uuids
    */
-  List<String> findProjectUuids();
+  List<String> selectProjectUuids();
 
   /**
    * Return all descendant modules (including itself) from a given component uuid and scope

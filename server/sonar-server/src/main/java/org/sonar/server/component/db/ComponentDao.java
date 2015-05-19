@@ -52,8 +52,8 @@ import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 @ServerSide
 public class ComponentDao implements DaoComponent {
 
-  public ComponentDto getById(Long id, DbSession session) {
-    ComponentDto componentDto = getNullableById(id, session);
+  public ComponentDto selectById(Long id, DbSession session) {
+    ComponentDto componentDto = selectNullableById(id, session);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Project with id '%s' not found", id));
     }
@@ -61,17 +61,17 @@ public class ComponentDao implements DaoComponent {
   }
 
   @CheckForNull
-  public ComponentDto getNullableById(Long id, DbSession session) {
+  public ComponentDto selectNullableById(Long id, DbSession session) {
     return mapper(session).selectById(id);
   }
 
   @CheckForNull
-  public ComponentDto getNullableByUuid(DbSession session, String uuid) {
+  public ComponentDto selectNullableByUuid(DbSession session, String uuid) {
     return mapper(session).selectByUuid(uuid);
   }
 
-  public ComponentDto getByUuid(DbSession session, String uuid) {
-    ComponentDto componentDto = getNullableByUuid(session, uuid);
+  public ComponentDto selectByUuid(DbSession session, String uuid) {
+    ComponentDto componentDto = selectNullableByUuid(session, uuid);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Component with uuid '%s' not found", uuid));
     }
@@ -82,15 +82,15 @@ public class ComponentDao implements DaoComponent {
     return mapper(session).countById(id) > 0;
   }
 
-  public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
-    return mapper(session).findModulesByProject(projectKey);
+  public List<ComponentDto> selectModulesByProject(String projectKey, DbSession session) {
+    return mapper(session).selectModulesByProject(projectKey);
   }
 
-  public List<ComponentDto> findSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
+  public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).findSubProjectsByComponentUuids(keys);
+    return mapper(session).selectSubProjectsByComponentUuids(keys);
   }
 
   public List<ComponentDto> selectDescendantModules(DbSession session, String rootComponentUuid) {
@@ -109,20 +109,20 @@ public class ComponentDao implements DaoComponent {
     return mapper(session).selectEnabledFilesFromProject(rootComponentUuid);
   }
 
-  public List<ComponentDto> getByIds(final DbSession session, Collection<Long> ids) {
+  public List<ComponentDto> selectByIds(final DbSession session, Collection<Long> ids) {
     return DaoUtils.executeLargeInputs(ids, new Function<List<Long>, List<ComponentDto>>() {
       @Override
       public List<ComponentDto> apply(List<Long> partition) {
-        return mapper(session).findByIds(partition);
+        return mapper(session).selectByIds(partition);
       }
     });
   }
 
-  public List<ComponentDto> getByUuids(final DbSession session, Collection<String> uuids) {
+  public List<ComponentDto> selectByUuids(final DbSession session, Collection<String> uuids) {
     return DaoUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
       @Override
       public List<ComponentDto> apply(List<String> partition) {
-        return mapper(session).findByUuids(partition);
+        return mapper(session).selectByUuids(partition);
       }
     });
   }
@@ -137,7 +137,7 @@ public class ComponentDao implements DaoComponent {
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
-    return mapper(session).findByKeys(keys);
+    return mapper(session).selectByKeys(keys);
   }
 
   public ComponentDto selectByKey(DbSession session, String key) {
@@ -167,8 +167,8 @@ public class ComponentDao implements DaoComponent {
     insert(session, Lists.asList(item, others));
   }
 
-  public List<String> findProjectUuids(DbSession session) {
-    return mapper(session).findProjectUuids();
+  public List<String> selectProjectUuids(DbSession session) {
+    return mapper(session).selectProjectUuids();
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {

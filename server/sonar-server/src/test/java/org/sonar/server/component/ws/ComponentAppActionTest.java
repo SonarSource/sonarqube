@@ -121,9 +121,9 @@ public class ComponentAppActionTest {
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
-    when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
-    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
+    when(componentDao.selectById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
@@ -195,7 +195,7 @@ public class ComponentAppActionTest {
   @Test
   public void fail_on_unknown_component() {
     userSessionRule.login("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
+    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
 
     try {
       tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID).execute();
@@ -225,9 +225,9 @@ public class ComponentAppActionTest {
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
-    when(componentDao.getNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
-    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
+    when(componentDao.selectById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
     return file;
   }
 

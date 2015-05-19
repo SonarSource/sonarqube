@@ -98,7 +98,7 @@ public class ComponentAppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getNullableByUuid(session, componentUuid);
+      ComponentDto component = dbClient.componentDao().selectNullableByUuid(session, componentUuid);
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exist", componentUuid));
       }
@@ -135,7 +135,7 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("q", component.qualifier());
 
     ComponentDto parentProject = nullableComponentById(component.parentProjectId(), session);
-    ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
+    ComponentDto project = dbClient.componentDao().selectByUuid(session, component.projectUuid());
 
     // Do not display parent project if parent project and project are the same
     boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
@@ -191,7 +191,7 @@ public class ComponentAppAction implements RequestHandler {
   @CheckForNull
   private ComponentDto nullableComponentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return dbClient.componentDao().getById(componentId, session);
+      return dbClient.componentDao().selectById(componentId, session);
     }
     return null;
   }
