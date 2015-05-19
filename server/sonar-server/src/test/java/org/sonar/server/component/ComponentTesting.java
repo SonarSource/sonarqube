@@ -35,13 +35,14 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newFileDto(ComponentDto module, String fileUuid) {
+    String path = "src/main/xoo/org/sonar/samples/File.xoo";
     return newChildComponent(fileUuid, module)
       .setKey("KEY_" + fileUuid)
       .setName("NAME_" + fileUuid)
-      .setLongName("LONG_NAME_" + fileUuid)
+      .setLongName(path)
       .setScope(Scopes.FILE)
       .setQualifier(Qualifiers.FILE)
-      .setPath("src/main/xoo/org/sonar/samples/File.xoo")
+      .setPath(path)
       .setLanguage("xoo");
   }
 
@@ -57,7 +58,8 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
-    return newChildComponent(uuid, subProjectOrProject, true)
+    return newChildComponent(uuid, subProjectOrProject)
+      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() + uuid + MODULE_UUID_PATH_SEP)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -79,7 +81,7 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(uuid)
-      .setModuleUuidPath(MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(MODULE_UUID_PATH_SEP + uuid + MODULE_UUID_PATH_SEP)
       .setParentProjectId(null)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
@@ -96,7 +98,7 @@ public class ComponentTesting {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(uuid)
-      .setModuleUuidPath(MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(MODULE_UUID_PATH_SEP + uuid + MODULE_UUID_PATH_SEP)
       .setParentProjectId(null)
       .setKey(uuid)
       .setName(name)
@@ -145,15 +147,11 @@ public class ComponentTesting {
   }
 
   private static ComponentDto newChildComponent(String uuid, ComponentDto module) {
-    return newChildComponent(uuid, module, false);
-  }
-
-  private static ComponentDto newChildComponent(String uuid, ComponentDto module, boolean isModule) {
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(module.projectUuid())
       .setModuleUuid(module.uuid())
-      .setModuleUuidPath(module.moduleUuidPath() + module.uuid() + MODULE_UUID_PATH_SEP + (isModule ? uuid + MODULE_UUID_PATH_SEP : ""))
+      .setModuleUuidPath(module.moduleUuidPath())
       .setParentProjectId(module.getId())
       .setEnabled(true);
   }

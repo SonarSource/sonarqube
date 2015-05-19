@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue.ws;
 
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -52,6 +51,8 @@ import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
+
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -331,10 +332,10 @@ public class SearchActionComponentsMediumTest {
   public void display_module_facet() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto module = insertComponent(ComponentTesting.newModuleDto(project).setUuid("BCDE").setKey("MyModule"));
-    ComponentDto subModule1 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("CDEF").setKey("MySubModule1"));
-    ComponentDto subModule2 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("DEFA").setKey("MySubModule2"));
-    ComponentDto subModule3 = insertComponent(ComponentTesting.newModuleDto(module).setUuid("EFAB").setKey("MySubModule3"));
+    ComponentDto module = insertComponent(ComponentTesting.newModuleDto("BCDE", project).setKey("MyModule"));
+    ComponentDto subModule1 = insertComponent(ComponentTesting.newModuleDto("CDEF", module).setKey("MySubModule1"));
+    ComponentDto subModule2 = insertComponent(ComponentTesting.newModuleDto("DEFA", module).setKey("MySubModule2"));
+    ComponentDto subModule3 = insertComponent(ComponentTesting.newModuleDto("EFAB", module).setKey("MySubModule3"));
     ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(subModule1, "FEDC").setKey("MyComponent1"));
     ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(subModule2, "EDCB").setKey("MyComponent2"));
     RuleDto newRule = newRule();
