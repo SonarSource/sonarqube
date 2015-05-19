@@ -52,6 +52,7 @@ public class TestIndexer extends BaseIndexer {
   }
 
   public void index(final String projectUuid) {
+    deleteByProject(projectUuid);
     super.index(new IndexerTask() {
       @Override
       public long index(long lastUpdatedAt) {
