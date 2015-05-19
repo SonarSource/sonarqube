@@ -95,7 +95,7 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/csv.js'
             '<%= BUILD_PATH %>/js/libs/dashboard.js'
             '<%= BUILD_PATH %>/js/libs/recent-history.js'
-            '<%= BUILD_PATH %>/js/libs/require.js'
+            '<%= BUILD_PATH %>/js/libs/third-party/require.js'
           ]
 
 
