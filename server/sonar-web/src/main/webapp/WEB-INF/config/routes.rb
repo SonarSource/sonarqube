@@ -8,7 +8,7 @@ ActionController::Routing::Routes.draw do |map|
   map.namespace :api do |api|
     api.resources :events, :only => [:index, :show, :create, :destroy]
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
-    api.resources :projects, :only => [:index, :destroy], :requirements => { :id => /.*/ }
+    api.resources :projects, :only => [:index], :requirements => { :id => /.*/ }
     api.resources :favourites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :manual_measures, :only => [:index, :create, :destroy], :requirements => { :id => /.*/ }
   end

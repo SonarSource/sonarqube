@@ -52,22 +52,6 @@ class Api::ProjectsController < Api::ApiController
   end
 
   #
-  # DELETE /api/projects/<key>
-  # curl -X DELETE  http://localhost:9000/api/projects/<key> -v -u admin:admin
-  #
-  def destroy
-    bad_request("Missing project key") unless params[:id].present?
-
-    project = Project.by_key(params[:id])
-    bad_request("Not valid project") unless project
-    access_denied unless is_admin?(project)
-    bad_request("Not valid project") unless java_facade.getResourceTypeBooleanProperty(project.qualifier, 'deletable')
-
-    Project.delete_resource_tree(project)
-    render_success("Project deleted")
-  end
-
-  #
   # POST /api/projects/create?key=<key>&name=<name>
   #
   # -- Example

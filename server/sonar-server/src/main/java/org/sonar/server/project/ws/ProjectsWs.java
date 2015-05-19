@@ -41,7 +41,6 @@ public class ProjectsWs implements WebService {
 
     defineIndexAction(controller);
     defineCreateAction(controller);
-    defineDestroyAction(controller);
 
     for (ProjectsWsAction action : actions) {
       action.define(controller);
@@ -118,18 +117,4 @@ public class ProjectsWs implements WebService {
 
     RailsHandler.addFormatParam(action);
   }
-
-  private void defineDestroyAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("destroy")
-      .setDescription("Delete a project. Requires Administer System permission")
-      .setSince("2.11")
-      .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
-
-    action.createParam("id")
-      .setDescription("id or key of the resource (ie: component)")
-      .setRequired(true)
-      .setExampleValue("org.codehaus.sonar:sonar");
-  }
-
 }

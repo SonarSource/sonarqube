@@ -24,9 +24,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ProjectsWsTest {
 
@@ -35,7 +39,11 @@ public class ProjectsWsTest {
 
   @Before
   public void setUp() {
-    ws = new WsTester(new ProjectsWs());
+    ws = new WsTester(new ProjectsWs(
+      new DeleteAction(mock(ComponentCleanerService.class), mock(DbClient.class), mock(UserSession.class)),
+      new GhostsAction(mock(DbClient.class), mock(UserSession.class)),
+      new ProvisionedAction(mock(DbClient.class), mock(UserSession.class))
+    ));
     controller = ws.controller("api/projects");
   }
 
@@ -44,7 +52,7 @@ public class ProjectsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("2.10");
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test
@@ -64,13 +72,4 @@ public class ProjectsWsTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
   }
-
-  @Test
-  public void define_destroy_action() {
-    WebService.Action action = controller.action("destroy");
-    assertThat(action).isNotNull();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(1);
-  }
-
 }
