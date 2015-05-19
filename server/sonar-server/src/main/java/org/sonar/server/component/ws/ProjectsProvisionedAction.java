@@ -26,8 +26,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -57,7 +57,7 @@ public class ProjectsProvisionedAction implements ProjectsWsAction {
       .createAction("provisioned")
       .setDescription(
         "Get the list of provisioned projects.<br /> " +
-          "Require admin role.")
+          "Require 'Provision Projects' permission.")
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "projects-example-provisioned.json"))
       .setHandler(this)
@@ -68,7 +68,7 @@ public class ProjectsProvisionedAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkGlobalPermission(UserRole.ADMIN, "You need admin rights.");
+    userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
       request.mandatoryParamAsInt(Param.PAGE_SIZE)

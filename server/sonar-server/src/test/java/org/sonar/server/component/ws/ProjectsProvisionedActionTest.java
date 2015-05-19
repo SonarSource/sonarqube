@@ -27,12 +27,14 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
@@ -40,25 +42,28 @@ import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+@Category(DbTests.class)
 public class ProjectsProvisionedActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   WsTester ws;
   DbClient dbClient;
   DbSession dbSession;
   ComponentDao componentDao;
-  System2 system2 = mock(System2.class);
 
   @After
   public void tearDown() {
@@ -76,7 +81,7 @@ public class ProjectsProvisionedActionTest {
 
   @Test
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
     componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
     SnapshotDto snapshot = SnapshotTesting.createForProject(analyzedProject);
@@ -91,7 +96,7 @@ public class ProjectsProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_correct_pagination() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     for (int i = 1; i <= 10; i++) {
       componentDao.insert(dbSession, newProvisionedProject(String.valueOf(i)));
     }
@@ -108,7 +113,7 @@ public class ProjectsProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_desired_fields() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     componentDao.insert(dbSession, newProvisionedProject("1"));
     dbSession.commit();
 
@@ -123,7 +128,7 @@ public class ProjectsProvisionedActionTest {
 
   @Test
   public void provisioned_projects_with_query() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
     dbSession.commit();
 
@@ -139,16 +144,9 @@ public class ProjectsProvisionedActionTest {
     assertThat(componentDao.countProvisionedProjects(dbSession, "visioned-name-")).isEqualTo(2);
   }
 
-  private static ComponentDto newProvisionedProject(String uuid) {
-    return ComponentTesting
-      .newProjectDto("provisioned-uuid-" + uuid)
-      .setName("provisioned-name-" + uuid)
-      .setKey("provisioned-key-" + uuid);
-  }
-
   @Test
   public void provisioned_projects_as_defined_in_the_example() throws Exception {
-    userSessionRule.setGlobalPermissions(UserRole.ADMIN);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     ComponentDto hBaseProject = ComponentTesting.newProjectDto("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
@@ -163,5 +161,21 @@ public class ProjectsProvisionedActionTest {
     WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
 
     JsonAssert.assertJson(result.outputAsString()).isSimilarTo(Resources.getResource(getClass(), "projects-example-provisioned.json"));
+  }
+
+  @Test
+  public void fail_when_not_enough_privileges() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    componentDao.insert(dbSession, newProvisionedProject("1"));
+
+    ws.newGetRequest("api/projects", "provisioned").execute();
+  }
+
+  private static ComponentDto newProvisionedProject(String uuid) {
+    return ComponentTesting
+      .newProjectDto("provisioned-uuid-" + uuid)
+      .setName("provisioned-name-" + uuid)
+      .setKey("provisioned-key-" + uuid);
   }
 }
