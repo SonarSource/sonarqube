@@ -48,7 +48,7 @@ define([
     serializeData: function () {
       var row = this.options.row || {},
           tests = _.groupBy(this.collection.toJSON(), 'fileUuid'),
-          testFiles = _.map(tests, function (testSet, fileRef) {
+          testFiles = _.map(tests, function (testSet) {
             var test = testSet[0];
             return {
               file: {
