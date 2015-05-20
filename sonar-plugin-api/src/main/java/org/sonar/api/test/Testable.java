@@ -19,12 +19,15 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.component.Perspective;
-
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import org.sonar.api.component.Perspective;
 
+/**
+ * @deprecated since 5.2
+ */
+@Deprecated
 public interface Testable extends Perspective {
 
   List<TestCase> testCases();

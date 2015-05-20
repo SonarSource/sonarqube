@@ -31,16 +31,16 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BatchResource {
+public class BatchComponent {
 
   private final int batchId;
   private final Resource r;
   private Snapshot s;
-  private final BatchResource parent;
-  private final Collection<BatchResource> children = new ArrayList<>();
+  private final BatchComponent parent;
+  private final Collection<BatchComponent> children = new ArrayList<>();
   private InputPath inputPath;
 
-  public BatchResource(int batchId, Resource r, @Nullable BatchResource parent) {
+  public BatchComponent(int batchId, Resource r, @Nullable BatchComponent parent) {
     this.batchId = batchId;
     this.r = r;
     this.parent = parent;
@@ -61,7 +61,7 @@ public class BatchResource {
     return r;
   }
 
-  public BatchResource setSnapshot(Snapshot snapshot) {
+  public BatchComponent setSnapshot(Snapshot snapshot) {
     this.s = snapshot;
     return this;
   }
@@ -79,11 +79,11 @@ public class BatchResource {
   }
 
   @CheckForNull
-  public BatchResource parent() {
+  public BatchComponent parent() {
     return parent;
   }
 
-  public Collection<BatchResource> children() {
+  public Collection<BatchComponent> children() {
     return children;
   }
 
@@ -95,7 +95,7 @@ public class BatchResource {
     return Qualifiers.isDirectory(r);
   }
 
-  public BatchResource setInputPath(InputPath inputPath) {
+  public BatchComponent setInputPath(InputPath inputPath) {
     this.inputPath = inputPath;
     return this;
   }

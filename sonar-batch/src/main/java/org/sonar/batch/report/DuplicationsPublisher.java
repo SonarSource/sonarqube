@@ -24,8 +24,8 @@ import com.google.common.collect.Iterables;
 import org.sonar.api.batch.sensor.duplication.Duplication.Block;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.*;
 import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
@@ -33,17 +33,17 @@ import org.sonar.batch.protocol.output.BatchReport.Range;
 
 public class DuplicationsPublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final DuplicationCache duplicationCache;
 
-  public DuplicationsPublisher(ResourceCache resourceCache, DuplicationCache duplicationCache) {
+  public DuplicationsPublisher(BatchComponentCache resourceCache, DuplicationCache duplicationCache) {
     this.resourceCache = resourceCache;
     this.duplicationCache = duplicationCache;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (final BatchResource resource : resourceCache.all()) {
+    for (final BatchComponent resource : resourceCache.all()) {
       if (!resource.isFile()) {
         continue;
       }
@@ -77,7 +77,7 @@ public class DuplicationsPublisher implements ReportPublisherStep {
       blockBuilder.clear();
       String componentKey = duplicate.resourceKey();
       if (!currentComponentKey.equals(componentKey)) {
-        BatchResource sameProjectComponent = resourceCache.get(componentKey);
+        BatchComponent sameProjectComponent = resourceCache.get(componentKey);
         if (sameProjectComponent != null) {
           blockBuilder.setOtherFileRef(sameProjectComponent.batchId());
         } else {

@@ -27,7 +27,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 
 import java.util.List;
 
@@ -38,10 +38,10 @@ import static org.sonar.api.utils.DateUtils.dateToLong;
 public final class TimeMachineConfigurationPersister implements Decorator {
 
   private final TimeMachineConfiguration timeMachineConfiguration;
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
   private DatabaseSession session;
 
-  public TimeMachineConfigurationPersister(TimeMachineConfiguration timeMachineConfiguration, ResourceCache resourceCache, DatabaseSession session) {
+  public TimeMachineConfigurationPersister(TimeMachineConfiguration timeMachineConfiguration, BatchComponentCache resourceCache, DatabaseSession session) {
     this.timeMachineConfiguration = timeMachineConfiguration;
     this.resourceCache = resourceCache;
     this.session = session;

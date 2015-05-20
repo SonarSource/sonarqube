@@ -31,7 +31,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -64,7 +64,7 @@ public class NewCoverageFileAnalyzerTest {
     context = mock(DecoratorContext.class);
     Resource f = File.create("src/Foo.java").setEffectiveKey("foo:src/Foo.java");
     when(context.getResource()).thenReturn(f);
-    ResourceCache cache = new ResourceCache();
+    BatchComponentCache cache = new BatchComponentCache();
     cache.add(f, null);
     List<AbstractNewCoverageFileAnalyzer.PeriodStruct> structs = Arrays.asList(
       new AbstractNewCoverageFileAnalyzer.PeriodStruct(1, newDate("2009-12-25")),

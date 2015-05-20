@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +37,7 @@ public class IssuesReport {
   private Date date;
   private boolean noFile;
   private final ReportSummary summary = new ReportSummary();
-  private final Map<BatchResource, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
+  private final Map<BatchComponent, ResourceReport> resourceReportsByResource = Maps.newLinkedHashMap();
 
   public IssuesReport() {
   }
@@ -70,7 +70,7 @@ public class IssuesReport {
     this.noFile = noFile;
   }
 
-  public Map<BatchResource, ResourceReport> getResourceReportsByResource() {
+  public Map<BatchComponent, ResourceReport> getResourceReportsByResource() {
     return resourceReportsByResource;
   }
 
@@ -78,23 +78,23 @@ public class IssuesReport {
     return new ArrayList<>(resourceReportsByResource.values());
   }
 
-  public List<BatchResource> getResourcesWithReport() {
+  public List<BatchComponent> getResourcesWithReport() {
     return new ArrayList<>(resourceReportsByResource.keySet());
   }
 
-  public void addIssueOnResource(BatchResource resource, Issue issue, Rule rule, RulePriority severity) {
+  public void addIssueOnResource(BatchComponent resource, Issue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addIssue(issue, rule, severity);
     resourceReportsByResource.get(resource).addIssue(issue, rule, RulePriority.valueOf(issue.severity()));
   }
 
-  public void addResolvedIssueOnResource(BatchResource resource, Issue issue, Rule rule, RulePriority severity) {
+  public void addResolvedIssueOnResource(BatchComponent resource, Issue issue, Rule rule, RulePriority severity) {
     addResource(resource);
     getSummary().addResolvedIssue(issue, rule, severity);
     resourceReportsByResource.get(resource).addResolvedIssue(issue, rule, RulePriority.valueOf(issue.severity()));
   }
 
-  private void addResource(BatchResource resource) {
+  private void addResource(BatchComponent resource) {
     if (!resourceReportsByResource.containsKey(resource)) {
       resourceReportsByResource.put(resource, new ResourceReport(resource));
     }

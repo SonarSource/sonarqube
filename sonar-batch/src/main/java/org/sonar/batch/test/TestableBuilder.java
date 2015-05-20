@@ -17,10 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component;
+package org.sonar.batch.test;
 
-public class PerspectiveNotFoundException extends RuntimeException {
-  public PerspectiveNotFoundException(String message) {
-    super(message);
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.test.MutableTestable;
+import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
+import org.sonar.batch.index.BatchComponent;
+
+public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
+
+  public TestableBuilder() {
+    super(MutableTestable.class);
+  }
+
+  @CheckForNull
+  @Override
+  public MutableTestable loadPerspective(Class<MutableTestable> perspectiveClass, BatchComponent component) {
+    if (component.isFile()) {
+      InputFile inputFile = (InputFile) component.inputPath();
+      if (inputFile.type() == Type.MAIN) {
+        return new DefaultTestable((DefaultInputFile) inputFile);
+      }
+    }
+    return null;
   }
 }

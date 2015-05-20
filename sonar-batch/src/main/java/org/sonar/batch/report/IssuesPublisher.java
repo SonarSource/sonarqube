@@ -26,8 +26,8 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -41,11 +41,11 @@ import java.util.Iterator;
 
 public class IssuesPublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final IssueCache issueCache;
   private final ProjectReactor reactor;
 
-  public IssuesPublisher(ProjectReactor reactor, ResourceCache resourceCache, IssueCache issueCache) {
+  public IssuesPublisher(ProjectReactor reactor, BatchComponentCache resourceCache, IssueCache issueCache) {
     this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.issueCache = issueCache;
@@ -54,7 +54,7 @@ public class IssuesPublisher implements ReportPublisherStep {
   @Override
   public void publish(BatchReportWriter writer) {
     Collection<Object> deletedComponentKeys = issueCache.componentKeys();
-    for (BatchResource resource : resourceCache.all()) {
+    for (BatchComponent resource : resourceCache.all()) {
       String componentKey = resource.resource().getEffectiveKey();
       Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey);
       writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
@@ -74,7 +74,7 @@ public class IssuesPublisher implements ReportPublisherStep {
   }
 
   private void exportMetadata(BatchReportWriter writer, int count) {
-    BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
+    BatchComponent rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
       .setProjectKey(((Project) rootProject.resource()).key())

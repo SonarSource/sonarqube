@@ -25,7 +25,7 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 
 import javax.annotation.CheckForNull;
 
@@ -131,7 +131,7 @@ public class InputPathCache {
   }
 
   @CheckForNull
-  public InputPath getInputPath(BatchResource component) {
+  public InputPath getInputPath(BatchComponent component) {
     if (component.isFile()) {
       return getFile(component.parent().parent().resource().getEffectiveKey(), component.resource().getPath());
     } else if (component.isDir()) {

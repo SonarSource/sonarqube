@@ -20,42 +20,34 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.component.Component;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Highlightable;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
-import org.sonar.core.component.ResourceComponent;
+import org.sonar.batch.index.BatchComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HighlightableBuilderTest {
 
   @Test
   public void should_load_default_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
-    Component component = new ResourceComponent(file);
+    BatchComponent component = new BatchComponent(1, file, null);
 
-    ResourceCache resourceCache = mock(ResourceCache.class);
-    when(resourceCache.get(file.getEffectiveKey())).thenReturn(new BatchResource(1, file, null).setInputPath(new DefaultInputFile("myproject", "path/to/foo.c")));
-    HighlightableBuilder builder = new HighlightableBuilder(resourceCache, mock(SensorStorage.class));
+    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
 
     assertThat(perspective).isNotNull().isInstanceOf(DefaultHighlightable.class);
-    assertThat(perspective.component().key()).isEqualTo(component.key());
   }
 
   @Test
   public void project_should_not_be_highlightable() {
-    Component component = new ResourceComponent(new Project("struts").setEffectiveKey("org.struts"));
+    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null);
 
-    HighlightableBuilder builder = new HighlightableBuilder(mock(ResourceCache.class), mock(SensorStorage.class));
+    HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
 
     assertThat(perspective).isNull();

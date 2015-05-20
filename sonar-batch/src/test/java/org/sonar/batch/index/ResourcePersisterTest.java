@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.index;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import javax.persistence.Query;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,15 +42,8 @@ import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import javax.persistence.Query;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,7 +61,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1, existingProject;
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
 
   private ResourcePersister persister;
 
@@ -74,7 +71,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
 
   @Before
   public void before() throws ParseException {
-    resourceCache = new ResourceCache();
+    resourceCache = new BatchComponentCache();
 
     SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
     singleProject = newProject("foo", "java");
@@ -106,7 +103,7 @@ public class ResourcePersisterTest extends AbstractDbUnitTestCase {
 
     projectTree = mock(DefaultProjectTree.class);
     permissions = mock(ResourcePermissions.class);
-    persister = new ResourcePersister(getSession(), permissions, resourceCache, mock(ScanGraph.class));
+    persister = new ResourcePersister(getSession(), permissions, resourceCache);
   }
 
   @Test

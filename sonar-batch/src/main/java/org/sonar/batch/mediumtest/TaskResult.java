@@ -41,7 +41,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Measure;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
@@ -120,7 +120,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   }
 
   private void storeMeasures(ProjectScanContainer container) {
-    ResourceCache resourceCache = container.getComponentByType(ResourceCache.class);
+    BatchComponentCache resourceCache = container.getComponentByType(BatchComponentCache.class);
     for (Entry<Measure> measureEntry : container.getComponentByType(MeasureCache.class).entries()) {
       String componentKey = measureEntry.key()[0].toString();
       InputPath path = resourceCache.get(componentKey).inputPath();

@@ -30,8 +30,8 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.DefaultProjectTree;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
@@ -44,11 +44,11 @@ public class IssuesReportBuilder {
 
   private final IssueCache issueCache;
   private final RuleFinder ruleFinder;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final DefaultProjectTree projectTree;
   private final InputPathCache inputPathCache;
 
-  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, ResourceCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
+  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, BatchComponentCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
     this.issueCache = issueCache;
     this.ruleFinder = ruleFinder;
     this.resourceCache = resourceCache;
@@ -72,7 +72,7 @@ public class IssuesReportBuilder {
     for (Issue issue : issues) {
       Rule rule = findRule(issue);
       RulePriority severity = RulePriority.valueOf(issue.severity());
-      BatchResource resource = resourceCache.get(issue.componentKey());
+      BatchComponent resource = resourceCache.get(issue.componentKey());
       if (!validate(issue, rule, resource)) {
         continue;
       }
@@ -84,7 +84,7 @@ public class IssuesReportBuilder {
     }
   }
 
-  private boolean validate(Issue issue, Rule rule, BatchResource resource) {
+  private boolean validate(Issue issue, Rule rule, BatchComponent resource) {
     if (rule == null) {
       LOG.warn("Unknow rule for issue {}", issue);
       return false;

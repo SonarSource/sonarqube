@@ -52,9 +52,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
@@ -76,12 +76,12 @@ public class DefaultSensorStorage implements SensorStorage {
   private final DefaultIndex sonarIndex;
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final ReportPublisher reportPublisher;
 
   public DefaultSensorStorage(MetricFinder metricFinder, Project project, ModuleIssues moduleIssues,
     Settings settings, FileSystem fs, ActiveRules activeRules, DuplicationCache duplicationCache, DefaultIndex sonarIndex,
-    CoverageExclusions coverageExclusions, ResourceCache resourceCache, ReportPublisher reportPublisher) {
+    CoverageExclusions coverageExclusions, BatchComponentCache resourceCache, ReportPublisher reportPublisher) {
     this.metricFinder = metricFinder;
     this.project = project;
     this.moduleIssues = moduleIssues;
@@ -178,7 +178,7 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   private File getFile(InputFile file) {
-    BatchResource r = resourceCache.get(file);
+    BatchComponent r = resourceCache.get(file);
     if (r == null) {
       throw new IllegalStateException("Provided input file is not indexed");
     }

@@ -46,7 +46,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -74,7 +74,7 @@ public class DefaultSensorStorageTest {
   private Project project;
   private DefaultIndex sonarIndex;
 
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
 
   @Before
   public void prepare() throws Exception {
@@ -89,7 +89,7 @@ public class DefaultSensorStorageTest {
     sonarIndex = mock(DefaultIndex.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
-    resourceCache = new ResourceCache();
+    resourceCache = new BatchComponentCache();
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
       moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), sonarIndex, coverageExclusions, resourceCache, mock(ReportPublisher.class));
   }

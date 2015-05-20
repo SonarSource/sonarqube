@@ -17,33 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.batch.test;
 
-package org.sonar.batch.source;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.source.Symbolizable;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.test.MutableTestPlan;
 import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
 import org.sonar.batch.index.BatchComponent;
-import org.sonar.batch.sensor.DefaultSensorStorage;
 
-public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
+public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
 
-  private final DefaultSensorStorage sensorStorage;
+  private Map<InputFile, DefaultTestPlan> testPlanByFile = new HashMap<>();
 
-  public SymbolizableBuilder(DefaultSensorStorage sensorStorage) {
-    super(Symbolizable.class);
-    this.sensorStorage = sensorStorage;
+  public TestPlanBuilder() {
+    super(MutableTestPlan.class);
   }
 
   @CheckForNull
   @Override
-  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, BatchComponent component) {
+  public MutableTestPlan loadPerspective(Class<MutableTestPlan> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
-      InputFile path = (InputFile) component.inputPath();
-      return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
+      InputFile inputFile = (InputFile) component.inputPath();
+      if (inputFile.type() == Type.TEST) {
+        if (!testPlanByFile.containsKey(inputFile)) {
+          testPlanByFile.put(inputFile, new DefaultTestPlan());
+        }
+        return testPlanByFile.get(inputFile);
+      }
     }
     return null;
   }
+
 }

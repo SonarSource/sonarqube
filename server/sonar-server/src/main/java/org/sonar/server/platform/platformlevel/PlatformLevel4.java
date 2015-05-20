@@ -44,8 +44,6 @@ import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
-import org.sonar.core.test.TestPlanPerspectiveLoader;
-import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
@@ -630,10 +628,6 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Properties
       PropertiesWs.class,
-
-      // graphs and perspective related classes
-      TestablePerspectiveLoader.class,
-      TestPlanPerspectiveLoader.class,
 
       // Type validation
       TypeValidations.class,

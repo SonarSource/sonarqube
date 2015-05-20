@@ -17,31 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.graph.graphson;
+package org.sonar.batch.test;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import java.util.List;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.test.CoverageBlock;
+import org.sonar.api.test.TestCase;
+import org.sonar.api.test.Testable;
 
-/**
- * The standard factory used for most graph element creation.  It uses an actual
- * Graph implementation to construct vertices and edges
- *
- * @author Stephen Mallette (http://stephen.genoprime.com)
- */
-class ElementFactory {
+public class DefaultCoverageBlock implements CoverageBlock {
 
-  private final Graph graph;
+  private final TestCase testCase;
+  private final DefaultInputFile testable;
+  private final List<Integer> lines;
 
-  ElementFactory(Graph g) {
-    this.graph = g;
+  public DefaultCoverageBlock(TestCase testCase, DefaultInputFile testable, List<Integer> lines) {
+    this.testCase = testCase;
+    this.testable = testable;
+    this.lines = lines;
   }
 
-  Edge createEdge(Object id, Vertex out, Vertex in, String label) {
-    return this.graph.addEdge(id, out, in, label);
+  @Override
+  public TestCase testCase() {
+    return testCase;
   }
 
-  Vertex createVertex(Object id) {
-    return this.graph.addVertex(id);
+  @Override
+  public Testable testable() {
+    return new DefaultTestable(testable);
+  }
+
+  @Override
+  public List<Integer> lines() {
+    return lines;
   }
 }

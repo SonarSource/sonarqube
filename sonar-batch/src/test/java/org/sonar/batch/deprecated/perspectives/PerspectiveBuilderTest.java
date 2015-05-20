@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.graph.graphson;
+package org.sonar.batch.deprecated.perspectives;
 
-/**
- * Modes of operation of the GraphSONUtility.
- *
- * @author Stephen Mallette
- */
-public enum GraphsonMode {
-  /**
-   * COMPACT constructs GraphSON on the assumption that all property keys
-   * are fair game for exclusion including _type, _inV, _outV, _label and _id.
-   * It is possible to write GraphSON that cannot be read back into Graph,
-   * if some or all of these keys are excluded.
-   */
-  COMPACT,
+import org.junit.Test;
+import org.sonar.api.component.Perspective;
+import org.sonar.batch.index.BatchComponent;
 
-  /**
-   * NORMAL includes the _type field and JSON data typing.
-   */
-  NORMAL,
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * EXTENDED includes the _type field and explicit data typing.
-   */
-  EXTENDED
+public class PerspectiveBuilderTest {
+  @Test
+  public void testGetPerspectiveClass() throws Exception {
+    PerspectiveBuilder<FakePerspective> builder = new PerspectiveBuilder<FakePerspective>(FakePerspective.class) {
+      @Override
+      public FakePerspective loadPerspective(Class<FakePerspective> perspectiveClass, BatchComponent component) {
+        return null;
+      }
+    };
+
+    assertThat(builder.getPerspectiveClass()).isEqualTo(FakePerspective.class);
+  }
+
+  static interface FakePerspective extends Perspective {
+
+  }
 }

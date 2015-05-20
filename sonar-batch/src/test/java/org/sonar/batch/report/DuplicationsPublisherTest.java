@@ -27,7 +27,7 @@ import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
@@ -51,7 +51,7 @@ public class DuplicationsPublisherTest {
 
   @Before
   public void prepare() {
-    ResourceCache resourceCache = new ResourceCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     Project p = new Project("foo");
     resourceCache.add(p, null);
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");

@@ -21,9 +21,7 @@
 package org.sonar.batch.source;
 
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.component.Component;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.deprecated.InputFileComponent;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 
 public class DefaultSymbolizable implements Symbolizable {
@@ -34,11 +32,6 @@ public class DefaultSymbolizable implements Symbolizable {
   public DefaultSymbolizable(DefaultInputFile inputFile, DefaultSensorStorage sensorStorage) {
     this.inputFile = inputFile;
     this.sensorStorage = sensorStorage;
-  }
-
-  @Override
-  public Component component() {
-    return new InputFileComponent(inputFile);
   }
 
   @Override

@@ -91,7 +91,7 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.DUPLICATIONS_DATA_KEY
     );
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final MetricFinder metricFinder;
   private final MeasureCache measureCache;
   // caches
@@ -100,7 +100,7 @@ public class DefaultIndex extends SonarIndex {
   private DefaultProjectTree projectTree;
   private ModuleIssues moduleIssues;
 
-  public DefaultIndex(ResourceCache resourceCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultIndex(BatchComponentCache resourceCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;

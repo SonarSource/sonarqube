@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Builder;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -48,13 +48,13 @@ class DefaultBlameOutput implements BlameOutput {
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final BatchReportWriter writer;
-  private final ResourceCache componentCache;
+  private final BatchComponentCache componentCache;
   private final Set<InputFile> allFilesToBlame = new HashSet<>();
   private ProgressReport progressReport;
   private int count;
   private int total;
 
-  DefaultBlameOutput(BatchReportWriter writer, ResourceCache componentCache, List<InputFile> filesToBlame) {
+  DefaultBlameOutput(BatchReportWriter writer, BatchComponentCache componentCache, List<InputFile> filesToBlame) {
     this.writer = writer;
     this.componentCache = componentCache;
     this.allFilesToBlame.addAll(filesToBlame);
@@ -75,7 +75,7 @@ class DefaultBlameOutput implements BlameOutput {
       return;
     }
 
-    BatchResource batchComponent = componentCache.get(file);
+    BatchComponent batchComponent = componentCache.get(file);
     Builder scmBuilder = BatchReport.Changesets.newBuilder();
     scmBuilder.setComponentRef(batchComponent.batchId());
     Map<String, Integer> changesetsIdByRevision = new HashMap<>();

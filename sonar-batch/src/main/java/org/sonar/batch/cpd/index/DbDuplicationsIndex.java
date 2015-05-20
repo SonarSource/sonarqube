@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.duplications.block.Block;
@@ -51,10 +51,10 @@ public class DbDuplicationsIndex {
   private final String languageKey;
   private final DuplicationDao dao;
   private final DatabaseSession session;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
   public DbDuplicationsIndex(Project currentProject, DuplicationDao dao,
-    String language, DatabaseSession session, ResourceCache resourceCache) {
+    String language, DatabaseSession session, BatchComponentCache resourceCache) {
     this.dao = dao;
     this.session = session;
     this.resourceCache = resourceCache;

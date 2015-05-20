@@ -37,7 +37,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -59,16 +59,16 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   private final List<PeriodStruct> structs;
   private final ReportPublisher publishReportJob;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
-  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, ReportPublisher publishReportJob, ResourceCache resourceCache) {
+  public AbstractNewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, ReportPublisher publishReportJob, BatchComponentCache resourceCache) {
     this(Lists.<PeriodStruct>newArrayList(), publishReportJob, resourceCache);
     for (Period period : timeMachineConfiguration.periods()) {
       structs.add(new PeriodStruct(period.getIndex(), period.getDate()));
     }
   }
 
-  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs, ReportPublisher publishReportJob, ResourceCache resourceCache) {
+  AbstractNewCoverageFileAnalyzer(List<PeriodStruct> structs, ReportPublisher publishReportJob, BatchComponentCache resourceCache) {
     this.resourceCache = resourceCache;
     this.publishReportJob = publishReportJob;
     this.structs = structs;

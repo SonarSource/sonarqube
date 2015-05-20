@@ -68,7 +68,7 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
-    ResourceCache resourceCache = new ResourceCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     index = new DefaultIndex(resourceCache, projectTree, metricFinder, mock(MeasureCache.class));
 
     baseDir = temp.newFolder();

@@ -27,8 +27,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.output.*;
@@ -43,11 +43,11 @@ import javax.annotation.CheckForNull;
  */
 public class ComponentsPublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final ProjectReactor reactor;
   private final EventCache eventCache;
 
-  public ComponentsPublisher(ProjectReactor reactor, ResourceCache resourceCache, EventCache eventCache) {
+  public ComponentsPublisher(ProjectReactor reactor, BatchComponentCache resourceCache, EventCache eventCache) {
     this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.eventCache = eventCache;
@@ -55,11 +55,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(BatchReportWriter writer) {
-    BatchResource rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
+    BatchComponent rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
     recursiveWriteComponent(rootProject, writer);
   }
 
-  private void recursiveWriteComponent(BatchResource batchResource, BatchReportWriter writer) {
+  private void recursiveWriteComponent(BatchComponent batchResource, BatchReportWriter writer) {
     Resource r = batchResource.resource();
     BatchReport.Component.Builder builder = BatchReport.Component.newBuilder();
 
@@ -98,7 +98,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     if (lang != null) {
       builder.setLanguage(lang);
     }
-    for (BatchResource child : batchResource.children()) {
+    for (BatchComponent child : batchResource.children()) {
       builder.addChildRef(child.batchId());
     }
     writeLinks(r, builder);
@@ -106,12 +106,12 @@ public class ComponentsPublisher implements ReportPublisherStep {
     writeEvents(batchResource, builder);
     writer.writeComponent(builder.build());
 
-    for (BatchResource child : batchResource.children()) {
+    for (BatchComponent child : batchResource.children()) {
       recursiveWriteComponent(child, writer);
     }
   }
 
-  private void writeEvents(BatchResource batchResource, Builder builder) {
+  private void writeEvents(BatchComponent batchResource, Builder builder) {
     if (ResourceUtils.isProject(batchResource.resource())) {
       for (Event event : eventCache.getEvents(batchResource.batchId())) {
         builder.addEvent(event);
