@@ -23,6 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -34,16 +42,8 @@ import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @since 2.10
@@ -72,6 +72,7 @@ public class NotificationService implements Startable {
 
   private final long delayInSeconds;
   private final long delayBeforeReportingStatusInSeconds;
+  private final DatabaseSessionFactory databaseSessionFactory;
   private final DefaultNotificationManager manager;
   private final List<NotificationDispatcher> dispatchers;
   private final DbClient dbClient;
@@ -82,7 +83,8 @@ public class NotificationService implements Startable {
   /**
    * Constructor for {@link NotificationService}
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, NotificationDispatcher[] dispatchers) {
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
+    this.databaseSessionFactory = databaseSessionFactory;
     this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
@@ -93,8 +95,8 @@ public class NotificationService implements Startable {
   /**
    * Default constructor when no dispatchers.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient) {
-    this(settings, manager, dbClient, new NotificationDispatcher[0]);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, DatabaseSessionFactory databaseSessionFactory) {
+    this(settings, manager, dbClient, databaseSessionFactory, new NotificationDispatcher[0]);
   }
 
   @Override
@@ -107,6 +109,10 @@ public class NotificationService implements Startable {
           processQueue();
         } catch (Exception e) {
           LOG.error("Error in NotificationService", e);
+        } finally {
+          // Free Hibernate session
+          // See https://jira.codehaus.org/browse/SONAR-6566
+          databaseSessionFactory.clear();
         }
       }
     }, 0, delayInSeconds, TimeUnit.SECONDS);
