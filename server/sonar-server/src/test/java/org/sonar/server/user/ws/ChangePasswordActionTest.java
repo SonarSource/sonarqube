@@ -136,6 +136,24 @@ public class ChangePasswordActionTest {
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 
+  @Test
+  public void update_password_on_self() throws Exception {
+    createUser();
+    session.clearCache();
+    String originalPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+
+    userSessionRule.login("john");
+    tester.newPostRequest("api/users", "change_password")
+      .setParam("login", "john")
+      .setParam("password", "Valar Morghulis")
+      .execute()
+      .assertNoContent();
+
+    session.clearCache();
+    String newPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+    assertThat(newPassword).isNotEqualTo(originalPassword);
+  }
+
   private void createUser() {
     dbClient.userDao().insert(session, new UserDto()
       .setEmail("john@email.com")

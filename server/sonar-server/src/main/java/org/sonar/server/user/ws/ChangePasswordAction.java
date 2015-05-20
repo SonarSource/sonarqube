@@ -44,7 +44,8 @@ public class ChangePasswordAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("change_password")
-      .setDescription("Update a user's password. Requires Administer System permission.")
+      .setDescription("Update a user's password. Authenticated users can change their own password, " +
+        "Administer System permission is required to change another user's password.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -62,9 +63,13 @@ public class ChangePasswordAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.checkLoggedIn();
 
     String login = request.mandatoryParam(PARAM_LOGIN);
+    if (!login.equals(userSession.getLogin())) {
+      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    }
+
     String password = request.mandatoryParam(PARAM_PASSWORD);
     UpdateUser updateUser = UpdateUser.create(login)
       .setPassword(password)
