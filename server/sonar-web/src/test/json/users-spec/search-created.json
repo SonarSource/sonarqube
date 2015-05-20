@@ -1,0 +1,34 @@
+{
+  "total": 4,
+  "p": 1,
+  "ps": 50,
+  "users": [
+    {
+      "login": "admin",
+      "name": "Administrator",
+      "email": "admin@example.com",
+      "scmAccounts": []
+    },
+    {
+      "login": "login",
+      "name": "name",
+      "email": "email@example.com",
+      "scmAccounts": [
+        "scm1",
+        "scm2"
+      ]
+    },
+    {
+      "login": "smith",
+      "name": "Bob",
+      "email": "bob@example.com",
+      "scmAccounts": []
+    },
+    {
+      "login": "ryan",
+      "name": "John",
+      "email": "john@example.com",
+      "scmAccounts": []
+    }
+  ]
+}

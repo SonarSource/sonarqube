@@ -1,0 +1,24 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+.search-box {
+  position: relative;
+  font-size: 0;
+}
+
+.search-box-input {
+  vertical-align: middle;
+  width: 250px;
+  border: none !important;
+  font-size: @baseFontSize;
+}
+
+.search-box-submit {
+  display: inline-block;
+  vertical-align: middle;
+
+  .icon-search:before {
+    color: @secondFontColor;
+    font-size: @iconSmallFontSize;
+  }
+}
