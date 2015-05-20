@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import java.util.List;
-
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -92,7 +90,6 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.design.ws.DependenciesWs;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
@@ -294,6 +291,8 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
+
+import java.util.List;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -645,10 +644,6 @@ public class PlatformLevel4 extends PlatformLevel {
       TextTypeValidation.class,
       StringTypeValidation.class,
       StringListTypeValidation.class,
-
-      // Design
-      DependenciesWs.class,
-      org.sonar.server.design.ws.ShowAction.class,
 
       // System
       RestartAction.class,

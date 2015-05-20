@@ -269,7 +269,7 @@ public class BatchReportWriterTest {
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build()
-    ));
+      ));
 
     assertThat(sut.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isTrue();
   }
@@ -289,7 +289,7 @@ public class BatchReportWriterTest {
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(1)
         .build()
-    ));
+      ));
 
     assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
   }
@@ -300,7 +300,7 @@ public class BatchReportWriterTest {
 
     sut.writeTests(1, Arrays.asList(
       BatchReport.Test.getDefaultInstance()
-    ));
+      ));
 
     assertThat(sut.hasComponentData(FileStructure.Domain.TESTS, 1)).isTrue();
 
@@ -312,26 +312,8 @@ public class BatchReportWriterTest {
 
     sut.writeCoverageDetails(1, Arrays.asList(
       BatchReport.CoverageDetail.getDefaultInstance()
-    ));
+      ));
 
     assertThat(sut.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isTrue();
-  }
-
-  @Test
-  public void write_file_dependencies() {
-    assertThat(sut.hasComponentData(FileStructure.Domain.FILE_DEPENDENCIES, 1)).isFalse();
-
-    sut.writeFileDependencies(1, Arrays.asList(BatchReport.FileDependency.getDefaultInstance()));
-
-    assertThat(sut.hasComponentData(FileStructure.Domain.FILE_DEPENDENCIES, 1)).isTrue();
-  }
-
-  @Test
-  public void write_module_dependencies() {
-    assertThat(sut.hasComponentData(FileStructure.Domain.MODULE_DEPENDENCIES, 1)).isFalse();
-
-    sut.writeModuleDependencies(1, Arrays.asList(BatchReport.ModuleDependencies.ModuleDependency.getDefaultInstance()));
-
-    assertThat(sut.hasComponentData(FileStructure.Domain.MODULE_DEPENDENCIES, 1)).isTrue();
   }
 }

@@ -19,10 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import java.util.Properties;
-
-import javax.annotation.Nullable;
-
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -48,7 +44,6 @@ import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.MigrationSteps;
-import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
@@ -76,6 +71,10 @@ import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
+
+import javax.annotation.Nullable;
+
+import java.util.Properties;
 
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
@@ -163,8 +162,7 @@ public class PlatformLevel1 extends PlatformLevel {
       EventDao.class,
       ActivityDao.class,
       AnalysisReportDao.class,
-      FileSourceDao.class,
-      FileDependencyDao.class);
+      FileSourceDao.class);
     addAll(CorePropertyDefinitions.all());
     addAll(MigrationSteps.CLASSES);
     addAll(DaoUtils.getDaoClasses());

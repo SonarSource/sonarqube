@@ -49,7 +49,6 @@ public class ComputationSteps {
       PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
-      PersistFileDependenciesStep.class,
 
       // Switch snapshot and purge
       SwitchSnapshotStep.class,
