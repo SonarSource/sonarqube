@@ -160,9 +160,6 @@ module.exports = (grunt) ->
 
 
     parallel:
-      compile:
-        options: grunt: true
-        tasks: ['less:build', 'coffee:build', 'handlebars:build']
       build:
         options: grunt: true
         tasks: [
@@ -411,7 +408,7 @@ module.exports = (grunt) ->
 
   # Basic tasks
   grunt.registerTask 'prepare',
-      ['clean:css', 'clean:js', 'clean:build', 'parallel:compile', 'copy:js', 'concat:build']
+      ['clean:css', 'clean:js', 'clean:build', 'less:build', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:build']
 
   grunt.registerTask 'build-fast-suffix',
       ['copy:assets-css', 'copy:assets-all-js']
