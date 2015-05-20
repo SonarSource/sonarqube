@@ -20,6 +20,8 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
@@ -48,13 +50,8 @@ import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.notification.DefaultNotificationManager;
-
-import java.util.Collection;
-import java.util.List;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -83,10 +80,6 @@ public class BatchComponents {
       IssuesReportBuilder.class,
       SourceProvider.class,
       RuleNameProvider.class,
-
-      // dbcleaner
-      DefaultPeriodCleaner.class,
-      DefaultPurgeTask.class,
 
       QualityGateVerifier.class,
 

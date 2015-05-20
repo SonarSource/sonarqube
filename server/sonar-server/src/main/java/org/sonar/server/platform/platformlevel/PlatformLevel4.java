@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -29,7 +30,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
@@ -291,8 +291,6 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
-
-import java.util.List;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -681,7 +679,6 @@ public class PlatformLevel4 extends PlatformLevel {
       QueueAction.class,
       HistoryAction.class,
       DefaultPeriodCleaner.class,
-      DefaultPurgeTask.class,
       ProjectCleaner.class,
       ProjectSettingsFactory.class,
       IndexPurgeListener.class,

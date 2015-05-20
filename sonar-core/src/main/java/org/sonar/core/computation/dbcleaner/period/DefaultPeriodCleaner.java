@@ -21,46 +21,25 @@
 package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
+import java.util.List;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
-import java.util.List;
-
-@BatchSide
 @ServerSide
 public class DefaultPeriodCleaner {
 
   private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;
-  private Settings settings;
-  private MyBatis mybatis;
 
-  public DefaultPeriodCleaner(PurgeDao purgeDao, Settings settings, MyBatis mybatis) {
+  public DefaultPeriodCleaner(PurgeDao purgeDao) {
     this.purgeDao = purgeDao;
-    this.settings = settings;
-    this.mybatis = mybatis;
-  }
-
-  public void clean(long projectId) {
-    clean(projectId, settings);
-  }
-
-  public void clean(long projectId, Settings settings) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      doClean(projectId, new Filters(settings).all(), session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void clean(DbSession session, long projectId, Settings settings) {
