@@ -52,7 +52,8 @@ public class UpdateAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("update")
-      .setDescription("Update a user. Requires Administer System permission. Since 5.2, a user's password can only be changed using the 'change_password' action.")
+      .setDescription("Update a user. If a deactivated user account exists with the given login, it will be reactivated. " +
+        "Requires Administer System permission. Since 5.2, a user's password can only be changed using the 'change_password' action.")
       .setSince("3.7")
       .setPost(true)
       .setHandler(this)
