@@ -43,7 +43,7 @@ public class ComponentKeysTest {
 
   @Test
   public void create_key_from_module_key_path_and_branch() {
-    assertThat(ComponentKeys.createKey("module_key", "file", "origin/master")).isEqualTo("module_key:file:origin/master");
+    assertThat(ComponentKeys.createKey("module_key", "file", "origin/master")).isEqualTo("module_key:origin/master:file");
     assertThat(ComponentKeys.createKey("module_key", "file", null)).isEqualTo("module_key:file");
     assertThat(ComponentKeys.createKey("module_key", null, null)).isEqualTo("module_key");
   }

@@ -344,7 +344,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     Map<String, Object> dto = dbTester.selectFirst("select snapshot_id as \"snapshotId\", text_value as \"textValue\" from project_measures");
     assertThat(dto.get("snapshotId")).isEqualTo(11L);
     assertThat(dto.get("textValue")).isEqualTo(
-      "<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file:origin/master\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:file:origin/master\"/></g></duplications>");
+      "<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:origin/master:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT_KEY:origin/master:file\"/></g></duplications>");
   }
 
   @Test
