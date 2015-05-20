@@ -32,6 +32,11 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-squid</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
     </dependency>
