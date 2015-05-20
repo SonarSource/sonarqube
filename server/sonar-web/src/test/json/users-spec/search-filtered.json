@@ -1,0 +1,13 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 50,
+  "users": [
+    {
+      "login": "ryan",
+      "name": "John",
+      "email": "john@example.com",
+      "scmAccounts": []
+    }
+  ]
+}

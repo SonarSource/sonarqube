@@ -158,6 +158,10 @@ module.exports = (grunt) ->
         name: 'apps/markdown/app'
         out: '<%= ASSETS_PATH %>/js/apps/markdown/app.js'
 
+      users: options:
+        name: 'apps/users/app'
+        out: '<%= ASSETS_PATH %>/js/apps/users/app.js'
+
 
     parallel:
       build:
@@ -178,6 +182,7 @@ module.exports = (grunt) ->
           'requirejs:nav'
           'requirejs:issueFilterWidget'
           'requirejs:markdown'
+          'requirejs:users'
         ]
       casper:
         options: grunt: true
@@ -197,6 +202,7 @@ module.exports = (grunt) ->
           'casper:treemap'
           'casper:ui'
           'casper:workspace'
+          'casper:users'
         ]
 
 
@@ -254,6 +260,9 @@ module.exports = (grunt) ->
           '<%= BUILD_PATH %>/js/apps/markdown/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/markdown/templates/**/*.hbs'
           ]
+          '<%= BUILD_PATH %>/js/apps/users/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/users/templates/**/*.hbs'
+          ]
 
 
     clean:
@@ -299,15 +308,21 @@ module.exports = (grunt) ->
         port: expressPort
       testCoverageLight:
         options:
+          concise: false
           verbose: true
+          'no-colors': false
         src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
       single:
         options:
+          concise: false
           verbose: true
+          'no-colors': false
         src: ['src/test/js/<%= grunt.option("spec") %>-spec.js']
       testfile:
         options:
+          concise: false
           verbose: true
+          'no-colors': false
         src: ['<%= grunt.option("file") %>']
 
       apiDocumentation:
@@ -340,6 +355,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/ui*.js']
       workspace:
         src: ['src/test/js/workspace*.js']
+      users:
+        src: ['src/test/js/users*.js']
 
     uglify:
       build:
@@ -402,7 +419,7 @@ module.exports = (grunt) ->
         tasks: ['copy:js', 'concat:build', 'copy:assets-all-js']
 
       handlebars:
-        files: '<%= SOURCE_PATH %>/hbs/**/*.hbs'
+        files: '<%= SOURCE_PATH %>/**/*.hbs'
         tasks: ['handlebars:build', 'copy:assets-all-js']
 
 
