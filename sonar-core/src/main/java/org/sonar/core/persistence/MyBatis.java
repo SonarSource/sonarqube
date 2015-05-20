@@ -20,10 +20,10 @@
 
 package org.sonar.core.persistence;
 
+import ch.qos.logback.classic.Level;
+import com.google.common.io.Closeables;
 import java.io.InputStream;
-
 import javax.annotation.Nullable;
-
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
@@ -138,10 +138,6 @@ import org.sonar.core.user.UserGroupDto;
 import org.sonar.core.user.UserGroupMapper;
 import org.sonar.core.user.UserMapper;
 import org.sonar.core.user.UserRoleDto;
-
-import ch.qos.logback.classic.Level;
-
-import com.google.common.io.Closeables;
 
 @BatchSide
 @ServerSide

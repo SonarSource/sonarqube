@@ -35,8 +35,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,8 +100,8 @@ public class ComponentIndexerTest {
   }
 
   private ComponentIndexer createIndexer(Languages languages) {
-    ResourceCache resourceCache = mock(ResourceCache.class);
-    when(resourceCache.get(any(Resource.class))).thenReturn(new BatchResource(1, org.sonar.api.resources.File.create("foo.php"), null));
+    BatchComponentCache resourceCache = mock(BatchComponentCache.class);
+    when(resourceCache.get(any(Resource.class))).thenReturn(new BatchComponent(1, org.sonar.api.resources.File.create("foo.php"), null));
     return new ComponentIndexer(project, languages, sonarIndex, resourceCache);
   }
 

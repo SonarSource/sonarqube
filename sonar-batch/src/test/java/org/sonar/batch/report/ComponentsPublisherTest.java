@@ -32,7 +32,7 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
@@ -54,7 +54,7 @@ public class ComponentsPublisherTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private ProjectReactor reactor;
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
   private ComponentsPublisher publisher;
   private EventCache eventCache;
 
@@ -62,7 +62,7 @@ public class ComponentsPublisherTest {
   public void prepare() {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     reactor.getRoot().properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
-    resourceCache = new ResourceCache();
+    resourceCache = new BatchComponentCache();
     eventCache = mock(EventCache.class);
     publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
   }

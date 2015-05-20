@@ -19,74 +19,60 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.core.component.ScanGraph;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.resources.Resource;
 
 @BatchSide
-public class ResourceCache {
-  // resource by component key
-  private final Map<String, BatchResource> resources = Maps.newLinkedHashMap();
+public class BatchComponentCache {
+  // components by key
+  private final Map<String, BatchComponent> components = Maps.newLinkedHashMap();
 
-  private BatchResource root;
-  private final ScanGraph scanGraph;
-
-  public ResourceCache(ScanGraph scanGraph) {
-    this.scanGraph = scanGraph;
-  }
-
-  @VisibleForTesting
-  public ResourceCache() {
-    this.scanGraph = null;
-  }
+  private BatchComponent root;
 
   @CheckForNull
-  public BatchResource get(String componentKey) {
-    return resources.get(componentKey);
+  public BatchComponent get(String componentKey) {
+    return components.get(componentKey);
   }
 
-  public BatchResource get(Resource resource) {
-    return resources.get(resource.getEffectiveKey());
+  public BatchComponent get(Resource resource) {
+    return components.get(resource.getEffectiveKey());
   }
 
-  public BatchResource get(InputFile inputFile) {
-    return resources.get(((DefaultInputFile) inputFile).key());
+  public BatchComponent get(InputPath inputPath) {
+    if (inputPath instanceof DefaultInputFile) {
+      return components.get(((DefaultInputFile) inputPath).key());
+    }
+    return components.get(((DefaultInputDir) inputPath).key());
   }
 
-  public BatchResource add(Resource resource, @Nullable Resource parentResource) {
+  public BatchComponent add(Resource resource, @Nullable Resource parentResource) {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
-    BatchResource parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
-    BatchResource batchResource = new BatchResource(resources.size() + 1, resource, parent);
+    BatchComponent parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
+    BatchComponent batchResource = new BatchComponent(components.size() + 1, resource, parent);
     // Libraries can have the same effective key than a project so we can't cache by effectiveKey
-    resources.put(componentKey, batchResource);
+    components.put(componentKey, batchResource);
     if (parent == null) {
       root = batchResource;
-    }
-    if (scanGraph != null && ResourceUtils.isPersistable(batchResource.resource())) {
-      scanGraph.addComponent(batchResource.resource());
     }
     return batchResource;
   }
 
-  public Collection<BatchResource> all() {
-    return resources.values();
+  public Collection<BatchComponent> all() {
+    return components.values();
   }
 
-  public BatchResource getRoot() {
+  public BatchComponent getRoot() {
     return root;
   }
 }

@@ -23,9 +23,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
-import org.sonar.batch.deprecated.InputFileComponent;
 
 /**
  * @since 3.6
@@ -45,11 +43,6 @@ public class DefaultHighlightable implements Highlightable {
     DefaultHighlighting defaultHighlighting = new DefaultHighlighting(sensorStorage);
     defaultHighlighting.onFile(inputFile);
     return new DefaultHighlightingBuilder(defaultHighlighting);
-  }
-
-  @Override
-  public Component component() {
-    return new InputFileComponent(inputFile);
   }
 
   private static class DefaultHighlightingBuilder implements HighlightingBuilder {

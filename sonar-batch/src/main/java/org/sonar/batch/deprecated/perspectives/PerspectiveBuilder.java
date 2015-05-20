@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.test;
+package org.sonar.batch.deprecated.perspectives;
 
-import com.tinkerpop.blueprints.Direction;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.EdgePath;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.component.Perspective;
+import org.sonar.batch.index.BatchComponent;
 
-public class TestableBuilder extends GraphPerspectiveBuilder<MutableTestable> {
+@BatchSide
+public abstract class PerspectiveBuilder<T extends Perspective> {
 
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testable",
-    Direction.IN,"covers",
-    Direction.IN,"testcase",
-    Direction.IN,"testplan"
-  );
+  private final Class<T> perspectiveClass;
 
-  public TestableBuilder(ScanGraph graph, TestablePerspectiveLoader perspectiveLoader) {
-    super(graph, MutableTestable.class, PATH, perspectiveLoader);
+  protected PerspectiveBuilder(Class<T> perspectiveClass) {
+    this.perspectiveClass = perspectiveClass;
   }
+
+  public Class<T> getPerspectiveClass() {
+    return perspectiveClass;
+  }
+
+  @CheckForNull
+  public abstract T loadPerspective(Class<T> perspectiveClass, BatchComponent component);
 }

@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.test;
 
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.core.component.GraphPerspectiveLoader;
-import org.sonar.core.graph.BeanVertex;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.test;
 
-public class TestPlanPerspectiveLoader extends GraphPerspectiveLoader<MutableTestPlan> {
-
-  static final String PERSPECTIVE_KEY = "testplan";
-
-  public TestPlanPerspectiveLoader() {
-    super(PERSPECTIVE_KEY, MutableTestPlan.class);
-  }
-
-  @Override
-  protected Class<? extends BeanVertex> getBeanClass() {
-    return DefaultTestPlan.class;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

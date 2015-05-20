@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ResourceReport {
-  private final BatchResource resource;
+  private final BatchComponent resource;
   private final IssueVariation total = new IssueVariation();
   private final Map<ReportRuleKey, RuleReport> ruleReportByRuleKey = Maps.newHashMap();
 
@@ -42,11 +42,11 @@ public final class ResourceReport {
   private Map<Rule, AtomicInteger> issuesByRule = Maps.newHashMap();
   private Map<RulePriority, AtomicInteger> issuesBySeverity = Maps.newHashMap();
 
-  public ResourceReport(BatchResource resource) {
+  public ResourceReport(BatchComponent resource) {
     this.resource = resource;
   }
 
-  public BatchResource getResourceNode() {
+  public BatchComponent getResourceNode() {
     return resource;
   }
 

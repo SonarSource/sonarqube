@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.graph;
+package org.sonar.batch.deprecated.perspectives;
 
-public class MultipleElementsException extends RuntimeException {
-  public MultipleElementsException(String message) {
+public class PerspectiveNotFoundException extends RuntimeException {
+  public PerspectiveNotFoundException(String message) {
     super(message);
   }
 }

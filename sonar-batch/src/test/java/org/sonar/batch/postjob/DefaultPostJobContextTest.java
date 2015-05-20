@@ -28,7 +28,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.File;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class DefaultPostJobContextTest {
 
   private IssueCache issueCache;
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
   private AnalysisMode analysisMode;
   private DefaultPostJobContext context;
   private Settings settings;
@@ -48,7 +48,7 @@ public class DefaultPostJobContextTest {
   @Before
   public void prepare() {
     issueCache = mock(IssueCache.class);
-    resourceCache = new ResourceCache();
+    resourceCache = new BatchComponentCache();
     analysisMode = mock(AnalysisMode.class);
     settings = new Settings();
     context = new DefaultPostJobContext(settings, analysisMode, issueCache, resourceCache);

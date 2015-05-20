@@ -46,7 +46,7 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
@@ -75,7 +75,8 @@ import org.sonar.batch.scan.measure.DefaultMetricFinder;
 import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
-import org.sonar.core.component.ScanGraph;
+import org.sonar.batch.test.TestPlanBuilder;
+import org.sonar.batch.test.TestableBuilder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
@@ -83,10 +84,6 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
-import org.sonar.core.test.TestPlanBuilder;
-import org.sonar.core.test.TestPlanPerspectiveLoader;
-import org.sonar.core.test.TestableBuilder;
-import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -154,7 +151,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIndex.class,
       DefaultFileLinesContextFactory.class,
       Caches.class,
-      ResourceCache.class,
+      BatchComponentCache.class,
 
       // file system
       InputPathCache.class,
@@ -177,11 +174,8 @@ public class ProjectScanContainer extends ComponentContainer {
       DeprecatedMetricFinder.class,
 
       // tests
-      TestPlanPerspectiveLoader.class,
-      TestablePerspectiveLoader.class,
       TestPlanBuilder.class,
       TestableBuilder.class,
-      ScanGraph.create(),
 
       // lang
       Languages.class,

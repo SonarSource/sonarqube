@@ -19,14 +19,13 @@
  */
 package org.sonar.batch.issue;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
-import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
-
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.batch.index.BatchComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +36,7 @@ public class DefaultIssuableTest {
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class);
   Project project = mock(Project.class);
-  Component component = mock(Component.class);
+  BatchComponent component = mock(BatchComponent.class);
 
   @Test
   public void test_unresolved_issues() throws Exception {

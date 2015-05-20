@@ -21,25 +21,24 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.test.CoverageBlock;
 import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.TestStatus;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.batch.protocol.output.BatchReport.Test;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.test.TestPlanBuilder;
-
-import javax.annotation.Nonnull;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.sonar.batch.test.DefaultTestable;
+import org.sonar.batch.test.TestPlanBuilder;
 
 public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
@@ -95,7 +94,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
       builder.setTestName(testName);
       for (CoverageBlock block : testCase.coverageBlocks()) {
         coveredBuilder.clear();
-        coveredBuilder.setFileRef(resourceCache.get(block.testable().component().key()).batchId());
+        coveredBuilder.setFileRef(componentCache.get(((DefaultTestable) block.testable()).inputFile().key()).batchId());
         for (int line : block.lines()) {
           coveredBuilder.addCoveredLine(line);
         }
@@ -105,36 +104,36 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
     }
   }
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache componentCache;
   private final TestPlanBuilder testPlanBuilder;
 
-  public TestExecutionAndCoveragePublisher(ResourceCache resourceCache, TestPlanBuilder testPlanBuilder) {
-    this.resourceCache = resourceCache;
+  public TestExecutionAndCoveragePublisher(BatchComponentCache resourceCache, TestPlanBuilder testPlanBuilder) {
+    this.componentCache = resourceCache;
     this.testPlanBuilder = testPlanBuilder;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (final BatchResource resource : resourceCache.all()) {
-      if (!resource.isFile()) {
+    for (final BatchComponent component : componentCache.all()) {
+      if (!component.isFile()) {
         continue;
       }
 
-      DefaultInputFile inputFile = (DefaultInputFile) resource.inputPath();
+      DefaultInputFile inputFile = (DefaultInputFile) component.inputPath();
       if (inputFile.type() != Type.TEST) {
         continue;
       }
 
-      final MutableTestPlan testPlan = testPlanBuilder.get(MutableTestPlan.class, inputFile.key());
+      final MutableTestPlan testPlan = testPlanBuilder.loadPerspective(MutableTestPlan.class, component);
       if (testPlan == null || Iterables.isEmpty(testPlan.testCases())) {
         continue;
       }
 
       final Set<String> testNamesWithCoverage = new HashSet<>();
 
-      writer.writeTests(resource.batchId(), Iterables.transform(testPlan.testCases(), new TestConverter(testNamesWithCoverage)));
+      writer.writeTests(component.batchId(), Iterables.transform(testPlan.testCases(), new TestConverter(testNamesWithCoverage)));
 
-      writer.writeCoverageDetails(resource.batchId(), Iterables.transform(testNamesWithCoverage, new TestCoverageConverter(testPlan)));
+      writer.writeCoverageDetails(component.batchId(), Iterables.transform(testNamesWithCoverage, new TestCoverageConverter(testPlan)));
     }
   }
 }

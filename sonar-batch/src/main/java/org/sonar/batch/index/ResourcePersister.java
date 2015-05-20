@@ -20,6 +20,8 @@
 package org.sonar.batch.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
+import javax.persistence.NonUniqueResultException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
@@ -34,10 +36,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.component.ScanGraph;
-
-import javax.annotation.Nullable;
-import javax.persistence.NonUniqueResultException;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -48,29 +46,27 @@ public class ResourcePersister implements ScanPersister {
 
   private final DatabaseSession session;
   private final ResourcePermissions permissions;
-  private final ResourceCache resourceCache;
-  private final ScanGraph scanGraph;
+  private final BatchComponentCache resourceCache;
 
-  public ResourcePersister(DatabaseSession session, ResourcePermissions permissions, ResourceCache resourceCache, ScanGraph scanGraph) {
+  public ResourcePersister(DatabaseSession session, ResourcePermissions permissions, BatchComponentCache resourceCache) {
     this.session = session;
     this.permissions = permissions;
     this.resourceCache = resourceCache;
-    this.scanGraph = scanGraph;
   }
 
   @Override
   public void persist() {
-    for (BatchResource resource : resourceCache.all()) {
+    for (BatchComponent resource : resourceCache.all()) {
       persist(resource);
     }
   }
 
-  private void persist(BatchResource batchResource) {
+  private void persist(BatchComponent batchResource) {
     if (batchResource.snapshot() != null) {
       // already persisted
       return;
     }
-    BatchResource parentBatchResource = batchResource.parent();
+    BatchComponent parentBatchResource = batchResource.parent();
     Snapshot s;
     if (parentBatchResource != null) {
       persist(parentBatchResource);
@@ -80,12 +76,9 @@ public class ResourcePersister implements ScanPersister {
       s = persistProject((Project) batchResource.resource(), null);
     }
     batchResource.setSnapshot(s);
-    if (ResourceUtils.isPersistable(batchResource.resource())) {
-      scanGraph.completeComponent(batchResource.key(), batchResource.resource().getId(), s.getId());
-    }
   }
 
-  private Project findModule(BatchResource batchResource) {
+  private Project findModule(BatchComponent batchResource) {
     if (batchResource.resource() instanceof Project) {
       return (Project) batchResource.resource();
     } else {
@@ -147,7 +140,7 @@ public class ResourcePersister implements ScanPersister {
    * Everything except project and library
    */
   private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
-    BatchResource moduleResource = resourceCache.get(project);
+    BatchComponent moduleResource = resourceCache.get(project);
     Integer moduleId = moduleResource.resource().getId();
     ResourceModel model = findOrCreateModel(resource, parentReference != null ? parentReference : project);
     model.setRootId(moduleId);

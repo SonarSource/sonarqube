@@ -21,6 +21,10 @@ package org.sonar.api.component;
 
 import javax.annotation.CheckForNull;
 
+/**
+ * @deprecated since 5.2
+ */
+@Deprecated
 public interface Component {
   String key();
 

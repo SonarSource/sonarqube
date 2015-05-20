@@ -17,24 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.test;
+package org.sonar.batch.test;
 
-import com.tinkerpop.blueprints.Direction;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.test.MutableTestCase;
 import org.sonar.api.test.MutableTestPlan;
-import org.sonar.core.component.GraphPerspectiveBuilder;
-import org.sonar.core.component.ScanGraph;
-import org.sonar.core.graph.EdgePath;
 
-public class TestPlanBuilder extends GraphPerspectiveBuilder<MutableTestPlan> {
+public class DefaultTestPlan implements MutableTestPlan {
+  private List<MutableTestCase> testCases = new ArrayList<>();
 
-  private static final EdgePath PATH = EdgePath.create(
-    Direction.OUT, "testplan",
-    Direction.OUT, "testcase",
-    Direction.OUT, "covers",
-    Direction.IN, "testable"
-  );
-
-  public TestPlanBuilder(ScanGraph graph, TestPlanPerspectiveLoader perspectiveLoader) {
-    super(graph, MutableTestPlan.class, PATH, perspectiveLoader);
+  @Override
+  @CheckForNull
+  public Iterable<MutableTestCase> testCasesByName(String name) {
+    List<MutableTestCase> result = Lists.newArrayList();
+    for (MutableTestCase testCase : testCases()) {
+      if (name.equals(testCase.name())) {
+        result.add(testCase);
+      }
+    }
+    return result;
   }
+
+  @Override
+  public MutableTestCase addTestCase(String name) {
+    DefaultTestCase testCase = new DefaultTestCase(this);
+    testCase.setName(name);
+    testCases.add(testCase);
+    return testCase;
+  }
+
+  @Override
+  public Iterable<MutableTestCase> testCases() {
+    return testCases;
+  }
+
 }

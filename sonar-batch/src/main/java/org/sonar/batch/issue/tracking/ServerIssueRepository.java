@@ -29,10 +29,10 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -54,11 +54,11 @@ public class ServerIssueRepository {
   private Cache<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
   private final ProjectReactor reactor;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final AnalysisMode analysisMode;
   private final InputPathCache inputPathCache;
 
-  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, ResourceCache resourceCache,
+  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, BatchComponentCache resourceCache,
     AnalysisMode analysisMode, InputPathCache inputPathCache) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
@@ -83,7 +83,7 @@ public class ServerIssueRepository {
           return null;
         }
         String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
-        BatchResource r = resourceCache.get(componentKey);
+        BatchComponent r = resourceCache.get(componentKey);
         if (r == null) {
           // Deleted resource
           issuesCache.put(0, issue.getKey(), issue);
@@ -96,7 +96,7 @@ public class ServerIssueRepository {
     profiler.stopDebug();
   }
 
-  public Iterable<ServerIssue> byComponent(BatchResource component) {
+  public Iterable<ServerIssue> byComponent(BatchComponent component) {
     if (analysisMode.isIncremental()) {
       if (!component.isFile()) {
         throw new UnsupportedOperationException("Incremental mode should only get issues on files");

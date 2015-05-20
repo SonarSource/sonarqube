@@ -26,10 +26,10 @@ import org.sonar.api.resources.Resource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class ResourceCacheTest {
+public class BatchComponentCacheTest {
   @Test
   public void should_cache_resource() {
-    ResourceCache cache = new ResourceCache();
+    BatchComponentCache cache = new BatchComponentCache();
     String componentKey = "struts:src/org/struts/Action.java";
     Resource resource = File.create("org/struts/Action.java").setEffectiveKey(componentKey);
     cache.add(resource, null);
@@ -40,7 +40,7 @@ public class ResourceCacheTest {
 
   @Test
   public void should_fail_if_missing_component_key() {
-    ResourceCache cache = new ResourceCache();
+    BatchComponentCache cache = new BatchComponentCache();
     Resource resource = File.create("org/struts/Action.java").setEffectiveKey(null);
     try {
       cache.add(resource, null);

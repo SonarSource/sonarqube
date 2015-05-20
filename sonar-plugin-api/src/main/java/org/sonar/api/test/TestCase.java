@@ -23,8 +23,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
- * Represents a simple test execution result.
+ * @deprecated since 5.2 not used
  */
+@Deprecated
 public interface TestCase {
   enum Status {
     OK, FAILURE, ERROR, SKIPPED;
@@ -75,5 +76,6 @@ public interface TestCase {
 
   Iterable<CoverageBlock> coverageBlocks();
 
+  @CheckForNull
   CoverageBlock coverageBlock(Testable testable);
 }

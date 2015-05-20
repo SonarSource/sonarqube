@@ -19,46 +19,29 @@
  */
 package org.sonar.batch.source;
 
-import com.google.common.collect.ImmutableSet;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-import org.sonar.api.component.Component;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.source.Highlightable;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
-import org.sonar.core.component.PerspectiveBuilder;
-import org.sonar.core.component.ResourceComponent;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Set;
+import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
+import org.sonar.batch.index.BatchComponent;
 
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  private final ResourceCache cache;
   private final SensorStorage sensorStorage;
 
-  public HighlightableBuilder(ResourceCache cache, SensorStorage sensorStorage) {
+  public HighlightableBuilder(SensorStorage sensorStorage) {
     super(Highlightable.class);
-    this.cache = cache;
     this.sensorStorage = sensorStorage;
   }
 
   @CheckForNull
   @Override
-  public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, Component component) {
-    boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
-    if (supported && component instanceof ResourceComponent) {
-      BatchResource batchComponent = cache.get(component.key());
-      if (batchComponent != null) {
-        InputFile path = (InputFile) batchComponent.inputPath();
-        if (path != null) {
-          return new DefaultHighlightable((DefaultInputFile) path, sensorStorage);
-        }
-      }
+  public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, BatchComponent component) {
+    if (component.isFile()) {
+      InputFile path = (InputFile) component.inputPath();
+      return new DefaultHighlightable((DefaultInputFile) path, sensorStorage);
     }
     return null;
   }

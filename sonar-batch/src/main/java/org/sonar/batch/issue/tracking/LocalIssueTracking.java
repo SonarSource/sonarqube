@@ -34,8 +34,8 @@ import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.scan.filesystem.InputPathCache;
@@ -62,12 +62,12 @@ public class LocalIssueTracking {
   private final IssueChangeContext changeContext;
   private final ActiveRules activeRules;
   private final InputPathCache inputPathCache;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final ServerIssueRepository serverIssueRepository;
   private final ProjectRepositories projectRepositories;
   private final AnalysisMode analysisMode;
 
-  public LocalIssueTracking(ResourceCache resourceCache, IssueCache issueCache, IssueTracking tracking,
+  public LocalIssueTracking(BatchComponentCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
     ActiveRules activeRules, InputPathCache inputPathCache, ServerIssueRepository serverIssueRepository,
     ProjectRepositories projectRepositories, AnalysisMode analysisMode) {
@@ -93,12 +93,12 @@ public class LocalIssueTracking {
 
     serverIssueRepository.load();
 
-    for (BatchResource component : resourceCache.all()) {
+    for (BatchComponent component : resourceCache.all()) {
       trackIssues(component);
     }
   }
 
-  public void trackIssues(BatchResource component) {
+  public void trackIssues(BatchComponent component) {
 
     Collection<DefaultIssue> issues = Lists.newArrayList();
     for (Issue issue : issueCache.byComponent(component.resource().getEffectiveKey())) {
@@ -136,7 +136,7 @@ public class LocalIssueTracking {
   }
 
   @CheckForNull
-  private SourceHashHolder loadSourceHashes(BatchResource component) {
+  private SourceHashHolder loadSourceHashes(BatchComponent component) {
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
       DefaultInputFile file = (DefaultInputFile) inputPathCache.getInputPath(component);
@@ -148,7 +148,7 @@ public class LocalIssueTracking {
     return sourceHashHolder;
   }
 
-  private Collection<ServerIssue> loadServerIssues(BatchResource component) {
+  private Collection<ServerIssue> loadServerIssues(BatchComponent component) {
     Collection<ServerIssue> serverIssues = new ArrayList<>();
     for (org.sonar.batch.protocol.input.BatchInput.ServerIssue previousIssue : serverIssueRepository.byComponent(component)) {
       serverIssues.add(new ServerIssueFromWs(previousIssue));

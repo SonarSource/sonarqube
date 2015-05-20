@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public class SourcePublisherTest {
   @Before
   public void prepare() throws IOException {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    ResourceCache resourceCache = new ResourceCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php");
     sampleFile.setEffectiveKey("foo:src/Foo.php");
     resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
