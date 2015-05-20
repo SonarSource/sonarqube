@@ -19,7 +19,7 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.5

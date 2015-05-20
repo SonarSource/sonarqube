@@ -20,7 +20,7 @@
 package org.sonar.batch.cpd;
 
 import org.slf4j.Logger;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.sensor.SensorContext;
 
 @BatchSide

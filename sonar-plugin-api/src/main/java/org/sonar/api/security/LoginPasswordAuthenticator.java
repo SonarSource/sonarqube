@@ -20,7 +20,7 @@
 package org.sonar.api.security;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 1.12

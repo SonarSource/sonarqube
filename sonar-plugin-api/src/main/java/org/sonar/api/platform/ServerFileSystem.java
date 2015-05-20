@@ -19,7 +19,7 @@
  */
 package org.sonar.api.platform;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.io.File;
 import java.util.List;

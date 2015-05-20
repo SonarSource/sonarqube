@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;

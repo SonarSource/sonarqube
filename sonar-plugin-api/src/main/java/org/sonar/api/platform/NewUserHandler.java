@@ -21,7 +21,7 @@ package org.sonar.api.platform;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.Nullable;
 

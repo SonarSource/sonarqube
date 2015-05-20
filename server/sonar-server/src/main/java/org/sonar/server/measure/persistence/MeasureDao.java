@@ -21,7 +21,7 @@
 package org.sonar.server.measure.persistence;
 
 import com.google.common.base.Function;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureMapper;
 import org.sonar.core.persistence.DaoComponent;

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * Creates {@link org.sonar.api.batch.rule.Checks}. This class is available

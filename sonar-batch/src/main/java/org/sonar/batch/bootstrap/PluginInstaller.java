@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 

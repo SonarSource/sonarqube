@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.14

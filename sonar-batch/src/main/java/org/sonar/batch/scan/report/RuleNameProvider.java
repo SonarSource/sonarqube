@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.report;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;

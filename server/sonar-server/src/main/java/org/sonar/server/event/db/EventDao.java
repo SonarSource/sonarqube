@@ -20,7 +20,7 @@
 
 package org.sonar.server.event.db;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.event.db.EventMapper;
 import org.sonar.core.persistence.DaoComponent;

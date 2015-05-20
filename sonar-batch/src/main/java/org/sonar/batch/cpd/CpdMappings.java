@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.cpd;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.CpdMapping;
 
 import javax.annotation.CheckForNull;

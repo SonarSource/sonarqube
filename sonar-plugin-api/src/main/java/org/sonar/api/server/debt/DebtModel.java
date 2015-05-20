@@ -20,7 +20,7 @@
 
 package org.sonar.api.server.debt;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.List;
 

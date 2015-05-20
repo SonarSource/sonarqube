@@ -20,7 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
 
 /**

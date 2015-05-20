@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.annotation.CheckForNull;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;

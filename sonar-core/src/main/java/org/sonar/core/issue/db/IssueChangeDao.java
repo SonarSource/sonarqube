@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.core.persistence.DaoComponent;

@@ -21,7 +21,7 @@
 package org.sonar.core.computation.dbcleaner;
 
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;

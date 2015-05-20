@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceCache;
 import org.sonar.batch.protocol.Constants.EventCategory;

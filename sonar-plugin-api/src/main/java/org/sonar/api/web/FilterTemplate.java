@@ -20,7 +20,7 @@
 package org.sonar.api.web;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * This extension point must be implemented to define a new filter.

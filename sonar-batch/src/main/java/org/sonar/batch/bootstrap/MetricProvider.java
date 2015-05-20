@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.measures.CoreMetrics;

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.server.platform.ws.InfoAction;
 
 import java.util.LinkedHashMap;

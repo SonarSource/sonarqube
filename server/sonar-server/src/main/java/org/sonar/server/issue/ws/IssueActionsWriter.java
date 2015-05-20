@@ -21,7 +21,7 @@
 package org.sonar.server.issue.ws;
 
 import java.util.List;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.utils.text.JsonWriter;

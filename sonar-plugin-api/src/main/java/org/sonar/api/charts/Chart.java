@@ -19,7 +19,7 @@
  */
 package org.sonar.api.charts;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.awt.image.BufferedImage;
 

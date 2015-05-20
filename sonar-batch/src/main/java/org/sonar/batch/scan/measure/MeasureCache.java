@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.measure;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.RuleMeasure;

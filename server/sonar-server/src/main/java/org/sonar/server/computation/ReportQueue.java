@@ -21,7 +21,7 @@
 package org.sonar.server.computation;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;

@@ -19,8 +19,8 @@
  */
 package org.sonar.api.component;
 
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @deprecated since 5.2 unused

@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;

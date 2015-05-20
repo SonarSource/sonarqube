@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueHandler;
 import org.sonar.api.issue.internal.DefaultIssue;

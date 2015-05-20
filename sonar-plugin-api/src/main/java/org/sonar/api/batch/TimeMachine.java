@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchSide;
 import org.sonar.api.measures.Measure;
 
 import java.util.List;

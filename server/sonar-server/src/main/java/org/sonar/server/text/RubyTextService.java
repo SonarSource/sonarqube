@@ -19,7 +19,7 @@
  */
 package org.sonar.server.text;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.markdown.Markdown;
 
 /**

@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;

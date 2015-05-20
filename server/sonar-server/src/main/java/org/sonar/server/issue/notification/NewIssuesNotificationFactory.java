@@ -20,7 +20,7 @@
 
 package org.sonar.server.issue.notification;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleIndex;

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.Collection;
 import java.util.HashMap;

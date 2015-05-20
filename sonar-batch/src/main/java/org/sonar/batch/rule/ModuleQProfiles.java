@@ -20,7 +20,7 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 import javax.annotation.CheckForNull;

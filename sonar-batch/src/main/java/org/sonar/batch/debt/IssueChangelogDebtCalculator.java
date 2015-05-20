@@ -23,7 +23,7 @@ package org.sonar.batch.debt;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;

@@ -23,7 +23,7 @@ package org.sonar.core.permission;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.persistence.MyBatis;
 

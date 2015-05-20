@@ -22,8 +22,8 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.Collections;
 import java.util.List;

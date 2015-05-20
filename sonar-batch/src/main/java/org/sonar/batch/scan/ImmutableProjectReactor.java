@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 import java.util.ArrayList;

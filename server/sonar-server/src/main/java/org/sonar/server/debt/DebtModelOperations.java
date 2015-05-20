@@ -23,7 +23,7 @@ package org.sonar.server.debt;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.System2;

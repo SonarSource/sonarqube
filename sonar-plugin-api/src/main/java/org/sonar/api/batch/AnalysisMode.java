@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchSide;
-
 /**
  * Use this component to find the current running mode.
  * @since 5.1

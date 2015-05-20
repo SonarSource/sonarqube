@@ -20,7 +20,7 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.charts.Chart;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;

@@ -22,7 +22,7 @@ package org.sonar.server.measure;
 import com.google.common.base.Strings;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;

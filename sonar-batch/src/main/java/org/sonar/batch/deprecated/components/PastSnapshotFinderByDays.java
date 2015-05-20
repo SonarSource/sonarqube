@@ -20,7 +20,7 @@
 package org.sonar.batch.deprecated.components;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;

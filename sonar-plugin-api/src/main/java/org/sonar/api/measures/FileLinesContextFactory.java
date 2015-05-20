@@ -19,7 +19,7 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
 

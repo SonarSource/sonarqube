@@ -20,7 +20,7 @@
 package org.sonar.server.measure;
 
 import com.google.common.base.Joiner;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;

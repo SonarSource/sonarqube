@@ -20,7 +20,7 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;

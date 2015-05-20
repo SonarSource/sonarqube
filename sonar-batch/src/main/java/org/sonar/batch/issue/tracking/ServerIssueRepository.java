@@ -20,7 +20,7 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.database;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;

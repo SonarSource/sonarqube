@@ -19,7 +19,7 @@
  */
 package org.sonar.api.issue.batch;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.issue.Issue;
 

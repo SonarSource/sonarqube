@@ -19,8 +19,8 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 import java.io.File;
 import java.io.InputStream;

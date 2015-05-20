@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginExploder;

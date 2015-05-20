@@ -21,7 +21,6 @@ package org.sonar.api.batch;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.BatchSide;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;

@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.batch.BatchSide;
+
 /**
  * Marker interface for all the batch extension points, which are aimed to be implemented
  * by plugins.

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.batch.scan.ProjectScanContainer;
 

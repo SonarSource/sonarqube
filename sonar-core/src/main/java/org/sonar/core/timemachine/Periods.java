@@ -20,9 +20,9 @@
 package org.sonar.core.timemachine;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;

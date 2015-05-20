@@ -21,7 +21,7 @@
 package org.sonar.server.text;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.Server;
 
 import java.util.List;

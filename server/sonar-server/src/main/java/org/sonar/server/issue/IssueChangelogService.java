@@ -21,7 +21,7 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.List;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;

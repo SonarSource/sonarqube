@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.server.ServerSide;
+
 /**
  * Same than {@link org.sonar.api.BatchComponent} but for server-side components.
  *

@@ -20,7 +20,7 @@
 
 package org.sonar.server.measure.persistence;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.measure.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;

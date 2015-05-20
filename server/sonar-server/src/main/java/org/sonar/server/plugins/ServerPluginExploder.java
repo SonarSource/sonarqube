@@ -20,7 +20,7 @@
 package org.sonar.server.plugins;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginExploder;

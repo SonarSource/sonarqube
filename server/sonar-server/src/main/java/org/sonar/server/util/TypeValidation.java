@@ -20,7 +20,7 @@
 
 package org.sonar.server.util;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.Nullable;
 

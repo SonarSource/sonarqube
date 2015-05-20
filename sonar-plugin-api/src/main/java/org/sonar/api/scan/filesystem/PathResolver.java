@@ -21,7 +21,7 @@ package org.sonar.api.scan.filesystem;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;

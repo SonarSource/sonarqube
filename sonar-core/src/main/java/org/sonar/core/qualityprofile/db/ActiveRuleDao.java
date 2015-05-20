@@ -21,7 +21,7 @@
 package org.sonar.core.qualityprofile.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 

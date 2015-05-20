@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;

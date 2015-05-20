@@ -19,7 +19,7 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;

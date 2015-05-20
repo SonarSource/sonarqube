@@ -19,7 +19,7 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.InputFileFilter;
 

@@ -20,7 +20,7 @@
 
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;

@@ -23,7 +23,7 @@ package org.sonar.core.issue;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.Iterator;
 import java.util.List;

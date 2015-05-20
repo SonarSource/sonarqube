@@ -32,7 +32,7 @@ import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
