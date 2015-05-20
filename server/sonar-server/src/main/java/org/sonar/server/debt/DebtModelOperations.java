@@ -20,7 +20,6 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
