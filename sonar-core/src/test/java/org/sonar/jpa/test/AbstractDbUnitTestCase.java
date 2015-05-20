@@ -19,7 +19,10 @@
  */
 package org.sonar.jpa.test;
 
+import java.io.InputStream;
+import java.sql.SQLException;
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
@@ -42,14 +45,13 @@ import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
+import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.H2Database;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SchemaMigrationMapper;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
-import org.sonar.jpa.session.MemoryDatabaseConnector;
-
-import java.io.InputStream;
-import java.sql.SQLException;
 
 import static org.junit.Assert.fail;
 
@@ -62,7 +64,7 @@ public abstract class AbstractDbUnitTestCase {
   private static Database database;
   private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
-  private static MemoryDatabaseConnector dbConnector;
+  private static DefaultDatabaseConnector dbConnector;
   private IDatabaseTester databaseTester;
   private JpaDatabaseSession session;
 
@@ -74,11 +76,15 @@ public abstract class AbstractDbUnitTestCase {
 
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
 
-      dbConnector = new MemoryDatabaseConnector(database);
-      dbConnector.start();
-
       myBatis = new MyBatis(database, new Logback(), new NullQueue());
       myBatis.start();
+      try (SqlSession session = myBatis.openSession(false)) {
+        session.getMapper(SchemaMigrationMapper.class).insert(String.valueOf(DatabaseVersion.LAST_VERSION));
+        session.commit();
+      }
+
+      dbConnector = new DefaultDatabaseConnector(database);
+      dbConnector.start();
     }
   }
 

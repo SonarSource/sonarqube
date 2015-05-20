@@ -3,9 +3,12 @@
 
 <mapper namespace="org.sonar.core.persistence.SchemaMigrationMapper">
 
-  <select id="selectVersions" resultType="int" >
-    select * from schema_migrations
+  <select id="selectVersions" resultType="int">
+    select version from schema_migrations
   </select>
 
+  <insert id="insert" parameterType="string" useGeneratedKeys="false">
+    insert into schema_migrations(version) values (#{version,jdbcType=VARCHAR})
+  </insert>
 </mapper>
 

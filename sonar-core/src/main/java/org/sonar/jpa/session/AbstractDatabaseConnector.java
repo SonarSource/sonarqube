@@ -19,17 +19,15 @@
  */
 package org.sonar.jpa.session;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.dialect.Dialect;
-
+import java.util.Map;
+import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.util.Map;
-import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.Dialect;
 
 public abstract class AbstractDatabaseConnector implements DatabaseConnector {
   protected static final Logger LOG = LoggerFactory.getLogger(AbstractDatabaseConnector.class);
@@ -55,11 +53,6 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     database = null;
   }
 
-  @Override
-  public EntityManagerFactory getEntityManagerFactory() {
-    return factory;
-  }
-
   protected EntityManagerFactory createEntityManagerFactory() {
     // other settings are stored into /META-INF/persistence.xml
     Properties props = database.getHibernateProperties();
@@ -78,11 +71,6 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
   @Override
   public EntityManager createEntityManager() {
     return factory.createEntityManager();
-  }
-
-  @Override
-  public final int getDatabaseVersion() {
-    throw new UnsupportedOperationException("Moved to " + DatabaseVersion.class.getCanonicalName());
   }
 
   @Override

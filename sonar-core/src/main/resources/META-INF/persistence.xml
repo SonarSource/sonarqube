@@ -6,7 +6,6 @@
   <persistence-unit name="sonar" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-    <class>org.sonar.jpa.entity.SchemaMigration</class>
     <class>org.sonar.jpa.entity.ManualMeasure</class>
     <class>org.sonar.api.database.configuration.Property</class>
     <class>org.sonar.api.database.model.User</class>
