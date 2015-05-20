@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -97,8 +98,13 @@ public class SecurityRealmFactory implements Startable {
     // nothing
   }
 
+  @Nullable
   public SecurityRealm getRealm() {
     return realm;
+  }
+
+  public boolean hasExternalAuthentication() {
+    return getRealm() != null;
   }
 
   private static SecurityRealm selectRealm(SecurityRealm[] realms, String realmName) {
