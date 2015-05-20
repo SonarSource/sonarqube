@@ -509,6 +509,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ResourcesWs.class,
       ComponentsWs.class,
       ProjectsWs.class,
+      org.sonar.server.project.ws.DeleteAction.class,
       org.sonar.server.component.ws.AppAction.class,
       org.sonar.server.component.ws.SearchAction.class,
       EventsWs.class,
