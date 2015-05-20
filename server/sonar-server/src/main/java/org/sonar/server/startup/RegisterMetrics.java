@@ -88,7 +88,7 @@ public class RegisterMetrics {
       @Override
       public boolean apply(Metric metric) {
         // It should be better to use the template mechanism (as it's done in #RegisterDashboards to register provided user manager metrics
-        return !metric.getUserManaged() || measuresDao.getMetric(metric) == null;
+        return !metric.getUserManaged() || measuresDao.getMetric(metric.getKey()) == null;
       }
     }));
   }

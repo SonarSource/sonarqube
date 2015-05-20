@@ -19,17 +19,14 @@
  */
 package org.sonar.jpa.dao;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.measures.Metric;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.measures.Metric;
 
 public class MeasuresDao {
 
@@ -38,18 +35,6 @@ public class MeasuresDao {
 
   public MeasuresDao(DatabaseSession session) {
     this.session = session;
-  }
-
-  public Metric getMetric(Metric metric) {
-    return getMetricsByName().get(metric.getKey());
-  }
-
-  public List<Metric> getMetrics(List<Metric> metrics) {
-    List<Metric> result = newArrayList();
-    for (Metric metric : metrics) {
-      result.add(getMetric(metric));
-    }
-    return result;
   }
 
   public Metric getMetric(String metricName) {
@@ -65,16 +50,6 @@ public class MeasuresDao {
       @Override
       public boolean evaluate(Object o) {
         return ((Metric) o).getEnabled();
-      }
-    });
-  }
-
-  public Collection<Metric> getUserDefinedMetrics() {
-    return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
-      @Override
-      public boolean evaluate(Object o) {
-        Metric m = (Metric) o;
-        return m.getEnabled() && m.getOrigin() != Metric.Origin.JAV;
       }
     });
   }
@@ -97,26 +72,13 @@ public class MeasuresDao {
   }
 
   private void persistMetricWithoutClear(Metric metric) {
-    Metric dbMetric = getMetric(metric);
+    Metric dbMetric = getMetric(metric.getKey());
     if (dbMetric != null) {
       dbMetric.merge(metric);
       session.getEntityManager().merge(dbMetric);
 
     } else {
       session.getEntityManager().persist(new Metric().merge(metric));
-    }
-  }
-
-  public void persistMetric(Metric metric) {
-    persistMetricWithoutClear(metric);
-    metricsByName.clear();
-  }
-
-  public void disabledMetrics(Collection<Metric> metrics) {
-    for (Metric metric : metrics) {
-      metric.setEnabled(Boolean.FALSE);
-      session.getEntityManager().persist(metric);
-      metricsByName.put(metric.getName(), metric);
     }
   }
 
