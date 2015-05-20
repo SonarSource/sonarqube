@@ -36,9 +36,9 @@ import org.sonar.core.design.FileDependencyDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.UsersWsAction;
+import org.sonar.server.ws.WsAction;
 
-public class ShowAction implements UsersWsAction {
+public class ShowAction implements WsAction {
 
   private static final String PARAM_FROM_PARENT_UUID = "fromParentUuid";
   private static final String PARAM_TO_PARENT_UUID = "toParentUuid";
