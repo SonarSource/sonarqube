@@ -21,6 +21,7 @@
 package org.sonar.server.user;
 
 import com.google.common.base.Strings;
+import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
@@ -53,8 +54,6 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 import org.sonar.test.DbTests;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -570,6 +569,41 @@ public class UserUpdaterTest {
   @Test
   public void update_user() {
     db.prepareDbUnit(getClass(), "update_user.xml");
+    when(system2.now()).thenReturn(1418215735486L);
+    createDefaultGroup();
+
+    userUpdater.update(UpdateUser.create("marius")
+      .setName("Marius2")
+      .setEmail("marius2@mail.com")
+      .setPassword("password2")
+      .setPasswordConfirmation("password2")
+      .setScmAccounts(newArrayList("ma2")));
+    session.commit();
+    session.clearCache();
+
+    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    assertThat(dto.isActive()).isTrue();
+    assertThat(dto.getName()).isEqualTo("Marius2");
+    assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
+    assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
+
+    assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
+    assertThat(dto.getUpdatedAt()).isEqualTo(1418215735486L);
+
+    List<SearchHit> indexUsers = es.getDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER);
+    assertThat(indexUsers).hasSize(1);
+    assertThat(indexUsers.get(0).getSource())
+      .contains(
+        entry("login", "marius"),
+        entry("name", "Marius2"),
+        entry("email", "marius2@mail.com"));
+  }
+
+  @Test
+  public void reactivate_user_on_update() {
+    db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);
     createDefaultGroup();
 

@@ -56,7 +56,8 @@ public class CreateAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("create")
-      .setDescription("Create a user. Requires Administer System permission")
+      .setDescription("Create a user. If a deactivated user account exists with the given login, it will be reactivated. " +
+        "Requires Administer System permission")
       .setSince("3.7")
       .setPost(true)
       .setHandler(this);
