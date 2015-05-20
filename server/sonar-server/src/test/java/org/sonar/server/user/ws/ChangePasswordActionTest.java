@@ -25,6 +25,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -35,10 +38,12 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
@@ -51,7 +56,9 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ChangePasswordActionTest {
 
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
@@ -76,6 +83,9 @@ public class ChangePasswordActionTest {
 
   DbSession session;
 
+  @Mock
+  SecurityRealmFactory realmFactory;
+
   @Before
   public void setUp() {
     dbTester.truncateTables();
@@ -92,7 +102,8 @@ public class ChangePasswordActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new ChangePasswordAction(new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule)));
+    tester = new WsTester(
+      new UsersWs(new ChangePasswordAction(new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, realmFactory), userSessionRule)));
     controller = tester.controller("api/users");
   }
 
@@ -152,6 +163,18 @@ public class ChangePasswordActionTest {
     session.clearCache();
     String newPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void fail_to_update_password_on_external_auth() throws Exception {
+    createUser();
+    session.clearCache();
+    when(realmFactory.hasExternalAuthentication()).thenReturn(true);
+
+    tester.newPostRequest("api/users", "change_password")
+      .setParam("login", "john")
+      .setParam("password", "Valar Morghulis")
+      .execute();
   }
 
   private void createUser() {

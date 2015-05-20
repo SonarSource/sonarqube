@@ -46,6 +46,7 @@ public class SecurityRealmFactoryTest {
     SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[]{realm});
     factory.start();
     assertThat(factory.getRealm()).isSameAs(realm);
+    assertThat(factory.hasExternalAuthentication()).isTrue();
     verify(realm).init();
 
     factory.stop();
@@ -56,6 +57,7 @@ public class SecurityRealmFactoryTest {
     SecurityRealmFactory factory = new SecurityRealmFactory(settings);
     factory.start();
     assertThat(factory.getRealm()).isNull();
+    assertThat(factory.hasExternalAuthentication()).isFalse();
   }
 
   @Test

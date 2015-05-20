@@ -78,6 +78,9 @@ public class UserUpdaterTest {
   @Mock
   NewUserNotifier newUserNotifier;
 
+  @Mock
+  SecurityRealmFactory realmFactory;
+
   @Captor
   ArgumentCaptor<NewUserHandler.Context> newUserHandler;
 
@@ -106,7 +109,7 @@ public class UserUpdaterTest {
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), userDao, groupDao, userGroupDao);
     userIndexer = (UserIndexer) new UserIndexer(dbClient, es.client()).setEnabled(true);
     userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
-      userIndexer, system2);
+      userIndexer, system2, realmFactory);
   }
 
   @After
@@ -762,6 +765,23 @@ public class UserUpdaterTest {
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
   }
+
+  @Test
+  public void fail_to_update_password_when_external_auth_is_used() {
+    db.prepareDbUnit(getClass(), "update_user.xml");
+    createDefaultGroup();
+
+    when(realmFactory.hasExternalAuthentication()).thenReturn(true);
+
+    try {
+      userUpdater.update(UpdateUser.create("marius")
+        .setPassword("password2")
+        .setPasswordConfirmation("password2"));
+    } catch (BadRequestException e) {
+      assertThat(e.errors().messages()).containsOnly(Message.of("user.password_cant_be_changed_on_external_auth"));
+    }
+  }
+
 
   @Test
   public void associate_default_group_when_updating_user() {

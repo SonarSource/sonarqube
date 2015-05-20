@@ -45,6 +45,7 @@ public class ChangePasswordAction implements UsersWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("change_password")
       .setDescription("Update a user's password. Authenticated users can change their own password, " +
+        "provided that the account is not linked to an external authentication system. " +
         "Administer System permission is required to change another user's password.")
       .setSince("5.2")
       .setPost(true)

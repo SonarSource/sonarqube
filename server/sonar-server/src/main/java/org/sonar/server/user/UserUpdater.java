@@ -24,12 +24,18 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
@@ -40,14 +46,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -65,13 +63,15 @@ public class UserUpdater {
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final System2 system2;
+  private final SecurityRealmFactory realmFactory;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2) {
+  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2, SecurityRealmFactory realmFactory) {
     this.newUserNotifier = newUserNotifier;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
+    this.realmFactory = realmFactory;
   }
 
   /**
@@ -182,6 +182,7 @@ public class UserUpdater {
     String password = updateUser.password();
     String passwordConfirmation = updateUser.passwordConfirmation();
     if (updateUser.isPasswordChanged()) {
+      checkPasswordChangeAllowed(messages);
       validatePasswords(password, passwordConfirmation, messages);
       setEncryptedPassWord(password, userDto);
     }
@@ -230,6 +231,12 @@ public class UserUpdater {
   private static void validateEmailFormat(@Nullable String email, List<Message> messages) {
     if (email != null && email.length() >= 100) {
       messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
+    }
+  }
+
+  private void checkPasswordChangeAllowed(List<Message> messages) {
+    if (realmFactory.hasExternalAuthentication()) {
+      messages.add(Message.of("user.password_cant_be_changed_on_external_auth"));
     }
   }
 
