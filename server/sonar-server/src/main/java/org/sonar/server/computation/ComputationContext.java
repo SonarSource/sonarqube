@@ -24,8 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 
-import static com.google.common.base.Preconditions.checkState;
-
 public class ComputationContext {
 
   private final BatchReportReader reportReader;
@@ -33,11 +31,12 @@ public class ComputationContext {
   private final String projectKey;
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
-  private Settings projectSettings;
+  private final Settings projectSettings;
 
-  public ComputationContext(BatchReportReader reportReader, String projectKey) {
+  public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings) {
     this.reportReader = reportReader;
     this.projectKey = projectKey;
+    this.projectSettings = projectSettings;
     this.reportMetadata = reportReader.readMetadata();
   }
 
@@ -57,8 +56,4 @@ public class ComputationContext {
     return projectSettings;
   }
 
-  public void setProjectSettings(Settings projectSettings) {
-    checkState(this.projectSettings == null, "can't set project settings twice");
-    this.projectSettings = projectSettings;
-  }
 }

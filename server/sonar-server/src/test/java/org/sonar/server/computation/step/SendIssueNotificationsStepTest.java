@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
@@ -64,6 +65,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   IssueCache issueCache;
   DbComponentsRefCache dbComponentsRefCache;
   NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
+  Settings projectSettings = new Settings();
   SendIssueNotificationsStep sut;
 
   File reportDir;
@@ -93,7 +95,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() throws IOException {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -105,7 +107,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));

@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -62,7 +63,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings());
 
     sut.execute(context);
 

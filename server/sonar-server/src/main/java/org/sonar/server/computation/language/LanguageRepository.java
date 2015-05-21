@@ -17,22 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.computation.language;
 
-package org.sonar.server.computation;
+import com.google.common.base.Optional;
+import org.sonar.api.resources.Language;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.output.BatchReportReader;
-
-import static org.mockito.Mockito.mock;
-
-public class ComputationContextTest {
-
-  ComputationContext sut = new ComputationContext(mock(BatchReportReader.class), "ProjectKey");
-
-  @Test(expected = IllegalStateException.class)
-  public void setProjectSettings() {
-    sut.setProjectSettings(mock(Settings.class));
-    sut.setProjectSettings(mock(Settings.class));
-  }
+public interface LanguageRepository {
+  Optional<Language> find(String languageKey);
 }

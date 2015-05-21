@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -41,8 +43,6 @@ import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,6 +63,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   DbClient dbClient;
 
+  Settings projectSettings;
   ComputeComponentsRefCache computeComponentsRefCache;
   DbComponentsRefCache dbComponentsRefCache;
 
@@ -77,6 +78,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     reportDir = temp.newFolder();
 
     computeComponentsRefCache = new ComputeComponentsRefCache();
+    projectSettings = new Settings();
     dbComponentsRefCache = new DbComponentsRefCache();
     sut = new PersistComponentsStep(dbClient, computeComponentsRefCache, dbComponentsRefCache);
   }
@@ -133,7 +135,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setLanguage("java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -223,7 +225,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
     assertThat(directory).isNotNull();
@@ -268,7 +270,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setIsTest(true)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     ComponentDto file = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:src/test/java/dir/FooTest.java");
     assertThat(file).isNotNull();
@@ -324,7 +326,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -403,7 +405,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -476,7 +478,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY).getId()).isEqualTo(project.getId());
@@ -554,7 +556,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New module description")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.name()).isEqualTo("New project name");
@@ -623,7 +625,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 

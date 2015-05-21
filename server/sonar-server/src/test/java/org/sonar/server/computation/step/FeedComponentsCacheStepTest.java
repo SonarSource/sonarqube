@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -59,6 +60,8 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
 
   DbClient dbClient;
 
+  Settings projectSettings;
+
   ComputeComponentsRefCache computeComponentsRefCache;
 
   FeedComponentsCacheStep sut;
@@ -72,6 +75,7 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
     reportDir = temp.newFolder();
 
     computeComponentsRefCache = new ComputeComponentsRefCache();
+    projectSettings = new Settings();
     sut = new FeedComponentsCacheStep(dbClient, computeComponentsRefCache);
   }
 
@@ -112,7 +116,7 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(computeComponentsRefCache.getByRef(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(computeComponentsRefCache.getByRef(1).getUuid()).isNotNull();
@@ -168,7 +172,7 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(computeComponentsRefCache.getByRef(4).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir");
     assertThat(computeComponentsRefCache.getByRef(5).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir/Foo.java");
@@ -209,7 +213,7 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
 
     assertThat(computeComponentsRefCache.getByRef(1).getKey()).isEqualTo("PROJECT_KEY:origin/master");
     assertThat(computeComponentsRefCache.getByRef(2).getKey()).isEqualTo("MODULE_KEY:origin/master");

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.component.ComputeComponentsRefCache;
@@ -30,13 +33,11 @@ import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.ScmAccountCache;
 import org.sonar.server.computation.issue.ScmAccountCacheLoader;
 import org.sonar.server.computation.issue.SourceLinesCache;
+import org.sonar.server.computation.language.PlatformLanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.view.index.ViewIndex;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ComputationContainer {
 
@@ -46,6 +47,9 @@ public class ComputationContainer {
    */
   static List componentClasses() {
     return Arrays.asList(
+      // context-scope repositories
+      PlatformLanguageRepository.class,
+
       ComputationService.class,
       ComputationSteps.class,
 

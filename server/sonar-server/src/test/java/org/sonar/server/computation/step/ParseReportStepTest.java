@@ -23,6 +23,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -69,7 +70,7 @@ public class ParseReportStepTest extends BaseStepTest {
 
     File reportDir = generateReport();
 
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings());
     sut.execute(context);
 
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);

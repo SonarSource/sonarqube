@@ -67,7 +67,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .build());
 
     ComponentDto project = mock(ComponentDto.class);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings());
 
     sut.execute(context);
 

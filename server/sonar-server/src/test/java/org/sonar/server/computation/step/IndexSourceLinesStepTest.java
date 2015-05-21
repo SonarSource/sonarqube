@@ -91,7 +91,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
+    step().execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings()));
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

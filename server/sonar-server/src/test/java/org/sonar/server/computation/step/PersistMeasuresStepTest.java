@@ -27,6 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -176,7 +179,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY));
+    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY, new Settings()));
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
