@@ -61,4 +61,15 @@ class UsersController < ApplicationController
     render :action => 'new', :layout => 'nonav'
   end
 
+
+  private
+
+  def prepare_user
+    user = User.new(params[:user])
+    default_group_name=java_facade.getSettings().getString('sonar.defaultGroup')
+    default_group=Group.find_by_name(default_group_name)
+    user.groups<<default_group if default_group
+    user
+  end
+
 end
