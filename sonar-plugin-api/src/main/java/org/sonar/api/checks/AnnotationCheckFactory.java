@@ -20,6 +20,10 @@
 package org.sonar.api.checks;
 
 import com.google.common.collect.Maps;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.profiles.RulesProfile;
@@ -30,11 +34,6 @@ import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @since 2.3
@@ -112,34 +111,34 @@ public final class AnnotationCheckFactory extends CheckFactory {
       if (field.getType().equals(String.class)) {
         field.set(check, value);
 
-      } else if ("int".equals(field.getType().getSimpleName())) {
+      } else if (int.class == field.getType()) {
         field.setInt(check, Integer.parseInt(value));
 
-      } else if ("short".equals(field.getType().getSimpleName())) {
+      } else if (short.class == field.getType()) {
         field.setShort(check, Short.parseShort(value));
 
-      } else if ("long".equals(field.getType().getSimpleName())) {
+      } else if (long.class == field.getType()) {
         field.setLong(check, Long.parseLong(value));
 
-      } else if ("double".equals(field.getType().getSimpleName())) {
+      } else if (double.class == field.getType()) {
         field.setDouble(check, Double.parseDouble(value));
 
-      } else if ("boolean".equals(field.getType().getSimpleName())) {
+      } else if (boolean.class == field.getType()) {
         field.setBoolean(check, Boolean.parseBoolean(value));
 
-      } else if ("byte".equals(field.getType().getSimpleName())) {
+      } else if (byte.class == field.getType()) {
         field.setByte(check, Byte.parseByte(value));
 
-      } else if (field.getType().equals(Integer.class)) {
+      } else if (Integer.class == field.getType()) {
         field.set(check, Integer.parseInt(value));
 
-      } else if (field.getType().equals(Long.class)) {
+      } else if (Long.class == field.getType()) {
         field.set(check, Long.parseLong(value));
 
-      } else if (field.getType().equals(Double.class)) {
+      } else if (Double.class == field.getType()) {
         field.set(check, Double.parseDouble(value));
 
-      } else if (field.getType().equals(Boolean.class)) {
+      } else if (Boolean.class == field.getType()) {
         field.set(check, Boolean.parseBoolean(value));
 
       } else {

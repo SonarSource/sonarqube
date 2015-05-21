@@ -20,15 +20,6 @@
 package org.sonar.api.batch.rule;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.AnnotationUtils;
-import org.sonar.api.utils.FieldUtils2;
-import org.sonar.api.utils.SonarException;
-import org.sonar.check.RuleProperty;
-
-import javax.annotation.CheckForNull;
-
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +27,13 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.AnnotationUtils;
+import org.sonar.api.utils.FieldUtils2;
+import org.sonar.api.utils.SonarException;
+import org.sonar.check.RuleProperty;
 
 /**
  * Instantiates checks (objects that provide implementation of coding
@@ -199,34 +197,34 @@ public class Checks<C> {
       if (field.getType().equals(String.class)) {
         field.set(check, value);
 
-      } else if ("int".equals(field.getType().getSimpleName())) {
+      } else if (int.class == field.getType()) {
         field.setInt(check, Integer.parseInt(value));
 
-      } else if ("short".equals(field.getType().getSimpleName())) {
+      } else if (short.class == field.getType()) {
         field.setShort(check, Short.parseShort(value));
 
-      } else if ("long".equals(field.getType().getSimpleName())) {
+      } else if (long.class == field.getType()) {
         field.setLong(check, Long.parseLong(value));
 
-      } else if ("double".equals(field.getType().getSimpleName())) {
+      } else if (double.class == field.getType()) {
         field.setDouble(check, Double.parseDouble(value));
 
-      } else if ("boolean".equals(field.getType().getSimpleName())) {
+      } else if (boolean.class == field.getType()) {
         field.setBoolean(check, Boolean.parseBoolean(value));
 
-      } else if ("byte".equals(field.getType().getSimpleName())) {
+      } else if (byte.class == field.getType()) {
         field.setByte(check, Byte.parseByte(value));
 
-      } else if (field.getType().equals(Integer.class)) {
+      } else if (Integer.class == field.getType()) {
         field.set(check, Integer.parseInt(value));
 
-      } else if (field.getType().equals(Long.class)) {
+      } else if (Long.class == field.getType()) {
         field.set(check, Long.parseLong(value));
 
-      } else if (field.getType().equals(Double.class)) {
+      } else if (Double.class == field.getType()) {
         field.set(check, Double.parseDouble(value));
 
-      } else if (field.getType().equals(Boolean.class)) {
+      } else if (Boolean.class == field.getType()) {
         field.set(check, Boolean.parseBoolean(value));
 
       } else {
