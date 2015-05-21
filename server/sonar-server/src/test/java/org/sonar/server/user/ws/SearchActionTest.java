@@ -20,22 +20,38 @@
 
 package org.sonar.server.user.ws;
 
+import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupMembershipDao;
+import org.sonar.core.user.UserDto;
+import org.sonar.core.user.UserGroupDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.user.db.GroupDao;
+import org.sonar.server.user.db.UserDao;
+import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Arrays;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchActionTest {
+
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
@@ -46,14 +62,30 @@ public class SearchActionTest {
 
   UserIndex index;
 
+  DbClient dbClient;
+
+  DbSession session;
+
   @Before
   public void setUp() {
+    dbTester.truncateTables();
     esTester.truncateIndices();
 
-    index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new SearchAction(index)));
-    controller = tester.controller("api/users");
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
+      new GroupMembershipDao(dbTester.myBatis()),
+      new UserDao(dbTester.myBatis(), new System2()),
+      new GroupDao(new System2()),
+      new UserGroupDao());
+    session = dbClient.openSession(false);
 
+    index = new UserIndex(esTester.client());
+    tester = new WsTester(new UsersWs(new SearchAction(index, dbClient)));
+    controller = tester.controller("api/users");
+  }
+
+  @After
+  public void tearDown() {
+    session.close();
   }
 
   @Test
@@ -91,40 +123,81 @@ public class SearchActionTest {
       .contains("login")
       .contains("name")
       .contains("email")
-      .contains("scmAccounts");
+      .contains("scmAccounts")
+      .contains("groupsCount");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
-      .contains("scmAccounts");
+      .contains("scmAccounts")
+      .contains("groupsCount");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "login").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
-      .doesNotContain("scmAccounts");
+      .doesNotContain("scmAccounts")
+      .doesNotContain("groupsCount");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "scmAccounts").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")
-      .contains("scmAccounts");
+      .contains("scmAccounts")
+      .doesNotContain("groupsCount");
+
+    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "groupsCount").execute().outputAsString())
+      .doesNotContain("login")
+      .doesNotContain("name")
+      .doesNotContain("email")
+      .doesNotContain("scmAccounts")
+      .contains("groupsCount");
   }
 
-  private void injectUsers(int numberOfUsers) throws Exception {
+  @Test
+  public void search_with_groups() throws Exception {
+    List<UserDto> users = injectUsers(1);
+
+    GroupDto group1 = dbClient.groupDao().insert(session, new GroupDto().setName("sonar-users"));
+    GroupDto group2 = dbClient.groupDao().insert(session, new GroupDto().setName("sonar-admins"));
+    dbClient.userGroupDao().insert(session, new UserGroupDto().setGroupId(group1.getId()).setUserId(users.get(0).getId()));
+    dbClient.userGroupDao().insert(session, new UserGroupDto().setGroupId(group2.getId()).setUserId(users.get(0).getId()));
+    session.commit();
+
+    tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
+  }
+
+  private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
+    List<UserDto> userDtos = Lists.newArrayList();
     long createdAt = System.currentTimeMillis();
     UserDoc[] users = new UserDoc[numberOfUsers];
     for (int index = 0; index < numberOfUsers; index++) {
+      String email = String.format("user-%d@mail.com", index);
+      String login = String.format("user-%d", index);
+      String name = String.format("User %d", index);
+      List<String> scmAccounts = Arrays.asList(String.format("user-%d", index));
+
+      userDtos.add(dbClient.userDao().insert(session, new UserDto()
+        .setActive(true)
+        .setCreatedAt(createdAt)
+        .setEmail(email)
+        .setLogin(login)
+        .setName(name)
+        .setScmAccounts(scmAccounts)
+        .setUpdatedAt(createdAt)));
+
       users[index] = new UserDoc()
         .setActive(true)
         .setCreatedAt(createdAt)
-        .setEmail(String.format("user-%d@mail.com", index))
-        .setLogin(String.format("user-%d", index))
-        .setName(String.format("User %d", index))
-        .setScmAccounts(Arrays.asList(String.format("user-%d", index)))
+        .setEmail(email)
+        .setLogin(login)
+        .setName(name)
+        .setScmAccounts(scmAccounts)
         .setUpdatedAt(createdAt);
     }
+    session.commit();
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, users);
+    return userDtos;
   }
 }

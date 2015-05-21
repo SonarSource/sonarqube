@@ -19,18 +19,16 @@
  */
 package org.sonar.core.user;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+public class UserGroupCount {
 
-public interface GroupMembershipMapper {
+  private String login;
+  private int groupCount;
 
-  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
+  public String login() {
+    return login;
+  }
 
-  List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
-
-  int countGroups(Map<String, Object> params);
-
-  List<UserGroupCount> countGroupsByLogins(@Param("logins") List<String> logins);
+  public int groupCount() {
+    return groupCount;
+  }
 }

@@ -22,13 +22,17 @@ package org.sonar.core.user;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import java.util.List;
-import java.util.Map;
+import org.sonar.core.util.NonNullInputFunction;
 
 public class GroupMembershipDao implements DaoComponent {
 
@@ -56,6 +60,22 @@ public class GroupMembershipDao implements DaoComponent {
   public int countGroups(SqlSession session, GroupMembershipQuery query, Long userId) {
     Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
     return mapper(session).countGroups(params);
+  }
+
+  public Map<String, Integer> countGroupsByLogins(final DbSession session, Collection<String> logins) {
+    final Map<String, Integer> result = Maps.newHashMap();
+    DaoUtils.executeLargeInputs(logins, new NonNullInputFunction<List<String>, List<UserGroupCount>>() {
+      @Override
+      protected List<UserGroupCount> doApply(List<String> input) {
+        List<UserGroupCount> groupCounts = mapper(session).countGroupsByLogins(input);
+        for (UserGroupCount count : groupCounts) {
+          result.put(count.login(), count.groupCount());
+        }
+        return groupCounts;
+      }
+    });
+
+    return result;
   }
 
   @VisibleForTesting

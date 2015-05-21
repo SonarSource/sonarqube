@@ -32,4 +32,17 @@
     <include refid="commonClauses" />
   </select>
 
+  <select id="countGroupsByLogins" parameterType="string" resultType="org.sonar.core.user.UserGroupCount">
+    SELECT u.login as login, count(gu.user_id) as groupCount
+    FROM users u
+    LEFT JOIN groups_users gu ON gu.user_id=u.id
+    <where>
+      u.login in
+      <foreach collection="logins" open="(" close=")" item="login" separator=",">
+        #{login}
+      </foreach>
+    </where>
+    GROUP BY u.login
+  </select>
+
 </mapper>

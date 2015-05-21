@@ -20,6 +20,8 @@
 
 package org.sonar.core.user;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,9 +30,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 
 @Category(DbTests.class)
 public class GroupMembershipDaoTest {
@@ -169,4 +170,25 @@ public class GroupMembershipDaoTest {
       session.close();
     }
   }
+
+  @Test
+  public void count_groups_by_login() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      assertThat(dao.countGroupsByLogins(session, Arrays.<String>asList())).isEmpty();
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred")))
+        .containsExactly(entry("two-hundred", 3));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one")))
+        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one", "two-hundred-two")))
+        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1), entry("two-hundred-two", 0));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred-two")))
+        .containsOnly(entry("two-hundred-two", 0));
+    } finally {
+      session.close();
+    }
+  }
+
 }
