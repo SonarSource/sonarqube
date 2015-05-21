@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.ws;
 
-import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +31,8 @@ import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -75,7 +76,7 @@ public class SubmitReportActionTest {
     when(queue.add(any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
 
     WsTester.TestRequest request = wsTester
-      .newGetRequest(ComputationWs.ENDPOINT, "submit_report")
+      .newPostRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportAction.PARAM_PROJECT_KEY, "P1")
       .setParam(SubmitReportAction.PARAM_REPORT_DATA, null);
     WsTester.Result response = request.execute();
@@ -90,7 +91,7 @@ public class SubmitReportActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.DASHBOARD_SHARING);
 
     WsTester.TestRequest request = wsTester
-      .newGetRequest(ComputationWs.ENDPOINT, "submit_report")
+      .newPostRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportAction.PARAM_PROJECT_KEY, "P1")
       .setParam(SubmitReportAction.PARAM_REPORT_DATA, null);
     request.execute();

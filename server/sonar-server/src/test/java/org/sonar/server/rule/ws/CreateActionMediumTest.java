@@ -79,7 +79,7 @@ public class CreateActionMediumTest {
     ruleDao.addRuleParam(session, templateRule, param);
     session.commit();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
       .setParam("custom_key", "MY_CUSTOM")
       .setParam("template_key", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
@@ -92,7 +92,7 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_manual_rule() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description")
@@ -102,7 +102,7 @@ public class CreateActionMediumTest {
 
   @Test
   public void create_manual_rule_without_severity() throws Exception {
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description");
@@ -111,7 +111,7 @@ public class CreateActionMediumTest {
 
   @Test
   public void fail_if_custom_key_and_manual_key_parameters_are_not_set() {
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
       .setParam("key", "MY_MANUAL")
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description")
@@ -138,7 +138,7 @@ public class CreateActionMediumTest {
     session.commit();
     session.clearCache();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
       .setParam("manual_key", key)
       .setParam("name", "My manual rule")
       .setParam("markdown_description", "Description")

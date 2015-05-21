@@ -18,37 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule.ws;
+package org.sonar.server.ws;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.rule.RuleService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.exceptions.ServerException;
 
-import static org.mockito.Mockito.verify;
+import javax.servlet.http.HttpServletResponse;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DeleteActionTest {
-
-  WsTester tester;
-
-  @Mock
-  RuleService ruleService;
-
-  @Before
-  public void setUp() {
-    tester = new WsTester(new RulesWs(new DeleteAction(ruleService)));
+public class RequestVerifier {
+  private RequestVerifier() {
+    // static methods only
   }
 
-  @Test
-  public void delete_custom_rule() throws Exception {
-    WsTester.TestRequest request = tester.newPostRequest("api/rules", "delete").setParam("key", "squid:XPath_1402065390816");
-    request.execute();
-
-    verify(ruleService).delete(RuleKey.of("squid", "XPath_1402065390816"));
+  public static void verifyRequest(WebService.Action action, Request request) {
+    // verify the HTTP verb
+    if (action.isPost() && !"POST".equals(request.method())) {
+      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
+    }
   }
 }

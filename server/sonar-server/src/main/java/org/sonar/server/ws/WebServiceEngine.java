@@ -20,9 +20,8 @@
 package org.sonar.server.ws;
 
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.Loggers;
@@ -34,11 +33,11 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import javax.servlet.http.HttpServletResponse;
-
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
 /**
  * @since 4.2
@@ -108,13 +107,6 @@ public class WebServiceEngine implements Startable {
       throw new BadRequestException(String.format("Unknown action: %s/%s", controllerPath, actionKey));
     }
     return action;
-  }
-
-  private void verifyRequest(WebService.Action action, Request request) {
-    // verify the HTTP verb
-    if (action.isPost() && !"POST".equals(request.method())) {
-      throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
-    }
   }
 
   private void sendErrors(ServletResponse response, int status, Errors errors) {

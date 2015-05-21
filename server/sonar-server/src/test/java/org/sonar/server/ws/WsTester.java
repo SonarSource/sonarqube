@@ -42,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.ws.RequestVerifier.verifyRequest;
 
 /**
  * @since 4.2
@@ -93,6 +94,7 @@ public class WsTester {
 
     public Result execute() throws Exception {
       TestResponse response = new TestResponse();
+      verifyRequest(action(), this);
       action().handler().handle(this, response);
       return new Result(response);
     }
