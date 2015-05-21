@@ -26,7 +26,7 @@ define([
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
-    },
+    }
   });
 
 });
