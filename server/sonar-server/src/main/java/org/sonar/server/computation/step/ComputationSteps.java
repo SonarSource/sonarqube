@@ -60,7 +60,6 @@ public class ComputationSteps {
       IndexIssuesStep.class,
       IndexSourceLinesStep.class,
       IndexTestsStep.class,
-      IndexViewsStep.class,
 
       // notifications are sent at the end, so that webapp displays up-to-date information
       SendIssueNotificationsStep.class);
