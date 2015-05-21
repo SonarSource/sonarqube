@@ -76,15 +76,6 @@
       <artifactId>sonar-core</artifactId>
     </dependency>
     <dependency>
-      <!--
-      This dependency of sonar-core must be repeated, even if it's not directly
-      used by sonar-server. For an unknown reason it conflicts with sonar-testing-harness
-      and is removed from distribution.
-      -->
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch-protocol</artifactId>
     </dependency>
