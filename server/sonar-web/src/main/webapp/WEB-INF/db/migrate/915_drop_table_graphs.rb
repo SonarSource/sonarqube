@@ -19,7 +19,8 @@
 #
 
 #
-# SonarQube 5.1
+# SonarQube 5.2
+# SONAR-6418
 #
 class DropTableGraphs < ActiveRecord::Migration
 
