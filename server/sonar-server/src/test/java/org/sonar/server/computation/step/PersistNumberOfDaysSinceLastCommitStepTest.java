@@ -35,6 +35,7 @@ import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -61,16 +62,19 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   SourceLineIndex sourceLineIndex;
   MetricCache metricCache;
 
+  DbComponentsRefCache dbComponentsRefCache;
+
   @Before
   public void setUp() throws Exception {
+    db.truncateTables();
     dbClient = new DbClient(db.database(), db.myBatis(), new MeasureDao());
     sourceLineIndex = mock(SourceLineIndex.class);
     metricCache = mock(MetricCache.class);
     when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
+    dbComponentsRefCache = new DbComponentsRefCache();
     dir = temp.newFolder();
-    db.truncateTables();
 
-    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache);
+    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, dbComponentsRefCache);
   }
 
   @Override
@@ -121,6 +125,9 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   private BatchReportWriter initReportWithProjectAndFile() {
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "project-key", "project-uuid"));
+    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "project-key:file", "file-uuid"));
+
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -131,7 +138,6 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey("project-key")
-      .setUuid("project-uuid")
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());

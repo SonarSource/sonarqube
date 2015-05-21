@@ -48,12 +48,14 @@ public class ComputationStepsTest {
       mock(PersistNumberOfDaysSinceLastCommitStep.class),
       mock(PersistFileSourcesStep.class),
       mock(PersistTestsStep.class),
-      mock(IndexTestsStep.class)
-      );
+      mock(IndexTestsStep.class),
+      mock(FeedComponentsCacheStep.class),
+      mock(PersistComponentsStep.class)
+    );
 
-    assertThat(registry.orderedSteps()).hasSize(17);
-    assertThat(registry.orderedSteps().get(0)).isInstanceOf(ParseReportStep.class);
-    assertThat(registry.orderedSteps().get(16)).isInstanceOf(SendIssueNotificationsStep.class);
+    assertThat(registry.orderedSteps()).hasSize(19);
+    assertThat(registry.orderedSteps().get(0)).isInstanceOf(FeedComponentsCacheStep.class);
+    assertThat(registry.orderedSteps().get(18)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test

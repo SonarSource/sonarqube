@@ -61,11 +61,12 @@ public class IssueComputation {
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
-  public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef) {
+  public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef,
+                                     String projectKey, String projectUuid) {
     linesCache.init(componentUuid, componentReportRef, context.getReportReader());
     computeDefaultAssignee(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
     for (BatchReport.Issue reportIssue : issues) {
-      DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue);
+      DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue, projectKey, projectUuid);
       if (issue.isNew()) {
         guessAuthor(issue);
         autoAssign(issue, defaultAssignee);
@@ -76,7 +77,7 @@ public class IssueComputation {
     linesCache.clear();
   }
 
-  private DefaultIssue toDefaultIssue(ComputationContext context, String componentUuid, BatchReport.Issue issue) {
+  private DefaultIssue toDefaultIssue(ComputationContext context, String componentUuid, BatchReport.Issue issue, String projectKey, String projectUuid) {
     DefaultIssue target = new DefaultIssue();
     target.setKey(issue.getUuid());
     target.setComponentUuid(componentUuid);
@@ -85,8 +86,8 @@ public class IssueComputation {
     target.setManualSeverity(issue.getManualSeverity());
     target.setMessage(issue.hasMsg() ? issue.getMsg() : null);
     target.setLine(issue.hasLine() ? issue.getLine() : null);
-    target.setProjectUuid(context.getProject().uuid());
-    target.setProjectKey(context.getProject().key());
+    target.setProjectUuid(projectUuid);
+    target.setProjectKey(projectKey);
     target.setEffortToFix(issue.hasEffortToFix() ? issue.getEffortToFix() : null);
     target.setDebt(issue.hasDebtInMinutes() ? Duration.create(issue.getDebtInMinutes()) : null);
     if (issue.hasDiffFields()) {

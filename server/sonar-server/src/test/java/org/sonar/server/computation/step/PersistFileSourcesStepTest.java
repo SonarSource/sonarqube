@@ -41,6 +41,7 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
@@ -78,6 +79,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   System2 system2;
 
+  DbComponentsRefCache dbComponentsRefCache;
+
   PersistFileSourcesStep sut;
 
   long now = 123456789L;
@@ -92,7 +95,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
-    sut = new PersistFileSourcesStep(dbClient, system2);
+    dbComponentsRefCache = new DbComponentsRefCache();
+    sut = new PersistFileSourcesStep(dbClient, system2, dbComponentsRefCache);
   }
 
   @Override
@@ -131,6 +135,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void persist_last_line() throws Exception {
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
+    dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", FILE_UUID));
+
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     FileUtils.writeLines(writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF), Lists.newArrayList("line1", "line2"));
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -140,13 +147,11 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid(PROJECT_UUID)
       .addChildRef(FILE_REF)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(FILE_UUID)
       // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
@@ -440,6 +445,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   private BatchReportWriter initBasicReport(int numberOfLines) throws IOException {
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
+    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "MODULE_KEY", "MODULE"));
+    dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(3L, "MODULE_KEY:src/Foo.java", FILE_UUID));
+
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -449,19 +458,16 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid(PROJECT_UUID)
       .addChildRef(2)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
-      .setUuid("MODULE")
       .addChildRef(FILE_REF)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(FILE_UUID)
       .setPath("src/Foo.java")
       .setLines(numberOfLines)
       .build());

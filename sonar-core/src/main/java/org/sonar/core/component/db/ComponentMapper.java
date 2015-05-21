@@ -96,7 +96,7 @@ public interface ComponentMapper {
   /**
    * Return all components of a project
    */
-  List<ComponentDto> selectComponentsFromProjectUuid(@Param("projectUuid") String projectUuid);
+  List<ComponentDto> selectComponentsFromProjectKey(@Param("projectKey") String projectKey);
 
   /**
    * Return technical projects from a view or a sub-view

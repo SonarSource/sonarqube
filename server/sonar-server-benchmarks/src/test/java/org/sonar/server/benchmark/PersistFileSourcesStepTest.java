@@ -35,6 +35,8 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -53,6 +55,8 @@ public class PersistFileSourcesStepTest {
   public static final int NUMBER_OF_FILES = 1000;
   public static final int NUMBER_OF_LINES = 1000;
   public static final String PROJECT_UUID = Uuids.create();
+
+  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -75,7 +79,7 @@ public class PersistFileSourcesStepTest {
 
     long start = System.currentTimeMillis();
 
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache);
     step.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
 
     long end = System.currentTimeMillis();
@@ -97,8 +101,9 @@ public class PersistFileSourcesStepTest {
       .build());
     BatchReport.Component.Builder project = BatchReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setUuid(PROJECT_UUID);
+      .setType(Constants.ComponentType.PROJECT);
+
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT", PROJECT_UUID));
 
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
       generateFileReport(writer, fileRef);
@@ -118,9 +123,10 @@ public class PersistFileSourcesStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(fileRef)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(Uuids.create())
       .setLines(NUMBER_OF_LINES)
       .build());
+
+    dbComponentsRefCache.addComponent(fileRef, new DbComponent((long) fileRef, "PROJECT:" + fileRef, Uuids.create()));
 
     FileUtils.writeLines(writer.getSourceFile(fileRef), lineData.lines);
     writer.writeComponentCoverage(fileRef, lineData.coverages);

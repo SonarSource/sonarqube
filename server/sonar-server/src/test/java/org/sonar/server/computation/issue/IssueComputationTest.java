@@ -43,7 +43,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueComputationTest {
 
@@ -214,6 +216,6 @@ public class IssueComputationTest {
   }
 
   private void process() {
-    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1);
+    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1, "PROJECT_KEY", "PROJECT_UUID");
   }
 }

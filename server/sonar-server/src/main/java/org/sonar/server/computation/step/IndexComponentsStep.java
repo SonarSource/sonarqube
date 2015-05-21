@@ -22,20 +22,23 @@ package org.sonar.server.computation.step;
 
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 
 /**
  * Components are currently indexed in db table RESOURCE_INDEX, not in Elasticsearch
  */
 public class IndexComponentsStep implements ComputationStep {
   private final ResourceIndexerDao resourceIndexerDao;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
-  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao) {
+  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbComponentsRefCache dbComponentsRefCache) {
     this.resourceIndexerDao = resourceIndexerDao;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    resourceIndexerDao.indexProject(context.getProject().getId());
+    resourceIndexerDao.indexProject(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getId());
   }
 
   @Override

@@ -36,6 +36,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
@@ -60,6 +62,8 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   System2 system2;
 
+  DbComponentsRefCache dbComponentsRefCache;
+
   PersistEventsStep step;
 
   @Before
@@ -71,7 +75,8 @@ public class PersistEventsStepTest extends BaseStepTest {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(1225630680000L);
 
-    step = new PersistEventsStep(dbClient, system2);
+    dbComponentsRefCache = new DbComponentsRefCache();
+    step = new PersistEventsStep(dbClient, system2, dbComponentsRefCache);
   }
 
   @Override
@@ -88,6 +93,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -99,7 +106,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("ABCD")
       .build());
 
     step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
@@ -111,6 +117,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -122,7 +130,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("ABCD")
       .setSnapshotId(1000L)
       .addEvent(BatchReport.Event.newBuilder()
         .setName("Red (was Orange)")
@@ -147,6 +154,9 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "BCDE"));
+
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -158,7 +168,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("ABCD")
       .setSnapshotId(1000L)
       .addEvent(BatchReport.Event.newBuilder()
         .setName("Red (was Orange)")
@@ -171,7 +180,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
-      .setUuid("BCDE")
       .setSnapshotId(1001L)
       .addEvent(BatchReport.Event.newBuilder()
           .setName("Red (was Orange)")
@@ -189,6 +197,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -200,7 +210,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("ABCD")
       .setSnapshotId(1000L)
       .setVersion("1.0")
       .build());
@@ -214,6 +223,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() throws Exception {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -225,7 +236,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid("ABCD")
       .setSnapshotId(1001L)
       .setVersion("1.5-SNAPSHOT")
       .build());

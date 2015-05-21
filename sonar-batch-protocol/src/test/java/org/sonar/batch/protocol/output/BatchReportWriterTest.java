@@ -78,7 +78,6 @@ public class BatchReportWriterTest {
       .setRef(1)
       .setLanguage("java")
       .setPath("src/Foo.java")
-      .setUuid("UUID_A")
       .setType(Constants.ComponentType.FILE)
       .setIsTest(false)
       .addChildRef(5)
@@ -93,7 +92,6 @@ public class BatchReportWriterTest {
     assertThat(read.getChildRefList()).containsOnly(5, 42);
     assertThat(read.hasName()).isFalse();
     assertThat(read.getIsTest()).isFalse();
-    assertThat(read.getUuid()).isEqualTo("UUID_A");
   }
 
   @Test

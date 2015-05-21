@@ -20,24 +20,47 @@
 
 package org.sonar.server.computation.step;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 
-import static org.mockito.Mockito.*;
+import java.io.File;
+import java.io.IOException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class IndexComponentsStepTest extends BaseStepTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
-  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao);
+  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
+  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbComponentsRefCache);
 
   @Test
-  public void call_indexProject_of_dao() {
+  public void call_indexProject_of_dao() throws IOException {
+    dbComponentsRefCache.addComponent(1, new DbComponent(123L, "PROJECT_KEY", "PROJECT_UUID"));
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(mock(BatchReportReader.class), project);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), project);
 
     sut.execute(context);
 

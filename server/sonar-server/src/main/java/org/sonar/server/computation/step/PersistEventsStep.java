@@ -28,6 +28,7 @@ import org.sonar.core.event.EventDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 
 import java.util.List;
@@ -36,10 +37,12 @@ public class PersistEventsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system2;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
-  public PersistEventsStep(DbClient dbClient, System2 system2) {
+  public PersistEventsStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache) {
     this.dbClient = dbClient;
     this.system2 = system2;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
@@ -90,7 +93,7 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   private void deletePreviousEventsHavingSameVersion(DbSession session, BatchReport.Component component) {
-    for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
+    for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, dbComponentsRefCache.getByRef(component.getRef()).getUuid())) {
       if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(component.getVersion())) {
         dbClient.eventDao().delete(session, dto.getId());
       }
@@ -99,7 +102,7 @@ public class PersistEventsStep implements ComputationStep {
 
   private EventDto newBaseEvent(BatchReport.Component component, Long analysisDate) {
     return new EventDto()
-      .setComponentUuid(component.getUuid())
+      .setComponentUuid(dbComponentsRefCache.getByRef(component.getRef()).getUuid())
       .setSnapshotId(component.getSnapshotId())
       .setCreatedAt(system2.now())
       .setDate(analysisDate);

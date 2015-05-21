@@ -72,21 +72,19 @@ message Component {
   optional bool is_test = 5;
   optional string language = 6;
   repeated int32 child_ref = 7 [packed = true];
-  repeated ComponentLink link = 10;
+  repeated ComponentLink link = 8;
   // Only available on PROJECT and MODULE types
-  optional string version = 12;
+  optional string version = 9;
   // Only available on PROJECT and MODULE types
-  optional string key = 14;
+  optional string key = 10;
   // Only available on FILE type
-  optional int32 lines = 15;
+  optional int32 lines = 11;
   // Only available on PROJECT and MODULE types
-  optional string description = 16;
+  optional string description = 12;
 
   // temporary fields during development of computation stack
-  optional int64 id = 13;
-  optional int64 snapshot_id = 8;
-  optional string uuid = 9;
-  repeated Event event = 11;
+  optional int64 snapshot_id = 13;
+  repeated Event event = 14;
 }
 
 message Measure {

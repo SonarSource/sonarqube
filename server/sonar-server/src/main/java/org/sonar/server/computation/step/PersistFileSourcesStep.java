@@ -36,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.source.ComputeFileSourceData;
 import org.sonar.server.computation.source.CoverageLineReader;
 import org.sonar.server.computation.source.DuplicationLineReader;
@@ -59,10 +60,12 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system2;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
-  public PersistFileSourcesStep(DbClient dbClient, System2 system2) {
+  public PersistFileSourcesStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache) {
     this.dbClient = dbClient;
     this.system2 = system2;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
@@ -72,7 +75,8 @@ public class PersistFileSourcesStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       final Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
-      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", context.getProject().uuid(), "dataType", Type.SOURCE),
+      String projectUuid = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid();
+      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
         new ResultHandler() {
           @Override
           public void handleResult(ResultContext context) {
@@ -81,7 +85,7 @@ public class PersistFileSourcesStep implements ComputationStep {
           }
         });
 
-      recursivelyProcessComponent(new FileSourcesContext(session, context, previousFileSourcesByUuid), rootComponentRef);
+      recursivelyProcessComponent(new FileSourcesContext(session, context, previousFileSourcesByUuid, projectUuid), rootComponentRef);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -125,12 +129,13 @@ public class PersistFileSourcesStep implements ComputationStep {
     String dataHash = DigestUtils.md5Hex(data);
     String srcHash = fileSourceData.getSrcHash();
     String lineHashes = fileSourceData.getLineHashes();
-    FileSourceDto previousDto = fileSourcesContext.previousFileSourcesByUuid.get(component.getUuid());
+    String componentUuid = dbComponentsRefCache.getByRef(component.getRef()).getUuid();
+    FileSourceDto previousDto = fileSourcesContext.previousFileSourcesByUuid.get(componentUuid);
 
     if (previousDto == null) {
       FileSourceDto dto = new FileSourceDto()
-        .setProjectUuid(fileSourcesContext.context.getProject().uuid())
-        .setFileUuid(component.getUuid())
+        .setProjectUuid(fileSourcesContext.projectUuid)
+        .setFileUuid(componentUuid)
         .setDataType(Type.SOURCE)
         .setBinaryData(data)
         .setSrcHash(srcHash)
@@ -164,11 +169,13 @@ public class PersistFileSourcesStep implements ComputationStep {
     DbSession session;
     ComputationContext context;
     Map<String, FileSourceDto> previousFileSourcesByUuid;
+    String projectUuid;
 
-    public FileSourcesContext(DbSession session, ComputationContext context, Map<String, FileSourceDto> previousFileSourcesByUuid) {
+    public FileSourcesContext(DbSession session, ComputationContext context, Map<String, FileSourceDto> previousFileSourcesByUuid, String projectUuid) {
       this.context = context;
       this.previousFileSourcesByUuid = previousFileSourcesByUuid;
       this.session = session;
+      this.projectUuid = projectUuid;
     }
   }
 

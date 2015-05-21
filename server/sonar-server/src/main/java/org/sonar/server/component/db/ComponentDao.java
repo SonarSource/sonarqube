@@ -23,9 +23,9 @@ package org.sonar.server.component.db;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.UuidWithProjectUuidDto;
@@ -136,8 +136,8 @@ public class ComponentDao implements DaoComponent {
     });
   }
 
-  public List<ComponentDto> selectComponentsFromProjectUuid(DbSession session, String projectKey) {
-    return mapper(session).selectComponentsFromProjectUuid(projectKey);
+  public List<ComponentDto> selectComponentsFromProjectKey(DbSession session, String projectKey) {
+    return mapper(session).selectComponentsFromProjectKey(projectKey);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {

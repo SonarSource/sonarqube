@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.issue.IssueComputation;
 
 import java.util.List;
@@ -30,9 +31,11 @@ import java.util.List;
 public class ParseReportStep implements ComputationStep {
 
   private final IssueComputation issueComputation;
+  private final ComputeComponentsRefCache computeComponentsRefCache;
 
-  public ParseReportStep(IssueComputation issueComputation) {
+  public ParseReportStep(IssueComputation issueComputation, ComputeComponentsRefCache computeComponentsRefCache) {
     this.issueComputation = issueComputation;
+    this.computeComponentsRefCache = computeComponentsRefCache;
   }
 
   @Override
@@ -47,7 +50,9 @@ public class ParseReportStep implements ComputationStep {
     BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
-    issueComputation.processComponentIssues(context, issues, component.getUuid(), componentRef);
+    ComputeComponentsRefCache.ComputeComponent computeProject = computeComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef());
+    issueComputation.processComponentIssues(context, issues, computeComponentsRefCache.getByRef(componentRef).getUuid(), componentRef, computeProject.getKey(),
+      computeProject.getUuid());
     for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(context, childRef);
     }
@@ -55,9 +60,10 @@ public class ParseReportStep implements ComputationStep {
 
   private void processDeletedComponents(ComputationContext context) {
     int deletedComponentsCount = context.getReportMetadata().getDeletedComponentsCount();
+    ComputeComponentsRefCache.ComputeComponent computeProject = computeComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef());
     for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
       BatchReport.Issues issues = context.getReportReader().readDeletedComponentIssues(componentRef);
-      issueComputation.processComponentIssues(context, issues.getIssueList(), issues.getComponentUuid(), null);
+      issueComputation.processComponentIssues(context, issues.getIssueList(), issues.getComponentUuid(), null, computeProject.getKey(), computeProject.getUuid());
     }
   }
 

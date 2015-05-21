@@ -213,11 +213,11 @@
     </where>
   </select>
 
-  <select id="selectComponentsFromProjectUuid" parameterType="map" resultType="Component">
+  <select id="selectComponentsFromProjectKey" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
+    INNER JOIN projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey}
     <where>
-      AND p.project_uuid=#{projectUuid}
       AND p.enabled=${_true}
     </where>
   </select>
@@ -285,7 +285,7 @@
             #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
   </insert>
 
-  <insert id="update" parameterType="Component">
+  <insert id="update" parameterType="Component" useGeneratedKeys="false">
     UPDATE projects SET
       kee=#{kee,jdbcType=VARCHAR},
       deprecated_kee=#{deprecatedKey,jdbcType=VARCHAR},

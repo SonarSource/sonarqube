@@ -28,6 +28,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -48,14 +49,17 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   private final SourceLineIndex sourceLineIndex;
   private final MetricCache metricCache;
   private final System2 system;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
   private long lastCommitTimestamp = 0L;
 
-  public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache) {
+  public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache,
+    DbComponentsRefCache dbComponentsRefCache) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
     this.metricCache = metricCache;
     this.system = system;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
@@ -69,7 +73,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     recursivelyProcessComponent(context, rootComponentRef);
 
     if (!commitFound()) {
-      Long lastCommitFromIndex = lastCommitFromIndex(context.getProject().uuid());
+      Long lastCommitFromIndex = lastCommitFromIndex(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid());
       lastCommitTimestamp = firstNonNull(lastCommitFromIndex, lastCommitTimestamp);
     }
 

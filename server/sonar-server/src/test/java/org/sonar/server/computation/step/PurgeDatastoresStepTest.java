@@ -23,36 +23,56 @@ package org.sonar.server.computation.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 
-import static org.mockito.Mockito.*;
+import java.io.File;
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class PurgeDatastoresStepTest extends BaseStepTest {
 
-  ProjectCleaner projectCleaner = mock(ProjectCleaner.class);;
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner);
+  ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
+  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void call_purge_method_of_the_purge_task() {
+  public void call_purge_method_of_the_purge_task() throws IOException {
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(123L, "PROJECT_KEY", "UUID-1234"));
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
     ComponentDto project = mock(ComponentDto.class);
-    when(project.getId()).thenReturn(123L);
-    when(project.uuid()).thenReturn("UUID-1234");
-    ComputationContext context = new ComputationContext(mock(BatchReportReader.class), project);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), project);
 
     sut.execute(context);
 
-    verify(projectCleaner).purge(any(DbSession.class), any(IdUuidPair.class), any(Settings.class));
+    ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
+    verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Settings.class));
+    assertThat(argumentCaptor.getValue().getId()).isEqualTo(123L);
+    assertThat(argumentCaptor.getValue().getUuid()).isEqualTo("UUID-1234");
   }
 
   @Override

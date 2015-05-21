@@ -22,12 +22,17 @@ package org.sonar.server.computation.step;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -36,13 +41,16 @@ import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class IndexSourceLinesStepTest extends BaseStepTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
@@ -52,26 +60,37 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
 
   DbClient dbClient;
 
+  DbComponentsRefCache dbComponentsRefCache;
+
   @Before
   public void setUp() {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
+    dbComponentsRefCache = new DbComponentsRefCache();
   }
 
   @Override
   protected ComputationStep step() {
     SourceLineIndexer sourceLineIndexer = new SourceLineIndexer(dbClient, esTester.client());
     sourceLineIndexer.setEnabled(true);
-    return new IndexSourceLinesStep(sourceLineIndexer);
+    return new IndexSourceLinesStep(sourceLineIndexer, dbComponentsRefCache);
   }
 
   @Test
   public void index_source() throws Exception {
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     Connection connection = dbTester.openConnection();
     FileSourceTesting.updateDataColumn(connection, "FILE1_UUID", FileSourceTesting.newRandomData(1).build());
     connection.close();
 
-    step().execute(new ComputationContext(mock(BatchReportReader.class), ComponentTesting.newProjectDto("ABCD")));
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    step().execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto("ABCD")));
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

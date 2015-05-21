@@ -39,6 +39,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
@@ -59,10 +60,12 @@ public class PersistTestsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
-  public PersistTestsStep(DbClient dbClient, System2 system) {
+  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache) {
     this.dbClient = dbClient;
     this.system = system;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
@@ -70,7 +73,7 @@ public class PersistTestsStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       int rootComponentRef = computationContext.getReportMetadata().getRootComponentRef();
-      TestContext context = new TestContext(computationContext, session);
+      TestContext context = new TestContext(computationContext, session, dbComponentsRefCache);
 
       recursivelyProcessComponent(context, rootComponentRef);
       session.commit();
@@ -106,7 +109,8 @@ public class PersistTestsStep implements ComputationStep {
       return;
     }
 
-    FileSourceDto existingDto = context.existingFileSourcesByUuid.get(component.getUuid());
+    String componentUuid = context.getUuid(component.getRef());
+    FileSourceDto existingDto = context.existingFileSourcesByUuid.get(componentUuid);
     long now = system.now();
     if (existingDto != null) {
       // update
@@ -118,8 +122,8 @@ public class PersistTestsStep implements ComputationStep {
       // insert
       FileSourceDto newDto = new FileSourceDto()
         .setTestData(tests)
-        .setFileUuid(component.getUuid())
-        .setProjectUuid(context.context.getProject().uuid())
+        .setFileUuid(componentUuid)
+        .setProjectUuid(context.getUuid(context.context.getReportMetadata().getRootComponentRef()))
         .setDataType(Type.TEST)
         .setCreatedAt(now)
         .setUpdatedAt(now);
@@ -236,18 +240,18 @@ public class PersistTestsStep implements ComputationStep {
     final DbSession session;
     final ComputationContext context;
     final BatchReportReader reader;
-    final ComponentUuidsCache componentRefToUuidCache;
+    final DbComponentsRefCache dbComponentsRefCache;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     boolean hasUnprocessedCoverageDetails = false;
 
-    TestContext(ComputationContext context, DbSession session) {
+    TestContext(ComputationContext context, DbSession session, DbComponentsRefCache dbComponentsRefCache) {
       this.session = session;
       this.context = context;
+      this.dbComponentsRefCache = dbComponentsRefCache;
       this.reader = context.getReportReader();
-      this.componentRefToUuidCache = new ComponentUuidsCache(context.getReportReader());
       this.existingFileSourcesByUuid = new HashMap<>();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
-        ImmutableMap.of("projectUuid", context.getProject().uuid(), "dataType", Type.TEST),
+        ImmutableMap.of("projectUuid", dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid(), "dataType", Type.TEST),
         new ResultHandler() {
           @Override
           public void handleResult(ResultContext context) {
@@ -258,7 +262,7 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     public String getUuid(int fileRef) {
-      return componentRefToUuidCache.getUuidFromRef(fileRef);
+      return dbComponentsRefCache.getByRef(fileRef).getUuid();
     }
   }
 }

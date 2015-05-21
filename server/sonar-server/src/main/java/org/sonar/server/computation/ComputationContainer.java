@@ -21,6 +21,8 @@ package org.sonar.server.computation;
 
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.component.ComputeComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.RuleCache;
@@ -46,6 +48,10 @@ public class ComputationContainer {
     return Arrays.asList(
       ComputationService.class,
       ComputationSteps.class,
+
+      // component caches
+      ComputeComponentsRefCache.class,
+      DbComponentsRefCache.class,
 
       // issues
       ScmAccountCacheLoader.class,

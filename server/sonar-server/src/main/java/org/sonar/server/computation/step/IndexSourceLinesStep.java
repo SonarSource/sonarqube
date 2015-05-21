@@ -20,19 +20,22 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.source.index.SourceLineIndexer;
 
 public class IndexSourceLinesStep implements ComputationStep {
 
   private final SourceLineIndexer indexer;
+  private final DbComponentsRefCache dbComponentsRefCache;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer) {
+  public IndexSourceLinesStep(SourceLineIndexer indexer, DbComponentsRefCache dbComponentsRefCache) {
     this.indexer = indexer;
+    this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    indexer.index(context.getProject().uuid());
+    indexer.index(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid());
   }
 
   @Override

@@ -37,10 +37,13 @@ public class ComputationSteps {
    */
   public static List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
+      FeedComponentsCacheStep.class,
+
       // Read report
       ParseReportStep.class,
 
       // Persist data
+      PersistComponentsStep.class,
       PersistNumberOfDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,
       PersistIssuesStep.class,

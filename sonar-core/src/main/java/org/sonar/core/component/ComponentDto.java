@@ -135,12 +135,11 @@ public class ComponentDto implements Component {
   /**
    * Return the path from the project to the last modules
    */
-  @CheckForNull
   public String moduleUuidPath() {
     return moduleUuidPath;
   }
 
-  public ComponentDto setModuleUuidPath(@Nullable String moduleUuidPath) {
+  public ComponentDto setModuleUuidPath(String moduleUuidPath) {
     this.moduleUuidPath = moduleUuidPath;
     return this;
   }

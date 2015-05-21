@@ -39,6 +39,8 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
@@ -66,8 +68,6 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_PATH_1 = "TEST-PATH-1";
   private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
-  PersistTestsStep sut;
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -84,6 +84,10 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   long now = 123456789L;
 
+  DbComponentsRefCache dbComponentsRefCache;
+
+  PersistTestsStep sut;
+
   @Before
   public void setup() throws Exception {
     db.truncateTables();
@@ -93,7 +97,9 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
-    sut = new PersistTestsStep(dbClient, system2);
+
+    dbComponentsRefCache = new DbComponentsRefCache();
+    sut = new PersistTestsStep(dbClient, system2, dbComponentsRefCache);
 
     initBasicReport();
   }
@@ -130,6 +136,8 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), newProjectDto(PROJECT_UUID)));
+
+    assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -295,6 +303,13 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   private BatchReportWriter initBasicReport() {
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
+    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "MODULE"));
+    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "TEST_FILE1_KEY", TEST_FILE_UUID_1));
+    dbComponentsRefCache.addComponent(4, new DbComponent(4L, "TEST_FILE2_KEY", TEST_FILE_UUID_2));
+    dbComponentsRefCache.addComponent(5, new DbComponent(5L, "MAIN_FILE1_KEY", MAIN_FILE_UUID_1));
+    dbComponentsRefCache.addComponent(6, new DbComponent(6L, "MAIN_FILE2_KEY", MAIN_FILE_UUID_2));
+
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -304,38 +319,32 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setUuid(PROJECT_UUID)
       .addChildRef(2)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
-      .setUuid("MODULE")
       .addAllChildRef(Arrays.asList(TEST_FILE_REF_1, TEST_FILE_REF_2, MAIN_FILE_REF_1, MAIN_FILE_REF_2))
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(TEST_FILE_REF_1)
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(TEST_FILE_UUID_1)
       .setPath(TEST_FILE_PATH_1)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(TEST_FILE_REF_2)
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(TEST_FILE_UUID_2)
       .setPath(TEST_FILE_PATH_2)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(MAIN_FILE_REF_1)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(MAIN_FILE_UUID_1)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(MAIN_FILE_REF_2)
       .setType(Constants.ComponentType.FILE)
-      .setUuid(MAIN_FILE_UUID_2)
       .build());
 
     return writer;

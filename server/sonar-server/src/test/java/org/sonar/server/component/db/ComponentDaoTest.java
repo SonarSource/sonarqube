@@ -457,10 +457,10 @@ public class ComponentDaoTest {
   public void select_components_from_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> components = sut.selectComponentsFromProjectUuid(session, "ABCD");
+    List<ComponentDto> components = sut.selectComponentsFromProjectKey(session, "org.struts:struts");
     assertThat(components).hasSize(5);
 
-    assertThat(sut.selectComponentsFromProjectUuid(session, "UNKNOWN")).isEmpty();
+    assertThat(sut.selectComponentsFromProjectKey(session, "UNKNOWN")).isEmpty();
   }
 
   @Test

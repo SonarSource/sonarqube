@@ -62,7 +62,12 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.*;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -198,7 +203,7 @@ public class DbTester extends ExternalResource {
       throw new IllegalStateException("No results for " + sql);
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to execute sql: " + sql);
+      throw new IllegalStateException("Fail to execute sql: " + sql, e);
     }
   }
 
@@ -209,7 +214,7 @@ public class DbTester extends ExternalResource {
       ResultSet rs = stmt.executeQuery()) {
       return getHashMap(rs);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to execute sql: " + selectSql);
+      throw new IllegalStateException("Fail to execute sql: " + selectSql, e);
     }
   }
 
@@ -237,7 +242,12 @@ public class DbTester extends ExternalResource {
           doClobFree(clob);
         } else if (value instanceof BigDecimal) {
           // In Oracle, INTEGER types are mapped as BigDecimal
-          value = ((BigDecimal) value).longValue();
+          BigDecimal bgValue = ((BigDecimal)value);
+          if (bgValue.scale() == 0) {
+            value = bgValue.longValue();
+          } else {
+            value = bgValue.doubleValue();
+          }
         } else if (value instanceof Integer) {
           // To be consistent, all INTEGER types are mapped as Long
           value = ((Integer) value).longValue();
