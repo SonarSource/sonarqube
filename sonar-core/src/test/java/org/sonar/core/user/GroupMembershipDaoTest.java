@@ -20,6 +20,7 @@
 
 package org.sonar.core.user;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -176,8 +177,10 @@ public class GroupMembershipDaoTest {
     DbSession session = dbTester.myBatis().openSession(false);
 
     try {
-      assertThat(dao.countUsersByGroup(session)).containsOnly(
+      assertThat(dao.countUsersByGroups(session, Arrays.asList(100L, 101L, 102L, 103L))).containsOnly(
         entry("sonar-users", 2), entry("sonar-reviewers", 1), entry("sonar-administrators", 1), entry("sonar-nobody", 0));
+      assertThat(dao.countUsersByGroups(session, Arrays.asList(100L, 103L))).containsOnly(
+        entry("sonar-administrators", 1), entry("sonar-nobody", 0));
     } finally {
       session.close();
     }

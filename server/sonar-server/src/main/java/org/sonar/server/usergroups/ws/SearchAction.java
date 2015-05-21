@@ -19,9 +19,13 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -71,7 +75,13 @@ public class SearchAction implements UserGroupsWsAction {
     try {
       int limit = dbClient.groupDao().countByQuery(session, query);
       List<GroupDto> groups = dbClient.groupDao().selectByQuery(session, query, options.getOffset(), pageSize);
-      Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroup(session);
+      Collection<Long> groupIds = Collections2.transform(groups, new Function<GroupDto, Long>() {
+        @Override
+        public Long apply(@Nonnull GroupDto input) {
+          return input.getId();
+        }
+      });
+      Map<String, Integer> userCountByGroup = dbClient.groupMembershipDao().countUsersByGroups(session, groupIds);
 
       JsonWriter json = response.newJsonWriter().beginObject();
       options.writeJson(json, limit);

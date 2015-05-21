@@ -21,6 +21,7 @@ package org.sonar.core.user;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 public interface GroupMembershipMapper {
@@ -31,5 +32,5 @@ public interface GroupMembershipMapper {
 
   int countGroups(Map<String, Object> params);
 
-  List<GroupUserCount> countUsersByGroup();
+  List<GroupUserCount> countUsersByGroup(@Param("groupIds") List<Long> groupIds);
 }

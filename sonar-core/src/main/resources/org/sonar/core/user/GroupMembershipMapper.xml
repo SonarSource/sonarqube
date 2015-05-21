@@ -32,10 +32,16 @@
     <include refid="commonClauses" />
   </select>
 
-  <select id="countUsersByGroup" resultType="org.sonar.core.user.GroupUserCount">
+  <select id="countUsersByGroup" parameterType="long" resultType="org.sonar.core.user.GroupUserCount">
     SELECT g.name as groupName, count(gu.user_id) as userCount
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_id=g.id
+    <where>
+     g.id in
+     <foreach collection="groupIds" open="(" close=")" item="id" separator=",">
+       #{id}
+     </foreach>
+   </where>
     GROUP BY g.name
   </select>
 
