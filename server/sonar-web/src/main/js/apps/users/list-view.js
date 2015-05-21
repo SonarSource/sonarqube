@@ -3,9 +3,8 @@ define([
   './templates'
 ], function (ListItemView) {
 
-  return Marionette.CompositeView.extend({
-    template: Templates['users-list'],
-    itemViewContainer: 'tbody',
+  return Marionette.CollectionView.extend({
+    tagName: 'ul',
     itemView: ListItemView
   });
 

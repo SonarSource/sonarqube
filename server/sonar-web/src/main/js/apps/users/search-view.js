@@ -7,7 +7,13 @@ define([
 
     events: {
       'submit #users-search-form': 'onFormSubmit',
-      'click #users-search-cancel': 'onCancelClick'
+      'search #users-search-query': 'debouncedOnKeyUp',
+      'keyup #users-search-query': 'debouncedOnKeyUp'
+    },
+
+    initialize: function () {
+      this._bufferedValue = null;
+      this.debouncedOnKeyUp = _.debounce(this.onKeyUp, 400);
     },
 
     onRender: function () {
@@ -16,22 +22,27 @@ define([
 
     onFormSubmit: function (e) {
       e.preventDefault();
-      var q = this.$('#users-search-query').val();
-      this.filterList(q);
+      this.debouncedOnKeyUp();
     },
 
-    onCancelClick: function (e) {
-      e.preventDefault();
-      this.cancelSearch();
+    onKeyUp: function () {
+      var q = this.getQuery();
+      if (q === this._bufferedValue) {
+        return;
+      }
+      this._bufferedValue = this.getQuery();
+      if (this.searchRequest != null) {
+        this.searchRequest.abort();
+      }
+      this.searchRequest = this.search(q);
     },
 
-    filterList: function (q) {
-      this.collection.fetch({ data: { q: q } });
+    getQuery: function () {
+      return this.$('#users-search-query').val();
     },
 
-    cancelSearch: function () {
-      this.$('#users-search-query').val('');
-      this.collection.fetch();
+    search: function (q) {
+      return this.collection.fetch({ reset: true, data: { q: q } });
     }
   });
 

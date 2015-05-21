@@ -24,7 +24,7 @@ var express = require('express'),
     url = require('url'),
     JS_RE = /\.js$/,
     THIRD_PARTY_RE = /\/third-party\//,
-    TEMPLATES_RE = /\/templates\//;
+    TEMPLATES_RE = /\/templates.js/;
 
 var app = express();
 

@@ -48,7 +48,7 @@ casper.test.begin(testName('List'), 11, function (test) {
 });
 
 
-casper.test.begin(testName('Filter'), 4, function (test) {
+casper.test.begin(testName('Search'), 4, function (test) {
   casper
       .start(lib.buildUrl('users'), function () {
         lib.setDefaultViewport();
@@ -82,7 +82,10 @@ casper.test.begin(testName('Filter'), 4, function (test) {
         test.assertElementCount('#users-list tbody tr', 1);
         lib.clearRequestMock(this.searchMock);
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
-        casper.click('#users-search-cancel');
+        casper.evaluate(function () {
+          jQuery('#users-search-query').val('');
+        });
+        casper.click('#users-search-submit');
         casper.waitForSelectorTextChange('#users-list-footer');
       })
 

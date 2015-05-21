@@ -1,9 +1,50 @@
-<td>{{login}}</td>
-<td>{{name}}</td>
-<td>{{email}}</td>
-<td>&nbsp;</td>
-<td class="thin text-right nowrap">
-  <a class="js-user-update icon-edit little-spacer-right" title="Update" data-toggle="tooltip" href="#"></a>
-  <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip" href="#"></a>
+<div class="pull-right big-spacer-left nowrap">
+  <a class="js-user-update icon-edit little-spacer-right" title="Update Details" data-toggle="tooltip" href="#"></a>
+  <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
+     href="#"></a>
   <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
-</td>
+</div>
+
+<div class="display-inline-block text-top big-spacer-right">
+  <div class="bg-info" style="width: 36px; height: 36px;"></div>
+</div>
+
+<div class="display-inline-block text-top width-30">
+  <div>
+    <strong class="js-user-name">{{name}}</strong>
+    <span class="js-user-login note little-spacer-left">{{login}}</span>
+  </div>
+  <div class="js-user-email little-spacer-top">{{email}}</div>
+</div>
+
+<div class="display-inline-block text-top big-spacer-left width-25">
+  {{#notEmpty scmAccounts}}
+    <div class="pull-left spacer-right">
+      <strong>SCM</strong>
+    </div>
+    <ul class="overflow-hidden bordered-left">
+      {{#each firstScmAccounts}}
+        <li class="spacer-left little-spacer-bottom">{{this}}</li>
+      {{/each}}
+      {{#gt moreScmAccountsCount 0}}
+        <li class="spacer-left little-spacer-bottom">
+          <a class="js-user-more-scm" href="#">{{moreScmAccountsCount}} more</a>
+        </li>
+      {{/gt}}
+    </ul>
+  {{/notEmpty}}
+</div>
+
+<div class="display-inline-block text-top big-spacer-left width-25">
+  <div class="pull-left spacer-right">
+    <strong>Groups</strong>
+  </div>
+  <ul class="overflow-hidden bordered-left">
+    <li class="spacer-left little-spacer-bottom">sonar-users ?</li>
+    <li class="spacer-left little-spacer-bottom">sonar-administrators ?</li>
+    <li class="spacer-left little-spacer-bottom">
+      <a class="js-user-more-groups" href="#">? more</a>
+      <a class="icon-bullet-list spacer-left" title="Update Groups" data-toggle="tooltip" href="#"></a>
+    </li>
+  </ul>
+</div>

@@ -6,7 +6,8 @@ define([
 ], function (UpdateView, ChangePasswordView, DeactivateView) {
 
   return Marionette.ItemView.extend({
-    tagName: 'tr',
+    tagName: 'li',
+    className: 'panel panel-vertical',
     template: Templates['users-list-item'],
 
     events: {
@@ -55,6 +56,15 @@ define([
 
     deactivateUser: function () {
       new DeactivateView({ model: this.model }).render();
+    },
+
+    serializeData: function () {
+      var scmAccounts = this.model.get('scmAccounts'),
+          scmAccountsLimit = scmAccounts.length > 3 ? 2 : 3;
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
+        moreScmAccountsCount: scmAccounts.length - scmAccountsLimit
+      });
     }
   });
 
