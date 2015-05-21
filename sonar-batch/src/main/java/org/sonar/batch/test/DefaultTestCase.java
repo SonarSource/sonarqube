@@ -82,7 +82,6 @@ public class DefaultTestCase implements MutableTestCase {
   @Override
   public MutableTestCase setStatus(@Nullable Status s) {
     this.status = s;
-    ;
     return this;
   }
 

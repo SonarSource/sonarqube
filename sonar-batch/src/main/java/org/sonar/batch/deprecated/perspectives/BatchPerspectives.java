@@ -23,13 +23,9 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
 
@@ -63,14 +59,6 @@ public class BatchPerspectives implements ResourcePerspectives {
 
   @Override
   public <P extends Perspective> P as(Class<P> perspectiveClass, InputPath inputPath) {
-    Resource r;
-    if (inputPath instanceof InputDir) {
-      r = Directory.create(((InputDir) inputPath).relativePath());
-    } else if (inputPath instanceof InputFile) {
-      r = File.create(((InputFile) inputPath).relativePath());
-    } else {
-      throw new IllegalArgumentException("Unknow input path type: " + inputPath);
-    }
     PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
     return builder.loadPerspective(perspectiveClass, componentCache.get(inputPath));
   }
