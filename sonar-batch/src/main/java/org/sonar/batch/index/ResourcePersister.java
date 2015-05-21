@@ -29,9 +29,7 @@ import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
@@ -206,12 +204,8 @@ public class ResourcePersister implements ScanPersister {
   }
 
   private void updateUuids(Resource resource, Resource parentResource, ResourceModel model) {
-    // Don't override uuids when persisting a library and a project already exists
-    if (ResourceUtils.isLibrary(resource) && !Qualifiers.LIBRARY.equals(model.getQualifier())) {
-      return;
-    }
     if (parentResource == null) {
-      // Root module && libraries
+      // Root module
       model.setProjectUuid(model.getUuid());
       model.setModuleUuidPath(MODULE_UUID_PATH_SEPARATOR + model.getUuid() + MODULE_UUID_PATH_SEPARATOR);
     } else {
@@ -251,10 +245,8 @@ public class ResourcePersister implements ScanPersister {
     if (StringUtils.isNotBlank(resource.getPath())) {
       model.setPath(resource.getPath());
     }
-    if (!ResourceUtils.isLibrary(resource)) {
-      model.setScope(resource.getScope());
-      model.setQualifier(resource.getQualifier());
-    }
+    model.setScope(resource.getScope());
+    model.setQualifier(resource.getQualifier());
     Language language = resource.getLanguage();
     if (language != null) {
       model.setLanguageKey(language.getKey());
