@@ -123,7 +123,7 @@ public class DeleteActionTest {
     long snapshotId3 = insertNewProjectInDbAndReturnSnapshotId(3);
     long snapshotId4 = insertNewProjectInDbAndReturnSnapshotId(4);
 
-    ws.newGetRequest("api/projects", "delete")
+    ws.newPostRequest("api/projects", "delete")
       .setParam("uuids", "project-uuid-1, project-uuid-3, project-uuid-4").execute();
     dbSession.commit();
 
@@ -145,7 +145,7 @@ public class DeleteActionTest {
     insertNewProjectInDbAndReturnSnapshotId(3);
     insertNewProjectInDbAndReturnSnapshotId(4);
 
-    ws.newGetRequest("api/projects", "delete")
+    ws.newPostRequest("api/projects", "delete")
       .setParam("keys", "project-key-1, project-key-3, project-key-4").execute();
     dbSession.commit();
 
@@ -161,7 +161,7 @@ public class DeleteActionTest {
     insertNewProjectInIndexes(3);
     insertNewProjectInIndexes(4);
 
-    ws.newGetRequest("api/projects", "delete")
+    ws.newPostRequest("api/projects", "delete")
       .setParam("keys", "project-key-1, project-key-3, project-key-4").execute();
 
     String remainingProjectUuid = "project-uuid-2";
@@ -180,7 +180,7 @@ public class DeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     insertNewProjectInDbAndReturnSnapshotId(1);
 
-    WsTester.Result result = ws.newGetRequest("api/projects", "delete").setParam("uuids", "project-uuid-1").execute();
+    WsTester.Result result = ws.newPostRequest("api/projects", "delete").setParam("uuids", "project-uuid-1").execute();
 
     result.assertNoContent();
   }
@@ -190,7 +190,7 @@ public class DeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    ws.newGetRequest("api/projects", "delete").setParam("uuids", "whatever-the-uuid").execute();
+    ws.newPostRequest("api/projects", "delete").setParam("uuids", "whatever-the-uuid").execute();
   }
 
   @Test
@@ -200,7 +200,7 @@ public class DeleteActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), "file-uuid"));
     dbSession.commit();
 
-    ws.newGetRequest("api/projects", "delete").setParam("uuids", "file-uuid").execute();
+    ws.newPostRequest("api/projects", "delete").setParam("uuids", "file-uuid").execute();
   }
 
   @Test
@@ -211,7 +211,7 @@ public class DeleteActionTest {
     dbSession.commit();
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
-    ws.newGetRequest("api/projects", "delete").setParam("uuids", "project-uuid").execute();
+    ws.newPostRequest("api/projects", "delete").setParam("uuids", "project-uuid").execute();
   }
 
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {

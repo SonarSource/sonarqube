@@ -54,6 +54,7 @@ public class DeleteAction implements ProjectsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context
       .createAction(ACTION)
+      .setPost(true)
       .setDescription("Delete one or several projects.<br /> Requires 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this);
