@@ -20,6 +20,8 @@
 
 package org.sonar.server.user.db;
 
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -27,10 +29,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserMapper;
 import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 public class UserDao extends org.sonar.core.user.UserDao implements DaoComponent {
 

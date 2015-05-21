@@ -185,4 +185,24 @@ public class GroupMembershipDaoTest {
       session.close();
     }
   }
+
+  @Test
+  public void count_groups_by_login() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      assertThat(dao.countGroupsByLogins(session, Arrays.<String>asList())).isEmpty();
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred")))
+        .containsExactly(entry("two-hundred", 3));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one")))
+        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one", "two-hundred-two")))
+        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1), entry("two-hundred-two", 0));
+      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred-two")))
+        .containsOnly(entry("two-hundred-two", 0));
+    } finally {
+      session.close();
+    }
+  }
 }

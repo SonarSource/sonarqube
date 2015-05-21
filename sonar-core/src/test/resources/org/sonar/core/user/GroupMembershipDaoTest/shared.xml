@@ -12,4 +12,8 @@
   <!-- user 201 is in users group -->
   <groups_users user_id="201" group_id="101"/>
 
+  <users id="200" login="two-hundred"/>
+  <users id="201" login="two-hundred-one"/>
+  <users id="202" login="two-hundred-two"/>
+
 </dataset>

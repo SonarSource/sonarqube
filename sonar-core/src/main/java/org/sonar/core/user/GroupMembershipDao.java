@@ -34,6 +34,7 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.util.NonNullInputFunction;
 
 public class GroupMembershipDao implements DaoComponent {
 
@@ -75,6 +76,23 @@ public class GroupMembershipDao implements DaoComponent {
         return userCounts;
       }
     });
+
+    return result;
+  }
+
+  public Map<String, Integer> countGroupsByLogins(final DbSession session, Collection<String> logins) {
+    final Map<String, Integer> result = Maps.newHashMap();
+    DaoUtils.executeLargeInputs(logins, new NonNullInputFunction<List<String>, List<UserGroupCount>>() {
+      @Override
+      protected List<UserGroupCount> doApply(List<String> input) {
+        List<UserGroupCount> groupCounts = mapper(session).countGroupsByLogins(input);
+        for (UserGroupCount count : groupCounts) {
+          result.put(count.login(), count.groupCount());
+        }
+        return groupCounts;
+      }
+    });
+
     return result;
   }
 
