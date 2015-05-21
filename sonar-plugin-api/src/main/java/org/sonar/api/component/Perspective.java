@@ -23,5 +23,5 @@ package org.sonar.api.component;
  * @deprecated since 5.2
  */
 @Deprecated
-public interface Perspective<C extends Component> {
+public interface Perspective {
 }
