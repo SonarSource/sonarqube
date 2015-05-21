@@ -30,8 +30,8 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 
 import javax.annotation.Nullable;
@@ -41,9 +41,9 @@ public class DefaultPostJobContext implements PostJobContext {
   private final Settings settings;
   private final AnalysisMode analysisMode;
   private final IssueCache cache;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
-  public DefaultPostJobContext(Settings settings, AnalysisMode analysisMode, IssueCache cache, ResourceCache resourceCache) {
+  public DefaultPostJobContext(Settings settings, AnalysisMode analysisMode, IssueCache cache, BatchComponentCache resourceCache) {
     this.settings = settings;
     this.analysisMode = analysisMode;
     this.cache = cache;
@@ -105,7 +105,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public InputPath inputPath() {
-      BatchResource component = resourceCache.get(wrapped.componentKey());
+      BatchComponent component = resourceCache.get(wrapped.componentKey());
       return component != null ? component.inputPath() : null;
     }
 

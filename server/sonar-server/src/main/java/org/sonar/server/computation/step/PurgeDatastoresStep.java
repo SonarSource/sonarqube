@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -36,11 +35,6 @@ public class PurgeDatastoresStep implements ComputationStep {
   public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

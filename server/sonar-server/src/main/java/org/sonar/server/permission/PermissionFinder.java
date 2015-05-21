@@ -22,7 +22,7 @@ package org.sonar.server.permission;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.GroupWithPermission;

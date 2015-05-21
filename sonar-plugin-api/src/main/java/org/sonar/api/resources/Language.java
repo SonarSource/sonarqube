@@ -19,9 +19,9 @@
  */
 package org.sonar.api.resources;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 /**

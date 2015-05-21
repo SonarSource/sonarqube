@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -54,11 +53,6 @@ public class PersistMeasuresStep implements ComputationStep {
     this.dbClient = dbClient;
     this.ruleCache = ruleCache;
     this.metricCache = metricCache;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

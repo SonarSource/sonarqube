@@ -22,18 +22,18 @@ package org.sonar.plugins.core.timemachine;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.report.ReportPublisher;
 
 import java.util.List;
 
 public class NewCoverageFileAnalyzer extends AbstractNewCoverageFileAnalyzer {
 
-  public NewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, ReportPublisher publishReportJob, ResourceCache resourceCache) {
+  public NewCoverageFileAnalyzer(TimeMachineConfiguration timeMachineConfiguration, ReportPublisher publishReportJob, BatchComponentCache resourceCache) {
     super(timeMachineConfiguration, publishReportJob, resourceCache);
   }
 
-  NewCoverageFileAnalyzer(List<PeriodStruct> structs, ReportPublisher publishReportJob, ResourceCache resourceCache) {
+  NewCoverageFileAnalyzer(List<PeriodStruct> structs, ReportPublisher publishReportJob, BatchComponentCache resourceCache) {
     super(structs, publishReportJob, resourceCache);
   }
 

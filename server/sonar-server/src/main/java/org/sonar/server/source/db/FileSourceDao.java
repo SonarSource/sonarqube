@@ -23,7 +23,7 @@ package org.sonar.server.source.db;
 import com.google.common.base.Function;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;

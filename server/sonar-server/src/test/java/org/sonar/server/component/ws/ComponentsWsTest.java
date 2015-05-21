@@ -42,7 +42,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule), new SearchAction(mock(DbClient.class), userSessionRule)));
+    WsTester tester = new WsTester(new ComponentsWs(new AppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule), new SearchAction(mock(DbClient.class), userSessionRule)));
     controller = tester.controller("api/components");
   }
 

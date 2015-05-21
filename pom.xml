@@ -19,9 +19,7 @@
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
     <module>sonar-duplications</module>
-    <module>sonar-graph</module>
     <module>sonar-home</module>
-    <module>sonar-java-api</module>
     <module>sonar-markdown</module>
     <module>sonar-maven-plugin</module>
     <module>sonar-maven3-plugin</module>
@@ -489,9 +487,6 @@
           <aggregate>true</aggregate>
           <includes>
             <include>**/sonar-*/src/main/java/**</include>
-            <include>**/sonar-*/src/main/js/**</include>
-            <include>**/sonar-*/src/main/coffee/**</include>
-            <include>**/sonar-*/src/main/less/**</include>
             <include>**/sonar-*/src/test/java/**</include>
           </includes>
           <excludes>
@@ -499,9 +494,6 @@
           </excludes>
           <mapping>
             <java>SLASHSTAR_STYLE</java>
-            <js>SLASHSTAR_STYLE</js>
-            <coffee>SCRIPT_STYLE</coffee>
-            <less>SLASHSTAR_STYLE</less>
           </mapping>
           <skip>${skipSanityChecks}</skip>
         </configuration>
@@ -637,12 +629,12 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-graph</artifactId>
-        <version>${project.version}</version>
+        <version>5.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-java-api</artifactId>
-        <version>${project.version}</version>
+        <version>5.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
@@ -700,11 +692,6 @@
             <artifactId>classworlds</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.tinkerpop.blueprints</groupId>
-        <artifactId>blueprints-core</artifactId>
-        <version>2.2.0</version>
       </dependency>
       <dependency>
         <groupId>commons-collections</groupId>

@@ -41,7 +41,7 @@ casper.test.begin(testName('Base'), 14, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -92,7 +92,7 @@ casper.test.begin(testName('Decoration'), 8, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -148,7 +148,7 @@ casper.test.begin(testName('Test File'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -183,7 +183,7 @@ casper.test.begin(testName('Highlight Usages'), 6, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -227,7 +227,7 @@ casper.test.begin(testName('Line Permalink'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -270,7 +270,7 @@ casper.test.begin(testName('Link to Raw'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -316,7 +316,7 @@ casper.test.begin(testName('Details'), 15, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -387,7 +387,7 @@ casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 

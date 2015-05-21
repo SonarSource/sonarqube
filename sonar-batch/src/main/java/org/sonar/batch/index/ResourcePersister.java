@@ -20,13 +20,14 @@
 package org.sonar.batch.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
+import javax.persistence.NonUniqueResultException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
@@ -35,15 +36,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.batch.DefaultProjectTree;
-import org.sonar.core.component.ScanGraph;
-
-import javax.annotation.Nullable;
-import javax.persistence.NonUniqueResultException;
-import javax.persistence.Query;
-
-import java.util.Date;
-import java.util.List;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -51,52 +43,30 @@ public class ResourcePersister implements ScanPersister {
 
   @VisibleForTesting
   static final String MODULE_UUID_PATH_SEPARATOR = ".";
-  private static final String RESOURCE_ID = "resourceId";
-  private static final String LAST = "last";
-  private static final String VERSION = "version";
-  private static final String SCOPE = "scope";
-  private static final String QUALIFIER = "qualifier";
 
   private final DatabaseSession session;
   private final ResourcePermissions permissions;
-  private final ResourceCache resourceCache;
-  private final DefaultProjectTree projectTree;
-  private final ScanGraph scanGraph;
+  private final BatchComponentCache resourceCache;
 
-  public ResourcePersister(DefaultProjectTree projectTree, DatabaseSession session, ResourcePermissions permissions, ResourceCache resourceCache, ScanGraph scanGraph) {
-    this.projectTree = projectTree;
+  public ResourcePersister(DatabaseSession session, ResourcePermissions permissions, BatchComponentCache resourceCache) {
     this.session = session;
     this.permissions = permissions;
     this.resourceCache = resourceCache;
-    this.scanGraph = scanGraph;
   }
 
   @Override
   public void persist() {
-    for (BatchResource resource : resourceCache.all()) {
+    for (BatchComponent resource : resourceCache.all()) {
       persist(resource);
     }
-
-    for (BatchResource lib : resourceCache.allLibraries()) {
-      if (lib.snapshot() != null) {
-        // already persisted
-        continue;
-      }
-      persistLibrary(lib);
-    }
   }
 
-  private void persistLibrary(BatchResource lib) {
-    Snapshot s = persistLibrary(projectTree.getRootProject().getAnalysisDate(), (Library) lib.resource());
-    lib.setSnapshot(s);
-  }
-
-  private void persist(BatchResource batchResource) {
+  private void persist(BatchComponent batchResource) {
     if (batchResource.snapshot() != null) {
       // already persisted
       return;
     }
-    BatchResource parentBatchResource = batchResource.parent();
+    BatchComponent parentBatchResource = batchResource.parent();
     Snapshot s;
     if (parentBatchResource != null) {
       persist(parentBatchResource);
@@ -106,12 +76,9 @@ public class ResourcePersister implements ScanPersister {
       s = persistProject((Project) batchResource.resource(), null);
     }
     batchResource.setSnapshot(s);
-    if (ResourceUtils.isPersistable(batchResource.resource())) {
-      scanGraph.completeComponent(batchResource.key(), batchResource.resource().getId(), s.getId());
-    }
   }
 
-  private Project findModule(BatchResource batchResource) {
+  private Project findModule(BatchComponent batchResource) {
     if (batchResource.resource() instanceof Project) {
       return (Project) batchResource.resource();
     } else {
@@ -169,51 +136,11 @@ public class ResourcePersister implements ScanPersister {
     return snapshot;
   }
 
-  Snapshot persistLibrary(Date analysisDate, Library library) {
-    ResourceModel model = findOrCreateModel(library, null);
-    model = session.save(model);
-    // TODO to be removed
-    library.setId(model.getId());
-    library.setUuid(model.getUuid());
-    library.setEffectiveKey(library.getKey());
-
-    Snapshot snapshot = findLibrarySnapshot(model.getId(), library.getVersion());
-    if (snapshot == null) {
-      snapshot = new Snapshot(model, null);
-      snapshot.setCreatedAtMs(dateToLong(analysisDate));
-      snapshot.setBuildDateMs(System.currentTimeMillis());
-      snapshot.setVersion(library.getVersion());
-      snapshot.setStatus(Snapshot.STATUS_PROCESSED);
-
-      // see http://jira.codehaus.org/browse/SONAR-1850
-      // The qualifier must be LIB, even if the resource is TRK, because this snapshot has no measures.
-      snapshot.setQualifier(Qualifiers.LIBRARY);
-      snapshot = session.save(snapshot);
-    }
-    session.commit();
-    return snapshot;
-  }
-
-  private Snapshot findLibrarySnapshot(Integer resourceId, String version) {
-    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() +
-      " s WHERE s.resourceId=:resourceId AND s.version=:version AND s.scope=:scope AND s.qualifier<>:qualifier AND s.last=:last");
-    query.setParameter(RESOURCE_ID, resourceId);
-    query.setParameter(VERSION, version);
-    query.setParameter(SCOPE, Scopes.PROJECT);
-    query.setParameter(QUALIFIER, Qualifiers.LIBRARY);
-    query.setParameter(LAST, Boolean.TRUE);
-    List<Snapshot> snapshots = query.getResultList();
-    if (snapshots.isEmpty()) {
-      snapshots = session.getResults(Snapshot.class, RESOURCE_ID, resourceId, VERSION, version, SCOPE, Scopes.PROJECT, QUALIFIER, Qualifiers.LIBRARY);
-    }
-    return snapshots.isEmpty() ? null : snapshots.get(0);
-  }
-
   /**
    * Everything except project and library
    */
   private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
-    BatchResource moduleResource = resourceCache.get(project);
+    BatchComponent moduleResource = resourceCache.get(project);
     Integer moduleId = moduleResource.resource().getId();
     ResourceModel model = findOrCreateModel(resource, parentReference != null ? parentReference : project);
     model.setRootId(moduleId);

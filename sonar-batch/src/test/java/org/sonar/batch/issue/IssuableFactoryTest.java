@@ -21,12 +21,11 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.DefaultProjectTree;
-import org.sonar.core.component.ResourceComponent;
+import org.sonar.batch.index.BatchComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,22 +39,20 @@ public class IssuableFactoryTest {
   @Test
   public void file_should_be_issuable() {
     IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
-    Component component = new ResourceComponent(File.create("foo/bar.c").setEffectiveKey("foo/bar.c"));
+    BatchComponent component = new BatchComponent(1, File.create("foo/bar.c").setEffectiveKey("foo/bar.c"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();
-    assertThat(issuable.component()).isSameAs(component);
     assertThat(issuable.issues()).isEmpty();
   }
 
   @Test
   public void project_should_be_issuable() {
     IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
-    Component component = new ResourceComponent(new Project("Foo").setEffectiveKey("foo"));
+    BatchComponent component = new BatchComponent(1, new Project("Foo").setEffectiveKey("foo"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
     assertThat(issuable).isNotNull();
-    assertThat(issuable.component()).isSameAs(component);
     assertThat(issuable.issues()).isEmpty();
   }
 }

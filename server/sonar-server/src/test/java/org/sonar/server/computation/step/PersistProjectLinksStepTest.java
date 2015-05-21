@@ -92,11 +92,6 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   }
 
   @Test
-  public void execute_only_on_projects() {
-    assertThat(step.supportedProjectQualifiers()).containsOnly("TRK");
-  }
-
-  @Test
   public void add_links_on_project_and_module() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 

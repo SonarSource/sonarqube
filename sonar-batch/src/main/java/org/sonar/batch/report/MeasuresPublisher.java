@@ -31,8 +31,8 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -45,11 +45,11 @@ import java.io.Serializable;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final MeasureCache measureCache;
   private final MetricFinder metricFinder;
 
-  public MeasuresPublisher(ResourceCache resourceCache, MeasureCache measureCache, MetricFinder metricFinder) {
+  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, MetricFinder metricFinder) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
@@ -57,7 +57,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (final BatchResource resource : resourceCache.all()) {
+    for (final BatchComponent resource : resourceCache.all()) {
       Iterable<Measure> batchMeasures = measureCache.byResource(resource.resource());
       batchMeasures = Iterables.filter(batchMeasures, new Predicate<Measure>() {
         @Override

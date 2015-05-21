@@ -46,19 +46,6 @@ public class MeasuresDaoTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldReturnUserDefinedMetrics() {
-    for (Metric metric : createMetrics()) {
-      getSession().save(metric);
-    }
-
-    Collection<Metric> metrics = service.getUserDefinedMetrics();
-    assertThat(metrics.size(), is(2));
-    for (Metric metric : metrics) {
-      assertThat(metric.getOrigin(), not(Metric.Origin.JAV));
-    }
-  }
-
-  @Test
   public void shouldRegisterMetrics() {
     Collection<Metric> newMetrics = createMetrics();
     service.registerMetrics(newMetrics);
@@ -66,20 +53,6 @@ public class MeasuresDaoTest extends AbstractDbUnitTestCase {
     Collection<Metric> metrics = service.getEnabledMetrics();
     assertThat(metrics.size(), is(newMetrics.size()));
   }
-
-  @Test
-  public void shouldDisabledMetrics() {
-    Collection<Metric> newMetrics = createMetrics();
-
-    service.disabledMetrics(newMetrics);
-
-    Collection<Metric> allMetrics = service.getMetrics();
-    assertThat(allMetrics.size(), is(newMetrics.size()));
-
-    Collection<Metric> disabledMetrics = service.getEnabledMetrics();
-    assertThat(disabledMetrics.size(), is(0));
-  }
-
 
   private Collection<Metric> createMetrics() {
     Metric m1 = new Metric("metric1");

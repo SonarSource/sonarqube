@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.colorizer.CodeColorizer;
@@ -37,10 +37,10 @@ import org.sonar.colorizer.CodeColorizer;
 public final class CodeColorizerSensor implements Sensor {
 
   private final ReportPublisher reportPublisher;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final CodeColorizers codeColorizers;
 
-  public CodeColorizerSensor(ReportPublisher reportPublisher, ResourceCache resourceCache, CodeColorizers codeColorizers) {
+  public CodeColorizerSensor(ReportPublisher reportPublisher, BatchComponentCache resourceCache, CodeColorizers codeColorizers) {
     this.reportPublisher = reportPublisher;
     this.resourceCache = resourceCache;
     this.codeColorizers = codeColorizers;

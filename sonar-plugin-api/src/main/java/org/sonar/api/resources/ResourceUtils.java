@@ -135,8 +135,9 @@ public final class ResourceUtils {
   }
 
   /**
-   * @return whether a resource is a library
+   * @deprecated since 5.2 No more design features
    */
+  @Deprecated
   public static boolean isLibrary(Resource resource) {
     return Qualifiers.LIBRARY.equals(resource.getQualifier());
   }

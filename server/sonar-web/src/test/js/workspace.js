@@ -41,7 +41,7 @@ casper.test.begin(testName('Open From Component Viewer'), 8, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -103,7 +103,7 @@ casper.test.begin(testName('Load From Local Storage'), 7, function (test) {
               '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -156,7 +156,7 @@ casper.test.begin(testName('Close From Nav'), 2, function (test) {
               '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -198,7 +198,7 @@ casper.test.begin(testName('Minimize'), 2, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -246,7 +246,7 @@ casper.test.begin(testName('Full Screen'), 6, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -302,7 +302,7 @@ casper.test.begin(testName('Rule'), 3, function (test) {
               '[{"key":"common-java:InsufficientBranchCoverage","type":"rule"}]');
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 

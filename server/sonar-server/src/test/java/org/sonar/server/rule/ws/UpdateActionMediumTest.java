@@ -91,7 +91,7 @@ public class UpdateActionMediumTest {
     RuleKey customRuleKey = ruleService.create(newRule);
     session.clearCache();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
       .setParam("key", customRuleKey.toString())
       .setParam("name", "My custom rule")
       .setParam("markdown_description", "Description")
@@ -112,7 +112,7 @@ public class UpdateActionMediumTest {
     session.commit();
     session.clearCache();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
+  WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
       .setParam("key", customRule.getKey().toString())
       .setParam("name", "My custom rule")
       .setParam("markdown_description", "");

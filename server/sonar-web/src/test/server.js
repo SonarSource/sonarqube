@@ -29,7 +29,7 @@ app.set('view engine', 'jade');
 
 
 // Static
-var staticPath = path.join(__dirname, '../main/webapp');
+var staticPath = path.join(__dirname, '../../build');
 app.use('/js', express.static(path.join(staticPath, 'js')));
 app.use('/css', express.static(path.join(staticPath, 'css')));
 

@@ -20,8 +20,8 @@
 package org.sonar.core.i18n;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
 

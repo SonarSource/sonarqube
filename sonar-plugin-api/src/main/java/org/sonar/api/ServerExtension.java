@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.server.ServerSide;
+
 /**
  * Server extension point.
  *

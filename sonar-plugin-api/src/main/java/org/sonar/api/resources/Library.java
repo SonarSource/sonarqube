@@ -21,6 +21,10 @@ package org.sonar.api.resources;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+/**
+ * @deprecated since 5.2 No more design features
+ */
+@Deprecated
 public final class Library extends Resource {
 
   private String name;

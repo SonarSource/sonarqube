@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.Nullable;
 

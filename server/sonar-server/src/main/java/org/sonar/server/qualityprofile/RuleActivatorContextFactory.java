@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;

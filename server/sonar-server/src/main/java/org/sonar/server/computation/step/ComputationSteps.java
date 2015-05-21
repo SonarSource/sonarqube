@@ -49,7 +49,6 @@ public class ComputationSteps {
       PersistDuplicationsStep.class,
       PersistFileSourcesStep.class,
       PersistTestsStep.class,
-      PersistFileDependenciesStep.class,
 
       // Switch snapshot and purge
       SwitchSnapshotStep.class,
@@ -62,9 +61,6 @@ public class ComputationSteps {
       IndexSourceLinesStep.class,
       IndexTestsStep.class,
       IndexViewsStep.class,
-
-      // Purge of removed views has to be done after Views has been indexed
-      PurgeRemovedViewsStep.class,
 
       // notifications are sent at the end, so that webapp displays up-to-date information
       SendIssueNotificationsStep.class);

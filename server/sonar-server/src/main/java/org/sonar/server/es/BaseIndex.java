@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 @ServerSide
 public abstract class BaseIndex {

@@ -19,7 +19,7 @@
  */
 package org.sonar.api.user;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.CheckForNull;
 

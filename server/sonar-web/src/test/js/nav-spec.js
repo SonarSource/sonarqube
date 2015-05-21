@@ -40,7 +40,7 @@ casper.test.begin(testName('Global Spaces'), 8, function (test) {
         casper.evaluate(function () {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -87,7 +87,7 @@ casper.test.begin(testName('Global Dashboards'), 12, function (test) {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
 
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -141,7 +141,7 @@ casper.test.begin(testName('Global Plugin Pages'), 12, function (test) {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
 
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -193,7 +193,7 @@ casper.test.begin(testName('Login'), 3, function (test) {
           window.SS.isUserAdmin = false;
           window.navbarOptions = new Backbone.Model();
 
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -238,7 +238,7 @@ casper.test.begin(testName('Search'), 24, function (test) {
           window.localStorage.setItem('sonar_recent_history',
               '[{"key":"localhistoryproject","name":"Local History Project","icon":"trk"}]');
 
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 
@@ -333,7 +333,7 @@ casper.test.begin(testName('Context'), function (test) {
           window.navbarOptions = new Backbone.Model();
           window.navbarOptions.set({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
 
-          require(['/js/nav/app.js']);
+          require(['apps/nav/app']);
         });
       })
 

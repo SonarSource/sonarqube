@@ -35,7 +35,7 @@ app.set('view engine', 'jade');
 
 
 // Coverage
-var staticPath = path.join(__dirname, '../main/webapp');
+var staticPath = path.join(__dirname, '../../build');
 im.hookLoader(staticPath);
 app.use(im.createClientHandler(staticPath, {
   matcher: function (req) {

@@ -21,44 +21,35 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.sensor.DefaultSensorStorage;
-import org.sonar.core.component.ResourceComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SymbolizableBuilderTest {
 
   @Test
   public void should_load_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
-    Component component = new ResourceComponent(file);
+    BatchComponent component = new BatchComponent(1, file, null);
 
-    ResourceCache resourceCache = mock(ResourceCache.class);
-    when(resourceCache.get(file.getEffectiveKey())).thenReturn(new BatchResource(1, file, null).setInputPath(new DefaultInputFile("myproject", "path/to/foo.c")));
-
-    SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(resourceCache, mock(DefaultSensorStorage.class));
+    SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
     Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, component);
 
     assertThat(perspective).isInstanceOf(Symbolizable.class);
-    assertThat(perspective.component().key()).isEqualTo(component.key());
   }
 
   @Test
   public void project_should_not_be_highlightable() {
-    Component component = new ResourceComponent(new Project("struts").setEffectiveKey("org.struts"));
+    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null);
 
-    SymbolizableBuilder builder = new SymbolizableBuilder(mock(ResourceCache.class), mock(DefaultSensorStorage.class));
+    SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
     Perspective perspective = builder.loadPerspective(Symbolizable.class, component);
 
     assertThat(perspective).isNull();

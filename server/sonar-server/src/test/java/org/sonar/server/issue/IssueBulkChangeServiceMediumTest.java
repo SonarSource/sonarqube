@@ -62,7 +62,7 @@ import static org.junit.Assert.fail;
 public class IssueBulkChangeServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withStartupTasks();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

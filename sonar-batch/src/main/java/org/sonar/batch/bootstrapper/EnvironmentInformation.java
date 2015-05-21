@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * Describes execution environment.

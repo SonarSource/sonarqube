@@ -19,8 +19,6 @@
  */
 package org.sonar.api.test;
 
-import org.sonar.api.component.MutablePerspective;
-
-public interface MutableTestable extends Testable, MutablePerspective {
+public interface MutableTestable extends Testable {
 
 }

@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -57,11 +56,6 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     this.sourceLineIndex = sourceLineIndex;
     this.metricCache = metricCache;
     this.system = system;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

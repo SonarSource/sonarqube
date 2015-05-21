@@ -34,7 +34,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
@@ -55,9 +55,9 @@ public class QualityGateVerifier implements Decorator {
   private Periods periods;
   private I18n i18n;
   private Durations durations;
-  private ResourceCache resourceCache;
+  private BatchComponentCache resourceCache;
 
-  public QualityGateVerifier(QualityGate qualityGate, ResourceCache resourceCache, Periods periods, I18n i18n, Durations durations) {
+  public QualityGateVerifier(QualityGate qualityGate, BatchComponentCache resourceCache, Periods periods, I18n i18n, Durations durations) {
     this.qualityGate = qualityGate;
     this.resourceCache = resourceCache;
     this.periods = periods;

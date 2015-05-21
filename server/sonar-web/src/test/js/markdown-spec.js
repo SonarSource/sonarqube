@@ -36,7 +36,7 @@ casper.test.begin(testName(), 8, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/markdown/app.js'], function (App) {
+          require(['apps/markdown/app'], function (App) {
             App.start({ el: 'body' });
           });
         });

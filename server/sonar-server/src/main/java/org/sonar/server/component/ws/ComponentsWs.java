@@ -26,10 +26,10 @@ import org.sonar.api.server.ws.WebService;
 
 public class ComponentsWs implements WebService {
 
-  private final ComponentAppAction appAction;
+  private final AppAction appAction;
   private final SearchAction searchAction;
 
-  public ComponentsWs(ComponentAppAction appAction, SearchAction searchAction) {
+  public ComponentsWs(AppAction appAction, SearchAction searchAction) {
     this.appAction = appAction;
     this.searchAction = searchAction;
   }

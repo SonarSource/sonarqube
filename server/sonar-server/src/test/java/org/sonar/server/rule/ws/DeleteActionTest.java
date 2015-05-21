@@ -46,7 +46,7 @@ public class DeleteActionTest {
 
   @Test
   public void delete_custom_rule() throws Exception {
-    WsTester.TestRequest request = tester.newGetRequest("api/rules", "delete").setParam("key", "squid:XPath_1402065390816");
+    WsTester.TestRequest request = tester.newPostRequest("api/rules", "delete").setParam("key", "squid:XPath_1402065390816");
     request.execute();
 
     verify(ruleService).delete(RuleKey.of("squid", "XPath_1402065390816"));

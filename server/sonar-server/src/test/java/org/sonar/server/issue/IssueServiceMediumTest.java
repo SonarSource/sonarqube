@@ -79,7 +79,7 @@ import static org.junit.Assert.fail;
 public class IssueServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withStartupTasks();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

@@ -41,7 +41,7 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 
@@ -84,7 +84,7 @@ casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (t
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 

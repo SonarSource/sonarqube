@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Event;
 
@@ -37,9 +37,9 @@ import java.util.Map;
 public class EventCache {
 
   private final Map<Integer, List<Event>> eventsByComponentBatchId = new HashMap<>();
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
-  public EventCache(ResourceCache resourceCache) {
+  public EventCache(BatchComponentCache resourceCache) {
     this.resourceCache = resourceCache;
   }
 

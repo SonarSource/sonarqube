@@ -21,8 +21,8 @@ package org.sonar.batch.bootstrap;
 
 import org.junit.Test;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;

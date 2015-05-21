@@ -55,7 +55,7 @@ public class SearchActionTest {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ComponentIndexDao()
       );
-    tester = new WsTester(new ComponentsWs(mock(ComponentAppAction.class), new SearchAction(dbClient, userSessionRule)));
+    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbClient, userSessionRule)));
   }
 
   @Test

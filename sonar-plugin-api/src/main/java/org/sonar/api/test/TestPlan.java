@@ -22,8 +22,9 @@ package org.sonar.api.test;
 import org.sonar.api.component.Perspective;
 
 /**
- * A {@link TestPlan} is 
+ * @deprecated since 5.2 not used
  */
+@Deprecated
 public interface TestPlan<T extends TestCase> extends Perspective {
   Iterable<T> testCases();
 

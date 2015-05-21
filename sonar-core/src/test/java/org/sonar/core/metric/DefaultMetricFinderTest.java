@@ -19,12 +19,10 @@
  */
 package org.sonar.core.metric;
 
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.util.Arrays;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;

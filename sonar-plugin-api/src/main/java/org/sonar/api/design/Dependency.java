@@ -25,6 +25,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.graph.Edge;
 
+/**
+ * @deprecated since 5.2 No more design features
+ */
+@Deprecated
 public class Dependency implements Edge<Resource> {
 
   private Resource from;

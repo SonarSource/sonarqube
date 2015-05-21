@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 
@@ -171,7 +172,7 @@ public interface Issue extends Serializable {
    * Non-null list of comments, ordered by chronological order.
    * <p/>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
-   * (from {@link org.sonar.api.BatchSide}).
+   * (from {@link BatchSide}).
    */
   List<IssueComment> comments();
 

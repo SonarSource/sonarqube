@@ -29,6 +29,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.notifications.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.properties.PropertiesDao;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
 
 import java.util.Arrays;
@@ -66,7 +67,8 @@ public class NotificationServiceTest {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager,
-      dbClient, new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
+      dbClient, mock(DatabaseSessionFactory.class),
+      new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
   }
 
   /**
@@ -202,7 +204,7 @@ public class NotificationServiceTest {
   public void getDispatchers_empty() {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager, dbClient);
+    service = new NotificationService(settings, manager, dbClient, mock(DatabaseSessionFactory.class));
     assertThat(service.getDispatchers()).hasSize(0);
   }
 

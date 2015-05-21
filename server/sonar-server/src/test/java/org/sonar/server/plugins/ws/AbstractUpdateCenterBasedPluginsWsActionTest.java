@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.ws;
 
-import java.net.URL;
 import org.junit.Before;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
@@ -30,6 +29,8 @@ import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
+
+import java.net.URL;
 
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -60,7 +61,7 @@ public class AbstractUpdateCenterBasedPluginsWsActionTest {
   }
 
   protected static URL resource(String s) {
-    Class<AvailablePluginsWsActionTest> clazz = AvailablePluginsWsActionTest.class;
+    Class<AvailableActionTest> clazz = AvailableActionTest.class;
     return clazz.getResource(clazz.getSimpleName() + "/" + s);
   }
 

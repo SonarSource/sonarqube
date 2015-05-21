@@ -20,10 +20,10 @@
 
 package org.sonar.core.persistence;
 
+import ch.qos.logback.classic.Level;
+import com.google.common.io.Closeables;
 import java.io.InputStream;
-
 import javax.annotation.Nullable;
-
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
@@ -35,8 +35,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
@@ -66,8 +66,6 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.event.db.EventMapper;
-import org.sonar.core.graph.jdbc.GraphDto;
-import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.issue.db.ActionPlanDto;
 import org.sonar.core.issue.db.ActionPlanMapper;
 import org.sonar.core.issue.db.ActionPlanStatsDto;
@@ -141,10 +139,6 @@ import org.sonar.core.user.UserGroupMapper;
 import org.sonar.core.user.UserMapper;
 import org.sonar.core.user.UserRoleDto;
 
-import ch.qos.logback.classic.Level;
-
-import com.google.common.io.Closeables;
-
 @BatchSide
 @ServerSide
 public class MyBatis {
@@ -197,7 +191,6 @@ public class MyBatis {
     loadAlias(conf, "ComponentLink", ComponentLinkDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
-    loadAlias(conf, "Graph", GraphDto.class);
     loadAlias(conf, "Group", GroupDto.class);
     loadAlias(conf, "GroupRole", GroupRoleDto.class);
     loadAlias(conf, "GroupMembership", GroupMembershipDto.class);
@@ -253,7 +246,7 @@ public class MyBatis {
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      FileDependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
+      FileDependencyMapper.class, DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,

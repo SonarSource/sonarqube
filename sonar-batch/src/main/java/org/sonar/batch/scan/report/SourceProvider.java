@@ -23,10 +23,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class SourceProvider {
     this.fs = fs;
   }
 
-  public List<String> getEscapedSource(BatchResource component) {
+  public List<String> getEscapedSource(BatchComponent component) {
     if (!component.isFile()) {
       // Folder
       return Collections.emptyList();

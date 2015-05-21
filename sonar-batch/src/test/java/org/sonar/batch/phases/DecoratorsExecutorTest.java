@@ -31,7 +31,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -68,7 +67,7 @@ public class DecoratorsExecutorTest {
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
-      mock(EventBus.class), mock(CoverageExclusions.class), mock(MeasureCache.class), mock(MetricFinder.class), mock(DuplicationCache.class), mock(AnalysisMode.class));
+      mock(EventBus.class), mock(CoverageExclusions.class), mock(MeasureCache.class), mock(MetricFinder.class), mock(AnalysisMode.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", null, false));
       fail("Exception has not been thrown");

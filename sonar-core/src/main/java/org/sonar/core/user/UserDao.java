@@ -21,8 +21,8 @@ package org.sonar.core.user;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;

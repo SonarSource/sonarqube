@@ -22,7 +22,7 @@ package org.sonar.server.es;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.picocontainer.Startable;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

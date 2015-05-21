@@ -19,16 +19,16 @@
  */
 package org.sonar.api.component;
 
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
-
-import javax.annotation.CheckForNull;
 
 /**
  * Use this component to create perspective from resources or {@link InputPath}
@@ -57,8 +57,10 @@ import javax.annotation.CheckForNull;
  * @see Testable
  * @see TestPlan
  * @since 3.5
+ * @deprecated since 5.2. Use appropriate methods on {@link SensorContext}.
  */
-public interface ResourcePerspectives extends Perspectives {
+@Deprecated
+public interface ResourcePerspectives {
 
   @CheckForNull
   <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource);

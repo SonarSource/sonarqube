@@ -19,14 +19,10 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.resources.Scopes;
 import org.sonar.batch.DefaultProjectTree;
-import org.sonar.core.component.PerspectiveBuilder;
-import org.sonar.core.component.ResourceComponent;
-
-import javax.annotation.CheckForNull;
+import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
+import org.sonar.batch.index.BatchComponent;
 
 /**
  * Create the perspective {@link Issuable} on components.
@@ -45,13 +41,8 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
     this.projectTree = projectTree;
   }
 
-  @CheckForNull
   @Override
-  public Issuable loadPerspective(Class<Issuable> perspectiveClass, Component component) {
-    boolean supported = true;
-    if (component instanceof ResourceComponent) {
-      supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);
-    }
-    return supported ? new DefaultIssuable(component, projectTree.getRootProject(), moduleIssues, cache) : null;
+  public Issuable loadPerspective(Class<Issuable> perspectiveClass, BatchComponent component) {
+    return new DefaultIssuable(component, projectTree.getRootProject(), moduleIssues, cache);
   }
 }

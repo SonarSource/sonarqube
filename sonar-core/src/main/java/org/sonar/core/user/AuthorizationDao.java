@@ -22,7 +22,7 @@ package org.sonar.core.user;
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;

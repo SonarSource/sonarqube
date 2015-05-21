@@ -23,7 +23,7 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.condition.IsUnResolved;

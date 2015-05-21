@@ -19,7 +19,11 @@
  */
 package org.sonar.core.platform;
 
-import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
@@ -27,14 +31,13 @@ import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
+import com.google.common.collect.Iterables;
 
 @BatchSide
 @ServerSide
@@ -234,7 +237,15 @@ public class ComponentContainer {
   }
 
   public static MutablePicoContainer createPicoContainer() {
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "close");
+    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "close") {
+      @Override
+      public void start(Object component) {
+        Profiler profiler = Profiler.createIfTrace(Loggers.get(ComponentContainer.class));
+        profiler.start();
+        super.start(component);
+        profiler.stopTrace(component.getClass().getCanonicalName() + " started");
+      }
+    };
     return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
   }
 

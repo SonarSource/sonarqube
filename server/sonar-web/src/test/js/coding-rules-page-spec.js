@@ -40,7 +40,7 @@ casper.test.begin(testName('Move Between Rules From Detailed View'), 3, function
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 
@@ -100,7 +100,7 @@ casper.test.begin(testName('Filter Similar Rules'), 3, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 

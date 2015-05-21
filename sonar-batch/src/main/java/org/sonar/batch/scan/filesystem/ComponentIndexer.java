@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.ResourcePersister;
 
 import javax.annotation.Nullable;
@@ -43,9 +43,9 @@ public class ComponentIndexer {
   private final SonarIndex sonarIndex;
   private final Project module;
   private final ResourcePersister resourcePersister;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache, @Nullable ResourcePersister resourcePersister) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache, @Nullable ResourcePersister resourcePersister) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
@@ -53,7 +53,7 @@ public class ComponentIndexer {
     this.resourcePersister = resourcePersister;
   }
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceCache resourceCache) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache) {
     this(module, languages, sonarIndex, resourceCache, null);
   }
 

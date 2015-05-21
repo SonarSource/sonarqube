@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.BatchSide;
-
 /**
  * This lock is used to ensure that Sonar resources (files, packages, directories) are not created by buggy plugins
  * when saving measures/violations on unknown resources.

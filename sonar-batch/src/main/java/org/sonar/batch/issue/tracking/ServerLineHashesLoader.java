@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public interface ServerLineHashesLoader {

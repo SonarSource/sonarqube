@@ -20,7 +20,7 @@
 
 package org.sonar.server.user;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.user.GroupMembership;
 import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.GroupMembershipDto;

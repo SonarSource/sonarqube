@@ -21,6 +21,7 @@ package org.sonar.api.issue;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.issue.batch.IssueFilterChain;
@@ -31,7 +32,7 @@ import java.util.Set;
 /**
  * Issue filter used to ignore issues created on lines commented with the tag "NOSONAR".
  * <p/>
- * Plugins, via {@link org.sonar.api.BatchSide}s, must feed this filter by registering the
+ * Plugins, via {@link BatchSide}s, must feed this filter by registering the
  * lines that contain "NOSONAR". Note that filters are disabled for the issues reported by
  * end-users from UI or web services.
  *

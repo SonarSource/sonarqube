@@ -40,7 +40,7 @@ casper.test.begin(testName('Show Activation Details'), 6, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -92,7 +92,7 @@ casper.test.begin(testName('Activate'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
@@ -158,7 +158,7 @@ casper.test.begin(testName('Deactivate'), 6, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
           jQuery.ajaxSetup({ dataType: 'json' });
         });
       })

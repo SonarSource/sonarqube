@@ -40,7 +40,7 @@ casper.test.begin('coding-rules-page-rule-permalink', 1, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 

@@ -24,7 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;

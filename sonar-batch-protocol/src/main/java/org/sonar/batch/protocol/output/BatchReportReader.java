@@ -161,25 +161,6 @@ public class BatchReportReader {
     return null;
   }
 
-  @CheckForNull
-  public File readFileDependencies(int fileRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.FILE_DEPENDENCIES, fileRef);
-    if (doesFileExists(file)) {
-      return file;
-    }
-    return null;
-  }
-
-  public List<BatchReport.ModuleDependencies.ModuleDependency> readModuleDependencies(int componentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.MODULE_DEPENDENCIES, componentRef);
-    if (doesFileExists(file)) {
-      // all the module dependencies are loaded in memory
-      BatchReport.ModuleDependencies dependencies = ProtobufUtil.readFile(file, BatchReport.ModuleDependencies.PARSER);
-      return dependencies.getDepList();
-    }
-    return Collections.emptyList();
-  }
-
   private boolean doesFileExists(File file) {
     return file.exists() && file.isFile();
   }

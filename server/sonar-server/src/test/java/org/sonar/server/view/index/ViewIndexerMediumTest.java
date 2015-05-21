@@ -62,7 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ViewIndexerMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withStartupTasks();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

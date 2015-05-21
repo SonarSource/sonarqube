@@ -40,7 +40,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -99,7 +99,7 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -153,7 +153,7 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -208,7 +208,7 @@ casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -262,7 +262,7 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -318,7 +318,7 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -369,7 +369,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -432,7 +432,7 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -495,7 +495,7 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -558,7 +558,7 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -612,7 +612,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -672,7 +672,7 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -735,7 +735,7 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -798,7 +798,7 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -852,7 +852,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',
@@ -920,7 +920,7 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/widgets/issue-filter.js'], function (IssueFilter) {
+          require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
                 el: '#issue-filter-widget',

@@ -58,8 +58,8 @@ public class BatchWsTest {
   @Before
   public void before() {
     tester = new WsTester(new BatchWs(batchIndex,
-      new GlobalRepositoryAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
-      new ProjectRepositoryAction(mock(ProjectRepositoryLoader.class)),
+      new GlobalAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
+      new ProjectAction(mock(ProjectRepositoryLoader.class)),
       new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule)));
   }
 

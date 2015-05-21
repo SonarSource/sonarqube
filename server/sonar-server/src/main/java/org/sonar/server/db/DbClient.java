@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueFilterDao;
@@ -45,7 +45,6 @@ import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
-import org.sonar.server.design.db.FileDependencyDao;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -102,7 +101,6 @@ public class DbClient {
   private final ComponentIndexDao componentIndexDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
-  private final FileDependencyDao fileDependencyDao;
   private final PurgeDao purgeDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
@@ -143,7 +141,6 @@ public class DbClient {
     componentIndexDao = getDao(map, ComponentIndexDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
-    fileDependencyDao = getDao(map, FileDependencyDao.class);
     purgeDao = getDao(map, PurgeDao.class);
   }
 
@@ -273,10 +270,6 @@ public class DbClient {
 
   public EventDao eventDao() {
     return eventDao;
-  }
-
-  public FileDependencyDao fileDependencyDao() {
-    return fileDependencyDao;
   }
 
   public PurgeDao purgeDao() {

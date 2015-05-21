@@ -20,7 +20,7 @@
 package org.sonar.batch.phases;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
@@ -33,7 +33,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.deprecated.decorator.DecoratorsSelector;
 import org.sonar.batch.deprecated.decorator.DefaultDecoratorContext;
-import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -51,15 +50,12 @@ public class DecoratorsExecutor {
   private final CoverageExclusions coverageFilter;
   private final MeasureCache measureCache;
   private final MetricFinder metricFinder;
-  private final DuplicationCache duplicationCache;
   private final AnalysisMode analysisMode;
 
-  public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
-    Project project, SonarIndex index, EventBus eventBus, CoverageExclusions coverageFilter, MeasureCache measureCache, MetricFinder metricFinder,
-    DuplicationCache duplicationCache, AnalysisMode analysisMode) {
+  public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary, Project project, SonarIndex index, EventBus eventBus, CoverageExclusions coverageFilter,
+    MeasureCache measureCache, MetricFinder metricFinder, AnalysisMode analysisMode) {
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
-    this.duplicationCache = duplicationCache;
     this.analysisMode = analysisMode;
     this.decoratorsSelector = new DecoratorsSelector(batchExtDictionnary);
     this.index = index;
@@ -87,7 +83,7 @@ public class DecoratorsExecutor {
       childrenContexts.add(childContext.end());
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measureCache, metricFinder, duplicationCache, coverageFilter);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measureCache, metricFinder, coverageFilter);
     context.init();
     if (executeDecorators) {
       for (Decorator decorator : decorators) {

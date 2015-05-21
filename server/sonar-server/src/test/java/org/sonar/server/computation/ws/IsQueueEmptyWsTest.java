@@ -38,14 +38,14 @@ import static org.mockito.Mockito.when;
 
 public class IsQueueEmptyWsTest {
 
-  IsQueueEmptyWs.IsQueueEmptyWsAction sut;
+  IsQueueEmptyWs.IsQueueEmptyAction sut;
   ReportQueue queue;
   Response response;
 
   @Before
   public void before() {
     queue = mock(ReportQueue.class);
-    sut = new IsQueueEmptyWs.IsQueueEmptyWsAction(queue);
+    sut = new IsQueueEmptyWs.IsQueueEmptyAction(queue);
 
     response = mock(Response.class);
     when(response.stream()).thenReturn(new FakeStream());

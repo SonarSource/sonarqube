@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RulesDefinition;
 
 /**

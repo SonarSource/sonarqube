@@ -21,7 +21,7 @@ package org.sonar.batch.qualitygate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 import javax.annotation.Nullable;
 

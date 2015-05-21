@@ -42,7 +42,7 @@ casper.test.begin('coding-rules-page-should-show-custom-rules', 3, function (tes
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 

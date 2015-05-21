@@ -20,7 +20,6 @@
 package org.sonar.batch.sensor;
 
 import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -41,13 +40,11 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
-import org.sonar.api.design.Dependency;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.SumChildDistributionFormula;
-import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
@@ -55,9 +52,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.BatchResource;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
@@ -73,19 +70,18 @@ import java.util.Set;
 
 public class DefaultSensorStorage implements SensorStorage {
 
-  private static final String USES = "USES";
   private final MetricFinder metricFinder;
   private final Project project;
   private final ModuleIssues moduleIssues;
   private final DefaultIndex sonarIndex;
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final ReportPublisher reportPublisher;
 
   public DefaultSensorStorage(MetricFinder metricFinder, Project project, ModuleIssues moduleIssues,
     Settings settings, FileSystem fs, ActiveRules activeRules, DuplicationCache duplicationCache, DefaultIndex sonarIndex,
-    CoverageExclusions coverageExclusions, ResourceCache resourceCache, ReportPublisher reportPublisher) {
+    CoverageExclusions coverageExclusions, BatchComponentCache resourceCache, ReportPublisher reportPublisher) {
     this.metricFinder = metricFinder;
     this.project = project;
     this.moduleIssues = moduleIssues;
@@ -182,40 +178,11 @@ public class DefaultSensorStorage implements SensorStorage {
   }
 
   private File getFile(InputFile file) {
-    BatchResource r = resourceCache.get(file);
+    BatchComponent r = resourceCache.get(file);
     if (r == null) {
       throw new IllegalStateException("Provided input file is not indexed");
     }
     return (File) r.resource();
-  }
-
-  @Override
-  public void store(org.sonar.api.batch.sensor.dependency.Dependency dep) {
-    BatchResource fromBatchResource = resourceCache.get(dep.fromKey());
-    BatchResource toBatchResource = resourceCache.get(dep.toKey());
-    Preconditions.checkNotNull(fromBatchResource, "Unable to find origin resource " + dep.fromKey());
-    Preconditions.checkNotNull(toBatchResource, "Unable to find destination resource " + dep.toKey());
-    File fromResource = (File) fromBatchResource.resource();
-    File toResource = (File) toBatchResource.resource();
-    if (sonarIndex.getEdge(fromResource, toResource) != null) {
-      throw new IllegalStateException("Dependency between " + dep.fromKey() + " and " + dep.toKey() + " was already saved.");
-    }
-    Directory fromParent = fromResource.getParent();
-    Directory toParent = toResource.getParent();
-    Dependency parentDep = null;
-    if (!fromParent.equals(toParent)) {
-      parentDep = sonarIndex.getEdge(fromParent, toParent);
-      if (parentDep != null) {
-        parentDep.setWeight(parentDep.getWeight() + 1);
-      } else {
-        parentDep = new Dependency(fromParent, toParent).setUsage(USES).setWeight(1);
-        parentDep = sonarIndex.addDependency(parentDep);
-      }
-    }
-    sonarIndex.addDependency(new Dependency(fromResource, toResource)
-      .setUsage(USES)
-      .setWeight(dep.weight())
-      .setParent(parentDep));
   }
 
   @Override

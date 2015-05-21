@@ -21,8 +21,8 @@ package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 

@@ -19,20 +19,18 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.server.source.db.FileSourceDao;
-
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
@@ -64,11 +62,6 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
     SourceLineIndexer sourceLineIndexer = new SourceLineIndexer(dbClient, esTester.client());
     sourceLineIndexer.setEnabled(true);
     return new IndexSourceLinesStep(sourceLineIndexer);
-  }
-
-  @Test
-  public void supported_project_qualifiers() {
-    assertThat(step().supportedProjectQualifiers()).containsOnly(Qualifiers.PROJECT);
   }
 
   @Test

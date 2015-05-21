@@ -20,46 +20,29 @@
 
 package org.sonar.batch.source;
 
-import com.google.common.collect.ImmutableSet;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.component.Component;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.sensor.DefaultSensorStorage;
-import org.sonar.core.component.PerspectiveBuilder;
-import org.sonar.core.component.ResourceComponent;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Set;
 
 public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
 
-  private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
-  private final ResourceCache cache;
   private final DefaultSensorStorage sensorStorage;
 
-  public SymbolizableBuilder(ResourceCache cache, DefaultSensorStorage sensorStorage) {
+  public SymbolizableBuilder(DefaultSensorStorage sensorStorage) {
     super(Symbolizable.class);
-    this.cache = cache;
     this.sensorStorage = sensorStorage;
   }
 
   @CheckForNull
   @Override
-  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, Component component) {
-    boolean supported = SUPPORTED_QUALIFIERS.contains(component.qualifier());
-    if (supported && component instanceof ResourceComponent) {
-      BatchResource batchComponent = cache.get(component.key());
-      if (batchComponent != null) {
-        InputFile path = (InputFile) batchComponent.inputPath();
-        if (path != null) {
-          return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
-        }
-      }
+  public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, BatchComponent component) {
+    if (component.isFile()) {
+      InputFile path = (InputFile) component.inputPath();
+      return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
     }
     return null;
   }

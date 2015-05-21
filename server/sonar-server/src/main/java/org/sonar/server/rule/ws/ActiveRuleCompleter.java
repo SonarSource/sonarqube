@@ -21,7 +21,7 @@ package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;

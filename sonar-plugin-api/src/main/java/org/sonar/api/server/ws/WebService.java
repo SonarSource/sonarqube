@@ -28,7 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

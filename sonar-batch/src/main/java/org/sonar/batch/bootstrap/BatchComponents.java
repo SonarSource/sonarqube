@@ -20,6 +20,8 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
@@ -27,12 +29,6 @@ import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.debt.SqaleRatingDecorator;
 import org.sonar.batch.debt.SqaleRatingSettings;
-import org.sonar.batch.design.DirectoryDsmDecorator;
-import org.sonar.batch.design.DirectoryTangleIndexDecorator;
-import org.sonar.batch.design.FileTangleIndexDecorator;
-import org.sonar.batch.design.MavenDependenciesSensor;
-import org.sonar.batch.design.ProjectDsmDecorator;
-import org.sonar.batch.design.SubProjectDsmDecorator;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
 import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
@@ -54,13 +50,8 @@ import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.notification.DefaultNotificationManager;
-
-import java.util.Collection;
-import java.util.List;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -71,13 +62,6 @@ public class BatchComponents {
     List components = Lists.newArrayList(
       // Maven
       MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,
-
-      // Design
-      ProjectDsmDecorator.class,
-      SubProjectDsmDecorator.class,
-      DirectoryDsmDecorator.class,
-      DirectoryTangleIndexDecorator.class,
-      FileTangleIndexDecorator.class,
 
       // SCM
       ScmConfiguration.class,
@@ -96,10 +80,6 @@ public class BatchComponents {
       IssuesReportBuilder.class,
       SourceProvider.class,
       RuleNameProvider.class,
-
-      // dbcleaner
-      DefaultPeriodCleaner.class,
-      DefaultPurgeTask.class,
 
       QualityGateVerifier.class,
 
@@ -130,9 +110,6 @@ public class BatchComponents {
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
-    if (!analysisMode.isMediumTest()) {
-      components.add(MavenDependenciesSensor.class);
-    }
     return components;
   }
 }

@@ -23,4 +23,6 @@ import java.util.List;
 
 public interface SchemaMigrationMapper {
   List<Integer> selectVersions();
+
+  void insert(String version);
 }

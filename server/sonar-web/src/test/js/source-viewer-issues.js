@@ -44,7 +44,7 @@ casper.test.begin(testName(), 16, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 

@@ -21,7 +21,7 @@
 package org.sonar.server.issue.filter;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;

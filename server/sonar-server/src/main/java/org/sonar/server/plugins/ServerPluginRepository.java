@@ -276,7 +276,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private void logInstalledPlugins() {
     List<PluginInfo> orderedPlugins = Ordering.natural().sortedCopy(pluginInfosByKeys.values());
     for (PluginInfo plugin : orderedPlugins) {
-      LOG.info("Plugin: {}", SLASH_JOINER.join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
+      LOG.info("Deploy plugin {}", SLASH_JOINER.join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
     }
   }
 

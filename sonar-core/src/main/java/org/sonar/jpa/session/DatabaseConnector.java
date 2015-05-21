@@ -19,12 +19,10 @@
  */
 package org.sonar.jpa.session;
 
-import org.sonar.core.persistence.dialect.Dialect;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.persistence.EntityManager;
+import org.sonar.core.persistence.dialect.Dialect;
 
 public interface DatabaseConnector {
 
@@ -32,10 +30,6 @@ public interface DatabaseConnector {
 
   Connection getConnection() throws SQLException;
 
-  EntityManagerFactory getEntityManagerFactory();
-
   EntityManager createEntityManager();
-
-  int getDatabaseVersion();
 
 }

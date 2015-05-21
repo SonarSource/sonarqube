@@ -19,10 +19,8 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -60,8 +58,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -72,20 +68,7 @@ public class DefaultIndex extends SonarIndex {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
   private static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(
-    // Computed by DsmDecorator
-    CoreMetrics.DEPENDENCY_MATRIX,
-    CoreMetrics.DIRECTORY_CYCLES,
-    CoreMetrics.DIRECTORY_EDGES_WEIGHT,
-    CoreMetrics.DIRECTORY_FEEDBACK_EDGES,
-    CoreMetrics.DIRECTORY_TANGLE_INDEX,
-    CoreMetrics.DIRECTORY_TANGLES,
-    CoreMetrics.FILE_CYCLES,
-    CoreMetrics.FILE_EDGES_WEIGHT,
-    CoreMetrics.FILE_FEEDBACK_EDGES,
-    CoreMetrics.FILE_TANGLE_INDEX,
-    CoreMetrics.FILE_TANGLES,
     // Computed by CpdSensor
-    CoreMetrics.DUPLICATIONS_DATA,
     CoreMetrics.DUPLICATED_FILES,
     CoreMetrics.DUPLICATED_LINES,
     CoreMetrics.DUPLICATED_BLOCKS,
@@ -93,23 +76,32 @@ public class DefaultIndex extends SonarIndex {
     CoreMetrics.LINES
     );
 
-  private final ResourceCache resourceCache;
+  private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.<String>asList(
+    CoreMetrics.DEPENDENCY_MATRIX_KEY,
+    CoreMetrics.DIRECTORY_CYCLES_KEY,
+    CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY,
+    CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY,
+    CoreMetrics.DIRECTORY_TANGLE_INDEX_KEY,
+    CoreMetrics.DIRECTORY_TANGLES_KEY,
+    CoreMetrics.FILE_CYCLES_KEY,
+    CoreMetrics.FILE_EDGES_WEIGHT_KEY,
+    CoreMetrics.FILE_FEEDBACK_EDGES_KEY,
+    CoreMetrics.FILE_TANGLE_INDEX_KEY,
+    CoreMetrics.FILE_TANGLES_KEY,
+    CoreMetrics.DUPLICATIONS_DATA_KEY
+    );
+
+  private final BatchComponentCache resourceCache;
   private final MetricFinder metricFinder;
   private final MeasureCache measureCache;
-  private final DependencyPersister dependencyPersister;
   // caches
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
-  private Set<Dependency> dependencies = Sets.newLinkedHashSet();
-  private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newLinkedHashMap();
-  private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newLinkedHashMap();
   private DefaultProjectTree projectTree;
   private ModuleIssues moduleIssues;
 
-  public DefaultIndex(ResourceCache resourceCache, DependencyPersister dependencyPersister,
-    DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultIndex(BatchComponentCache resourceCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
-    this.dependencyPersister = dependencyPersister;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.measureCache = measureCache;
@@ -175,16 +167,6 @@ public class DefaultIndex extends SonarIndex {
       }
 
     }
-
-    // Keep only inter module dependencies
-    Set<Dependency> projectDependencies = getDependenciesBetweenProjects();
-    dependencies.clear();
-    incomingDependenciesByResource.clear();
-    outgoingDependenciesByResource.clear();
-    for (Dependency projectDependency : projectDependencies) {
-      projectDependency.setId(null);
-      registerDependency(projectDependency);
-    }
   }
 
   @CheckForNull
@@ -221,6 +203,10 @@ public class DefaultIndex extends SonarIndex {
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
+      if (DEPRECATED_METRICS_KEYS.contains(measure.getMetricKey())) {
+        // Ignore deprecated metrics
+        return null;
+      }
       org.sonar.api.batch.measure.Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
@@ -237,119 +223,14 @@ public class DefaultIndex extends SonarIndex {
     return measure;
   }
 
-  //
-  //
-  //
-  // DEPENDENCIES
-  //
-  //
-  //
-
   @Override
   public Dependency addDependency(Dependency dependency) {
-    // Reload resources
-    Resource from = getResource(dependency.getFrom());
-    Preconditions.checkArgument(from != null, dependency.getFrom() + " is not indexed");
-    dependency.setFrom(from);
-    Resource to = getResource(dependency.getTo());
-    Preconditions.checkArgument(to != null, dependency.getTo() + " is not indexed");
-    dependency.setTo(to);
-
-    Dependency existingDep = getEdge(from, to);
-    if (existingDep != null) {
-      return existingDep;
-    }
-
-    Dependency parentDependency = dependency.getParent();
-    if (parentDependency != null) {
-      addDependency(parentDependency);
-    }
-    registerDependency(dependency);
-    dependencyPersister.saveDependency(currentProject, dependency);
     return dependency;
   }
 
-  boolean registerDependency(Dependency dependency) {
-    Bucket fromBucket = doIndex(dependency.getFrom());
-    Bucket toBucket = doIndex(dependency.getTo());
-
-    if (fromBucket != null && toBucket != null) {
-      dependencies.add(dependency);
-      registerOutgoingDependency(dependency);
-      registerIncomingDependency(dependency);
-      return true;
-    }
-    return false;
-  }
-
-  private void registerOutgoingDependency(Dependency dependency) {
-    Map<Resource, Dependency> outgoingDeps = outgoingDependenciesByResource.get(dependency.getFrom());
-    if (outgoingDeps == null) {
-      outgoingDeps = new HashMap<>();
-      outgoingDependenciesByResource.put(dependency.getFrom(), outgoingDeps);
-    }
-    outgoingDeps.put(dependency.getTo(), dependency);
-  }
-
-  private void registerIncomingDependency(Dependency dependency) {
-    Map<Resource, Dependency> incomingDeps = incomingDependenciesByResource.get(dependency.getTo());
-    if (incomingDeps == null) {
-      incomingDeps = new HashMap<>();
-      incomingDependenciesByResource.put(dependency.getTo(), incomingDeps);
-    }
-    incomingDeps.put(dependency.getFrom(), dependency);
-  }
-
   @Override
-  public Set<Dependency> getDependencies() {
-    return dependencies;
-  }
-
-  @Override
-  public Dependency getEdge(Resource from, Resource to) {
-    Map<Resource, Dependency> map = outgoingDependenciesByResource.get(from);
-    if (map != null) {
-      return map.get(to);
-    }
-    return null;
-  }
-
-  @Override
-  public boolean hasEdge(Resource from, Resource to) {
-    return getEdge(from, to) != null;
-  }
-
-  @Override
-  public Set<Resource> getVertices() {
+  public Set<Resource> getResources() {
     return buckets.keySet();
-  }
-
-  @Override
-  public Collection<Dependency> getOutgoingEdges(Resource from) {
-    Map<Resource, Dependency> deps = outgoingDependenciesByResource.get(from);
-    if (deps != null) {
-      return deps.values();
-    }
-    return Collections.emptyList();
-  }
-
-  @Override
-  public Collection<Dependency> getIncomingEdges(Resource to) {
-    Map<Resource, Dependency> deps = incomingDependenciesByResource.get(to);
-    if (deps != null) {
-      return deps.values();
-    }
-    return Collections.emptyList();
-  }
-
-  Set<Dependency> getDependenciesBetweenProjects() {
-    Set<Dependency> result = Sets.newLinkedHashSet();
-    for (Dependency dependency : dependencies) {
-      if (ResourceUtils.isSet(dependency.getFrom()) || ResourceUtils.isSet(dependency.getTo())) {
-        result.add(dependency);
-      }
-    }
-    return result;
   }
 
   //

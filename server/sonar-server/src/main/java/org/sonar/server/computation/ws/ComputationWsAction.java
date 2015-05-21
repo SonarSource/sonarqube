@@ -20,11 +20,12 @@
 package org.sonar.server.computation.ws;
 
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.ws.WsAction;
 
 /**
  * Used by {@link ComputationWs} to
  * loop over all its actions
  */
-interface ComputationWsAction {
+interface ComputationWsAction extends WsAction{
   void define(WebService.NewController controller);
 }

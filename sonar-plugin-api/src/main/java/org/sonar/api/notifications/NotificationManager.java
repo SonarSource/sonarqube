@@ -20,8 +20,8 @@
 package org.sonar.api.notifications;
 
 import com.google.common.collect.Multimap;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.Nullable;

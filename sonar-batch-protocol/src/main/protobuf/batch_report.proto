@@ -256,19 +256,3 @@ message CoverageDetail {
     repeated int32 covered_line = 2 [packed = true];
   }
 }
-
-message FileDependency {
-  optional int32 to_file_ref = 1;
-  optional int32 weight = 2;
-}
-
-message ModuleDependencies {
-  repeated ModuleDependency dep = 1;
-  message ModuleDependency {
-    optional string key = 1;
-    optional string version = 2;
-    optional string scope = 3;
-    repeated ModuleDependency child = 4;
-  }
-}
-

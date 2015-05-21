@@ -20,7 +20,7 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;

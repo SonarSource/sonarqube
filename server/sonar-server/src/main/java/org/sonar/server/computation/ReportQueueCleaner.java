@@ -21,7 +21,7 @@
 package org.sonar.server.computation;
 
 import org.picocontainer.Startable;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
 
 /**

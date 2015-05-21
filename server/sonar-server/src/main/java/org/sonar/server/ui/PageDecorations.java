@@ -19,7 +19,7 @@
  */
 package org.sonar.server.ui;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.PageDecoration;
 
 import java.util.Collections;

@@ -21,7 +21,7 @@ package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.Map;
 

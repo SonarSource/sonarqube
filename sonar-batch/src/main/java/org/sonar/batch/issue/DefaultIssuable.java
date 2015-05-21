@@ -20,14 +20,13 @@
 package org.sonar.batch.issue;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.component.Component;
+import java.util.List;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.core.issue.DefaultIssueBuilder;
-
-import java.util.List;
 
 /**
  * @since 3.6
@@ -36,10 +35,10 @@ public class DefaultIssuable implements Issuable {
 
   private final ModuleIssues moduleIssues;
   private final IssueCache cache;
-  private final Component component;
+  private final BatchComponent component;
   private final Project project;
 
-  DefaultIssuable(Component component, Project project, ModuleIssues moduleIssues, IssueCache cache) {
+  DefaultIssuable(BatchComponent component, Project project, ModuleIssues moduleIssues, IssueCache cache) {
     this.component = component;
     this.project = project;
     this.moduleIssues = moduleIssues;
@@ -56,32 +55,26 @@ public class DefaultIssuable implements Issuable {
     return moduleIssues.initAndAddIssue((DefaultIssue) issue);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public List<Issue> resolvedIssues() {
     List<Issue> result = Lists.newArrayList();
     for (DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution()!=null) {
+      if (issue.resolution() != null) {
         result.add(issue);
       }
     }
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public List<Issue> issues() {
     List<Issue> result = Lists.newArrayList();
     for (DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution()==null) {
+      if (issue.resolution() == null) {
         result.add(issue);
       }
     }
     return result;
   }
 
-  @Override
-  public Component component() {
-    return component;
-  }
 }

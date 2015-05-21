@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;

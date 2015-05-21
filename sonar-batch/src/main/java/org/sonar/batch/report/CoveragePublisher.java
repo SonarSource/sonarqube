@@ -26,8 +26,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport.Coverage;
 import org.sonar.batch.protocol.output.BatchReport.Coverage.Builder;
 import org.sonar.batch.protocol.output.BatchReportWriter;
@@ -38,17 +38,17 @@ import java.util.Map;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
   private final MeasureCache measureCache;
 
-  public CoveragePublisher(ResourceCache resourceCache, MeasureCache measureCache) {
+  public CoveragePublisher(BatchComponentCache resourceCache, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (final BatchResource resource : resourceCache.all()) {
+    for (final BatchComponent resource : resourceCache.all()) {
       if (!resource.isFile()) {
         continue;
       }

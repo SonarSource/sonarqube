@@ -43,7 +43,7 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule),
       new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
-      new CurrentUserAction(userSessionRule),
+      new CurrentAction(userSessionRule),
       new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
       new SearchAction(mock(UserIndex.class))));

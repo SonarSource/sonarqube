@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
@@ -30,11 +29,6 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   public ApplyPermissionsStep(IssueAuthorizationIndexer indexer) {
     this.indexer = indexer;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

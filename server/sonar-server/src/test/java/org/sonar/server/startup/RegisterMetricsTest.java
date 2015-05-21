@@ -125,7 +125,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     loader.start();
 
     assertThat(measuresDao.getMetric("deprecated").getEnabled()).isFalse();
-    assertThat(measuresDao.getMetric(CoreMetrics.COMPLEXITY).getEnabled()).isTrue();
+    assertThat(measuresDao.getMetric(CoreMetrics.COMPLEXITY_KEY).getEnabled()).isTrue();
   }
 
   @Test

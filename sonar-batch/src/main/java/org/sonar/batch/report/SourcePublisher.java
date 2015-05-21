@@ -23,8 +23,8 @@ import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.batch.index.BatchResource;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
 import java.io.BufferedReader;
@@ -37,15 +37,15 @@ import java.nio.charset.StandardCharsets;
 
 public class SourcePublisher implements ReportPublisherStep {
 
-  private final ResourceCache resourceCache;
+  private final BatchComponentCache resourceCache;
 
-  public SourcePublisher(ResourceCache resourceCache) {
+  public SourcePublisher(BatchComponentCache resourceCache) {
     this.resourceCache = resourceCache;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
-    for (final BatchResource resource : resourceCache.all()) {
+    for (final BatchComponent resource : resourceCache.all()) {
       if (!resource.isFile()) {
         continue;
       }

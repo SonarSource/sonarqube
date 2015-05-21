@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;

@@ -20,7 +20,7 @@
 
 package org.sonar.server.user;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 

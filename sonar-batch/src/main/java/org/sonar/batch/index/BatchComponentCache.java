@@ -1,0 +1,78 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.batch.index;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.resources.Resource;
+
+@BatchSide
+public class BatchComponentCache {
+  // components by key
+  private final Map<String, BatchComponent> components = Maps.newLinkedHashMap();
+
+  private BatchComponent root;
+
+  @CheckForNull
+  public BatchComponent get(String componentKey) {
+    return components.get(componentKey);
+  }
+
+  public BatchComponent get(Resource resource) {
+    return components.get(resource.getEffectiveKey());
+  }
+
+  public BatchComponent get(InputPath inputPath) {
+    if (inputPath instanceof DefaultInputFile) {
+      return components.get(((DefaultInputFile) inputPath).key());
+    }
+    return components.get(((DefaultInputDir) inputPath).key());
+  }
+
+  public BatchComponent add(Resource resource, @Nullable Resource parentResource) {
+    String componentKey = resource.getEffectiveKey();
+    Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
+    BatchComponent parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
+    BatchComponent batchResource = new BatchComponent(components.size() + 1, resource, parent);
+    // Libraries can have the same effective key than a project so we can't cache by effectiveKey
+    components.put(componentKey, batchResource);
+    if (parent == null) {
+      root = batchResource;
+    }
+    return batchResource;
+  }
+
+  public Collection<BatchComponent> all() {
+    return components.values();
+  }
+
+  public BatchComponent getRoot() {
+    return root;
+  }
+}

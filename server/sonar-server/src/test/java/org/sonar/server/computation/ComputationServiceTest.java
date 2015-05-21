@@ -26,7 +26,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
@@ -55,7 +54,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,9 +66,8 @@ public class ComputationServiceTest {
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
   @Rule
   public LogTester logTester = new LogTester();
-  ComputationStep projectStep1 = mockStep(Qualifiers.PROJECT);
-  ComputationStep projectStep2 = mockStep(Qualifiers.PROJECT);
-  ComputationStep viewStep = mockStep(Qualifiers.VIEW);
+  ComputationStep projectStep1 = mockStep();
+  ComputationStep projectStep2 = mockStep();
   ComputationSteps steps = mock(ComputationSteps.class);
   ActivityService activityService = mock(ActivityService.class);
   System2 system = mock(System2.class);
@@ -91,7 +88,7 @@ public class ComputationServiceTest {
     logTester.setLevel(LoggerLevel.INFO);
 
     // view step is not supposed to be executed
-    when(steps.orderedSteps()).thenReturn(Arrays.asList(projectStep1, projectStep2, viewStep));
+    when(steps.orderedSteps()).thenReturn(Arrays.asList(projectStep1, projectStep2));
     AnalysisReportDto dto = newDefaultReport();
     File zip = generateZip();
 
@@ -108,7 +105,6 @@ public class ComputationServiceTest {
     // execute only the steps supporting the project qualifier
     verify(projectStep1).execute(any(ComputationContext.class));
     verify(projectStep2).execute(any(ComputationContext.class));
-    verify(viewStep, never()).execute(any(ComputationContext.class));
     verify(activityService).save(any(Activity.class));
   }
 
@@ -175,9 +171,8 @@ public class ComputationServiceTest {
     assertThat(logTester.logs()).contains(String.format("The snapshot ID #%s provided by the report #%s does not exist anymore.", ANY_SNAPSHOT_ID, report.getId()));
   }
 
-  private ComputationStep mockStep(String... qualifiers) {
+  private ComputationStep mockStep() {
     ComputationStep step = mock(ComputationStep.class);
-    when(step.supportedProjectQualifiers()).thenReturn(qualifiers);
     when(step.getDescription()).thenReturn(RandomStringUtils.randomAscii(5));
     return step;
   }

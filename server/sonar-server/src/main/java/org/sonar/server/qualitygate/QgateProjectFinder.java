@@ -20,7 +20,7 @@
 
 package org.sonar.server.qualitygate;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDto;

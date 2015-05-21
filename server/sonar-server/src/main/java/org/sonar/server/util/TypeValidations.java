@@ -22,7 +22,7 @@ package org.sonar.server.util;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.Nullable;

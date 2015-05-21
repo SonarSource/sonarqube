@@ -20,23 +20,26 @@
 
 package org.sonar.core.computation.dbcleaner.period;
 
+import java.util.Arrays;
 import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
-import java.util.Arrays;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultPeriodCleanerTest {
 
@@ -49,7 +52,7 @@ public class DefaultPeriodCleanerTest {
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
-    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao, mock(Settings.class), mock(MyBatis.class));
+    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao);
     cleaner.doClean(123L, Arrays.asList(filter1, filter2), session);
 
     verify(filter1).log();

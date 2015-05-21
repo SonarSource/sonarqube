@@ -41,7 +41,7 @@ casper.test.begin('coding-rules-page-should-activate-profile', 5, function (test
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/coding-rules/app.js']);
+          require(['apps/coding-rules/app']);
         });
       })
 

@@ -22,8 +22,8 @@ package org.sonar.core.persistence;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.BatchSide;
-import org.sonar.api.ServerSide;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.List;
 @ServerSide
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 914;
+  public static final int LAST_VERSION = 915;
 
   /**
    * List of all the tables.n
@@ -56,7 +56,6 @@ public class DatabaseVersion {
     "duplications_index",
     "events",
     "file_sources",
-    "graphs",
     "groups",
     "groups_users",
     "group_roles",

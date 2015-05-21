@@ -20,7 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
@@ -38,7 +42,6 @@ import org.sonar.test.DbTests;
 
 import java.io.File;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,11 +82,6 @@ public class PersistEventsStepTest extends BaseStepTest {
   @After
   public void tearDown() {
     session.close();
-  }
-
-  @Test
-  public void execute_only_on_projects() {
-    assertThat(step.supportedProjectQualifiers()).containsOnly("TRK");
   }
 
   @Test

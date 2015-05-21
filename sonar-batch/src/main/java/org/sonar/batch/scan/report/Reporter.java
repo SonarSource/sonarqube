@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public interface Reporter {

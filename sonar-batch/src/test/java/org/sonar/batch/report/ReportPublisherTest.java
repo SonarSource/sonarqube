@@ -30,7 +30,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.mockito.Mockito.mock;
@@ -41,7 +41,7 @@ public class ReportPublisherTest extends AbstractDbUnitTestCase {
 
   private DefaultAnalysisMode mode;
 
-  ResourceCache resourceCache = mock(ResourceCache.class);
+  BatchComponentCache resourceCache = mock(BatchComponentCache.class);
 
   private ProjectReactor reactor;
 

@@ -41,8 +41,8 @@ public class TestsWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new TestsWs(
-      new TestsListAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule),
-      new TestsCoveredFilesAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule)));
+      new ListAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule),
+      new CoveredFilesAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule)));
     controller = tester.controller("api/tests");
   }
 

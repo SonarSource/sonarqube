@@ -22,7 +22,7 @@ package org.sonar.server.source;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.elasticsearch.common.collect.Lists;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 

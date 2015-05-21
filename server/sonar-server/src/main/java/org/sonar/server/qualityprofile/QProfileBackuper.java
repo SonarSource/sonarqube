@@ -29,7 +29,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.core.persistence.DbSession;

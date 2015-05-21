@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public interface ScanPersister {

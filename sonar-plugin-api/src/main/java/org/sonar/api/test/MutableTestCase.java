@@ -19,9 +19,9 @@
  */
 package org.sonar.api.test;
 
-import javax.annotation.Nullable;
-
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
 
 public interface MutableTestCase extends TestCase {
   MutableTestCase setStatus(@Nullable Status s);
@@ -38,5 +38,11 @@ public interface MutableTestCase extends TestCase {
   @Deprecated
   MutableTestCase setType(@Nullable String s);
 
+  /**
+   * @deprecated since 5.2. Use {@link #setCoverageBlock(InputFile, List)}
+   */
+  @Deprecated
   MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines);
+
+  MutableTestCase setCoverageBlock(InputFile mainFile, List<Integer> lines);
 }

@@ -25,8 +25,6 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.dependency.NewDependency;
-import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.NewDuplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
@@ -99,11 +97,6 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public NewCoverage newCoverage() {
     return new DefaultCoverage(sensorStorage);
-  }
-
-  @Override
-  public NewDependency newDependency() {
-    return new DefaultDependency(sensorStorage);
   }
 
 }

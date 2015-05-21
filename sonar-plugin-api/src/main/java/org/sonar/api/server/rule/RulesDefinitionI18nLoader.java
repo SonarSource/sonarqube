@@ -20,7 +20,7 @@
 package org.sonar.api.server.rule;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.RuleI18n;
 
 /**

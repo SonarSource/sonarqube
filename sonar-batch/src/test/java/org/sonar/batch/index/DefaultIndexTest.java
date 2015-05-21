@@ -32,9 +32,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -70,9 +68,8 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
-    ResourceCache resourceCache = new ResourceCache();
-    index = new DefaultIndex(resourceCache, null, projectTree, metricFinder,
-      mock(MeasureCache.class));
+    BatchComponentCache resourceCache = new BatchComponentCache();
+    index = new DefaultIndex(resourceCache, projectTree, metricFinder, mock(MeasureCache.class));
 
     baseDir = temp.newFolder();
     project = new Project("project");
@@ -133,17 +130,6 @@ public class DefaultIndexTest {
 
     File fileRef = File.create("src/org/foo/Bar.java", null, false);
     assertThat(index.getSource(fileRef)).isEqualTo("Foo bar");
-  }
-
-  @Test
-  public void shouldIndexLibraryOutsideProjectTree() {
-    Library lib = new Library("junit", "4.8");
-    assertThat(index.index(lib)).isTrue();
-
-    Library reference = new Library("junit", "4.8");
-    assertThat(index.getResource(reference).getQualifier()).isEqualTo(Qualifiers.LIBRARY);
-    assertThat(index.isIndexed(reference, true)).isTrue();
-    assertThat(index.isExcluded(reference)).isFalse();
   }
 
   @Test

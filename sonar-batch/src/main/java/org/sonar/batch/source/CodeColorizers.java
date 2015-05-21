@@ -24,7 +24,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.CodeColorizer;

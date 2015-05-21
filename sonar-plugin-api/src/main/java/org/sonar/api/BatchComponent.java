@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.batch.BatchSide;
+
 /**
  * Marker interface for all the components available in container of batch (code analyzer). Note that
  * injection of dependencies by constructor is used :

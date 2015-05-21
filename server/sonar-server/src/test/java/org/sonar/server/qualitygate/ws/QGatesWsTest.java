@@ -60,18 +60,18 @@ public class QGatesWsTest {
   private QgateProjectFinder projectFinder;
 
   @Mock
-  private QGatesAppAction appHandler;
+  private AppAction appHandler;
 
   WsTester tester;
 
   @Before
   public void setUp() {
     tester = new WsTester(new QGatesWs(
-      new QGatesListAction(qGates), new QGatesShowAction(qGates), new QGatesSearchAction(projectFinder),
-      new QGatesCreateAction(qGates), new QGatesCopyAction(qGates), new QGatesDestroyAction(qGates), new QGatesRenameAction(qGates),
-      new QGatesSetAsDefaultAction(qGates), new QGatesUnsetDefaultAction(qGates),
-      new QGatesCreateConditionAction(qGates), new QGatesUpdateConditionAction(qGates), new QGatesDeleteConditionAction(qGates),
-      new QGatesSelectAction(qGates), new QGatesDeselectAction(qGates), new QGatesAppAction(qGates, mock(Periods.class), mock(I18n.class))));
+      new ListAction(qGates), new ShowAction(qGates), new SearchAction(projectFinder),
+      new CreateAction(qGates), new CopyAction(qGates), new DestroyAction(qGates), new RenameAction(qGates),
+      new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
+      new CreateConditionAction(qGates), new UpdateConditionAction(qGates), new DeleteConditionAction(qGates),
+      new SelectAction(qGates), new DeselectAction(qGates), new AppAction(qGates, mock(Periods.class), mock(I18n.class))));
   }
 
   @Test
@@ -188,7 +188,7 @@ public class QGatesWsTest {
   public void create_nominal() throws Exception {
     String name = "New QG";
     when(qGates.create(name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
-    tester.newGetRequest("api/qualitygates", "create").setParam("name", name).execute()
+    tester.newPostRequest("api/qualitygates", "create").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"New QG\"}");
   }
 
@@ -196,20 +196,20 @@ public class QGatesWsTest {
   public void copy_nominal() throws Exception {
     String name = "Copied QG";
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
-    tester.newGetRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
+    tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void create_with_missing_name() throws Exception {
-    tester.newGetRequest("api/qualitygates", "create").execute();
+    tester.newPostRequest("api/qualitygates", "create").execute();
   }
 
   @Test(expected = BadRequestException.class)
   public void create_with_duplicate_name() throws Exception {
     String name = "New QG";
     when(qGates.create(name)).thenThrow(new BadRequestException("Name is already used"));
-    tester.newGetRequest("api/qualitygates", "create").setParam("name", name).execute();
+    tester.newPostRequest("api/qualitygates", "create").setParam("name", name).execute();
   }
 
   @Test
@@ -225,14 +225,14 @@ public class QGatesWsTest {
   @Test
   public void set_as_default_nominal() throws Exception {
     Long id = 42L;
-    tester.newGetRequest("api/qualitygates", "set_as_default").setParam("id", id.toString()).execute()
+    tester.newPostRequest("api/qualitygates", "set_as_default").setParam("id", id.toString()).execute()
       .assertNoContent();
     verify(qGates).setDefault(id);
   }
 
   @Test
   public void unset_default_nominal() throws Exception {
-    tester.newGetRequest("api/qualitygates", "unset_default").execute()
+    tester.newPostRequest("api/qualitygates", "unset_default").execute()
       .assertNoContent();
     verify(qGates).setDefault(null);
   }
@@ -240,18 +240,18 @@ public class QGatesWsTest {
   @Test
   public void destroy_nominal() throws Exception {
     Long id = 42L;
-    tester.newGetRequest("api/qualitygates", "destroy").setParam("id", id.toString()).execute()
+    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", id.toString()).execute()
       .assertNoContent();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void destroy_without_id() throws Exception {
-    tester.newGetRequest("api/qualitygates", "destroy").execute();
+    tester.newPostRequest("api/qualitygates", "destroy").execute();
   }
 
   @Test(expected = BadRequestException.class)
   public void destroy_with_invalid_id() throws Exception {
-    tester.newGetRequest("api/qualitygates", "destroy").setParam("id", "polop").execute();
+    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", "polop").execute();
   }
 
   @Test
@@ -340,7 +340,7 @@ public class QGatesWsTest {
     when(qGates.createCondition(qGateId, metricKey, operator, warningThreshold, errorThreshold, null))
       .thenReturn(new QualityGateConditionDto().setId(12345L).setQualityGateId(qGateId).setMetricId(10).setMetricKey(metricKey)
         .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold));
-    tester.newGetRequest("api/qualitygates", "create_condition")
+    tester.newPostRequest("api/qualitygates", "create_condition")
       .setParam("gateId", Long.toString(qGateId))
       .setParam("metric", metricKey)
       .setParam("op", operator)
@@ -360,7 +360,7 @@ public class QGatesWsTest {
     when(qGates.updateCondition(condId, metricKey, operator, warningThreshold, errorThreshold, null))
       .thenReturn(new QualityGateConditionDto().setId(condId).setMetricId(10).setMetricKey(metricKey)
         .setOperator(operator).setWarningThreshold(warningThreshold).setErrorThreshold(errorThreshold));
-    tester.newGetRequest("api/qualitygates", "update_condition")
+    tester.newPostRequest("api/qualitygates", "update_condition")
       .setParam("id", Long.toString(condId))
       .setParam("metric", metricKey)
       .setParam("op", operator)
@@ -373,7 +373,7 @@ public class QGatesWsTest {
   @Test
   public void delete_condition_nominal() throws Exception {
     long condId = 12345L;
-    tester.newGetRequest("api/qualitygates", "delete_condition")
+    tester.newPostRequest("api/qualitygates", "delete_condition")
       .setParam("id", Long.toString(condId))
       .execute()
       .assertNoContent();
@@ -432,7 +432,7 @@ public class QGatesWsTest {
   public void select_nominal() throws Exception {
     long gateId = 42L;
     long projectId = 666L;
-    tester.newGetRequest("api/qualitygates", "select")
+    tester.newPostRequest("api/qualitygates", "select")
       .setParam("gateId", Long.toString(gateId))
       .setParam("projectId", Long.toString(projectId))
       .execute()
@@ -444,7 +444,7 @@ public class QGatesWsTest {
   public void deselect_nominal() throws Exception {
     long gateId = 42L;
     long projectId = 666L;
-    tester.newGetRequest("api/qualitygates", "deselect")
+    tester.newPostRequest("api/qualitygates", "deselect")
       .setParam("gateId", Long.toString(gateId))
       .setParam("projectId", Long.toString(projectId))
       .execute()

@@ -43,7 +43,7 @@ casper.test.begin(testName('source-viewer-create-manual-issue'), function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['/js/source-viewer/app.js']);
+          require(['apps/source-viewer/app']);
         });
       })
 

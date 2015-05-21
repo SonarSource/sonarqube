@@ -20,7 +20,6 @@
 package org.sonar.api.batch;
 
 import net.sourceforge.pmd.cpd.Tokenizer;
-import org.sonar.api.BatchSide;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;

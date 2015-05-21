@@ -49,15 +49,6 @@ public final class ManualMeasure {
   @Column(name = "description", updatable = true, nullable = true, length = MAX_TEXT_SIZE)
   private String description;
 
-  @Column(name = "created_at", updatable = true, nullable = true)
-  private Long createdAt;
-
-  @Column(name = "updated_at", updatable = true, nullable = true)
-  private Long updatedAt;
-
-  @Column(name = "user_login", updatable = true, nullable = true, length = 40)
-  private String userLogin;
-
   public Long getId() {
     return id;
   }
@@ -80,18 +71,6 @@ public final class ManualMeasure {
 
   public Integer getResourceId() {
     return resourceId;
-  }
-
-  public Long getCreatedAt() {
-    return createdAt;
-  }
-
-  public Long getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public String getUserLogin() {
-    return userLogin;
   }
 
   @Override

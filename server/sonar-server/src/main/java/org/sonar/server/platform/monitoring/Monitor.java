@@ -19,7 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.server.platform.ws.InfoAction;
 
 import java.util.LinkedHashMap;
 
@@ -35,7 +36,7 @@ public interface Monitor {
 
   /**
    * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
-   * because of JSON export by {@link org.sonar.server.platform.ws.SystemInfoWsAction}
+   * because of JSON export by {@link InfoAction}
    */
   LinkedHashMap<String, Object> attributes();
 }

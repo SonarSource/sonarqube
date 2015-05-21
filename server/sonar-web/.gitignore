@@ -5,7 +5,7 @@ node/
 node_modules/
 
 # build
-src/main/webapp/build/
+build/
 src/main/webapp/js/
 src/main/webapp/css/
 src/main/webapp/WEB-INF/lib/*.jar

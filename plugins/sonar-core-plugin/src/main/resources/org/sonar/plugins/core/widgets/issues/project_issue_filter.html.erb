@@ -33,7 +33,7 @@
           return;
         }
 
-        require(['widgets/issue-filter'], function (IssueFilter) {
+        require(['widgets/issue-filter/widget'], function (IssueFilter) {
           window.requestMessages().done(function () {
             new IssueFilter({
               el: '#<%= container_id -%>',

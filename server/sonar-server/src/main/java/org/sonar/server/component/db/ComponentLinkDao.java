@@ -20,7 +20,7 @@
 
 package org.sonar.server.component.db;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.component.ComponentLinkDto;
 import org.sonar.core.component.db.ComponentLinkMapper;
 import org.sonar.core.persistence.DaoComponent;

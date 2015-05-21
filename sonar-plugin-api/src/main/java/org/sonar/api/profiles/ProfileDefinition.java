@@ -20,7 +20,7 @@
 package org.sonar.api.profiles;
 
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 
 /**

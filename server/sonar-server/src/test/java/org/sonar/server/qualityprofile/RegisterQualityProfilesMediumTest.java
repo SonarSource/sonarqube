@@ -63,7 +63,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void register_existing_profile_definitions() {
-    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -106,7 +106,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void register_profile_definitions() {
-    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -164,7 +164,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void mark_profile_as_default() {
-    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
+    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
 
     tester.start();
     verifyDefaultProfile("xoo", "two");
@@ -172,7 +172,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() {
-    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
+    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
 
     tester.start();
     verifyDefaultProfile("xoo", "Sonar way");
@@ -180,7 +180,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void do_not_reset_default_profile_if_still_valid() {
-    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
+    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
 
     QualityProfileDao profileDao = dbClient().qualityProfileDao();

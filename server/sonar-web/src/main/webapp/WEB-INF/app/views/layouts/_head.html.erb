@@ -36,9 +36,6 @@
     $j(document).ready(function () {$j('.open-modal').modal()});
     moment.lang(window.pageLang);
     numeral.language(window.pageLang);
-  </script>
-  <script src="<%= ApplicationController.root_context -%>/js/require.js?v=<%= sonar_version -%>"></script>
-  <script>
     requirejs.config({
       baseUrl: baseUrl + '/js',
       urlArgs: 'v=<%= sonar_version -%>'

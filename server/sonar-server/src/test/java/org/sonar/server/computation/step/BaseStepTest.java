@@ -35,6 +35,5 @@ public abstract class BaseStepTest {
   public void test_metadata() {
     assertThat(step().toString()).isNotEmpty();
     assertThat(step().getDescription()).isNotEmpty();
-    assertThat(step().supportedProjectQualifiers().length).isGreaterThan(0);
   }
 }

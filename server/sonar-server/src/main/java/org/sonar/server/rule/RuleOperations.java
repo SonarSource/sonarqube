@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;

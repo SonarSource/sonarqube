@@ -21,7 +21,7 @@ package org.sonar.batch.phases;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.ScanPersister;

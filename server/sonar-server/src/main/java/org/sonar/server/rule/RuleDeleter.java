@@ -20,7 +20,7 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.api.ServerSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.persistence.DbSession;

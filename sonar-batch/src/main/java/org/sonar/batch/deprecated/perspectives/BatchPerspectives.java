@@ -20,45 +20,31 @@
 package org.sonar.batch.deprecated.perspectives;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.component.Component;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
-import org.sonar.core.component.PerspectiveBuilder;
-import org.sonar.core.component.PerspectiveNotFoundException;
-import org.sonar.core.component.ResourceComponent;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Map;
+import org.sonar.batch.index.BatchComponentCache;
 
 public class BatchPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
   private final SonarIndex resourceIndex;
+  private final BatchComponentCache componentCache;
 
-  public BatchPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex) {
+  public BatchPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex, BatchComponentCache componentCache) {
     this.resourceIndex = resourceIndex;
+    this.componentCache = componentCache;
     for (PerspectiveBuilder builder : builders) {
-      // TODO check duplications
       this.builders.put(builder.getPerspectiveClass(), builder);
     }
-  }
-
-  @Override
-  @CheckForNull
-  public <P extends Perspective> P as(Class<P> perspectiveClass, Component component) {
-    if (component.key() == null) {
-      return null;
-    }
-    PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-    return builder.loadPerspective(perspectiveClass, component);
   }
 
   @Override
@@ -69,7 +55,8 @@ public class BatchPerspectives implements ResourcePerspectives {
       indexedResource = resourceIndex.getResource(resource);
     }
     if (indexedResource != null) {
-      return as(perspectiveClass, new ResourceComponent(indexedResource));
+      PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
+      return builder.loadPerspective(perspectiveClass, componentCache.get(indexedResource));
     }
     return null;
   }
@@ -84,7 +71,8 @@ public class BatchPerspectives implements ResourcePerspectives {
     } else {
       throw new IllegalArgumentException("Unknow input path type: " + inputPath);
     }
-    return as(perspectiveClass, r);
+    PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
+    return builder.loadPerspective(perspectiveClass, componentCache.get(inputPath));
   }
 
   private <T extends Perspective> PerspectiveBuilder<T> builderFor(Class<T> clazz) {

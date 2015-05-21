@@ -36,7 +36,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -66,7 +66,7 @@ public class MeasuresPublisherTest {
   @Before
   public void prepare() {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    ResourceCache resourceCache = new ResourceCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
     resourceCache.add(sampleFile, null);

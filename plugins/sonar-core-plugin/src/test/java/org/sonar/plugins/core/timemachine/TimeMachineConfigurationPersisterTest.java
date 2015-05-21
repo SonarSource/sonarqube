@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.util.Arrays;
@@ -48,7 +48,7 @@ public class TimeMachineConfigurationPersisterTest extends AbstractDbUnitTestCas
     when(timeMachineConfiguration.getProjectPastSnapshots()).thenReturn(Arrays.asList(vs1, vs3));
     Snapshot projectSnapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
 
-    ResourceCache resourceCache = new ResourceCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     Project project = new Project("foo");
     resourceCache.add(project, null).setSnapshot(projectSnapshot);
 
