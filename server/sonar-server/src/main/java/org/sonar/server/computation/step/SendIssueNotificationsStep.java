@@ -21,12 +21,15 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
-import org.sonar.server.issue.notification.*;
+import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.notification.MyNewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesNotification;
+import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
+import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.util.CloseableIterator;
 
@@ -55,11 +58,6 @@ public class SendIssueNotificationsStep implements ComputationStep {
     this.rules = rules;
     this.service = service;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

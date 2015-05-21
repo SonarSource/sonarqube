@@ -28,7 +28,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Logger;
@@ -64,11 +63,6 @@ public class PersistTestsStep implements ComputationStep {
   public PersistTestsStep(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
     this.system = system;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

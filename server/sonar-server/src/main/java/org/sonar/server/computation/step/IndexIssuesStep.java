@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -33,11 +32,6 @@ public class IndexIssuesStep implements ComputationStep {
   public IndexIssuesStep(IssueAuthorizationIndexer authorizationIndexer, IssueIndexer indexer) {
     this.authorizationIndexer = authorizationIndexer;
     this.indexer = indexer;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

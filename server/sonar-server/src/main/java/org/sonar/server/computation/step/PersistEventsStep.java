@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -41,11 +40,6 @@ public class PersistEventsStep implements ComputationStep {
   public PersistEventsStep(DbClient dbClient, System2 system2) {
     this.dbClient = dbClient;
     this.system2 = system2;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
@@ -65,11 +64,6 @@ public class IndexTestsStepTest extends BaseStepTest {
     TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
     testIndexer.setEnabled(true);
     return new IndexTestsStep(testIndexer);
-  }
-
-  @Test
-  public void supported_project_qualifiers() {
-    assertThat(step().supportedProjectQualifiers()).containsOnly(Qualifiers.PROJECT);
   }
 
   @Test

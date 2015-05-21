@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
@@ -34,11 +33,6 @@ public class ParseReportStep implements ComputationStep {
 
   public ParseReportStep(IssueComputation issueComputation) {
     this.issueComputation = issueComputation;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT, Qualifiers.VIEW};
   }
 
   @Override

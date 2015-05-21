@@ -24,7 +24,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -62,11 +61,6 @@ public class PersistProjectLinksStep implements ComputationStep {
   public PersistProjectLinksStep(DbClient dbClient, I18n i18n) {
     this.dbClient = dbClient;
     this.i18n = i18n;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

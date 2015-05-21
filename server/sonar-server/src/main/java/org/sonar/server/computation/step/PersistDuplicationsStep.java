@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
@@ -46,11 +45,6 @@ public class PersistDuplicationsStep implements ComputationStep {
 
   public PersistDuplicationsStep(DbClient dbClient) {
     this.dbClient = dbClient;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override

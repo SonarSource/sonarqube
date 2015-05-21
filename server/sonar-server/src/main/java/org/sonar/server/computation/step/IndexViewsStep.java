@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.view.index.ViewIndexer;
 
@@ -30,11 +29,6 @@ public class IndexViewsStep implements ComputationStep {
 
   public IndexViewsStep(ViewIndexer indexer) {
     this.indexer = indexer;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.VIEW};
   }
 
   @Override

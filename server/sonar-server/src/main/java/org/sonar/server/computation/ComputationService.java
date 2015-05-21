@@ -22,7 +22,6 @@ package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
@@ -92,11 +91,9 @@ public class ComputationService {
       ComputationContext context = new ComputationContext(reader, project);
       context.setProjectSettings(projectSettingsFactory.newProjectSettings(project.getId()));
       for (ComputationStep step : steps.orderedSteps()) {
-        if (ArrayUtils.contains(step.supportedProjectQualifiers(), context.getProject().qualifier())) {
-          Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
-          step.execute(context);
-          stepProfiler.stopDebug();
-        }
+        Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
+        step.execute(context);
+        stepProfiler.stopDebug();
       }
       item.dto.setStatus(SUCCESS);
     } catch (Throwable e) {

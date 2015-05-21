@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -30,11 +29,6 @@ public class IndexTestsStep implements ComputationStep {
 
   public IndexTestsStep(TestIndexer indexer) {
     this.indexer = indexer;
-  }
-
-  @Override
-  public String[] supportedProjectQualifiers() {
-    return new String[] {Qualifiers.PROJECT};
   }
 
   @Override
