@@ -51,6 +51,7 @@ public class QueueActionTest {
     AnalysisReportDto report = AnalysisReportDto
       .newForTests(1L)
       .setProjectKey("project-key")
+      .setProjectName("Project name")
       .setStatus(PENDING)
       .setUuid("PROJECT_UUID")
       .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200").getTime())

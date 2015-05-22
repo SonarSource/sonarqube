@@ -35,6 +35,7 @@ public class SubmitReportAction implements ComputationWsAction {
 
   public static final String ACTION = "submit_report";
   public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_PROJECT_NAME = "projectName";
   public static final String PARAM_REPORT_DATA = "report";
 
   private final ReportQueue queue;
@@ -62,6 +63,12 @@ public class SubmitReportAction implements ComputationWsAction {
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action
+      .createParam(PARAM_PROJECT_NAME)
+      .setRequired(true)
+      .setDescription("Project name")
+      .setExampleValue("SonarQube");
+
+    action
       .createParam(PARAM_REPORT_DATA)
       .setRequired(true)
       .setDescription("Report file. Format is not an API, it changes among SonarQube versions.");
@@ -71,9 +78,10 @@ public class SubmitReportAction implements ComputationWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
+    String projectName = request.mandatoryParam(PARAM_PROJECT_NAME);
     InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
     try {
-      ReportQueue.Item item = queue.add(projectKey, reportData);
+      ReportQueue.Item item = queue.add(projectKey, projectName, reportData);
       workerLauncher.startAnalysisTaskNow();
       response.newJsonWriter()
         .beginObject()

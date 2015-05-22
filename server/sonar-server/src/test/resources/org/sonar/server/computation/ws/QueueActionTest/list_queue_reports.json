@@ -3,7 +3,7 @@
     {
       "key": 1,
       "status": "PENDING",
-      "projectName": "project-key",
+      "projectName": "Project name",
       "projectKey": "project-key",
       "submittedAt": "2014-10-13T00:00:00+0200",
       "startedAt": "2014-10-13T00:00:00+0200",

@@ -27,6 +27,7 @@ import javax.annotation.CheckForNull;
 public class AnalysisReportDto {
   private Long id;
   private String projectKey;
+  private String projectName;
   private Status status;
   private String uuid;
   private Long createdAt;
@@ -48,6 +49,15 @@ public class AnalysisReportDto {
 
   public AnalysisReportDto setProjectKey(String projectKey) {
     this.projectKey = projectKey;
+    return this;
+  }
+
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public AnalysisReportDto setProjectName(String projectName) {
+    this.projectName = projectName;
     return this;
   }
 

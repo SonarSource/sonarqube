@@ -21,8 +21,8 @@
 package org.sonar.server.computation;
 
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -51,7 +51,7 @@ public class ReportQueue {
     this.settings = settings;
   }
 
-  public Item add(String projectKey, InputStream reportData) {
+  public Item add(String projectKey, String projectName, InputStream reportData) {
     String uuid = Uuids.create();
     File file = reportFileForUuid(uuid);
 
@@ -60,7 +60,7 @@ public class ReportQueue {
       checkThatProjectExistsInDatabase(projectKey, session);
 
       saveReportOnDisk(reportData, file);
-      AnalysisReportDto dto = saveReportMetadataInDatabase(projectKey, uuid, session);
+      AnalysisReportDto dto = saveReportMetadataInDatabase(projectKey, projectName, uuid, session);
 
       return new Item(dto, file);
     } catch (Exception e) {
@@ -71,9 +71,10 @@ public class ReportQueue {
     }
   }
 
-  private AnalysisReportDto saveReportMetadataInDatabase(String projectKey, String uuid, DbSession session) {
+  private AnalysisReportDto saveReportMetadataInDatabase(String projectKey, String projectName, String uuid, DbSession session) {
     AnalysisReportDto dto = new AnalysisReportDto()
       .setProjectKey(projectKey)
+      .setProjectName(projectName)
       .setStatus(PENDING)
       .setUuid(uuid);
     dao().insert(session, dto);
@@ -119,15 +120,6 @@ public class ReportQueue {
         session.commit();
       }
       return null;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<AnalysisReportDto> selectByProjectKey(String projectKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dao().selectByProjectKey(session, projectKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

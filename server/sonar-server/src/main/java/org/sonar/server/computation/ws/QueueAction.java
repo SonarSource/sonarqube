@@ -67,7 +67,7 @@ public class QueueAction implements ComputationWsAction {
       json.beginObject();
       json.prop("key", report.getId());
       json.prop("projectKey", report.getProjectKey());
-      json.prop("projectName", report.getProjectKey());
+      json.prop("projectName", report.getProjectName());
       json.propDateTime("startedAt", longToDate(report.getStartedAt()));
       json.propDateTime("finishedAt", longToDate(report.getFinishedAt()));
       json.propDateTime("submittedAt", longToDate(report.getCreatedAt()));

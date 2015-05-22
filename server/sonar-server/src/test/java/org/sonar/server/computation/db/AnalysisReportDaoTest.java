@@ -75,8 +75,8 @@ public class AnalysisReportDaoTest {
   public void insert_multiple_reports() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    AnalysisReportDto report1 = newDefaultAnalysisReport().setUuid("UUID_1");
-    AnalysisReportDto report2 = newDefaultAnalysisReport().setUuid("UUID_2");
+    AnalysisReportDto report1 = new AnalysisReportDto().setProjectKey("ProjectKey1").setProjectName("Project 1").setUuid("UUID_1").setStatus(PENDING);
+    AnalysisReportDto report2 = new AnalysisReportDto().setProjectKey("ProjectKey2").setProjectName("Project 2").setUuid("UUID_2").setStatus(PENDING);
 
     sut.insert(session, report1);
     sut.insert(session, report2);
@@ -115,6 +115,8 @@ public class AnalysisReportDaoTest {
 
     assertThat(reports).hasSize(1);
     assertThat(report.getProjectKey()).isEqualTo(projectKey);
+    assertThat(report.getProjectName()).isEqualTo("Project 1");
+    assertThat(report.getStatus()).isEqualTo(AnalysisReportDto.Status.WORKING);
     assertThat(report.getId()).isEqualTo(1);
   }
 
@@ -205,12 +207,5 @@ public class AnalysisReportDaoTest {
     List<AnalysisReportDto> reports = sut.selectAll(session);
 
     assertThat(reports).hasSize(3);
-  }
-
-  private AnalysisReportDto newDefaultAnalysisReport() {
-    return AnalysisReportDto.newForTests(1L)
-      .setProjectKey(DEFAULT_PROJECT_KEY)
-      .setUuid("REPORT_UUID")
-      .setStatus(PENDING);
   }
 }

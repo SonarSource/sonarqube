@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SubmitReportActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -65,7 +66,7 @@ public class SubmitReportActionTest {
 
     WebService.Action action = context.controller("api/computation").action("submit_report");
     assertThat(action).isNotNull();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -73,15 +74,16 @@ public class SubmitReportActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     AnalysisReportDto dto = mock(AnalysisReportDto.class);
     when(dto.getId()).thenReturn(42L);
-    when(queue.add(any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
+    when(queue.add(any(String.class), any(String.class), any(InputStream.class))).thenReturn(new ReportQueue.Item(dto, null));
 
     WsTester.TestRequest request = wsTester
       .newPostRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportAction.PARAM_PROJECT_KEY, "P1")
+      .setParam(SubmitReportAction.PARAM_PROJECT_NAME, "Project 1")
       .setParam(SubmitReportAction.PARAM_REPORT_DATA, null);
     WsTester.Result response = request.execute();
 
-    verify(queue).add(eq("P1"), any(InputStream.class));
+    verify(queue).add(eq("P1"), eq("Project 1"), any(InputStream.class));
     verify(workerLauncher).startAnalysisTaskNow();
     assertThat(response.outputAsString()).isEqualTo("{\"key\":\"42\"}");
   }
@@ -93,6 +95,7 @@ public class SubmitReportActionTest {
     WsTester.TestRequest request = wsTester
       .newPostRequest(ComputationWs.ENDPOINT, "submit_report")
       .setParam(SubmitReportAction.PARAM_PROJECT_KEY, "P1")
+      .setParam(SubmitReportAction.PARAM_PROJECT_NAME, "Project 1")
       .setParam(SubmitReportAction.PARAM_REPORT_DATA, null);
     request.execute();
 
