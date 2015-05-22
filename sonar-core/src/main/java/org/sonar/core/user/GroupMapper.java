@@ -20,11 +20,10 @@
 
 package org.sonar.core.user;
 
-import org.apache.ibatis.session.RowBounds;
-
-import javax.annotation.CheckForNull;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.session.RowBounds;
+;
 
 public interface GroupMapper {
 
