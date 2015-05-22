@@ -25,7 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -36,18 +37,17 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+@Category(DbTests.class)
 public class SearchActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
 
-  WebService.Controller controller;
-
-  WsTester tester;
+  private WsTester tester;
 
   private GroupDao groupDao;
 
@@ -61,14 +61,13 @@ public class SearchActionTest {
   public void setUp() {
     dbTester.truncateTables();
 
-    groupDao = new GroupDao(mock(System2.class));
+    groupDao = new GroupDao(System2.INSTANCE);
     groupMembershipDao = new GroupMembershipDao(dbTester.myBatis());
     userGroupDao = new UserGroupDao();
 
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), groupDao, groupMembershipDao);
 
     tester = new WsTester(new UserGroupsWs(new SearchAction(dbClient)));
-    controller = tester.controller("api/usergroups");
 
     session = dbClient.openSession(false);
   }
@@ -107,7 +106,7 @@ public class SearchActionTest {
     insertGroups("users", "admins", "customer1", "customer2", "customer3");
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "search").setParam(WebService.Param.TEXT_QUERY, "custom").execute().assertJson(getClass(), "customers.json");
+    tester.newGetRequest("api/usergroups", "search").setParam(Param.TEXT_QUERY, "custom").execute().assertJson(getClass(), "customers.json");
   }
 
   @Test
@@ -116,11 +115,11 @@ public class SearchActionTest {
     session.commit();
 
     tester.newGetRequest("api/usergroups", "search")
-      .setParam(WebService.Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
+      .setParam(Param.PAGE_SIZE, "3").execute().assertJson(getClass(), "page_1.json");
     tester.newGetRequest("api/usergroups", "search")
-      .setParam(WebService.Param.PAGE_SIZE, "3").setParam(WebService.Param.PAGE, "2").execute().assertJson(getClass(), "page_2.json");
+      .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_2.json");
     tester.newGetRequest("api/usergroups", "search")
-      .setParam(WebService.Param.PAGE_SIZE, "3").setParam(WebService.Param.PAGE, "3").execute().assertJson(getClass(), "page_3.json");
+      .setParam(Param.PAGE_SIZE, "3").setParam(Param.PAGE, "3").execute().assertJson(getClass(), "page_3.json");
   }
 
   @Test
@@ -134,25 +133,25 @@ public class SearchActionTest {
       .contains("description")
       .contains("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam("f", "").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "").execute().outputAsString())
       .contains("key")
       .contains("name")
       .contains("description")
       .contains("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam("f", "name").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "name").execute().outputAsString())
       .contains("key")
       .contains("name")
       .doesNotContain("description")
       .doesNotContain("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam("f", "description").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "description").execute().outputAsString())
       .contains("key")
       .doesNotContain("name")
       .contains("description")
       .doesNotContain("membersCount");
 
-    assertThat(tester.newGetRequest("api/usergroups", "search").setParam("f", "membersCount").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/usergroups", "search").setParam(Param.FIELDS, "membersCount").execute().outputAsString())
       .contains("key")
       .doesNotContain("name")
       .doesNotContain("description")
