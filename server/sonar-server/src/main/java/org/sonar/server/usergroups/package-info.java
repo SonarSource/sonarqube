@@ -18,24 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.user;
+@ParametersAreNonnullByDefault
+package org.sonar.server.usergroups;
 
-import org.apache.ibatis.session.RowBounds;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
-public interface GroupMapper {
-
-  @CheckForNull
-  GroupDto selectByKey(String name);
-
-  List<GroupDto> selectByUserLogin(String userLogin);
-
-  void insert(GroupDto groupDto);
-
-  List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
-
-  int countByQuery(String query);
-}

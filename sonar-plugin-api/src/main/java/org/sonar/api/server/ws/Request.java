@@ -21,16 +21,14 @@ package org.sonar.api.server.ws;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
-
-import javax.annotation.CheckForNull;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @since 4.2

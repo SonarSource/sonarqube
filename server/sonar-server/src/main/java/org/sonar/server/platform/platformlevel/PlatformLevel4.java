@@ -277,6 +277,7 @@ import org.sonar.server.user.ws.CurrentAction;
 import org.sonar.server.user.ws.FavoritesWs;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
+import org.sonar.server.usergroups.ws.UserGroupsWs;
 import org.sonar.server.util.BooleanTypeValidation;
 import org.sonar.server.util.FloatTypeValidation;
 import org.sonar.server.util.IntegerTypeValidation;
@@ -490,6 +491,8 @@ public class PlatformLevel4 extends PlatformLevel {
       // groups
       GroupMembershipService.class,
       GroupMembershipFinder.class,
+      UserGroupsWs.class,
+      org.sonar.server.usergroups.ws.SearchAction.class,
 
       // permissions
       PermissionFacade.class,
