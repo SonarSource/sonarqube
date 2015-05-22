@@ -4,13 +4,17 @@
       "login": "fmallet",
       "name": "Freddy Mallet",
       "active": true,
-      "email": "f@m.com"
+      "email": "f@m.com",
+      "scmAccounts": [],
+      "groups": ["sonar-users", "sonar-administrators"]
     },
     {
       "login": "sbrandhof",
       "name": "Simon",
       "active": true,
-      "scmAccounts": ["simon.brandhof", "s.brandhof@company.tld"]
+      "email": "s.brandhof@company.tld",
+      "scmAccounts": ["simon.brandhof", "s.brandhof@company.tld"],
+      "groups": ["sonar-users"]
     }
   ]
 }

@@ -124,35 +124,35 @@ public class SearchActionTest {
       .contains("name")
       .contains("email")
       .contains("scmAccounts")
-      .contains("groupsCount");
+      .contains("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts")
-      .contains("groupsCount");
+      .contains("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "login").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts")
-      .doesNotContain("groupsCount");
+      .doesNotContain("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam("f", "scmAccounts").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .contains("scmAccounts")
-      .doesNotContain("groupsCount");
+      .doesNotContain("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "groupsCount").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "groups").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts")
-      .contains("groupsCount");
+      .contains("groups");
   }
 
   @Test
