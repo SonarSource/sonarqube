@@ -6,7 +6,7 @@ lib.initMessages();
 lib.changeWorkingDirectory('users-spec');
 lib.configureCasper();
 
-casper.test.begin(testName('List'), 11, function (test) {
+casper.test.begin(testName('List'), 9, function (test) {
   casper
       .start(lib.buildUrl('users'), function () {
         lib.setDefaultViewport();
@@ -26,16 +26,14 @@ casper.test.begin(testName('List'), 11, function (test) {
       })
 
       .then(function () {
-        test.assertExists('#users-list table');
-        test.assertExists('#users-list thead');
-        test.assertExists('#users-list tbody');
-        test.assertElementCount('#users-list tbody tr', 3);
-        test.assertSelectorContains('#users-list tbody', 'smith');
-        test.assertSelectorContains('#users-list tbody', 'Bob');
-        test.assertSelectorContains('#users-list tbody', 'bob@example.com');
-        test.assertElementCount('#users-list tbody .js-user-update', 3);
-        test.assertElementCount('#users-list tbody .js-user-change-password', 3);
-        test.assertElementCount('#users-list tbody .js-user-deactivate', 3);
+        test.assertExists('#users-list ul');
+        test.assertElementCount('#users-list li[data-login]', 3);
+        test.assertSelectorContains('#users-list .js-user-login', 'smith');
+        test.assertSelectorContains('#users-list .js-user-name', 'Bob');
+        test.assertSelectorContains('#users-list .js-user-email', 'bob@example.com');
+        test.assertElementCount('#users-list .js-user-update', 3);
+        test.assertElementCount('#users-list .js-user-change-password', 3);
+        test.assertElementCount('#users-list .js-user-deactivate', 3);
         test.assertSelectorContains('#users-list-footer', '3/3');
       })
 
@@ -68,7 +66,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 3);
+        test.assertElementCount('#users-list li[data-login]', 3);
         lib.clearRequestMock(this.searchMock);
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search-filtered.json', { data: { q: 'ryan' } });
         casper.evaluate(function () {
@@ -79,7 +77,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 1);
+        test.assertElementCount('#users-list li[data-login]', 1);
         lib.clearRequestMock(this.searchMock);
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
         casper.evaluate(function () {
@@ -90,7 +88,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 3);
+        test.assertElementCount('#users-list li[data-login]', 3);
         test.assert(casper.evaluate(function () {
           return jQuery('#users-search-query').val() === '';
         }));
@@ -125,7 +123,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 2);
+        test.assertElementCount('#users-list li[data-login]', 2);
         test.assertSelectorContains('#users-list-footer', '2/3');
         lib.clearRequestMock(this.searchMock);
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search-big-2.json', { data: { p: '2' } });
@@ -134,7 +132,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 3);
+        test.assertElementCount('#users-list li[data-login]', 3);
         test.assertSelectorContains('#users-list-footer', '3/3');
       })
 
@@ -169,7 +167,7 @@ casper.test.begin(testName('Create'), 5, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 3);
+        test.assertElementCount('#users-list li[data-login]', 3);
         casper.click('#users-create');
         casper.waitForSelector('#create-user-form');
       })
@@ -199,10 +197,10 @@ casper.test.begin(testName('Create'), 5, function (test) {
       })
 
       .then(function () {
-        test.assertElementCount('#users-list tbody tr', 4);
-        test.assertSelectorContains('#users-list tbody', 'login');
-        test.assertSelectorContains('#users-list tbody', 'name');
-        test.assertSelectorContains('#users-list tbody', 'email@example.com');
+        test.assertElementCount('#users-list li[data-login]', 4);
+        test.assertSelectorContains('#users-list .js-user-login', 'login');
+        test.assertSelectorContains('#users-list .js-user-name', 'name');
+        test.assertSelectorContains('#users-list .js-user-email', 'email@example.com');
       })
 
       .then(function () {
@@ -236,7 +234,7 @@ casper.test.begin(testName('Update'), 3, function (test) {
       })
 
       .then(function () {
-        casper.click('tr[data-login="smith"] .js-user-update');
+        casper.click('[data-login="smith"] .js-user-update');
         casper.waitForSelector('#create-user-form');
       })
 
@@ -263,9 +261,9 @@ casper.test.begin(testName('Update'), 3, function (test) {
       })
 
       .then(function () {
-        test.assertSelectorContains('tr[data-login="smith"]', 'smith');
-        test.assertSelectorContains('tr[data-login="smith"]', 'Mike');
-        test.assertSelectorContains('tr[data-login="smith"]', 'mike@example.com');
+        test.assertSelectorContains('[data-login="smith"] .js-user-login', 'smith');
+        test.assertSelectorContains('[data-login="smith"] .js-user-name', 'Mike');
+        test.assertSelectorContains('[data-login="smith"] .js-user-email', 'mike@example.com');
       })
 
       .then(function () {
@@ -299,7 +297,7 @@ casper.test.begin(testName('Change Password'), 1, function (test) {
       })
 
       .then(function () {
-        casper.click('tr[data-login="smith"] .js-user-change-password');
+        casper.click('[data-login="smith"] .js-user-change-password');
         casper.waitForSelector('#change-user-password-form');
       })
 
@@ -314,7 +312,7 @@ casper.test.begin(testName('Change Password'), 1, function (test) {
       })
 
       .then(function () {
-        casper.click('tr[data-login="smith"] .js-user-change-password');
+        casper.click('[data-login="smith"] .js-user-change-password');
         casper.waitForSelector('#change-user-password-form');
       })
 
@@ -373,7 +371,7 @@ casper.test.begin(testName('Deactivate'), 1, function (test) {
       })
 
       .then(function () {
-        casper.click('tr[data-login="smith"] .js-user-deactivate');
+        casper.click('[data-login="smith"] .js-user-deactivate');
         casper.waitForSelector('#deactivate-user-form');
       })
 
@@ -386,7 +384,7 @@ casper.test.begin(testName('Deactivate'), 1, function (test) {
         lib.clearRequestMock(this.updateMock);
         lib.mockRequest('/api/users/deactivate', '{}', { data: { login: 'smith'} });
         casper.click('#deactivate-user-submit');
-        casper.waitWhileSelector('tr[data-login="smith"]');
+        casper.waitWhileSelector('[data-login="smith"]');
       })
 
       .then(function () {
