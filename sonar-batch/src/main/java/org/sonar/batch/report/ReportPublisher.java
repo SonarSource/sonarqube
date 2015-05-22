@@ -21,12 +21,17 @@ package org.sonar.batch.report;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -35,11 +40,6 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @BatchSide
 public class ReportPublisher implements Startable {
@@ -130,8 +130,9 @@ public class ReportPublisher implements Startable {
     long startTime = System.currentTimeMillis();
     URL url;
     try {
-      String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
-      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + effectiveKey);
+      ProjectDefinition projectDefinition = projectReactor.getRoot();
+      String effectiveKey = projectDefinition.getKeyWithBranch();
+      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + effectiveKey + "&projectName=" + ServerClient.encodeForUrl(projectDefinition.getName()));
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL", e);
     }
