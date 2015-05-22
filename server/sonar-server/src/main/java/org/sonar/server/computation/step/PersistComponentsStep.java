@@ -62,38 +62,41 @@ public class PersistComponentsStep implements ComputationStep {
       Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
       int rootComponentRef = context.getReportMetadata().getRootComponentRef();
       ComponentContext componentContext = new ComponentContext(context, session, componentDtosByKey);
-      recursivelyProcessComponent(componentContext, rootComponentRef, null);
+      recursivelyProcessComponent(componentContext, rootComponentRef, null, null);
       session.commit();
     } finally {
       session.close();
     }
   }
 
-  private void recursivelyProcessComponent(ComponentContext componentContext, int componentRef, @Nullable ComponentDto moduleParent) {
+  private void recursivelyProcessComponent(ComponentContext componentContext, int componentRef, @Nullable ComponentDto parentModule, @Nullable ComponentDto project) {
     BatchReportReader reportReader = componentContext.context.getReportReader();
     BatchReport.Component reportComponent = reportReader.readComponent(componentRef);
-    ComponentDto componentDto = processComponent(componentContext, reportComponent, moduleParent);
+    ComponentDto componentDto = processComponent(componentContext, reportComponent, parentModule, project);
     dbComponentsRefCache.addComponent(componentRef, new DbComponentsRefCache.DbComponent(componentDto.getId(), componentDto.getKey(), componentDto.uuid()));
 
     for (Integer childRef : reportComponent.getChildRefList()) {
       // If current component is not a module or a project, we need to keep the parent reference to the nearest module
-      ComponentDto nextModuleParent = !reportComponent.getType().equals(Constants.ComponentType.PROJECT) && !reportComponent.getType().equals(Constants.ComponentType.MODULE) ?
-        moduleParent : componentDto;
-      recursivelyProcessComponent(componentContext, childRef, nextModuleParent);
+      ComponentDto nextParent = !reportComponent.getType().equals(Constants.ComponentType.PROJECT) && !reportComponent.getType().equals(Constants.ComponentType.MODULE) ?
+        parentModule : componentDto;
+      // Keep reference to the project
+      ComponentDto nextProject = reportComponent.getType().equals(Constants.ComponentType.PROJECT) ? componentDto : project;
+      recursivelyProcessComponent(componentContext, childRef, nextParent, nextProject);
     }
   }
 
-  private ComponentDto processComponent(ComponentContext componentContext, BatchReport.Component reportComponent, @Nullable ComponentDto moduleParent) {
+  private ComponentDto processComponent(ComponentContext componentContext, BatchReport.Component reportComponent, @Nullable ComponentDto parentModule,
+                                        @Nullable ComponentDto project) {
     ComputeComponentsRefCache.ComputeComponent cacheComputeComponent = computeComponentsRefCache.getByRef(reportComponent.getRef());
     String componentKey = cacheComputeComponent.getKey();
     String componentUuid = cacheComputeComponent.getUuid();
     ComponentDto existingComponent = componentContext.componentDtosByKey.get(componentKey);
     if (existingComponent == null) {
-      ComponentDto component = createComponent(reportComponent, componentKey, componentUuid, moduleParent);
+      ComponentDto component = createComponent(reportComponent, componentKey, componentUuid, parentModule, project);
       dbClient.componentDao().insert(componentContext.dbSession, component);
       return component;
     } else {
-      ComponentDto component = createComponent(reportComponent, componentKey, existingComponent.uuid(), moduleParent);
+      ComponentDto component = createComponent(reportComponent, componentKey, existingComponent.uuid(), parentModule, project);
       if (updateComponent(existingComponent, component)) {
         dbClient.componentDao().update(componentContext.dbSession, existingComponent);
       }
@@ -101,7 +104,8 @@ public class PersistComponentsStep implements ComputationStep {
     }
   }
 
-  private ComponentDto createComponent(BatchReport.Component reportComponent, String componentKey, String uuid, @Nullable ComponentDto parentModule) {
+  private ComponentDto createComponent(BatchReport.Component reportComponent, String componentKey, String uuid, @Nullable ComponentDto parentModule,
+                                       @Nullable ComponentDto project) {
     ComponentDto component = new ComponentDto();
     component.setUuid(uuid);
     component.setKey(componentKey);
@@ -125,8 +129,8 @@ public class PersistComponentsStep implements ComputationStep {
         component.setLanguage(reportComponent.getLanguage());
       }
     }
-    if (parentModule != null) {
-      component.setParentProjectId(parentModule.getId());
+    if (parentModule != null && project != null) {
+      component.setParentProjectId(component.scope().equals(Scopes.PROJECT) ? project.getId() : parentModule.getId());
       component.setProjectUuid(parentModule.projectUuid());
       component.setModuleUuid(parentModule.uuid());
       component.setModuleUuidPath(reportComponent.getType().equals(Constants.ComponentType.MODULE) ?

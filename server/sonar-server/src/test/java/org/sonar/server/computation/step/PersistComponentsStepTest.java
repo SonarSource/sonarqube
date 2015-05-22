@@ -354,6 +354,79 @@ public class PersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void compute_parent_project_id_from_first_module() throws Exception {
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
+    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_1_KEY", "CDEF"));
+    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_2_KEY", "DEFG"));
+    computeComponentsRefCache.addComponent(5, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_2_KEY:src/main/java/dir", "EFGH"));
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey("PROJECT_KEY")
+      .setName("Project")
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .setName("Module")
+      .addChildRef(3)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("SUB_MODULE_1_KEY")
+      .setName("Sub Module 1")
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("SUB_MODULE_2_KEY")
+      .setName("Sub Module 2")
+      .addChildRef(5)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(5)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .build());
+
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
+
+    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    assertThat(project).isNotNull();
+    assertThat(project.parentProjectId()).isNull();
+
+    ComponentDto module = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");
+    assertThat(module).isNotNull();
+    assertThat(module.parentProjectId()).isEqualTo(project.getId());
+
+    ComponentDto subModule1 = dbClient.componentDao().selectNullableByKey(session, "SUB_MODULE_1_KEY");
+    assertThat(subModule1).isNotNull();
+    assertThat(subModule1.parentProjectId()).isEqualTo(project.getId());
+
+    ComponentDto subModule2 = dbClient.componentDao().selectNullableByKey(session, "SUB_MODULE_2_KEY");
+    assertThat(subModule2).isNotNull();
+    assertThat(subModule2.parentProjectId()).isEqualTo(project.getId());
+
+    ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "SUB_MODULE_2_KEY:src/main/java/dir");
+    assertThat(directory).isNotNull();
+    assertThat(directory.parentProjectId()).isEqualTo(subModule2.getId());
+  }
+
+  @Test
   public void nothing_to_persist() throws Exception {
     computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
@@ -561,7 +634,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleBReloaded.moduleUuid()).isEqualTo(moduleAreloaded.uuid());
     assertThat(moduleBReloaded.moduleUuidPath()).isEqualTo(moduleAreloaded.moduleUuidPath() + moduleBReloaded.uuid() + ".");
     assertThat(moduleBReloaded.projectUuid()).isEqualTo(project.uuid());
-    assertThat(moduleBReloaded.parentProjectId()).isEqualTo(moduleAreloaded.getId());
+    assertThat(moduleBReloaded.parentProjectId()).isEqualTo(project.getId());
 
     ComponentDto directoryReloaded = dbClient.componentDao().selectNullableByKey(session, "MODULE_B:src/main/java/dir");
     assertThat(directoryReloaded).isNotNull();
