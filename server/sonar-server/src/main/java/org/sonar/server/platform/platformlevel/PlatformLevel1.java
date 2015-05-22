@@ -49,7 +49,7 @@ import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.Platform;

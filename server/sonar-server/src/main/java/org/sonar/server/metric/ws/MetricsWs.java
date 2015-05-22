@@ -18,24 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.ws;
+package org.sonar.server.metric.ws;
 
-import org.junit.Test;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class MetricsWs implements WebService {
 
-public class MetricsWsTest {
+  private final MetricsWsAction[] actions;
 
-  WsTester tester = new WsTester(new MetricsWs());
+  public MetricsWs(MetricsWsAction... actions) {
+    this.actions = actions;
+  }
 
-  @Test
-  public void define_ws() {
-    WebService.Controller controller = tester.controller("api/metrics");
-    assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/metrics");
+    controller.setDescription("Metrics management");
+    controller.setSince("2.6");
+
+    for (MetricsWsAction action : actions) {
+      action.define(controller);
+    }
+    defineIndexAction(controller);
+
+    controller.done();
+  }
+
+  private void defineIndexAction(NewController controller) {
+    controller.createAction("index")
+      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
+      .setSince("2.6")
+      .setHandler(RailsHandler.INSTANCE);
   }
 
 }

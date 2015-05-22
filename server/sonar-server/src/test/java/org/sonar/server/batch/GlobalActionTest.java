@@ -27,14 +27,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 

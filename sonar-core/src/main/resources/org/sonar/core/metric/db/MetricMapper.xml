@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.core.measure.db.MetricMapper">
+<mapper namespace="org.sonar.core.metric.db.MetricMapper">
 
   <sql id="metricColumns">
     m.id,
@@ -22,7 +22,7 @@
     m.delete_historical_data as deleteHistoricalData
   </sql>
 
-  <select id="selectByKey" parameterType="map" resultType="org.sonar.core.measure.db.MetricDto">
+  <select id="selectByKey" parameterType="map" resultType="org.sonar.core.metric.db.MetricDto">
     SELECT
     <include refid="metricColumns"/>
     FROM metrics m
@@ -31,7 +31,7 @@
     </where>
   </select>
 
-  <select id="selectAllEnabled" parameterType="map" resultType="org.sonar.core.measure.db.MetricDto">
+  <select id="selectAllEnabled" parameterType="map" resultType="org.sonar.core.metric.db.MetricDto">
     SELECT
     <include refid="metricColumns"/>
     FROM metrics m
@@ -49,7 +49,7 @@
     ORDER BY UPPER(m.short_name)
   </select>
 
-  <insert id="insert" parameterType="org.sonar.core.measure.db.MetricDto" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="org.sonar.core.metric.db.MetricDto" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO metrics (
       name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, origin, worst_value, best_value, optimized_best_value, hidden, delete_historical_data)
     VALUES (

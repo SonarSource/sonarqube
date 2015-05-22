@@ -18,19 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+@ParametersAreNonnullByDefault
+package org.sonar.server.metric.persistence;
 
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
-
-import java.util.List;
-import java.util.Map;
-
-public interface MetricMapper {
-
-  MetricDto selectByKey(@Param("key") String key);
-  List<MetricDto> selectAllEnabled();
-  List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
-  void insert(MetricDto dto);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

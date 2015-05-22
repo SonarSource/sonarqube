@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.core.metric.db;
 
-import org.sonar.server.ws.WsAction;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public interface MetricsWsAction extends WsAction {
-  // marker interface
-}

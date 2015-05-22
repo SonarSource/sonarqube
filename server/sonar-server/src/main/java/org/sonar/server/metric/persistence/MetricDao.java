@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.persistence;
+package org.sonar.server.metric.persistence;
 
 import com.google.common.collect.Maps;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.measure.db.MetricDto;
-import org.sonar.core.measure.db.MetricMapper;
+import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.metric.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.es.SearchOptions;

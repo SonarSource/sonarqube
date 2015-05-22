@@ -133,8 +133,8 @@ import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.server.measure.ws.ManualMeasuresWs;
-import org.sonar.server.measure.ws.MetricsWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
+import org.sonar.server.metric.ws.MetricsWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
@@ -432,7 +432,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
       ManualMeasuresWs.class,
       MetricsWs.class,
-      org.sonar.server.measure.ws.ListAction.class,
+      org.sonar.server.metric.ws.ListAction.class,
 
       // quality gates
       QualityGateDao.class,

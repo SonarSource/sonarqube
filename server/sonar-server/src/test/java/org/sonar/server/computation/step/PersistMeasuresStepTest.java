@@ -20,11 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,7 +39,7 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.rule.RuleDto;
@@ -59,10 +54,16 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

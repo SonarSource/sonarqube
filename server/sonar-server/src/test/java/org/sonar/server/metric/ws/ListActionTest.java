@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.ws;
+package org.sonar.server.metric.ws;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -26,15 +26,15 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.measure.ws.ListAction.PARAM_IS_CUSTOM;
+import static org.sonar.server.metric.ws.ListAction.PARAM_IS_CUSTOM;
 
 public class ListActionTest {
 

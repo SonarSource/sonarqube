@@ -82,7 +82,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.core.measure.db.MeasureFilterMapper;
 import org.sonar.core.measure.db.MeasureMapper;
-import org.sonar.core.measure.db.MetricMapper;
+import org.sonar.core.metric.db.MetricMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.GroupWithPermissionDto;

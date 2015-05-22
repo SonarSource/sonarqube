@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.ws;
+package org.sonar.server.metric.ws;
 
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;

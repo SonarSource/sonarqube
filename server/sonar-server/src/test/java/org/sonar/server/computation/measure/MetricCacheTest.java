@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+package org.sonar.core.metric.db;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

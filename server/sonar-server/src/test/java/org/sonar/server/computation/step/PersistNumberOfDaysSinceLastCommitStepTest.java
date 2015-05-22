@@ -34,7 +34,7 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;

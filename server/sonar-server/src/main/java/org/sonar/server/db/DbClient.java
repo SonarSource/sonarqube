@@ -48,7 +48,7 @@ import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.db.FileSourceDao;

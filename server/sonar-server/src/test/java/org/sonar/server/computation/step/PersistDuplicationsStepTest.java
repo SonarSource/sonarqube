@@ -34,7 +34,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -45,7 +45,7 @@ import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.measure.persistence.MetricDao;
+import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.test.DbTests;
 
 import java.io.File;

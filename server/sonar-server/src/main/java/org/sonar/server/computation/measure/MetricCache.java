@@ -22,7 +22,7 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
