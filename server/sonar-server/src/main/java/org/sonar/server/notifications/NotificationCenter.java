@@ -22,7 +22,7 @@ package org.sonar.server.notifications;
 import com.google.common.collect.Lists;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcherMetadata;
+import org.sonar.core.notification.NotificationDispatcherMetadata;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 

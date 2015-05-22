@@ -30,7 +30,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.notification.NotificationManager;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -85,7 +85,7 @@ public class GenerateQualityGateEvents implements Decorator {
   private void checkQualityGateStatusChange(Resource resource, DecoratorContext context, Measure currentStatus, Measure pastStatus) {
     String alertText = currentStatus.getAlertText();
     Level alertLevel = currentStatus.getDataAsLevel();
-    String alertName = null;
+    String alertName;
     boolean isNewAlert = true;
     if (pastStatus != null && pastStatus.getDataAsLevel() != alertLevel) {
       // The alert status has changed

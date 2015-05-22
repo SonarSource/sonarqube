@@ -28,7 +28,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.notification.NotificationManager;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;

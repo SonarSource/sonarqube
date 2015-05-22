@@ -38,7 +38,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.core.notification.NotificationDispatcher;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.notification.DefaultNotificationManager;

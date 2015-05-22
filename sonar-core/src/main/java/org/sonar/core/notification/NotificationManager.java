@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.notifications;
+package org.sonar.core.notification;
 
 import com.google.common.collect.Multimap;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 

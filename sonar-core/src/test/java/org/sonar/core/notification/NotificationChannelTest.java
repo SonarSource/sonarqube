@@ -17,30 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.notifications;
+package org.sonar.core.notification;
 
-import org.junit.Before;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class NotificationDispatcherMetadataTest {
-
-  private NotificationDispatcherMetadata metadata;
-
-  @Before
-  public void init() {
-    metadata = NotificationDispatcherMetadata.create("NewViolations").setProperty("global", "true");
-  }
+public class NotificationChannelTest {
 
   @Test
-  public void shouldReturnDispatcherKey() {
-    assertThat(metadata.getDispatcherKey()).isEqualTo("NewViolations");
+  public void defaultMethods() {
+    NotificationChannel channel = new FakeNotificationChannel();
+    assertThat(channel.getKey(), is("FakeNotificationChannel"));
+    assertThat(channel.toString(), is("FakeNotificationChannel"));
   }
 
-  @Test
-  public void shouldReturnProperty() {
-    assertThat(metadata.getProperty("global")).isEqualTo("true");
-    assertThat(metadata.getProperty("per-project")).isNull();
+  class FakeNotificationChannel extends NotificationChannel {
+    @Override
+    public void deliver(Notification notification, String username) {
+    }
   }
+
 }

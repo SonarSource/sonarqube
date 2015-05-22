@@ -28,7 +28,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.notification.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.log.Logger;
