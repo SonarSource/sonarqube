@@ -19,12 +19,6 @@
  */
 package org.sonar.api.utils.command;
 
-import com.google.common.io.Closeables;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.Nullable;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +29,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * Synchronously execute a native command line. It's much more limited than the Apache Commons Exec library.
@@ -144,9 +142,9 @@ public class CommandExecutor {
 
   private void closeStreams(@Nullable Process process) {
     if (process != null) {
-      Closeables.closeQuietly(process.getInputStream());
-      Closeables.closeQuietly(process.getOutputStream());
-      Closeables.closeQuietly(process.getErrorStream());
+      IOUtils.closeQuietly(process.getInputStream());
+      IOUtils.closeQuietly(process.getOutputStream());
+      IOUtils.closeQuietly(process.getErrorStream());
     }
   }
 
