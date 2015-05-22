@@ -6,7 +6,9 @@
 </div>
 
 <div class="display-inline-block text-top big-spacer-right">
-  <div class="bg-info" style="width: 36px; height: 36px;"></div>
+  {{#if emailHash}}
+    {{avatarHelper emailHash 36}}
+  {{/if}}
 </div>
 
 <div class="display-inline-block text-top width-30">

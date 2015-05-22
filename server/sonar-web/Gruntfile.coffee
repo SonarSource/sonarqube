@@ -66,6 +66,7 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/third-party/numeral-languages.js'
             '<%= BUILD_PATH %>/js/libs/third-party/bootstrap/tooltip.js'
             '<%= BUILD_PATH %>/js/libs/third-party/bootstrap/dropdown.js'
+            '<%= BUILD_PATH %>/js/libs/third-party/md5.js'
             '<%= BUILD_PATH %>/js/libs/select2-jquery-ui-fix.js'
 
             '<%= BUILD_PATH %>/js/libs/widgets/base.js'

@@ -28,6 +28,7 @@
     window.SS.hoursInDay = <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>;
     window.SS.user = '<%= current_user.login if current_user -%>';
     window.SS.userName = '<%= current_user.name if current_user -%>';
+    window.SS.userEmail = '<%= current_user.email if current_user -%>';
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
   <script>

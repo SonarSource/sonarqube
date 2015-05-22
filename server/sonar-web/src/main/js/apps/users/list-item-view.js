@@ -62,6 +62,7 @@ define([
       var scmAccounts = this.model.get('scmAccounts'),
           scmAccountsLimit = scmAccounts.length > 3 ? 2 : 3;
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        emailHash: window.getMD5Hash(this.model.get('email')),
         firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
         moreScmAccountsCount: scmAccounts.length - scmAccountsLimit
       });

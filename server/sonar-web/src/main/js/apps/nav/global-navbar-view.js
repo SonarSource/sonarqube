@@ -85,6 +85,8 @@ define([
       return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
         user: window.SS.user,
         userName: window.SS.userName,
+        userEmail: window.SS.userEmail,
+        userEmailHash: window.getMD5Hash(window.SS.userEmail),
         isUserAdmin: window.SS.isUserAdmin,
 
         canManageGlobalDashboards: !!window.SS.user,

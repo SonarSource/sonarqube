@@ -562,4 +562,11 @@
     }
   });
 
+  Handlebars.registerHelper('avatarHelper', function (emailHash, size) {
+    var url = 'https://www.gravatar.com/avatar/' + emailHash + '?s=' + size + '&d=identicon';
+    return new Handlebars.SafeString(
+        '<img src="' + url + '" width="' + size + '" height="' + size + '">'
+    );
+  });
+
 })();

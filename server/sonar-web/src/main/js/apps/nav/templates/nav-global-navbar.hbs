@@ -71,7 +71,7 @@
     {{#if user}}
       <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-          {{userName}}&nbsp;<span class="icon-dropdown"></span>
+          {{#if userEmailHash}}<span class="little-spacer-right">{{avatarHelper userEmailHash 20}}&nbsp;{{/if}}</span>{{userName}}&nbsp;<span class="icon-dropdown"></span>
         </a>
         <ul class="dropdown-menu dropdown-menu-right">
           <li>
