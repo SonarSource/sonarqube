@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,9 @@ public class UserGroupsWsTest {
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new UserGroupsWs(new SearchAction(mock(DbClient.class))));
+    WsTester tester = new WsTester(new UserGroupsWs(
+      new SearchAction(mock(DbClient.class)),
+      new CreateAction(mock(DbClient.class), mock(UserSession.class))));
     controller = tester.controller("api/usergroups");
   }
 
@@ -47,15 +50,23 @@ public class UserGroupsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("5.2");
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
   public void define_search_action() {
     WebService.Action action = controller.action("search");
     assertThat(action).isNotNull();
-    assertThat(action.isPost()).isFalse();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(4);
+  }
+
+  @Test
+  public void define_create_action() {
+    WebService.Action action = controller.action("create");
+    assertThat(action).isNotNull();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(2);
   }
 }
