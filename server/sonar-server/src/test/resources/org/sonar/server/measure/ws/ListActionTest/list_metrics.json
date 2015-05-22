@@ -1,0 +1,25 @@
+{
+  "metrics":[
+    {
+      "key":"custom-key-1",
+      "name":"custom-name-1",
+      "type":"Integer",
+      "domain":"custom-domain-1",
+      "description":"custom-description-1"
+    },
+    {
+      "key":"custom-key-2",
+      "name":"custom-name-2",
+      "type":"Integer",
+      "domain":"custom-domain-2",
+      "description":"custom-description-2"
+    },
+    {
+      "key":"custom-key-3",
+      "name":"custom-name-3",
+      "type":"Integer",
+      "domain":"custom-domain-3",
+      "description":"custom-description-3"
+    }
+  ]
+}

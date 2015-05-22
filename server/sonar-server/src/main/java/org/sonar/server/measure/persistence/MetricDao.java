@@ -20,15 +20,20 @@
 
 package org.sonar.server.measure.persistence;
 
+import com.google.common.collect.Maps;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.measure.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.es.SearchOptions;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 @ServerSide
 public class MetricDao implements DaoComponent {
@@ -40,6 +45,15 @@ public class MetricDao implements DaoComponent {
 
   public List<MetricDto> selectEnabled(DbSession session) {
     return session.getMapper(MetricMapper.class).selectAllEnabled();
+  }
+
+  public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, SearchOptions searchOptions) {
+    Map<String, Object> properties = Maps.newHashMapWithExpectedSize(1);
+    if (isCustom != null) {
+      properties.put("isCustom", isCustom);
+    }
+
+    return session.getMapper(MetricMapper.class).selectAllEnabled(properties, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
   }
 
   public void insert(DbSession session, MetricDto dto) {

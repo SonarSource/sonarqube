@@ -25,12 +25,21 @@ import org.sonar.api.server.ws.WebService;
 
 public class MetricsWs implements WebService {
 
+  private final MetricsWsAction[] actions;
+
+  public MetricsWs(MetricsWsAction... actions) {
+    this.actions = actions;
+  }
+
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/metrics");
     controller.setDescription("Metrics management");
     controller.setSince("2.6");
 
+    for (MetricsWsAction action : actions) {
+      action.define(controller);
+    }
     defineIndexAction(controller);
 
     controller.done();

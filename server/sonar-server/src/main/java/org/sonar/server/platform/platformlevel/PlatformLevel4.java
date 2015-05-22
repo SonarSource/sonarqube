@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -291,6 +290,8 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
+import java.util.List;
+
 public class PlatformLevel4 extends PlatformLevel {
 
   private final List<Object> level4AddedComponents;
@@ -431,6 +432,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
       ManualMeasuresWs.class,
       MetricsWs.class,
+      org.sonar.server.measure.ws.ListAction.class,
 
       // quality gates
       QualityGateDao.class,

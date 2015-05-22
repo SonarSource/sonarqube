@@ -18,19 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+package org.sonar.server.measure.ws;
 
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.server.ws.WsAction;
 
-import java.util.List;
-import java.util.Map;
-
-public interface MetricMapper {
-
-  MetricDto selectByKey(@Param("key") String key);
-  List<MetricDto> selectAllEnabled();
-  List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
-  void insert(MetricDto dto);
-
+public interface MetricsWsAction extends WsAction {
+  // marker interface
 }

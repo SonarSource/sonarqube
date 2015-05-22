@@ -37,7 +37,16 @@
     FROM metrics m
     <where>
       AND m.enabled=${_true}
+      <if test="isCustom!=null">
+        <if test="isCustom.equals(true)">
+          AND m.user_managed=${_true}
+        </if>
+        <if test="isCustom.equals(false)">
+          AND m.user_managed=${_false}
+        </if>
+      </if>
     </where>
+    ORDER BY UPPER(m.short_name)
   </select>
 
   <insert id="insert" parameterType="org.sonar.core.measure.db.MetricDto" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
