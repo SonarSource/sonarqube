@@ -22,8 +22,8 @@ package org.sonar.server.properties;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -41,8 +41,8 @@ public class ProjectSettingsFactory {
     this.settings = settings;
   }
 
-  public Settings newProjectSettings(long projectId) {
-    List<PropertyDto> propertyList = dao.selectProjectProperties(projectId);
+  public Settings newProjectSettings(String projectKey) {
+    List<PropertyDto> propertyList = dao.selectProjectProperties(projectKey);
 
     return new ProjectSettings(settings, getPropertyMap(propertyList));
   }

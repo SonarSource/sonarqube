@@ -28,8 +28,12 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -37,32 +41,59 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.notifications.NotificationService;
 
-import static org.mockito.Mockito.*;
+import java.io.File;
+import java.io.IOException;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SendIssueNotificationsStepTest extends BaseStepTest {
+
+  private static final String PROJECT_UUID = "PROJECT_UUID";
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   RuleCache ruleCache = mock(RuleCache.class);
   NotificationService notifService = mock(NotificationService.class);
-  ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
   IssueCache issueCache;
+  DbComponentsRefCache dbComponentsRefCache;
   NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
   SendIssueNotificationsStep sut;
+
+  File reportDir;
 
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    sut = new SendIssueNotificationsStep(issueCache, ruleCache, notifService, newIssuesNotificationFactory);
+    dbComponentsRefCache = new DbComponentsRefCache();
+    sut = new SendIssueNotificationsStep(issueCache, ruleCache, dbComponentsRefCache, notifService, newIssuesNotificationFactory);
+
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
+
+    reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project name")
+      .build());
   }
 
   @Test
-  public void do_not_send_notifications_if_no_subscribers() {
-    when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
-    when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
+  public void do_not_send_notifications_if_no_subscribers() throws IOException {
+    when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute(context);
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -72,11 +103,9 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     issueCache.newAppender().append(new DefaultIssue()
         .setSeverity(Severity.BLOCKER)).close();
 
-    when(context.getProject().uuid()).thenReturn("PROJECT_UUID");
-    when(context.getReportMetadata()).thenReturn(BatchReport.Metadata.newBuilder().build());
-    when(notifService.hasProjectSubscribersForTypes("PROJECT_UUID", SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
+    when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute(context);
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));

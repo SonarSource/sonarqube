@@ -24,10 +24,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
@@ -153,7 +153,7 @@ public class ProjectRepositoryLoader {
 
     Map<String, String> parentProperties = newHashMap();
     for (ComponentDto parent : parents) {
-      parentProperties.putAll(getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(parent.key(), session), hasScanPerm));
+      parentProperties.putAll(getPropertiesMap(dbClient.propertiesDao().selectProjectProperties(session, parent.key()), hasScanPerm));
     }
     return parentProperties;
   }

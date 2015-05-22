@@ -25,7 +25,11 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
@@ -57,15 +61,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ComputationServiceTest {
 
-  private static final long ANY_SNAPSHOT_ID = 54987654231L;
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @Rule
   public JUnitTempFolder tempFolder = new JUnitTempFolder();
+
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Captor
+  ArgumentCaptor<Activity> activityArgumentCaptor;
+
   ComputationStep projectStep1 = mockStep();
   ComputationStep projectStep2 = mockStep();
   ComputationSteps steps = mock(ComputationSteps.class);
@@ -76,18 +86,15 @@ public class ComputationServiceTest {
 
   @Before
   public void setUp() {
+    dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
     sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system);
-
-    // db contains project with key "P1"
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
   }
 
   @Test
-  public void process_project() throws Exception {
+  public void process_new_project() throws Exception {
     logTester.setLevel(LoggerLevel.INFO);
 
-    // view step is not supposed to be executed
     when(steps.orderedSteps()).thenReturn(Arrays.asList(projectStep1, projectStep2));
     AnalysisReportDto dto = newDefaultReport();
     File zip = generateZip();
@@ -105,7 +112,43 @@ public class ComputationServiceTest {
     // execute only the steps supporting the project qualifier
     verify(projectStep1).execute(any(ComputationContext.class));
     verify(projectStep2).execute(any(ComputationContext.class));
-    verify(activityService).save(any(Activity.class));
+    verify(activityService).save(activityArgumentCaptor.capture());
+
+    assertThat(activityArgumentCaptor.getValue().getType()).isEqualTo(Activity.Type.ANALYSIS_REPORT);
+    assertThat(activityArgumentCaptor.getValue().getAction()).isEqualTo("LOG_ANALYSIS_REPORT");
+    assertThat(activityArgumentCaptor.getValue().getData()).containsEntry("projectKey", "P1");
+  }
+
+  @Test
+  public void process_existing_project() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    logTester.setLevel(LoggerLevel.INFO);
+
+    when(steps.orderedSteps()).thenReturn(Arrays.asList(projectStep1, projectStep2));
+    AnalysisReportDto dto = newDefaultReport();
+    File zip = generateZip();
+
+    sut.process(new ReportQueue.Item(dto, zip));
+
+    // report is integrated -> status is set to SUCCESS
+    assertThat(dto.getStatus()).isEqualTo(Status.SUCCESS);
+    assertThat(dto.getFinishedAt()).isNotNull();
+
+    // one info log at the end
+    assertThat(logTester.logs(LoggerLevel.INFO)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.INFO).get(0)).startsWith("Analysis of project P1 (report 1) (done) | time=");
+
+    // execute only the steps supporting the project qualifier
+    verify(projectStep1).execute(any(ComputationContext.class));
+    verify(projectStep2).execute(any(ComputationContext.class));
+    verify(activityService).save(activityArgumentCaptor.capture());
+
+    assertThat(activityArgumentCaptor.getValue().getType()).isEqualTo(Activity.Type.ANALYSIS_REPORT);
+    assertThat(activityArgumentCaptor.getValue().getAction()).isEqualTo("LOG_ANALYSIS_REPORT");
+    assertThat(activityArgumentCaptor.getValue().getData()).containsEntry("projectKey", "P1");
+    assertThat(activityArgumentCaptor.getValue().getData()).containsEntry("projectName", "Project 1");
+    assertThat(activityArgumentCaptor.getValue().getData().get("projectUuid")).isEqualTo("ABCD");
   }
 
   private AnalysisReportDto newDefaultReport() {
@@ -155,20 +198,6 @@ public class ComputationServiceTest {
       assertThat(dto.getStatus()).isEqualTo(Status.FAILED);
       assertThat(dto.getFinishedAt()).isNotNull();
     }
-  }
-
-  @Test
-  public void analysis_cancelled_when_snapshot_not_found() throws Exception {
-    AnalysisReportDto report = newDefaultReport();
-    File zip = generateZip(ANY_SNAPSHOT_ID);
-    logTester.setLevel(LoggerLevel.DEBUG);
-
-    sut.process(new ReportQueue.Item(report, zip));
-
-    assertThat(report.getStatus()).isEqualTo(Status.CANCELLED);
-    assertThat(logTester.logs()).contains(
-      String.format("Processing of report #%s is canceled because it was submitted while another report of the same project was already being processed.", report.getId()));
-    assertThat(logTester.logs()).contains(String.format("The snapshot ID #%s provided by the report #%s does not exist anymore.", ANY_SNAPSHOT_ID, report.getId()));
   }
 
   private ComputationStep mockStep() {

@@ -21,8 +21,9 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableSet;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -50,26 +51,31 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private final IssueCache issueCache;
   private final RuleCache rules;
+  private final DbComponentsRefCache dbComponentsRefCache;
   private final NotificationService service;
   private NewIssuesNotificationFactory newIssuesNotificationFactory;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, NotificationService service, NewIssuesNotificationFactory newIssuesNotificationFactory) {
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, DbComponentsRefCache dbComponentsRefCache, NotificationService service,
+    NewIssuesNotificationFactory newIssuesNotificationFactory) {
     this.issueCache = issueCache;
     this.rules = rules;
+    this.dbComponentsRefCache = dbComponentsRefCache;
     this.service = service;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    if (service.hasProjectSubscribersForTypes(context.getProject().uuid(), NOTIF_TYPES)) {
-      doExecute(context);
+    DbComponent project = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef());
+    if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
+      doExecute(context, project);
     }
   }
 
-  private void doExecute(ComputationContext context) {
+  private void doExecute(ComputationContext context, DbComponent project) {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
+    String projectName = context.getReportReader().readComponent(context.getReportMetadata().getRootComponentRef()).getName();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
@@ -79,7 +85,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           IssueChangeNotification changeNotification = new IssueChangeNotification();
           changeNotification.setRuleName(rules.ruleName(issue.ruleKey()));
           changeNotification.setIssue(issue);
-          changeNotification.setProject(context.getProject());
+          changeNotification.setProject(project.getKey(), projectName);
           service.deliver(changeNotification);
         }
       }
@@ -87,18 +93,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
     } finally {
       issues.close();
     }
-    sendNewIssuesStatistics(context, newIssuesStats);
+    sendNewIssuesStatistics(context, newIssuesStats, project, projectName);
   }
 
-  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesStatistics statistics) {
+  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesStatistics statistics, DbComponent project, String projectName) {
     if (statistics.hasIssues()) {
       NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
-      ComponentDto project = context.getProject();
       NewIssuesNotification notification = newIssuesNotificationFactory
         .newNewIssuesNotication()
-        .setProject(project)
+        .setProject(project.getKey(), project.getUuid(), projectName)
         .setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()))
-        .setStatistics(project, globalStatistics)
+        .setStatistics(projectName, globalStatistics)
         .setDebt(globalStatistics.debt());
       service.deliver(notification);
 
@@ -110,9 +115,9 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .newMyNewIssuesNotification()
           .setAssignee(assignee);
         myNewIssuesNotification
-          .setProject(project)
+          .setProject(project.getKey(), project.getUuid(), projectName)
           .setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()))
-          .setStatistics(project, assigneeStatistics)
+          .setStatistics(projectName, assigneeStatistics)
           .setDebt(assigneeStatistics.debt());
 
         service.deliver(myNewIssuesNotification);

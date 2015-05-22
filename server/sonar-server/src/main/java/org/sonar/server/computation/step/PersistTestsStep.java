@@ -78,7 +78,7 @@ public class PersistTestsStep implements ComputationStep {
       recursivelyProcessComponent(context, rootComponentRef);
       session.commit();
       if (context.hasUnprocessedCoverageDetails) {
-        LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", computationContext.getProject().getKey());
+        LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", computationContext.getProjectKey());
       }
     } finally {
       MyBatis.closeQuietly(session);

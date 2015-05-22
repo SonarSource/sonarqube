@@ -116,7 +116,7 @@ public class IssueBulkChangeService {
               .setIssue((DefaultIssue) issue)
               .setChangeAuthorLogin(issueChangeContext.login())
               .setRuleName(rule != null ? rule.getName() : null)
-              .setProject(repository.project(projectKey))
+              .setProject(projectKey, repository.project(projectKey).name())
               .setComponent(repository.component(issue.componentKey())));
           }
         }

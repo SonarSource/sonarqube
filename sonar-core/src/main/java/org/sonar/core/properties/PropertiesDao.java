@@ -26,8 +26,8 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
@@ -133,27 +133,14 @@ public class PropertiesDao implements DaoComponent {
     }
   }
 
-  public List<PropertyDto> selectProjectProperties(String resourceKey, SqlSession session) {
-    return session.getMapper(PropertiesMapper.class).selectProjectProperties(resourceKey);
-  }
-
-  public List<PropertyDto> selectProjectProperties(long resourceId) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return selectProjectProperties(resourceId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<PropertyDto> selectProjectProperties(long resourceId, SqlSession session) {
-    return session.getMapper(PropertiesMapper.class).selectProjectPropertiesByResourceId(resourceId);
+  public List<PropertyDto> selectProjectProperties(DbSession session, String projectKey) {
+    return session.getMapper(PropertiesMapper.class).selectProjectProperties(projectKey);
   }
 
   public List<PropertyDto> selectProjectProperties(String resourceKey) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return selectProjectProperties(resourceKey, session);
+      return selectProjectProperties(session, resourceKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

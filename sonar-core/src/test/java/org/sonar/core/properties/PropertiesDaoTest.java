@@ -164,17 +164,6 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectProjectPropertiesByResourceId() {
-    setupData("selectProjectPropertiesByResourceId");
-
-    List<PropertyDto> properties = dao.selectProjectProperties(10L);
-
-    assertThat(properties.size(), is(2));
-    assertThat(properties).extracting("key").containsOnly("struts.one", "user.two");
-    assertThat(properties).extracting("value").containsOnly("one", "two");
-  }
-
-  @Test
   public void select_module_properties_tree() {
     setupData("select_module_properties_tree");
 

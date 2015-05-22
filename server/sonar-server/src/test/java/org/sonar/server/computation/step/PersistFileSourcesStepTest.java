@@ -39,7 +39,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
@@ -63,6 +62,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private static final int FILE_REF = 3;
 
   private static final String PROJECT_UUID = "PROJECT";
+  private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String FILE_UUID = "FILE";
 
   @Rule
@@ -113,7 +113,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_sources() throws Exception {
     initBasicReport(2);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -135,14 +135,14 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void persist_last_line() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
     dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", FILE_UUID));
 
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     FileUtils.writeLines(writer.getFileStructure().fileFor(FileStructure.Domain.SOURCE, FILE_REF), Lists.newArrayList("line1", "line2"));
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -156,7 +156,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setLines(3)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -170,7 +170,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_source_hashes() throws Exception {
     initBasicReport(2);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource("FILE");
@@ -192,7 +192,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setOverallCoveredConditions(4)
       .build()));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -225,7 +225,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .addChangesetIndexByLine(0)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -251,7 +251,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build()
       ));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -277,7 +277,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         ).build()
       ));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -309,7 +309,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build()
       ));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -347,7 +347,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     // Sources from the report
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -381,7 +381,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -412,7 +412,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -437,7 +437,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     ));
 
     try {
-      sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto(PROJECT_UUID)));
+      sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
     } catch (IllegalStateException e){
       assertThat(e).hasMessage("Cannot persist sources of src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);
@@ -445,14 +445,14 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   private BatchReportWriter initBasicReport(int numberOfLines) throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
     dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "MODULE_KEY", "MODULE"));
     dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(3L, "MODULE_KEY:src/Foo.java", FILE_UUID));
 
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()

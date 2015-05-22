@@ -32,7 +32,6 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentLinkDao;
@@ -51,6 +50,8 @@ import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class PersistProjectLinksStepTest extends BaseStepTest {
+
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -99,7 +100,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void add_links_on_project_and_module() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
     dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "MODULE_KEY", "BCDE"));
 
     File reportDir = temp.newFolder();
@@ -107,7 +108,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -127,7 +128,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "add_links_on_project_and_module-result.xml", "project_links");
   }
@@ -136,13 +137,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void nothing_to_do_when_link_already_exists() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -151,7 +152,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml", "project_links");
   }
@@ -160,13 +161,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void do_not_add_links_on_file() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -175,7 +176,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -184,13 +185,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void update_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "update_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -199,7 +200,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "update_link-result.xml", "project_links");
   }
@@ -208,13 +209,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void delete_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "delete_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -222,7 +223,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -231,13 +232,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void not_delete_custom_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "not_delete_custom_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -245,7 +246,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "not_delete_custom_link.xml", "project_links");
   }
@@ -254,13 +255,13 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void fail_when_trying_to_add_same_link_type_multiple_times() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .build());
 
     writer.writeComponent(BatchReport.Component.newBuilder()
@@ -271,7 +272,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .build());
 
     try {
-      step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+      step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");

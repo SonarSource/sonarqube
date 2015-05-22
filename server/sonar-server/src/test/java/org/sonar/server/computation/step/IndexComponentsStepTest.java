@@ -41,6 +41,8 @@ import static org.mockito.Mockito.when;
 
 public class IndexComponentsStepTest extends BaseStepTest {
 
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -50,7 +52,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   @Test
   public void call_indexProject_of_dao() throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponent(123L, "PROJECT_KEY", "PROJECT_UUID"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(123L, PROJECT_KEY, "PROJECT_UUID"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
@@ -60,7 +62,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), project);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
 
     sut.execute(context);
 

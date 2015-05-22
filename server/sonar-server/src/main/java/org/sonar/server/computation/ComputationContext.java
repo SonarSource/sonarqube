@@ -23,21 +23,21 @@ package org.sonar.server.computation;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.core.component.ComponentDto;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class ComputationContext {
 
   private final BatchReportReader reportReader;
-  private final ComponentDto project;
+  // Project key (including branch if any)
+  private final String projectKey;
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
   private Settings projectSettings;
 
-  public ComputationContext(BatchReportReader reportReader, ComponentDto project) {
+  public ComputationContext(BatchReportReader reportReader, String projectKey) {
     this.reportReader = reportReader;
-    this.project = project;
+    this.projectKey = projectKey;
     this.reportMetadata = reportReader.readMetadata();
   }
 
@@ -45,8 +45,8 @@ public class ComputationContext {
     return reportMetadata;
   }
 
-  public ComponentDto getProject() {
-    return project;
+  public String getProjectKey() {
+    return projectKey;
   }
 
   public BatchReportReader getReportReader() {

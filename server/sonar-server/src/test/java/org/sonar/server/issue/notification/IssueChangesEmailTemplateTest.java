@@ -30,7 +30,6 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import java.nio.charset.StandardCharsets;
@@ -169,7 +168,7 @@ public class IssueChangesEmailTemplateTest {
 
     Notification notification = new IssueChangeNotification()
       .setChangeAuthorLogin("simon")
-      .setProject(new ComponentDto().setLongName("Struts").setKey("org.apache:struts"));
+      .setProject("Struts", "org.apache:struts");
 
     EmailMessage message = template.format(notification);
     assertThat(message.getFrom()).isEqualTo("Simon");

@@ -34,7 +34,6 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
@@ -76,13 +75,8 @@ public class ReportQueueTest {
     when(system.now()).thenReturn(NOW);
 
     dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
-    sut = new ReportQueue(dbClient, settings);
-
     session = dbClient.openSession(false);
-      dbClient.componentDao().insert(session, ComponentTesting.newProjectDto().setKey("P1"));
-      dbClient.componentDao().insert(session, ComponentTesting.newProjectDto().setKey("P2"));
-      dbClient.componentDao().insert(session, ComponentTesting.newProjectDto().setKey("P3"));
-      session.commit();
+    sut = new ReportQueue(dbClient, settings);
   }
 
   @After
@@ -186,11 +180,6 @@ public class ReportQueueTest {
     sut.clear();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void add_on_non_existent_project() {
-    sut.add("UNKNOWN_PROJECT_KEY", "Unknown project", generateData());
-  }
-
   @Test
   public void reset_to_pending_status() {
     // 2 pending
@@ -204,6 +193,7 @@ public class ReportQueueTest {
 
     sut.resetToPendingStatus();
     assertThat(sut.all()).extracting("status").containsOnly(PENDING).hasSize(2);
+
   }
 
   private InputStream generateData() {

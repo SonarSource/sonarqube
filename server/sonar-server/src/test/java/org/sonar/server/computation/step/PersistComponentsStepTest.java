@@ -49,6 +49,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class PersistComponentsStepTest extends BaseStepTest {
 
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+
   @ClassRule
   public static DbTester dbTester = new DbTester();
 
@@ -91,7 +93,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
     computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
@@ -105,7 +107,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .setDescription("Project description")
       .addChildRef(2)
@@ -131,11 +133,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setLanguage("java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
-    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(project).isNotNull();
     assertThat(project.name()).isEqualTo("Project");
     assertThat(project.description()).isEqualTo("Project description");
@@ -192,7 +194,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_file_directly_attached_on_root_directory() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:/", "CDEF"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:pom.xml", "DEFG"));
 
@@ -205,7 +207,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
@@ -221,7 +223,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
     assertThat(directory).isNotNull();
@@ -236,7 +238,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_unit_test() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:src/test/java/dir", "CDEF"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:src/test/java/dir/FooTest.java", "DEFG"));
 
@@ -249,7 +251,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
@@ -266,7 +268,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setIsTest(true)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     ComponentDto file = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:src/test/java/dir/FooTest.java");
     assertThat(file).isNotNull();
@@ -278,13 +280,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_only_new_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
     computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
 
     // Project amd module already exists
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey("PROJECT_KEY").setName("Project");
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(session, module);
@@ -299,7 +301,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
@@ -322,11 +324,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), project));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
     assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
 
@@ -370,7 +372,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
@@ -401,11 +403,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto()));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
-    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(project).isNotNull();
     assertThat(project.parentProjectId()).isNull();
 
@@ -428,12 +430,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_persist() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
     computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
 
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey("PROJECT_KEY").setName("Project");
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(session, module);
@@ -451,10 +453,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
-      .setName("Project")
-      .addChildRef(2)
-      .build());
+      .setKey(PROJECT_KEY)
+        .setName("Project")
+        .addChildRef(2)
+        .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
@@ -474,15 +476,15 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), project));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
-    assertThat(dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY").getId()).isEqualTo(project.getId());
+    assertThat(dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY).getId()).isEqualTo(project.getId());
     assertThat(dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY").getId()).isEqualTo(module.getId());
     assertThat(dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir").getId()).isEqualTo(directory.getId());
     assertThat(dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java").getId()).isEqualTo(file.getId());
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
     assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
     assertThat(projectReloaded.moduleUuid()).isEqualTo(project.moduleUuid());
@@ -521,10 +523,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_name_and_description() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
 
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey("PROJECT_KEY").setName("Project");
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(session, module);
@@ -539,7 +541,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("New project name")
       .setDescription("New project description")
       .addChildRef(2)
@@ -552,9 +554,9 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New module description")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), project));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY");
+    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.name()).isEqualTo("New project name");
     assertThat(projectReloaded.description()).isEqualTo("New project description");
 
@@ -565,13 +567,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_uuid_when_moving_a_module() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_A", "EDCB"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_B", "BCDE"));
     computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_B:src/main/java/dir", "CDEF"));
     computeComponentsRefCache.addComponent(5, new ComputeComponentsRefCache.ComputeComponent("MODULE_B:src/main/java/dir/Foo.java", "DEFG"));
 
-    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey("PROJECT_KEY").setName("Project");
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto moduleA = ComponentTesting.newModuleDto("EDCB", project).setKey("MODULE_A").setName("Module A");
     ComponentDto moduleB = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_B").setName("Module B");
@@ -590,7 +592,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
+      .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
@@ -621,7 +623,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), project));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 

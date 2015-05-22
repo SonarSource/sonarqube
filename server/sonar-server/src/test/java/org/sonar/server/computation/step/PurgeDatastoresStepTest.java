@@ -47,6 +47,8 @@ import static org.mockito.Mockito.verify;
 
 public class PurgeDatastoresStepTest extends BaseStepTest {
 
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
   PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache);
@@ -56,7 +58,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   @Test
   public void call_purge_method_of_the_purge_task() throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(123L, "PROJECT_KEY", "UUID-1234"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(123L, PROJECT_KEY, "UUID-1234"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
@@ -65,7 +67,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .build());
 
     ComponentDto project = mock(ComponentDto.class);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), project);
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
 
     sut.execute(context);
 

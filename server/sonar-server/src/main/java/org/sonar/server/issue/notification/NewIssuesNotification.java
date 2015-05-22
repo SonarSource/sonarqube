@@ -20,14 +20,12 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Multiset;
-import org.sonar.api.component.Component;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -77,15 +75,15 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  public NewIssuesNotification setProject(ComponentDto project) {
-    setFieldValue(FIELD_PROJECT_NAME, project.longName());
-    setFieldValue(FIELD_PROJECT_KEY, project.key());
-    setFieldValue(FIELD_PROJECT_UUID, project.uuid());
+  public NewIssuesNotification setProject(String projectKey, String projectUuid, String projectName) {
+    setFieldValue(FIELD_PROJECT_NAME, projectName);
+    setFieldValue(FIELD_PROJECT_KEY, projectKey);
+    setFieldValue(FIELD_PROJECT_UUID, projectUuid);
     return this;
   }
 
-  public NewIssuesNotification setStatistics(Component project, NewIssuesStatistics.Stats stats) {
-    setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + project.longName() + ".\n");
+  public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
+    setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + projectName + ".\n");
 
     setSeverityStatistics(stats);
     setAssigneesStatistics(stats);

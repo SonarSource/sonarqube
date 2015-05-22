@@ -23,13 +23,12 @@ package org.sonar.server.computation;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.core.component.ComponentDto;
 
 import static org.mockito.Mockito.mock;
 
 public class ComputationContextTest {
 
-  ComputationContext sut = new ComputationContext(mock(BatchReportReader.class), mock(ComponentDto.class));
+  ComputationContext sut = new ComputationContext(mock(BatchReportReader.class), "ProjectKey");
 
   @Test(expected = IllegalStateException.class)
   public void setProjectSettings() {

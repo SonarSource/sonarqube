@@ -89,7 +89,7 @@ public class IssueChangeNotificationTest {
 
   @Test
   public void set_project() {
-    IssueChangeNotification result = notification.setProject(new ComponentDto().setKey("MyService").setLongName("My Service"));
+    IssueChangeNotification result = notification.setProject("MyService", "My Service");
     assertThat(result.getFieldValue("projectKey")).isEqualTo("MyService");
     assertThat(result.getFieldValue("projectName")).isEqualTo("My Service");
   }

@@ -30,9 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleDoc;
@@ -66,12 +64,7 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_project() {
-    ComponentDto component = ComponentTesting.newProjectDto()
-      .setLongName("project-long-name")
-      .setUuid("project-uuid")
-      .setKey("project-key");
-
-    sut.setProject(component);
+    sut.setProject("project-key", "project-uuid", "project-long-name");
 
     assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
     assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
@@ -89,8 +82,6 @@ public class NewIssuesNotificationTest {
 
   @Test
   public void set_statistics() {
-    ComponentDto component = ComponentTesting.newProjectDto()
-      .setLongName("project-long-name");
     addIssueNTimes(newIssue1(), 5);
     addIssueNTimes(newIssue2(), 3);
     when(dbClient.componentDao().selectByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
@@ -98,7 +89,7 @@ public class NewIssuesNotificationTest {
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
 
-    sut.setStatistics(component, stats);
+    sut.setStatistics("project-long-name", stats);
 
     assertThat(sut.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
     assertThat(sut.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");

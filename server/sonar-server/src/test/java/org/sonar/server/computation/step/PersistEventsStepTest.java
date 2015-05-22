@@ -32,7 +32,6 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -50,6 +49,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistEventsStepTest extends BaseStepTest {
 
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+  
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -93,13 +94,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -108,7 +109,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", "events");
   }
@@ -117,13 +118,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -145,7 +146,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       )
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
   }
@@ -154,14 +155,14 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
     dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "BCDE"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -188,7 +189,7 @@ public class PersistEventsStepTest extends BaseStepTest {
           .build()
       ).build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
   }
@@ -197,13 +198,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -214,7 +215,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setVersion("1.0")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", "events");
   }
@@ -223,13 +224,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() throws Exception {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -240,7 +241,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setVersion("1.5-SNAPSHOT")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class)));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", "events");
   }

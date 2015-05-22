@@ -57,8 +57,6 @@ public class ReportQueue {
 
     DbSession session = dbClient.openSession(false);
     try {
-      checkThatProjectExistsInDatabase(projectKey, session);
-
       saveReportOnDisk(reportData, file);
       AnalysisReportDto dto = saveReportMetadataInDatabase(projectKey, projectName, uuid, session);
 
@@ -88,10 +86,6 @@ public class ReportQueue {
 
   private void saveReportOnDisk(InputStream reportData, File file) throws IOException {
     FileUtils.copyInputStreamToFile(reportData, file);
-  }
-
-  private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
-    dbClient.componentDao().selectByKey(session, projectKey);
   }
 
   public void remove(Item item) {

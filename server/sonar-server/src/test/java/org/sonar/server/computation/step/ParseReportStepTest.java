@@ -27,7 +27,6 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.ComputeComponentsRefCache;
@@ -44,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class ParseReportStepTest extends BaseStepTest {
+
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   private static final List<BatchReport.Issue> ISSUES_ON_DELETED_COMPONENT = Arrays.asList(BatchReport.Issue.newBuilder()
     .setUuid("DELETED_ISSUE_UUID")
@@ -62,23 +63,23 @@ public class ParseReportStepTest extends BaseStepTest {
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "PROJECT_UUID"));
+    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "PROJECT_UUID"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:file1", "FILE1_UUID"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:file2", "FILE2_UUID"));
 
     File reportDir = generateReport();
 
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), mock(ComponentDto.class));
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY);
     sut.execute(context);
 
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
     assertThat(context.getReportMetadata().getDeletedComponentsCount()).isEqualTo(1);
 
     // verify that all components are processed (currently only for issues)
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1, "PROJECT_KEY", "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2, "PROJECT_KEY", "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3, "PROJECT_KEY", "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null, "PROJECT_KEY", "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(context, ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null, PROJECT_KEY, "PROJECT_UUID");
     verify(issueComputation).afterReportProcessing();
   }
 
@@ -88,7 +89,7 @@ public class ParseReportStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey("PROJECT_KEY")
+      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .setDeletedComponentsCount(1)
       .build());

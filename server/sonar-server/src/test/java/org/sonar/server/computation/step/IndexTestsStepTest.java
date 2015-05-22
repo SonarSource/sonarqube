@@ -31,7 +31,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
@@ -92,7 +91,7 @@ public class IndexTestsStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto("ABCD")));
+    step().execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY"));
 
     List<SearchHit> docs = esTester.getDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

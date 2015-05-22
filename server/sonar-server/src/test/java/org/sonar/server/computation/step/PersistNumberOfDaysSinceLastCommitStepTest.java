@@ -33,7 +33,6 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.measure.MetricCache;
@@ -95,7 +94,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
         )
         .build()
       );
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY");
 
     sut.execute(context);
 
@@ -107,7 +106,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY");
 
     sut.execute(context);
 
@@ -117,7 +116,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void no_scm_information_in_report_and_index() {
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), ComponentTesting.newProjectDto("project-uuid"));
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir),"PROJECT_KEY");
 
     sut.execute(context);
 
@@ -125,8 +124,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   private BatchReportWriter initReportWithProjectAndFile() {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "project-key", "project-uuid"));
-    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "project-key:file", "file-uuid"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "project-uuid"));
+    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", "file-uuid"));
 
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -137,7 +136,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("project-key")
+      .setKey("PROJECT_KEY")
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());

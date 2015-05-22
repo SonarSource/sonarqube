@@ -58,7 +58,7 @@ public class PersistComponentsStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, context.getProject().key());
+      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, context.getProjectKey());
       Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
       int rootComponentRef = context.getReportMetadata().getRootComponentRef();
       ComponentContext componentContext = new ComponentContext(context, session, componentDtosByKey);

@@ -63,6 +63,12 @@ public class IssueChangeNotification extends Notification {
     return this;
   }
 
+  public IssueChangeNotification setProject(String projectKey, String projectName) {
+    setFieldValue("projectName", projectName);
+    setFieldValue("projectKey", projectKey);
+    return this;
+  }
+
   public IssueChangeNotification setComponent(Component component) {
     setFieldValue("componentName", component.longName());
     return this;

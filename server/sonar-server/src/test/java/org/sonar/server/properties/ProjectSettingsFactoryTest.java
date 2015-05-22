@@ -36,20 +36,18 @@ import static org.mockito.Mockito.mock;
 public class ProjectSettingsFactoryTest {
 
   private ProjectSettingsFactory sut;
-  private Settings settings;
-  private PropertiesDao dao;
 
   @Before
   public void before() {
-    this.settings = mock(Settings.class);
-    this.dao = mock(PropertiesDao.class);
+    Settings settings = mock(Settings.class);
+    PropertiesDao dao = mock(PropertiesDao.class);
 
     this.sut = new ProjectSettingsFactory(settings, dao);
   }
 
   @Test
   public void newProjectSettings_returns_a_ProjectSettings() {
-    Settings projectSettings = sut.newProjectSettings(1L);
+    Settings projectSettings = sut.newProjectSettings("PROJECT_KEY");
 
     assertThat(projectSettings).isInstanceOf(ProjectSettings.class);
   }

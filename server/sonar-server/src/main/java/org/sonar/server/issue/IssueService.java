@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -32,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
@@ -297,11 +297,12 @@ public class IssueService {
     }
     issueStorage.save(session, issue);
     Rule rule = getNullableRuleByKey(issue.ruleKey());
+    ComponentDto project = dbClient.componentDao().selectByKey(session, projectKey);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule != null ? rule.getName() : null)
-      .setProject(dbClient.componentDao().selectByKey(session, projectKey))
+      .setProject(project.getKey(), project.name())
       .setComponent(dbClient.componentDao().selectNullableByKey(session, issue.componentKey()))
       .setComment(comment));
   }

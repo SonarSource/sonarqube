@@ -30,7 +30,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
@@ -48,6 +47,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexSourceLinesStepTest extends BaseStepTest {
+
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -77,7 +78,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
 
   @Test
   public void index_source() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     Connection connection = dbTester.openConnection();
@@ -90,7 +91,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(new BatchReportReader(reportDir), ComponentTesting.newProjectDto("ABCD")));
+    step().execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY));
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

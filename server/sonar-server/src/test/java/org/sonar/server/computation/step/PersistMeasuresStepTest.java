@@ -62,11 +62,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PersistMeasuresStepTest extends BaseStepTest {
 
+  private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String METRIC_KEY = "metric-key";
   private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule-key");
 
@@ -176,7 +176,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    sut.execute(new ComputationContext(new BatchReportReader(dir), mock(ComponentDto.class)));
+    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY));
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
