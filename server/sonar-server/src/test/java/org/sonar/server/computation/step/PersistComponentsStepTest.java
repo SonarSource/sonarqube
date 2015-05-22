@@ -354,7 +354,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void compute_parent_project_id_from_first_module() throws Exception {
+  public void compute_parent_project_id() throws Exception {
     computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
     computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
     computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_1_KEY", "CDEF"));
