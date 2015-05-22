@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -35,13 +36,15 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.ComputeComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class FeedComponentsCacheStepTest extends BaseStepTest {
@@ -61,6 +64,8 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
   DbClient dbClient;
 
   Settings projectSettings;
+
+  LanguageRepository languageRepository = mock(LanguageRepository.class);
 
   ComputeComponentsRefCache computeComponentsRefCache;
 
@@ -116,7 +121,8 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(computeComponentsRefCache.getByRef(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(computeComponentsRefCache.getByRef(1).getUuid()).isNotNull();
@@ -172,7 +178,8 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(computeComponentsRefCache.getByRef(4).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir");
     assertThat(computeComponentsRefCache.getByRef(5).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir/Foo.java");
@@ -213,7 +220,8 @@ public class FeedComponentsCacheStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(computeComponentsRefCache.getByRef(1).getKey()).isEqualTo("PROJECT_KEY:origin/master");
     assertThat(computeComponentsRefCache.getByRef(2).getKey()).isEqualTo("MODULE_KEY:origin/master");

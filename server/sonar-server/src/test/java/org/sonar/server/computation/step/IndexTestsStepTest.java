@@ -20,6 +20,9 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
+import java.sql.Connection;
+import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,7 +35,10 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -41,11 +47,8 @@ import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
 
-import java.io.File;
-import java.sql.Connection;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class IndexTestsStepTest extends BaseStepTest {
 
@@ -59,6 +62,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   public static EsTester esTester = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
   DbClient dbClient;
+  ComputationContext underTest;
 
   DbComponentsRefCache dbComponentsRefCache;
 
@@ -91,7 +95,8 @@ public class IndexTestsStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY", new Settings()));
+    step().execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY", new Settings(), dbClient,
+        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
 
     List<SearchHit> docs = esTester.getDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

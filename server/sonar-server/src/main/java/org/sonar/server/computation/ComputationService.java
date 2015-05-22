@@ -21,6 +21,9 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
+import java.io.File;
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
@@ -37,6 +40,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
@@ -63,15 +68,18 @@ public class ComputationService {
   private final ProjectSettingsFactory projectSettingsFactory;
   private final TempFolder tempFolder;
   private final System2 system;
+  private final LanguageRepository languageRepository;
 
   public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
-    ProjectSettingsFactory projectSettingsFactory, TempFolder tempFolder, System2 system) {
+    ProjectSettingsFactory projectSettingsFactory, TempFolder tempFolder, System2 system,
+    LanguageRepository languageRepository) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
     this.projectSettingsFactory = projectSettingsFactory;
     this.tempFolder = tempFolder;
     this.system = system;
+    this.languageRepository = languageRepository;
   }
 
   public void process(ReportQueue.Item item) {
@@ -83,7 +91,7 @@ public class ComputationService {
       File reportDir = extractReportInDir(item);
       BatchReportReader reader = new BatchReportReader(reportDir);
       Settings projectSettings = projectSettingsFactory.newProjectSettings(projectKey);
-      ComputationContext context = new ComputationContext(reader, projectKey, projectSettings);
+      ComputationContext context = new ComputationContext(reader, projectKey, projectSettings, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
       for (ComputationStep step : steps.orderedSteps()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
         step.execute(context);

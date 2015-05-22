@@ -19,6 +19,9 @@
  */
 package org.sonar.server.computation;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -35,6 +38,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -44,14 +48,11 @@ import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.properties.ProjectSettingsFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -88,7 +89,7 @@ public class ComputationServiceTest {
   public void setUp() {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
-    sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system);
+    sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system, mock(LanguageRepository.class));
   }
 
   @Test
@@ -217,6 +218,12 @@ public class ComputationServiceTest {
       .setRootComponentRef(1)
       .setProjectKey("PROJECT_KEY")
       .setAnalysisDate(150000000L)
+      .setSnapshotId(snapshotId)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey("PROJECT_KEY")
       .setSnapshotId(snapshotId)
       .build());
     File zip = tempFolder.newFile();

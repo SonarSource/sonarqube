@@ -30,6 +30,8 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.issue.IssueComputation;
 
@@ -38,6 +40,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,7 +74,8 @@ public class ParseReportStepTest extends BaseStepTest {
 
     File reportDir = generateReport();
 
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings());
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(),
+        mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
     sut.execute(context);
 
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);

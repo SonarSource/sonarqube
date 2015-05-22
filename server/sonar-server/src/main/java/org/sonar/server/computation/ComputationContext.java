@@ -17,27 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation;
 
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentTreeBuilder;
+import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.db.DbClient;
 
-public class ComputationContext {
-
+public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
   private final BatchReportReader reportReader;
+  private final Settings projectSettings;
+  private final DbClient dbClient;
   // Project key (including branch if any)
   private final String projectKey;
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
-  private final Settings projectSettings;
+  private final Component component;
+  private final LanguageRepository languageRepository;
 
-  public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings) {
+  public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
+    ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
     this.reportReader = reportReader;
     this.projectKey = projectKey;
     this.projectSettings = projectSettings;
+    this.dbClient = dbClient;
     this.reportMetadata = reportReader.readMetadata();
+    this.component = componentTreeBuilder.build(this);
+    this.languageRepository = languageRepository;
   }
 
   public BatchReport.Metadata getReportMetadata() {
@@ -56,4 +65,21 @@ public class ComputationContext {
     return projectSettings;
   }
 
+  @Override
+  public Component getRoot() {
+    return component;
+  }
+
+  /**
+   * @deprecated because dbclient is too low level to be exposed in the CE API
+   */
+  @Deprecated
+  public DbClient getDbClient() {
+    return dbClient;
+  }
+
+  @Override
+  public LanguageRepository getLanguageRepository() {
+    return languageRepository;
+  }
 }

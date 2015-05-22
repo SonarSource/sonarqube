@@ -34,6 +34,9 @@ import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
 
@@ -67,7 +70,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .build());
 
     ComponentDto project = mock(ComponentDto.class);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings());
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
 
     sut.execute(context);
 

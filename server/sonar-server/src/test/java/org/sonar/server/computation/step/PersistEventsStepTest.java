@@ -37,6 +37,9 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.db.DbClient;
@@ -58,6 +61,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public static DbTester dbTester = new DbTester();
 
   DbSession session;
+  DbClient dbClient;
+  LanguageRepository languageRepository;
 
   EventDao dao;
 
@@ -79,6 +84,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(1225630680000L);
 
     projectSettings = new Settings();
+    languageRepository = mock(LanguageRepository.class);
 
     dbComponentsRefCache = new DbComponentsRefCache();
     step = new PersistEventsStep(dbClient, system2, dbComponentsRefCache);
@@ -113,7 +119,8 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", "events");
   }
@@ -150,7 +157,8 @@ public class PersistEventsStepTest extends BaseStepTest {
       )
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
   }
@@ -193,7 +201,8 @@ public class PersistEventsStepTest extends BaseStepTest {
           .build()
       ).build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
   }
@@ -219,7 +228,8 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setVersion("1.0")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", "events");
   }
@@ -245,7 +255,8 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setVersion("1.5-SNAPSHOT")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", "events");
   }

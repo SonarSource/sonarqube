@@ -20,6 +20,11 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,8 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -47,9 +50,12 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -58,13 +64,8 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PersistMeasuresStepTest extends BaseStepTest {
@@ -179,7 +180,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY, new Settings()));
+    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY, new Settings(),
+      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
@@ -425,7 +427,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setSnapshotId(3);
   }
 
-  private ComponentDto addComponent(int ref, String key){
+  private ComponentDto addComponent(int ref, String key) {
     ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
     dbClient.componentDao().insert(session, componentDto);
     session.commit();

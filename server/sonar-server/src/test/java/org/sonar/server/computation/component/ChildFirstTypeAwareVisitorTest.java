@@ -19,15 +19,8 @@
  */
 package org.sonar.server.computation.component;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.sonar.server.computation.context.ComputationContext;
-import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.computation.measure.MeasureRepository;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
@@ -37,8 +30,6 @@ import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
 public class ChildFirstTypeAwareVisitorTest {
-
-  private static final String UNSUPPORTED_OPERATION_ERROR = "This node has no repository nor context";
 
   private static final Component FILE_4 = component(FILE, 4);
   private static final Component FILE_5 = component(FILE, 5);
@@ -268,37 +259,7 @@ public class ChildFirstTypeAwareVisitorTest {
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
-    return new Component() {
-
-      @Override
-      public Type getType() {
-        return type;
-      }
-
-      @Override
-      public int getRef() {
-        return ref;
-      }
-
-      @Override
-      public List<Component> getChildren() {
-        return children == null ? Collections.<Component>emptyList() : ImmutableList.copyOf(Arrays.asList(children));
-      }
-
-      @Override
-      public ComputationContext getContext() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
-      }
-
-      @Override
-      public EventRepository getEventRepository() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
-      }
-
-      @Override
-      public MeasureRepository getMeasureRepository() {
-        throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
-      }
-    };
+    return new DumbComponent(type, ref, children);
   }
+
 }

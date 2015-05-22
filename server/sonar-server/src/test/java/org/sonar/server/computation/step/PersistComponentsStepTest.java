@@ -39,12 +39,16 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PersistComponentsStepTest extends BaseStepTest {
@@ -64,6 +68,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
   DbClient dbClient;
 
   Settings projectSettings;
+  LanguageRepository languageRepository;
   ComputeComponentsRefCache computeComponentsRefCache;
   DbComponentsRefCache dbComponentsRefCache;
 
@@ -79,6 +84,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     computeComponentsRefCache = new ComputeComponentsRefCache();
     projectSettings = new Settings();
+    languageRepository = mock(LanguageRepository.class);
     dbComponentsRefCache = new DbComponentsRefCache();
     sut = new PersistComponentsStep(dbClient, computeComponentsRefCache, dbComponentsRefCache);
   }
@@ -135,7 +141,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setLanguage("java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -225,7 +232,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
     assertThat(directory).isNotNull();
@@ -270,7 +278,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setIsTest(true)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     ComponentDto file = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:src/test/java/dir/FooTest.java");
     assertThat(file).isNotNull();
@@ -326,7 +335,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -405,7 +415,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -478,7 +489,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY).getId()).isEqualTo(project.getId());
@@ -556,7 +568,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New module description")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.name()).isEqualTo("New project name");
@@ -625,7 +638,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 

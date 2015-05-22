@@ -37,6 +37,9 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class PersistFileSourcesStepTest {
 
@@ -80,7 +84,7 @@ public class PersistFileSourcesStepTest {
     long start = System.currentTimeMillis();
 
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache);
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY", new Settings()));
+    step.execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
 
     long end = System.currentTimeMillis();
     long duration = end - start;

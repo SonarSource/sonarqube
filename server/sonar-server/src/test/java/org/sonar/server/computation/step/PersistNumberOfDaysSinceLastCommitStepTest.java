@@ -38,6 +38,9 @@ import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -61,6 +64,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   SourceLineIndex sourceLineIndex;
   MetricCache metricCache;
   Settings projectSettings;
+  LanguageRepository languageRepository;
 
   DbComponentsRefCache dbComponentsRefCache;
 
@@ -71,6 +75,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     sourceLineIndex = mock(SourceLineIndex.class);
     metricCache = mock(MetricCache.class);
     projectSettings = new Settings();
+    languageRepository = mock(LanguageRepository.class);
     when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
     dbComponentsRefCache = new DbComponentsRefCache();
     dir = temp.newFolder();
@@ -96,7 +101,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
         )
         .build()
       );
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings);
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
 
     sut.execute(context);
 
@@ -108,7 +113,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings);
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
 
     sut.execute(context);
 
@@ -118,7 +123,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void no_scm_information_in_report_and_index() {
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir),"PROJECT_KEY", projectSettings);
+    ComputationContext context = new ComputationContext(new BatchReportReader(dir),"PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
 
     sut.execute(context);
 
