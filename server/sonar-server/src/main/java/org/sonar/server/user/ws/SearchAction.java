@@ -36,10 +36,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -54,16 +56,18 @@ public class SearchAction implements UsersWsAction {
 
   private final UserIndex userIndex;
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public SearchAction(UserIndex userIndex, DbClient dbClient) {
+  public SearchAction(UserIndex userIndex, DbClient dbClient, UserSession userSession) {
     this.userIndex = userIndex;
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
-      .setDescription("Get a list of active users.")
+      .setDescription("Get a list of active users. Requires Administer System permission.")
       .setSince("3.6")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"));
@@ -77,6 +81,8 @@ public class SearchAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     SearchOptions options = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
     List<String> fields = request.paramAsStrings(Param.FIELDS);
