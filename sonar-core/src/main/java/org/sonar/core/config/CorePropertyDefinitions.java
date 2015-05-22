@@ -59,6 +59,19 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
+      PropertyDefinition.builder("sonar.lf.enableGravatar")
+        .name("Enable support of gravatars")
+        .description("Gravatars are profile pictures of users based on their email.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
+        .build(),
+      PropertyDefinition.builder("sonar.lf.gravatarServerUrl")
+        .name("Gravatar URL")
+        .description("Optional URL of custom Gravatar service. Accepted variables are {HASH} for MD5 hash of email and {SIZE} for the picture size in pixels.")
+        .defaultValue("https://secure.gravatar.com/avatar/{HASH}.jpg?s={SIZE}&d=identicon")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
+        .build(),
 
       // ISSUES
       PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
