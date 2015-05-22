@@ -10,7 +10,7 @@
       "scmAccounts": [
         "user-0"
       ],
-      "groupsCount": 0
+      "groups": []
     },
     {
       "login": "user-1",
@@ -19,7 +19,7 @@
       "scmAccounts": [
         "user-1"
       ],
-      "groupsCount": 0
+      "groups": []
     },
     {
       "login": "user-2",
@@ -28,7 +28,7 @@
       "scmAccounts": [
         "user-2"
       ],
-      "groupsCount": 0
+      "groups": []
     },
     {
       "login": "user-3",
@@ -37,7 +37,7 @@
       "scmAccounts": [
         "user-3"
       ],
-      "groupsCount": 0
+      "groups": []
     },
     {
       "login": "user-4",
@@ -46,7 +46,7 @@
       "scmAccounts": [
         "user-4"
       ],
-      "groupsCount": 0
+      "groups": []
     }
   ]
 }

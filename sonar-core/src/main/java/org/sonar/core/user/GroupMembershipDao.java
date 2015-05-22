@@ -22,8 +22,10 @@ package org.sonar.core.user;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -80,16 +82,16 @@ public class GroupMembershipDao implements DaoComponent {
     return result;
   }
 
-  public Map<String, Integer> countGroupsByLogins(final DbSession session, Collection<String> logins) {
-    final Map<String, Integer> result = Maps.newHashMap();
-    DaoUtils.executeLargeInputs(logins, new NonNullInputFunction<List<String>, List<UserGroupCount>>() {
+  public Multimap<String, String> selectGroupsByLogins(final DbSession session, Collection<String> logins) {
+    final Multimap<String, String> result = ArrayListMultimap.create();
+    DaoUtils.executeLargeInputs(logins, new NonNullInputFunction<List<String>, List<LoginGroup>>() {
       @Override
-      protected List<UserGroupCount> doApply(List<String> input) {
-        List<UserGroupCount> groupCounts = mapper(session).countGroupsByLogins(input);
-        for (UserGroupCount count : groupCounts) {
-          result.put(count.login(), count.groupCount());
+      protected List<LoginGroup> doApply(List<String> input) {
+        List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
+        for (LoginGroup membership : groupMemberships) {
+          result.put(membership.login(), membership.groupName());
         }
-        return groupCounts;
+        return groupMemberships;
       }
     });
 

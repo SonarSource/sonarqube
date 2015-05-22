@@ -20,6 +20,7 @@
 
 package org.sonar.core.user;
 
+import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
@@ -192,15 +193,11 @@ public class GroupMembershipDaoTest {
     DbSession session = dbTester.myBatis().openSession(false);
 
     try {
-      assertThat(dao.countGroupsByLogins(session, Arrays.<String>asList())).isEmpty();
-      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred")))
-        .containsExactly(entry("two-hundred", 3));
-      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one")))
-        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1));
-      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one", "two-hundred-two")))
-        .containsOnly(entry("two-hundred", 3), entry("two-hundred-one", 1), entry("two-hundred-two", 0));
-      assertThat(dao.countGroupsByLogins(session, Arrays.asList("two-hundred-two")))
-        .containsOnly(entry("two-hundred-two", 0));
+      assertThat(dao.selectGroupsByLogins(session, Arrays.<String>asList()).keys()).isEmpty();
+      Multimap<String, String> groupsByLogin = dao.selectGroupsByLogins(session, Arrays.asList("two-hundred", "two-hundred-one", "two-hundred-two"));
+      assertThat(groupsByLogin.get("two-hundred")).containsOnly("sonar-administrators", "sonar-users", "sonar-reviewers");
+      assertThat(groupsByLogin.get("two-hundred-one")).containsOnly("sonar-users");
+      assertThat(groupsByLogin.get("two-hundred-two")).isEmpty();
     } finally {
       session.close();
     }

@@ -10,7 +10,7 @@
       "scmAccounts": [
         "user-0"
       ],
-      "groupsCount": 2
+      "groups": ["sonar-admins", "sonar-users"]
     }
   ]
 }

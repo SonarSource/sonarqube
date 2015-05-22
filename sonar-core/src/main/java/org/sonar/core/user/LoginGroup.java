@@ -19,16 +19,16 @@
  */
 package org.sonar.core.user;
 
-public class UserGroupCount {
+public class LoginGroup {
 
   private String login;
-  private int groupCount;
+  private String groupName;
 
   public String login() {
     return login;
   }
 
-  public int groupCount() {
-    return groupCount;
+  public String groupName() {
+    return groupName;
   }
 }

@@ -24,9 +24,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,8 +49,8 @@ public class SearchAction implements UsersWsAction {
   private static final String FIELD_NAME = "name";
   private static final String FIELD_EMAIL = "email";
   private static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
-  private static final String FIELD_GROUPS_COUNT = "groupsCount";
-  private static final Set<String> FIELDS = ImmutableSet.of(FIELD_LOGIN, FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS_COUNT);
+  private static final String FIELD_GROUPS = "groups";
+  private static final Set<String> FIELDS = ImmutableSet.of(FIELD_LOGIN, FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS);
 
   private final UserIndex userIndex;
   private final DbClient dbClient;
@@ -81,7 +82,7 @@ public class SearchAction implements UsersWsAction {
     List<String> fields = request.paramAsStrings(Param.FIELDS);
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
-    Map<String, Integer> groupsByLogin = Maps.newHashMap();
+    Multimap<String, String> groupsByLogin = Multimaps.forMap(Maps.<String, String>newHashMap());
     DbSession session = dbClient.openSession(false);
     try {
       Collection<String> logins = Collections2.transform(result.getDocs(), new Function<UserDoc, String>() {
@@ -90,7 +91,7 @@ public class SearchAction implements UsersWsAction {
           return input.login();
         }
       });
-      groupsByLogin = dbClient.groupMembershipDao().countGroupsByLogins(session, logins);
+      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(session, logins);
     } finally {
       session.close();
     }
@@ -101,7 +102,7 @@ public class SearchAction implements UsersWsAction {
     json.endObject().close();
   }
 
-  private void writeUsers(JsonWriter json, SearchResult<UserDoc> result, @Nullable List<String> fields, Map<String, Integer> groupsByLogin) {
+  private void writeUsers(JsonWriter json, SearchResult<UserDoc> result, @Nullable List<String> fields, Multimap<String, String> groupsByLogin) {
 
     json.name("users").beginArray();
     for (UserDoc user : result.getDocs()) {
@@ -109,7 +110,7 @@ public class SearchAction implements UsersWsAction {
       writeIfNeeded(json, user.login(), FIELD_LOGIN, fields);
       writeIfNeeded(json, user.name(), FIELD_NAME, fields);
       writeIfNeeded(json, user.email(), FIELD_EMAIL, fields);
-      writeIfNeeded(json, groupsByLogin.get(user.login()), FIELD_GROUPS_COUNT, fields);
+      writeGroupsIfNeeded(json, groupsByLogin.get(user.login()), fields);
       if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
         json.name(FIELD_SCM_ACCOUNTS)
           .beginArray()
@@ -127,9 +128,13 @@ public class SearchAction implements UsersWsAction {
     }
   }
 
-  private void writeIfNeeded(JsonWriter json, Integer value, String field, @Nullable List<String> fields) {
-    if (fieldIsWanted(field, fields)) {
-      json.prop(field, value);
+  private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable List<String> fields) {
+    if (fieldIsWanted(FIELD_GROUPS, fields)) {
+      json.name(FIELD_GROUPS).beginArray();
+      for (String groupName : groups) {
+        json.value(groupName);
+      }
+      json.endArray();
     }
   }
 

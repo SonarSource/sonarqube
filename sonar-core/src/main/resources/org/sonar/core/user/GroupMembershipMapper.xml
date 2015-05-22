@@ -45,17 +45,17 @@
     GROUP BY g.name
   </select>
 
-  <select id="countGroupsByLogins" parameterType="string" resultType="org.sonar.core.user.UserGroupCount">
-    SELECT u.login as login, count(gu.user_id) as groupCount
+  <select id="selectGroupsByLogins" parameterType="string" resultType="org.sonar.core.user.LoginGroup">
+    SELECT u.login as login, g.name as groupName
     FROM users u
     LEFT JOIN groups_users gu ON gu.user_id=u.id
+    INNER JOIN groups g ON gu.group_id=g.id
     <where>
       u.login in
       <foreach collection="logins" open="(" close=")" item="login" separator=",">
         #{login}
       </foreach>
     </where>
-    GROUP BY u.login
   </select>
 
 </mapper>
