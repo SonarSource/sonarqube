@@ -43,6 +43,7 @@ define [
         project = find r.projects, issue.project
         subProject = find r.components, issue.subProject
         rule = find r.rules, issue.rule
+        assignee = find r.users, issue.assignee, 'login'
 
         _.extend issue,
           index: index
@@ -67,25 +68,9 @@ define [
           _.extend issue,
             ruleName: rule.name
 
-        if _.isArray(issue.sources) && issue.sources.length > 0
-          source = ''
-          issue.sources.forEach (line) ->
-            source = line[1] if line[0] == issue.line
-          _.extend issue, source: source
-
-
-        if _.isArray(issue.scm) && issue.scm.length > 0
-          scmAuthor = ''
-          scmDate = ''
-
-          issue.scm.forEach (line) ->
-            if line[0] == issue.line
-              scmAuthor = line[1]
-              scmDate = line[2]
-
+        if assignee
           _.extend issue,
-            scmAuthor: scmAuthor
-            scmDate: scmDate
+            assigneeEmail: assignee.email
 
         issue
 

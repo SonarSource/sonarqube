@@ -20,6 +20,7 @@ html
     script(src='/js/libs/third-party/numeral-languages.js')
     script(src='/js/libs/third-party/bootstrap/tooltip.js')
     script(src='/js/libs/third-party/bootstrap/dropdown.js')
+    script(src='/js/libs/third-party/md5.js')
     script(src='/js/libs/select2-jquery-ui-fix.js')
     script(src='/js/libs/widgets/base.js')
     script(src='/js/libs/widgets/widget.js')
@@ -53,6 +54,16 @@ html
       jQuery.mockjaxSettings.contentType = 'text/json';
       jQuery.mockjaxSettings.responseTime = 50;
       jQuery(document).ready(function () { $j('.open-modal').modal(); });
+      window.SS = {
+        hoursInDay: 8,
+        user: '',
+        userName: '',
+        userEmail: '',
+        lf: {
+          enableGravatar: false,
+          gravatarServerUrl: ''
+        }
+      };
 
     script.
       requirejs.config({ baseUrl: baseUrl + '/js' });

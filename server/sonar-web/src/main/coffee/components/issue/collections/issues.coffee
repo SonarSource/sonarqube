@@ -47,6 +47,7 @@ define [
         component = find r.components, issue.component
         project = find r.projects, issue.project
         rule = find r.rules, issue.rule
+        assignee = find r.users, issue.assignee, 'login'
 
         if component
           _.extend issue,
@@ -61,5 +62,9 @@ define [
         if rule
           _.extend issue,
             ruleName: rule.name
+
+        if assignee
+          _.extend issue,
+            assigneeEmail: assignee.email
 
         issue

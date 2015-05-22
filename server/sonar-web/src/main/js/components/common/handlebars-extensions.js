@@ -562,4 +562,19 @@
     }
   });
 
+  Handlebars.registerHelper('ifShowAvatars', function (options) {
+    var cond = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
+    return cond ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper('avatarHelper', function (email, size) {
+    var emailHash = window.md5((email || '').trim()),
+        url = ('' + window.SS.lf.gravatarServerUrl)
+            .replace('{EMAIL_MD5}', emailHash)
+            .replace('{SIZE}', size);
+    return new Handlebars.SafeString(
+        '<img src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
+    );
+  });
+
 })();

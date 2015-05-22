@@ -24,10 +24,16 @@
   <script>
     var pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
     <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
-    window.SS = typeof window.SS === 'object' ? window.SS : {};
-    window.SS.hoursInDay = <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>;
-    window.SS.user = '<%= current_user.login if current_user -%>';
-    window.SS.userName = '<%= current_user.name if current_user -%>';
+    window.SS = {
+      hoursInDay: <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>,
+      user: '<%= current_user.login if current_user -%>',
+      userName: '<%= current_user.name if current_user -%>',
+      userEmail: '<%= current_user.email if current_user -%>',
+      lf: {
+        enableGravatar: <%= configuration('sonar.lf.enableGravatar', true) %>,
+        gravatarServerUrl: '<%= configuration('sonar.lf.gravatarServerUrl') %>'
+      }
+    };
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
   <script>

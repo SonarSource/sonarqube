@@ -56,13 +56,20 @@
           <div class="issue-meta">
             {{#inArray actions "assign"}}
               <a class="issue-action issue-action-with-options js-issue-assign">
-          <span
-              class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i
-                  class="icon-dropdown"></i>
+                {{#if assignee}}
+                  {{#ifShowAvatars}}
+                    <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                  {{/ifShowAvatars}}
+                {{/if}}
+                <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
               </a>
             {{else}}
-              <span
-                  class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
+              {{#if assignee}}
+                {{#ifShowAvatars}}
+                  <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                {{/ifShowAvatars}}
+              {{/if}}
+              <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
             {{/inArray}}
           </div>
 

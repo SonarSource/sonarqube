@@ -5,6 +5,12 @@
   <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
 </div>
 
+{{#ifShowAvatars}}
+  <div class="display-inline-block text-top big-spacer-right">
+    {{avatarHelper email 36}}
+  </div>
+{{/ifShowAvatars}}
+
 <div class="display-inline-block text-top width-30">
   <div>
     <strong class="js-user-name">{{name}}</strong>
