@@ -19,15 +19,14 @@
  */
 package org.sonar.plugins.emailnotifications;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.SonarPlugin;
-
+import java.util.Arrays;
 import java.util.List;
+import org.sonar.api.SonarPlugin;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
   @Override
   public List getExtensions() {
-    return ImmutableList.of(
+    return Arrays.asList(
       EmailNotificationChannel.class,
 
       // Email templates
