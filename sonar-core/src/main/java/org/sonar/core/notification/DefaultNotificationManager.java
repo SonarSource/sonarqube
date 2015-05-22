@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.api.notifications.NotificationManager;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.notification.db.NotificationQueueDto;

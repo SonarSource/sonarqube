@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
-import org.sonar.api.notifications.NotificationDispatcherMetadata;
-import org.sonar.api.notifications.NotificationManager;
+import org.sonar.core.notification.NotificationDispatcher;
+import org.sonar.core.notification.NotificationDispatcherMetadata;
+import org.sonar.core.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;

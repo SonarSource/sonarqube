@@ -26,7 +26,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.notifications.NotificationDispatcher;
+import org.sonar.core.notification.NotificationDispatcher;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.notifications;
+package org.sonar.core.notification;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

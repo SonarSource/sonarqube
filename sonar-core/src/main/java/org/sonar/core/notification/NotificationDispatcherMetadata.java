@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.notifications;
+package org.sonar.core.notification;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-
 import java.util.Map;
+import org.sonar.api.server.ServerSide;
 
 /**
  * <p>
@@ -35,7 +33,6 @@ import java.util.Map;
  * @since 3.5
  */
 @ServerSide
-@ExtensionPoint
 public final class NotificationDispatcherMetadata {
 
   public static final String GLOBAL_NOTIFICATION = "globalNotification";
@@ -53,7 +50,7 @@ public final class NotificationDispatcherMetadata {
    * Creates a new metadata instance for the given dispatcher.
    * <p/>
    * By default the key is the class name without package. It can be changed by overriding
-   * {@link org.sonar.api.notifications.NotificationDispatcher#getKey()}.
+   * {@link NotificationDispatcher#getKey()}.
    */
   public static NotificationDispatcherMetadata create(String dispatcherKey) {
     return new NotificationDispatcherMetadata(dispatcherKey);

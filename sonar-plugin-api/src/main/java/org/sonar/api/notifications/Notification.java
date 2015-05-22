@@ -28,11 +28,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * <p>
  * This class represents a notification that will be delivered to users. This is a general concept and it has no
- * knowledge of the possible ways to be delivered (see {@link NotificationChannel}) or of the users who should
- * receive it (see {@link NotificationDispatcher}).
- * </p>
+ * knowledge of the possible ways to be delivered (see {@link NotificationChannel}).
  * <p>
  * When creating a new notification, it is strongly advised to give a default message that can be  used by channels
  * that don't want to specifically format messages for different notification types. You can use

@@ -24,6 +24,9 @@ import com.google.common.collect.Multimap;
 import org.sonar.api.notifications.*;
 
 import java.util.Collection;
+import org.sonar.core.notification.NotificationDispatcher;
+import org.sonar.core.notification.NotificationDispatcherMetadata;
+import org.sonar.core.notification.NotificationManager;
 
 /**
  * This dispatcher means: "notify me when new issues are introduced during project analysis"
