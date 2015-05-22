@@ -27,6 +27,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.ws.WsTester;
@@ -47,7 +48,7 @@ public class UsersWsTest {
       new CurrentAction(userSessionRule),
       new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
-      new SearchAction(mock(UserIndex.class), mock(DbClient.class))));
+      new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserSession.class))));
     controller = tester.controller("api/users");
   }
 

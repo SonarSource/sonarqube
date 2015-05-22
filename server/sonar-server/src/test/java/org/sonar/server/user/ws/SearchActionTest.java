@@ -26,10 +26,12 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
@@ -38,6 +40,8 @@ import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
@@ -55,6 +59,9 @@ public class SearchActionTest {
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   WebService.Controller controller;
 
@@ -79,7 +86,7 @@ public class SearchActionTest {
     session = dbClient.openSession(false);
 
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new SearchAction(index, dbClient)));
+    tester = new WsTester(new UsersWs(new SearchAction(index, dbClient, userSession)));
     controller = tester.controller("api/users");
   }
 
@@ -90,6 +97,7 @@ public class SearchActionTest {
 
   @Test
   public void search_empty() throws Exception {
+    loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "empty.json");
   }
 
@@ -97,6 +105,7 @@ public class SearchActionTest {
   public void search_without_parameters() throws Exception {
     injectUsers(5);
 
+    loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "five_users.json");
   }
 
@@ -104,6 +113,7 @@ public class SearchActionTest {
   public void search_with_query() throws Exception {
     injectUsers(5);
 
+    loginAsAdmin();
     tester.newGetRequest("api/users", "search").setParam("q", "user-1").execute().assertJson(getClass(), "user_one.json");
   }
 
@@ -111,6 +121,7 @@ public class SearchActionTest {
   public void search_with_paging() throws Exception {
     injectUsers(10);
 
+    loginAsAdmin();
     tester.newGetRequest("api/users", "search").setParam("ps", "5").execute().assertJson(getClass(), "page_one.json");
     tester.newGetRequest("api/users", "search").setParam("ps", "5").setParam("p", "2").execute().assertJson(getClass(), "page_two.json");
   }
@@ -118,6 +129,8 @@ public class SearchActionTest {
   @Test
   public void search_with_fields() throws Exception {
     injectUsers(1);
+
+    loginAsAdmin();
 
     assertThat(tester.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
@@ -165,7 +178,14 @@ public class SearchActionTest {
     dbClient.userGroupDao().insert(session, new UserGroupDto().setGroupId(group2.getId()).setUserId(users.get(0).getId()));
     session.commit();
 
+    loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    userSession.login("not-admin");
+    tester.newGetRequest("api/users", "search").execute();
   }
 
   private List<UserDto> injectUsers(int numberOfUsers) throws Exception {
@@ -199,5 +219,9 @@ public class SearchActionTest {
     session.commit();
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, users);
     return userDtos;
+  }
+
+  private void loginAsAdmin() {
+    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 }
