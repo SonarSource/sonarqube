@@ -106,12 +106,16 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -198,14 +202,12 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
+              <!-- can't minimize dependencies because of some classes of sonar-duplications
+              that required by sonar-batch -->
+              <minimizeJar>false</minimizeJar>
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <artifactSet>
                 <excludes>
-                  <exclude>org.codehaus.sonar:sonar-duplications</exclude>
-                  <exclude>org.codehaus.sonar:sonar-channel</exclude>
-                  <exclude>org.codehaus.sonar:sonar-colorizer</exclude>
-                  <exclude>org.codehaus.sonar:sonar-check-api</exclude>
                   <exclude>org.codehaus.sonar.plugins:sonar-email-notifications-plugin</exclude>
                   <exclude>org.codehaus.woodstox:woodstox-core-lgpl</exclude>
                   <exclude>org.codehaus.woodstox:stax2-api</exclude>
