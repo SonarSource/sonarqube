@@ -22,7 +22,7 @@ casper.test.begin(testName('List'), 5, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#provisioning-list ul');
+        casper.waitForSelector('#provisioning-list li');
       })
 
       .then(function () {
@@ -58,7 +58,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#provisioning-list ul');
+        casper.waitForSelector('#provisioning-list li');
       })
 
       .then(function () {
@@ -116,7 +116,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#provisioning-list ul');
+        casper.waitForSelector('#provisioning-list li');
       })
 
       .then(function () {
@@ -160,7 +160,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#provisioning-list ul');
+        casper.waitForSelector('#provisioning-list li');
       })
 
       .then(function () {
@@ -222,7 +222,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#provisioning-list ul');
+        casper.waitForSelector('#provisioning-list li');
       })
 
       .then(function () {
