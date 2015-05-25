@@ -73,6 +73,19 @@ public class GroupDaoTest {
   }
 
   @Test
+  public void select_by_id() {
+    dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
+
+    GroupDto group = new GroupDao(system2).selectById(session, 1L);
+    assertThat(group).isNotNull();
+    assertThat(group.getId()).isEqualTo(1L);
+    assertThat(group.getName()).isEqualTo("sonar-users");
+    assertThat(group.getDescription()).isEqualTo("Sonar Users");
+    assertThat(group.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-07"));
+    assertThat(group.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-08"));
+  }
+
+  @Test
   public void find_by_user_login() {
     dbTester.prepareDbUnit(getClass(), "find_by_user_login.xml");
 
@@ -144,4 +157,16 @@ public class GroupDaoTest {
     // Filter on name
     assertThat(new GroupDao(system2).countByQuery(session, "sonar")).isEqualTo(2);
   }
+
+  @Test
+  public void delete_by_id() {
+    dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
+
+    GroupDao groupDao = new GroupDao(system2);
+    groupDao.deleteById(session, 1L);
+    session.commit();
+
+    assertThat(groupDao.countByQuery(session, null)).isZero();
+  }
+
 }

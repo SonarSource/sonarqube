@@ -19,10 +19,9 @@
  */
 package org.sonar.core.user;
 
-import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @since 3.2
@@ -54,5 +53,7 @@ public interface RoleMapper {
   int countResourceGroupRoles(Long resourceId);
 
   int countResourceUserRoles(Long resourceId);
+
+  void deleteGroupRolesByGroupId(long groupId);
 
 }

@@ -59,4 +59,12 @@ public class UserGroupDaoTest {
 
     db.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
   }
+
+  @Test
+  public void delete_members_by_group_id() {
+    db.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
+    dao.deleteMembersByGroupId(session, 1L);
+    session.commit();
+    db.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
+  }
 }

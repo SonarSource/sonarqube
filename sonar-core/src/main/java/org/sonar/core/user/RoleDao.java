@@ -20,19 +20,18 @@
 
 package org.sonar.core.user;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 @ServerSide
 @BatchSide
-public class RoleDao {
+public class RoleDao implements DaoComponent {
 
   public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
     return session.getMapper(RoleMapper.class).selectUserPermissions(userLogin, resourceId);
@@ -43,41 +42,42 @@ public class RoleDao {
   }
 
   public void insertGroupRole(GroupRoleDto groupRole, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.insertGroupRole(groupRole);
+    mapper(session).insertGroupRole(groupRole);
   }
 
   public void insertUserRole(UserRoleDto userRole, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.insertUserRole(userRole);
+    mapper(session).insertUserRole(userRole);
   }
 
   public void deleteUserRole(UserRoleDto userRole, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.deleteUserRole(userRole);
+    mapper(session).deleteUserRole(userRole);
   }
 
   public void deleteGroupRole(GroupRoleDto groupRole, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.deleteGroupRole(groupRole);
+    mapper(session).deleteGroupRole(groupRole);
   }
 
   public void deleteGroupRolesByResourceId(Long resourceId, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.deleteGroupRolesByResourceId(resourceId);
+    mapper(session).deleteGroupRolesByResourceId(resourceId);
   }
 
   public void deleteUserRolesByResourceId(Long resourceId, SqlSession session) {
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
-    mapper.deleteUserRolesByResourceId(resourceId);
+    mapper(session).deleteUserRolesByResourceId(resourceId);
   }
 
   public int countResourceGroupRoles(DbSession session, Long resourceId) {
-    return session.getMapper(RoleMapper.class).countResourceGroupRoles(resourceId);
+    return mapper(session).countResourceGroupRoles(resourceId);
   }
 
   public int countResourceUserRoles(DbSession session, Long resourceId) {
-    return session.getMapper(RoleMapper.class).countResourceUserRoles(resourceId);
+    return mapper(session).countResourceUserRoles(resourceId);
   }
 
+  public void deleteGroupRolesByGroupId(DbSession session, long groupId) {
+    mapper(session).deleteGroupRolesByGroupId(groupId);
+  }
+
+  private static RoleMapper mapper(SqlSession session) {
+    return session.getMapper(RoleMapper.class);
+  }
 }

@@ -22,6 +22,7 @@ package org.sonar.server.user.db;
 
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
@@ -30,6 +31,7 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupMapper;
+import org.sonar.server.exceptions.NotFoundException;
 
 /**
  * @since 3.2
@@ -44,7 +46,25 @@ public class GroupDao implements DaoComponent {
   }
 
   public GroupDto selectByKey(DbSession session, String key) {
+    GroupDto group = selectNullableByKey(session, key);
+    if (group == null) {
+      throw new NotFoundException(String.format("Could not find a group with name '%s'", key));
+    }
+    return group;
+  }
+
+  @CheckForNull
+  public GroupDto selectNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  @CheckForNull
+  public GroupDto selectById(DbSession dbSession, long groupId) {
+    return mapper(dbSession).selectById(groupId);
+  }
+
+  public void deleteById(DbSession dbSession, long groupId) {
+    mapper(dbSession).deleteById(groupId);
   }
 
   public int countByQuery(DbSession session, @Nullable String query) {

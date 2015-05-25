@@ -24,4 +24,7 @@ public interface UserGroupMapper {
 
   void insert(UserGroupDto userGroupDto);
 
+  void delete(UserGroupDto dto);
+
+  void deleteMembersByGroup(long groupId);
 }

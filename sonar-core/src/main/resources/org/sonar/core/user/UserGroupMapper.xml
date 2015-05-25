@@ -8,4 +8,19 @@
     VALUES (#{userId}, #{groupId})
   </insert>
 
+  <delete id="delete" parameterType="UserGroup">
+    DELETE FROM groups_users
+    <where>
+    AND user_id = #{userId}
+    AND group_id = #{groupId}
+    </where>
+  </delete>
+
+  <delete id="deleteMembersByGroup" parameterType="long">
+    DELETE FROM groups_users
+    <where>
+    AND group_id = #{groupId}
+    </where>
+  </delete>
+
 </mapper>

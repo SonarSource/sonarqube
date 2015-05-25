@@ -20,16 +20,17 @@
 
 package org.sonar.core.user;
 
-import org.apache.ibatis.session.RowBounds;
-
-import javax.annotation.CheckForNull;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.session.RowBounds;
 
 public interface GroupMapper {
 
   @CheckForNull
   GroupDto selectByKey(String name);
+
+  @CheckForNull
+  GroupDto selectById(long groupId);
 
   List<GroupDto> selectByUserLogin(String userLogin);
 
@@ -38,4 +39,7 @@ public interface GroupMapper {
   List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
 
   int countByQuery(String query);
+
+  void deleteById(long groupId);
+
 }
