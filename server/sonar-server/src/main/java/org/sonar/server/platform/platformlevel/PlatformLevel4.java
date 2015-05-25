@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -290,8 +291,6 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
-import java.util.List;
-
 public class PlatformLevel4 extends PlatformLevel {
 
   private final List<Object> level4AddedComponents;
@@ -498,6 +497,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UserGroupsWs.class,
       org.sonar.server.usergroups.ws.SearchAction.class,
       org.sonar.server.usergroups.ws.CreateAction.class,
+      org.sonar.server.usergroups.ws.DeleteAction.class,
 
       // permissions
       PermissionFacade.class,

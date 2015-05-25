@@ -111,4 +111,8 @@
     SELECT count(id)
     FROM group_roles WHERE resource_id=#{id}
   </select>
+
+  <delete id="deleteGroupRolesByGroupId" parameterType="long">
+    delete from group_roles where group_id=#{id}
+  </delete>
 </mapper>

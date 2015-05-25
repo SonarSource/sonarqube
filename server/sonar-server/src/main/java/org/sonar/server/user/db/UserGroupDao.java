@@ -32,6 +32,14 @@ public class UserGroupDao implements DaoComponent {
     return dto;
   }
 
+  public void delete(DbSession session, UserGroupDto dto) {
+    mapper(session).delete(dto);
+  }
+
+  public void deleteMembersByGroupId(DbSession session, long groupId) {
+    mapper(session).deleteMembersByGroup(groupId);
+  }
+
   protected UserGroupMapper mapper(DbSession session) {
     return session.getMapper(UserGroupMapper.class);
   }

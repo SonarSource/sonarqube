@@ -11,6 +11,6 @@
   <group_roles id="4" group_id="[null]" role="user" resource_id="1"/>
 
   <!-- Global permission, it should not be returned with component permissions -->
-  <group_roles id="5" group_id="100" role="admin"/>
+  <group_roles id="5" group_id="100" role="admin" resource_id="[null]"/>
 
 </dataset>

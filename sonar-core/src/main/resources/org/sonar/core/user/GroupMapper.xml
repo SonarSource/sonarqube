@@ -20,6 +20,21 @@
     </where>
   </select>
 
+  <select id="selectById" parameterType="long" resultType="Group">
+    SELECT <include refid="groupColumns"/>
+    FROM groups g
+    <where>
+      g.id=#{id}
+    </where>
+  </select>
+
+  <delete id="deleteById" parameterType="long">
+    DELETE FROM groups
+    <where>
+      id=#{id}
+    </where>
+  </delete>
+
   <select id="selectByUserLogin" parameterType="string" resultType="Group">
     SELECT <include refid="groupColumns"/>
     FROM groups g

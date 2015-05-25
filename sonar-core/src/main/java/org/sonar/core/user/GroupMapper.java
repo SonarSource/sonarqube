@@ -29,6 +29,9 @@ public interface GroupMapper {
   @CheckForNull
   GroupDto selectByKey(String name);
 
+  @CheckForNull
+  GroupDto selectById(long groupId);
+
   List<GroupDto> selectByUserLogin(String userLogin);
 
   void insert(GroupDto groupDto);
@@ -36,4 +39,7 @@ public interface GroupMapper {
   List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
 
   int countByQuery(String query);
+
+  void deleteById(long groupId);
+
 }
