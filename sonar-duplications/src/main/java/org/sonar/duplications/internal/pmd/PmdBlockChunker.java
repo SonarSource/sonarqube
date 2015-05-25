@@ -19,11 +19,10 @@
  */
 package org.sonar.duplications.internal.pmd;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
-
-import java.util.List;
 
 /**
  * Differences with {@link org.sonar.duplications.block.BlockChunker}:
@@ -51,7 +50,7 @@ public class PmdBlockChunker {
    * @return ArrayList as we need a serializable object
    */
   public List<Block> chunk(String resourceId, List<TokensLine> fragments) {
-    List<TokensLine> filtered = Lists.newArrayList();
+    List<TokensLine> filtered = new ArrayList<>();
     int i = 0;
     while (i < fragments.size()) {
       TokensLine first = fragments.get(i);
@@ -68,10 +67,10 @@ public class PmdBlockChunker {
     fragments = filtered;
 
     if (fragments.size() < blockSize) {
-      return Lists.newArrayList();
+      return new ArrayList<>();
     }
     TokensLine[] fragmentsArr = fragments.toArray(new TokensLine[fragments.size()]);
-    List<Block> blocks = Lists.newArrayListWithCapacity(fragmentsArr.length - blockSize + 1);
+    List<Block> blocks = new ArrayList<>(fragmentsArr.length - blockSize + 1);
     long hash = 0;
     int first = 0;
     int last = 0;

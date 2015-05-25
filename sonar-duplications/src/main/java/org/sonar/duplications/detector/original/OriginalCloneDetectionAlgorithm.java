@@ -19,18 +19,17 @@
  */
 package org.sonar.duplications.detector.original;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of algorithm described in paper
@@ -69,7 +68,7 @@ public final class OriginalCloneDetectionAlgorithm {
 
     // Godin: create one group per unique hash
     // TODO Godin: can we create map with expected size?
-    Map<ByteArray, BlocksGroup> groupsByHash = Maps.newHashMap();
+    Map<ByteArray, BlocksGroup> groupsByHash = new HashMap<>();
     for (Block fileBlock : fileBlocks) {
       ByteArray hash = fileBlock.getBlockHash();
       BlocksGroup sameHash = groupsByHash.get(hash);
@@ -202,16 +201,16 @@ public final class OriginalCloneDetectionAlgorithm {
     List<Block[]> pairs = beginGroup.pairs(endGroup, cloneLength);
 
     ClonePart origin = null;
-    List<ClonePart> parts = Lists.newArrayList();
+    List<ClonePart> parts = new ArrayList<>();
 
     for (int i = 0; i < pairs.size(); i++) {
       Block[] pair = pairs.get(i);
       Block firstBlock = pair[0];
       Block lastBlock = pair[1];
       ClonePart part = new ClonePart(firstBlock.getResourceId(),
-          firstBlock.getIndexInFile(),
-          firstBlock.getStartLine(),
-          lastBlock.getEndLine());
+        firstBlock.getIndexInFile(),
+        firstBlock.getStartLine(),
+        lastBlock.getEndLine());
 
       if (originResourceId.equals(part.getResourceId())) {
         if (origin == null) {

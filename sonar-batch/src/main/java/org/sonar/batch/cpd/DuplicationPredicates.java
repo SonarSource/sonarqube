@@ -17,28 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications;
+package org.sonar.batch.cpd;
 
+import com.google.common.base.Predicate;
+import org.sonar.duplications.index.CloneGroup;
 
-/**
- * TODO Enforce contracts of this interface in concrete classes by using preconditions, currently this leads to failures of tests.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- *
- * @since 2.14
- */
-public interface CodeFragment {
+import javax.annotation.Nullable;
 
-  /**
-   * Number of line where fragment starts.
-   * Numbering starts from 1.
-   */
-  int getStartLine();
+public final class DuplicationPredicates {
 
-  /**
-   * Number of line where fragment ends.
-   * Numbering starts from 1.
-   */
-  int getEndLine();
+  private DuplicationPredicates() {
+  }
+
+  public static Predicate<CloneGroup> numberOfUnitsNotLessThan(int min) {
+    return new NumberOfUnitsNotLessThan(min);
+  }
+
+  private static class NumberOfUnitsNotLessThan implements Predicate<CloneGroup> {
+    private final int min;
+
+    public NumberOfUnitsNotLessThan(int min) {
+      this.min = min;
+    }
+
+    @Override
+    public boolean apply(@Nullable CloneGroup input) {
+      return input != null && input.getLengthInUnits() >= min;
+    }
+  }
 
 }

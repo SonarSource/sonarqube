@@ -19,7 +19,6 @@
  */
 package org.sonar.duplications.block;
 
-import com.google.common.annotations.Beta;
 import org.sonar.duplications.CodeFragment;
 
 /**
@@ -89,7 +88,6 @@ public final class Block implements CodeFragment {
       return this;
     }
 
-    @Beta
     public Builder setUnit(int start, int end) {
       this.startUnit = start;
       this.endUnit = end;
@@ -142,7 +140,6 @@ public final class Block implements CodeFragment {
   /**
    * @since 2.14
    */
-  @Beta
   public int getStartUnit() {
     return startUnit;
   }
@@ -150,7 +147,6 @@ public final class Block implements CodeFragment {
   /**
    * @since 2.14
    */
-  @Beta
   public int getEndUnit() {
     return endUnit;
   }

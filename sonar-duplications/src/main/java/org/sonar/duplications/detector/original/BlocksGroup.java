@@ -19,13 +19,11 @@
  */
 package org.sonar.duplications.detector.original;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.utils.FastStringComparator;
-
-import com.google.common.collect.Lists;
 
 /**
  * Set of {@link Block}s, which internally stored as a sorted list.
@@ -44,7 +42,7 @@ final class BlocksGroup {
   protected final List<Block> blocks;
 
   private BlocksGroup() {
-    this.blocks = Lists.newArrayList();
+    this.blocks = new ArrayList<>();
   }
 
   public int size() {
@@ -167,7 +165,7 @@ final class BlocksGroup {
   }
 
   private static List<Block[]> pairs(BlocksGroup beginGroup, BlocksGroup endGroup, int len) {
-    List<Block[]> result = Lists.newArrayList();
+    List<Block[]> result = new ArrayList<>();
     List<Block> beginBlocks = beginGroup.blocks;
     List<Block> endBlocks = endGroup.blocks;
     int i = 0;
@@ -180,7 +178,7 @@ final class BlocksGroup {
         c = beginBlock.getIndexInFile() + len - 1 - endBlock.getIndexInFile();
       }
       if (c == 0) {
-        result.add(new Block[] { beginBlock, endBlock });
+        result.add(new Block[] {beginBlock, endBlock});
         i++;
         j++;
       }

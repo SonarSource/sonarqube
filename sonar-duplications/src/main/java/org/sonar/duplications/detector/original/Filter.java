@@ -20,14 +20,12 @@
 package org.sonar.duplications.detector.original;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-
 import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.utils.SortedListsUtils;
-
-import com.google.common.collect.Lists;
 
 /**
  * Performs incremental and brute force algorithm in order to filter clones, which are fully covered by other clones.
@@ -48,7 +46,7 @@ final class Filter {
    * 
    * @see #add(CloneGroup)
    */
-  private final List<CloneGroup> filtered = Lists.newLinkedList();
+  private final List<CloneGroup> filtered = new LinkedList<>();
 
   /**
    * @return current results of filtering
@@ -115,7 +113,7 @@ final class Filter {
     List<ClonePart> firstParts = first.getCloneParts();
     List<ClonePart> secondParts = second.getCloneParts();
     return SortedListsUtils.contains(secondParts, firstParts, new ContainsInComparator(second.getCloneUnitLength(), first.getCloneUnitLength()))
-        && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
+      && SortedListsUtils.contains(firstParts, secondParts, ContainsInComparator.RESOURCE_ID_COMPARATOR);
   }
 
 }

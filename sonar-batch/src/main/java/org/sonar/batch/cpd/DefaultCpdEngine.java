@@ -37,7 +37,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.cpd.index.IndexFactory;
 import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
-import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;

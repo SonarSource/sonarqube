@@ -23,9 +23,12 @@
  */
 package net.sourceforge.pmd.cpd;
 
-import com.google.common.io.Closeables;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +62,7 @@ public class SourceCode {
     protected abstract Reader getReader() throws Exception;
 
     protected List<String> load() {
-      LineNumberReader lnr = null;
-      try {
-        lnr = new LineNumberReader(getReader());
+      try (LineNumberReader lnr = new LineNumberReader(getReader())) {
         List<String> lines = new ArrayList<>();
         String currentLine;
         while ((currentLine = lnr.readLine()) != null) {
@@ -70,8 +71,6 @@ public class SourceCode {
         return lines;
       } catch (Exception e) {
         throw new IllegalStateException("Problem while reading " + getFileName() + ":" + e.getMessage(), e);
-      } finally {
-        Closeables.closeQuietly(lnr);
       }
     }
   }

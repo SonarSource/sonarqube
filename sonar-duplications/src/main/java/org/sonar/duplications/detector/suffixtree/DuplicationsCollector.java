@@ -19,15 +19,14 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.ContainsInComparator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.utils.SortedListsUtils;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implementation of {@link Search.Collector}, which constructs {@link CloneGroup}s.
@@ -37,7 +36,7 @@ public class DuplicationsCollector extends Search.Collector {
   private final TextSet text;
   private final String originResourceId;
 
-  private final List<CloneGroup> filtered = Lists.newArrayList();
+  private final List<CloneGroup> filtered = new ArrayList<>();
 
   private int length;
   private int count;
@@ -66,7 +65,6 @@ public class DuplicationsCollector extends Search.Collector {
    *
    * @param start number of first block from text for this part
    * @param end number of last block from text for this part
-   * @param len number of blocks in this part
    */
   @Override
   public void part(int start, int end) {
@@ -84,15 +82,15 @@ public class DuplicationsCollector extends Search.Collector {
 
     CloneGroup.Builder builder = CloneGroup.builder().setLength(length);
 
-    List<ClonePart> parts = Lists.newArrayListWithCapacity(count);
+    List<ClonePart> parts = new ArrayList<>(count);
     for (int[] b : blockNumbers) {
       Block firstBlock = text.getBlock(b[0]);
       Block lastBlock = text.getBlock(b[1]);
       ClonePart part = new ClonePart(
-          firstBlock.getResourceId(),
-          firstBlock.getIndexInFile(),
-          firstBlock.getStartLine(),
-          lastBlock.getEndLine());
+        firstBlock.getResourceId(),
+        firstBlock.getIndexInFile(),
+        firstBlock.getStartLine(),
+        lastBlock.getEndLine());
 
       // TODO Godin: maybe use FastStringComparator here ?
       if (originResourceId.equals(part.getResourceId())) {

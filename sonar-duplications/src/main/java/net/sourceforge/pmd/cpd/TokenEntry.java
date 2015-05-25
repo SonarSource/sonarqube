@@ -23,11 +23,9 @@
  */
 package net.sourceforge.pmd.cpd;
 
-import com.google.common.annotations.Beta;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * @since 2.2
@@ -81,7 +79,6 @@ public class TokenEntry implements Comparable<TokenEntry> {
    *
    * @since 2.14
    */
-  @Beta
   public String getValue() {
     return value;
   }

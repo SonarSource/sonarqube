@@ -19,9 +19,13 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import com.google.common.collect.Lists;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 public final class Search {
 
@@ -29,8 +33,8 @@ public final class Search {
   private final TextSet text;
   private final Collector reporter;
 
-  private final List<Integer> list = Lists.newArrayList();
-  private final List<Node> innerNodes = Lists.newArrayList();
+  private final List<Integer> list = new ArrayList<>();
+  private final List<Node> innerNodes = new ArrayList<>();
 
   public static void perform(TextSet text, Collector reporter) {
     new Search(SuffixTree.create(text), text, reporter).compute();
@@ -64,7 +68,7 @@ public final class Search {
    * Depth-first search (DFS).
    */
   private void dfs() {
-    Deque<Node> stack = Lists.newLinkedList();
+    Deque<Node> stack = new LinkedList<>();
     stack.add(tree.getRootNode());
     while (!stack.isEmpty()) {
       Node node = stack.removeLast();
