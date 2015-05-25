@@ -31,10 +31,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
@@ -70,21 +70,23 @@ public class PersistFileSourcesStepTest {
 
   @Rule
   public Benchmark benchmark = new Benchmark();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @Test
   public void benchmark() throws Exception {
-    File reportDir = prepareReport();
-    persistFileSources(reportDir);
+    prepareReport();
+    persistFileSources();
   }
 
-  private void persistFileSources(File reportDir) {
+  private void persistFileSources() {
     LOGGER.info("Persist file sources");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
 
     long start = System.currentTimeMillis();
 
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache);
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
+    step.execute(new ComputationContext(reportReader, "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
 
     long end = System.currentTimeMillis();
     long duration = end - start;
@@ -95,14 +97,13 @@ public class PersistFileSourcesStepTest {
     benchmark.expectAround("Duration to persist FILE_SOURCES", duration, 105000, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
   }
 
-  private File prepareReport() throws IOException {
+  private void prepareReport() throws IOException {
     LOGGER.info("Create report");
     File reportDir = temp.newFolder();
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+        .setRootComponentRef(1)
+        .build());
     BatchReport.Component.Builder project = BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT);
@@ -110,13 +111,11 @@ public class PersistFileSourcesStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT", PROJECT_UUID));
 
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
-      generateFileReport(writer, fileRef);
+      generateFileReport(new BatchReportWriter(reportDir), fileRef);
       project.addChildRef(fileRef);
     }
 
-    writer.writeComponent(project.build());
-
-    return reportDir;
+    reportReader.putComponent(project.build());
   }
 
   private void generateFileReport(BatchReportWriter writer, int fileRef) throws IOException {
@@ -124,20 +123,20 @@ public class PersistFileSourcesStepTest {
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
     }
-    writer.writeComponent(BatchReport.Component.newBuilder()
-      .setRef(fileRef)
-      .setType(Constants.ComponentType.FILE)
-      .setLines(NUMBER_OF_LINES)
-      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+        .setRef(fileRef)
+        .setType(Constants.ComponentType.FILE)
+        .setLines(NUMBER_OF_LINES)
+        .build());
 
     dbComponentsRefCache.addComponent(fileRef, new DbComponent((long) fileRef, "PROJECT:" + fileRef, Uuids.create()));
 
     FileUtils.writeLines(writer.getSourceFile(fileRef), lineData.lines);
-    writer.writeComponentCoverage(fileRef, lineData.coverages);
-    writer.writeComponentChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
-    writer.writeComponentSyntaxHighlighting(fileRef, lineData.highlightings);
-    writer.writeComponentSymbols(fileRef, lineData.symbols);
-    writer.writeComponentDuplications(fileRef, lineData.duplications);
+    reportReader.putCoverage(fileRef, writer.writeComponentCoverage(fileRef, lineData.coverages));
+    reportReader.putChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
+    reportReader.putSyntaxHighlighting(fileRef, writer.writeComponentSyntaxHighlighting(fileRef, lineData.highlightings));
+    reportReader.putSymbols(fileRef, lineData.symbols);
+    reportReader.putDuplications(fileRef, lineData.duplications);
   }
 
   private static class LineData {

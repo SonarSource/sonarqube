@@ -21,21 +21,19 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 

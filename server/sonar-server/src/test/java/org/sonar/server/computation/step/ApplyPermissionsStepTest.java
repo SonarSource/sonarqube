@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.search.SearchHit;
@@ -30,14 +28,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.permission.PermissionTemplateDao;
@@ -50,6 +45,7 @@ import org.sonar.core.user.RoleDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
@@ -68,14 +64,13 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String PROJECT_UUID = "PROJECT_UUID";
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession dbSession;
 
@@ -107,6 +102,8 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     step = new ApplyPermissionsStep(dbClient, dbComponentsRefCache, issueAuthorizationIndexer, new PermissionFacade(roleDao, null,
       new ResourceDao(dbTester.myBatis(), System2.INSTANCE), permissionTemplateDao, settings));
+
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder() .build());
   }
 
   @After
@@ -128,7 +125,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
     Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID);
 
-    step.execute(new ComputationContext(createDumbBatchReportReader(), null, null, null, ComponentTreeBuilders.from(project), null));
+    step.execute(new ComputationContext(reportReader, null, null, null, ComponentTreeBuilders.from(project), null));
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByKey(dbSession, PROJECT_KEY).getAuthorizationUpdatedAt()).isNotNull();
@@ -155,19 +152,11 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
     Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID);
 
-    step.execute(new ComputationContext(createDumbBatchReportReader(), null, null, null, ComponentTreeBuilders.from(project), null));
+    step.execute(new ComputationContext(reportReader, null, null, null, ComponentTreeBuilders.from(project), null));
     dbSession.commit();
 
     // Check that authorization updated at has not been changed -> Nothing has been done
     assertThat(projectDto.getAuthorizationUpdatedAt()).isEqualTo(authorizationUpdatedAt);
-  }
-
-  private BatchReportReader createDumbBatchReportReader() throws IOException {
-    File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
-      .build());
-    return new BatchReportReader(dir);
   }
 
   @Override

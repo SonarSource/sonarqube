@@ -23,23 +23,21 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import org.sonar.api.i18n.I18n;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.core.component.ComponentLinkDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.db.DbClient;
-
-import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.api.i18n.I18n;
+import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.component.ComponentLinkDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Sets.newHashSet;
 

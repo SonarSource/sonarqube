@@ -22,10 +22,10 @@ package org.sonar.server.computation.step;
 
 import java.util.List;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.issue.IssueComputation;
 
 public class ParseReportStep implements ComputationStep {

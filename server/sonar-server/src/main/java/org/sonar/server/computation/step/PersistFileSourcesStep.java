@@ -21,6 +21,13 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -30,12 +37,12 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.source.ComputeFileSourceData;
 import org.sonar.server.computation.source.CoverageLineReader;
@@ -47,14 +54,6 @@ import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SymbolsLineReader;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PersistFileSourcesStep implements ComputationStep {
 

@@ -89,7 +89,7 @@ public class ComputationServiceTest {
   public void setUp() {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system));
-    sut = new ComputationService(dbClient, steps, activityService, settingsFactory, tempFolder, system, mock(LanguageRepository.class));
+    sut = new ComputationService(dbClient, steps, activityService, tempFolder, system, mock(LanguageRepository.class));
   }
 
   @Test

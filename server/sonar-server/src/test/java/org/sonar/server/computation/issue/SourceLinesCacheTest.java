@@ -19,24 +19,20 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.test.DbTests;
-
-import java.io.File;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,22 +42,19 @@ public class SourceLinesCacheTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  File dir;
   SourceLinesCache sut;
 
   @Before
   public void setUp() throws Exception {
     esTester.truncateIndices();
-    dir = temp.newFolder();
     sut = new SourceLinesCache(new SourceLineIndex(esTester.client()));
   }
 
   @Test
   public void line_author_from_report() {
-    BatchReportWriter reportWriter = new BatchReportWriter(dir);
-    reportWriter.writeComponentChangesets(BatchReport.Changesets.newBuilder()
+    reportReader.putChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(123_456_789)
       .addChangeset(newChangeset("charb", "123-456-789", 123_456_789L))
       .addChangeset(newChangeset("wolinski", "987-654-321", 987_654_321L))
@@ -70,7 +63,7 @@ public class SourceLinesCacheTest {
       .addChangesetIndexByLine(1)
       .build());
 
-    sut.init("ANY_UUID", 123_456_789, new BatchReportReader(dir));
+    sut.init("ANY_UUID", 123_456_789, reportReader);
 
     assertThat(sut.lineAuthor(1)).isEqualTo("charb");
     assertThat(sut.lineAuthor(2)).isEqualTo("charb");
@@ -90,7 +83,7 @@ public class SourceLinesCacheTest {
       newSourceLine("cabu", "123-456-789", 123_456_789, 5)
       );
 
-    sut.init("DEFAULT_UUID", 123, new BatchReportReader(dir));
+    sut.init("DEFAULT_UUID", 123, reportReader);
 
     assertThat(sut.lineAuthor(1)).isEqualTo("cabu");
     assertThat(sut.lineAuthor(2)).isEqualTo("cabu");
@@ -102,7 +95,7 @@ public class SourceLinesCacheTest {
 
   @Test(expected = IllegalStateException.class)
   public void fail_when_component_ref_is_not_filled() {
-    sut.init("ANY_UUID", null, new BatchReportReader(dir));
+    sut.init("ANY_UUID", null, reportReader);
     sut.lineAuthor(0);
   }
 

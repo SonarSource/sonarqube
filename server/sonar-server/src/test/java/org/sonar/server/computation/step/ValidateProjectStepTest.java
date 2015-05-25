@@ -20,26 +20,23 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
@@ -50,23 +47,18 @@ public class ValidateProjectStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String MODULE_KEY = "MODULE_KEY";
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
 
   DbSession dbSession;
 
   Settings settings;
-
-  File reportDir;
-  BatchReportWriter writer;
 
   ValidateProjectStep sut;
 
@@ -76,8 +68,6 @@ public class ValidateProjectStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
     dbSession = dbClient.openSession(false);
     settings = new Settings();
-    reportDir = temp.newFolder();
-    writer = new BatchReportWriter(reportDir);
 
     sut = new ValidateProjectStep(dbClient, settings);
   }
@@ -89,8 +79,8 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_if_provisioning_enforced_and_project_exists() throws Exception {
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -100,7 +90,7 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
     dbSession.commit();
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY)), null));
   }
 
@@ -109,8 +99,8 @@ public class ValidateProjectStepTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Unable to scan non-existing project '" + PROJECT_KEY + "'");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -118,14 +108,14 @@ public class ValidateProjectStepTest {
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY)), null));
   }
 
   @Test
   public void fail_if_provisioning_not_enforced_and_project_does_not_exists() throws Exception {
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -133,22 +123,22 @@ public class ValidateProjectStepTest {
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY)), null));
   }
 
   @Test
   public void not_fail_on_valid_branch() throws Exception {
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setBranch("origin/master")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":origin/master")), null));
   }
 
@@ -158,16 +148,16 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setBranch("bran#ch")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":bran#ch")), null));
   }
 
@@ -180,14 +170,14 @@ public class ValidateProjectStepTest {
       "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
       "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(invalidProjectKey)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("Module$Key")
@@ -195,7 +185,7 @@ public class ValidateProjectStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", invalidProjectKey,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "Module$Key"));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null, ComponentTreeBuilders.from(root), null));
+    sut.execute(new ComputationContext(reportReader, null, null, null, ComponentTreeBuilders.from(root), null));
   }
 
   @Test
@@ -206,14 +196,14 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -225,7 +215,7 @@ public class ValidateProjectStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(root), null));
   }
 
@@ -236,14 +226,14 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -258,7 +248,7 @@ public class ValidateProjectStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(root), null));
   }
 
@@ -271,14 +261,14 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    writer.writeMetadata(BatchReport.Metadata.newBuilder().build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -292,7 +282,7 @@ public class ValidateProjectStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), null, null, null,
+    sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(root), null));
   }
 

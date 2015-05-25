@@ -30,6 +30,7 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.FileBatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
@@ -67,7 +68,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(new FileBatchReportReader(new BatchReportReader(reportDir)), PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
 
     sut.execute(context);
 

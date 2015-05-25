@@ -20,18 +20,17 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
-
-import java.util.List;
 
 public class PersistEventsStep implements ComputationStep {
 
