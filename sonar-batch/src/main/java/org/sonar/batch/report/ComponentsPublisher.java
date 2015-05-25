@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.report;
 
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -36,8 +37,6 @@ import org.sonar.batch.protocol.output.BatchReport.Component.Builder;
 import org.sonar.batch.protocol.output.BatchReport.ComponentLink;
 import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import javax.annotation.CheckForNull;
 
 /**
  * Adds components and analysis metadata to output report
@@ -86,6 +85,10 @@ public class ComponentsPublisher implements ReportPublisherStep {
     String name = getName(r);
     if (name != null) {
       builder.setName(name);
+    }
+    String description = getDescription(r);
+    if (description != null) {
+      builder.setDescription(description);
     }
     String path = r.getPath();
     if (path != null) {
@@ -172,6 +175,12 @@ public class ComponentsPublisher implements ReportPublisherStep {
   private String getName(Resource r) {
     // Don't return name for directories and files since it can be guessed from the path
     return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
+  }
+
+  @CheckForNull
+  private String getDescription(Resource r) {
+    // Only for projets and modules
+    return ResourceUtils.isProject(r) ? r.getDescription() : null;
   }
 
   private Constants.ComponentType getType(Resource r) {

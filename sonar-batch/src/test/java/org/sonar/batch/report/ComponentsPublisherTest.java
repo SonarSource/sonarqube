@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,9 +42,6 @@ import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
-
-import java.io.File;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,12 +69,12 @@ public class ComponentsPublisherTest {
   @Test
   public void add_components_to_report() throws Exception {
     // inputs
-    Project root = new Project("foo").setName("Root project")
+    Project root = new Project("foo").setName("Root project").setDescription("Root description")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
     resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
 
-    Project module1 = new Project("module1").setName("Module1");
+    Project module1 = new Project("module1").setName("Module1").setDescription("Module description");
     module1.setParent(root);
     module1.setId(2).setUuid("MODULE_UUID");
     resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
@@ -118,11 +117,13 @@ public class ComponentsPublisherTest {
     BatchReportReader reader = new BatchReportReader(outputDir);
     Component rootProtobuf = reader.readComponent(1);
     assertThat(rootProtobuf.getKey()).isEqualTo("foo");
+    assertThat(rootProtobuf.getDescription()).isEqualTo("Root description");
     assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
     assertThat(rootProtobuf.getLinkCount()).isEqualTo(0);
 
     Component module1Protobuf = reader.readComponent(2);
     assertThat(module1Protobuf.getKey()).isEqualTo("module1");
+    assertThat(module1Protobuf.getDescription()).isEqualTo("Module description");
     assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
   }
 
