@@ -19,10 +19,8 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +102,6 @@ public class CloneGroup {
    *
    * @since 2.14
    */
-  @Beta
   public int getLengthInUnits() {
     return length;
   }

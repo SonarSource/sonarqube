@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.duplications;
+package org.sonar.batch.cpd;
 
+import com.google.common.base.Predicate;
+import org.junit.Test;
+import org.sonar.duplications.index.CloneGroup;
 
-/**
- * TODO Enforce contracts of this interface in concrete classes by using preconditions, currently this leads to failures of tests.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- *
- * @since 2.14
- */
-public interface CodeFragment {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * Number of line where fragment starts.
-   * Numbering starts from 1.
-   */
-  int getStartLine();
+public class DuplicationPredicatesTest {
 
-  /**
-   * Number of line where fragment ends.
-   * Numbering starts from 1.
-   */
-  int getEndLine();
+  @Test
+  public void testNumberOfUnitsNotLessThan() {
+    Predicate<CloneGroup> predicate = DuplicationPredicates.numberOfUnitsNotLessThan(5);
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(6).build())).isTrue();
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(5).build())).isTrue();
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(4).build())).isFalse();
+  }
 
 }

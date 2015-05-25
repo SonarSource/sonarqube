@@ -19,11 +19,11 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sonar.duplications.block.Block;
 
-import com.google.common.collect.Lists;
 
 /**
  * Simplifies construction of <a href="http://en.wikipedia.org/wiki/Generalised_suffix_tree">generalised suffix-tree</a>.
@@ -32,7 +32,7 @@ public final class TextSet extends AbstractText {
 
   public static final class Builder {
 
-    private List<Object> symbols = Lists.newArrayList();
+    private List<Object> symbols = new ArrayList();
     private Integer lengthOfOrigin;
     private int count;
 

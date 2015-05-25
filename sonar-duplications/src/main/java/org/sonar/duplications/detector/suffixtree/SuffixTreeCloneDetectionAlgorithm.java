@@ -19,24 +19,29 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.CloneIndex;
 
-import com.google.common.collect.*;
-
 public final class SuffixTreeCloneDetectionAlgorithm {
 
   public static List<CloneGroup> detect(CloneIndex cloneIndex, Collection<Block> fileBlocks) {
     if (fileBlocks.isEmpty()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     TextSet text = createTextSet(cloneIndex, fileBlocks);
     if (text == null) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     DuplicationsCollector reporter = new DuplicationsCollector(text);
     Search.perform(text, reporter);
@@ -47,7 +52,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
   }
 
   private static TextSet createTextSet(CloneIndex index, Collection<Block> fileBlocks) {
-    Set<ByteArray> hashes = Sets.newHashSet();
+    Set<ByteArray> hashes = new HashSet<>();
     for (Block fileBlock : fileBlocks) {
       hashes.add(fileBlock.getBlockHash());
     }
@@ -66,7 +71,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
   private static TextSet createTextSet(Collection<Block> fileBlocks, Map<String, List<Block>> fromIndex) {
     TextSet.Builder textSetBuilder = TextSet.builder();
     // TODO Godin: maybe we can reduce size of tree and so memory consumption by removing non-repeatable blocks
-    List<Block> sortedFileBlocks = Lists.newArrayList(fileBlocks);
+    List<Block> sortedFileBlocks = new ArrayList<>(fileBlocks);
     Collections.sort(sortedFileBlocks, BLOCK_COMPARATOR);
     textSetBuilder.add(sortedFileBlocks);
 
@@ -88,7 +93,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
   }
 
   private static Map<String, List<Block>> retrieveFromIndex(CloneIndex index, String originResourceId, Set<ByteArray> hashes) {
-    Map<String, List<Block>> collection = Maps.newHashMap();
+    Map<String, List<Block>> collection = new HashMap<>();
     for (ByteArray hash : hashes) {
       Collection<Block> blocks = index.getBySequenceHash(hash);
       for (Block blockFromIndex : blocks) {
@@ -97,7 +102,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
         if (!originResourceId.equals(resourceId)) {
           List<Block> list = collection.get(resourceId);
           if (list == null) {
-            list = Lists.newArrayList();
+            list = new ArrayList<>();
             collection.put(resourceId, list);
           }
           list.add(blockFromIndex);

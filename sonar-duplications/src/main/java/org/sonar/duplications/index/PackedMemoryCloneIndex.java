@@ -19,13 +19,12 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.utils.FastStringComparator;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Provides an index optimized by memory.
@@ -102,7 +101,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     int index = DataUtils.binarySearch(byResourceId);
 
-    List<Block> result = Lists.newArrayList();
+    List<Block> result = new ArrayList<>();
     int realIndex = resourceIdsIndex[index];
     while (index < size && FastStringComparator.INSTANCE.compare(resourceIds[realIndex], resourceId) == 0) {
       // extract block (note that there is no need to extract resourceId)
@@ -118,12 +117,12 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int endUnit = blockData[offset];
 
       Block block = blockBuilder
-          .setResourceId(resourceId)
-          .setBlockHash(new ByteArray(hash))
-          .setIndexInFile(indexInFile)
-          .setLines(firstLineNumber, lastLineNumber)
-          .setUnit(startUnit, endUnit)
-          .build();
+        .setResourceId(resourceId)
+        .setBlockHash(new ByteArray(hash))
+        .setIndexInFile(indexInFile)
+        .setLines(firstLineNumber, lastLineNumber)
+        .setUnit(startUnit, endUnit)
+        .build();
       result.add(block);
 
       index++;
@@ -151,7 +150,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
 
     int index = DataUtils.binarySearch(byBlockHash);
 
-    List<Block> result = Lists.newArrayList();
+    List<Block> result = new ArrayList<>();
     while (index < size && !isLessByHash(size, index)) {
       // extract block (note that there is no need to extract hash)
       String resourceId = resourceIds[index];
@@ -163,12 +162,12 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       int endUnit = blockData[offset];
 
       Block block = blockBuilder
-          .setResourceId(resourceId)
-          .setBlockHash(sequenceHash)
-          .setIndexInFile(indexInFile)
-          .setLines(firstLineNumber, lastLineNumber)
-          .setUnit(startUnit, endUnit)
-          .build();
+        .setResourceId(resourceId)
+        .setBlockHash(sequenceHash)
+        .setIndexInFile(indexInFile)
+        .setLines(firstLineNumber, lastLineNumber)
+        .setUnit(startUnit, endUnit)
+        .build();
       result.add(block);
       index++;
     }

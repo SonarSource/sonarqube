@@ -19,7 +19,7 @@
  */
 package org.sonar.duplications.block;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import org.sonar.duplications.statement.Statement;
 
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class BlockChunker {
   }
 
   public List<Block> chunk(String resourceId, List<Statement> statements) {
-    List<Statement> filtered = Lists.newArrayList();
+    List<Statement> filtered = new ArrayList<>();
     int i = 0;
     while (i < statements.size()) {
       Statement first = statements.get(i);
@@ -75,7 +75,7 @@ public class BlockChunker {
       return Collections.emptyList();
     }
     Statement[] statementsArr = statements.toArray(new Statement[statements.size()]);
-    List<Block> blocks = Lists.newArrayListWithCapacity(statementsArr.length - blockSize + 1);
+    List<Block> blocks = new ArrayList<>(statementsArr.length - blockSize + 1);
     long hash = 0;
     int first = 0;
     int last = 0;
