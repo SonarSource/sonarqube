@@ -28,9 +28,12 @@ define(function () {
 
   var SelectListCollection = Backbone.Collection.extend({
 
+    initialize: function (options) {
+      this.options = options;
+    },
+
     parse: function (r) {
-      this.more = r.more;
-      return r.results;
+      return this.options.parse.call(this, r);
     },
 
     fetch: function (options) {
@@ -377,7 +380,9 @@ define(function () {
   window.SelectList = function (options) {
     this.settings = $.extend(window.SelectList.defaults, options);
 
-    this.collection = new SelectListCollection();
+    this.collection = new SelectListCollection({
+      parse: this.settings.parse
+    });
 
     this.view = new SelectListView({
       el: this.settings.el,
@@ -419,6 +424,11 @@ define(function () {
 
     format: function (item) {
       return item.value;
+    },
+
+    parse: function (r) {
+      this.more = r.more;
+      return r.results;
     },
 
     labels: {

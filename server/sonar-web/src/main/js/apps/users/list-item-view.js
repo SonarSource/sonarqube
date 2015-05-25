@@ -2,8 +2,9 @@ define([
   './update-view',
   './change-password-view',
   './deactivate-view',
+  './groups-view',
   './templates'
-], function (UpdateView, ChangePasswordView, DeactivateView) {
+], function (UpdateView, ChangePasswordView, DeactivateView, GroupsView) {
 
   return Marionette.ItemView.extend({
     tagName: 'li',
@@ -14,7 +15,8 @@ define([
       'click .js-user-more-scm': 'onMoreScmClick',
       'click .js-user-update': 'onUpdateClick',
       'click .js-user-change-password': 'onChangePasswordClick',
-      'click .js-user-deactivate': 'onDeactivateClick'
+      'click .js-user-deactivate': 'onDeactivateClick',
+      'click .js-user-groups': 'onGroupsClick'
     },
 
     initialize: function () {
@@ -50,6 +52,11 @@ define([
       this.deactivateUser();
     },
 
+    onGroupsClick: function (e) {
+      e.preventDefault();
+      this.showGroups();
+    },
+
     showMoreScm: function () {
       this.scmLimit = 10000;
       this.render();
@@ -71,6 +78,10 @@ define([
 
     deactivateUser: function () {
       new DeactivateView({ model: this.model }).render();
+    },
+
+    showGroups: function () {
+      new GroupsView({ model: this.model }).render();
     },
 
     serializeData: function () {
