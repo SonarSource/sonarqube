@@ -79,12 +79,6 @@ public class CodeColorizerTest {
   }
 
   @Test
-  public void getCss() {
-    assertThat(CodeColorizer.getCss().length()).isGreaterThan(100);
-    assertThat(CodeColorizer.getCss()).contains(".code");
-  }
-
-  @Test
   public void mustBeThreadsafe() throws InterruptedException, ExecutionException, IOException {
     final int taskCount = 50;
     final int threadCount = 5;
@@ -151,7 +145,7 @@ public class CodeColorizerTest {
   }
 
   private void assertHtml(String html) {
-    assertContains(html, "<style", "<table class=\"code\"", "</html>");
+    assertContains(html, "<table class=\"code\"", "</html>");
   }
 
   private void assertContains(String html, String... strings) {

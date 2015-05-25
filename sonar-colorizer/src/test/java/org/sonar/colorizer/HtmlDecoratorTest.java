@@ -30,7 +30,7 @@ public class HtmlDecoratorTest {
   public void beginOfFileTag() {
     HtmlDecorator decorator = new HtmlDecorator(HtmlOptions.DEFAULT);
     String tag = decorator.getTagBeginOfFile();
-    assertContains(tag, "<html", "<style", "<table");
+    assertContains(tag, "<html", "<table");
   }
 
   @Test
@@ -50,7 +50,7 @@ public class HtmlDecoratorTest {
 
     String tag = decorator.getTagBeginOfFile();
 
-    assertNotContains(tag, "<html", "<style");
+    assertNotContains(tag, "<html", "<body");
     assertContains(tag, "<table");
   }
 
@@ -92,12 +92,6 @@ public class HtmlDecoratorTest {
         + "<tr id=\"3\"><td><pre></pre></td></tr>"
         + "</tbody></table>"
     );
-  }
-
-  @Test
-  public void getCss() {
-    assertThat(HtmlDecorator.getCss().length()).isGreaterThan(100);
-    assertThat(HtmlDecorator.getCss()).contains(".code");
   }
 
   public void assertContains(String html, String... strings) {
