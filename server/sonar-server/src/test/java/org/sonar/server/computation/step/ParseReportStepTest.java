@@ -19,6 +19,10 @@
  */
 package org.sonar.server.computation.step;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,22 +30,15 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,6 +54,8 @@ public class ParseReportStepTest extends BaseStepTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
@@ -71,10 +70,11 @@ public class ParseReportStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.FILE, 2, "FILE1_UUID", "PROJECT_KEY:file1"),
       new DumbComponent(Component.Type.FILE, 3, "FILE2_UUID", "PROJECT_KEY:file2"));
 
-    File reportDir = generateReport();
+    generateReport();
 
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(),
-        mock(DbClient.class), ComponentTreeBuilders.from(root), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, new Settings(),
+      mock(DbClient.class), ComponentTreeBuilders.from(root), mock(LanguageRepository.class));
+
     sut.execute(context);
 
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
@@ -88,33 +88,34 @@ public class ParseReportStepTest extends BaseStepTest {
     verify(issueComputation).afterReportProcessing();
   }
 
-  private File generateReport() throws IOException {
-    File dir = temp.newFolder();
+  private void generateReport() throws IOException {
     // project and 2 files
-    BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setDeletedComponentsCount(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .addChildRef(2)
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .build());
 
     // deleted components
-    writer.writeDeletedComponentIssues(1, "DELETED_UUID", ISSUES_ON_DELETED_COMPONENT);
-    return dir;
+    BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
+    issuesBuilder.setComponentRef(1);
+    issuesBuilder.setComponentUuid("DELETED_UUID");
+    issuesBuilder.addAllIssue(ISSUES_ON_DELETED_COMPONENT);
+    reportReader.putDeletedIssues(1, issuesBuilder.build());
   }
 
   @Override

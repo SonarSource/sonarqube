@@ -20,13 +20,16 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -35,8 +38,6 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.metric.db.MetricDto;
@@ -45,6 +46,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
@@ -59,12 +61,6 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -77,11 +73,11 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   DbSession session;
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
   RuleCache ruleCache;
@@ -127,25 +123,22 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     ComponentDto project = addComponent(1, "project-key");
     ComponentDto file = addComponent(2, "file-key");
 
-    File dir = temp.newFolder();
-    BatchReportWriter report = new BatchReportWriter(dir);
-
-    report.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(new Date().getTime())
       .setRootComponentRef(1)
       .setProjectKey("project-key")
       .setSnapshotId(3)
       .build());
 
-    report.writeComponent(defaultComponent()
+    reportReader.putComponent(defaultComponent()
       .addChildRef(2)
       .build());
-    report.writeComponent(
+    reportReader.putComponent(
       defaultComponent()
         .setRef(2)
         .build());
 
-    report.writeComponentMeasures(1, Arrays.asList(
+    reportReader.putMeasures(1, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.STRING)
         .setStringValue("measure-data")
@@ -163,7 +156,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    report.writeComponentMeasures(2, Arrays.asList(
+    reportReader.putMeasures(2, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.DOUBLE)
         .setDoubleValue(123.123d)
@@ -181,7 +174,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    sut.execute(new ComputationContext(new BatchReportReader(dir), PROJECT_KEY, new Settings(),
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, new Settings(),
       dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
     session.commit();
 

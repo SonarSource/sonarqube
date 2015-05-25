@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,9 +32,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
@@ -46,9 +46,6 @@ import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.notifications.NotificationService;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -63,6 +60,8 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   RuleCache ruleCache = mock(RuleCache.class);
@@ -73,8 +72,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   Settings projectSettings = new Settings();
   SendIssueNotificationsStep sut;
 
-  File reportDir;
-
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
@@ -83,12 +80,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
 
-    reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -100,7 +95,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() throws IOException {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
 
     verify(notifService, never()).deliver(any(Notification.class));
@@ -113,7 +108,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
 
     verify(notifService).deliver(any(NewIssuesNotification.class));

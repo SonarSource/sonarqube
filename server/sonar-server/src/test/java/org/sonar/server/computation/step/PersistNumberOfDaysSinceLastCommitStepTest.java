@@ -20,25 +20,22 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
@@ -55,8 +52,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @ClassRule
   public static DbTester db = new DbTester();
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-  File dir;
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   PersistNumberOfDaysSinceLastCommitStep sut;
 
@@ -78,7 +74,6 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     languageRepository = mock(LanguageRepository.class);
     when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
     dbComponentsRefCache = new DbComponentsRefCache();
-    dir = temp.newFolder();
 
     sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, dbComponentsRefCache);
   }
@@ -91,8 +86,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void persist_number_of_days_since_last_commit_from_report() {
     long threeDaysAgo = DateUtils.addDays(new Date(), -3).getTime();
-    BatchReportWriter reportWriter = initReportWithProjectAndFile();
-    reportWriter.writeComponentChangesets(
+    initReportWithProjectAndFile();
+    reportReader.putChangesets(
       BatchReport.Changesets.newBuilder()
         .setComponentRef(2)
         .addChangeset(
@@ -101,7 +96,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
         )
         .build()
       );
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
+      languageRepository);
 
     sut.execute(context);
 
@@ -113,7 +109,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir), "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
+      languageRepository);
 
     sut.execute(context);
 
@@ -123,36 +120,34 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void no_scm_information_in_report_and_index() {
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(new BatchReportReader(dir),"PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
+      languageRepository);
 
     sut.execute(context);
 
     db.assertDbUnit(getClass(), "empty.xml");
   }
 
-  private BatchReportWriter initReportWithProjectAndFile() {
+  private void initReportWithProjectAndFile() {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "project-uuid"));
     dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", "file-uuid"));
 
-    BatchReportWriter writer = new BatchReportWriter(dir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setSnapshotId(1000)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey("PROJECT_KEY")
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(11L)
       .build());
-
-    return writer;
   }
 }

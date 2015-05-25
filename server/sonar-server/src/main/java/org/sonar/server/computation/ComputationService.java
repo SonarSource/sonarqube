@@ -21,6 +21,9 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
+import java.io.File;
+import java.io.IOException;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
@@ -29,24 +32,19 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
+import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.batch.FileBatchReportReader;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.properties.ProjectSettingsFactory;
-
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
@@ -61,18 +59,15 @@ public class ComputationService {
   private final DbClient dbClient;
   private final ComputationSteps steps;
   private final ActivityService activityService;
-  private final ProjectSettingsFactory projectSettingsFactory;
   private final TempFolder tempFolder;
   private final System2 system;
   private final LanguageRepository languageRepository;
 
   public ComputationService(DbClient dbClient, ComputationSteps steps, ActivityService activityService,
-    ProjectSettingsFactory projectSettingsFactory, TempFolder tempFolder, System2 system,
-    LanguageRepository languageRepository) {
+    TempFolder tempFolder, System2 system, LanguageRepository languageRepository) {
     this.dbClient = dbClient;
     this.steps = steps;
     this.activityService = activityService;
-    this.projectSettingsFactory = projectSettingsFactory;
     this.tempFolder = tempFolder;
     this.system = system;
     this.languageRepository = languageRepository;
@@ -85,7 +80,7 @@ public class ComputationService {
 
     try {
       File reportDir = extractReportInDir(item);
-      BatchReportReader reader = new BatchReportReader(reportDir);
+      BatchReportReader reader = new FileBatchReportReader(new org.sonar.batch.protocol.output.BatchReportReader(reportDir));
       ComputationContext context = new ComputationContext(reader, null, null, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
       for (ComputationStep step : steps.orderedSteps()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());

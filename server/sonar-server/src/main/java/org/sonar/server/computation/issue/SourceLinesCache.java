@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder;
-import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 

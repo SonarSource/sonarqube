@@ -20,28 +20,25 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
@@ -53,12 +50,11 @@ import static org.mockito.Mockito.when;
 public class PersistEventsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
-  
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
   DbClient dbClient;
@@ -106,21 +102,19 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", "events");
   }
@@ -131,15 +125,13 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setSnapshotId(1000L)
@@ -157,8 +149,8 @@ public class PersistEventsStepTest extends BaseStepTest {
       )
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
   }
@@ -170,15 +162,13 @@ public class PersistEventsStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
     dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "BCDE"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setSnapshotId(1000L)
@@ -190,19 +180,19 @@ public class PersistEventsStepTest extends BaseStepTest {
       .addChildRef(2)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setSnapshotId(1001L)
       .addEvent(BatchReport.Event.newBuilder()
-          .setName("Red (was Orange)")
-          .setCategory(Constants.EventCategory.ALERT)
-          .setDescription("Open issues > 0")
-          .build()
+        .setName("Red (was Orange)")
+        .setCategory(Constants.EventCategory.ALERT)
+        .setDescription("Open issues > 0")
+        .build()
       ).build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
   }
@@ -213,23 +203,21 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setSnapshotId(1000L)
       .setVersion("1.0")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", "events");
   }
@@ -240,22 +228,20 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setSnapshotId(1001L)
       .setVersion("1.5-SNAPSHOT")
       .build());
 
-    step.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     dbTester.assertDbUnit(getClass(), "keep_one_event_by_version-result.xml", "events");

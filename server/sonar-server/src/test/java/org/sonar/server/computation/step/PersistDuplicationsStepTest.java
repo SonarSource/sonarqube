@@ -20,36 +20,32 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.test.DbTests;
-
-import java.io.File;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,13 +56,11 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  File reportDir;
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
 
@@ -84,8 +78,6 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao());
-
-    reportDir = temp.newFolder();
 
     projectSettings = new Settings();
     dbComponentsRefCache = new DbComponentsRefCache();
@@ -108,7 +100,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
     initReportWithProjectAndFile();
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(0);
@@ -118,7 +110,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   public void persist_duplications_on_same_file() {
     MetricDto duplicationMetric = saveDuplicationMetric();
 
-    BatchReportWriter writer = initReportWithProjectAndFile();
+    initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -133,9 +125,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(2, newArrayList(duplication));
+    reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
@@ -154,27 +146,25 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
     saveDuplicationMetric();
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
       .setSnapshotId(11L)
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(12L)
@@ -194,9 +184,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(3, newArrayList(duplication));
+    reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -214,26 +204,25 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
     saveDuplicationMetric();
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.DIRECTORY)
       .setSnapshotId(11L)
       .addChildRef(3)
       .setPath("dir")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(12L)
@@ -253,9 +242,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(3, newArrayList(duplication));
+    reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
@@ -274,33 +263,32 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
     saveDuplicationMetric();
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.DIRECTORY)
       .setSnapshotId(11L)
       .addChildRef(3)
       .setPath("dir")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.DIRECTORY)
       .setSnapshotId(12L)
       .addChildRef(10)
       .setPath("dir2")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(10)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(20L)
@@ -320,9 +308,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(10, newArrayList(duplication));
+    reportReader.putDuplications(10, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
@@ -335,9 +323,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   public void persist_duplications_on_different_files() {
     dbComponentsRefCache.addComponent(3, new DbComponent(3L, "PROJECT_KEY:file2", "CDEF"));
     saveDuplicationMetric();
-    BatchReportWriter writer = initReportWithProjectAndFile();
+    initReportWithProjectAndFile();
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(12L)
@@ -357,9 +345,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(2, newArrayList(duplication));
+    reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
@@ -372,7 +360,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   @Test
   public void persist_duplications_on_different_projects() {
     saveDuplicationMetric();
-    BatchReportWriter writer = initReportWithProjectAndFile();
+    initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -387,9 +375,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
           .build())
         .build())
       .build();
-    writer.writeComponentDuplications(2, newArrayList(duplication));
+    reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
         dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
@@ -399,30 +387,27 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     assertThat(dto.get("textValue")).isEqualTo("<duplications><g><b s=\"1\" l=\"5\" r=\"PROJECT_KEY:file\"/><b s=\"6\" l=\"5\" r=\"PROJECT2_KEY:file2\"/></g></duplications>");
   }
 
-  private BatchReportWriter initReportWithProjectAndFile() {
+  private void initReportWithProjectAndFile() {
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
     dbComponentsRefCache.addComponent(2, new DbComponent(2L, "PROJECT_KEY:file", "BCDE"));
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setSnapshotId(10L)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
       .setSnapshotId(11L)
       .setPath("file")
       .build());
-
-    return writer;
   }
 
   private MetricDto saveDuplicationMetric() {

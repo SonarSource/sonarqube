@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.ComputationContext;
 
 import static java.util.Objects.requireNonNull;

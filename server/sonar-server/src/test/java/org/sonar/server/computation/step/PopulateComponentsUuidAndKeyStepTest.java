@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -28,16 +27,14 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.language.LanguageRepository;
@@ -54,11 +51,8 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  File reportDir;
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
 
@@ -76,8 +70,6 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
-    reportDir = temp.newFolder();
-
     projectSettings = new Settings();
     sut = new PopulateComponentsUuidAndKeyStep(dbClient);
   }
@@ -89,39 +81,36 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
   @Test
   public void add_components() throws Exception {
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.DIRECTORY)
       .setPath("src/main/java/dir")
       .addChildRef(4)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.FILE)
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
-    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -141,48 +130,45 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
   @Test
   public void use_latest_module_for_files_key() throws Exception {
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
       .setName("Module")
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.MODULE)
       .setKey("SUB_MODULE_KEY")
       .setName("Sub Module")
       .addChildRef(4)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.DIRECTORY)
       .setPath("src/main/java/dir")
       .addChildRef(5)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(5)
       .setType(Constants.ComponentType.FILE)
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
-    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -193,43 +179,40 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
   @Test
   public void use_branch_to_generate_keys() throws Exception {
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setBranch("origin/master")
       .setProjectKey("")
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
       .setName("Module")
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.DIRECTORY)
       .setPath("src/main/java/dir")
       .addChildRef(4)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.FILE)
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
-    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());

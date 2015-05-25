@@ -20,20 +20,19 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
-
-import java.util.List;
 
 /**
  * Persist duplications into

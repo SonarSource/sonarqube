@@ -36,13 +36,13 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
@@ -72,11 +72,14 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_PATH_1 = "TEST-PATH-1";
   private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
+  @ClassRule
+  public static DbTester db = new DbTester();
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   @Rule
   public LogTester log = new LogTester();
@@ -134,7 +137,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void no_test_in_database_and_batch_report() {
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNull();
     assertThat(log.logs()).isEmpty();
@@ -146,13 +149,13 @@ public class PersistTestsStepTest extends BaseStepTest {
     List<BatchReport.Test> batchTests = Arrays.asList(
       newTest(1), newTest(2)
       );
-    writer.writeTests(TEST_FILE_REF_1, batchTests);
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, batchTests));
     List<CoverageDetail> coverageDetails = Arrays.asList(
       newCoverageDetail(1, MAIN_FILE_REF_1)
       );
-    writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
+    reportReader.putCoverageDetails(TEST_FILE_REF_1, writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
 
@@ -173,10 +176,10 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Test
   public void insert_all_data_of_a_test() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
-    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1)));
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1))));
+    reportReader.putCoverageDetails(TEST_FILE_REF_1, writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1))));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -201,9 +204,9 @@ public class PersistTestsStepTest extends BaseStepTest {
   public void insert_tests_without_coverage_details() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
-    writer.writeTests(TEST_FILE_REF_1, batchTests);
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, batchTests));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
@@ -217,12 +220,12 @@ public class PersistTestsStepTest extends BaseStepTest {
   public void insert_coverage_details_not_taken_into_account() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
-    writer.writeTests(TEST_FILE_REF_1, batchTests);
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, batchTests));
     List<CoverageDetail> coverageDetails = Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1), newCoverageDetail(2, MAIN_FILE_REF_2));
-    writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
-    writer.writeCoverageDetails(TEST_FILE_REF_2, coverageDetails);
+    reportReader.putCoverageDetails(TEST_FILE_REF_1, writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails));
+    reportReader.putCoverageDetails(TEST_FILE_REF_2, writer.writeCoverageDetails(TEST_FILE_REF_2, coverageDetails));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(log.logs(LoggerLevel.WARN)).hasSize(1);
     assertThat(log.logs(LoggerLevel.WARN).get(0)).isEqualTo("Some coverage tests are not taken into account during analysis of project 'PROJECT_KEY'");
@@ -235,12 +238,12 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Test
   public void aggregate_coverage_details() {
     BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
-    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1))));
+    reportReader.putCoverageDetails(TEST_FILE_REF_1, writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(
       newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
-      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
+      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4))));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     List<Integer> coveredLines = dto.getTestData().get(0).getCoveredFile(0).getCoveredLineList();
@@ -268,13 +271,13 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     BatchReport.Test newBatchTest = newTest(1);
-    writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newBatchTest));
+    reportReader.putTests(TEST_FILE_REF_1, writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newBatchTest)));
 
     CoverageDetail newCoverageDetail = newCoverageDetail(1, MAIN_FILE_REF_1);
-    writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail));
+    reportReader.putCoverageDetails(TEST_FILE_REF_1, writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail)));
 
     // ACT
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     // ASSERT
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
@@ -319,7 +322,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       .build();
   }
 
-  private BatchReportWriter initBasicReport() {
+  private void initBasicReport() {
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
     dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "MODULE"));
     dbComponentsRefCache.addComponent(3, new DbComponent(3L, "TEST_FILE1_KEY", TEST_FILE_UUID_1));
@@ -327,43 +330,40 @@ public class PersistTestsStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(5, new DbComponent(5L, "MAIN_FILE1_KEY", MAIN_FILE_UUID_1));
     dbComponentsRefCache.addComponent(6, new DbComponent(6L, "MAIN_FILE2_KEY", MAIN_FILE_UUID_2));
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .addAllChildRef(Arrays.asList(TEST_FILE_REF_1, TEST_FILE_REF_2, MAIN_FILE_REF_1, MAIN_FILE_REF_2))
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(TEST_FILE_REF_1)
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
       .setPath(TEST_FILE_PATH_1)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(TEST_FILE_REF_2)
       .setIsTest(true)
       .setType(Constants.ComponentType.FILE)
       .setPath(TEST_FILE_PATH_2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(MAIN_FILE_REF_1)
       .setType(Constants.ComponentType.FILE)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(MAIN_FILE_REF_2)
       .setType(Constants.ComponentType.FILE)
       .build());
-
-    return writer;
   }
 }

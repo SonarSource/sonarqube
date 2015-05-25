@@ -21,7 +21,7 @@ package org.sonar.server.computation;
 
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilder;
 import org.sonar.server.computation.language.LanguageRepository;
