@@ -20,18 +20,6 @@
 package org.sonar.batch.source;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
-import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.CodeColorizer;
-import org.sonar.colorizer.Tokenizer;
-
-import javax.annotation.CheckForNull;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +29,16 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.web.CodeColorizerFormat;
+import org.sonar.colorizer.JavaTokenizers;
+import org.sonar.colorizer.Tokenizer;
 
 /**
  * Central point for sonar-colorizer extensions
@@ -77,7 +75,7 @@ public class CodeColorizers {
       // TODO can be dropped when Java plugin embed its own CodeColorizerFormat of (better) provides highlighting for tests
       // See SONARJAVA-830
       if ("java".equals(language)) {
-        tokenizers = CodeColorizer.Format.JAVA.getTokenizers();
+        tokenizers = JavaTokenizers.forHtml();
       } else {
         return;
       }

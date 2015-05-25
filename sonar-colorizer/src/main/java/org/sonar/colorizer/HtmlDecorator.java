@@ -19,21 +19,13 @@
  */
 package org.sonar.colorizer;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
 import org.sonar.channel.CodeReader;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @deprecated since 4.5.2 replace by highlighting mechanism
  */
 @Deprecated
 public class HtmlDecorator extends Tokenizer {
-
-  private static final String CSS_PATH = "/sonar-colorizer.css";
 
   private HtmlOptions options;
   private int lineId;
@@ -50,9 +42,7 @@ public class HtmlDecorator extends Tokenizer {
     StringBuilder sb = new StringBuilder();
     if (options.isGenerateHtmlHeader()) {
       sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
-        + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html><head><style type=\"text/css\">");
-      sb.append(getCss());
-      sb.append("</style></head><body>");
+        + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><html><body>");
     }
     sb.append("<table class=\"code\" id=\"");
     if (options.getTableId() != null) {
@@ -93,19 +83,5 @@ public class HtmlDecorator extends Tokenizer {
       return true;
     }
     return false;
-  }
-
-  public static String getCss() {
-    InputStream input = null;
-    try {
-      input = HtmlRenderer.class.getResourceAsStream(CSS_PATH);
-      return new String(ByteStreams.toByteArray(input), StandardCharsets.UTF_8);
-
-    } catch (IOException e) {
-      throw new SynhtaxHighlightingException("SonarQube Colorizer CSS file not found: " + CSS_PATH, e);
-
-    } finally {
-      Closeables.closeQuietly(input);
-    }
   }
 }

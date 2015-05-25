@@ -40,10 +40,6 @@ public class CodeColorizer {
     this.tokenizers = format.getTokenizers();
   }
 
-  public String toHtml(Reader code) {
-    return toHtml(code, null);
-  }
-
   public String toHtml(Reader code, @Nullable HtmlOptions options) {
     HtmlOptions opts = options == null ? HtmlOptions.DEFAULT : options;
     return new HtmlRenderer(opts).render(code, tokenizers);
@@ -55,10 +51,6 @@ public class CodeColorizer {
 
   public static String groovyToHtml(Reader code, HtmlOptions options) {
     return new CodeColorizer(Format.GROOVY).toHtml(code, options);
-  }
-
-  public static String getCss() {
-    return HtmlDecorator.getCss();
   }
 
   public enum Format {

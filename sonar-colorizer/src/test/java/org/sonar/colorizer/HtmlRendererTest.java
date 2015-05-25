@@ -59,7 +59,6 @@ public class HtmlRendererTest {
     String html = new HtmlRenderer().render(new FileReader(java), Arrays.asList(javaKeywordTokenizer));
 
     assertThat(html).contains("<html>");
-    assertThat(html).contains("<style");
     assertThat(html).contains("<table class=\"code\"");
     assertThat(html).contains("public");
     assertThat(html).contains("class");

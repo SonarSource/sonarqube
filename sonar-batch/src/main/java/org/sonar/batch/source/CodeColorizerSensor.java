@@ -28,11 +28,7 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
-import org.sonar.colorizer.CodeColorizer;
 
-/**
- * Execute deprecated {@link CodeColorizer} if necessary.
- */
 @Phase(name = Phase.Name.POST)
 public final class CodeColorizerSensor implements Sensor {
 
