@@ -204,7 +204,7 @@ public final class DebtDecorator implements Decorator {
     public void add(@Nullable E key, Long value) {
       if (key != null) {
         Long currentValue = sumByKeys.get(key);
-        sumByKeys.put(key, currentValue != null ? currentValue + value : value);
+        sumByKeys.put(key, currentValue != null ? (currentValue + value) : value);
       }
     }
 

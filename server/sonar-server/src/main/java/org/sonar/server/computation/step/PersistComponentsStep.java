@@ -134,7 +134,7 @@ public class PersistComponentsStep implements ComputationStep {
       component.setProjectUuid(parentModule.projectUuid());
       component.setModuleUuid(parentModule.uuid());
       component.setModuleUuidPath(reportComponent.getType().equals(Constants.ComponentType.MODULE) ?
-        parentModule.moduleUuidPath() + component.uuid() + ComponentDto.MODULE_UUID_PATH_SEP :
+        (parentModule.moduleUuidPath() + component.uuid() + ComponentDto.MODULE_UUID_PATH_SEP) :
         parentModule.moduleUuidPath());
     } else {
       component.setProjectUuid(uuid);
@@ -179,7 +179,6 @@ public class PersistComponentsStep implements ComputationStep {
   private static String getScope(BatchReport.Component reportComponent) {
     switch (reportComponent.getType()) {
       case PROJECT:
-        return Scopes.PROJECT;
       case MODULE:
         return Scopes.PROJECT;
       case DIRECTORY:
@@ -200,10 +199,14 @@ public class PersistComponentsStep implements ComputationStep {
       case DIRECTORY:
         return Qualifiers.DIRECTORY;
       case FILE:
-        return !reportComponent.getIsTest() ? Qualifiers.FILE : Qualifiers.UNIT_TEST_FILE;
+        return getFileQualifier(reportComponent);
       default :
         throw new IllegalArgumentException(String.format("Unknown type '%s'", reportComponent.getType()));
     }
+  }
+
+  private static String getFileQualifier(BatchReport.Component reportComponent){
+    return !reportComponent.getIsTest() ? Qualifiers.FILE : Qualifiers.UNIT_TEST_FILE;
   }
 
   private static String getFileName(BatchReport.Component reportComponent) {

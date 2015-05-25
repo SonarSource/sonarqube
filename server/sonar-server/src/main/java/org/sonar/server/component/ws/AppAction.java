@@ -43,6 +43,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -205,26 +206,32 @@ public class AppAction implements RequestHandler {
 
     Metric metric = CoreMetrics.getMetric(measure.getMetricKey());
     Metric.ValueType metricType = metric.getType();
-    Double value = measure.getValue();
+    Double value = getDoubleValue(measure, metric);
     String data = measure.getData();
-    if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
-      value = metric.getBestValue();
-    }
-    if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
-      return i18n.formatDouble(userSession.locale(), value);
-    }
-    if (metricType.equals(Metric.ValueType.INT) && value != null) {
-      return i18n.formatInteger(userSession.locale(), value.intValue());
-    }
-    if (metricType.equals(Metric.ValueType.PERCENT) && value != null) {
-      return i18n.formatDouble(userSession.locale(), value) + "%";
-    }
-    if (metricType.equals(Metric.ValueType.WORK_DUR) && value != null) {
-      return durations.format(userSession.locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+    if (value != null) {
+      switch (metricType) {
+        case FLOAT:
+          return i18n.formatDouble(userSession.locale(), value);
+        case INT:
+          return i18n.formatInteger(userSession.locale(), value.intValue());
+        case PERCENT:
+          return i18n.formatDouble(userSession.locale(), value) + "%";
+        case WORK_DUR:
+          return durations.format(userSession.locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+      }
     }
     if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
       return data;
     }
     return null;
+  }
+
+  @CheckForNull
+  private static Double getDoubleValue(MeasureDto measure, Metric metric){
+    Double value = measure.getValue();
+    if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
+      value = metric.getBestValue();
+    }
+    return value;
   }
 }

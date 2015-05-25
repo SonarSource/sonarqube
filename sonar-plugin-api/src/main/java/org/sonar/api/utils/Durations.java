@@ -20,11 +20,11 @@
 
 package org.sonar.api.utils;
 
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.server.ServerSide;
 
 import javax.annotation.CheckForNull;
 
@@ -116,15 +116,15 @@ public class Durations {
   private String format(Locale locale, int days, int hours, int minutes, boolean isNegative) {
     StringBuilder message = new StringBuilder();
     if (days > 0) {
-      message.append(message(locale, "work_duration.x_days", isNegative ? -1 * days : days));
+      message.append(message(locale, "work_duration.x_days", isNegative ? (-1 * days) : days));
     }
     if (displayHours(days, hours)) {
       addSpaceIfNeeded(message);
-      message.append(message(locale, "work_duration.x_hours", isNegative && message.length() == 0 ? -1 * hours : hours));
+      message.append(message(locale, "work_duration.x_hours", isNegative && message.length() == 0 ? (-1 * hours) : hours));
     }
     if (displayMinutes(days, hours, minutes)) {
       addSpaceIfNeeded(message);
-      message.append(message(locale, "work_duration.x_minutes", isNegative && message.length() == 0 ? -1 * minutes : minutes));
+      message.append(message(locale, "work_duration.x_minutes", isNegative && message.length() == 0 ? (-1 * minutes) : minutes));
     }
     return message.toString();
   }

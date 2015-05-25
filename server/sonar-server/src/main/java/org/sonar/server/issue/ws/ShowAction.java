@@ -53,6 +53,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +137,8 @@ public class ShowAction implements IssuesWsAction {
     ActionPlan actionPlan = actionPlanKey == null ? null : actionPlanService.findByKey(actionPlanKey, userSession);
     Duration debt = issue.debt();
     Rule rule = ruleService.getNonNullByKey(issue.ruleKey());
+    String actionPlanName = actionPlan != null ? actionPlan.name() : null;
+    String debtValue = debt != null ? durations.encode(debt) : null;
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
 
@@ -150,14 +153,14 @@ public class ShowAction implements IssuesWsAction {
       .prop("severity", issue.severity())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
-      .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", debt != null ? durations.encode(debt) : null)
+      .prop("actionPlanName", actionPlanName)
+      .prop("debt", debtValue)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
-      .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
+      .prop("updateDate", DateUtils.formatDateTimeNullSafe(updateDate))
       .prop("fUpdateDate", formatDate(updateDate))
       .prop("fUpdateAge", formatAgeDate(updateDate))
-      .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
+      .prop("closeDate", DateUtils.formatDateTimeNullSafe(closeDate))
       .prop("fCloseDate", formatDate(issue.closeDate()));
 
     addComponents(session, issue, json);
