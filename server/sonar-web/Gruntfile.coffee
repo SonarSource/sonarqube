@@ -163,6 +163,10 @@ module.exports = (grunt) ->
         name: 'apps/users/app'
         out: '<%= ASSETS_PATH %>/js/apps/users/app.js'
 
+      provisioning: options:
+        name: 'apps/provisioning/app'
+        out: '<%= ASSETS_PATH %>/js/apps/provisioning/app.js'
+
 
     parallel:
       build:
@@ -184,6 +188,7 @@ module.exports = (grunt) ->
           'requirejs:issueFilterWidget'
           'requirejs:markdown'
           'requirejs:users'
+          'requirejs:provisioning'
         ]
       casper:
         options: grunt: true
@@ -204,6 +209,7 @@ module.exports = (grunt) ->
           'casper:ui'
           'casper:workspace'
           'casper:users'
+          'casper:provisioning'
         ]
 
 
@@ -263,6 +269,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/users/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/users/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/provisioning/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/provisioning/templates/**/*.hbs'
           ]
 
 
@@ -358,6 +367,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/workspace*.js']
       users:
         src: ['src/test/js/users*.js']
+      provisioning:
+        src: ['src/test/js/provisioning*.js']
 
     uglify:
       build:

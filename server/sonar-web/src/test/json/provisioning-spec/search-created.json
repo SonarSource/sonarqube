@@ -1,0 +1,31 @@
+{
+  "projects": [
+    {
+      "uuid": "id-sonarqube",
+      "key": "sonarqube",
+      "name": "SonarQube",
+      "creationDate": "2015-05-25T16:49:16+0200"
+    },
+    {
+      "uuid": "id-javascript",
+      "key": "javascript",
+      "name": "JavaScript",
+      "creationDate": "2015-05-25T16:49:41+0200"
+    },
+    {
+      "uuid": "id-sonarqube-release",
+      "key": "sonarqube:release",
+      "name": "SonarQube",
+      "creationDate": "2015-05-25T16:49:30+0200"
+    },
+    {
+      "uuid": "id-key-branch",
+      "key": "key:branch",
+      "name": "name",
+      "creationDate": "2015-05-25T16:49:30+0200"
+    }
+  ],
+  "total": 4,
+  "p": 1,
+  "ps": 100
+}

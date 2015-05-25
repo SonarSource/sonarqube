@@ -1,0 +1,30 @@
+<form id="create-project-form" autocomplete="off">
+  <div class="modal-head">
+    <h2>Create Project</h2>
+  </div>
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    <div class="modal-field">
+      <label for="create-project-name">Name<em class="mandatory">*</em></label>
+      {{! keep this fake field to hack browser autofill }}
+      <input id="create-project-name-fake" name="name-fake" type="text" class="hidden">
+      <input id="create-project-name" name="name" type="text" size="50" maxlength="200" required>
+    </div>
+    <div class="modal-field">
+      <label for="create-project-branch">Branch</label>
+      {{! keep this fake field to hack browser autofill }}
+      <input id="create-project-branch-fake" name="branch-fake" type="text" class="hidden">
+      <input id="create-project-branch" name="branch" type="text" size="50" maxlength="200">
+    </div>
+    <div class="modal-field">
+      <label for="create-project-key">Key<em class="mandatory">*</em></label>
+      {{! keep this fake field to hack browser autofill }}
+      <input id="create-project-key-fake" name="key-fake" type="text" class="hidden">
+      <input id="create-project-key" name="key" type="text" size="50" maxlength="50" required>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button id="create-project-submit">Create</button>
+    <a href="#" class="js-modal-close" id="create-project-cancel">Cancel</a>
+  </div>
+</form>
