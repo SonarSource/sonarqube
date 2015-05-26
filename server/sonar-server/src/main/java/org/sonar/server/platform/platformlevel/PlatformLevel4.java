@@ -495,6 +495,7 @@ public class PlatformLevel4 extends PlatformLevel {
       GroupMembershipFinder.class,
       UserGroupsWs.class,
       org.sonar.server.usergroups.ws.SearchAction.class,
+      org.sonar.server.usergroups.ws.CreateAction.class,
 
       // permissions
       PermissionFacade.class,
