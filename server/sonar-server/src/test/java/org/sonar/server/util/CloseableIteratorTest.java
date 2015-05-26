@@ -19,9 +19,9 @@
  */
 package org.sonar.server.util;
 
-import org.junit.Test;
-
+import java.util.Collections;
 import java.util.NoSuchElementException;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -109,6 +109,36 @@ public class CloseableIteratorTest {
 
     // calling hasNext should not fail
     it.hasNext();
+  }
+
+  @Test
+  public void emptyIterator_has_next_is_false() {
+    assertThat(CloseableIterator.emptyCloseableIterator().hasNext()).isFalse();
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void emptyIterator_next_throws_NoSuchElemetException() {
+    CloseableIterator.emptyCloseableIterator().next();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void from_iterator_throws_early_NPE_if_arg_is_null() {
+    CloseableIterator.from(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void from_iterator_throws_IAE_if_arg_is_a_CloseableIterator() {
+    CloseableIterator.from(new SimpleCloseableIterator());
+  }
+
+  @Test
+  public void verify_has_next_from_iterator_with_empty_iterator() {
+    assertThat(CloseableIterator.from(Collections.<String>emptyList().iterator()).hasNext()).isFalse();
+  }
+
+  @Test(expected = NoSuchElementException.class)
+  public void verify_next_from_iterator_with_empty_iterator() {
+    CloseableIterator.from(Collections.<String>emptyList().iterator()).next();
   }
 
   static class SimpleCloseableIterator extends CloseableIterator {
