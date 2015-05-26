@@ -17,8 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
 
+public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+  private String id, title, templatePath;
+
+  protected CoreWidget(String id, String title, String templatePath) {
+    this.id = id;
+    this.title = title;
+    this.templatePath = templatePath;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public String getTitle() {
+    return title;
+  }
+
+  @Override
+  protected String getTemplatePath() {
+    return templatePath;
+  }
+}

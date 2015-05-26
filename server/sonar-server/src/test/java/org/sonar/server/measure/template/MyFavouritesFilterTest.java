@@ -17,8 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.measure.template;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.web.Filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class MyFavouritesFilterTest {
+  @Test
+  public void should_create_filter() {
+    MyFavouritesFilter template = new MyFavouritesFilter();
+
+    Filter filter = template.createFilter();
+
+    assertThat(template.getName()).isEqualTo("My favourites");
+    assertThat(filter).isNotNull();
+    assertThat(filter.isFavouritesOnly()).isTrue();
+    assertThat(filter.getCriteria()).isEmpty();
+    assertThat(filter.getColumns()).hasSize(3);
+  }
+}

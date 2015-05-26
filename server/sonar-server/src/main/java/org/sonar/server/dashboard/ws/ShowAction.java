@@ -20,6 +20,7 @@
 package org.sonar.server.dashboard.ws;
 
 import com.google.common.collect.ListMultimap;
+import java.util.Collection;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,8 +33,6 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import java.util.Collection;
 
 public class ShowAction implements DashboardsWsAction {
 

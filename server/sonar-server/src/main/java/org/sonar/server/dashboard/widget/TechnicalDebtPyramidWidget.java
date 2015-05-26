@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
+@UserRole(UserRole.USER)
+@WidgetCategory("Technical Debt")
+public final class TechnicalDebtPyramidWidget extends CoreWidget {
+
+  public TechnicalDebtPyramidWidget() {
+    super("technical_debt_pyramid", "Technical Debt Pyramid", "/org/sonar/server/dashboard/widget/technical_debt_pyramid.html.erb");
+  }
+}

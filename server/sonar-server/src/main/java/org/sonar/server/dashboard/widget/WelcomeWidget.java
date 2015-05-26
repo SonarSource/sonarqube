@@ -17,8 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetScope;
 
+import static org.sonar.api.web.WidgetScope.GLOBAL;
+
+@WidgetScope(GLOBAL)
+public class WelcomeWidget extends CoreWidget {
+
+  public static final String ID = "welcome";
+
+  public WelcomeWidget() {
+    super(ID, "Welcome", "/org/sonar/server/dashboard/widget/welcome.html.erb");
+  }
+}

@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetCategory;
 
+@WidgetCategory({"Issues", "Technical Debt"})
+public class IssuesWidget extends CoreWidget {
+
+  public IssuesWidget() {
+    super("rules", "Issues and Technical Debt", "/org/sonar/server/dashboard/widget/issues.html.erb");
+  }
+}

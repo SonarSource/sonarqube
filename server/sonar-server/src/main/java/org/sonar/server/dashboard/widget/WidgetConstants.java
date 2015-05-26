@@ -17,8 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * Constants shared accross multiple widgets
+ */
+public interface WidgetConstants {
 
+  /**
+   * Widget property option used to filter out all the metrics which keys start with "new_".
+   *
+   * @see org.sonar.api.web.WidgetProperty#options()
+   */
+  String FILTER_OUT_NEW_METRICS = "key:^(?!new_).*";
+}

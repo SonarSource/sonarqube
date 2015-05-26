@@ -17,8 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetLayout;
+import org.sonar.api.web.WidgetLayoutType;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
+@WidgetProperties({
+  @WidgetProperty(key = "show_ok", type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
+})
+@WidgetLayout(WidgetLayoutType.NONE)
+public class AlertsWidget extends CoreWidget {
+
+  public AlertsWidget() {
+    super("alerts", "Alerts", "/org/sonar/server/dashboard/widget/alerts.html.erb");
+  }
+
+}

@@ -19,13 +19,12 @@
  */
 package org.sonar.server.dashboard.db;
 
+import java.util.Collection;
 import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import java.util.Collection;
 
 public class WidgetDao implements DaoComponent {
 

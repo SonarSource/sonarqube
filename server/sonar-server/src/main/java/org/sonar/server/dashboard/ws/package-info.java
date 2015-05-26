@@ -21,3 +21,4 @@
 package org.sonar.server.dashboard.ws;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+

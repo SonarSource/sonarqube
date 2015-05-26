@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
+@WidgetCategory("Tests")
+@UserRole(UserRole.USER)
+public class CoverageWidget extends CoreWidget {
+
+  public CoverageWidget() {
+    super("code_coverage", "Code coverage", "/org/sonar/server/dashboard/widget/coverage.html.erb");
+  }
+}

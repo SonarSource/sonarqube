@@ -17,8 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
+@WidgetCategory({"Hotspots"})
+@WidgetProperties({
+  @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
+  @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
+})
+public class HotspotMetricWidget extends CoreWidget {
+  public HotspotMetricWidget() {
+    super("hotspot_metric", "Metric hotspot", "/org/sonar/server/dashboard/widget/hotspot_metric.html.erb");
+  }
+}

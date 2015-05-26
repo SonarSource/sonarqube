@@ -17,8 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.template;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.web.Dashboard;
+import org.sonar.api.web.DashboardLayout;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ProjectDefaultDashboardTest {
+  ProjectDefaultDashboard template = new ProjectDefaultDashboard();
+
+  @Test
+  public void should_have_a_name() {
+    assertThat(template.getName()).isEqualTo("Dashboard");
+  }
+
+  @Test
+  public void should_create_dashboard() {
+    Dashboard dashboard = template.createDashboard();
+
+    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
+    assertThat(dashboard.getWidgets()).hasSize(9);
+  }
+}

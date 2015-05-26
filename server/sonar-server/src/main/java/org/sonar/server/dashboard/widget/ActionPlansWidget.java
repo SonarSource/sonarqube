@@ -17,8 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
 
+@WidgetCategory({"Issues"})
+@WidgetProperties({
+  @WidgetProperty(key = "showResolvedIssues", type = WidgetPropertyType.BOOLEAN, defaultValue = "true")
+})
+public class ActionPlansWidget extends CoreWidget {
+  public ActionPlansWidget() {
+    super("action_plans", "Issues action plans", "/org/sonar/server/dashboard/widget/action_plans.html.erb");
+  }
+}
