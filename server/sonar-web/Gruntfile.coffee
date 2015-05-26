@@ -14,6 +14,9 @@ module.exports = (grunt) ->
     ASSETS_PATH: grunt.option("assetsDir") || './src/main/webapp'
     BUILD_PATH: './build'
 
+    APP: grunt.option 'app'
+    WIDGET: grunt.option 'widget'
+
     less:
       build:
         options:
@@ -103,18 +106,6 @@ module.exports = (grunt) ->
         baseUrl: '<%= BUILD_PATH %>/js/'
         preserveLicenseComments: false
 
-      qualityGate: options:
-        name: 'apps/quality-gate/app'
-        out: '<%= ASSETS_PATH %>/js/apps/quality-gate/app.js'
-
-      qualityProfiles: options:
-        name: 'apps/quality-profiles/app'
-        out: '<%= ASSETS_PATH %>/js/apps/quality-profiles/app.js'
-
-      codingRules: options:
-        name: 'apps/coding-rules/app'
-        out: '<%= ASSETS_PATH %>/js/apps/coding-rules/app.js'
-
       issues: options:
         name: 'apps/issues/app-new'
         out: '<%= ASSETS_PATH %>/js/apps/issues/app-new.js'
@@ -123,72 +114,42 @@ module.exports = (grunt) ->
         name: 'apps/issues/app-context'
         out: '<%= ASSETS_PATH %>/js/apps/issues/app-context.js'
 
-      measures: options:
-        name: 'apps/measures/app'
-        out: '<%= ASSETS_PATH %>/js/apps/measures/app.js'
-
       selectList: options:
         name: 'components/common/select-list'
         out: '<%= ASSETS_PATH %>/js/components/common/select-list.js'
 
-      apiDocumentation: options:
-        name: 'apps/api-documentation/app'
-        out: '<%= ASSETS_PATH %>/js/apps/api-documentation/app.js'
+      app: options:
+        name: 'apps/<%= APP %>/app'
+        out: '<%= ASSETS_PATH %>/js/apps/<%= APP %>/app.js'
 
-      drilldown: options:
-        name: 'apps/drilldown/app'
-        out: '<%= ASSETS_PATH %>/js/apps/drilldown/app.js'
-
-      sourceViewer: options:
-        name: 'apps/source-viewer/app'
-        out: '<%= ASSETS_PATH %>/js/apps/source-viewer/app.js'
-
-      monitoring: options:
-        name: 'apps/analysis-reports/app'
-        out: '<%= ASSETS_PATH %>/js/apps/analysis-reports/app.js'
-
-      nav: options:
-        name: 'apps/nav/app'
-        out: '<%= ASSETS_PATH %>/js/apps/nav/app.js'
-
-      issueFilterWidget: options:
-        name: 'widgets/issue-filter/widget'
-        out: '<%= ASSETS_PATH %>/js/widgets/issue-filter/widget.js'
-
-      markdown: options:
-        name: 'apps/markdown/app'
-        out: '<%= ASSETS_PATH %>/js/apps/markdown/app.js'
-
-      users: options:
-        name: 'apps/users/app'
-        out: '<%= ASSETS_PATH %>/js/apps/users/app.js'
-
-      provisioning: options:
-        name: 'apps/provisioning/app'
-        out: '<%= ASSETS_PATH %>/js/apps/provisioning/app.js'
+      widget: options:
+        name: 'widgets/<%= WIDGET %>/widget'
+        out: '<%= ASSETS_PATH %>/js/widgets/<%= WIDGET %>/widget.js'
 
 
     parallel:
       build:
-        options: grunt: true
         tasks: [
-          'uglify:build'
-          'requirejs:qualityGate'
-          'requirejs:qualityProfiles'
-          'requirejs:codingRules'
-          'requirejs:issues'
-          'requirejs:issuesContext'
-          'requirejs:measures'
-          'requirejs:selectList'
-          'requirejs:apiDocumentation'
-          'requirejs:drilldown'
-          'requirejs:sourceViewer'
-          'requirejs:monitoring'
-          'requirejs:nav'
-          'requirejs:issueFilterWidget'
-          'requirejs:markdown'
-          'requirejs:users'
-          'requirejs:provisioning'
+          { grunt: true, args: ['uglify:build'] }
+          # apps
+          { grunt: true, args: ['requirejs:app', '--app=analysis-reports'] }
+          { grunt: true, args: ['requirejs:app', '--app=api-documentation'] }
+          { grunt: true, args: ['requirejs:app', '--app=coding-rules'] }
+          { grunt: true, args: ['requirejs:app', '--app=drilldown'] }
+          { grunt: true, args: ['requirejs:app', '--app=markdown'] }
+          { grunt: true, args: ['requirejs:app', '--app=measures'] }
+          { grunt: true, args: ['requirejs:app', '--app=nav'] }
+          { grunt: true, args: ['requirejs:app', '--app=provisioning'] }
+          { grunt: true, args: ['requirejs:app', '--app=quality-gate'] }
+          { grunt: true, args: ['requirejs:app', '--app=quality-profiles'] }
+          { grunt: true, args: ['requirejs:app', '--app=source-viewer'] }
+          { grunt: true, args: ['requirejs:app', '--app=users'] }
+          # widgets
+          { grunt: true, args: ['requirejs:widget', '--widget=issue-filter'] }
+          # other
+          { grunt: true, args: ['requirejs:issues'] }
+          { grunt: true, args: ['requirejs:issuesContext'] }
+          { grunt: true, args: ['requirejs:selectList'] }
         ]
       casper:
         options: grunt: true
