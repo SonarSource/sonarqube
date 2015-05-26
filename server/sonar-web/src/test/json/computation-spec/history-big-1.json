@@ -1,0 +1,27 @@
+{
+  "total": 3,
+  "p": 1,
+  "ps": 2,
+  "reports": [
+    {
+      "submittedAt": "2015-05-07T14:25:20+0200",
+      "status": "SUCCESS",
+      "finishedAt": "2015-05-07T14:25:26+0200",
+      "startedAt": "2015-05-07T14:25:20+0200",
+      "projectUuid": "id-sonarqube",
+      "projectName": "SonarQube",
+      "projectKey": "key-sonarqube",
+      "key": "2"
+    },
+    {
+      "submittedAt": "2015-05-06T09:22:14+0200",
+      "status": "SUCCESS",
+      "finishedAt": "2015-05-06T09:22:18+0200",
+      "startedAt": "2015-05-06T09:22:14+0200",
+      "projectUuid": "id-sonarqube",
+      "projectName": "SonarQube",
+      "projectKey": "key-sonarqube",
+      "key": "1"
+    }
+  ]
+}

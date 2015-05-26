@@ -87,7 +87,7 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/graphics/barchart.js'
             '<%= BUILD_PATH %>/js/libs/sortable.js'
 
-            '<%= BUILD_PATH %>/js/components/common/inputs.js'
+            '<%= BUILD_PATH %>/js/libs/inputs.js'
             '<%= BUILD_PATH %>/js/components/common/dialogs.js'
             '<%= BUILD_PATH %>/js/components/common/processes.js'
             '<%= BUILD_PATH %>/js/components/common/jquery-isolated-scroll.js'
@@ -132,9 +132,9 @@ module.exports = (grunt) ->
         tasks: [
           { grunt: true, args: ['uglify:build'] }
           # apps
-          { grunt: true, args: ['requirejs:app', '--app=analysis-reports'] }
           { grunt: true, args: ['requirejs:app', '--app=api-documentation'] }
           { grunt: true, args: ['requirejs:app', '--app=coding-rules'] }
+          { grunt: true, args: ['requirejs:app', '--app=computation'] }
           { grunt: true, args: ['requirejs:app', '--app=drilldown'] }
           { grunt: true, args: ['requirejs:app', '--app=markdown'] }
           { grunt: true, args: ['requirejs:app', '--app=measures'] }
@@ -171,6 +171,7 @@ module.exports = (grunt) ->
           'casper:workspace'
           'casper:users'
           'casper:provisioning'
+          'casper:computation'
         ]
 
 
@@ -213,9 +214,6 @@ module.exports = (grunt) ->
           '<%= BUILD_PATH %>/js/apps/api-documentation/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/api-documentation/templates/**/*.hbs'
           ]
-          '<%= BUILD_PATH %>/js/apps/analysis-reports/templates.js': [
-            '<%= SOURCE_PATH %>/coffee/apps/analysis-reports/templates/**/*.hbs'
-          ]
           '<%= BUILD_PATH %>/js/apps/nav/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/nav/templates/**/*.hbs'
           ]
@@ -233,6 +231,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/provisioning/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/provisioning/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/computation/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/computation/templates/**/*.hbs'
           ]
 
 
@@ -330,6 +331,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/users*.js']
       provisioning:
         src: ['src/test/js/provisioning*.js']
+      computation:
+        src: ['src/test/js/computation*.js']
 
     uglify:
       build:

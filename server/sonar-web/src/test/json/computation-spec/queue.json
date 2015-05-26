@@ -1,0 +1,12 @@
+{
+  "reports": [
+    {
+      "submittedAt": "2015-05-13T15:44:15+0200",
+      "status": "WORKING",
+      "projectUuid": "id-sonarqube",
+      "projectName": "SonarQube",
+      "projectKey": "key-sonarqube",
+      "key": "4"
+    }
+  ]
+}

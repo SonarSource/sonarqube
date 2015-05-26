@@ -18,33 +18,22 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-define [
-  './report'
-], (
-  Report
-) ->
+class ComputationController < ApplicationController
 
+  before_filter :admin_required
 
-  class extends Backbone.Collection
-    model: Report
+  SECTION=Navigation::SECTION_CONFIGURATION
 
+  def index
+    render :action => 'index'
+  end
 
-    parse: (r) ->
-      @paging =
-        page: r.p
-        pageSize: r.ps
-        total: r.total
-        maxResultsReached: r.p * r.ps >= r.total
-      r.reports
+  def current
+    render :action => 'index'
+  end
 
+  def past
+    render :action => 'index'
+  end
 
-    fetchActive: ->
-      @fetch { url: "#{baseUrl}/api/computation/queue" }, { reset: true }
-
-
-    fetchHistory: (options = {  }) ->
-      _.extend options,
-        url: "#{baseUrl}/api/computation/history"
-      options.data = options.data || {}
-      options.data.ps = 50
-      @fetch options, { reset: true }
+end

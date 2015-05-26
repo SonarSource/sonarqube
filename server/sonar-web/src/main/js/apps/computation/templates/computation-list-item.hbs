@@ -1,0 +1,32 @@
+<div class="display-inline-block text-top width-30">
+  <i class="icon-qualifier-trk"></i>
+  <a href="{{dashboardUrl projectKey}}">{{projectName}}</a>
+</div>
+
+<div class="display-inline-block text-top width-30">
+  <ul>
+    {{#if submittedAt}}
+      <li>Submitted: {{dt submittedAt}}</li>
+    {{/if}}
+    {{#if startedAt}}
+      <li>Started: {{dt startedAt}}</li>
+    {{/if}}
+    {{#if finishedAt}}
+      <li>Finished: {{dt finishedAt}}</li>
+    {{/if}}
+  </ul>
+</div>
+
+
+{{#if duration}}
+  <div class="display-inline-block text-top width-30">
+    Duration:
+    {{#gt duration.hours 0}}{{duration.hours}}h{{/gt}}
+    {{#gt duration.minutes 0}}{{duration.minutes}}m{{/gt}}
+    {{duration.seconds}}s
+  </div>
+{{/if}}
+
+<div class="pull-right {{#if danger}}text-danger{{/if}}">
+  #{{key}} {{status}}
+</div>

@@ -1,0 +1,17 @@
+{
+  "total": 3,
+  "p": 2,
+  "ps": 2,
+  "reports": [
+    {
+      "submittedAt": "2015-05-13T15:44:15+0200",
+      "status": "FAIL",
+      "finishedAt": "2015-05-13T15:44:18+0200",
+      "startedAt": "2015-05-13T15:44:15+0200",
+      "projectUuid": "id-sonarqube",
+      "projectName": "SonarQube",
+      "projectKey": "key-sonarqube",
+      "key": "3"
+    }
+  ]
+}
