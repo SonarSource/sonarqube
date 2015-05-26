@@ -1,0 +1,13 @@
+{
+  "projects": [
+    {
+      "uuid": "id-javascript",
+      "key": "javascript",
+      "name": "JavaScript",
+      "creationDate": "2015-05-25T16:49:41+0200"
+    }
+  ],
+  "total": 1,
+  "p": 1,
+  "ps": 100
+}
