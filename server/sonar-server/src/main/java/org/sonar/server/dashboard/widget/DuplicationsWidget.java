@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * @author Patroklos PAPAPETROU
+ */
 
+public class DuplicationsWidget extends CoreWidget {
+
+  public DuplicationsWidget() {
+    super("duplications", "Duplications", "/org/sonar/server/dashboard/widget/duplications_widget.html.erb");
+  }
+
+}

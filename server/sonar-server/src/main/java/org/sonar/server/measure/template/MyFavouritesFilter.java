@@ -17,8 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.measure.template;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.web.Filter;
+import org.sonar.api.web.FilterColumn;
+import org.sonar.api.web.FilterTemplate;
 
+/**
+ * Default filter for looking for user favourite resources.
+ *
+ * @since 3.1
+ */
+public class MyFavouritesFilter extends FilterTemplate {
+  public static final String NAME = "My favourites";
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public Filter createFilter() {
+    return Filter.create()
+      .setDisplayAs(Filter.LIST)
+      .setFavouritesOnly(true)
+      .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+      .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
+  }
+}

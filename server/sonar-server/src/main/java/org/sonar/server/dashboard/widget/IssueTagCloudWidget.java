@@ -17,8 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetCategory;
+import org.sonar.api.web.WidgetProperties;
+import org.sonar.api.web.WidgetProperty;
+import org.sonar.api.web.WidgetPropertyType;
+import org.sonar.api.web.WidgetScope;
 
+import static org.sonar.api.web.WidgetScope.PROJECT;
+
+@WidgetCategory({"Issues"})
+@WidgetScope(PROJECT)
+@WidgetProperties({
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100")
+})
+public class IssueTagCloudWidget extends CoreWidget {
+
+  public IssueTagCloudWidget() {
+    super("issue_tag_cloud", "Issue Tag Cloud", "/org/sonar/server/dashboard/widget/issue_tag_cloud.html.erb");
+  }
+
+}

@@ -19,13 +19,12 @@
  */
 package org.sonar.server.dashboard.db;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.core.dashboard.DashboardDto;
 import org.sonar.core.dashboard.DashboardMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 public class DashboardDao implements DaoComponent {
 

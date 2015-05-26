@@ -58,6 +58,8 @@ import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.charts.ChartFactory;
+import org.sonar.server.charts.DistributionAreaChart;
+import org.sonar.server.charts.DistributionBarChart;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
@@ -72,6 +74,40 @@ import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
 import org.sonar.server.computation.ws.QueueAction;
 import org.sonar.server.config.ws.PropertiesWs;
+import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
+import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
+import org.sonar.server.dashboard.template.ProjectIssuesDashboard;
+import org.sonar.server.dashboard.template.ProjectTimeMachineDashboard;
+import org.sonar.server.dashboard.widget.ActionPlansWidget;
+import org.sonar.server.dashboard.widget.AlertsWidget;
+import org.sonar.server.dashboard.widget.BubbleChartWidget;
+import org.sonar.server.dashboard.widget.ComplexityWidget;
+import org.sonar.server.dashboard.widget.CoverageWidget;
+import org.sonar.server.dashboard.widget.CustomMeasuresWidget;
+import org.sonar.server.dashboard.widget.DebtOverviewWidget;
+import org.sonar.server.dashboard.widget.DescriptionWidget;
+import org.sonar.server.dashboard.widget.DocumentationCommentsWidget;
+import org.sonar.server.dashboard.widget.DuplicationsWidget;
+import org.sonar.server.dashboard.widget.EventsWidget;
+import org.sonar.server.dashboard.widget.HotspotMetricWidget;
+import org.sonar.server.dashboard.widget.IssueFilterWidget;
+import org.sonar.server.dashboard.widget.IssueTagCloudWidget;
+import org.sonar.server.dashboard.widget.IssuesWidget;
+import org.sonar.server.dashboard.widget.ItCoverageWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterAsBubbleChartWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterAsCloudWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterAsHistogramWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterAsPieChartWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterAsTreemapWidget;
+import org.sonar.server.dashboard.widget.MeasureFilterListWidget;
+import org.sonar.server.dashboard.widget.ProjectFileCloudWidget;
+import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
+import org.sonar.server.dashboard.widget.SizeWidget;
+import org.sonar.server.dashboard.widget.TechnicalDebtPyramidWidget;
+import org.sonar.server.dashboard.widget.TimeMachineWidget;
+import org.sonar.server.dashboard.widget.TimelineWidget;
+import org.sonar.server.dashboard.widget.TreemapWidget;
+import org.sonar.server.dashboard.widget.WelcomeWidget;
 import org.sonar.server.dashboard.ws.DashboardsWs;
 import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
 import org.sonar.server.debt.DebtModelBackup;
@@ -126,6 +162,8 @@ import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
+import org.sonar.server.measure.template.MyFavouritesFilter;
+import org.sonar.server.measure.template.ProjectFilter;
 import org.sonar.server.measure.ws.ManualMeasuresWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.ws.MetricsWs;
@@ -298,6 +336,8 @@ public class PlatformLevel4 extends PlatformLevel {
     add(
       PluginDownloader.class,
       ChartFactory.class,
+      DistributionBarChart.class,
+      DistributionAreaChart.class,
       Views.class,
       ResourceTypes.class,
       SettingsChangeNotifier.class,
@@ -321,6 +361,40 @@ public class PlatformLevel4 extends PlatformLevel {
       // Dashboard
       DashboardsWs.class,
       org.sonar.server.dashboard.ws.ShowAction.class,
+      ProjectDefaultDashboard.class,
+      ProjectIssuesDashboard.class,
+      ProjectTimeMachineDashboard.class,
+      GlobalDefaultDashboard.class,
+      AlertsWidget.class,
+      CoverageWidget.class,
+      ItCoverageWidget.class,
+      DescriptionWidget.class,
+      ComplexityWidget.class,
+      IssuesWidget.class,
+      SizeWidget.class,
+      EventsWidget.class,
+      CustomMeasuresWidget.class,
+      TimelineWidget.class,
+      BubbleChartWidget.class,
+      TimeMachineWidget.class,
+      HotspotMetricWidget.class,
+      TreemapWidget.class,
+      MeasureFilterListWidget.class,
+      MeasureFilterAsTreemapWidget.class,
+      WelcomeWidget.class,
+      DocumentationCommentsWidget.class,
+      DuplicationsWidget.class,
+      TechnicalDebtPyramidWidget.class,
+      MeasureFilterAsPieChartWidget.class,
+      MeasureFilterAsCloudWidget.class,
+      MeasureFilterAsHistogramWidget.class,
+      MeasureFilterAsBubbleChartWidget.class,
+      ProjectFileCloudWidget.class,
+      DebtOverviewWidget.class,
+      ActionPlansWidget.class,
+      IssueFilterWidget.class,
+      ProjectIssueFilterWidget.class,
+      IssueTagCloudWidget.class,
 
       // update center
       UpdateCenterClient.class,
@@ -412,6 +486,8 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasureFilterFactory.class,
       MeasureFilterExecutor.class,
       MeasureFilterEngine.class,
+      ProjectFilter.class,
+      MyFavouritesFilter.class,
       DefaultMetricFinder.class,
       ServerLifecycleNotifier.class,
       TimeMachineWs.class,

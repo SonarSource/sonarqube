@@ -69,11 +69,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.reflections</groupId>
-      <artifactId>reflections</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.dbunit</groupId>
       <artifactId>dbunit</artifactId>
       <scope>test</scope>
@@ -100,35 +95,7 @@
   </dependencies>
 
   <build>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/main/resources</directory>
-      </testResource>
-      <testResource>
-        <directory>${basedir}/src/test/resources</directory>
-      </testResource>
-    </testResources>
-
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-dev-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>trim</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>trim</goal>
-            </goals>
-            <configuration>
-              <directory>${project.build.outputDirectory}</directory>
-              <includes>
-                <include>**/*.erb</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>

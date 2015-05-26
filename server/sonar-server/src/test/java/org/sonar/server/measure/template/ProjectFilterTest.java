@@ -17,8 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.measure.template;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+import org.sonar.api.web.Filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class ProjectFilterTest {
+  @Test
+  public void should_create_filter() {
+    ProjectFilter template = new ProjectFilter();
+
+    Filter filter = template.createFilter();
+
+    assertThat(template.getName()).isEqualTo("Projects");
+    assertThat(filter).isNotNull();
+    assertThat(filter.getCriteria()).hasSize(1);
+    assertThat(filter.getColumns()).hasSize(6);
+  }
+}

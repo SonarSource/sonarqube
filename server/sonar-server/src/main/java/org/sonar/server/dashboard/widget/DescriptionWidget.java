@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.web.WidgetLayout;
+import org.sonar.api.web.WidgetLayoutType;
 
+@WidgetLayout(WidgetLayoutType.NONE)
+public class DescriptionWidget extends CoreWidget {
+
+  public DescriptionWidget() {
+    super("description", "Description", "/org/sonar/server/dashboard/widget/description.html.erb");
+  }
+}

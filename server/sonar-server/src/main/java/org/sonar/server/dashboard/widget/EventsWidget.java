@@ -17,8 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.dashboard;
+package org.sonar.server.dashboard.widget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+public class EventsWidget extends CoreWidget {
 
+  public EventsWidget() {
+    super("events", "Events", "/org/sonar/server/dashboard/widget/events.html.erb");
+  }
+}

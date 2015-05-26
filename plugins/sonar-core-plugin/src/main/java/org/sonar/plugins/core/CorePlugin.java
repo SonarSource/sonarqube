@@ -20,21 +20,14 @@
 package org.sonar.plugins.core;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.core.charts.DistributionAreaChart;
-import org.sonar.plugins.core.charts.DistributionBarChart;
-import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
-import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
-import org.sonar.plugins.core.dashboards.ProjectIssuesDashboard;
-import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
 import org.sonar.plugins.core.issue.CountFalsePositivesDecorator;
 import org.sonar.plugins.core.issue.CountUnresolvedIssuesDecorator;
-import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
-import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
 import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
@@ -57,38 +50,6 @@ import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
 import org.sonar.plugins.core.timemachine.VariationDecorator;
-import org.sonar.plugins.core.widgets.AlertsWidget;
-import org.sonar.plugins.core.widgets.BubbleChartWidget;
-import org.sonar.plugins.core.widgets.ComplexityWidget;
-import org.sonar.plugins.core.widgets.CoverageWidget;
-import org.sonar.plugins.core.widgets.CustomMeasuresWidget;
-import org.sonar.plugins.core.widgets.DebtOverviewWidget;
-import org.sonar.plugins.core.widgets.DescriptionWidget;
-import org.sonar.plugins.core.widgets.DocumentationCommentsWidget;
-import org.sonar.plugins.core.widgets.DuplicationsWidget;
-import org.sonar.plugins.core.widgets.EventsWidget;
-import org.sonar.plugins.core.widgets.HotspotMetricWidget;
-import org.sonar.plugins.core.widgets.ItCoverageWidget;
-import org.sonar.plugins.core.widgets.ProjectFileCloudWidget;
-import org.sonar.plugins.core.widgets.SizeWidget;
-import org.sonar.plugins.core.widgets.TechnicalDebtPyramidWidget;
-import org.sonar.plugins.core.widgets.TimeMachineWidget;
-import org.sonar.plugins.core.widgets.TimelineWidget;
-import org.sonar.plugins.core.widgets.TreemapWidget;
-import org.sonar.plugins.core.widgets.WelcomeWidget;
-import org.sonar.plugins.core.widgets.issues.ActionPlansWidget;
-import org.sonar.plugins.core.widgets.issues.IssueFilterWidget;
-import org.sonar.plugins.core.widgets.issues.IssueTagCloudWidget;
-import org.sonar.plugins.core.widgets.issues.IssuesWidget;
-import org.sonar.plugins.core.widgets.issues.ProjectIssueFilterWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsBubbleChartWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsCloudWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsHistogramWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsPieChartWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterAsTreemapWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterListWidget;
-
-import java.util.List;
 
 @Properties({
   @Property(
@@ -258,55 +219,9 @@ public final class CorePlugin extends SonarPlugin {
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
 
-      // measure filters
-      ProjectFilter.class,
-      MyFavouritesFilter.class,
-
-      // widgets
-      AlertsWidget.class,
-      CoverageWidget.class,
-      ItCoverageWidget.class,
-      DescriptionWidget.class,
-      ComplexityWidget.class,
-      IssuesWidget.class,
-      SizeWidget.class,
-      EventsWidget.class,
-      CustomMeasuresWidget.class,
-      TimelineWidget.class,
-      BubbleChartWidget.class,
-      TimeMachineWidget.class,
-      HotspotMetricWidget.class,
-      TreemapWidget.class,
-      MeasureFilterListWidget.class,
-      MeasureFilterAsTreemapWidget.class,
-      WelcomeWidget.class,
-      DocumentationCommentsWidget.class,
-      DuplicationsWidget.class,
-      TechnicalDebtPyramidWidget.class,
-      MeasureFilterAsPieChartWidget.class,
-      MeasureFilterAsCloudWidget.class,
-      MeasureFilterAsHistogramWidget.class,
-      MeasureFilterAsBubbleChartWidget.class,
-      ProjectFileCloudWidget.class,
-      DebtOverviewWidget.class,
-
-      // dashboards
-      ProjectDefaultDashboard.class,
-      ProjectIssuesDashboard.class,
-      ProjectTimeMachineDashboard.class,
-      GlobalDefaultDashboard.class,
-
-      // chart
-      DistributionBarChart.class,
-      DistributionAreaChart.class,
-
       // issues
       CountUnresolvedIssuesDecorator.class,
       CountFalsePositivesDecorator.class,
-      ActionPlansWidget.class,
-      IssueFilterWidget.class,
-      ProjectIssueFilterWidget.class,
-      IssueTagCloudWidget.class,
 
       // batch
       UnitTestDecorator.class,
