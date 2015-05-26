@@ -11,6 +11,7 @@
   <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
+    <module>sonar-api-deps</module>
     <module>sonar-application</module>
     <module>sonar-batch</module>
     <module>sonar-batch-maven-compat</module>

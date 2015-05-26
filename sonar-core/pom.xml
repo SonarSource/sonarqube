@@ -113,6 +113,14 @@
       <artifactId>log4j-over-slf4j</artifactId>
     </dependency>
 
+    <dependency>
+      <!-- sonar-api-deps.jar is copied into target JAR file -->
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-api-deps</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
 
     <!-- tests -->
     <dependency>
@@ -181,6 +189,31 @@
               <sources>
                 <source>src/main/gen-java</source>
               </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-deprecated-api-deps</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>sonar-api-deps</artifactId>
+                  <destFileName>sonar-api-deps.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
           </execution>
         </executions>
