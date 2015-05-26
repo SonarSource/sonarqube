@@ -123,7 +123,7 @@ public class SearchAction implements UsersWsAction {
     json.endArray();
   }
 
-  private void writeIfNeeded(JsonWriter json, String value, String field, @Nullable List<String> fields) {
+  private void writeIfNeeded(JsonWriter json, @Nullable String value, String field, @Nullable List<String> fields) {
     if (fieldIsWanted(field, fields)) {
       json.prop(field, value);
     }

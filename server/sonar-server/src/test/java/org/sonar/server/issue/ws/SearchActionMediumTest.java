@@ -136,7 +136,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_with_comment() throws Exception {
-    db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("john").setName("John"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));

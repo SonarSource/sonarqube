@@ -553,7 +553,7 @@ public class SearchAction implements IssuesWsAction {
       writeTags(issue, json);
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);
-      writeIssueExtraFields(issue, project != null ? project.getKey() : null, usersByLogin, actionPlanByKeys, extraFields, json);
+      writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
       json.endObject();
     }
 
@@ -581,6 +581,7 @@ public class SearchAction implements IssuesWsAction {
         json.beginObject()
           .prop("key", comment.key())
           .prop("login", comment.userLogin())
+          .prop("email", user != null ? user.email() : null)
           .prop("userName", user != null ? user.name() : null)
           .prop("htmlText", Markdown.convertToHtml(comment.markdownText()))
           .prop("markdown", comment.markdownText())
@@ -602,7 +603,7 @@ public class SearchAction implements IssuesWsAction {
     }
   }
 
-  private void writeIssueExtraFields(Issue issue, @Nullable String projectKey, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
+  private void writeIssueExtraFields(Issue issue, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
     @Nullable List<String> extraFields,
     JsonWriter json) {
     if (extraFields != null) {

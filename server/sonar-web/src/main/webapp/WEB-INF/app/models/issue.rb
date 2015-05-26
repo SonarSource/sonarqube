@@ -69,8 +69,11 @@ class Issue
       user = changelog.user(change)
 
       hash_change = {}
-      hash_change[:user] = user.login() if user
-      hash_change[:userName] = user.name() if user
+      if user
+        hash_change[:user] = user.login()
+        hash_change[:userName] = user.name()
+        hash_change[:email] = user.email()
+      end
       hash_change[:creationDate] = Api::Utils.format_datetime(change.creationDate()) if change.creationDate()
       hash_change[:diffs] = []
 

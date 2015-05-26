@@ -15,6 +15,7 @@
           "key": "COMMENT-ABCE",
           "login": "fabrice",
           "userName": "Fabrice",
+          "email": "fabrice@email.com",
           "htmlText": "Another comment",
           "markdown": "Another comment",
           "updatable": false
