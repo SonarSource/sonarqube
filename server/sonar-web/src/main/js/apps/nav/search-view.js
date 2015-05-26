@@ -206,8 +206,7 @@ define([
             { name: t('coding_rules.page'), url: baseUrl + '/coding_rules' },
             { name: t('quality_profiles.page'), url: baseUrl + '/profiles' },
             { name: t('quality_gates.page'), url: baseUrl + '/quality_gates' },
-            { name: t('comparison_global.page'), url: baseUrl + '/comparison' },
-            { name: t('dependencies.page'), url: baseUrl + '/dependencies' }
+            { name: t('comparison_global.page'), url: baseUrl + '/comparison' }
           ],
           customItems = [];
       if (window.SS.isUserAdmin) {
