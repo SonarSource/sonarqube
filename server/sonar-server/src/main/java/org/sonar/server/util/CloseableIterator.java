@@ -20,18 +20,74 @@
 package org.sonar.server.util;
 
 import com.google.common.base.Throwables;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.annotation.CheckForNull;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable {
+  private static final CloseableIterator<?> EMPTY_CLOSEABLE_ITERATOR = new CloseableIterator<Object>() {
+    @Override
+    public boolean hasNext() {
+      return false;
+    }
+
+    @Override
+    protected Object doNext() {
+      // never called anyway
+      throw new NoSuchElementException("Empty closeable Iterator has no element");
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      // do nothing
+    }
+  };
+
+  @SuppressWarnings("unchecked")
+  public static <T> CloseableIterator<T> emptyCloseableIterator() {
+    return (CloseableIterator<T>) EMPTY_CLOSEABLE_ITERATOR;
+  }
+
+  /**
+   * Creates a CloseableIterator from a regular {@link Iterator}.
+   *
+   * @throws IllegalArgumentException if the specified {@link Iterator} is a CloseableIterator
+   */
+  public static <T> CloseableIterator<T> from(final Iterator<T> iterator) {
+    // early fail
+    requireNonNull(iterator);
+    checkArgument(!(iterator instanceof CloseableIterator), "This method does not support creating a CloseableIterator from a CloseableIterator");
+    return new CloseableIterator<T>() {
+      @Override
+      public boolean hasNext() {
+        return iterator.hasNext();
+      }
+
+      @Override
+      public T next() {
+        return iterator.next();
+      }
+
+      @Override
+      protected T doNext() {
+        throw new UnsupportedOperationException("hasNext has been override, doNext is never called");
+      }
+
+      @Override
+      protected void doClose() throws Exception {
+        // do nothing
+      }
+    };
+  }
+
   private O nextObject = null;
   boolean isClosed = false;
 
   @Override
-  public final boolean hasNext() {
+  public boolean hasNext() {
     // Optimization to not call bufferNext() when already closed
     if (isClosed) {
       return false;
@@ -59,7 +115,7 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
   protected abstract O doNext();
 
   @Override
-  public final O next() {
+  public O next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
