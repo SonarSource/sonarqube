@@ -38,6 +38,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -89,7 +90,7 @@ public class SearchAction implements UsersWsAction {
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
     Multimap<String, String> groupsByLogin = Multimaps.forMap(Maps.<String, String>newHashMap());
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
       Collection<String> logins = Collections2.transform(result.getDocs(), new Function<UserDoc, String>() {
         @Override
@@ -97,9 +98,9 @@ public class SearchAction implements UsersWsAction {
           return input.login();
         }
       });
-      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(session, logins);
+      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
     } finally {
-      session.close();
+      MyBatis.closeQuietly(dbSession);
     }
 
     JsonWriter json = response.newJsonWriter().beginObject();
@@ -117,12 +118,7 @@ public class SearchAction implements UsersWsAction {
       writeIfNeeded(json, user.name(), FIELD_NAME, fields);
       writeIfNeeded(json, user.email(), FIELD_EMAIL, fields);
       writeGroupsIfNeeded(json, groupsByLogin.get(user.login()), fields);
-      if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
-        json.name(FIELD_SCM_ACCOUNTS)
-          .beginArray()
-          .values(user.scmAccounts())
-          .endArray();
-      }
+      writeScmAccountsIfNeeded(json, fields, user);
       json.endObject();
     }
     json.endArray();
@@ -141,6 +137,15 @@ public class SearchAction implements UsersWsAction {
         json.value(groupName);
       }
       json.endArray();
+    }
+  }
+
+  private void writeScmAccountsIfNeeded(JsonWriter json, List<String> fields, UserDoc user) {
+    if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
+      json.name(FIELD_SCM_ACCOUNTS)
+        .beginArray()
+        .values(user.scmAccounts())
+        .endArray();
     }
   }
 

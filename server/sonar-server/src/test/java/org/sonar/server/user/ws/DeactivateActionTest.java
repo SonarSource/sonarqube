@@ -25,9 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
@@ -51,11 +49,12 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@Category(DbTests.class)
 public class DeactivateActionTest {
 
   static final Settings settings = new Settings();
@@ -79,8 +78,7 @@ public class DeactivateActionTest {
 
   DbSession session;
 
-  @Mock
-  I18n i18n;
+  I18n i18n = mock(I18n.class);
 
   @Before
   public void setUp() {

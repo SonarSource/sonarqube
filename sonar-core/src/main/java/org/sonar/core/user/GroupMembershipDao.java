@@ -21,19 +21,20 @@
 package org.sonar.core.user;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.util.NonNullInputFunction;
 
 public class GroupMembershipDao implements DaoComponent {
 
@@ -65,9 +66,9 @@ public class GroupMembershipDao implements DaoComponent {
 
   public Multimap<String, String> selectGroupsByLogins(final DbSession session, Collection<String> logins) {
     final Multimap<String, String> result = ArrayListMultimap.create();
-    DaoUtils.executeLargeInputs(logins, new NonNullInputFunction<List<String>, List<LoginGroup>>() {
+    DaoUtils.executeLargeInputs(logins, new Function<List<String>, List<LoginGroup>>() {
       @Override
-      protected List<LoginGroup> doApply(List<String> input) {
+      public List<LoginGroup> apply(@Nonnull List<String> input) {
         List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
         for (LoginGroup membership : groupMemberships) {
           result.put(membership.login(), membership.groupName());

@@ -28,11 +28,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
@@ -59,11 +55,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
-@RunWith(MockitoJUnitRunner.class)
 public class UserUpdaterTest {
 
   @ClassRule
@@ -72,17 +68,13 @@ public class UserUpdaterTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
-  @Mock
-  System2 system2;
+  System2 system2 = mock(System2.class);
 
-  @Mock
-  NewUserNotifier newUserNotifier;
+  NewUserNotifier newUserNotifier = mock(NewUserNotifier.class);
 
-  @Mock
-  SecurityRealmFactory realmFactory;
+  SecurityRealmFactory realmFactory = mock(SecurityRealmFactory.class);
 
-  @Captor
-  ArgumentCaptor<NewUserHandler.Context> newUserHandler;
+  ArgumentCaptor<NewUserHandler.Context> newUserHandler = ArgumentCaptor.forClass(NewUserHandler.Context.class);
 
   Settings settings;
   UserDao userDao;

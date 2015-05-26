@@ -25,9 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -58,7 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ChangePasswordActionTest {
 
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
@@ -68,6 +64,7 @@ public class ChangePasswordActionTest {
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
@@ -83,8 +80,7 @@ public class ChangePasswordActionTest {
 
   DbSession session;
 
-  @Mock
-  SecurityRealmFactory realmFactory;
+  SecurityRealmFactory realmFactory = mock(SecurityRealmFactory.class);
 
   @Before
   public void setUp() {
