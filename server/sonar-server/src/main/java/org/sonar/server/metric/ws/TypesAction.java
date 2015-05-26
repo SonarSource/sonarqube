@@ -20,38 +20,36 @@
 
 package org.sonar.server.metric.ws;
 
-import org.sonar.api.server.ws.RailsHandler;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
 
-public class MetricsWs implements WebService {
-
-  public static final String ENDPOINT = "api/metrics";
-
-  private final MetricsWsAction[] actions;
-
-  public MetricsWs(MetricsWsAction... actions) {
-    this.actions = actions;
+public class TypesAction implements MetricsWsAction {
+  @Override
+  public void define(WebService.NewController context) {
+    context.createAction("types")
+      .setDescription("List all available metric types.")
+      .setResponseExample(getClass().getResource("example-types.json"))
+      .setSince("5.2")
+      .setHandler(this);
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController(ENDPOINT);
-    controller.setDescription("Metrics management");
-    controller.setSince("2.6");
-
-    for (MetricsWsAction action : actions) {
-      action.define(controller);
+  public void handle(Request request, Response response) throws Exception {
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject();
+    json.name("types");
+    json.beginArray();
+    for (Metric.ValueType metricType : Metric.ValueType.values()) {
+      json.beginObject();
+      json.prop("key", metricType.name());
+      json.prop("name", metricType.description());
+      json.endObject();
     }
-    defineIndexAction(controller);
-
-    controller.done();
+    json.endArray();
+    json.endObject();
+    json.close();
   }
-
-  private void defineIndexAction(NewController controller) {
-    controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
-      .setSince("2.6")
-      .setHandler(RailsHandler.INSTANCE);
-  }
-
 }
