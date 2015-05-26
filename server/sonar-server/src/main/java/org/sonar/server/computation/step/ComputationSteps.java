@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.server.computation.container.CEContainer;
+import org.sonar.server.computation.container.ComputeEngineContainer;
 
 /**
  * Ordered list of steps to be executed
@@ -34,7 +34,7 @@ public class ComputationSteps {
    * List of all {@link org.sonar.server.computation.step.ComputationStep},
    * ordered by execution sequence.
    */
-  public static List<Class<? extends ComputationStep>> orderedStepClasses() {
+  public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
       PopulateComponentsUuidAndKeyStep.class,
       ValidateProjectStep.class,
@@ -71,17 +71,17 @@ public class ComputationSteps {
       SendIssueNotificationsStep.class);
   }
 
-  private final CEContainer ceContainer;
+  private final ComputeEngineContainer computeEngineContainer;
 
-  public ComputationSteps(CEContainer ceContainer) {
-    this.ceContainer = ceContainer;
+  public ComputationSteps(ComputeEngineContainer computeEngineContainer) {
+    this.computeEngineContainer = computeEngineContainer;
   }
 
   public Iterable<ComputationStep> instances() {
     return Iterables.transform(orderedStepClasses(), new Function<Class<? extends ComputationStep>, ComputationStep>() {
       @Override
       public ComputationStep apply(Class<? extends ComputationStep> input) {
-        ComputationStep computationStepType = ceContainer.getComponentByType(input);
+        ComputationStep computationStepType = computeEngineContainer.getStep(input);
         if (computationStepType == null) {
           throw new IllegalStateException(String.format("Component not found: %s", input));
         }

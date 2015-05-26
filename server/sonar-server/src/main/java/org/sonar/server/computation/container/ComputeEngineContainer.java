@@ -17,16 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.container;
 
-import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.ReportQueue.Item;
+import org.sonar.server.computation.step.ComputationStep;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link Item}.
+ */
+public interface ComputeEngineContainer {
+  Item getItem();
 
-public class ComputationContainerTest {
+  ComponentContainer getParent();
 
-  @Test
-  public void componentClasses() {
-    assertThat(ComputationContainer.componentClasses()).isNotEmpty();
-  }
+  /**
+   * Process the current {@link Item}
+   */
+  void process();
+
+  /**
+   * Clean's up resources after process has been called and has returned.
+   */
+  void cleanup();
+
+  /**
+   */
+  <T extends ComputationStep> T getStep(Class<T> type);
+
 }

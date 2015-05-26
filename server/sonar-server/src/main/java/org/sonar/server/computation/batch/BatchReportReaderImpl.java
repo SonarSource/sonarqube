@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -35,10 +36,10 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.util.CloseableIterator;
 
-public class CEBatchReportReader implements BatchReportReader {
+public class BatchReportReaderImpl implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
 
-  public CEBatchReportReader(ReportExtractor reportExtractor, ReportQueue.Item item) {
+  public BatchReportReaderImpl(ReportExtractor reportExtractor, ReportQueue.Item item) {
     this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(reportExtractor.extractReportInDir(item));
   }
 
@@ -132,8 +133,14 @@ public class CEBatchReportReader implements BatchReportReader {
         }
 
         @Override
-        protected String doNext() {
+        public String next() {
           return lineIterator.next();
+        }
+
+        @Override
+        protected String doNext() {
+          // never called anyway
+          throw new NoSuchElementException("Empty closeable Iterator has no element");
         }
 
         @Override

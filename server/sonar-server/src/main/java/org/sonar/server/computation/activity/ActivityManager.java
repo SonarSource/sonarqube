@@ -31,11 +31,11 @@ import org.sonar.server.db.DbClient;
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-public class CEActivityManager {
+public class ActivityManager {
   private final ActivityService activityService;
   private final DbClient dbClient;
 
-  public CEActivityManager(ActivityService activityService, DbClient dbClient) {
+  public ActivityManager(ActivityService activityService, DbClient dbClient) {
     this.activityService = activityService;
     this.dbClient = dbClient;
   }

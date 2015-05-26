@@ -35,7 +35,7 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportDto.Status;
-import org.sonar.server.computation.activity.CEActivityManager;
+import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
@@ -60,7 +60,7 @@ public class ComputationServiceTest {
   ComputationStep projectStep1 = mockStep();
   ComputationStep projectStep2 = mockStep();
   ComputationSteps steps = mock(ComputationSteps.class);
-  CEActivityManager activityManager = mock(CEActivityManager.class);
+  ActivityManager activityManager = mock(ActivityManager.class);
   System2 system = mock(System2.class);
   AnalysisReportDto dto = AnalysisReportDto.newForTests(1L).setProjectKey("P1").setUuid("U1").setStatus(Status.PENDING);
   ComputationService sut;

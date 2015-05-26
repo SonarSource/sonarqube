@@ -22,29 +22,35 @@ package org.sonar.server.computation;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.picocontainer.Startable;
-import org.sonar.api.platform.Server;
-import org.sonar.api.platform.ServerStartHandler;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import org.picocontainer.Startable;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.container.ContainerFactory;
+import org.sonar.server.computation.container.ContainerFactoryImpl;
 
 public class ComputationThreadLauncher implements Startable, ServerStartHandler {
 
   public static final String THREAD_NAME_PREFIX = "computation-";
 
   private final ReportQueue queue;
+  private final ComponentContainer sqContainer;
   private final ScheduledExecutorService executorService;
+  private final ContainerFactory containerFactory;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public ComputationThreadLauncher(ReportQueue queue) {
+  public ComputationThreadLauncher(ReportQueue queue, ComponentContainer sqContainer) {
     this.queue = queue;
+    this.sqContainer = sqContainer;
     this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
+    this.containerFactory = new ContainerFactoryImpl();
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
@@ -52,8 +58,11 @@ public class ComputationThreadLauncher implements Startable, ServerStartHandler 
   }
 
   @VisibleForTesting
-  ComputationThreadLauncher(ReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+  ComputationThreadLauncher(ReportQueue queue, ComponentContainer sqContainer, ContainerFactory containerFactory,
+    long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
     this.queue = queue;
+    this.sqContainer = sqContainer;
+    this.containerFactory = containerFactory;
     this.executorService = Executors.newSingleThreadScheduledExecutor(newThreadFactory());
 
     this.delayBetweenTasks = delayBetweenTasks;
@@ -72,12 +81,12 @@ public class ComputationThreadLauncher implements Startable, ServerStartHandler 
   }
 
   public void startAnalysisTaskNow() {
-    executorService.execute(new ComputationThread(queue));
+    executorService.execute(new ComputationThread(queue, sqContainer, containerFactory));
   }
 
   @Override
   public void onServerStart(Server server) {
-    executorService.scheduleAtFixedRate(new ComputationThread(queue), delayForFirstStart, delayBetweenTasks, timeUnit);
+    executorService.scheduleAtFixedRate(new ComputationThread(queue, sqContainer, containerFactory), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
   private ThreadFactory newThreadFactory() {

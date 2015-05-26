@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation;
 
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,10 +29,12 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.api.platform.Server;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.container.ContainerFactory;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ComputationThreadLauncherTest {
 
@@ -40,10 +43,14 @@ public class ComputationThreadLauncherTest {
 
   ComputationThreadLauncher sut;
   ReportQueue queue;
+  ComponentContainer componentContainer;
+  ContainerFactory containerFactory;
 
   @Before
   public void before() {
     this.queue = mock(ReportQueue.class);
+    this.componentContainer = mock(ComponentContainer.class);
+    this.containerFactory = mock(ContainerFactory.class);
   }
 
   @After
@@ -53,7 +60,7 @@ public class ComputationThreadLauncherTest {
 
   @Test
   public void call_findAndBook_when_launching_a_recurrent_task() throws Exception {
-    sut = new ComputationThreadLauncher(queue, 0, 1, TimeUnit.MILLISECONDS);
+    sut = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 0, 1, TimeUnit.MILLISECONDS);
 
     sut.onServerStart(mock(Server.class));
 
@@ -64,7 +71,7 @@ public class ComputationThreadLauncherTest {
 
   @Test
   public void call_findAndBook_when_executing_task_immediately() throws Exception {
-    sut = new ComputationThreadLauncher(queue, 1, 1, TimeUnit.HOURS);
+    sut = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 1, 1, TimeUnit.HOURS);
     sut.start();
 
     sut.startAnalysisTaskNow();
@@ -76,7 +83,7 @@ public class ComputationThreadLauncherTest {
 
   @Test
   public void test_real_constructor() throws Exception {
-    sut = new ComputationThreadLauncher(queue);
+    sut = new ComputationThreadLauncher(queue, componentContainer);
     sut.start();
   }
 
