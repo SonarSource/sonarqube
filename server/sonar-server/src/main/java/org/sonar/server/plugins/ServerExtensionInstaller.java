@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import java.util.Map;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
@@ -29,8 +30,6 @@ import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-
-import java.util.Map;
 
 /**
  * Loads the plugins server extensions and injects them to DI container
@@ -48,24 +47,32 @@ public class ServerExtensionInstaller {
     ListMultimap<PluginInfo, Object> installedExtensionsByPlugin = ArrayListMultimap.create();
 
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-      String pluginKey = pluginInfo.getKey();
-      Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
-      container.addExtension(pluginInfo, plugin);
+      try {
+        String pluginKey = pluginInfo.getKey();
+        Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+        container.addExtension(pluginInfo, plugin);
 
-      for (Object extension : plugin.getExtensions()) {
-        if (installExtension(container, pluginInfo, extension, true) != null) {
-          installedExtensionsByPlugin.put(pluginInfo, extension);
-        } else {
-          container.declareExtension(pluginInfo, extension);
+        for (Object extension : plugin.getExtensions()) {
+          if (installExtension(container, pluginInfo, extension, true) != null) {
+            installedExtensionsByPlugin.put(pluginInfo, extension);
+          } else {
+            container.declareExtension(pluginInfo, extension);
+          }
         }
+      } catch (Exception e) {
+        throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
     for (Map.Entry<PluginInfo, Object> entry : installedExtensionsByPlugin.entries()) {
-      PluginInfo plugin = entry.getKey();
-      Object extension = entry.getValue();
-      if (isExtensionProvider(extension)) {
-        ExtensionProvider provider = (ExtensionProvider) container.getComponentByKey(extension);
-        installProvider(container, plugin, provider);
+      PluginInfo pluginInfo = entry.getKey();
+      try {
+        Object extension = entry.getValue();
+        if (isExtensionProvider(extension)) {
+          ExtensionProvider provider = (ExtensionProvider) container.getComponentByKey(extension);
+          installProvider(container, pluginInfo, provider);
+        }
+      } catch (Exception e) {
+        throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
   }
