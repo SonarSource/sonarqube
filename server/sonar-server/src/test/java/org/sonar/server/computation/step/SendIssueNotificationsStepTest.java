@@ -76,7 +76,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new SendIssueNotificationsStep(issueCache, ruleCache, dbComponentsRefCache, notifService, newIssuesNotificationFactory);
+    sut = new SendIssueNotificationsStep(issueCache, ruleCache, dbComponentsRefCache, notifService, reportReader, newIssuesNotificationFactory);
 
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
 

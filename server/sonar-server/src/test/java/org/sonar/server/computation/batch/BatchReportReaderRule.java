@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -100,6 +101,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
+  @CheckForNull
   public BatchReport.Changesets readChangesets(int componentRef) {
     return changesets.get(componentRef);
   }

@@ -76,7 +76,7 @@ public class PersistFileSourcesStepTest {
 
     long start = System.currentTimeMillis();
 
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache, reportReader);
     step.execute(new ComputationContext(reportReader, "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
       mock(LanguageRepository.class)));
 

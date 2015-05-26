@@ -66,18 +66,18 @@ public final class ComponentTreeBuilders {
     private Component buildComponentRoot(ComputationContext computationContext, BatchReportReader reportReader) {
       int rootComponentRef = computationContext.getReportMetadata().getRootComponentRef();
       BatchReport.Component component = reportReader.readComponent(rootComponentRef);
-      return new ComponentImpl(computationContext, component, buildComponent(computationContext, rootComponentRef));
+      return new ComponentImpl(computationContext, component, reportReader, buildComponent(computationContext, rootComponentRef));
     }
 
     private Iterable<Component> buildComponent(final ComputationContext computationContext, int componentRef) {
-      BatchReport.Component component = computationContext.getReportReader().readComponent(componentRef);
+      BatchReport.Component component = reportReader.readComponent(componentRef);
       return Iterables.transform(
           component.getChildRefList(),
           new Function<Integer, Component>() {
             @Override
             public Component apply(@Nonnull Integer componentRef) {
-              BatchReport.Component component = computationContext.getReportReader().readComponent(componentRef);
-              return new ComponentImpl(computationContext, component, buildComponent(computationContext, componentRef));
+              BatchReport.Component component = reportReader.readComponent(componentRef);
+              return new ComponentImpl(computationContext, component, reportReader, buildComponent(computationContext, componentRef));
             }
           }
       );

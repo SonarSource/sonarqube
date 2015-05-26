@@ -41,16 +41,17 @@ import org.sonar.server.db.DbClient;
 public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   private final DbClient dbClient;
+  private final BatchReportReader reportReader;
 
-  public PopulateComponentsUuidAndKeyStep(DbClient dbClient) {
+  public PopulateComponentsUuidAndKeyStep(DbClient dbClient, BatchReportReader reportReader) {
     this.dbClient = dbClient;
+    this.reportReader = reportReader;
   }
 
   @Override
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      BatchReportReader reportReader = context.getReportReader();
       String branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
       BatchReport.Component project = reportReader.readComponent(context.getReportMetadata().getRootComponentRef());
       String projectKey = ComponentKeys.createKey(project.getKey(), branch);

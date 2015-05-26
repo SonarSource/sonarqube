@@ -99,7 +99,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
     dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistFileSourcesStep(dbClient, system2, dbComponentsRefCache);
+    sut = new PersistFileSourcesStep(dbClient, system2, dbComponentsRefCache, reportReader);
   }
 
   @Override

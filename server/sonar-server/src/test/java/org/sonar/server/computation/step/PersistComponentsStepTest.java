@@ -76,7 +76,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     projectSettings = new Settings();
     languageRepository = mock(LanguageRepository.class);
     dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistComponentsStep(dbClient, dbComponentsRefCache);
+    sut = new PersistComponentsStep(dbClient, dbComponentsRefCache, reportReader);
   }
 
   @Override

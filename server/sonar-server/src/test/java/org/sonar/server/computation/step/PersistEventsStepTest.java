@@ -83,7 +83,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     languageRepository = mock(LanguageRepository.class);
 
     dbComponentsRefCache = new DbComponentsRefCache();
-    step = new PersistEventsStep(dbClient, system2, dbComponentsRefCache);
+    step = new PersistEventsStep(dbClient, system2, dbComponentsRefCache, reportReader);
   }
 
   @Override

@@ -20,26 +20,21 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.batch.FileBatchReportReader;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,7 +45,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
@@ -60,15 +55,14 @@ public class IndexComponentsStepTest extends BaseStepTest {
   public void call_indexProject_of_dao() throws IOException {
     dbComponentsRefCache.addComponent(1, new DbComponent(123L, PROJECT_KEY, "PROJECT_UUID"));
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(new FileBatchReportReader(new BatchReportReader(reportDir)), PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
+      mock(LanguageRepository.class));
 
     sut.execute(context);
 

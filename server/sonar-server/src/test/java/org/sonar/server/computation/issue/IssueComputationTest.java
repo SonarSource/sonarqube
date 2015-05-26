@@ -21,6 +21,8 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import java.io.IOException;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,12 +39,10 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,9 +56,10 @@ public class IssueComputationTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   IssueComputation sut;
 
@@ -86,7 +87,7 @@ public class IssueComputationTest {
     outputIssues = new IssueCache(temp.newFile(), System2.INSTANCE);
     projectSettings = new Settings();
     when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(projectSettings);
-    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues, userIndex, projectSettingsRepository);
+    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues, userIndex, projectSettingsRepository, reportReader);
   }
 
   @After

@@ -48,16 +48,18 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   private final MetricCache metricCache;
   private final System2 system;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
   private long lastCommitTimestamp = 0L;
 
   public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache,
-    DbComponentsRefCache dbComponentsRefCache) {
+                                                DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
     this.metricCache = metricCache;
     this.system = system;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -81,7 +83,6 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     BatchReport.Changesets scm = reportReader.readChangesets(componentRef);
     processScm(scm);

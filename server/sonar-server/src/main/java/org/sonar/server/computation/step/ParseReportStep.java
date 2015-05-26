@@ -23,17 +23,19 @@ package org.sonar.server.computation.step;
 import java.util.List;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.issue.IssueComputation;
 
 public class ParseReportStep implements ComputationStep {
 
   private final IssueComputation issueComputation;
+  private final BatchReportReader reportReader;
 
-  public ParseReportStep(IssueComputation issueComputation) {
+  public ParseReportStep(IssueComputation issueComputation, BatchReportReader reportReader) {
     this.issueComputation = issueComputation;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -47,7 +49,7 @@ public class ParseReportStep implements ComputationStep {
   private void processDeletedComponents(ComputationContext context, IssueDepthTraversalTypeAwareVisitor visitor) {
     int deletedComponentsCount = context.getReportMetadata().getDeletedComponentsCount();
     for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
-      BatchReport.Issues issues = context.getReportReader().readDeletedComponentIssues(componentRef);
+      BatchReport.Issues issues = reportReader.readDeletedComponentIssues(componentRef);
       issueComputation.processComponentIssues(context, issues.getIssueList(), issues.getComponentUuid(), null, visitor.projectKey, visitor.projectUuid);
     }
   }
@@ -60,14 +62,12 @@ public class ParseReportStep implements ComputationStep {
   private class IssueDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
 
     private final ComputationContext context;
-    private final BatchReportReader reportReader;
 
     private String projectKey;
     private String projectUuid;
 
     public IssueDepthTraversalTypeAwareVisitor(ComputationContext context) {
       super(Component.Type.FILE, Order.PRE_ORDER);
-      this.reportReader = context.getReportReader();
       this.context = context;
     }
 
