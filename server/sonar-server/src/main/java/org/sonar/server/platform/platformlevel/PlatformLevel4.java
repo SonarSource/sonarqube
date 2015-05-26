@@ -565,6 +565,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.usergroups.ws.SearchAction.class,
       org.sonar.server.usergroups.ws.CreateAction.class,
       org.sonar.server.usergroups.ws.DeleteAction.class,
+      org.sonar.server.usergroups.ws.UpdateAction.class,
 
       // permissions
       PermissionFacade.class,

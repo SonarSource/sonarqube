@@ -58,8 +58,16 @@ public class GroupDao implements DaoComponent {
     return mapper(session).selectByKey(key);
   }
 
-  @CheckForNull
   public GroupDto selectById(DbSession dbSession, long groupId) {
+    GroupDto group = selectNullableById(dbSession, groupId);
+    if (group == null) {
+      throw new NotFoundException(String.format("Could not find a group with id '%d'", groupId));
+    }
+    return group;
+  }
+
+  @CheckForNull
+  public GroupDto selectNullableById(DbSession dbSession, long groupId) {
     return mapper(dbSession).selectById(groupId);
   }
 
@@ -80,6 +88,12 @@ public class GroupDao implements DaoComponent {
     item.setCreatedAt(createdAt)
       .setUpdatedAt(createdAt);
     mapper(session).insert(item);
+    return item;
+  }
+
+  public GroupDto update(DbSession session, GroupDto item) {
+    item.setUpdatedAt(new Date(system.now()));
+    mapper(session).update(item);
     return item;
   }
 

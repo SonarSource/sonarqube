@@ -36,10 +36,11 @@ public interface GroupMapper {
 
   void insert(GroupDto groupDto);
 
+  void update(GroupDto item);
+
   List<GroupDto> selectByQuery(String query, RowBounds rowBounds);
 
   int countByQuery(String query);
 
   void deleteById(long groupId);
-
 }

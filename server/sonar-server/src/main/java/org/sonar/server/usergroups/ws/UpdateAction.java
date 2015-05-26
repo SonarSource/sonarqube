@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.Arrays;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -32,29 +33,33 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.persistence.MyBatis.closeQuietly;
 
-public class CreateAction extends AbstractGroupUpdate implements UserGroupsWsAction {
+public class UpdateAction extends AbstractGroupUpdate implements UserGroupsWsAction {
 
-  public CreateAction(DbClient dbClient, UserSession userSession) {
+  public UpdateAction(DbClient dbClient, UserSession userSession) {
     super(dbClient, userSession);
   }
 
   @Override
   public void define(NewController context) {
-    NewAction action = context.createAction("create")
-      .setDescription("Create a group.")
+    NewAction action = context.createAction("update")
+      .setDescription("update a group.")
       .setHandler(this)
       .setPost(true)
-      .setResponseExample(getClass().getResource("example-create.json"))
+      .setResponseExample(getClass().getResource("example-update.json"))
       .setSince("5.2");
 
-    action.createParam(PARAM_NAME)
-      .setDescription(String.format("Name for the new group. A group name cannot be larger than %d characters and must be unique. " +
-        "The value 'anyone' (whatever the case) is reserved and cannot be used.", NAME_MAX_LENGTH))
-      .setExampleValue("sonar-users")
+    action.createParam(PARAM_ID)
+      .setDescription("Identifier of the group.")
+      .setExampleValue("42")
       .setRequired(true);
 
+    action.createParam(PARAM_NAME)
+      .setDescription(String.format("New name for the group. A group name cannot be larger than %d characters and must be unique. " +
+        "The value 'anyone' (whatever the case) is reserved and cannot be used.", NAME_MAX_LENGTH))
+      .setExampleValue("sonar-users");
+
     action.createParam(PARAM_DESCRIPTION)
-      .setDescription(String.format("Description for the new group. A group description cannot be larger than %d characters.", DESCRIPTION_MAX_LENGTH))
+      .setDescription(String.format("New description for the group. A group description cannot be larger than %d characters.", DESCRIPTION_MAX_LENGTH))
       .setExampleValue("Default group for new users");
   }
 
@@ -62,26 +67,30 @@ public class CreateAction extends AbstractGroupUpdate implements UserGroupsWsAct
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    String name = request.mandatoryParam(PARAM_NAME);
+    Long groupId = request.mandatoryParamAsLong(PARAM_ID);
+    String name = request.param(PARAM_NAME);
     String description = request.param(PARAM_DESCRIPTION);
 
-    validateName(name);
-    if (description != null) {
-      validateDescription(description);
-    }
-
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto newGroup = new GroupDto().setName(name).setDescription(description);
-      checkNameIsUnique(name, session);
-      newGroup = dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
-      session.commit();
+      checkNameIsUnique(name, dbSession);
+      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+      if (name != null) {
+        validateName(name);
+        group.setName(name);
+      }
+      if (description != null) {
+        validateDescription(description);
+        group.setDescription(description);
+      }
+      dbClient.groupDao().update(dbSession, group);
+      dbSession.commit();
 
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeGroup(json, newGroup, 0);
+      writeGroup(json, group, dbClient.groupMembershipDao().countUsersByGroups(dbSession, Arrays.asList(groupId)).get(group.getName()));
       json.endObject().close();
     } finally {
-      closeQuietly(session);
+      closeQuietly(dbSession);
     }
   }
 }
