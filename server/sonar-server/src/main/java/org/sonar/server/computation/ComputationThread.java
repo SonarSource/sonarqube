@@ -20,9 +20,11 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.container.ComputeEngineContainer;
+import org.sonar.server.computation.container.ContainerFactory;
 
 /**
  * This thread pops a report from the queue and integrate it.
@@ -32,17 +34,13 @@ public class ComputationThread implements Runnable {
   private static final Logger LOG = Loggers.get(ComputationThread.class);
 
   private final ReportQueue queue;
-  private final ComputationContainer container;
+  private final ComponentContainer sqContainer;
+  private final ContainerFactory containerFactory;
 
-  public ComputationThread(ReportQueue queue) {
+  public ComputationThread(ReportQueue queue, ComponentContainer sqContainer, ContainerFactory containerFactory) {
     this.queue = queue;
-    this.container = new ComputationContainer();
-  }
-
-  @VisibleForTesting
-  ComputationThread(ReportQueue queue, ComputationContainer container) {
-    this.queue = queue;
-    this.container = container;
+    this.sqContainer = sqContainer;
+    this.containerFactory = containerFactory;
   }
 
   @Override
@@ -53,15 +51,20 @@ public class ComputationThread implements Runnable {
     } catch (Exception e) {
       LOG.error("Failed to pop the queue of analysis reports", e);
     }
-    if (item != null) {
-      try {
-        container.execute(item);
-      } catch (Throwable e) {
-        LOG.error(String.format(
-          "Failed to process analysis report %d of project %s", item.dto.getId(), item.dto.getProjectKey()), e);
-      } finally {
-        removeSilentlyFromQueue(item);
-      }
+    if (item == null) {
+      return;
+    }
+
+    ComputeEngineContainer computeEngineContainer = containerFactory.create(sqContainer, item);
+    try {
+      computeEngineContainer.process();
+    } catch (Throwable e) {
+      LOG.error(String.format(
+        "Failed to process analysis report %d of project %s", item.dto.getId(), item.dto.getProjectKey()), e);
+    } finally {
+      computeEngineContainer.cleanup();
+
+      removeSilentlyFromQueue(item);
     }
   }
 

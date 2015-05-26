@@ -25,7 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.server.computation.activity.CEActivityManager;
+import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.language.LanguageRepository;
@@ -44,12 +44,12 @@ public class ComputationService {
   private final ReportQueue.Item item;
   private final ComputationSteps steps;
   private final BatchReportReader reportReader;
-  private final CEActivityManager activityManager;
+  private final ActivityManager activityManager;
   private final System2 system;
   private final DbClient dbClient;
   private final LanguageRepository languageRepository;
 
-  public ComputationService(ReportQueue.Item item, ComputationSteps steps, CEActivityManager activityManager, System2 system,
+  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system,
     BatchReportReader reportReader, DbClient dbClient, LanguageRepository languageRepository) {
     this.item = item;
     this.steps = steps;

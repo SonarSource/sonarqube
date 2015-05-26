@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.computation.step;
+package org.sonar.server.computation.container;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import org.junit.Test;
@@ -31,22 +29,28 @@ import org.picocontainer.ComponentAdapter;
 import org.reflections.Reflections;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue;
-import org.sonar.server.computation.container.ComputeEngineContainerImpl;
+import org.sonar.server.computation.step.ComputationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class ComputationStepsTest {
+public class ComputeEngineContainerImplTest {
+  @Test(expected = NullPointerException.class)
+  public void constructor_fails_fast_on_null_container() {
+    new ComputeEngineContainerImpl(null, mock(ReportQueue.Item.class));
+  }
+  @Test(expected = NullPointerException.class)
+  public void constructor_fails_fast_on_null_item() {
+    new ComputeEngineContainerImpl(new ComponentContainer(), null);
+  }
 
   @Test
-  public void fail_if_a_step_is_not_registered_in_picocontainer() {
-    try {
-      Lists.newArrayList(new ComputationSteps(mock(ComputeEngineContainerImpl.class)).instances());
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageContaining("Component not found");
-    }
+  public void ce_container_is_not_child_of_specified_container() {
+    ComponentContainer parent = new ComponentContainer();
+    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(parent, mock(ReportQueue.Item.class));
+
+    assertThat(parent.getChild()).isNull();
+    assertThat(parent.getPicoContainer().removeChildContainer(ceContainer.getPicoContainer())).isFalse();
   }
 
   @Test
@@ -56,13 +60,13 @@ public class ComputationStepsTest {
     Set<String> stepsCanonicalNames = retrieveStepPackageStepsCanonicalNames();
 
     Set<String> typesInContainer = Sets.newHashSet(
-        Iterables.transform(
-            Iterables.filter(
-                Iterables.transform(
-                    ceContainer.getPicoContainer().getComponentAdapters(),
-                    ComponentAdapterToImplementationClass.INSTANCE),
-                IsComputationStep.INSTANCE),
-            ClassToCanonicalName.INSTANCE));
+      Iterables.transform(
+        Iterables.filter(
+          Iterables.transform(
+            ceContainer.getPicoContainer().getComponentAdapters(),
+            ComponentAdapterToImplementationClass.INSTANCE),
+          IsComputationStep.INSTANCE),
+        ClassToCanonicalName.INSTANCE));
 
     assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
   }

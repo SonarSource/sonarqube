@@ -37,7 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @Category(DbTests.class)
-public class CEActivityManagerTest {
+public class ActivityManagerTest {
   @ClassRule
   public static DbTester dbTester = new DbTester();
 
@@ -46,14 +46,14 @@ public class CEActivityManagerTest {
   AnalysisReportDto reportDto = AnalysisReportDto.newForTests(1L).setProjectKey("P1").setUuid("U1").setStatus(AnalysisReportDto.Status.PENDING);
 
   ActivityService activityService = mock(ActivityService.class);
-  CEActivityManager underTest;
+  ActivityManager underTest;
 
   @Before
   public void setup() throws Exception {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
-    underTest = new CEActivityManager(activityService, dbClient);
+    underTest = new ActivityManager(activityService, dbClient);
   }
 
   @Test

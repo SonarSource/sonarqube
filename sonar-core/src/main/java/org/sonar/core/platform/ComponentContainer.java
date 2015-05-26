@@ -50,9 +50,13 @@ public class ComponentContainer {
    * Create root container
    */
   public ComponentContainer() {
+    this(createPicoContainer());
+  }
+
+  protected ComponentContainer(MutablePicoContainer picoContainer) {
     this.parent = null;
     this.child = null;
-    this.pico = createPicoContainer();
+    this.pico = picoContainer;
     this.componentKeys = new ComponentKeys();
     propertyDefinitions = new PropertyDefinitions();
     addSingleton(propertyDefinitions);
@@ -63,15 +67,8 @@ public class ComponentContainer {
    * Create child container
    */
   protected ComponentContainer(ComponentContainer parent) {
-    this(parent.pico.makeChildContainer(), parent);
-  }
-
-  /**
-   * Create child container
-   */
-  protected ComponentContainer(MutablePicoContainer picoContainer, ComponentContainer parent) {
     this.parent = parent;
-    this.pico = picoContainer;
+    this.pico = parent.pico.makeChildContainer();
     this.parent.child = this;
     this.propertyDefinitions = parent.propertyDefinitions;
     this.componentKeys = new ComponentKeys();
@@ -216,8 +213,8 @@ public class ComponentContainer {
     return this;
   }
 
-  public <T> T getComponentByType(Class<T> tClass) {
-    return pico.getComponent(tClass);
+  public <T> T getComponentByType(Class<T> type) {
+    return pico.getComponent(type);
   }
 
   public Object getComponentByKey(Object key) {
