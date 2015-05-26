@@ -23,7 +23,6 @@ define([
         that.close();
       }).fail(function (jqXHR) {
         that.enableForm();
-        console.log(jqXHR.responseJSON);
         that.showErrors([{ msg: jqXHR.responseJSON.err_msg }]);
       });
     }
