@@ -19,10 +19,20 @@
  */
 package org.sonar.server.computation.batch;
 
+import com.google.common.base.Throwables;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Parser;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.util.CloseableIterator;
 
 public class FileBatchReportReader implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
@@ -73,36 +83,123 @@ public class FileBatchReportReader implements BatchReportReader {
   }
 
   @Override
-  public boolean hasSyntaxHighlighting(int componentRef) {
-    return delegate.hasSyntaxHighlighting(componentRef);
-  }
-
-  @Override
   @CheckForNull
-  public File readComponentSyntaxHighlighting(int fileRef) {
-    return delegate.readComponentSyntaxHighlighting(fileRef);
+  public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
+    File file = delegate.readComponentSyntaxHighlighting(fileRef);
+    if (file == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    try {
+      return new ParserCloseableIterator<>(BatchReport.SyntaxHighlighting.PARSER, FileUtils.openInputStream(file));
+    } catch (IOException e) {
+      Throwables.propagate(e);
+      // actually never reached
+      return CloseableIterator.emptyCloseableIterator();
+    }
   }
 
   @Override
-  @CheckForNull
-  public File readComponentCoverage(int fileRef) {
-    return delegate.readComponentCoverage(fileRef);
+  public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
+    File file = delegate.readComponentCoverage(fileRef);
+    if (file == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    try {
+      return new ParserCloseableIterator<>(BatchReport.Coverage.PARSER, FileUtils.openInputStream(file));
+    } catch (IOException e) {
+      Throwables.propagate(e);
+      // actually never reached
+      return CloseableIterator.emptyCloseableIterator();
+    }
   }
 
   @Override
-  public File readFileSource(int fileRef) {
-    return delegate.readFileSource(fileRef);
+  public CloseableIterator<String> readFileSource(int fileRef) {
+    File file = delegate.readFileSource(fileRef);
+    if (file == null) {
+      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
+    }
+
+    try {
+      final LineIterator lineIterator = IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
+      return new CloseableIterator<String>() {
+        @Override
+        public boolean hasNext() {
+          return lineIterator.hasNext();
+        }
+
+        @Override
+        protected String doNext() {
+          return lineIterator.next();
+        }
+
+        @Override
+        protected void doClose() throws Exception {
+          lineIterator.close();
+        }
+      };
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to traverse file: " + file, e);
+    }
   }
 
   @Override
-  @CheckForNull
-  public File readTests(int testFileRef) {
-    return delegate.readTests(testFileRef);
+  public CloseableIterator<BatchReport.Test> readTests(int testFileRef) {
+    File file = delegate.readTests(testFileRef);
+    if (file == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    try {
+      return new ParserCloseableIterator<>(BatchReport.Test.PARSER, FileUtils.openInputStream(file));
+    } catch (IOException e) {
+      Throwables.propagate(e);
+      // actually never reached
+      return CloseableIterator.emptyCloseableIterator();
+    }
   }
 
   @Override
-  @CheckForNull
-  public File readCoverageDetails(int testFileRef) {
-    return delegate.readCoverageDetails(testFileRef);
+  public CloseableIterator<BatchReport.CoverageDetail> readCoverageDetails(int testFileRef) {
+    File file = delegate.readCoverageDetails(testFileRef);
+    if (file == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    try {
+      return new ParserCloseableIterator<>(BatchReport.CoverageDetail.PARSER, FileUtils.openInputStream(file));
+    } catch (IOException e) {
+      Throwables.propagate(e);
+      // actually never reached
+      return CloseableIterator.emptyCloseableIterator();
+    }
+  }
+
+  private static class ParserCloseableIterator<T> extends CloseableIterator<T> {
+    private final Parser<T> parser;
+    private final FileInputStream fileInputStream;
+
+    public ParserCloseableIterator(Parser<T> parser, FileInputStream fileInputStream) {
+      this.parser = parser;
+      this.fileInputStream = fileInputStream;
+    }
+
+    @Override
+    protected T doNext() {
+      try {
+        return parser.parseDelimitedFrom(fileInputStream);
+      } catch (InvalidProtocolBufferException e) {
+        Throwables.propagate(e);
+        // actually never reached
+        return null;
+      }
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      fileInputStream.close();
+    }
   }
 }

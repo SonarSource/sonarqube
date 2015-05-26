@@ -19,10 +19,10 @@
  */
 package org.sonar.server.computation.batch;
 
-import java.io.File;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.util.CloseableIterator;
 
 public interface BatchReportReader {
   BatchReport.Metadata readMetadata();
@@ -42,19 +42,16 @@ public interface BatchReportReader {
 
   List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef);
 
-  boolean hasSyntaxHighlighting(int componentRef);
+  CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);
 
-  @CheckForNull
-  File readComponentSyntaxHighlighting(int fileRef);
+  CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef);
 
-  @CheckForNull
-  File readComponentCoverage(int fileRef);
+  /**
+   * Reads file source line by line.
+   */
+  CloseableIterator<String> readFileSource(int fileRef);
 
-  File readFileSource(int fileRef);
+  CloseableIterator<BatchReport.Test> readTests(int testFileRef);
 
-  @CheckForNull
-  File readTests(int testFileRef);
-
-  @CheckForNull
-  File readCoverageDetails(int testFileRef);
+  CloseableIterator<BatchReport.CoverageDetail> readCoverageDetails(int testFileRef);
 }
