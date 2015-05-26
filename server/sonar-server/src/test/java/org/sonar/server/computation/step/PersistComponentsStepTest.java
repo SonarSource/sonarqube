@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -77,7 +76,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     projectSettings = new Settings();
     languageRepository = mock(LanguageRepository.class);
     dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistComponentsStep(dbClient, dbComponentsRefCache);
+    sut = new PersistComponentsStep(dbClient, dbComponentsRefCache, reportReader);
   }
 
   @Override
@@ -424,13 +423,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_multi_modules() throws Exception {
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -438,20 +435,20 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .addChildRef(2)
       .addChildRef(4)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_A")
       .setName("Module A")
       .addChildRef(3)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.MODULE)
       .setKey("SUB_MODULE_A")
       .setName("Sub Module A")
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_B")
@@ -462,7 +459,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_A",
         new DumbComponent(Component.Type.MODULE, 3, "DEFG", "SUB_MODULE_A")),
       new DumbComponent(Component.Type.MODULE, 4, "CDEF", "MODULE_B"));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
       dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
@@ -630,13 +627,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, module);
     session.commit();
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -644,7 +639,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New project description")
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
@@ -654,7 +649,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY"));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
       dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
@@ -672,20 +667,18 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, module);
     session.commit();
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .setName("Project")
       .addChildRef(2)
       .build());
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("MODULE_KEY")
@@ -695,7 +688,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY"));
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
+    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
       dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     ComponentDto moduleReloaded = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");

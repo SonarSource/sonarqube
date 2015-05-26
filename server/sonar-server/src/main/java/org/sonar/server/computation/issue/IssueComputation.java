@@ -21,6 +21,8 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import java.util.Date;
+import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -32,14 +34,11 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.DiskCache;
-
-import javax.annotation.Nullable;
-
-import java.util.Date;
 
 public class IssueComputation {
 
@@ -51,22 +50,24 @@ public class IssueComputation {
   private final DiskCache<DefaultIssue>.DiskAppender diskIssuesAppender;
   private final UserIndex userIndex;
   private final ProjectSettingsRepository projectSettingsRepository;
+  private final BatchReportReader reportReader;
   private boolean hasAssigneeBeenComputed = false;
   private String defaultAssignee = null;
 
   public IssueComputation(RuleCache ruleCache, SourceLinesCache linesCache, ScmAccountCache scmAccountCache,
-    IssueCache issueCache, UserIndex userIndex, ProjectSettingsRepository projectSettingsRepository) {
+    IssueCache issueCache, UserIndex userIndex, ProjectSettingsRepository projectSettingsRepository, BatchReportReader reportReader) {
     this.ruleCache = ruleCache;
     this.linesCache = linesCache;
     this.scmAccountCache = scmAccountCache;
     this.userIndex = userIndex;
+    this.reportReader = reportReader;
     this.projectSettingsRepository = projectSettingsRepository;
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
   public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef,
-                                     String projectKey, String projectUuid) {
-    linesCache.init(componentUuid, componentReportRef, context.getReportReader());
+    String projectKey, String projectUuid) {
+    linesCache.init(componentUuid, componentReportRef, reportReader);
     computeDefaultAssignee(projectSettingsRepository.getProjectSettings(projectKey).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
     for (BatchReport.Issue reportIssue : issues) {
       DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue, projectKey, projectUuid);

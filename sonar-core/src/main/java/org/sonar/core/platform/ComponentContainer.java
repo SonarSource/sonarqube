@@ -19,11 +19,10 @@
  */
 package org.sonar.core.platform;
 
+import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
@@ -32,12 +31,10 @@ import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-
-import com.google.common.collect.Iterables;
 
 @BatchSide
 @ServerSide
@@ -66,8 +63,15 @@ public class ComponentContainer {
    * Create child container
    */
   protected ComponentContainer(ComponentContainer parent) {
+    this(parent.pico.makeChildContainer(), parent);
+  }
+
+  /**
+   * Create child container
+   */
+  protected ComponentContainer(MutablePicoContainer picoContainer, ComponentContainer parent) {
     this.parent = parent;
-    this.pico = parent.pico.makeChildContainer();
+    this.pico = picoContainer;
     this.parent.child = this;
     this.propertyDefinitions = parent.propertyDefinitions;
     this.componentKeys = new ComponentKeys();

@@ -71,7 +71,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
     projectSettings = new Settings();
-    sut = new PopulateComponentsUuidAndKeyStep(dbClient);
+    sut = new PopulateComponentsUuidAndKeyStep(dbClient, reportReader);
   }
 
   @Override

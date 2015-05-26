@@ -82,7 +82,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     projectSettings = new Settings();
     dbComponentsRefCache = new DbComponentsRefCache();
     languageRepository = mock(LanguageRepository.class);
-    sut = new PersistDuplicationsStep(dbClient, dbComponentsRefCache);
+    sut = new PersistDuplicationsStep(dbClient, dbComponentsRefCache, reportReader);
   }
 
   @Override

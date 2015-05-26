@@ -61,11 +61,13 @@ public class PersistTestsStep implements ComputationStep {
   private final DbClient dbClient;
   private final System2 system;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.system = system;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -91,7 +93,6 @@ public class PersistTestsStep implements ComputationStep {
 
   private class TestDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
     final DbSession session;
-    final BatchReportReader reader;
     final DbComponentsRefCache dbComponentsRefCache;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     final String projectUuid;
@@ -101,7 +102,6 @@ public class PersistTestsStep implements ComputationStep {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.session = session;
       this.dbComponentsRefCache = dbComponentsRefCache;
-      this.reader = context.getReportReader();
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = context.getRoot().getUuid();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
@@ -117,7 +117,7 @@ public class PersistTestsStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      BatchReport.Component batchComponent = reader.readComponent(file.getRef());
+      BatchReport.Component batchComponent = reportReader.readComponent(file.getRef());
       if (batchComponent.getIsTest()) {
         persistTestResults(batchComponent);
       }
@@ -188,7 +188,7 @@ public class PersistTestsStep implements ComputationStep {
     private Multimap<String, FileSourceDb.Test.Builder> buildDbTests(BatchReport.Component component) {
       Multimap<String, FileSourceDb.Test.Builder> tests = ArrayListMultimap.create();
 
-      try (CloseableIterator<BatchReport.Test> testIterator = reader.readTests(component.getRef())) {
+      try (CloseableIterator<BatchReport.Test> testIterator = reportReader.readTests(component.getRef())) {
         while (testIterator.hasNext()) {
           BatchReport.Test batchTest = testIterator.next();
           FileSourceDb.Test.Builder dbTest = FileSourceDb.Test.newBuilder();
@@ -220,7 +220,7 @@ public class PersistTestsStep implements ComputationStep {
     private Table<String, String, FileSourceDb.Test.CoveredFile.Builder> loadCoverageDetails(int testFileRef) {
       Table<String, String, FileSourceDb.Test.CoveredFile.Builder> nameToCoveredFiles = HashBasedTable.create();
 
-      try (CloseableIterator<BatchReport.CoverageDetail> coverageIterator = reader.readCoverageDetails(testFileRef)) {
+      try (CloseableIterator<BatchReport.CoverageDetail> coverageIterator = reportReader.readCoverageDetails(testFileRef)) {
         while (coverageIterator.hasNext()) {
           BatchReport.CoverageDetail batchCoverageDetail = coverageIterator.next();
           for (BatchReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {

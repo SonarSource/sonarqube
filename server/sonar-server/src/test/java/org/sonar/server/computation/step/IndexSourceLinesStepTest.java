@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
@@ -27,14 +26,12 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.batch.FileBatchReportReader;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
@@ -54,14 +51,12 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
 
@@ -89,14 +84,12 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
     FileSourceTesting.updateDataColumn(connection, "FILE1_UUID", FileSourceTesting.newRandomData(1).build());
     connection.close();
 
-    File reportDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(new FileBatchReportReader(new BatchReportReader(reportDir)), PROJECT_KEY, new Settings(), dbClient,
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
+    step().execute(new ComputationContext(reportReader, PROJECT_KEY, new Settings(), dbClient,
+      ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

@@ -75,7 +75,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
     dbComponentsRefCache = new DbComponentsRefCache();
 
-    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, dbComponentsRefCache);
+    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, dbComponentsRefCache, reportReader);
   }
 
   @Override

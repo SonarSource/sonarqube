@@ -20,7 +20,11 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.server.computation.container.CEContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -30,7 +34,8 @@ public class ComputationStepsTest {
 
   @Test
   public void ordered_steps() {
-    ComputationSteps registry = new ComputationSteps(
+    CEContainer ceContainer = new CEContainer(new ComponentContainer());
+    ceContainer.add(
       // unordered
       mock(ApplyPermissionsStep.class),
       mock(ParseReportStep.class),
@@ -51,19 +56,20 @@ public class ComputationStepsTest {
       mock(IndexTestsStep.class),
       mock(PopulateComponentsUuidAndKeyStep.class),
       mock(PersistComponentsStep.class),
-      mock(IndexTestsStep.class),
       mock(QualityProfileEventsStep.class)
       );
+    ComputationSteps computationSteps = new ComputationSteps(ceContainer);
 
-    assertThat(registry.orderedSteps()).hasSize(20);
-    assertThat(registry.orderedSteps().get(0)).isInstanceOf(PopulateComponentsUuidAndKeyStep.class);
-    assertThat(registry.orderedSteps().get(19)).isInstanceOf(SendIssueNotificationsStep.class);
+    List<ComputationStep> steps = Lists.newArrayList(computationSteps.instances());
+    assertThat(steps).hasSize(20);
+    assertThat(steps.get(0)).isInstanceOf(PopulateComponentsUuidAndKeyStep.class);
+    assertThat(steps.get(19)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test
   public void fail_if_a_step_is_not_registered_in_picocontainer() {
     try {
-      new ComputationSteps(mock(ParseReportStep.class));
+      Lists.newArrayList(new ComputationSteps(new CEContainer(new ComponentContainer())).instances());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Component not found");

@@ -48,12 +48,15 @@ public class PersistMeasuresStep implements ComputationStep {
   private final RuleCache ruleCache;
   private final MetricCache metricCache;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache,
+    DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.ruleCache = ruleCache;
     this.metricCache = metricCache;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -71,7 +74,6 @@ public class PersistMeasuresStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(DbSession dbSession, ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
     persistMeasures(dbSession, measures, component);

@@ -32,13 +32,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.util.CloseableIterator;
 
-public class FileBatchReportReader implements BatchReportReader {
+public class CEBatchReportReader implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
 
-  public FileBatchReportReader(org.sonar.batch.protocol.output.BatchReportReader delegate) {
-    this.delegate = delegate;
+  public CEBatchReportReader(ReportExtractor reportExtractor, ReportQueue.Item item) {
+    this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(reportExtractor.extractReportInDir(item));
   }
 
   @Override

@@ -110,7 +110,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     metricCache = new MetricCache(dbClient);
     session.commit();
 
-    sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache, dbComponentsRefCache);
+    sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache, dbComponentsRefCache, reportReader);
   }
 
   @After

@@ -20,8 +20,12 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.issue.IssueCache;
@@ -33,10 +37,6 @@ import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.util.CloseableIterator;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
@@ -53,14 +53,16 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private final RuleCache rules;
   private final DbComponentsRefCache dbComponentsRefCache;
   private final NotificationService service;
+  private final BatchReportReader reportReader;
   private NewIssuesNotificationFactory newIssuesNotificationFactory;
 
   public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, DbComponentsRefCache dbComponentsRefCache, NotificationService service,
-    NewIssuesNotificationFactory newIssuesNotificationFactory) {
+    BatchReportReader reportReader, NewIssuesNotificationFactory newIssuesNotificationFactory) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.dbComponentsRefCache = dbComponentsRefCache;
     this.service = service;
+    this.reportReader = reportReader;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
   }
 
@@ -75,7 +77,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   private void doExecute(ComputationContext context, DbComponent project) {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    String projectName = context.getReportReader().readComponent(context.getReportMetadata().getRootComponentRef()).getName();
+    String projectName = reportReader.readComponent(context.getReportMetadata().getRootComponentRef()).getName();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();

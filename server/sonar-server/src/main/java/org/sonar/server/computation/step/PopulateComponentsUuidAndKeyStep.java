@@ -42,9 +42,11 @@ import org.sonar.server.db.DbClient;
 public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   private final DbClient dbClient;
+  private final BatchReportReader reportReader;
 
-  public PopulateComponentsUuidAndKeyStep(DbClient dbClient) {
+  public PopulateComponentsUuidAndKeyStep(DbClient dbClient, BatchReportReader reportReader) {
     this.dbClient = dbClient;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -59,7 +61,6 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   private class ComponentDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
 
-    private final BatchReportReader reportReader;
     private final Map<String, String> componentUuidByKey;
 
     @Nullable
@@ -71,7 +72,6 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.componentUuidByKey = new HashMap<>();
       this.branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
-      this.reportReader = context.getReportReader();
       this.nearestModule = null;
     }
 

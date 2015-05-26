@@ -42,10 +42,12 @@ public class PersistComponentsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -55,9 +57,9 @@ public class PersistComponentsStep implements ComputationStep {
       Component root = context.getRoot();
       List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
       Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
-      ComponentContext componentContext = new ComponentContext(context.getReportReader(), session, componentDtosByKey);
+      ComponentContext componentContext = new ComponentContext(session, componentDtosByKey);
 
-      ComponentDto projectDto = processProject(root, componentContext.reportReader.readComponent(root.getRef()), componentContext);
+      ComponentDto projectDto = processProject(root, reportReader.readComponent(root.getRef()), componentContext);
       processChildren(componentContext, root, projectDto, projectDto);
       session.commit();
     } finally {
@@ -66,7 +68,6 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(ComponentContext componentContext, Component component, ComponentDto parentModule, ComponentDto project) {
-    BatchReportReader reportReader = componentContext.reportReader;
     BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
 
     switch (component.getType()) {
@@ -94,7 +95,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   public ComponentDto processProject(Component project, BatchReport.Component reportComponent, ComponentContext componentContext) {
-    ComponentDto componentDto = createComponentDto(reportComponent, project);
+    ComponentDto componentDto = createComponentDto(project);
 
     componentDto.setScope(Scopes.PROJECT);
     componentDto.setQualifier(Qualifiers.PROJECT);
@@ -110,7 +111,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   public ComponentDto processModule(Component module, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
-    ComponentDto componentDto = createComponentDto(reportComponent, module);
+    ComponentDto componentDto = createComponentDto(module);
 
     componentDto.setScope(Scopes.PROJECT);
     componentDto.setQualifier(Qualifiers.MODULE);
@@ -131,7 +132,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   public void processDirectory(Component directory, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
-    ComponentDto componentDto = createComponentDto(reportComponent, directory);
+    ComponentDto componentDto = createComponentDto(directory);
 
     componentDto.setScope(Scopes.DIRECTORY);
     componentDto.setQualifier(Qualifiers.DIRECTORY);
@@ -150,7 +151,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   public void processFile(Component file, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
-    ComponentDto componentDto = createComponentDto(reportComponent, file);
+    ComponentDto componentDto = createComponentDto(file);
 
     componentDto.setScope(Scopes.FILE);
     componentDto.setQualifier(getFileQualifier(reportComponent));
@@ -171,7 +172,7 @@ public class PersistComponentsStep implements ComputationStep {
     persistComponent(file.getRef(), componentDto, componentContext);
   }
 
-  private ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
+  private ComponentDto createComponentDto(Component component) {
     String componentKey = component.getKey();
     String componentUuid = component.getUuid();
 
@@ -241,12 +242,10 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static class ComponentContext {
-    private final BatchReportReader reportReader;
     private final Map<String, ComponentDto> componentDtosByKey;
     private final DbSession dbSession;
 
-    public ComponentContext(BatchReportReader reportReader, DbSession dbSession, Map<String, ComponentDto> componentDtosByKey) {
-      this.reportReader = reportReader;
+    public ComponentContext(DbSession dbSession, Map<String, ComponentDto> componentDtosByKey) {
       this.componentDtosByKey = componentDtosByKey;
       this.dbSession = dbSession;
     }

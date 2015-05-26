@@ -37,11 +37,13 @@ public class PersistEventsStep implements ComputationStep {
   private final DbClient dbClient;
   private final System2 system2;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public PersistEventsStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistEventsStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -57,7 +59,6 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(DbSession session, ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     processEvents(session, component, context.getReportMetadata().getAnalysisDate());
     saveVersionEvent(session, component, context.getReportMetadata().getAnalysisDate());

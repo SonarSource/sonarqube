@@ -41,10 +41,12 @@ public class PersistDuplicationsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public PersistDuplicationsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistDuplicationsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -62,7 +64,6 @@ public class PersistDuplicationsStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(DuplicationContext duplicationContext, int componentRef) {
-    BatchReportReader reportReader = duplicationContext.context().getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(componentRef);
     if (!duplications.isEmpty()) {
@@ -111,7 +112,7 @@ public class PersistDuplicationsStep implements ComputationStep {
     } else {
       if (duplicate.hasOtherFileRef()) {
         // Duplication is on a different file
-        BatchReport.Component duplicationComponent = duplicationContext.context().getReportReader().readComponent(duplicate.getOtherFileRef());
+        BatchReport.Component duplicationComponent = reportReader.readComponent(duplicate.getOtherFileRef());
         DbComponentsRefCache.DbComponent dbComponent = dbComponentsRefCache.getByRef(duplicationComponent.getRef());
         appendDuplication(xml, dbComponent.getKey(), duplicate);
       } else {

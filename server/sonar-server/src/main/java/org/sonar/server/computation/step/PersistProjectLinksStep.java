@@ -49,6 +49,7 @@ public class PersistProjectLinksStep implements ComputationStep {
   private final DbClient dbClient;
   private final I18n i18n;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
   private static final Map<Constants.ComponentLinkType, String> typesConverter = ImmutableMap.of(
     Constants.ComponentLinkType.HOME, ComponentLinkDto.TYPE_HOME_PAGE,
@@ -58,10 +59,11 @@ public class PersistProjectLinksStep implements ComputationStep {
     Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
     );
 
-  public PersistProjectLinksStep(DbClient dbClient, I18n i18n, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistProjectLinksStep(DbClient dbClient, I18n i18n, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -77,7 +79,6 @@ public class PersistProjectLinksStep implements ComputationStep {
   }
 
   private void recursivelyProcessComponent(DbSession session, ComputationContext context, int componentRef) {
-    BatchReportReader reportReader = context.getReportReader();
     BatchReport.Component component = reportReader.readComponent(componentRef);
     processLinks(session, component);
 
