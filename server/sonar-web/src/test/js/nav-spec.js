@@ -28,7 +28,7 @@ lib.changeWorkingDirectory('nav-spec');
 lib.configureCasper();
 
 
-casper.test.begin(testName('Global Spaces'), 8, function (test) {
+casper.test.begin(testName('Global Spaces'), 7, function (test) {
   casper
       .start(lib.buildUrl('nav'), function () {
         lib.setDefaultViewport();
@@ -61,7 +61,6 @@ casper.test.begin(testName('Global Spaces'), 8, function (test) {
 
         // check "more"
         test.assertExists('.navbar-global a[href*="/comparison"]');
-        test.assertExists('.navbar-global a[href*="/dependencies"]');
       })
 
       .then(function () {
