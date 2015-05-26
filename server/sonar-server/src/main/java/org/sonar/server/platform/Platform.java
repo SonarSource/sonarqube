@@ -139,8 +139,8 @@ public class Platform {
     // no need to initialize database connection, so level 1 is skipped
     startLevel2Container();
     startLevel34Containers();
-    executeStartupTasks(startup);
     currentLevel = level4;
+    executeStartupTasks(startup);
   }
 
   private boolean requireSafeMode() {
