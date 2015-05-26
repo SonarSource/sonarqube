@@ -29,8 +29,12 @@ import java.util.Map;
 public interface MetricMapper {
 
   MetricDto selectByKey(@Param("key") String key);
+
   List<MetricDto> selectAllEnabled();
+
   List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
+
   void insert(MetricDto dto);
 
+  List<String> selectDomains();
 }

@@ -20,6 +20,8 @@
 
 package org.sonar.server.metric.persistence;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
@@ -30,21 +32,23 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.es.SearchOptions;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
 public class MetricDao implements DaoComponent {
 
   @CheckForNull
   public MetricDto selectByKey(DbSession session, String key) {
-    return session.getMapper(MetricMapper.class).selectByKey(key);
+    return mapper(session).selectByKey(key);
   }
 
   public List<MetricDto> selectEnabled(DbSession session) {
-    return session.getMapper(MetricMapper.class).selectAllEnabled();
+    return mapper(session).selectAllEnabled();
   }
 
   public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, SearchOptions searchOptions) {
@@ -53,10 +57,23 @@ public class MetricDao implements DaoComponent {
       properties.put("isCustom", isCustom);
     }
 
-    return session.getMapper(MetricMapper.class).selectAllEnabled(properties, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+    return mapper(session).selectAllEnabled(properties, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
   }
 
   public void insert(DbSession session, MetricDto dto) {
-    session.getMapper(MetricMapper.class).insert(dto);
+    mapper(session).insert(dto);
+  }
+
+  public List<String> selectDomains(DbSession session) {
+    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new Predicate<String>() {
+      @Override
+      public boolean apply(@Nonnull String input) {
+        return !input.isEmpty();
+      }
+    }));
+  }
+
+  private MetricMapper mapper(DbSession session) {
+    return session.getMapper(MetricMapper.class);
   }
 }

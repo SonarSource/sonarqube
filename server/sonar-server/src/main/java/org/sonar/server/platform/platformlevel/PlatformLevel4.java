@@ -434,6 +434,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MetricsWs.class,
       org.sonar.server.metric.ws.ListAction.class,
       org.sonar.server.metric.ws.TypesAction.class,
+      org.sonar.server.metric.ws.DomainsAction.class,
 
       // quality gates
       QualityGateDao.class,

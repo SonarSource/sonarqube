@@ -61,4 +61,10 @@
     )
   </insert>
 
+  <select id="selectDomains" resultType="String">
+    select distinct domain
+    from metrics m
+    where m.domain is not null
+  </select>
+
 </mapper>
