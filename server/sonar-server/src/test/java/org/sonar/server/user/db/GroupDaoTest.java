@@ -111,6 +111,23 @@ public class GroupDaoTest {
   }
 
   @Test
+  public void update() {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2013-07-25").getTime());
+
+    dbTester.prepareDbUnit(getClass(), "update.xml");
+
+    GroupDto dto = new GroupDto()
+      .setId(1L)
+      .setName("new-name")
+      .setDescription("New Description");
+
+    dao.update(session, dto);
+    session.commit();
+
+    dbTester.assertDbUnit(getClass(), "update-result.xml", "groups");
+  }
+
+  @Test
   public void select_by_query() {
     dbTester.prepareDbUnit(getClass(), "select_by_query.xml");
 

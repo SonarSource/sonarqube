@@ -50,6 +50,14 @@
     VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
   </insert>
 
+  <update id="update" parameterType="Group">
+    UPDATE groups SET
+      name=#{name},
+      description=#{description},
+      updated_at=#{updatedAt}
+    WHERE id=#{id}
+  </update>
+
   <select id="selectByQuery" parameterType="map" resultType="Group">
     SELECT <include refid="groupColumns" />
     FROM groups g
