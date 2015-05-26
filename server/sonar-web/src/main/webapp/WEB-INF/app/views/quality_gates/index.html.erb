@@ -1,5 +1,6 @@
-<% content_for :script do %>
-  <script>require(['apps/quality-gate/app']);</script>
-<% end %>
-
-<div class="search-navigator" id="quality-gates"></div>
+<div class="search-navigator sticky search-navigator-extended-view" id="quality-gates"></div>
+<script>
+  require(['apps/quality-gates/app'], function (App) {
+    App.start({ el: '#quality-gates' });
+  });
+</script>

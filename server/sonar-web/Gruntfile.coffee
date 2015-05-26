@@ -140,7 +140,7 @@ module.exports = (grunt) ->
           { grunt: true, args: ['requirejs:app', '--app=measures'] }
           { grunt: true, args: ['requirejs:app', '--app=nav'] }
           { grunt: true, args: ['requirejs:app', '--app=provisioning'] }
-          { grunt: true, args: ['requirejs:app', '--app=quality-gate'] }
+          { grunt: true, args: ['requirejs:app', '--app=quality-gates'] }
           { grunt: true, args: ['requirejs:app', '--app=quality-profiles'] }
           { grunt: true, args: ['requirejs:app', '--app=source-viewer'] }
           { grunt: true, args: ['requirejs:app', '--app=users'] }
@@ -195,8 +195,8 @@ module.exports = (grunt) ->
             '<%= SOURCE_PATH %>/js/components/common/templates/**/*.hbs'
             '<%= SOURCE_PATH %>/js/apps/coding-rules/templates/**/*.hbs'
           ]
-          '<%= BUILD_PATH %>/js/apps/quality-gate/templates.js': [
-            '<%= SOURCE_PATH %>/coffee/apps/quality-gate/templates/**/*.hbs'
+          '<%= BUILD_PATH %>/js/apps/quality-gates/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/quality-gates/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/quality-profiles/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/quality-profiles/templates/**/*.hbs'

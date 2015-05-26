@@ -434,7 +434,7 @@
     }, '');
   });
 
-  Handlebars.registerHelper('operators', function (metricType, options) {
+  Handlebars.registerHelper('operators', function (options) {
     var ops = ['LT', 'GT', 'EQ', 'NE'];
 
     return ops.reduce(function (prev, current) {

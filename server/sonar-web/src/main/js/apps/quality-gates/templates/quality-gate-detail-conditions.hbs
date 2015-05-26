@@ -1,0 +1,39 @@
+<h3 class="spacer-bottom">{{t 'quality_gates.conditions'}}</h3>
+
+<div class="alert alert-info">
+  <div>
+    {{t 'quality_gates.introduction'}}
+    <a class="js-show-more pull-right spacer-left">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
+  </div>
+  <div class="js-more spacer-top hidden">
+    {{t 'quality_gates.health_icons'}}
+    <ul>
+      <li class="little-spacer-top">
+        <i class="icon-alert-ok"></i> {{t 'alerts.notes.ok'}}
+      </li>
+      <li class="little-spacer-top">
+        <i class="icon-alert-warn"></i> {{t 'alerts.notes.warn'}}
+      </li>
+      <li class="little-spacer-top">
+        <i class="icon-alert-error"></i> {{t 'alerts.notes.error'}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+{{#if canEdit}}
+  <form class="big-spacer-top spacer-bottom">
+    <label for="quality-gate-new-condition-metric" class="text-middle">{{t 'quality_gates.add_condition'}}</label>
+    <select id="quality-gate-new-condition-metric" class="text-middle">
+      <option></option>
+      {{#each metricGroups}}
+        <optgroup label="{{domain}}">
+          {{#each metrics}}
+            <option value="{{key}}">{{name}}</option>{{/each}}
+        </optgroup>
+      {{/each}}
+    </select>
+  </form>
+{{/if}}
+
+<table class="js-conditions data zebra width-100"></table>

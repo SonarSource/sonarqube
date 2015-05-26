@@ -1,0 +1,69 @@
+<td class="text-middle nowrap">
+  {{metric.name}}
+  {{#if metric.hidden}}
+    <span class="text-danger little-spacer-left">{{t 'deprecated'}}</span>
+  {{/if}}
+</td>
+
+<td class="thin text-middle nowrap">
+  {{#if canEdit}}
+    <select class="input-medium" name="period">
+      {{#unless isDiffMetric}}
+        <option value="0" {{#eq period 0}}selected{{/eq}}>{{t 'value'}}</option>
+      {{/unless}}
+      {{#each periods}}
+        <option value="{{key}}" {{#eq key ../period}}selected{{/eq}}>&Delta; {{text}}</option>
+      {{/each}}
+    </select>
+  {{else}}
+    &Delta; {{periodText}}
+  {{/if}}
+</td>
+
+<td class="thin text-middle nowrap">
+  {{#if canEdit}}
+    <select class="input-small" name="operator">
+      {{#operators}}
+        <option value="{{this}}" {{#eq this ../op}}selected{{/eq}}>{{t 'quality_gates.operator' this}}</option>
+      {{/operators}}
+    </select>
+  {{else}}
+    {{t 'quality_gates.operator' op}}
+  {{/if}}
+</td>
+
+<td class="thin text-middle nowrap">
+  <i class="icon-alert-warn" title="{{t 'quality_gates.warning_tooltip'}}"></i>
+  {{#if canEdit}}
+    <input name="warning" type="text" class="input-tiny text-middle" data-type="{{metric.type}}"
+           placeholder="{{metric.placeholder}}">
+  {{else}}
+    {{formatMeasure warning metric.type}}
+  {{/if}}
+</td>
+
+<td class="thin text-middle nowrap">
+  <i class="icon-alert-error" title="{{t 'quality_gates.error_tooltip'}}"></i>
+  {{#if canEdit}}
+    <input name="error" type="text" class="input-tiny text-middle" data-type="{{metric.type}}"
+           placeholder="{{metric.placeholder}}">
+  {{else}}
+    {{formatMeasure error metric.type}}
+  {{/if}}
+</td>
+
+{{#if canEdit}}
+  <td class="thin text-middle nowrap">
+    {{#if id}}
+      <div class="button-group">
+        <button class="update-condition" disabled>{{t 'update_verb'}}</button>
+        <button class="button-red delete-condition">{{t 'delete'}}</button>
+      </div>
+    {{else}}
+      <div class="button-group">
+        <button class="add-condition">{{t 'add_verb'}}</button>
+        <a class="action cancel-add-condition">{{t 'cancel'}}</a>
+      </div>
+    {{/if}}
+  </td>
+{{/if}}
