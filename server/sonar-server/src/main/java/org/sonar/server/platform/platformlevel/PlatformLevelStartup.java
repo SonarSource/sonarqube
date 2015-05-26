@@ -67,7 +67,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       CopyRequirementsFromCharacteristicsToRules.class,
       ReportQueueCleaner.class,
       RegisterIssueFilters.class,
-      RenameIssueWidgets.class);
+      RenameIssueWidgets.class,
+      ServerLifecycleNotifier.class);
   }
 
   @Override
