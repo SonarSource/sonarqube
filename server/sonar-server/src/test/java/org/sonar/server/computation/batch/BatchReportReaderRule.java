@@ -19,7 +19,8 @@
  */
 package org.sonar.server.computation.batch;
 
-import java.io.File;
+import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.util.CloseableIterator;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private BatchReport.Metadata metadata;
@@ -39,11 +41,11 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, BatchReport.Issues> deletedIssues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
   private Map<Integer, List<BatchReport.Symbols.Symbol>> symbols = new HashMap<>();
-  private Map<Integer, File> syntaxHighlightings = new HashMap<>();
-  private Map<Integer, File> coverages = new HashMap<>();
-  private Map<Integer, File> fileSources = new HashMap<>();
-  private Map<Integer, File> tests = new HashMap<>();
-  private Map<Integer, File> coverageDetails = new HashMap<>();
+  private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
+  private Map<Integer, List<BatchReport.Coverage>> coverages = new HashMap<>();
+  private Map<Integer, List<String>> fileSources = new HashMap<>();
+  private Map<Integer, List<BatchReport.Test>> tests = new HashMap<>();
+  private Map<Integer, List<BatchReport.CoverageDetail>> coverageDetails = new HashMap<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -160,57 +162,77 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public boolean hasSyntaxHighlighting(int componentRef) {
-    File file = syntaxHighlightings.get(componentRef);
-    return file != null && file.exists();
-  }
-
-  @Override
-  public File readComponentSyntaxHighlighting(int fileRef) {
-    return syntaxHighlightings.get(fileRef);
-  }
-
-  public void putSyntaxHighlighting(int fileRef, File file) {
-    this.syntaxHighlightings.put(fileRef, file);
-  }
-
-  @Override
-  public File readComponentCoverage(int fileRef) {
-    return coverages.get(fileRef);
-  }
-
-  public void putCoverage(int fileRef, File file) {
-    this.coverages.put(fileRef, file);
-  }
-
-  @Override
-  public File readFileSource(int fileRef) {
-    File file = fileSources.get(fileRef);
-    if (file == null) {
-      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
+  public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
+    List<BatchReport.SyntaxHighlighting> res = this.syntaxHighlightings.get(fileRef);
+    if (res == null) {
+      return CloseableIterator.emptyCloseableIterator();
     }
-    return file;
+
+    return CloseableIterator.from(res.iterator());
   }
 
-  public void putFileSoure(int fileRef, File file) {
-    this.fileSources.put(fileRef, file);
-  }
-
-  @Override
-  public File readTests(int testFileRef) {
-    return tests.get(testFileRef);
-  }
-
-  public void putTests(int testFileRed, File file) {
-    this.tests.put(testFileRed, file);
+  public void putSyntaxHighlighting(int fileRef, List<BatchReport.SyntaxHighlighting> syntaxHighlightings) {
+    this.syntaxHighlightings.put(fileRef, syntaxHighlightings);
   }
 
   @Override
-  public File readCoverageDetails(int testFileRef) {
-    return coverageDetails.get(testFileRef);
+  public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
+    List<BatchReport.Coverage> res = this.coverages.get(fileRef);
+    if (res == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    return CloseableIterator.from(res.iterator());
   }
 
-  public void putCoverageDetails(int testFileRef, File file) {
-    this.coverageDetails.put(testFileRef, file);
+  public void putCoverage(int fileRef, List<BatchReport.Coverage> coverages) {
+    this.coverages.put(fileRef, coverages);
+  }
+
+  @Override
+  public CloseableIterator<String> readFileSource(int fileRef) {
+    List<String> lines = fileSources.get(fileRef);
+    if (lines == null) {
+      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + lines);
+    }
+
+    return CloseableIterator.from(lines.iterator());
+  }
+
+  public void putFileSourceLines(int fileRef, @Nullable String... lines) {
+    Preconditions.checkNotNull(lines);
+    this.fileSources.put(fileRef, Arrays.asList(lines));
+  }
+
+  public void putFileSourceLines(int fileRef, List<String> lines) {
+    this.fileSources.put(fileRef, lines);
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.Test> readTests(int testFileRef) {
+    List<BatchReport.Test> res = this.tests.get(testFileRef);
+    if (res == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    return CloseableIterator.from(res.iterator());
+  }
+
+  public void putTests(int testFileRed, List<BatchReport.Test> tests) {
+    this.tests.put(testFileRed, tests);
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.CoverageDetail> readCoverageDetails(int testFileRef) {
+    List<BatchReport.CoverageDetail> res = this.coverageDetails.get(testFileRef);
+    if (res == null) {
+      return CloseableIterator.emptyCloseableIterator();
+    }
+
+    return CloseableIterator.from(res.iterator());
+  }
+
+  public void putCoverageDetails(int testFileRef, List<BatchReport.CoverageDetail> coverageDetails) {
+    this.coverageDetails.put(testFileRef, coverageDetails);
   }
 }

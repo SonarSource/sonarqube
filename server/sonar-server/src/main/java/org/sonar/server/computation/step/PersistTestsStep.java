@@ -26,7 +26,6 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -50,10 +49,10 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
-import org.sonar.server.computation.source.ReportIterator;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
+import org.sonar.server.util.CloseableIterator;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -188,12 +187,8 @@ public class PersistTestsStep implements ComputationStep {
 
     private Multimap<String, FileSourceDb.Test.Builder> buildDbTests(BatchReport.Component component) {
       Multimap<String, FileSourceDb.Test.Builder> tests = ArrayListMultimap.create();
-      File testsFile = reader.readTests(component.getRef());
-      if (testsFile == null) {
-        return tests;
-      }
-      ReportIterator<BatchReport.Test> testIterator = new ReportIterator<>(testsFile, BatchReport.Test.PARSER);
-      try {
+
+      try (CloseableIterator<BatchReport.Test> testIterator = reader.readTests(component.getRef())) {
         while (testIterator.hasNext()) {
           BatchReport.Test batchTest = testIterator.next();
           FileSourceDb.Test.Builder dbTest = FileSourceDb.Test.newBuilder();
@@ -214,8 +209,6 @@ public class PersistTestsStep implements ComputationStep {
 
           tests.put(dbTest.getName(), dbTest);
         }
-      } finally {
-        testIterator.close();
       }
 
       return tests;
@@ -226,13 +219,8 @@ public class PersistTestsStep implements ComputationStep {
      */
     private Table<String, String, FileSourceDb.Test.CoveredFile.Builder> loadCoverageDetails(int testFileRef) {
       Table<String, String, FileSourceDb.Test.CoveredFile.Builder> nameToCoveredFiles = HashBasedTable.create();
-      File coverageDetailsFile = reader.readCoverageDetails(testFileRef);
-      if (coverageDetailsFile == null) {
-        return nameToCoveredFiles;
-      }
 
-      ReportIterator<BatchReport.CoverageDetail> coverageIterator = new ReportIterator<>(coverageDetailsFile, BatchReport.CoverageDetail.PARSER);
-      try {
+      try (CloseableIterator<BatchReport.CoverageDetail> coverageIterator = reader.readCoverageDetails(testFileRef)) {
         while (coverageIterator.hasNext()) {
           BatchReport.CoverageDetail batchCoverageDetail = coverageIterator.next();
           for (BatchReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {
@@ -252,8 +240,6 @@ public class PersistTestsStep implements ComputationStep {
             }
           }
         }
-      } finally {
-        coverageIterator.close();
       }
       return nameToCoveredFiles;
     }

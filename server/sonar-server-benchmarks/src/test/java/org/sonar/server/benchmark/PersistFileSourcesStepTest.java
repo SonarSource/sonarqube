@@ -20,10 +20,11 @@
 
 package org.sonar.server.benchmark;
 
-import org.apache.commons.io.FileUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -31,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -43,11 +43,6 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,11 +58,7 @@ public class PersistFileSourcesStepTest {
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
   public DbTester dbTester = new DbTester();
-
   @Rule
   public Benchmark benchmark = new Benchmark();
   @Rule
@@ -86,7 +77,8 @@ public class PersistFileSourcesStepTest {
     long start = System.currentTimeMillis();
 
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache);
-    step.execute(new ComputationContext(reportReader, "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
+    step.execute(new ComputationContext(reportReader, "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
+      mock(LanguageRepository.class)));
 
     long end = System.currentTimeMillis();
     long duration = end - start;
@@ -99,11 +91,10 @@ public class PersistFileSourcesStepTest {
 
   private void prepareReport() throws IOException {
     LOGGER.info("Create report");
-    File reportDir = temp.newFolder();
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .build());
+      .setRootComponentRef(1)
+      .build());
     BatchReport.Component.Builder project = BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT);
@@ -111,30 +102,30 @@ public class PersistFileSourcesStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT", PROJECT_UUID));
 
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
-      generateFileReport(new BatchReportWriter(reportDir), fileRef);
+      generateFileReport(fileRef);
       project.addChildRef(fileRef);
     }
 
     reportReader.putComponent(project.build());
   }
 
-  private void generateFileReport(BatchReportWriter writer, int fileRef) throws IOException {
+  private void generateFileReport(int fileRef) throws IOException {
     LineData lineData = new LineData();
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
     }
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(fileRef)
-        .setType(Constants.ComponentType.FILE)
-        .setLines(NUMBER_OF_LINES)
-        .build());
+      .setRef(fileRef)
+      .setType(Constants.ComponentType.FILE)
+      .setLines(NUMBER_OF_LINES)
+      .build());
 
     dbComponentsRefCache.addComponent(fileRef, new DbComponent((long) fileRef, "PROJECT:" + fileRef, Uuids.create()));
 
-    FileUtils.writeLines(writer.getSourceFile(fileRef), lineData.lines);
-    reportReader.putCoverage(fileRef, writer.writeComponentCoverage(fileRef, lineData.coverages));
+    reportReader.putFileSourceLines(fileRef, lineData.lines);
+    reportReader.putCoverage(fileRef, lineData.coverages);
     reportReader.putChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
-    reportReader.putSyntaxHighlighting(fileRef, writer.writeComponentSyntaxHighlighting(fileRef, lineData.highlightings));
+    reportReader.putSyntaxHighlighting(fileRef, lineData.highlightings);
     reportReader.putSymbols(fileRef, lineData.symbols);
     reportReader.putDuplications(fileRef, lineData.duplications);
   }
@@ -147,7 +138,7 @@ public class PersistFileSourcesStepTest {
     List<BatchReport.Symbols.Symbol> symbols = new ArrayList<>();
     List<BatchReport.Duplication> duplications = new ArrayList<>();
 
-    void generateLineData(int line){
+    void generateLineData(int line) {
       lines.add("line-" + line);
 
       changesetsBuilder.addChangeset(BatchReport.Changesets.Changeset.newBuilder()
@@ -180,8 +171,8 @@ public class PersistFileSourcesStepTest {
           .setStartLine(line).setEndLine(line).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-            .setStartLine(line + 1).setEndLine(line + 1).setStartOffset(1).setEndOffset(3)
-            .build()
+          .setStartLine(line + 1).setEndLine(line + 1).setStartOffset(1).setEndOffset(3)
+          .build()
         ).build());
 
       duplications.add(BatchReport.Duplication.newBuilder()
