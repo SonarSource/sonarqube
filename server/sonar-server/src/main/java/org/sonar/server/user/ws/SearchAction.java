@@ -21,11 +21,10 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +37,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -88,8 +88,8 @@ public class SearchAction implements UsersWsAction {
     List<String> fields = request.paramAsStrings(Param.FIELDS);
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
-    Multimap<String, String> groupsByLogin = Multimaps.forMap(Maps.<String, String>newHashMap());
-    DbSession session = dbClient.openSession(false);
+    Multimap<String, String> groupsByLogin = ArrayListMultimap.create();
+    DbSession dbSession = dbClient.openSession(false);
     try {
       Collection<String> logins = Collections2.transform(result.getDocs(), new Function<UserDoc, String>() {
         @Override
@@ -97,9 +97,9 @@ public class SearchAction implements UsersWsAction {
           return input.login();
         }
       });
-      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(session, logins);
+      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
     } finally {
-      session.close();
+      MyBatis.closeQuietly(dbSession);
     }
 
     JsonWriter json = response.newJsonWriter().beginObject();
@@ -117,12 +117,7 @@ public class SearchAction implements UsersWsAction {
       writeIfNeeded(json, user.name(), FIELD_NAME, fields);
       writeIfNeeded(json, user.email(), FIELD_EMAIL, fields);
       writeGroupsIfNeeded(json, groupsByLogin.get(user.login()), fields);
-      if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
-        json.name(FIELD_SCM_ACCOUNTS)
-          .beginArray()
-          .values(user.scmAccounts())
-          .endArray();
-      }
+      writeScmAccountsIfNeeded(json, fields, user);
       json.endObject();
     }
     json.endArray();
@@ -141,6 +136,15 @@ public class SearchAction implements UsersWsAction {
         json.value(groupName);
       }
       json.endArray();
+    }
+  }
+
+  private void writeScmAccountsIfNeeded(JsonWriter json, List<String> fields, UserDoc user) {
+    if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
+      json.name(FIELD_SCM_ACCOUNTS)
+        .beginArray()
+        .values(user.scmAccounts())
+        .endArray();
     }
   }
 
