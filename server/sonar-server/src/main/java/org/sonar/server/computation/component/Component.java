@@ -22,7 +22,6 @@ package org.sonar.server.computation.component;
 import java.util.List;
 import org.sonar.server.computation.context.ComputationContext;
 import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.step.PopulateComponentsUuidAndKeyStep;
 
 public interface Component {
@@ -67,10 +66,5 @@ public interface Component {
    * The event repository for the current component
    */
   EventRepository getEventRepository();
-
-  /**
-   * the measure repository for the current component
-   */
-  MeasureRepository getMeasureRepository();
 
 }

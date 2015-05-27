@@ -24,11 +24,12 @@ import org.sonar.batch.protocol.output.BatchReport;
 
 import com.google.common.base.Optional;
 import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.server.computation.component.Component;
 
 public interface MeasureRepository {
   // FIXME should not expose MeasureDto from DAO layer
-  Optional<MeasureDto> findPrevious(Metric<?> metric);
+  Optional<MeasureDto> findPrevious(Component component, Metric<?> metric);
 
   // FIXME should not expose Measure from BatchReport
-  Optional<BatchReport.Measure> findCurrent(Metric<?> metric);
+  Optional<BatchReport.Measure> findCurrent(Component component, Metric<?> metric);
 }
