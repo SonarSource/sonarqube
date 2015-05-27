@@ -44,6 +44,7 @@ import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
+import org.sonar.core.resource.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
@@ -122,6 +123,7 @@ import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
+import org.sonar.server.event.NewAlerts;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -166,6 +168,7 @@ import org.sonar.server.measure.template.MyFavouritesFilter;
 import org.sonar.server.measure.template.ProjectFilter;
 import org.sonar.server.measure.ws.ManualMeasuresWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
+import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.ws.MetricsWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -340,6 +343,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DistributionAreaChart.class,
       Views.class,
       ResourceTypes.class,
+      DefaultResourceTypes.class,
       SettingsChangeNotifier.class,
       PageDecorations.class,
       DefaultResourcePermissions.class,
@@ -488,6 +492,7 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasureFilterEngine.class,
       ProjectFilter.class,
       MyFavouritesFilter.class,
+      CoreCustomMetrics.class,
       DefaultMetricFinder.class,
       ServerLifecycleNotifier.class,
       TimeMachineWs.class,
@@ -579,6 +584,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.component.ws.AppAction.class,
       org.sonar.server.component.ws.SearchAction.class,
       EventsWs.class,
+      NewAlerts.class,
       ComponentCleanerService.class,
       ProvisionedAction.class,
       GhostsAction.class,
