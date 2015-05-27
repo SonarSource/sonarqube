@@ -8,7 +8,7 @@
     <version>5.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sonar-api-deps</artifactId>
+  <artifactId>sonar-plugin-api-deps</artifactId>
   <packaging>jar</packaging>
 
   <name>SonarQube :: Plugin API Dependencies</name>

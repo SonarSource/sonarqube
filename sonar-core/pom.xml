@@ -116,7 +116,7 @@
     <dependency>
       <!-- sonar-api-deps.jar is copied into target JAR file -->
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-api-deps</artifactId>
+      <artifactId>sonar-plugin-api-deps</artifactId>
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
@@ -207,8 +207,8 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>${project.groupId}</groupId>
-                  <artifactId>sonar-api-deps</artifactId>
-                  <destFileName>sonar-api-deps.jar</destFileName>
+                  <artifactId>sonar-plugin-api-deps</artifactId>
+                  <destFileName>sonar-plugin-api-deps.jar</destFileName>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.outputDirectory}</outputDirectory>
