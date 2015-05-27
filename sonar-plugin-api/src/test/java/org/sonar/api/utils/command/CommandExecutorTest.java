@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils.command;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
@@ -28,9 +30,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.sonar.api.utils.System2;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -126,11 +125,22 @@ public class CommandExecutorTest {
     assertThat(log).contains("Environment variable: 2");
   }
 
-  @Test
+  @Test(timeout = 3000L)
   public void should_stop_after_timeout() throws IOException {
     try {
       String executable = getScript("forever");
       CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 300L);
+      fail();
+    } catch (TimeoutException e) {
+      // ok
+    }
+  }
+
+  @Test(timeout = 3000L)
+  public void should_stop_after_timeout_and_new_shell() throws IOException {
+    try {
+      String executable = getScript("forever");
+      CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 300L);
       fail();
     } catch (TimeoutException e) {
       // ok
