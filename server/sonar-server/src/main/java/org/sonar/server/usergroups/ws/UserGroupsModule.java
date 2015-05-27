@@ -32,7 +32,9 @@ public class UserGroupsModule extends Module {
       CreateAction.class,
       DeleteAction.class,
       UpdateAction.class,
-      UsersAction.class);
+      UsersAction.class,
+      AddUserAction.class,
+      RemoveUserAction.class);
   }
 
 }
