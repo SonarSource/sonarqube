@@ -50,6 +50,7 @@ import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.server.custommeasure.persistence.CustomMeasureDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
@@ -105,6 +106,7 @@ public class DbClient {
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
+  private final CustomMeasureDao customMeasureDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -125,6 +127,7 @@ public class DbClient {
     resourceDao = getDao(map, ResourceDao.class);
     measureDao = getDao(map, MeasureDao.class);
     metricDao = getDao(map, MetricDao.class);
+    customMeasureDao = getDao(map, CustomMeasureDao.class);
     activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
@@ -211,6 +214,10 @@ public class DbClient {
 
   public MetricDao metricDao() {
     return metricDao;
+  }
+
+  public CustomMeasureDao customMeasureDao() {
+    return customMeasureDao;
   }
 
   public ActivityDao activityDao() {

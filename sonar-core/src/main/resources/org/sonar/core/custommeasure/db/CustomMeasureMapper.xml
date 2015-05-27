@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.custommeasure.db.CustomMeasureMapper">
+  <sql id="selectColumns">
+    m.id,
+    m.metric_id as metricId,
+    m.resource_id as resourceId,
+    m.value,
+    m.text_value as textValue,
+    m.user_login as userLogin,
+    m.description,
+    m.created_at as createdAt,
+    m.updated_at as updatedAt
+  </sql>
+
+  <select id="selectById" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.id=#{id}
+  </select>
+
+  <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    INSERT INTO manual_measures (
+    metric_id, resource_id, value, text_value, user_login, description, created_at, updated_at
+    )
+    VALUES (
+    #{metricId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{value, jdbcType=DOUBLE},
+    #{textValue, jdbcType=VARCHAR}, #{userLogin, jdbcType=VARCHAR},#{description, jdbcType=VARCHAR},
+    #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="deleteByMetricIds">
+    delete from manual_measures
+    where metric_id in
+    <foreach collection="metricIds" item="metricId" open="(" close=")" separator=",">
+      #{metricId}
+    </foreach>
+  </delete>
+</mapper>

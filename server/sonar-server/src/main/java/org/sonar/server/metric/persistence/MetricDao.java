@@ -20,22 +20,23 @@
 
 package org.sonar.server.metric.persistence;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.metric.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.es.SearchOptions;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -75,5 +76,24 @@ public class MetricDao implements DaoComponent {
 
   private MetricMapper mapper(DbSession session) {
     return session.getMapper(MetricMapper.class);
+  }
+
+  public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
+    return DaoUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
+      @Override
+      public List<MetricDto> apply(@Nonnull List<String> input) {
+        return mapper(session).selectByKeys(input);
+      }
+    });
+  }
+
+  public void disable(final DbSession session, List<Integer> ids) {
+    DaoUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
+      @Override
+      public Void apply(@Nonnull List<Integer> input) {
+        mapper(session).disable(input);
+        return null;
+      }
+    });
   }
 }

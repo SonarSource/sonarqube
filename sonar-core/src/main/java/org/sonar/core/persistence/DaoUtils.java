@@ -116,6 +116,24 @@ public final class DaoUtils {
     return results;
   }
 
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   * The function has not output (ex: delete operation)
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <INPUT> void executeLargeInputsWithoutOutput(Collection<INPUT> input, Function<List<INPUT>, Void> function) {
+    if (input.isEmpty()) {
+      return;
+    }
+
+    List<List<INPUT>> partitions = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<INPUT> partition : partitions) {
+      function.apply(partition);
+    }
+  }
+
   public static String repeatCondition(String sql, int count, String separator) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < count; i++) {

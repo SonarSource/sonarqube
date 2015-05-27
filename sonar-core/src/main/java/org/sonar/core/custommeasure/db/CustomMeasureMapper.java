@@ -18,26 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.metric.db;
+package org.sonar.core.custommeasure.db;
 
 import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 
-public interface MetricMapper {
+public interface CustomMeasureMapper {
+  void insert(CustomMeasureDto customMeasureDto);
 
-  MetricDto selectByKey(@Param("key") String key);
+  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
 
-  List<MetricDto> selectAllEnabled();
-
-  List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
-
-  void insert(MetricDto dto);
-
-  List<String> selectDomains();
-
-  List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
-
-  void disable(@Param("ids") List<Integer> ids);
+  CustomMeasureDto selectById(long id);
 }

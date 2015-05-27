@@ -53,6 +53,8 @@ import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.config.Logback;
+import org.sonar.core.custommeasure.db.CustomMeasureDto;
+import org.sonar.core.custommeasure.db.CustomMeasureMapper;
 import org.sonar.core.dashboard.ActiveDashboardDto;
 import org.sonar.core.dashboard.ActiveDashboardMapper;
 import org.sonar.core.dashboard.DashboardDto;
@@ -238,6 +240,7 @@ public class MyBatis {
     loadAlias(conf, "FilePathWithHash", FilePathWithHashDto.class);
     loadAlias(conf, "UuidWithProjectUuid", UuidWithProjectUuidDto.class);
     loadAlias(conf, "Event", EventDto.class);
+    loadAlias(conf, "CustomMeasure", CustomMeasureDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -256,7 +259,7 @@ public class MyBatis {
       ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
+      MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
       AnalysisReportMapper.class, ComponentIndexMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class

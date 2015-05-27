@@ -49,9 +49,11 @@
     ORDER BY UPPER(m.short_name)
   </select>
 
-  <insert id="insert" parameterType="org.sonar.core.metric.db.MetricDto" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+  <insert id="insert" parameterType="org.sonar.core.metric.db.MetricDto" useGeneratedKeys="true" keyColumn="id"
+          keyProperty="id">
     INSERT INTO metrics (
-      name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, origin, worst_value, best_value, optimized_best_value, hidden, delete_historical_data)
+    name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, origin, worst_value,
+    best_value, optimized_best_value, hidden, delete_historical_data)
     VALUES (
     #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
@@ -65,6 +67,30 @@
     select distinct domain
     from metrics m
     where m.domain is not null
+  </select>
+
+  <update id="disable">
+    update metrics
+    set enabled=${_false}
+    <where>
+      AND user_managed=${_true}
+      AND id in
+      <foreach item="id" collection="ids" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </update>
+
+  <select id="selectByKeys" resultType="org.sonar.core.metric.db.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.name in
+      <foreach item="key" collection="keys" open="(" separator="," close=")">
+        #{key}
+      </foreach>
+    </where>
   </select>
 
 </mapper>

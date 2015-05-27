@@ -39,6 +39,7 @@ import org.sonar.server.component.db.ComponentIndexDao;
 import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.server.custommeasure.persistence.CustomMeasureDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
@@ -146,6 +147,7 @@ public class PlatformLevel1 extends PlatformLevel {
       MeasureDao.class,
       MetricDao.class,
       MeasureFilterDao.class,
+      CustomMeasureDao.class,
 
       // components
       ComponentDao.class,

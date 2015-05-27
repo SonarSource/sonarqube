@@ -18,26 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.metric.db;
+package org.sonar.server.custommeasure.persistence;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.api.utils.System2;
+import org.sonar.core.custommeasure.db.CustomMeasureDto;
 
-public interface MetricMapper {
+public class CustomMeasureTesting {
+  private CustomMeasureTesting() {
+    // static stuff only
+  }
 
-  MetricDto selectByKey(@Param("key") String key);
-
-  List<MetricDto> selectAllEnabled();
-
-  List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);
-
-  void insert(MetricDto dto);
-
-  List<String> selectDomains();
-
-  List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
-
-  void disable(@Param("ids") List<Integer> ids);
+  public static CustomMeasureDto newDto() {
+    return new CustomMeasureDto()
+      .setDescription(RandomStringUtils.random(255))
+      .setTextValue(RandomStringUtils.random(255))
+      .setUserLogin(RandomStringUtils.random(255))
+      .setValue(RandomUtils.nextDouble())
+      .setMetricId(RandomUtils.nextInt())
+      .setResourceId(RandomUtils.nextInt())
+      .setCreatedAt(System2.INSTANCE.now())
+      .setUpdatedAt(System2.INSTANCE.now())
+      ;
+  }
 }
