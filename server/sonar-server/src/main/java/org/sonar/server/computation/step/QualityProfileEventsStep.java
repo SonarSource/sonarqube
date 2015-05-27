@@ -32,6 +32,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.event.Event;
+import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
@@ -43,6 +44,11 @@ import java.util.Map;
 import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
 
 public class QualityProfileEventsStep implements ComputationStep {
+  private final MeasureRepository measureRepository;
+
+  public QualityProfileEventsStep(MeasureRepository measureRepository) {
+    this.measureRepository = measureRepository;
+  }
 
   @Override
   public void execute(ComputationContext context) {
@@ -55,7 +61,7 @@ public class QualityProfileEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component projectComponent) {
-    Optional<MeasureDto> previousMeasure = projectComponent.getMeasureRepository().findPrevious(CoreMetrics.QUALITY_PROFILES);
+    Optional<MeasureDto> previousMeasure = measureRepository.findPrevious(projectComponent, CoreMetrics.QUALITY_PROFILES);
     if (!previousMeasure.isPresent()) {
       // first analysis -> do not generate events
       return;
@@ -63,7 +69,7 @@ public class QualityProfileEventsStep implements ComputationStep {
 
     // Load current profiles
     Map<String, QualityProfile> previousProfiles = QPMeasureData.fromJson(previousMeasure.get().getData()).getProfilesByKey();
-    Optional<BatchReport.Measure> currentMeasure = projectComponent.getMeasureRepository().findCurrent(CoreMetrics.QUALITY_PROFILES);
+    Optional<BatchReport.Measure> currentMeasure = measureRepository.findCurrent(projectComponent, CoreMetrics.QUALITY_PROFILES);
     if (!currentMeasure.isPresent()) {
       throw new IllegalStateException("Missing measure " + CoreMetrics.QUALITY_PROFILES + " for component " + projectComponent.getRef());
     }

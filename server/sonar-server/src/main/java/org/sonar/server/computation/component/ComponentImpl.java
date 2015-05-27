@@ -19,26 +19,16 @@
  */
 package org.sonar.server.computation.component;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.Metric;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.computation.measure.MeasureRepository;
-import org.sonar.server.db.DbClient;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -50,18 +40,15 @@ public class ComponentImpl implements Component {
   private final Type type;
   private final BatchReport.Component component;
   private final List<Component> children;
-  private final BatchReportReader reportReader;
   private final EventRepository eventRepository = new SetEventRepository();
 
   // Mutable values
   private String key;
   private String uuid;
 
-  public ComponentImpl(ComputationContext context, BatchReport.Component component,
-    BatchReportReader reportReader, @Nullable Iterable<Component> children) {
+  public ComponentImpl(ComputationContext context, BatchReport.Component component, @Nullable Iterable<Component> children) {
     this.context = context;
     this.component = component;
-    this.reportReader = reportReader;
     this.type = convertType(component.getType());
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
@@ -130,36 +117,6 @@ public class ComponentImpl implements Component {
     return eventRepository;
   }
 
-  @Override
-  public MeasureRepository getMeasureRepository() {
-    return new MeasureRepository() {
-      @Override
-      public Optional<MeasureDto> findPrevious(Metric<?> metric) {
-        DbClient dbClient = context.getDbClient();
-        try (DbSession dbSession = dbClient.openSession(false)) {
-          return Optional.fromNullable(
-            // TODO replace component.getKey() by ${link #getKey} as component.getKey() is only for project/module and does not take into
-            // account usage of the branch
-            dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey())
-            );
-        }
-      }
-
-      @Override
-      public Optional<BatchReport.Measure> findCurrent(final Metric<?> metric) {
-        return Optional.fromNullable(Iterables.find(
-          reportReader.readComponentMeasures(component.getRef()),
-          new Predicate<BatchReport.Measure>() {
-            @Override
-            public boolean apply(@Nonnull BatchReport.Measure input) {
-              return input.getMetricKey().equals(metric.getKey());
-            }
-          }
-          ));
-      }
-    };
-  }
-
   private static class SetEventRepository implements EventRepository {
     private final Set<Event> events = new HashSet<>();
 
@@ -173,4 +130,5 @@ public class ComponentImpl implements Component {
       return events;
     }
   }
+
 }

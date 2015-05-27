@@ -20,16 +20,13 @@
 package org.sonar.server.computation.component;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.server.computation.context.ComputationContext;
-import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.computation.measure.MeasureRepository;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.server.computation.context.ComputationContext;
+import org.sonar.server.computation.event.EventRepository;
 
 public class DumbComponent implements Component {
   public static final Component DUMB_PROJECT = new DumbComponent(Type.PROJECT, 1, "PROJECT_KEY", "PROJECT_UUID");
@@ -95,8 +92,4 @@ public class DumbComponent implements Component {
     throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
   }
 
-  @Override
-  public MeasureRepository getMeasureRepository() {
-    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
-  }
 }
