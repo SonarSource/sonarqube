@@ -1,0 +1,8 @@
+{
+  "id": 19,
+  "metric": "complexity",
+  "op": "GT",
+  "warning": "1",
+  "error": "2",
+  "period": 1
+}

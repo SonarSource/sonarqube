@@ -39,6 +39,7 @@ define [
 
 
   App.openFirstQualityGate = ->
+    App.layout.headerRegion.reset()
     App.layout.detailsRegion.reset()
 
 

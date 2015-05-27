@@ -1,8 +1,16 @@
 {
   "qualitygates": [
     {
+      "id": 5,
+      "name": "Another Gate"
+    },
+    {
+      "id": 4,
+      "name": "Simple Gate"
+    },
+    {
       "id": 1,
-      "name": "Default Gate"
+      "name": "SonarQube way"
     }
   ],
   "default": 1
