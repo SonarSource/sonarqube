@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 
 /**
@@ -30,15 +31,17 @@ import org.sonar.server.computation.component.DbComponentsRefCache;
 public class IndexComponentsStep implements ComputationStep {
   private final ResourceIndexerDao resourceIndexerDao;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbComponentsRefCache dbComponentsRefCache) {
+  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.resourceIndexerDao = resourceIndexerDao;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    resourceIndexerDao.indexProject(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getId());
+    resourceIndexerDao.indexProject(dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getId());
   }
 
   @Override

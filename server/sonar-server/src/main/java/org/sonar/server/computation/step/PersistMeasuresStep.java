@@ -66,7 +66,7 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    int rootComponentRef = context.getReportMetadata().getRootComponentRef();
+    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     try (DbSession dbSession = dbClient.openSession(true)) {
       recursivelyProcessComponent(dbSession, context, rootComponentRef);
       dbSession.commit();

@@ -71,7 +71,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   protected ComputationStep step() {
     TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
     testIndexer.setEnabled(true);
-    return new IndexTestsStep(testIndexer, dbComponentsRefCache);
+    return new IndexTestsStep(testIndexer, dbComponentsRefCache, reportReader);
   }
 
   @Test

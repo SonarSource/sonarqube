@@ -52,8 +52,9 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      String branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
-      BatchReport.Component project = reportReader.readComponent(context.getReportMetadata().getRootComponentRef());
+      BatchReport.Metadata metadata = reportReader.readMetadata();
+      String branch = metadata.hasBranch() ? metadata.getBranch() : null;
+      BatchReport.Component project = reportReader.readComponent(metadata.getRootComponentRef());
       String projectKey = ComponentKeys.createKey(project.getKey(), branch);
 
       Map<String, String> componentUuidsByKey = new HashMap<>();

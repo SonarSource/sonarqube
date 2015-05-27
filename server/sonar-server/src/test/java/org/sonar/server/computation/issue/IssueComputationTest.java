@@ -224,6 +224,6 @@ public class IssueComputationTest {
   }
 
   private void process() {
-    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1, PROJECT_KEY, "PROJECT_UUID");
+    sut.processComponentIssues(Arrays.asList(inputIssue.build()), "FILE_A", 1, PROJECT_KEY, "PROJECT_UUID");
   }
 }

@@ -78,7 +78,7 @@ public class PersistTestsStep implements ComputationStep {
       visitor.visit(context.getRoot());
       session.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
-        String projectKey = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getKey();
+        String projectKey = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getKey();
         LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", projectKey);
       }
     } finally {

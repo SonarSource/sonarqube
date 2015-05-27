@@ -20,7 +20,6 @@
 package org.sonar.server.computation;
 
 import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilder;
@@ -28,28 +27,15 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 
 public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
-  private final BatchReportReader reportReader;
   private final DbClient dbClient;
-  // cache of metadata as it's frequently accessed
-  private final BatchReport.Metadata reportMetadata;
   private final Component component;
   private final LanguageRepository languageRepository;
 
   public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
     ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
-    this.reportReader = reportReader;
     this.dbClient = dbClient;
-    this.reportMetadata = reportReader.readMetadata();
     this.component = componentTreeBuilder.build(this);
     this.languageRepository = languageRepository;
-  }
-
-  public BatchReport.Metadata getReportMetadata() {
-    return reportMetadata;
-  }
-
-  public BatchReportReader getReportReader() {
-    return reportReader;
   }
 
   @Override

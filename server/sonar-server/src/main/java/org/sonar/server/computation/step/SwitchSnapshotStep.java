@@ -25,6 +25,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.db.DbClient;
 
 import java.util.List;
@@ -32,16 +33,18 @@ import java.util.List;
 public class SwitchSnapshotStep implements ComputationStep {
 
   private final DbClient dbClient;
+  private final BatchReportReader reportReader;
 
-  public SwitchSnapshotStep(DbClient dbClient) {
+  public SwitchSnapshotStep(DbClient dbClient, BatchReportReader reportReader) {
     this.dbClient = dbClient;
+    this.reportReader = reportReader;
   }
 
   @Override
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(true);
     try {
-      long snapshotId = context.getReportMetadata().getSnapshotId();
+      long snapshotId = reportReader.readMetadata().getSnapshotId();
       disablePreviousSnapshot(session, snapshotId);
       enableCurrentSnapshot(session, snapshotId);
     } finally {

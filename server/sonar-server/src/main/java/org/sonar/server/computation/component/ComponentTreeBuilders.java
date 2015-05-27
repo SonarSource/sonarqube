@@ -64,7 +64,7 @@ public final class ComponentTreeBuilders {
     }
 
     private Component buildComponentRoot(ComputationContext computationContext, BatchReportReader reportReader) {
-      int rootComponentRef = computationContext.getReportMetadata().getRootComponentRef();
+      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
       BatchReport.Component component = reportReader.readComponent(rootComponentRef);
       return new ComponentImpl(computationContext, component, reportReader, buildComponent(computationContext, rootComponentRef));
     }

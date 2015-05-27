@@ -68,16 +68,16 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    DbComponent project = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef());
+    DbComponent project = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef());
     if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
-      doExecute(context, project);
+      doExecute(project);
     }
   }
 
-  private void doExecute(ComputationContext context, DbComponent project) {
+  private void doExecute(DbComponent project) {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
-    String projectName = reportReader.readComponent(context.getReportMetadata().getRootComponentRef()).getName();
+    String projectName = reportReader.readComponent(reportReader.readMetadata().getRootComponentRef()).getName();
     try {
       while (issues.hasNext()) {
         DefaultIssue issue = issues.next();
@@ -95,16 +95,17 @@ public class SendIssueNotificationsStep implements ComputationStep {
     } finally {
       issues.close();
     }
-    sendNewIssuesStatistics(context, newIssuesStats, project, projectName);
+    sendNewIssuesStatistics(newIssuesStats, project, projectName);
   }
 
-  private void sendNewIssuesStatistics(ComputationContext context, NewIssuesStatistics statistics, DbComponent project, String projectName) {
+  private void sendNewIssuesStatistics(NewIssuesStatistics statistics, DbComponent project, String projectName) {
     if (statistics.hasIssues()) {
       NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
+      long analysisDate = reportReader.readMetadata().getAnalysisDate();
       NewIssuesNotification notification = newIssuesNotificationFactory
         .newNewIssuesNotication()
         .setProject(project.getKey(), project.getUuid(), projectName)
-        .setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()))
+        .setAnalysisDate(new Date(analysisDate))
         .setStatistics(projectName, globalStatistics)
         .setDebt(globalStatistics.debt());
       service.deliver(notification);
@@ -118,7 +119,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .setAssignee(assignee);
         myNewIssuesNotification
           .setProject(project.getKey(), project.getUuid(), projectName)
-          .setAnalysisDate(new Date(context.getReportMetadata().getAnalysisDate()))
+          .setAnalysisDate(new Date(analysisDate))
           .setStatistics(projectName, assigneeStatistics)
           .setDebt(assigneeStatistics.debt());
 

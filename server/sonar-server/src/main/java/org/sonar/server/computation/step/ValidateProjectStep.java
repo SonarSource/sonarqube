@@ -57,10 +57,12 @@ public class ValidateProjectStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final Settings settings;
+  private final BatchReportReader reportReader;
 
-  public ValidateProjectStep(DbClient dbClient, Settings settings) {
+  public ValidateProjectStep(DbClient dbClient, Settings settings, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.settings = settings;
+    this.reportReader = reportReader;
   }
 
   @Override
@@ -74,8 +76,7 @@ public class ValidateProjectStep implements ComputationStep {
           return input.key();
         }
       });
-      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), context.getReportMetadata(),
-        context.getReportReader(), settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
+      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
       visitor.visit(context.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
@@ -91,24 +92,19 @@ public class ValidateProjectStep implements ComputationStep {
     return "Validate project and modules keys";
   }
 
-  private static class ValidateProjectsVisitor extends DepthTraversalTypeAwareVisitor {
+  private class ValidateProjectsVisitor extends DepthTraversalTypeAwareVisitor {
     private final DbSession session;
     private final ComponentDao componentDao;
-    private final BatchReport.Metadata reportMetadata;
-    private final BatchReportReader batchReportReader;
     private final boolean preventAutomaticProjectCreation;
     private final Map<String, ComponentDto> modulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
     private Component root;
 
-    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, BatchReport.Metadata reportMetadata, BatchReportReader batchReportReader,
-      boolean preventAutomaticProjectCreation, Map<String, ComponentDto> modulesByKey) {
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> modulesByKey) {
       super(Component.Type.MODULE, Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
-      this.reportMetadata = reportMetadata;
-      this.batchReportReader = batchReportReader;
 
       this.preventAutomaticProjectCreation = preventAutomaticProjectCreation;
       this.modulesByKey = modulesByKey;
@@ -157,7 +153,7 @@ public class ValidateProjectStep implements ComputationStep {
     }
 
     private void validateBatchKey(Component component) {
-      String batchKey = batchReportReader.readComponent(component.getRef()).getKey();
+      String batchKey = reportReader.readComponent(component.getRef()).getKey();
       if (!ComponentKeys.isValidModuleKey(batchKey)) {
         validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
           + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", batchKey));
@@ -166,10 +162,11 @@ public class ValidateProjectStep implements ComputationStep {
 
     @CheckForNull
     private void validateBranch() {
-      if (!reportMetadata.hasBranch()) {
+      BatchReport.Metadata metadata = reportReader.readMetadata();
+      if (!metadata.hasBranch()) {
         return;
       }
-      String branch = reportMetadata.getBranch();
+      String branch = metadata.getBranch();
       if (!ComponentKeys.isValidBranch(branch)) {
         validationMessages.add(String.format("\"%s\" is not a valid branch name. "
           + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));

@@ -65,12 +65,12 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    int rootComponentRef = context.getReportMetadata().getRootComponentRef();
+    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
       final Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
-      String projectUuid = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid();
+      String projectUuid = dbComponentsRefCache.getByRef(rootComponentRef).getUuid();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
         new ResultHandler() {
           @Override

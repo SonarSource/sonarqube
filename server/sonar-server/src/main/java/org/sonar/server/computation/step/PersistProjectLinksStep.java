@@ -70,7 +70,7 @@ public class PersistProjectLinksStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      int rootComponentRef = context.getReportMetadata().getRootComponentRef();
+      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
       recursivelyProcessComponent(session, context, rootComponentRef);
       session.commit();
     } finally {

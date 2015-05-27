@@ -33,7 +33,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
@@ -65,12 +64,12 @@ public class IssueComputation {
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
-  public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef,
+  public void processComponentIssues(Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef,
     String projectKey, String projectUuid) {
     linesCache.init(componentUuid, componentReportRef, reportReader);
     computeDefaultAssignee(projectSettingsRepository.getProjectSettings(projectKey).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
     for (BatchReport.Issue reportIssue : issues) {
-      DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue, projectKey, projectUuid);
+      DefaultIssue issue = toDefaultIssue(componentUuid, reportIssue, projectKey, projectUuid);
       if (issue.isNew()) {
         guessAuthor(issue);
         autoAssign(issue, defaultAssignee);
@@ -81,7 +80,7 @@ public class IssueComputation {
     linesCache.clear();
   }
 
-  private DefaultIssue toDefaultIssue(ComputationContext context, String componentUuid, BatchReport.Issue issue, String projectKey, String projectUuid) {
+  private DefaultIssue toDefaultIssue(String componentUuid, BatchReport.Issue issue, String projectKey, String projectUuid) {
     DefaultIssue target = new DefaultIssue();
     target.setKey(issue.getUuid());
     target.setComponentUuid(componentUuid);
@@ -96,7 +95,7 @@ public class IssueComputation {
     target.setDebt(issue.hasDebtInMinutes() ? Duration.create(issue.getDebtInMinutes()) : null);
     if (issue.hasDiffFields()) {
       FieldDiffs fieldDiffs = FieldDiffs.parse(issue.getDiffFields());
-      fieldDiffs.setCreationDate(new Date(context.getReportMetadata().getAnalysisDate()));
+      fieldDiffs.setCreationDate(new Date(reportReader.readMetadata().getAnalysisDate()));
       target.setCurrentChange(fieldDiffs);
     }
     target.setStatus(issue.getStatus());

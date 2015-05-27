@@ -69,7 +69,7 @@ public class ValidateProjectStepTest {
     dbSession = dbClient.openSession(false);
     settings = new Settings();
 
-    sut = new ValidateProjectStep(dbClient, settings);
+    sut = new ValidateProjectStep(dbClient, settings, reportReader);
   }
 
   @After
@@ -81,10 +81,10 @@ public class ValidateProjectStepTest {
   public void not_fail_if_provisioning_enforced_and_project_exists() throws Exception {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
@@ -101,10 +101,10 @@ public class ValidateProjectStepTest {
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
 
@@ -116,10 +116,10 @@ public class ValidateProjectStepTest {
   public void fail_if_provisioning_not_enforced_and_project_does_not_exists() throws Exception {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
 
@@ -130,13 +130,13 @@ public class ValidateProjectStepTest {
   @Test
   public void not_fail_on_valid_branch() throws Exception {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setBranch("origin/master")
-      .build());
+        .setBranch("origin/master")
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .build());
 
     sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":origin/master")), null));
@@ -149,13 +149,13 @@ public class ValidateProjectStepTest {
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setBranch("bran#ch")
-      .build());
+        .setBranch("bran#ch")
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .build());
 
     sut.execute(new ComputationContext(reportReader, null, null, null,
       ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":bran#ch")), null));
@@ -172,16 +172,16 @@ public class ValidateProjectStepTest {
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(invalidProjectKey)
-      .addChildRef(2)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(invalidProjectKey)
+        .addChildRef(2)
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("Module$Key")
-      .build());
+        .setRef(2)
+        .setType(Constants.ComponentType.MODULE)
+        .setKey("Module$Key")
+        .build());
 
     DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", invalidProjectKey,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "Module$Key"));
@@ -198,16 +198,16 @@ public class ValidateProjectStepTest {
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .addChildRef(2)
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
+        .setRef(2)
+        .setType(Constants.ComponentType.MODULE)
+        .setKey(MODULE_KEY)
+        .build());
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(MODULE_KEY);
     dbClient.componentDao().insert(dbSession, project);
@@ -228,16 +228,16 @@ public class ValidateProjectStepTest {
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .addChildRef(2)
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
+        .setRef(2)
+        .setType(Constants.ComponentType.MODULE)
+        .setKey(MODULE_KEY)
+        .build());
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto anotherProject = ComponentTesting.newProjectDto().setKey(anotherProjectKey);
@@ -263,16 +263,16 @@ public class ValidateProjectStepTest {
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
+        .setRef(1)
+        .setType(Constants.ComponentType.PROJECT)
+        .setKey(PROJECT_KEY)
+        .addChildRef(2)
+        .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
+        .setRef(2)
+        .setType(Constants.ComponentType.MODULE)
+        .setKey(MODULE_KEY)
+        .build());
 
     ComponentDto anotherProject = ComponentTesting.newProjectDto().setKey(anotherProjectKey);
     dbClient.componentDao().insert(dbSession, anotherProject);

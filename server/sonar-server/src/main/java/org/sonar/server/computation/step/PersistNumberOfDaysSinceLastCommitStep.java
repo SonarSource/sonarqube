@@ -69,11 +69,11 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    int rootComponentRef = context.getReportMetadata().getRootComponentRef();
+    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     recursivelyProcessComponent(context, rootComponentRef);
 
     if (!commitFound()) {
-      Long lastCommitFromIndex = lastCommitFromIndex(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid());
+      Long lastCommitFromIndex = lastCommitFromIndex(dbComponentsRefCache.getByRef(rootComponentRef).getUuid());
       lastCommitTimestamp = firstNonNull(lastCommitFromIndex, lastCommitTimestamp);
     }
 
@@ -119,7 +119,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
       dbClient.measureDao().insert(dbSession, new MeasureDto()
         .setValue((double) numberOfDaysSinceLastCommit)
         .setMetricId(metricCache.get(CoreMetrics.DAYS_SINCE_LAST_COMMIT_KEY).getId())
-        .setSnapshotId(context.getReportMetadata().getSnapshotId()));
+        .setSnapshotId(reportReader.readMetadata().getSnapshotId()));
       dbSession.commit();
     } finally {
       MyBatis.closeQuietly(dbSession);
