@@ -20,17 +20,19 @@
 package org.sonar.server.computation.component;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.server.computation.context.ComputationContext;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class DumbComponent implements Component {
-  public static final Component DUMB_PROJECT = new DumbComponent(Type.PROJECT, 1);
+  public static final Component DUMB_PROJECT = new DumbComponent(Type.PROJECT, 1, "PROJECT_KEY", "PROJECT_UUID");
 
   private static final String UNSUPPORTED_OPERATION_ERROR = "This node has no repository nor context";
 
@@ -38,22 +40,36 @@ public class DumbComponent implements Component {
   private final ComputationContext context;
   private final Type type;
   private final int ref;
+  private final String uuid;
+  private final String key;
   private final List<Component> children;
 
-  public DumbComponent(Type type, int ref, @Nullable Component... children) {
-    this(null, type, ref, children);
+  public DumbComponent(Type type, int ref, String uuid, String key, @Nullable Component... children) {
+    this(null, type, ref, uuid, key, children);
   }
 
-  public DumbComponent(@Nullable ComputationContext context, Type type, int ref, @Nullable Component... children) {
+  public DumbComponent(@Nullable ComputationContext context, Type type, int ref, String uuid, String key, @Nullable Component... children) {
     this.context = context;
     this.type = type;
     this.ref = ref;
+    this.uuid = uuid;
+    this.key = key;
     this.children = children == null ? Collections.<Component>emptyList() : ImmutableList.copyOf(Arrays.asList(children));
   }
 
   @Override
   public Type getType() {
     return type;
+  }
+
+  @Override
+  public String getUuid() {
+    return uuid;
+  }
+
+  @Override
+  public String getKey() {
+    return key;
   }
 
   @Override

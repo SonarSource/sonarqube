@@ -19,12 +19,8 @@
  */
 package org.sonar.server.computation;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
@@ -38,6 +34,9 @@ import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.view.index.ViewIndex;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ComputationContainer {
 
@@ -53,8 +52,7 @@ public class ComputationContainer {
       ComputationService.class,
       ComputationSteps.class,
 
-      // component caches
-      ComputeComponentsRefCache.class,
+      // component cache
       DbComponentsRefCache.class,
 
       // issues

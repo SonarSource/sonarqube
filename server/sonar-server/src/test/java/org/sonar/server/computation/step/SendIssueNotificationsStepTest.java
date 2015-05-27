@@ -101,7 +101,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1)), mock(LanguageRepository.class)));
+        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -114,7 +114,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1)), mock(LanguageRepository.class)));
+        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));

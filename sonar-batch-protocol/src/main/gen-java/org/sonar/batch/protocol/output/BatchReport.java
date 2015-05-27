@@ -23,14 +23,26 @@ public final class BatchReport {
 
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     boolean hasProjectKey();
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     java.lang.String getProjectKey();
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     com.google.protobuf.ByteString
         getProjectKeyBytes();
@@ -227,12 +239,20 @@ public final class BatchReport {
     private java.lang.Object projectKey_;
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     public boolean hasProjectKey() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     public java.lang.String getProjectKey() {
       java.lang.Object ref = projectKey_;
@@ -250,6 +270,10 @@ public final class BatchReport {
     }
     /**
      * <code>optional string project_key = 2;</code>
+     *
+     * <pre>
+     * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getProjectKeyBytes() {
@@ -713,12 +737,20 @@ public final class BatchReport {
       private java.lang.Object projectKey_ = "";
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public boolean hasProjectKey() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public java.lang.String getProjectKey() {
         java.lang.Object ref = projectKey_;
@@ -736,6 +768,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getProjectKeyBytes() {
@@ -752,6 +788,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public Builder setProjectKey(
           java.lang.String value) {
@@ -765,6 +805,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public Builder clearProjectKey() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -774,6 +818,10 @@ public final class BatchReport {
       }
       /**
        * <code>optional string project_key = 2;</code>
+       *
+       * <pre>
+       * TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+       * </pre>
        */
       public Builder setProjectKeyBytes(
           com.google.protobuf.ByteString value) {
@@ -2652,6 +2700,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     boolean hasKey();
@@ -2660,6 +2709,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     java.lang.String getKey();
@@ -2668,6 +2718,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     com.google.protobuf.ByteString
@@ -3252,6 +3303,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     public boolean hasKey() {
@@ -3262,6 +3314,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     public java.lang.String getKey() {
@@ -3283,6 +3336,7 @@ public final class BatchReport {
      *
      * <pre>
      * Only available on PROJECT and MODULE types
+     * TODO rename this property -&gt; batchKey ? moduleKey ?
      * </pre>
      */
     public com.google.protobuf.ByteString
@@ -4723,6 +4777,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public boolean hasKey() {
@@ -4733,6 +4788,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public java.lang.String getKey() {
@@ -4754,6 +4810,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public com.google.protobuf.ByteString
@@ -4774,6 +4831,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public Builder setKey(
@@ -4791,6 +4849,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public Builder clearKey() {
@@ -4804,6 +4863,7 @@ public final class BatchReport {
        *
        * <pre>
        * Only available on PROJECT and MODULE types
+       * TODO rename this property -&gt; batchKey ? moduleKey ?
        * </pre>
        */
       public Builder setKeyBytes(

@@ -19,10 +19,11 @@
  */
 package org.sonar.server.computation.component;
 
-import java.util.List;
 import org.sonar.server.computation.context.ComputationContext;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
+
+import java.util.List;
 
 public interface Component {
   enum Type {
@@ -46,6 +47,10 @@ public interface Component {
   ComputationContext getContext();
 
   Type getType();
+
+  String getUuid();
+
+  String getKey();
 
   // FIXME we should not expose a batch specific information
   int getRef();

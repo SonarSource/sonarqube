@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,13 +38,15 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
+
+import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -69,7 +70,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   Settings projectSettings;
   LanguageRepository languageRepository;
-  ComputeComponentsRefCache computeComponentsRefCache;
   DbComponentsRefCache dbComponentsRefCache;
 
   PersistComponentsStep sut;
@@ -82,11 +82,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     reportDir = temp.newFolder();
 
-    computeComponentsRefCache = new ComputeComponentsRefCache();
     projectSettings = new Settings();
     languageRepository = mock(LanguageRepository.class);
     dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistComponentsStep(dbClient, computeComponentsRefCache, dbComponentsRefCache);
+    sut = new PersistComponentsStep(dbClient, dbComponentsRefCache);
   }
 
   @Override
@@ -101,11 +100,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
-    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
-
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -141,8 +135,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setLanguage("java")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
+        new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
+          new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java"))));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -203,10 +201,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_file_directly_attached_on_root_directory() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:/", "CDEF"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:pom.xml", "DEFG"));
-
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -232,8 +226,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":/",
+        new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":pom.xml")));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
     assertThat(directory).isNotNull();
@@ -248,10 +245,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_unit_test() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:src/test/java/dir", "CDEF"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:src/test/java/dir/FooTest.java", "DEFG"));
-
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -278,10 +271,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setIsTest(true)
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":src/test/java/dir",
+        new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":src/test/java/dir/FooTest.java")));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
-    ComponentDto file = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:src/test/java/dir/FooTest.java");
+    ComponentDto file = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY + ":src/test/java/dir/FooTest.java");
     assertThat(file).isNotNull();
     assertThat(file.name()).isEqualTo("FooTest.java");
     assertThat(file.path()).isEqualTo("src/test/java/dir/FooTest.java");
@@ -291,11 +287,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_only_new_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
-    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
-
     // Project amd module already exists
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
@@ -335,8 +326,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
+        new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
+          new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java"))));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -369,12 +364,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void compute_parent_project_id() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY", "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_1_KEY", "CDEF"));
-    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_2_KEY", "DEFG"));
-    computeComponentsRefCache.addComponent(5, new ComputeComponentsRefCache.ComputeComponent("SUB_MODULE_2_KEY:src/main/java/dir", "EFGH"));
-
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -415,8 +404,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
+        new DumbComponent(Component.Type.MODULE, 3, "CDEF", "SUB_MODULE_1_KEY",
+          new DumbComponent(Component.Type.MODULE, 4, "DEFG", "SUB_MODULE_2_KEY",
+            new DumbComponent(Component.Type.DIRECTORY, 5, "EFGH", "SUB_MODULE_2_KEY:src/main/java/dir")))));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -443,11 +437,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void nothing_to_persist() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir", "CDEF"));
-    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY:src/main/java/dir/Foo.java", "DEFG"));
-
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
@@ -467,9 +456,9 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
-        .setName("Project")
-        .addChildRef(2)
-        .build());
+      .setName("Project")
+      .addChildRef(2)
+      .build());
     writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
@@ -489,8 +478,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
+        new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
+          new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java"))));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY).getId()).isEqualTo(project.getId());
@@ -537,9 +530,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_name_and_description() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_KEY", "BCDE"));
-
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
@@ -568,8 +558,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New module description")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY"));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.name()).isEqualTo("New project name");
@@ -582,12 +574,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void update_module_uuid_when_moving_a_module() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "ABCD"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("MODULE_A", "EDCB"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("MODULE_B", "BCDE"));
-    computeComponentsRefCache.addComponent(4, new ComputeComponentsRefCache.ComputeComponent("MODULE_B:src/main/java/dir", "CDEF"));
-    computeComponentsRefCache.addComponent(5, new ComputeComponentsRefCache.ComputeComponent("MODULE_B:src/main/java/dir/Foo.java", "DEFG"));
-
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
     ComponentDto moduleA = ComponentTesting.newModuleDto("EDCB", project).setKey("MODULE_A").setName("Module A");
@@ -638,8 +624,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "EDCB", "MODULE_A",
+        new DumbComponent(Component.Type.MODULE, 3, "BCDE", "MODULE_B",
+          new DumbComponent(Component.Type.DIRECTORY, 4, "CDEF", "MODULE_B:src/main/java/dir",
+            new DumbComponent(Component.Type.FILE, 5, "DEFG", "MODULE_B:src/main/java/dir/Foo.java")))));
     sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings,
-        dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 

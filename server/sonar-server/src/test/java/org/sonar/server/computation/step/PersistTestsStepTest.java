@@ -20,9 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -43,14 +40,19 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -93,6 +95,8 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   PersistTestsStep sut;
 
+  Component root;
+
   @Before
   public void setup() throws Exception {
     db.truncateTables();
@@ -109,12 +113,19 @@ public class PersistTestsStepTest extends BaseStepTest {
     sut = new PersistTestsStep(dbClient, system2, dbComponentsRefCache);
 
     initBasicReport();
+
+    root = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "MODULE", "MODULE_KEY",
+        new DumbComponent(Component.Type.FILE, 3, TEST_FILE_UUID_1, "TEST_FILE1_KEY"),
+        new DumbComponent(Component.Type.FILE, 4, TEST_FILE_UUID_2, "TEST_FILE2_KEY"),
+        new DumbComponent(Component.Type.FILE, 5, MAIN_FILE_UUID_1, "MAIN_FILE1_KEY"),
+        new DumbComponent(Component.Type.FILE, 6, MAIN_FILE_UUID_2, "MAIN_FILE2_KEY")
+      ));
   }
 
   @After
   public void tearDown() {
     MyBatis.closeQuietly(session);
-
   }
 
   @Override
@@ -124,7 +135,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void no_test_in_database_and_batch_report() {
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNull();
     assertThat(log.logs()).isEmpty();
@@ -142,7 +153,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       );
     writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(db.countRowsOfTable("file_sources")).isEqualTo(1);
 
@@ -166,7 +177,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
     writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1)));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getCreatedAt()).isEqualTo(now);
@@ -193,7 +204,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
     writer.writeTests(TEST_FILE_REF_1, batchTests);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
@@ -212,7 +223,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeCoverageDetails(TEST_FILE_REF_1, coverageDetails);
     writer.writeCoverageDetails(TEST_FILE_REF_2, coverageDetails);
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     assertThat(log.logs(LoggerLevel.WARN)).hasSize(1);
     assertThat(log.logs(LoggerLevel.WARN).get(0)).isEqualTo("Some coverage tests are not taken into account during analysis of project 'PROJECT_KEY'");
@@ -230,7 +241,7 @@ public class PersistTestsStepTest extends BaseStepTest {
       newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
       newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
 
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     List<Integer> coveredLines = dto.getTestData().get(0).getCoveredFile(0).getCoveredLineList();
@@ -264,7 +275,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     writer.writeCoverageDetails(TEST_FILE_REF_1, Arrays.asList(newCoverageDetail));
 
     // ACT
-    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    sut.execute(new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(root), languageRepository));
 
     // ASSERT
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);

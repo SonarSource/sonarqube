@@ -41,6 +41,7 @@ option optimize_for = SPEED;
 
 message Metadata {
   optional int64 analysis_date = 1;
+  // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   optional string project_key = 2;
   optional string branch = 6;
   optional int32 root_component_ref = 3;
@@ -76,6 +77,7 @@ message Component {
   // Only available on PROJECT and MODULE types
   optional string version = 9;
   // Only available on PROJECT and MODULE types
+  // TODO rename this property -> batchKey ? moduleKey ?
   optional string key = 10;
   // Only available on FILE type
   optional int32 lines = 11;

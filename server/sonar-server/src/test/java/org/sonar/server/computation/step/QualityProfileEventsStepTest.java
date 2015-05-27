@@ -21,13 +21,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -48,6 +41,15 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.db.DbClient;
+
+import javax.annotation.Nullable;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -298,7 +300,7 @@ public class QualityProfileEventsStepTest {
 
     public EventAndMeasureRepoComponent(@Nullable org.sonar.server.computation.context.ComputationContext context,
       Type type, int ref, @Nullable Component... children) {
-      super(context, type, ref, children);
+      super(context, type, ref, null, null, children);
     }
 
     @Override

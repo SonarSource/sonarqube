@@ -22,12 +22,6 @@ package org.sonar.server.computation.component;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -38,6 +32,14 @@ import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.db.DbClient;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -50,6 +52,10 @@ public class ComponentImpl implements Component {
   private final BatchReport.Component component;
   private final List<Component> children;
   private final EventRepository eventRepository = new SetEventRepository();
+
+  // Mutable values
+  private String key;
+  private String uuid;
 
   public ComponentImpl(ComputationContext context, BatchReport.Component component, @Nullable Iterable<Component> children) {
     this.context = context;
@@ -83,6 +89,27 @@ public class ComponentImpl implements Component {
     return component.getRef();
   }
 
+  public String getUuid() {
+    return uuid;
+  }
+
+  public ComponentImpl setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public String getKey() {
+    if (key == null) {
+      throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", getRef()));
+    }
+    return key;
+  }
+
+  public ComponentImpl setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
   @Override
   public List<Component> getChildren() {
     return children;
@@ -106,6 +133,7 @@ public class ComponentImpl implements Component {
         DbClient dbClient = context.getDbClient();
         try (DbSession dbSession = dbClient.openSession(false)) {
           return Optional.fromNullable(
+            // TODO replace component.getKey() by ${link #getKey} as component.getKey() is only for project/module and does not take into account usage of the branch
             dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey())
             );
         }

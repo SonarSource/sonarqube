@@ -30,18 +30,18 @@ import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.component.ComputeComponentsRefCache;
 import org.sonar.server.computation.issue.IssueComputation;
+import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.db.DbClient;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -62,20 +62,19 @@ public class ParseReportStepTest extends BaseStepTest {
   public static DbTester dbTester = new DbTester();
 
   IssueComputation issueComputation = mock(IssueComputation.class);
-  ComputeComponentsRefCache computeComponentsRefCache = new ComputeComponentsRefCache();
 
-  ParseReportStep sut = new ParseReportStep(issueComputation, computeComponentsRefCache);
+  ParseReportStep sut = new ParseReportStep(issueComputation);
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
-    computeComponentsRefCache.addComponent(1, new ComputeComponentsRefCache.ComputeComponent(PROJECT_KEY, "PROJECT_UUID"));
-    computeComponentsRefCache.addComponent(2, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:file1", "FILE1_UUID"));
-    computeComponentsRefCache.addComponent(3, new ComputeComponentsRefCache.ComputeComponent("PROJECT_KEY:file2", "FILE2_UUID"));
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "PROJECT_UUID", PROJECT_KEY,
+      new DumbComponent(Component.Type.FILE, 2, "FILE1_UUID", "PROJECT_KEY:file1"),
+      new DumbComponent(Component.Type.FILE, 3, "FILE2_UUID", "PROJECT_KEY:file2"));
 
     File reportDir = generateReport();
 
     ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(),
-        mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
+        mock(DbClient.class), ComponentTreeBuilders.from(root), mock(LanguageRepository.class));
     sut.execute(context);
 
     assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
@@ -95,8 +94,6 @@ public class ParseReportStepTest extends BaseStepTest {
     BatchReportWriter writer = new BatchReportWriter(dir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .setAnalysisDate(150000000L)
       .setDeletedComponentsCount(1)
       .build());
 

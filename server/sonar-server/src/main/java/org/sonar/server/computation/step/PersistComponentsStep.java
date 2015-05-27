@@ -20,37 +20,32 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.component.ComputeComponentsRefCache;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.db.DbClient;
 
-import javax.annotation.Nullable;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PersistComponentsStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final ComputeComponentsRefCache computeComponentsRefCache;
   private final DbComponentsRefCache dbComponentsRefCache;
 
-  public PersistComponentsStep(DbClient dbClient, ComputeComponentsRefCache computeComponentsRefCache, DbComponentsRefCache dbComponentsRefCache) {
+  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache) {
     this.dbClient = dbClient;
-    this.computeComponentsRefCache = computeComponentsRefCache;
     this.dbComponentsRefCache = dbComponentsRefCache;
   }
 
@@ -58,187 +53,174 @@ public class PersistComponentsStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, context.getProjectKey());
-      Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
-      int rootComponentRef = context.getReportMetadata().getRootComponentRef();
-      ComponentContext componentContext = new ComponentContext(context, session, componentDtosByKey);
-      recursivelyProcessComponent(componentContext, rootComponentRef, null, null);
+      new ComponentDepthTraversalTypeAwareVisitor(session, context).visit(context.getRoot());
       session.commit();
     } finally {
       session.close();
     }
   }
 
-  private void recursivelyProcessComponent(ComponentContext componentContext, int componentRef, @Nullable ComponentDto parentModule, @Nullable ComponentDto project) {
-    BatchReportReader reportReader = componentContext.context.getReportReader();
-    BatchReport.Component reportComponent = reportReader.readComponent(componentRef);
-    ComponentDto componentDto = processComponent(componentContext, reportComponent, parentModule, project);
-    dbComponentsRefCache.addComponent(componentRef, new DbComponentsRefCache.DbComponent(componentDto.getId(), componentDto.getKey(), componentDto.uuid()));
+  private class ComponentDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
 
-    for (Integer childRef : reportComponent.getChildRefList()) {
-      // If current component is not a module or a project, we need to keep the parent reference to the nearest module
-      ComponentDto nextParent = !reportComponent.getType().equals(Constants.ComponentType.PROJECT) && !reportComponent.getType().equals(Constants.ComponentType.MODULE) ?
-        parentModule : componentDto;
-      // Keep reference to the project
-      ComponentDto nextProject = reportComponent.getType().equals(Constants.ComponentType.PROJECT) ? componentDto : project;
-      recursivelyProcessComponent(componentContext, childRef, nextParent, nextProject);
+    private final DbSession session;
+    private final BatchReportReader reportReader;
+    private final Map<String, ComponentDto> componentDtosByKey;
+
+    private Long projectId;
+    private ComponentDto lastModule;
+
+    public ComponentDepthTraversalTypeAwareVisitor(DbSession session, ComputationContext context) {
+      super(Component.Type.FILE, Order.PRE_ORDER);
+      this.session = session;
+      this.reportReader = context.getReportReader();
+      this.componentDtosByKey = new HashMap<>();
     }
-  }
 
-  private ComponentDto processComponent(ComponentContext componentContext, BatchReport.Component reportComponent, @Nullable ComponentDto parentModule,
-                                        @Nullable ComponentDto project) {
-    ComputeComponentsRefCache.ComputeComponent cacheComputeComponent = computeComponentsRefCache.getByRef(reportComponent.getRef());
-    String componentKey = cacheComputeComponent.getKey();
-    String componentUuid = cacheComputeComponent.getUuid();
-    ComponentDto existingComponent = componentContext.componentDtosByKey.get(componentKey);
-    if (existingComponent == null) {
-      ComponentDto component = createComponent(reportComponent, componentKey, componentUuid, parentModule, project);
-      dbClient.componentDao().insert(componentContext.dbSession, component);
-      return component;
-    } else {
-      ComponentDto component = createComponent(reportComponent, componentKey, existingComponent.uuid(), parentModule, project);
-      if (updateComponent(existingComponent, component)) {
-        dbClient.componentDao().update(componentContext.dbSession, existingComponent);
+    @Override
+    public void visitProject(Component project) {
+      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, project.getKey());
+      for (ComponentDto componentDto : components) {
+        componentDtosByKey.put(componentDto.getKey(), componentDto);
       }
-      return existingComponent;
-    }
-  }
 
-  private ComponentDto createComponent(BatchReport.Component reportComponent, String componentKey, String uuid, @Nullable ComponentDto parentModule,
-                                       @Nullable ComponentDto project) {
-    ComponentDto component = new ComponentDto();
-    component.setUuid(uuid);
-    component.setKey(componentKey);
-    component.setDeprecatedKey(componentKey);
-    component.setEnabled(true);
-    component.setScope(getScope(reportComponent));
-    component.setQualifier(getQualifier(reportComponent));
-    component.setName(getFileName(reportComponent));
+      BatchReport.Component reportComponent = reportReader.readComponent(project.getRef());
+      ComponentDto componentDto = createComponentDto(reportComponent, project);
 
-    if (isProjectOrModule(reportComponent)) {
-      component.setLongName(component.name());
+      componentDto.setScope(Scopes.PROJECT);
+      componentDto.setQualifier(Qualifiers.PROJECT);
+      componentDto.setName(reportComponent.getName());
+      componentDto.setLongName(componentDto.name());
       if (reportComponent.hasDescription()) {
-        component.setDescription(reportComponent.getDescription());
+        componentDto.setDescription(reportComponent.getDescription());
       }
-    } else {
-      component.setLongName(reportComponent.getPath());
+      componentDto.setProjectUuid(componentDto.uuid());
+      componentDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
+
+      persistComponent(project.getRef(), componentDto);
+
+      lastModule = componentDto;
+      projectId = componentDto.getId();
+    }
+
+    @Override
+    public void visitModule(Component module) {
+      BatchReport.Component reportComponent = reportReader.readComponent(module.getRef());
+      ComponentDto componentDto = createComponentDto(reportComponent, module);
+
+      componentDto.setScope(Scopes.PROJECT);
+      componentDto.setQualifier(Qualifiers.MODULE);
+      componentDto.setName(reportComponent.getName());
+      componentDto.setLongName(componentDto.name());
+      if (reportComponent.hasDescription()) {
+        componentDto.setDescription(reportComponent.getDescription());
+      }
+      componentDto.setParentProjectId(projectId);
+      componentDto.setProjectUuid(lastModule.projectUuid());
+      componentDto.setModuleUuid(lastModule.uuid());
+      componentDto.setModuleUuidPath((lastModule.moduleUuidPath() + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP));
+
+      persistComponent(module.getRef(), componentDto);
+
+      lastModule = componentDto;
+    }
+
+    @Override
+    public void visitDirectory(Component directory) {
+      BatchReport.Component reportComponent = reportReader.readComponent(directory.getRef());
+      ComponentDto componentDto = createComponentDto(reportComponent, directory);
+
+      componentDto.setScope(Scopes.DIRECTORY);
+      componentDto.setQualifier(Qualifiers.DIRECTORY);
+      componentDto.setName(reportComponent.getPath());
+      componentDto.setLongName(reportComponent.getPath());
       if (reportComponent.hasPath()) {
-        component.setPath(reportComponent.getPath());
+        componentDto.setPath(reportComponent.getPath());
+      }
+
+      componentDto.setParentProjectId(lastModule.getId());
+      componentDto.setProjectUuid(lastModule.projectUuid());
+      componentDto.setModuleUuid(lastModule.uuid());
+      componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
+
+      persistComponent(directory.getRef(), componentDto);
+    }
+
+    @Override
+    public void visitFile(Component file) {
+      BatchReport.Component reportComponent = reportReader.readComponent(file.getRef());
+      ComponentDto componentDto = createComponentDto(reportComponent, file);
+
+      componentDto.setScope(Scopes.FILE);
+      componentDto.setQualifier(getFileQualifier(reportComponent));
+      componentDto.setName(FilenameUtils.getName(reportComponent.getPath()));
+      componentDto.setLongName(reportComponent.getPath());
+      if (reportComponent.hasPath()) {
+        componentDto.setPath(reportComponent.getPath());
       }
       if (reportComponent.hasLanguage()) {
-        component.setLanguage(reportComponent.getLanguage());
+        componentDto.setLanguage(reportComponent.getLanguage());
       }
-    }
-    if (parentModule != null && project != null) {
-      component.setParentProjectId(component.scope().equals(Scopes.PROJECT) ? project.getId() : parentModule.getId());
-      component.setProjectUuid(parentModule.projectUuid());
-      component.setModuleUuid(parentModule.uuid());
-      component.setModuleUuidPath(reportComponent.getType().equals(Constants.ComponentType.MODULE) ?
-        (parentModule.moduleUuidPath() + component.uuid() + ComponentDto.MODULE_UUID_PATH_SEP) :
-        parentModule.moduleUuidPath());
-    } else {
-      component.setProjectUuid(uuid);
-      component.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + component.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
-    }
-    return component;
-  }
 
-  private boolean updateComponent(ComponentDto existingComponent, ComponentDto newComponent) {
-    boolean isUpdated = false;
-    if (Scopes.PROJECT.equals(existingComponent.scope())) {
-      if (!newComponent.name().equals(existingComponent.name())) {
-        existingComponent.setName(newComponent.name());
+      componentDto.setParentProjectId(lastModule.getId());
+      componentDto.setProjectUuid(lastModule.projectUuid());
+      componentDto.setModuleUuid(lastModule.uuid());
+      componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
+
+      persistComponent(file.getRef(), componentDto);
+    }
+
+    private ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
+      String componentKey = component.getKey();
+      String componentUuid = component.getUuid();
+
+      ComponentDto componentDto = new ComponentDto();
+      componentDto.setUuid(componentUuid);
+      componentDto.setKey(componentKey);
+      componentDto.setDeprecatedKey(componentKey);
+      componentDto.setEnabled(true);
+      return componentDto;
+    }
+
+    private void persistComponent(int componentRef, ComponentDto componentDto) {
+      ComponentDto existingComponent = componentDtosByKey.get(componentDto.getKey());
+      if (existingComponent == null) {
+        dbClient.componentDao().insert(session, componentDto);
+      } else {
+        componentDto.setId(existingComponent.getId());
+        componentDto.setParentProjectId(existingComponent.parentProjectId());
+        if (updateComponent(existingComponent, componentDto)) {
+          dbClient.componentDao().update(session, componentDto);
+        }
+      }
+      dbComponentsRefCache.addComponent(componentRef, new DbComponentsRefCache.DbComponent(componentDto.getId(), componentDto.getKey(), componentDto.uuid()));
+    }
+
+    private boolean updateComponent(ComponentDto existingComponent, ComponentDto newComponent) {
+      boolean isUpdated = false;
+      if (Scopes.PROJECT.equals(existingComponent.scope())) {
+        if (!newComponent.name().equals(existingComponent.name())) {
+          isUpdated = true;
+        }
+        if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {
+          isUpdated = true;
+        }
+      }
+
+      if (!StringUtils.equals(existingComponent.moduleUuid(), newComponent.moduleUuid())) {
         isUpdated = true;
       }
-      if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {
-        existingComponent.setDescription(newComponent.description());
+      if (!existingComponent.moduleUuidPath().equals(newComponent.moduleUuidPath())) {
         isUpdated = true;
       }
-    }
-
-    if (!StringUtils.equals(existingComponent.moduleUuid(), newComponent.moduleUuid())) {
-      existingComponent.setModuleUuid(newComponent.moduleUuid());
-      isUpdated = true;
-    }
-    if (!existingComponent.moduleUuidPath().equals(newComponent.moduleUuidPath())) {
-      existingComponent.setModuleUuidPath(newComponent.moduleUuidPath());
-      isUpdated = true;
-    }
-    if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
-      existingComponent.setParentProjectId(newComponent.parentProjectId());
-      isUpdated = true;
-    }
-
-    return isUpdated;
-  }
-
-  private static boolean isProjectOrModule(BatchReport.Component reportComponent) {
-    return reportComponent.getType().equals(Constants.ComponentType.PROJECT) || reportComponent.getType().equals(Constants.ComponentType.MODULE);
-  }
-
-  private static String getScope(BatchReport.Component reportComponent) {
-    switch (reportComponent.getType()) {
-      case PROJECT:
-      case MODULE:
-        return Scopes.PROJECT;
-      case DIRECTORY:
-        return Scopes.DIRECTORY;
-      case FILE:
-        return Scopes.FILE;
-      default :
-        throw new IllegalArgumentException(String.format("Unknown type '%s'", reportComponent.getType()));
+      if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
+        isUpdated = true;
+      }
+      return isUpdated;
     }
   }
 
-  private static String getQualifier(BatchReport.Component reportComponent) {
-    switch (reportComponent.getType()) {
-      case PROJECT:
-        return Qualifiers.PROJECT;
-      case MODULE:
-        return Qualifiers.MODULE;
-      case DIRECTORY:
-        return Qualifiers.DIRECTORY;
-      case FILE:
-        return getFileQualifier(reportComponent);
-      default :
-        throw new IllegalArgumentException(String.format("Unknown type '%s'", reportComponent.getType()));
-    }
-  }
-
-  private static String getFileQualifier(BatchReport.Component reportComponent){
+  private static String getFileQualifier(BatchReport.Component reportComponent) {
     return !reportComponent.getIsTest() ? Qualifiers.FILE : Qualifiers.UNIT_TEST_FILE;
-  }
-
-  private static String getFileName(BatchReport.Component reportComponent) {
-    String path = reportComponent.getPath();
-    if (reportComponent.getType() == Constants.ComponentType.PROJECT || reportComponent.getType() == Constants.ComponentType.MODULE) {
-      return reportComponent.getName();
-    } else if (reportComponent.getType().equals(Constants.ComponentType.DIRECTORY)) {
-      return path;
-    } else {
-      return FilenameUtils.getName(path);
-    }
-  }
-
-  private Map<String, ComponentDto> componentDtosByKey(List<ComponentDto> components) {
-    return Maps.uniqueIndex(components, new NonNullInputFunction<ComponentDto, String>() {
-      @Override
-      public String doApply(ComponentDto input) {
-        return input.key();
-      }
-    });
-  }
-
-  private static class ComponentContext {
-    private final ComputationContext context;
-    private final Map<String, ComponentDto> componentDtosByKey;
-    private final DbSession dbSession;
-
-    public ComponentContext(ComputationContext context, DbSession dbSession, Map<String, ComponentDto> componentDtosByKey) {
-      this.componentDtosByKey = componentDtosByKey;
-      this.context = context;
-      this.dbSession = dbSession;
-    }
   }
 
   @Override

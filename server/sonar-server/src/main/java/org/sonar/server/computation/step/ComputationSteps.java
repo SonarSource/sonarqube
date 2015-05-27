@@ -20,12 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.sonar.server.computation.ComputationContainer;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Ordered list of steps to be executed
@@ -38,7 +37,7 @@ public class ComputationSteps {
    */
   public static List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
-      FeedComponentsCacheStep.class,
+      FeedComponentUuidsStep.class,
 
       // Read report
       ParseReportStep.class,

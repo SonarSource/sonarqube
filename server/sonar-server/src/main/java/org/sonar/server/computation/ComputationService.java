@@ -21,9 +21,6 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
-import java.io.File;
-import java.io.IOException;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
@@ -91,7 +88,7 @@ public class ComputationService {
       File reportDir = extractReportInDir(item);
       BatchReportReader reader = new BatchReportReader(reportDir);
       Settings projectSettings = projectSettingsFactory.newProjectSettings(projectKey);
-      ComputationContext context = new ComputationContext(reader, projectKey, projectSettings, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
+      ComputationContext context = new ComputationContext(reader, null, projectSettings, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
       for (ComputationStep step : steps.orderedSteps()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
         step.execute(context);

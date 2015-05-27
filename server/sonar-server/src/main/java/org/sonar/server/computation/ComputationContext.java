@@ -31,8 +31,6 @@ public class ComputationContext implements org.sonar.server.computation.context.
   private final BatchReportReader reportReader;
   private final Settings projectSettings;
   private final DbClient dbClient;
-  // Project key (including branch if any)
-  private final String projectKey;
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
   private final Component component;
@@ -41,7 +39,6 @@ public class ComputationContext implements org.sonar.server.computation.context.
   public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
     ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
     this.reportReader = reportReader;
-    this.projectKey = projectKey;
     this.projectSettings = projectSettings;
     this.dbClient = dbClient;
     this.reportMetadata = reportReader.readMetadata();
@@ -51,10 +48,6 @@ public class ComputationContext implements org.sonar.server.computation.context.
 
   public BatchReport.Metadata getReportMetadata() {
     return reportMetadata;
-  }
-
-  public String getProjectKey() {
-    return projectKey;
   }
 
   public BatchReportReader getReportReader() {
