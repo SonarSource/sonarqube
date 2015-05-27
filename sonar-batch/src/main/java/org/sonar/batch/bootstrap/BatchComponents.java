@@ -23,6 +23,29 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.compute.ApplyProjectRolesDecorator;
+import org.sonar.batch.compute.BranchCoverageDecorator;
+import org.sonar.batch.compute.CommentDensityDecorator;
+import org.sonar.batch.compute.CountFalsePositivesDecorator;
+import org.sonar.batch.compute.CountUnresolvedIssuesDecorator;
+import org.sonar.batch.compute.CoverageDecorator;
+import org.sonar.batch.compute.DirectoriesDecorator;
+import org.sonar.batch.compute.FilesDecorator;
+import org.sonar.batch.compute.ItBranchCoverageDecorator;
+import org.sonar.batch.compute.ItCoverageDecorator;
+import org.sonar.batch.compute.ItLineCoverageDecorator;
+import org.sonar.batch.compute.LineCoverageDecorator;
+import org.sonar.batch.compute.ManualMeasureDecorator;
+import org.sonar.batch.compute.NewCoverageAggregator;
+import org.sonar.batch.compute.NewCoverageFileAnalyzer;
+import org.sonar.batch.compute.NewItCoverageFileAnalyzer;
+import org.sonar.batch.compute.NewOverallCoverageFileAnalyzer;
+import org.sonar.batch.compute.OverallBranchCoverageDecorator;
+import org.sonar.batch.compute.OverallCoverageDecorator;
+import org.sonar.batch.compute.OverallLineCoverageDecorator;
+import org.sonar.batch.compute.TimeMachineConfigurationPersister;
+import org.sonar.batch.compute.UnitTestDecorator;
+import org.sonar.batch.compute.VariationDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -103,8 +126,31 @@ public class BatchComponents {
       IssueHandlers.class,
       InitialOpenIssuesSensor.class,
 
+      // to be moved to compute engine
       QProfileEventsDecorator.class,
-
+      CountUnresolvedIssuesDecorator.class,
+      CountFalsePositivesDecorator.class,
+      UnitTestDecorator.class,
+      LineCoverageDecorator.class,
+      CoverageDecorator.class,
+      BranchCoverageDecorator.class,
+      ItLineCoverageDecorator.class,
+      ItCoverageDecorator.class,
+      ItBranchCoverageDecorator.class,
+      OverallLineCoverageDecorator.class,
+      OverallCoverageDecorator.class,
+      OverallBranchCoverageDecorator.class,
+      ApplyProjectRolesDecorator.class,
+      CommentDensityDecorator.class,
+      DirectoriesDecorator.class,
+      FilesDecorator.class,
+      ManualMeasureDecorator.class,
+      VariationDecorator.class,
+      TimeMachineConfigurationPersister.class,
+      NewCoverageFileAnalyzer.class,
+      NewItCoverageFileAnalyzer.class,
+      NewOverallCoverageFileAnalyzer.class,
+      NewCoverageAggregator.class,
       TimeMachineConfiguration.class
       );
     components.addAll(CorePropertyDefinitions.all());
