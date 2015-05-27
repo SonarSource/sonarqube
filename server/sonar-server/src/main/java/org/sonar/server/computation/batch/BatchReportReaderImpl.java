@@ -38,6 +38,8 @@ import org.sonar.server.util.CloseableIterator;
 
 public class BatchReportReaderImpl implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
+  // caching of metadata which are read often
+  private BatchReport.Metadata metadata;
 
   public BatchReportReaderImpl(ReportExtractor reportExtractor, ReportQueue.Item item) {
     this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(reportExtractor.extractReportInDir(item));
@@ -45,7 +47,10 @@ public class BatchReportReaderImpl implements BatchReportReader {
 
   @Override
   public BatchReport.Metadata readMetadata() {
-    return delegate.readMetadata();
+    if (this.metadata == null) {
+      this.metadata = delegate.readMetadata();
+    }
+    return this.metadata;
   }
 
   @Override
