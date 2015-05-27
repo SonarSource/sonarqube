@@ -22,11 +22,23 @@ package org.sonar.server.rule.ws;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -41,18 +53,13 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.search.ws.SearchRequestHandler;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import org.sonar.server.user.UserSession;
 
 /**
  * @since 4.4
  */
-public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implements RulesWsAction {
+public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.RequestHandler {
+  public static final String ACTION = "search";
 
   public static final String PARAM_REPOSITORIES = "repositories";
   public static final String PARAM_KEY = "rule_key";
@@ -69,22 +76,76 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
-  public static final String SEARCH_ACTION = "search";
+
+  public static final String PARAM_PAGE = "p";
+  public static final String PARAM_PAGE_SIZE = "ps";
+  public static final String PARAM_FIELDS = "f";
+  public static final String PARAM_SORT = "s";
+  public static final String PARAM_ASCENDING = "asc";
+  public static final String PARAM_FACETS = "facets";
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
   private final RuleService ruleService;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
+  private final UserSession userSession;
 
   public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession) {
-    super(SEARCH_ACTION, userSession);
+    this.userSession = userSession;
     this.ruleService = service;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
   }
 
   @Override
+  public void define(WebService.NewController controller) {
+    WebService.NewAction action = controller.createAction(ACTION)
+      .addPagingParams(100)
+      .setHandler(this);
+
+    Collection<String> possibleFacets = possibleFacets();
+    WebService.NewParam paramFacets = action.createParam(PARAM_FACETS)
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setPossibleValues(possibleFacets);
+    if (possibleFacets != null && possibleFacets.size() > 1) {
+      Iterator<String> it = possibleFacets.iterator();
+      paramFacets.setExampleValue(String.format("%s,%s", it.next(), it.next()));
+    }
+
+    Collection<String> possibleFields = possibleFields();
+    WebService.NewParam paramFields = action.createParam(PARAM_FIELDS)
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+      .setPossibleValues(possibleFields);
+    if (possibleFields != null && possibleFields.size() > 1) {
+      Iterator<String> it = possibleFields.iterator();
+      paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
+    }
+
+    this.doDefinition(action);
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    QueryContext context = getQueryContext(request);
+    RuleQuery query = doQuery(request);
+    Result<Rule> result = doSearch(query, context);
+
+    JsonWriter json = response.newJsonWriter().beginObject();
+    writeStatistics(json, result, context);
+    doContextResponse(request, result, json);
+    if (context.isFacet()) {
+      writeFacets(request, context, result, json);
+    }
+    json.endObject().close();
+  }
+
+  protected void writeStatistics(JsonWriter json, Result searchResult, QueryContext context) {
+    json.prop("total", searchResult.getTotal());
+    json.prop(SearchAction.PARAM_PAGE, context.getPage());
+    json.prop(SearchAction.PARAM_PAGE_SIZE, context.getLimit());
+  }
+
   protected void doDefinition(WebService.NewAction action) {
     action.setDescription("Search for a collection of relevant rules matching a specified query")
       .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
@@ -95,10 +156,9 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
     defineRuleSearchParameters(action);
   }
 
-  @Override
   @CheckForNull
   protected Collection<String> possibleFacets() {
-    return Arrays.asList(new String[] {
+    return Arrays.asList(
       RuleIndex.FACET_LANGUAGES,
       RuleIndex.FACET_REPOSITORIES,
       RuleIndex.FACET_TAGS,
@@ -107,7 +167,7 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
       RuleIndex.FACET_ACTIVE_SEVERITIES,
       RuleIndex.FACET_STATUSES,
       RuleIndex.FACET_OLD_DEFAULT
-    });
+      );
   }
 
   /**
@@ -254,10 +314,9 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
     json.endArray();
   }
 
-  @Override
   protected QueryContext getQueryContext(Request request) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
-    QueryContext context = super.getQueryContext(request);
+    QueryContext context = loadCommonContext(request);
     QueryContext searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
       .setLimit(context.getLimit())
       .setOffset(context.getOffset())
@@ -270,12 +329,25 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
     return searchQueryContext;
   }
 
-  @Override
+  private QueryContext loadCommonContext(Request request) {
+    int pageSize = request.mandatoryParamAsInt(SearchAction.PARAM_PAGE_SIZE);
+    QueryContext context = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(SearchAction.PARAM_FIELDS));
+    List<String> facets = request.paramAsStrings(SearchAction.PARAM_FACETS);
+    if (facets != null) {
+      context.addFacets(facets);
+    }
+    if (pageSize < 1) {
+      context.setPage(request.mandatoryParamAsInt(SearchAction.PARAM_PAGE), 0).setMaxLimit();
+    } else {
+      context.setPage(request.mandatoryParamAsInt(SearchAction.PARAM_PAGE), pageSize);
+    }
+    return context;
+  }
+
   protected Result<Rule> doSearch(RuleQuery query, QueryContext context) {
     return ruleService.search(query, context);
   }
 
-  @Override
   protected RuleQuery doQuery(Request request) {
     RuleQuery plainQuery = createRuleQuery(ruleService.newRuleQuery(), request);
 
@@ -290,26 +362,21 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
     return plainQuery;
   }
 
-  @Override
-  protected void doContextResponse(Request request, QueryContext context, Result<Rule> result, JsonWriter json) {
+  protected void doContextResponse(Request request, Result<Rule> result, JsonWriter json) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
-    QueryContext contextForResponse = super.getQueryContext(request);
+    QueryContext contextForResponse = loadCommonContext(request);
     writeRules(result, json, contextForResponse);
     if (contextForResponse.getFieldsToReturn().contains("actives")) {
       activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), json);
     }
   }
 
-  @Override
   protected Collection<String> possibleFields() {
-    Builder<String> builder = ImmutableList.<String>builder();
-    if (mapping != null) {
-      builder.addAll(mapping.supportedFields());
-    }
+    Builder<String> builder = ImmutableList.builder();
+    builder.addAll(mapping.supportedFields());
     return builder.add("actives").build();
   }
 
-  @Override
   protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
     addMandatoryFacetValues(results, RuleIndex.FACET_DEBT_CHARACTERISTICS, request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
     addMandatoryFacetValues(results, RuleIndex.FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
@@ -321,7 +388,25 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
 
     mergeNoneAndEmptyBucketOnCharacteristics(results);
 
-    super.writeFacets(request, context, results, json);
+    json.name("facets").beginArray();
+    for (String facetName : context.facets()) {
+      json.beginObject();
+      json.prop("property", facetName);
+      json.name("values").beginArray();
+      if (results.getFacets().containsKey(facetName)) {
+        Set<String> itemsFromFacets = Sets.newHashSet();
+        for (FacetValue facetValue : results.getFacets().get(facetName)) {
+          itemsFromFacets.add(facetValue.getKey());
+          json.beginObject();
+          json.prop("val", facetValue.getKey());
+          json.prop("count", facetValue.getValue());
+          json.endObject();
+        }
+        addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
+      }
+      json.endArray().endObject();
+    }
+    json.endArray();
   }
 
   protected void mergeNoneAndEmptyBucketOnCharacteristics(Result<?> results) {
@@ -343,6 +428,36 @@ public class SearchAction extends SearchRequestHandler<RuleQuery, Rule> implemen
 
       FacetValue mergedNoneValue = new FacetValue(DebtCharacteristic.NONE, mergedCount);
       characValues.add(mergedNoneValue);
+    }
+  }
+
+  private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+    List<String> requestParams = request.paramAsStrings(facetName);
+    if (requestParams != null) {
+      for (String param : requestParams) {
+        if (!itemsFromFacets.contains(param)) {
+          json.beginObject();
+          json.prop("val", param);
+          json.prop("count", 0);
+          json.endObject();
+        }
+      }
+    }
+  }
+
+  protected void addMandatoryFacetValues(Result<?> results, String facetName, @Nullable List<String> mandatoryValues) {
+    Collection<FacetValue> facetValues = results.getFacetValues(facetName);
+    if (facetValues != null) {
+      Map<String, Long> valuesByItem = Maps.newHashMap();
+      for (FacetValue value : facetValues) {
+        valuesByItem.put(value.getKey(), value.getValue());
+      }
+      List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
+      for (String item : valuesToAdd) {
+        if (!valuesByItem.containsKey(item)) {
+          facetValues.add(new FacetValue(item, 0));
+        }
+      }
     }
   }
 }

@@ -45,7 +45,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.search.ws.SearchRequestHandler;
+import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
@@ -196,10 +196,10 @@ public class IssueQueryService {
         request.paramAsStrings(IssueFilterParameters.FILE_UUIDS),
         request.paramAsStrings(IssueFilterParameters.AUTHORS));
 
-      String sort = request.param(SearchRequestHandler.PARAM_SORT);
+      String sort = request.param(SearchAction.PARAM_SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
-        builder.asc(request.paramAsBoolean(SearchRequestHandler.PARAM_ASCENDING));
+        builder.asc(request.paramAsBoolean(SearchAction.PARAM_ASCENDING));
       }
       return builder.build();
 
