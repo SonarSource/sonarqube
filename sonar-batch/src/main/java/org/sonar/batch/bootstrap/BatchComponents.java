@@ -75,6 +75,7 @@ import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.notification.DefaultNotificationManager;
+import org.sonar.core.resource.DefaultResourceTypes;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -83,6 +84,8 @@ public class BatchComponents {
 
   public static Collection all(DefaultAnalysisMode analysisMode) {
     List components = Lists.newArrayList(
+      DefaultResourceTypes.class,
+
       // Maven
       MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,
 
@@ -104,8 +107,6 @@ public class BatchComponents {
       SourceProvider.class,
       RuleNameProvider.class,
 
-      QualityGateVerifier.class,
-
       // language
       LanguageDistributionDecorator.class,
 
@@ -120,6 +121,7 @@ public class BatchComponents {
 
       // Quality Gate
       GenerateQualityGateEvents.class,
+      QualityGateVerifier.class,
 
       // Issue tracking
       IssueTrackingDecorator.class,

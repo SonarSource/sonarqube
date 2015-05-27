@@ -17,32 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core;
-
-import org.sonar.api.resources.ResourceType;
+package org.sonar.server.metric;
 
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.measures.Metric;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultResourceTypesTest {
-  @Test
-  public void provide_types() {
-    ResourceTypeTree tree = new DefaultResourceTypes().provide();
-
-    assertThat(tree.getTypes()).hasSize(7);
-    assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
-  }
+public class CoreCustomMetricsTest {
 
   @Test
-  public void projects_should_be_available_for_global_widgets() {
-    ResourceTypeTree tree = new DefaultResourceTypes().provide();
-
-    ResourceType projectResourceType = tree.getTypes().get(0);
-
-    assertThat(projectResourceType.getQualifier()).isEqualTo(Qualifiers.PROJECT);
-    assertThat(projectResourceType.getBooleanProperty("supportsGlobalDashboards")).isTrue();
+  public void checkDefinitions() {
+    CoreCustomMetrics coreCustomMetrics = new CoreCustomMetrics();
+    List<Metric> metrics = coreCustomMetrics.getMetrics();
+    assertThat(metrics.size()).isGreaterThan(2);
+    for (Metric metric : metrics) {
+      assertThat(metric.getUserManaged()).isTrue();
+      assertThat(metric.getDomain()).isEqualTo("Management");
+    }
   }
 }

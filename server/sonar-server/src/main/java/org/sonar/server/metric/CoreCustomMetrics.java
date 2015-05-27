@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core;
+package org.sonar.server.metric;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.Metric;
@@ -25,7 +25,7 @@ import org.sonar.api.measures.Metrics;
 
 import java.util.List;
 
-public final class UserManagedMetrics implements Metrics {
+public final class CoreCustomMetrics implements Metrics {
   private static final String DOMAIN = "Management";
 
   @Override

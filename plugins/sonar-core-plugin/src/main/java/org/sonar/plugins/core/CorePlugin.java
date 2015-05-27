@@ -19,14 +19,13 @@
  */
 package org.sonar.plugins.core;
 
-import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.core.notifications.alerts.NewAlerts;
 
 @Properties({
   @Property(
@@ -190,17 +189,7 @@ public final class CorePlugin extends SonarPlugin {
   @SuppressWarnings("rawtypes")
   @Override
   public List getExtensions() {
-    ImmutableList.Builder<Object> extensions = ImmutableList.builder();
-
-    extensions.add(
-      DefaultResourceTypes.class,
-      UserManagedMetrics.class,
-
-      // Notify alerts on my favourite projects
-      NewAlerts.class,
-      NewAlerts.newMetadata());
-
-    return extensions.build();
+    return Collections.emptyList();
   }
 
 }
