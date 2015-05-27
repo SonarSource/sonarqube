@@ -65,6 +65,16 @@ public class GroupMembershipDao implements DaoComponent {
     return mapper(session).countGroups(params);
   }
 
+  public List<UserMembershipDto> selectMembers(SqlSession session, UserMembershipQuery query, int offset, int limit) {
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
+    return mapper(session).selectMembers(params, new RowBounds(offset, limit));
+  }
+
+  public int countMembers(SqlSession session, UserMembershipQuery query) {
+    Map<String, Object> params = ImmutableMap.of("query", query, "groupId", query.groupId());
+    return mapper(session).countMembers(params);
+  }
+
   public Map<String, Integer> countUsersByGroups(final DbSession session, Collection<Long> groupIds) {
     final Map<String, Integer> result = Maps.newHashMap();
     DaoUtils.executeLargeInputs(groupIds, new Function<List<Long>, List<GroupUserCount>>() {

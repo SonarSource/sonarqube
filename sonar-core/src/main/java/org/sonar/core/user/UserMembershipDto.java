@@ -19,24 +19,54 @@
  */
 package org.sonar.core.user;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-public interface GroupMembershipMapper {
+/**
+ * @since 5.2
+ */
+public class UserMembershipDto {
 
-  List<GroupMembershipDto> selectGroups(GroupMembershipQuery query);
+  private Long id;
+  private Long groupId;
+  private String login;
+  private String name;
 
-  List<GroupMembershipDto> selectGroups(Map<String, Object> params, RowBounds rowBounds);
+  public Long getId() {
+    return id;
+  }
 
-  int countGroups(Map<String, Object> params);
+  public UserMembershipDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
-  List<UserMembershipDto> selectMembers(Map<String, Object> params, RowBounds rowBounds);
+  public String getName() {
+    return name;
+  }
 
-  int countMembers(Map<String, Object> params);
+  public UserMembershipDto setName(String name) {
+    this.name = name;
+    return this;
+  }
 
-  List<GroupUserCount> countUsersByGroup(@Param("groupIds") List<Long> groupIds);
+  @CheckForNull
+  public String getLogin() {
+    return login;
+  }
 
-  List<LoginGroup> selectGroupsByLogins(@Param("logins") List<String> logins);
+  public UserMembershipDto setLogin(@Nullable String login) {
+    this.login = login;
+    return this;
+  }
+
+  @CheckForNull
+  public Long getGroupId() {
+    return groupId;
+  }
+
+  public UserMembershipDto setGroupId(@Nullable Long groupId) {
+    this.groupId = groupId;
+    return this;
+  }
 }

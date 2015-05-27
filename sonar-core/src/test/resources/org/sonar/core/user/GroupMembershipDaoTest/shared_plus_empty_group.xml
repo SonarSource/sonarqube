@@ -13,4 +13,8 @@
   <!-- user 201 is in users group -->
   <groups_users user_id="201" group_id="101"/>
 
+  <users id="200" login="admin" name="Admin" active="[true]"/>
+  <users id="201" login="not.admin" name="Not Admin" active="[true]"/>
+  <users id="202" login="inactive" name="Inactive" active="[false]"/>
+
 </dataset>

@@ -58,4 +58,34 @@
     </where>
   </select>
 
+  <sql id="userCommonClauses">
+    FROM users u
+    LEFT JOIN groups_users gu ON gu.user_id=u.id AND gu.group_id=#{groupId}
+    <where>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND gu.group_id IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND gu.group_id IS NULL
+        </when>
+      </choose>
+      <if test="query.memberSearch() != null">
+        AND ((UPPER(u.login) LIKE #{query.memberSearchSql} ESCAPE '/') OR (UPPER(u.name) LIKE #{query.memberSearchSql} ESCAPE '/'))
+      </if>
+      AND u.active=${_true}
+    </where>
+  </sql>
+
+  <select id="selectMembers" parameterType="map" resultType="org.sonar.core.user.UserMembershipDto">
+    SELECT u.id as id, u.login as login, u.name as name, gu.group_id as groupId
+    <include refid="userCommonClauses" />
+    ORDER BY u.name ASC
+  </select>
+
+  <select id="countMembers" parameterType="map" resultType="int">
+    SELECT COUNT(u.id)
+    <include refid="userCommonClauses" />
+  </select>
+
 </mapper>

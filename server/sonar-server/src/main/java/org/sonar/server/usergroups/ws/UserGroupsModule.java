@@ -31,7 +31,8 @@ public class UserGroupsModule extends Module {
       SearchAction.class,
       CreateAction.class,
       DeleteAction.class,
-      UpdateAction.class);
+      UpdateAction.class,
+      UsersAction.class);
   }
 
 }

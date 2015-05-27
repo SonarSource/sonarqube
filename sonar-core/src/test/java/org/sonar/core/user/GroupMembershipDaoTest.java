@@ -202,4 +202,146 @@ public class GroupMembershipDaoTest {
       session.close();
     }
   }
+
+  @Test
+  public void count_members() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      // 100 has 1 member and 1 non member
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(100L).membership(UserMembershipQuery.IN).build())).isEqualTo(1);
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(100L).membership(UserMembershipQuery.OUT).build())).isEqualTo(1);
+      // 101 has 2 members
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(101L).membership(UserMembershipQuery.IN).build())).isEqualTo(2);
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(101L).membership(UserMembershipQuery.OUT).build())).isZero();
+      // 102 has 1 member and 1 non member
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(102L).membership(UserMembershipQuery.IN).build())).isEqualTo(1);
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(102L).membership(UserMembershipQuery.OUT).build())).isEqualTo(1);
+      // 103 has no member
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(103L).membership(UserMembershipQuery.IN).build())).isZero();
+      assertThat(dao.countMembers(session, UserMembershipQuery.builder().groupId(103L).membership(UserMembershipQuery.OUT).build())).isEqualTo(2);
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void select_group_members_by_query() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      // 100 has 1 member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(1);
+      // 101 has 2 members
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(101L).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(2);
+      // 102 has 1 member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(102L).membership(UserMembershipQuery.IN).build(), 0, 10)).hasSize(1);
+      // 103 has no member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(103L).membership(UserMembershipQuery.IN).build(), 0, 10)).isEmpty();
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void select_users_not_affected_to_a_group_by_query() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      // 100 has 1 member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(1);
+      // 101 has 2 members
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(101L).membership(UserMembershipQuery.OUT).build(), 0, 10)).isEmpty();
+      // 102 has 1 member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(102L).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(1);
+      // 103 has no member
+      assertThat(dao.selectMembers(session, UserMembershipQuery.builder().groupId(103L).membership(UserMembershipQuery.OUT).build(), 0, 10)).hasSize(2);
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void search_by_user_name_or_login() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+
+      List<UserMembershipDto> result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).memberSearch("admin").build(), 0, 10);
+      assertThat(result).hasSize(2);
+
+      assertThat(result.get(0).getName()).isEqualTo("Admin");
+      assertThat(result.get(1).getName()).isEqualTo("Not Admin");
+
+      result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).memberSearch("not").build(), 0, 10);
+      assertThat(result).hasSize(1);
+
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void search_by_login_or_name_with_capitalization() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      List<UserMembershipDto> result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).memberSearch("admin").build(), 0, 10);
+      assertThat(result).hasSize(2);
+
+      result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).memberSearch("AdMiN").build(), 0, 10);
+      assertThat(result).hasSize(2);
+    } finally {
+      session.close();
+    }
+
+  }
+
+  @Test
+  public void should_be_sorted_by_user_name() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      List<UserMembershipDto> result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).build(), 0, 10);
+      assertThat(result).hasSize(2);
+      assertThat(result.get(0).getName()).isEqualTo("Admin");
+      assertThat(result.get(1).getName()).isEqualTo("Not Admin");
+    } finally {
+      session.close();
+    }
+  }
+
+  @Test
+  public void members_should_be_paginated() {
+    dbTester.prepareDbUnit(getClass(), "shared_plus_empty_group.xml");
+
+    DbSession session = dbTester.myBatis().openSession(false);
+
+    try {
+      List<UserMembershipDto> result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).build(), 0, 2);
+      assertThat(result).hasSize(2);
+      assertThat(result.get(0).getName()).isEqualTo("Admin");
+      assertThat(result.get(1).getName()).isEqualTo("Not Admin");
+
+      result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).build(), 1, 2);
+      assertThat(result).hasSize(1);
+      assertThat(result.get(0).getName()).isEqualTo("Not Admin");
+
+      result = dao.selectMembers(session, UserMembershipQuery.builder().groupId(100L).build(), 2, 1);
+      assertThat(result).isEmpty();
+    } finally {
+      session.close();
+    }
+  }
 }
