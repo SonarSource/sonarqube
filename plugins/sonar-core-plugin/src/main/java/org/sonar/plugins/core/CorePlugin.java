@@ -26,30 +26,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.core.issue.CountFalsePositivesDecorator;
-import org.sonar.plugins.core.issue.CountUnresolvedIssuesDecorator;
 import org.sonar.plugins.core.notifications.alerts.NewAlerts;
-import org.sonar.plugins.core.security.ApplyProjectRolesDecorator;
-import org.sonar.plugins.core.sensors.BranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.CommentDensityDecorator;
-import org.sonar.plugins.core.sensors.CoverageDecorator;
-import org.sonar.plugins.core.sensors.DirectoriesDecorator;
-import org.sonar.plugins.core.sensors.FilesDecorator;
-import org.sonar.plugins.core.sensors.ItBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.ItCoverageDecorator;
-import org.sonar.plugins.core.sensors.ItLineCoverageDecorator;
-import org.sonar.plugins.core.sensors.LineCoverageDecorator;
-import org.sonar.plugins.core.sensors.ManualMeasureDecorator;
-import org.sonar.plugins.core.sensors.OverallBranchCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallCoverageDecorator;
-import org.sonar.plugins.core.sensors.OverallLineCoverageDecorator;
-import org.sonar.plugins.core.sensors.UnitTestDecorator;
-import org.sonar.plugins.core.timemachine.NewCoverageAggregator;
-import org.sonar.plugins.core.timemachine.NewCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.NewItCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
-import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
-import org.sonar.plugins.core.timemachine.VariationDecorator;
 
 @Properties({
   @Property(
@@ -218,35 +195,6 @@ public final class CorePlugin extends SonarPlugin {
     extensions.add(
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
-
-      // issues
-      CountUnresolvedIssuesDecorator.class,
-      CountFalsePositivesDecorator.class,
-
-      // batch
-      UnitTestDecorator.class,
-      LineCoverageDecorator.class,
-      CoverageDecorator.class,
-      BranchCoverageDecorator.class,
-      ItLineCoverageDecorator.class,
-      ItCoverageDecorator.class,
-      ItBranchCoverageDecorator.class,
-      OverallLineCoverageDecorator.class,
-      OverallCoverageDecorator.class,
-      OverallBranchCoverageDecorator.class,
-      ApplyProjectRolesDecorator.class,
-      CommentDensityDecorator.class,
-      DirectoriesDecorator.class,
-      FilesDecorator.class,
-      ManualMeasureDecorator.class,
-
-      // time machine
-      VariationDecorator.class,
-      TimeMachineConfigurationPersister.class,
-      NewCoverageFileAnalyzer.class,
-      NewItCoverageFileAnalyzer.class,
-      NewOverallCoverageFileAnalyzer.class,
-      NewCoverageAggregator.class,
 
       // Notify alerts on my favourite projects
       NewAlerts.class,
