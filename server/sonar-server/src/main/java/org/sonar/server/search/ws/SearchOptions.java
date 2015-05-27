@@ -38,13 +38,6 @@ import java.util.List;
  */
 public class SearchOptions {
 
-  public static final String PARAM_TEXT_QUERY = "q";
-  public static final String PARAM_PAGE = "p";
-  public static final String PARAM_PAGE_SIZE = "ps";
-  public static final String PARAM_FIELDS = "f";
-  public static final String PARAM_SORT = "s";
-  public static final String PARAM_ASCENDING = "asc";
-
   private int pageSize;
   private int page;
   private List<String> fields;
@@ -88,8 +81,8 @@ public class SearchOptions {
 
   public SearchOptions writeStatistics(JsonWriter json, Result searchResult) {
     json.prop("total", searchResult.getTotal());
-    json.prop(PARAM_PAGE, page);
-    json.prop(PARAM_PAGE_SIZE, pageSize);
+    json.prop(WebService.Param.PAGE, page);
+    json.prop(WebService.Param.PAGE_SIZE, pageSize);
     return this;
   }
 
@@ -97,18 +90,18 @@ public class SearchOptions {
     SearchOptions options = new SearchOptions();
 
     // both parameters have default values
-    options.setPage(request.mandatoryParamAsInt(PARAM_PAGE));
-    options.setPageSize(request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
+    options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE));
+    options.setPageSize(request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
 
     // optional field
-    options.setFields(request.paramAsStrings(PARAM_FIELDS));
+    options.setFields(request.paramAsStrings(WebService.Param.FIELDS));
 
     return options;
   }
 
   public static void defineFieldsParam(WebService.NewAction action, @Nullable Collection<String> possibleFields) {
     WebService.NewParam newParam = action
-      .createParam(PARAM_FIELDS)
+      .createParam(WebService.Param.FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
       .setPossibleValues(possibleFields);
     if (possibleFields != null && possibleFields.size() > 1) {
@@ -119,13 +112,13 @@ public class SearchOptions {
 
   public static void definePageParams(WebService.NewAction action) {
     action
-      .createParam(PARAM_PAGE)
+      .createParam(WebService.Param.PAGE)
       .setDescription("1-based page number")
       .setExampleValue("42")
       .setDefaultValue("1");
 
     action
-      .createParam(PARAM_PAGE_SIZE)
+      .createParam(WebService.Param.PAGE_SIZE)
       .setDescription("Page size. Must be greater than 0.")
       .setExampleValue("20")
       .setDefaultValue(String.valueOf(QueryContext.DEFAULT_LIMIT));

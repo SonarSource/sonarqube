@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -46,7 +47,6 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -169,7 +169,7 @@ public class QProfilesWsMediumTest {
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "hello");
+    request.setParam(WebService.Param.TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -305,7 +305,7 @@ public class QProfilesWsMediumTest {
     // 1. Activate Rule with query returning 0 hits
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "php");
+    request.setParam(WebService.Param.TEXT_QUERY, "php");
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -315,7 +315,7 @@ public class QProfilesWsMediumTest {
     // 1. Activate Rule with query returning 1 hits
     request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "world");
+    request.setParam(WebService.Param.TEXT_QUERY, "world");
     result = request.execute();
     session.commit();
 

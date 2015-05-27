@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
@@ -92,7 +93,7 @@ public class RubyRuleServiceTest {
     params.put("tags", "tag1,tag2");
     params.put("debtCharacteristics", "char1,char2");
     params.put("hasDebtCharacteristic", "true");
-    params.put("p", "1");
+    params.put(Param.PAGE, "1");
     params.put("pageSize", "40");
     service.find(params);
 
@@ -134,7 +135,7 @@ public class RubyRuleServiceTest {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
-    params.put("p", "1");
+    params.put(Param.PAGE, "1");
     service.find(params);
 
     verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());

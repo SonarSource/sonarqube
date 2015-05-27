@@ -50,7 +50,6 @@ import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -138,7 +137,7 @@ public class RulesWsMediumTest {
   @Test
   public void search_no_rules() throws Exception {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_no_rules.json");
@@ -152,13 +151,13 @@ public class RulesWsMediumTest {
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_KEY, RuleTesting.XOO_X1.toString());
-    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson("{\"total\":1,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"}]}");
 
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_KEY, RuleKey.of("xoo", "unknown").toString());
-    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    request.setParam(WebService.Param.FIELDS, "actives");
     result = request.execute();
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[],\"actives\":{}}");
 
@@ -182,7 +181,7 @@ public class RulesWsMediumTest {
     ruleDao.insert(session, RuleTesting.newXooX2().setDescription("A *Xoo* rule").setDescriptionFormat(Format.MARKDOWN));
     session.commit();
 
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(SearchOptions.PARAM_FIELDS, "name,htmlDesc,mdDesc");
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "name,htmlDesc,mdDesc");
     WsTester.Result result = request.execute();
 
     result.assertJson(getClass(), "search_2_rules_fields.json");
@@ -206,8 +205,8 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
-    request.setParam(SearchAction.PARAM_FACETS, "debt_characteristics");
+    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FACETS, "debt_characteristics");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rule.json");
   }
@@ -230,7 +229,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_and_overridden_debt_values.json");
   }
@@ -253,7 +252,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_linear_offset_and_overridden_constant_debt.json");
   }
@@ -276,7 +275,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_linear_offset_and_overridden_linear_debt.json");
   }
@@ -332,9 +331,9 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.Result result = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
-      .setParam(SearchOptions.PARAM_FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn")
+      .setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn")
       .setParam("debt_characteristics", "SOFT_RELIABILITY")
-      .setParam(SearchAction.PARAM_FACETS, "debt_characteristics")
+      .setParam(WebService.Param.FACETS, "debt_characteristics")
       .execute();
     result.assertJson(this.getClass(), "search_debt_rules_sticky.json");
   }
@@ -347,7 +346,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "isTemplate");
+    request.setParam(WebService.Param.FIELDS, "isTemplate");
     request.setParam(SearchAction.PARAM_IS_TEMPLATE, "true");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_template_rules.json");
@@ -361,7 +360,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "templateKey");
+    request.setParam(WebService.Param.FIELDS, "templateKey");
     request.setParam(SearchAction.PARAM_TEMPLATE_KEY, "xoo:x1");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_rules_from_template_key.json");
@@ -380,9 +379,9 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
+    request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(WebService.Param.FIELDS, "");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_active_rules.json");
@@ -409,17 +408,17 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
+    request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
-    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json");
 
     tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
       .setParam(SearchAction.PARAM_ACTIVATION, "true")
       .setParam(SearchAction.PARAM_QPROFILE, "unknown_profile")
-      .setParam(SearchOptions.PARAM_FIELDS, "actives")
+      .setParam(WebService.Param.FIELDS, "actives")
       .execute()
       .assertJson(this.getClass(), "search_no_rules.json");
   }
@@ -445,10 +444,10 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
+    request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
-    request.setParam(SearchOptions.PARAM_FIELDS, "actives");
+    request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules_inheritance.json");
   }
@@ -488,9 +487,9 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
+    request.setParam(WebService.Param.TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
-    request.setParam(SearchOptions.PARAM_FIELDS, "params");
+    request.setParam(WebService.Param.FIELDS, "params");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_active_rules_params.json");
@@ -528,7 +527,7 @@ public class RulesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "htmlNote, mdNote");
+    request.setParam(WebService.Param.FIELDS, "htmlNote, mdNote");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
   }
@@ -545,8 +544,8 @@ public class RulesWsMediumTest {
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_TAGS, "tag1");
-    request.setParam(SearchOptions.PARAM_FIELDS, "sysTags, tags");
-    request.setParam(SearchAction.PARAM_FACETS, "tags");
+    request.setParam(WebService.Param.FIELDS, "sysTags, tags");
+    request.setParam(WebService.Param.FACETS, "tags");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "filter_by_tags.json");
   }
@@ -554,14 +553,14 @@ public class RulesWsMediumTest {
   @Test
   public void severities_facet_should_have_all_severities() throws Exception {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchAction.PARAM_FACETS, "severities");
+    request.setParam(WebService.Param.FACETS, "severities");
     request.execute().assertJson(this.getClass(), "severities_facet.json");
   }
 
   @Test
   public void statuses_facet_should_have_all_statuses_except_removed() throws Exception {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchAction.PARAM_FACETS, "statuses");
+    request.setParam(WebService.Param.FACETS, "statuses");
     request.execute().assertJson(this.getClass(), "statuses_facet.json");
   }
 
@@ -574,7 +573,7 @@ public class RulesWsMediumTest {
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_STATUSES, "DEPRECATED");
-    request.setParam(SearchAction.PARAM_FACETS, "statuses");
+    request.setParam(WebService.Param.FACETS, "statuses");
     request.execute().assertJson(this.getClass(), "statuses_facet_sticky.json");
   }
 
@@ -587,18 +586,18 @@ public class RulesWsMediumTest {
 
     // 1. Sort Name Asc
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
-    request.setParam(SearchOptions.PARAM_SORT, "name");
-    request.setParam(SearchOptions.PARAM_ASCENDING, "true");
+    request.setParam(WebService.Param.FIELDS, "");
+    request.setParam(WebService.Param.SORT, "name");
+    request.setParam(WebService.Param.ASCENDING, "true");
 
     WsTester.Result result = request.execute();
     result.assertJson("{\"total\":3,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x2\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x3\"}]}");
 
     // 2. Sort Name DESC
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
-    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
-    request.setParam(SearchOptions.PARAM_ASCENDING, "false");
+    request.setParam(WebService.Param.FIELDS, "");
+    request.setParam(WebService.Param.SORT, RuleNormalizer.RuleField.NAME.field());
+    request.setParam(WebService.Param.ASCENDING, "false");
 
     result = request.execute();
     result.assertJson("{\"total\":3,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x3\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
@@ -616,9 +615,9 @@ public class RulesWsMediumTest {
 
     // 1. find today's rules
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(WebService.Param.FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
-    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.KEY.field());
+    request.setParam(WebService.Param.SORT, RuleNormalizer.RuleField.KEY.field());
     WsTester.Result result = request.execute();
     result.assertJson("{\"total\":2,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
 
@@ -628,7 +627,7 @@ public class RulesWsMediumTest {
 
     // 2. no rules since tomorrow
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(WebService.Param.FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(c.getTime()));
     result = request.execute();
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[]}");

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -156,14 +157,14 @@ public class GroupsActionTest {
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
-      .setParam("ps", "1")
+      .setParam(Param.PAGE_SIZE, "1")
       .execute()
       .assertJson(getClass(), "all_page1.json");
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
-      .setParam("ps", "1")
-      .setParam("p", "2")
+      .setParam(Param.PAGE_SIZE, "1")
+      .setParam(Param.PAGE, "2")
       .execute()
       .assertJson(getClass(), "all_page2.json");
   }

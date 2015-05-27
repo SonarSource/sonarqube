@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -125,8 +126,8 @@ public class SearchActionTest {
     injectUsers(10);
 
     loginAsAdmin();
-    tester.newGetRequest("api/users", "search").setParam("ps", "5").execute().assertJson(getClass(), "page_one.json");
-    tester.newGetRequest("api/users", "search").setParam("ps", "5").setParam("p", "2").execute().assertJson(getClass(), "page_two.json");
+    tester.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").execute().assertJson(getClass(), "page_one.json");
+    tester.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_two.json");
   }
 
   @Test
@@ -142,28 +143,28 @@ public class SearchActionTest {
       .contains("scmAccounts")
       .contains("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts")
       .contains("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "login").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "login").execute().outputAsString())
       .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts")
       .doesNotContain("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "scmAccounts").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "scmAccounts").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .contains("scmAccounts")
       .doesNotContain("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam("f", "groups").execute().outputAsString())
+    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
       .doesNotContain("login")
       .doesNotContain("name")
       .doesNotContain("email")

@@ -119,6 +119,7 @@ public class ResourcesWs implements WebService {
     NewAction action = controller.createAction("search")
       .setDescription("Search for components")
       .setSince("3.3")
+      .addPagingParams(10)
       .setInternal(true)
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "resources-example-search.json"));
@@ -143,16 +144,6 @@ public class ResourcesWs implements WebService {
     action.createParam("f")
       .setDescription("If 's2', then it will return a select2 compatible format")
       .setExampleValue("s2");
-
-    action.createParam("p")
-      .setDescription("Page index")
-      .setDefaultValue("1")
-      .setExampleValue("2");
-
-    action.createParam("ps")
-      .setDescription("Page size")
-      .setDefaultValue("10")
-      .setExampleValue("15");
 
     RailsHandler.addJsonOnlyFormatParam(action);
   }

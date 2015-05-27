@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.AuthorizationDao;
@@ -90,7 +91,8 @@ public class SearchActionTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "2").setParam("ps", "1");
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam(Param.PAGE, "2")
+      .setParam(Param.PAGE_SIZE, "1");
     request.execute().assertJson(getClass(), "return_paged_result.json");
   }
 
@@ -99,7 +101,8 @@ public class SearchActionTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam("p", "1").setParam("ps", "1");
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "st").setParam(Param.PAGE, "1")
+      .setParam(Param.PAGE_SIZE, "1");
     request.execute().assertJson(getClass(), "return_only_first_page.json");
   }
 

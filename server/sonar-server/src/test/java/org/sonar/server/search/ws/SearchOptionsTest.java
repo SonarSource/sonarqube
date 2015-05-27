@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.QueryContext;
@@ -40,9 +41,9 @@ public class SearchOptionsTest {
   @Test
   public void create_from_http_request() {
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "3");
-    request.setParam("ps", "10");
-    request.setParam("f", "name,repo");
+    request.setParam(Param.PAGE, "3");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "name,repo");
     request.setParam("severities", "BLOCKER");
 
     SearchOptions options = SearchOptions.create(request);
@@ -55,9 +56,9 @@ public class SearchOptionsTest {
   @Test
   public void hasField() {
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "3");
-    request.setParam("ps", "10");
-    request.setParam("f", "name,repo");
+    request.setParam(Param.PAGE, "3");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "name,repo");
     SearchOptions options = SearchOptions.create(request);
 
     assertThat(options.hasField("repo")).isTrue();
@@ -67,8 +68,8 @@ public class SearchOptionsTest {
   @Test
   public void hasField_always_true_by_default() {
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "3");
-    request.setParam("ps", "10");
+    request.setParam(Param.PAGE, "3");
+    request.setParam(Param.PAGE_SIZE, "10");
     SearchOptions options = SearchOptions.create(request);
 
     assertThat(options.hasField("repo")).isTrue();
@@ -77,9 +78,9 @@ public class SearchOptionsTest {
   @Test
   public void hasField_no_if_empty_value() {
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "3");
-    request.setParam("ps", "10");
-    request.setParam("f", "");
+    request.setParam(Param.PAGE, "3");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "");
     SearchOptions options = SearchOptions.create(request);
 
     assertThat(options.hasField("repo")).isFalse();
@@ -88,9 +89,9 @@ public class SearchOptionsTest {
   @Test
   public void write_statistics_to_json_response() {
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "3");
-    request.setParam("ps", "10");
-    request.setParam("f", "name,repo");
+    request.setParam(Param.PAGE, "3");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "name,repo");
     request.setParam("severities", "BLOCKER");
 
     SearchOptions options = SearchOptions.create(request);
@@ -118,7 +119,7 @@ public class SearchOptionsTest {
     }.define(context);
 
     WebService.Action searchAction = context.controller("api/foo").action("search");
-    WebService.Param param = searchAction.param("f");
+    Param param = searchAction.param(Param.FIELDS);
     assertThat(param).isNotNull();
     assertThat(param.possibleValues()).containsOnly("name", "lang", "severity");
     assertThat(param.exampleValue()).isEqualTo("name,lang");
@@ -138,10 +139,10 @@ public class SearchOptionsTest {
     }.define(context);
 
     WebService.Action searchAction = context.controller("api/foo").action("search");
-    WebService.Param page = searchAction.param("p");
+    Param page = searchAction.param(Param.PAGE);
     assertThat(page).isNotNull();
     assertThat(page.defaultValue()).isEqualTo("1");
-    WebService.Param pageSize = searchAction.param("ps");
+    Param pageSize = searchAction.param(Param.PAGE_SIZE);
     assertThat(pageSize).isNotNull();
     assertThat(pageSize.defaultValue()).isEqualTo("" + QueryContext.DEFAULT_LIMIT);
 

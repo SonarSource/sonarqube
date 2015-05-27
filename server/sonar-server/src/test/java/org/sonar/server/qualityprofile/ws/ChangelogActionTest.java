@@ -20,6 +20,8 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.Maps;
+import java.util.Date;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +29,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
@@ -52,9 +55,6 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
-import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
@@ -172,11 +172,11 @@ public class ChangelogActionTest {
     Date nearest = new Date(1_500_000_100_000L);
     createActivity(login, ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, nearest, "max", "20");
 
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("ps", "1")
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1")
       .execute().assertJson(getClass(), "changelog_page1.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("ps", "1").setParam("p", "2")
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1").setParam(Param.PAGE, "2")
       .execute().assertJson(getClass(), "changelog_page2.json");
-    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam("ps", "1").setParam("p", "3")
+    wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, "changelog").setParam("profileKey", XOO_P1_KEY).setParam(Param.PAGE_SIZE, "1").setParam(Param.PAGE, "3")
       .execute().assertJson(getClass(), "changelog_page3.json");
   }
 

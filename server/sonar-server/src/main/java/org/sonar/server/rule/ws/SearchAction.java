@@ -40,6 +40,7 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -52,7 +53,6 @@ import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
-import org.sonar.server.search.ws.SearchRequestHandler;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -77,13 +77,6 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
 
-  public static final String PARAM_PAGE = "p";
-  public static final String PARAM_PAGE_SIZE = "ps";
-  public static final String PARAM_FIELDS = "f";
-  public static final String PARAM_SORT = "s";
-  public static final String PARAM_ASCENDING = "asc";
-  public static final String PARAM_FACETS = "facets";
-
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
   private final RuleService ruleService;
@@ -105,7 +98,7 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
       .setHandler(this);
 
     Collection<String> possibleFacets = possibleFacets();
-    WebService.NewParam paramFacets = action.createParam(PARAM_FACETS)
+    WebService.NewParam paramFacets = action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(possibleFacets);
     if (possibleFacets != null && possibleFacets.size() > 1) {
@@ -114,7 +107,7 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
     }
 
     Collection<String> possibleFields = possibleFields();
-    WebService.NewParam paramFields = action.createParam(PARAM_FIELDS)
+    WebService.NewParam paramFields = action.createParam(Param.FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
       .setPossibleValues(possibleFields);
     if (possibleFields != null && possibleFields.size() > 1) {
@@ -142,8 +135,8 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
 
   protected void writeStatistics(JsonWriter json, Result searchResult, QueryContext context) {
     json.prop("total", searchResult.getTotal());
-    json.prop(SearchAction.PARAM_PAGE, context.getPage());
-    json.prop(SearchAction.PARAM_PAGE_SIZE, context.getLimit());
+    json.prop(Param.PAGE, context.getPage());
+    json.prop(Param.PAGE_SIZE, context.getLimit());
   }
 
   protected void doDefinition(WebService.NewAction action) {
@@ -175,7 +168,7 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
    */
   public static void defineRuleSearchParameters(WebService.NewAction action) {
     action
-      .createParam(SearchOptions.PARAM_TEXT_QUERY)
+      .createParam(Param.TEXT_QUERY)
       .setDescription("UTF-8 search query")
       .setExampleValue("xpath");
 
@@ -265,7 +258,7 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
       .setExampleValue("java:S001");
 
     action
-      .createParam(SearchOptions.PARAM_SORT)
+      .createParam(Param.SORT)
       .setDescription("Sort field")
       .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
         RuleNormalizer.RuleField.UPDATED_AT.field(),
@@ -274,14 +267,14 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
       .setExampleValue(RuleNormalizer.RuleField.NAME.field());
 
     action
-      .createParam(SearchOptions.PARAM_ASCENDING)
+      .createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
       .setDefaultValue(true);
   }
 
   public static RuleQuery createRuleQuery(RuleQuery query, Request request) {
-    query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
+    query.setQueryText(request.param(Param.TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
     query.setAvailableSince(request.paramAsDate(PARAM_AVAILABLE_SINCE));
@@ -298,10 +291,10 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setKey(request.param(PARAM_KEY));
 
-    String sortParam = request.param(SearchOptions.PARAM_SORT);
+    String sortParam = request.param(Param.SORT);
     if (sortParam != null) {
       query.setSortField(RuleNormalizer.RuleField.of(sortParam));
-      query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
+      query.setAscendingSort(request.mandatoryParamAsBoolean(Param.ASCENDING));
     }
     return query;
   }
@@ -330,16 +323,16 @@ public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.Requ
   }
 
   private QueryContext loadCommonContext(Request request) {
-    int pageSize = request.mandatoryParamAsInt(SearchAction.PARAM_PAGE_SIZE);
-    QueryContext context = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(SearchAction.PARAM_FIELDS));
-    List<String> facets = request.paramAsStrings(SearchAction.PARAM_FACETS);
+    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
+    QueryContext context = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(Param.FIELDS));
+    List<String> facets = request.paramAsStrings(Param.FACETS);
     if (facets != null) {
       context.addFacets(facets);
     }
     if (pageSize < 1) {
-      context.setPage(request.mandatoryParamAsInt(SearchAction.PARAM_PAGE), 0).setMaxLimit();
+      context.setPage(request.mandatoryParamAsInt(Param.PAGE), 0).setMaxLimit();
     } else {
-      context.setPage(request.mandatoryParamAsInt(SearchAction.PARAM_PAGE), pageSize);
+      context.setPage(request.mandatoryParamAsInt(Param.PAGE), pageSize);
     }
     return context;
   }

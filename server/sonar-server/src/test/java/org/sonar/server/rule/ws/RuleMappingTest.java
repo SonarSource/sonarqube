@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtModel;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.QueryContext;
@@ -45,8 +46,8 @@ public class RuleMappingTest {
   public void toQueryOptions_load_all_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).isEmpty();
@@ -56,9 +57,9 @@ public class RuleMappingTest {
   public void toQueryOptions_load_only_few_simple_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "repo,name,lang");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "repo,name,lang");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
@@ -71,9 +72,9 @@ public class RuleMappingTest {
   public void toQueryOptions_langName_requires_lang() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "langName");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "langName");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.LANGUAGE.field());
@@ -83,9 +84,9 @@ public class RuleMappingTest {
   public void toQueryOptions_debt_requires_group_of_fields() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "debtRemFn");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "debtRemFn");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
@@ -98,9 +99,9 @@ public class RuleMappingTest {
   public void toQueryOptions_html_note_requires_markdown_note() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "htmlNote");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "htmlNote");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.NOTE.field());
@@ -110,9 +111,9 @@ public class RuleMappingTest {
   public void toQueryOptions_debt_characteristics() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "debtChar");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "debtChar");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
@@ -123,9 +124,9 @@ public class RuleMappingTest {
   public void toQueryOptions_debt_overloaded() {
     RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam("p", "1");
-    request.setParam("ps", "10");
-    request.setParam("f", "debtOverloaded");
+    request.setParam(Param.PAGE, "1");
+    request.setParam(Param.PAGE_SIZE, "10");
+    request.setParam(Param.FIELDS, "debtOverloaded");
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(

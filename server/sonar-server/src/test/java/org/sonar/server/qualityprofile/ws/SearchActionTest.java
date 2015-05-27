@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -116,12 +117,12 @@ public class SearchActionTest {
       );
     session.commit();
 
-    tester.newGetRequest("api/qualityprofiles", "search").setParam("f", "key,language").execute().assertJson(this.getClass(), "search_fields.json");
+    tester.newGetRequest("api/qualityprofiles", "search").setParam(Param.FIELDS, "key,language").execute().assertJson(this.getClass(), "search_fields.json");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_on_unknown_fields() throws Exception {
-    tester.newGetRequest("api/qualityprofiles", "search").setParam("f", "polop").execute();
+    tester.newGetRequest("api/qualityprofiles", "search").setParam(Param.FIELDS, "polop").execute();
   }
 
   @Test
