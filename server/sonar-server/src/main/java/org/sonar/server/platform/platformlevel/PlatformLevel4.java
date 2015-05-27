@@ -404,12 +404,12 @@ public class PlatformLevel4 extends PlatformLevel {
       // activity
       ActivitiesWs.class,
       org.sonar.server.activity.ws.SearchAction.class,
-      ActivityMapping.class);
+      ActivityMapping.class,
 
-    // measure
-    add(MeasuresDao.class, false);
+      // measure
+      MeasuresDao.class,
 
-    add(MeasureFilterFactory.class,
+      MeasureFilterFactory.class,
       MeasureFilterExecutor.class,
       MeasureFilterEngine.class,
       DefaultMetricFinder.class,
