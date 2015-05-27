@@ -20,6 +20,9 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,10 +37,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.db.DbClient;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PersistComponentsStep implements ComputationStep {
 
@@ -220,7 +219,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static String getFileQualifier(BatchReport.Component reportComponent) {
-    return !reportComponent.getIsTest() ? Qualifiers.FILE : Qualifiers.UNIT_TEST_FILE;
+    return reportComponent.getIsTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   @Override

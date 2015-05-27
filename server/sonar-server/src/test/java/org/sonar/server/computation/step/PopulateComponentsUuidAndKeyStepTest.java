@@ -20,6 +20,9 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,15 +44,11 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
-public class FeedComponentUuidsStepTest extends BaseStepTest {
+public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
@@ -69,7 +68,7 @@ public class FeedComponentUuidsStepTest extends BaseStepTest {
 
   LanguageRepository languageRepository = mock(LanguageRepository.class);
 
-  FeedComponentUuidsStep sut;
+  PopulateComponentsUuidAndKeyStep sut;
 
   @Before
   public void setup() throws Exception {
@@ -80,7 +79,7 @@ public class FeedComponentUuidsStepTest extends BaseStepTest {
     reportDir = temp.newFolder();
 
     projectSettings = new Settings();
-    sut = new FeedComponentUuidsStep(dbClient);
+    sut = new PopulateComponentsUuidAndKeyStep(dbClient);
   }
 
   @Override

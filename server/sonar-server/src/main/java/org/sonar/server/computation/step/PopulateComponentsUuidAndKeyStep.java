@@ -20,6 +20,10 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -32,23 +36,19 @@ import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.db.DbClient;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Read all components from the batch report and set components uuid and key
  */
-public class FeedComponentUuidsStep implements ComputationStep {
+public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   private final DbClient dbClient;
 
-  public FeedComponentUuidsStep(DbClient dbClient) {
+  public PopulateComponentsUuidAndKeyStep(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
   @Override
-  public void execute(final ComputationContext context) {
+  public void execute(ComputationContext context) {
     new ComponentDepthTraversalTypeAwareVisitor(context).visit(context.getRoot());
   }
 
@@ -59,9 +59,12 @@ public class FeedComponentUuidsStep implements ComputationStep {
 
   private class ComponentDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
 
-    private BatchReportReader reportReader;
-    private Map<String, String> componentUuidByKey;
-    private String branch;
+    private final BatchReportReader reportReader;
+    private final Map<String, String> componentUuidByKey;
+
+    @Nullable
+    private final String branch;
+
     private Component nearestModule;
 
     public ComponentDepthTraversalTypeAwareVisitor(ComputationContext context) {
@@ -123,14 +126,14 @@ public class FeedComponentUuidsStep implements ComputationStep {
       feedComponent((ComponentImpl) component, componentKey);
     }
 
-    private void feedComponent(ComponentImpl projectImpl, String componentKey) {
-      projectImpl.setKey(componentKey);
+    private void feedComponent(ComponentImpl component, String componentKey) {
+      component.setKey(componentKey);
 
       String componentUuid = componentUuidByKey.get(componentKey);
       if (componentUuid == null) {
-        projectImpl.setUuid(Uuids.create());
+        component.setUuid(Uuids.create());
       } else {
-        projectImpl.setUuid(componentUuid);
+        component.setUuid(componentUuid);
       }
     }
   }

@@ -19,11 +19,11 @@
  */
 package org.sonar.server.computation.component;
 
+import java.util.List;
 import org.sonar.server.computation.context.ComputationContext;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
-
-import java.util.List;
+import org.sonar.server.computation.step.PopulateComponentsUuidAndKeyStep;
 
 public interface Component {
   enum Type {
@@ -48,8 +48,14 @@ public interface Component {
 
   Type getType();
 
+  /**
+   * Return the component uuid only when {@link PopulateComponentsUuidAndKeyStep} has been executed, otherwise it will throw an exception.
+   */
   String getUuid();
 
+  /**
+   * Return the component key only when {@link PopulateComponentsUuidAndKeyStep} has been executed, otherwise it will throw an exception.
+   */
   String getKey();
 
   // FIXME we should not expose a batch specific information
