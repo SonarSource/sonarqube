@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.component;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link TypeAwareVisitor} that implements a depth first crawling of the
- * {@link ComponentImpl} tree. It supports a max depth for crawling (component strictly deeper than the specified
- * type will be ignored).
+ * Implementation of {@link TypeAwareVisitor} that implements a depth traversal of a {@link Component} tree.
+ * <p>It supports visiting traversal in either pre-order or post-order</p>
+ * It supports a max depth for crawling (component strictly deeper than the specified type will be ignored).
  */
-public abstract class ChildFirstTypeAwareVisitor implements TypeAwareVisitor {
+public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor {
   private final Component.Type maxDepth;
+  private final Order order;
 
-  protected ChildFirstTypeAwareVisitor(Component.Type maxDepth) {
-    this.maxDepth = Objects.requireNonNull(maxDepth);
+  protected DepthTraversalTypeAwareVisitor(Component.Type maxDepth, Order order) {
+    this.maxDepth = requireNonNull(maxDepth);
+    this.order = requireNonNull(order);
   }
 
   @Override
@@ -39,12 +42,18 @@ public abstract class ChildFirstTypeAwareVisitor implements TypeAwareVisitor {
       return;
     }
 
-    if (component.getType() != maxDepth) {
-      for (Component child : component.getChildren()) {
-        visit(child);
-      }
+    if (order == Order.PRE_ORDER) {
+      visitNode(component);
     }
 
+    visitChildren(component);
+
+    if (order == Order.POST_ORDER) {
+      visitNode(component);
+    }
+  }
+
+  private void visitNode(Component component) {
     switch (component.getType()) {
       case PROJECT:
         visitProject(component);
@@ -63,29 +72,40 @@ public abstract class ChildFirstTypeAwareVisitor implements TypeAwareVisitor {
     }
   }
 
+  private void visitChildren(Component component) {
+    if (component.getType() != maxDepth) {
+      for (Component child : component.getChildren()) {
+        visit(child);
+      }
+    }
+  }
+
   @Override
-  public void visitProject(Component tree) {
+  public void visitProject(Component project) {
     // empty implementation, meant to be override at will by subclasses
   }
 
   @Override
-  public void visitModule(Component tree) {
+  public void visitModule(Component module) {
     // empty implementation, meant to be override at will by subclasses
   }
 
   @Override
-  public void visitDirectory(Component tree) {
+  public void visitDirectory(Component directory) {
     // empty implementation, meant to be override at will by subclasses
   }
 
   @Override
-  public void visitFile(Component tree) {
+  public void visitFile(Component file) {
     // empty implementation, meant to be override at will by subclasses
   }
 
   @Override
-  public void visitUnknown(Component tree) {
+  public void visitUnknown(Component unknownComponent) {
     // empty implementation, meant to be override at will by subclasses
   }
 
+  public enum Order {
+    PRE_ORDER, POST_ORDER
+  }
 }

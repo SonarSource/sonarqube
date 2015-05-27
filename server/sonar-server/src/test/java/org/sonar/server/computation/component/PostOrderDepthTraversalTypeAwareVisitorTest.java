@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.component;
 
 import org.junit.Test;
@@ -28,8 +29,9 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
 
-public class ChildFirstTypeAwareVisitorTest {
+public class PostOrderDepthTraversalTypeAwareVisitorTest {
 
   private static final Component FILE_4 = component(FILE, 4);
   private static final Component FILE_5 = component(FILE, 5);
@@ -37,16 +39,15 @@ public class ChildFirstTypeAwareVisitorTest {
   private static final Component MODULE_2 = component(MODULE, 2, DIRECTORY_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final ChildFirstTypeAwareVisitor spyProjectVisitor = spy(new ChildFirstTypeAwareVisitor(PROJECT) {});
-  private final ChildFirstTypeAwareVisitor spyModuleVisitor = spy(new ChildFirstTypeAwareVisitor(MODULE) {});
-  private final ChildFirstTypeAwareVisitor spyDirectoryVisitor = spy(new ChildFirstTypeAwareVisitor(DIRECTORY) {});
-  private final ChildFirstTypeAwareVisitor spyFileVisitor = spy(new ChildFirstTypeAwareVisitor(FILE) {});
+  private final DepthTraversalTypeAwareVisitor spyProjectVisitor = spy(new DepthTraversalTypeAwareVisitor(PROJECT, POST_ORDER) {});
+  private final DepthTraversalTypeAwareVisitor spyModuleVisitor = spy(new DepthTraversalTypeAwareVisitor(MODULE, POST_ORDER) {});
+  private final DepthTraversalTypeAwareVisitor spyDirectoryVisitor = spy(new DepthTraversalTypeAwareVisitor(DIRECTORY, POST_ORDER) {});
+  private final DepthTraversalTypeAwareVisitor spyFileVisitor = spy(new DepthTraversalTypeAwareVisitor(FILE, POST_ORDER) {});
   private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
 
   @Test(expected = NullPointerException.class)
   public void non_null_max_depth_fast_fail() {
-    new ChildFirstTypeAwareVisitor(null) {
-    };
+    new DepthTraversalTypeAwareVisitor(null, POST_ORDER) {};
   }
 
   @Test(expected = NullPointerException.class)
@@ -259,7 +260,7 @@ public class ChildFirstTypeAwareVisitorTest {
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
-    return new DumbComponent(type, ref, children);
+    return new DumbComponent(type, ref, null, null, children);
   }
 
 }

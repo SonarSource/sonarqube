@@ -21,9 +21,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedMap;
-import java.util.Date;
-import java.util.Map;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
@@ -32,17 +29,24 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.component.ChildFirstTypeAwareVisitor;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.event.Event;
-import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
+
+import javax.annotation.Nullable;
+
+import java.util.Date;
+import java.util.Map;
+
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
 
 public class QualityProfileEventsStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    new ChildFirstTypeAwareVisitor(Component.Type.PROJECT) {
+    new DepthTraversalTypeAwareVisitor(Component.Type.PROJECT, POST_ORDER) {
       @Override
       public void visitProject(Component tree) {
         executeForProject(tree);
