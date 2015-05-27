@@ -19,6 +19,10 @@
  */
 package org.sonar.core.i18n;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,13 +32,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,7 +48,7 @@ public class DefaultI18nTest {
   @Before
   public void before() {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    List<PluginInfo> plugins = Arrays.asList(newPlugin("core"), newPlugin("sqale"), newPlugin("frpack"), newPlugin("checkstyle"), newPlugin("other"));
+    List<PluginInfo> plugins = Arrays.asList(newPlugin("sqale"), newPlugin("frpack"), newPlugin("checkstyle"), newPlugin("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
 
     manager = new DefaultI18n(pluginRepository, system2);
@@ -59,12 +56,8 @@ public class DefaultI18nTest {
   }
 
   @Test
-  public void load_core_bundle_when_no_plugin() {
-    DefaultI18n manager = new DefaultI18n(mock(PluginRepository.class), system2);
-    manager.doStart(getClass().getClassLoader());
-
-    assertThat(manager.getPropertyKeys().contains("any")).isTrue();
-    assertThat(manager.getPropertyKeys().contains("assignee")).isTrue();
+  public void load_core_bundle() {
+    assertThat(manager.message(Locale.ENGLISH, "any", null)).isEqualTo("Any");
   }
 
   @Test
@@ -194,32 +187,6 @@ public class DefaultI18nTest {
   public void format_integer() {
     assertThat(manager.formatInteger(Locale.ENGLISH, 10)).isEqualTo("10");
     assertThat(manager.formatInteger(Locale.ENGLISH, 100000)).isEqualTo("100,000");
-  }
-
-  static URLClassLoader newCheckstyleClassloader() {
-    return newClassLoader("/org/sonar/core/i18n/I18nClassloaderTest/");
-  }
-
-  /**
-   * Example of plugin that embeds its own translations (English + French).
-   */
-  static URLClassLoader newSqaleClassloader() {
-    return newClassLoader("/org/sonar/core/i18n/sqalePlugin/");
-  }
-
-  /**
-   * "Language Pack" contains various translations for different plugins.
-   */
-  static URLClassLoader newFrenchPackClassloader() {
-    return newClassLoader("/org/sonar/core/i18n/frenchPack/");
-  }
-
-  private static URLClassLoader newClassLoader(String... resourcePaths) {
-    URL[] urls = new URL[resourcePaths.length];
-    for (int index = 0; index < resourcePaths.length; index++) {
-      urls[index] = DefaultI18nTest.class.getResource(resourcePaths[index]);
-    }
-    return new URLClassLoader(urls);
   }
 
   private PluginInfo newPlugin(String key) {

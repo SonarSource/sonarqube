@@ -21,21 +21,6 @@ package org.sonar.core.i18n;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.apache.commons.io.IOUtils;
-import org.picocontainer.Startable;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +37,19 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.picocontainer.Startable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 @BatchSide
 @ServerSide
@@ -91,18 +89,18 @@ public class DefaultI18n implements I18n, Startable {
   void doStart(ClassLoader classloader) {
     this.classloader = classloader;
     this.propertyToBundles = new HashMap<>();
+
+    // org.sonar.l10n.core bundle is provided by sonar-core module
+    initPlugin("core");
+
     Collection<PluginInfo> infos = pluginRepository.getPluginInfos();
-    if (infos.isEmpty()) {
-      addPlugin("core");
-    } else {
-      for (PluginInfo plugin : infos) {
-        addPlugin(plugin.getKey());
-      }
+    for (PluginInfo plugin : infos) {
+      initPlugin(plugin.getKey());
     }
     LOG.debug("Loaded {} properties from l10n bundles", propertyToBundles.size());
   }
 
-  private void addPlugin(String pluginKey) {
+  private void initPlugin(String pluginKey) {
     try {
       String bundleKey = BUNDLE_PACKAGE + pluginKey;
       ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, this.classloader, control);
@@ -232,9 +230,5 @@ public class DefaultI18n implements I18n, Startable {
       return message;
     }
     return MessageFormat.format(message.replaceAll("'", "''"), parameters);
-  }
-
-  ClassLoader getBundleClassLoader() {
-    return classloader;
   }
 }

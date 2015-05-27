@@ -75,6 +75,7 @@ class I18nClassloader extends URLClassLoader {
       Plugin plugin = pluginRepository.getPluginInstance(info.getKey());
       list.add(plugin.getClass().getClassLoader());
     }
+    list.add(I18nClassloader.class.getClassLoader());
     return list;
   }
 }

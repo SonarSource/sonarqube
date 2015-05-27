@@ -59,22 +59,6 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
-  public void accept_core_plugin_even_if_not_in_inclusions() {
-    when(mode.isPreview()).thenReturn(true);
-    settings.setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
-    assertThat(predicate.apply("core")).isTrue();
-  }
-
-  @Test
-  public void accept_core_plugin_even_if_declared_in_exclusions() {
-    when(mode.isPreview()).thenReturn(true);
-    settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "core,findbugs");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
-    assertThat(predicate.apply("core")).isTrue();
-  }
-
-  @Test
   public void verify_both_inclusions_and_exclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings

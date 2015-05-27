@@ -23,18 +23,16 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.Nonnull;
-
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -42,11 +40,10 @@ import static com.google.common.collect.Sets.newHashSet;
  * Filters the plugins to be enabled during analysis
  */
 @BatchSide
-public class BatchPluginPredicate implements Predicate<String>{
+public class BatchPluginPredicate implements Predicate<String> {
 
   private static final Logger LOG = Loggers.get(BatchPluginPredicate.class);
 
-  private static final String CORE_PLUGIN_KEY = "core";
   private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
   private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
@@ -86,10 +83,6 @@ public class BatchPluginPredicate implements Predicate<String>{
 
   @Override
   public boolean apply(@Nonnull String pluginKey) {
-    if (CORE_PLUGIN_KEY.equals(pluginKey)) {
-      return !mode.isMediumTest();
-    }
-
     if (BUILDBREAKER_PLUGIN_KEY.equals(pluginKey) && mode.isPreview()) {
       LOG.info("Build Breaker plugin is no more supported in preview/incremental mode");
       return false;
