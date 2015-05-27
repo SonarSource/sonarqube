@@ -56,7 +56,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository);
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository, reportReader);
 
   Settings projectSettings;
 

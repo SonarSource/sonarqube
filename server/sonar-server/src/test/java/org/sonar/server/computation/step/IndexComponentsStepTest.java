@@ -49,7 +49,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
-  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbComponentsRefCache);
+  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbComponentsRefCache, reportReader);
 
   @Test
   public void call_indexProject_of_dao() throws IOException {

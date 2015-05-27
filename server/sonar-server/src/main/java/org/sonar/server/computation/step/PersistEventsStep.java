@@ -50,7 +50,7 @@ public class PersistEventsStep implements ComputationStep {
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      int rootComponentRef = context.getReportMetadata().getRootComponentRef();
+      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
       recursivelyProcessComponent(session, context, rootComponentRef);
       session.commit();
     } finally {
@@ -60,8 +60,9 @@ public class PersistEventsStep implements ComputationStep {
 
   private void recursivelyProcessComponent(DbSession session, ComputationContext context, int componentRef) {
     BatchReport.Component component = reportReader.readComponent(componentRef);
-    processEvents(session, component, context.getReportMetadata().getAnalysisDate());
-    saveVersionEvent(session, component, context.getReportMetadata().getAnalysisDate());
+    long analysisDate = reportReader.readMetadata().getAnalysisDate();
+    processEvents(session, component, analysisDate);
+    saveVersionEvent(session, component, analysisDate);
 
     for (Integer childRef : component.getChildRefList()) {
       recursivelyProcessComponent(session, context, childRef);

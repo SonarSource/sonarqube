@@ -51,7 +51,7 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    new ComponentDepthTraversalTypeAwareVisitor(context).visit(context.getRoot());
+    new ComponentDepthTraversalTypeAwareVisitor().visit(context.getRoot());
   }
 
   @Override
@@ -68,10 +68,11 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
     private Component nearestModule;
 
-    public ComponentDepthTraversalTypeAwareVisitor(ComputationContext context) {
+    public ComponentDepthTraversalTypeAwareVisitor() {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.componentUuidByKey = new HashMap<>();
-      this.branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
+      BatchReport.Metadata metadata = reportReader.readMetadata();
+      this.branch = metadata.hasBranch() ? metadata.getBranch() : null;
       this.nearestModule = null;
     }
 

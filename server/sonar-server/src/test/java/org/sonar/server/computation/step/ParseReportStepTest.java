@@ -77,14 +77,14 @@ public class ParseReportStepTest extends BaseStepTest {
 
     sut.execute(context);
 
-    assertThat(context.getReportMetadata().getRootComponentRef()).isEqualTo(1);
-    assertThat(context.getReportMetadata().getDeletedComponentsCount()).isEqualTo(1);
+    assertThat(reportReader.readMetadata().getRootComponentRef()).isEqualTo(1);
+    assertThat(reportReader.readMetadata().getDeletedComponentsCount()).isEqualTo(1);
 
     // verify that all components are processed (currently only for issues)
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1, PROJECT_KEY, "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2, PROJECT_KEY, "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3, PROJECT_KEY, "PROJECT_UUID");
-    verify(issueComputation).processComponentIssues(context, ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(Collections.<BatchReport.Issue>emptyList(), "PROJECT_UUID", 1, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(Collections.<BatchReport.Issue>emptyList(), "FILE1_UUID", 2, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(Collections.<BatchReport.Issue>emptyList(), "FILE2_UUID", 3, PROJECT_KEY, "PROJECT_UUID");
+    verify(issueComputation).processComponentIssues(ISSUES_ON_DELETED_COMPONENT, "DELETED_UUID", null, PROJECT_KEY, "PROJECT_UUID");
     verify(issueComputation).afterReportProcessing();
   }
 

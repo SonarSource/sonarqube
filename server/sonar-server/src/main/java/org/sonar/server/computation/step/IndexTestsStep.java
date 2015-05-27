@@ -21,6 +21,7 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.test.index.TestIndexer;
 
@@ -28,15 +29,17 @@ public class IndexTestsStep implements ComputationStep {
 
   private final TestIndexer indexer;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final BatchReportReader reportReader;
 
-  public IndexTestsStep(TestIndexer indexer, DbComponentsRefCache dbComponentsRefCache) {
+  public IndexTestsStep(TestIndexer indexer, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
     this.indexer = indexer;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.reportReader = reportReader;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    indexer.index(dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef()).getUuid());
+    indexer.index(dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getUuid());
   }
 
   @Override

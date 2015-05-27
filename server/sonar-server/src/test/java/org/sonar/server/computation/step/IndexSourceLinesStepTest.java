@@ -27,7 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
@@ -72,7 +71,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
   protected ComputationStep step() {
     SourceLineIndexer sourceLineIndexer = new SourceLineIndexer(dbClient, esTester.client());
     sourceLineIndexer.setEnabled(true);
-    return new IndexSourceLinesStep(sourceLineIndexer, dbComponentsRefCache);
+    return new IndexSourceLinesStep(sourceLineIndexer, dbComponentsRefCache, reportReader);
   }
 
   @Test

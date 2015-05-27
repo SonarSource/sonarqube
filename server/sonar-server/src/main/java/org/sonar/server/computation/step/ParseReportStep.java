@@ -47,10 +47,10 @@ public class ParseReportStep implements ComputationStep {
   }
 
   private void processDeletedComponents(ComputationContext context, IssueDepthTraversalTypeAwareVisitor visitor) {
-    int deletedComponentsCount = context.getReportMetadata().getDeletedComponentsCount();
+    int deletedComponentsCount = reportReader.readMetadata().getDeletedComponentsCount();
     for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
       BatchReport.Issues issues = reportReader.readDeletedComponentIssues(componentRef);
-      issueComputation.processComponentIssues(context, issues.getIssueList(), issues.getComponentUuid(), null, visitor.projectKey, visitor.projectUuid);
+      issueComputation.processComponentIssues(issues.getIssueList(), issues.getComponentUuid(), null, visitor.projectKey, visitor.projectUuid);
     }
   }
 
@@ -96,7 +96,7 @@ public class ParseReportStep implements ComputationStep {
     private void executeForComponent(Component component, ComputationContext context) {
       int componentRef = component.getRef();
       List<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
-      issueComputation.processComponentIssues(context, issues, component.getUuid(), componentRef, projectKey, projectUuid);
+      issueComputation.processComponentIssues(issues, component.getUuid(), componentRef, projectKey, projectUuid);
     }
   }
 }

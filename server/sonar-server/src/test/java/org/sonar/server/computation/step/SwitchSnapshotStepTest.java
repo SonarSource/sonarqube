@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -30,6 +31,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -41,6 +43,8 @@ public class SwitchSnapshotStepTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   SwitchSnapshotStep sut;
 
@@ -49,19 +53,17 @@ public class SwitchSnapshotStepTest {
     db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao(system2)));
+    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao(system2)), reportReader);
   }
 
   @Test
   public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
-      .setSnapshotId(1L).build();
-    ComputationContext context = mock(ComputationContext.class);
-    when(context.getReportMetadata()).thenReturn(metadata);
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setSnapshotId(1L).build());
 
-    sut.execute(context);
+    sut.execute(mock(ComputationContext.class));
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }
