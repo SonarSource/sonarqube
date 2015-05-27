@@ -21,13 +21,13 @@ package org.sonar.core.config;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.computation.dbcleaner.DataCleanerProperties;
-
-import java.util.List;
 
 public class CorePropertyDefinitions {
 
@@ -44,6 +44,126 @@ public class CorePropertyDefinitions {
     defs.addAll(DataCleanerProperties.all());
 
     defs.addAll(ImmutableList.of(
+      PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
+        .name("Server base URL")
+        .description("HTTP URL of this SonarQube server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE)
+        .build(),
+
+      PropertyDefinition.builder(CoreProperties.LINKS_HOME_PAGE)
+        .name("Project Home Page")
+        .description("HTTP URL of the home page of the project.")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.LINKS_CI)
+        .name("CI server")
+        .description("HTTP URL of the continuous integration server.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.LINKS_ISSUE_TRACKER)
+        .name("Issue Tracker")
+        .description("HTTP URL of the issue tracker.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.LINKS_SOURCES)
+        .name("SCM server")
+        .description("HTTP URL of the server which hosts the sources of the project.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.LINKS_SOURCES_DEV)
+        .name("SCM connection for developers")
+        .description("HTTP URL used by developers to connect to the SCM server for the project.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.ANALYSIS_MODE)
+        .name("Analysis mode")
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(Arrays.asList(CoreProperties.ANALYSIS_MODE_ANALYSIS, CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(CoreProperties.ANALYSIS_MODE_ANALYSIS)
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
+        .deprecatedKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)
+        .name("Plugins accepted for Preview and Incremental modes")
+        .description("Comma-separated list of plugin keys. Those plugins will be used during preview or incremental analyses.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.PREVIEW_EXCLUDE_PLUGINS)
+        .deprecatedKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)
+        .name("Plugins excluded for Preview and Incremental modes")
+        .description("Comma-separated list of plugin keys. Those plugins will not be used during preview or incremental analyses.")
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_REALM)
+        .name("Security Realm")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder("sonar.security.savePassword")
+        .name("Save external password")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder("sonar.authenticator.downcase")
+        .name("Downcase login")
+        .description("Downcase login during user authentication, typically for Active Directory")
+        .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS)
+        .name("Create user accounts")
+        .description("Create accounts when authenticating users via an external system")
+        .type(PropertyType.BOOLEAN)
+        .defaultValue("true")
+        .hidden()
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES)
+        .name("Update user attributes")
+        .description("When using the LDAP or OpenID plugin, at each login, the user attributes (name, email, ...) are re-synchronized")
+        .hidden()
+        .type(PropertyType.BOOLEAN)
+        .defaultValue("true")
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
+        .name("Ignore failures during authenticator startup")
+        .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
+        .hidden()
+        .build(), 
+      PropertyDefinition.builder("sonar.enableFileVariation")
+        .name("Enable file variation")
+        .hidden()
+        .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
+        .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS)
+        .name("Local/technical users")
+        .description("Comma separated list of user logins that will always be authenticated using SonarQube database. "
+          + "When using the LDAP plugin, for these accounts, the user attributes (name, email, ...) are not re-synchronized")
+        .type(PropertyType.STRING)
+        .multiValues(true)
+        .defaultValue("admin")
+        .build(),
+      PropertyDefinition.builder(CoreProperties.SCM_DISABLED_KEY)
+        .name("Disable the SCM Sensor")
+        .description("Disable the retrieval of blame information from Source Control Manager")
+        .category(CoreProperties.CATEGORY_SCM)
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .defaultValue("false")
+        .build(),
+      PropertyDefinition.builder(CoreProperties.SCM_PROVIDER_KEY)
+        .name("Key of the SCM provider for this project")
+        .description("Force the provider to be used to get SCM information for this project. By default auto-detection is done. Example: svn, git.")
+        .category(CoreProperties.CATEGORY_SCM)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .build(),
+      
       // WEB LOOK&FEEL
       PropertyDefinition.builder("sonar.lf.logoUrl")
         .deprecatedKey("sonar.branding.image")
