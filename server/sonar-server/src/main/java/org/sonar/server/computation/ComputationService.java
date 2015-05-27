@@ -22,7 +22,6 @@ package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TempFolder;
@@ -87,8 +86,7 @@ public class ComputationService {
     try {
       File reportDir = extractReportInDir(item);
       BatchReportReader reader = new BatchReportReader(reportDir);
-      Settings projectSettings = projectSettingsFactory.newProjectSettings(projectKey);
-      ComputationContext context = new ComputationContext(reader, null, projectSettings, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
+      ComputationContext context = new ComputationContext(reader, null, null, dbClient, ComponentTreeBuilders.from(reader), languageRepository);
       for (ComputationStep step : steps.orderedSteps()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
         step.execute(context);

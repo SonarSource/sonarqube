@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
@@ -36,6 +37,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -49,7 +51,8 @@ import static org.mockito.Mockito.when;
 
 public class IssueComputationTest {
 
-  public static final RuleKey RULE_KEY = RuleKey.of("squid", "R1");
+  private static final RuleKey RULE_KEY = RuleKey.of("squid", "R1");
+  private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -69,6 +72,8 @@ public class IssueComputationTest {
     .setRuleRepository(RULE_KEY.repository())
     .setRuleKey(RULE_KEY.rule())
     .setStatus(Issue.STATUS_OPEN);
+  Settings projectSettings;
+  ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
   ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
   UserIndex userIndex = mock(UserIndex.class);
 
@@ -79,7 +84,9 @@ public class IssueComputationTest {
   public void setUp() throws IOException {
     when(ruleCache.get(RULE_KEY)).thenReturn(rule);
     outputIssues = new IssueCache(temp.newFile(), System2.INSTANCE);
-    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues, userIndex);
+    projectSettings = new Settings();
+    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(projectSettings);
+    sut = new IssueComputation(ruleCache, lineCache, scmAccountCache, outputIssues, userIndex, projectSettingsRepository);
   }
 
   @After
@@ -193,7 +200,7 @@ public class IssueComputationTest {
   public void assign_default_assignee_when_available() {
     inputIssue.setIsNew(true);
     String wolinski = "wolinski";
-    when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);
+    projectSettings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, wolinski);
     when(userIndex.getNullableByLogin(wolinski)).thenReturn(new UserDoc());
 
     process();
@@ -206,7 +213,7 @@ public class IssueComputationTest {
   public void do_not_assign_default_assignee_when_not_found_in_index() {
     inputIssue.setIsNew(true);
     String wolinski = "wolinski";
-    when(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)).thenReturn(wolinski);
+    projectSettings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, wolinski);
     when(userIndex.getNullableByLogin(wolinski)).thenReturn(null);
 
     process();
@@ -216,6 +223,6 @@ public class IssueComputationTest {
   }
 
   private void process() {
-    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1, "PROJECT_KEY", "PROJECT_UUID");
+    sut.processComponentIssues(context, Arrays.asList(inputIssue.build()), "FILE_A", 1, PROJECT_KEY, "PROJECT_UUID");
   }
 }

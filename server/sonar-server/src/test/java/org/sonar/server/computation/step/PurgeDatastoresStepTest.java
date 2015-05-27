@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -29,15 +30,15 @@ import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 
 import java.io.File;
@@ -47,17 +48,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PurgeDatastoresStepTest extends BaseStepTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache);
+  ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository);
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  Settings projectSettings;
+
+  @Before
+  public void setUp() throws Exception {
+    projectSettings = new Settings();
+    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(projectSettings);
+  }
 
   @Test
   public void call_purge_method_of_the_purge_task() throws IOException {
@@ -69,8 +80,8 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    ComponentDto project = mock(ComponentDto.class);
-    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(new BatchReportReader(reportDir), PROJECT_KEY, new Settings(),
+      mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
 
     sut.execute(context);
 

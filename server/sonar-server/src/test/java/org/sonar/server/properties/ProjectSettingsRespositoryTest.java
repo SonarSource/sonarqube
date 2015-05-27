@@ -28,9 +28,12 @@ import org.sonar.api.config.Settings;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-public class ProjectSettingsTest {
+public class ProjectSettingsRespositoryTest {
 
   private ProjectSettings sut;
 

@@ -33,7 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ProjectSettingsFactoryTest {
+public class ProjectSettingsRespositoryFactoryTest {
 
   private ProjectSettingsFactory sut;
 

@@ -26,6 +26,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.db.DbClient;
 
 public class PurgeDatastoresStep implements ComputationStep {
@@ -33,11 +34,13 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final ProjectCleaner projectCleaner;
   private final DbClient dbClient;
   private final DbComponentsRefCache dbComponentsRefCache;
+  private final ProjectSettingsRepository projectSettingsRepository;
 
-  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbComponentsRefCache dbComponentsRefCache) {
+  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbComponentsRefCache dbComponentsRefCache, ProjectSettingsRepository projectSettingsRepository) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
+    this.projectSettingsRepository = projectSettingsRepository;
   }
 
   @Override
@@ -45,7 +48,7 @@ public class PurgeDatastoresStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       DbComponentsRefCache.DbComponent project = dbComponentsRefCache.getByRef(context.getReportMetadata().getRootComponentRef());
-      projectCleaner.purge(session, new IdUuidPair(project.getId(), project.getUuid()), context.getProjectSettings());
+      projectCleaner.purge(session, new IdUuidPair(project.getId(), project.getUuid()), projectSettingsRepository.getProjectSettings(project.getKey()));
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

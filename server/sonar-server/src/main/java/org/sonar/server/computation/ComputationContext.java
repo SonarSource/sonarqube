@@ -29,7 +29,6 @@ import org.sonar.server.db.DbClient;
 
 public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
   private final BatchReportReader reportReader;
-  private final Settings projectSettings;
   private final DbClient dbClient;
   // cache of metadata as it's frequently accessed
   private final BatchReport.Metadata reportMetadata;
@@ -39,7 +38,6 @@ public class ComputationContext implements org.sonar.server.computation.context.
   public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
     ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
     this.reportReader = reportReader;
-    this.projectSettings = projectSettings;
     this.dbClient = dbClient;
     this.reportMetadata = reportReader.readMetadata();
     this.component = componentTreeBuilder.build(this);
@@ -52,10 +50,6 @@ public class ComputationContext implements org.sonar.server.computation.context.
 
   public BatchReportReader getReportReader() {
     return reportReader;
-  }
-
-  public Settings getProjectSettings() {
-    return projectSettings;
   }
 
   @Override

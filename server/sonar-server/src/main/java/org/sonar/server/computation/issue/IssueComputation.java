@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.DiskCache;
@@ -49,22 +50,24 @@ public class IssueComputation {
   private final SourceLinesCache linesCache;
   private final DiskCache<DefaultIssue>.DiskAppender diskIssuesAppender;
   private final UserIndex userIndex;
+  private final ProjectSettingsRepository projectSettingsRepository;
   private boolean hasAssigneeBeenComputed = false;
   private String defaultAssignee = null;
 
   public IssueComputation(RuleCache ruleCache, SourceLinesCache linesCache, ScmAccountCache scmAccountCache,
-    IssueCache issueCache, UserIndex userIndex) {
+    IssueCache issueCache, UserIndex userIndex, ProjectSettingsRepository projectSettingsRepository) {
     this.ruleCache = ruleCache;
     this.linesCache = linesCache;
     this.scmAccountCache = scmAccountCache;
     this.userIndex = userIndex;
+    this.projectSettingsRepository = projectSettingsRepository;
     this.diskIssuesAppender = issueCache.newAppender();
   }
 
   public void processComponentIssues(ComputationContext context, Iterable<BatchReport.Issue> issues, String componentUuid, @Nullable Integer componentReportRef,
                                      String projectKey, String projectUuid) {
     linesCache.init(componentUuid, componentReportRef, context.getReportReader());
-    computeDefaultAssignee(context.getProjectSettings().getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
+    computeDefaultAssignee(projectSettingsRepository.getProjectSettings(projectKey).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE));
     for (BatchReport.Issue reportIssue : issues) {
       DefaultIssue issue = toDefaultIssue(context, componentUuid, reportIssue, projectKey, projectUuid);
       if (issue.isNew()) {

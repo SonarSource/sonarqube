@@ -22,6 +22,7 @@ package org.sonar.server.computation;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.RuleCache;
@@ -48,6 +49,7 @@ public class ComputationContainer {
     return Arrays.asList(
       // context-scope repositories
       PlatformLanguageRepository.class,
+      ProjectSettingsRepository.class,
 
       ComputationService.class,
       ComputationSteps.class,
