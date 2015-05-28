@@ -57,4 +57,9 @@ public class EventTest {
     assertThat(event.getDescription()).isEqualTo(SOME_DESCRIPTION);
   }
 
+  @Test
+  public void same_name_and_category_make_equal_events() {
+    assertThat(Event.createAlert(SOME_NAME, null, null)).isEqualTo(Event.createAlert(SOME_NAME, null, null));
+
+  }
 }
