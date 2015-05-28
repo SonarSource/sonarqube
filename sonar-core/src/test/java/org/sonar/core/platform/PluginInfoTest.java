@@ -207,6 +207,17 @@ public class PluginInfoTest {
     assertThat(pluginInfo.toString()).isEqualTo("[java / 1.1 / SHA1]");
   }
 
+  /**
+   * The English bundle plugin was removed in 5.2. L10n plugins do not need to declare
+   * it as base plugin anymore
+   */
+  @Test
+  public void l10n_plugins_should_not_extend_english_plugin() throws Exception {
+    PluginInfo pluginInfo = new PluginInfo("l10nfr").setBasePlugin("l10nen");
+    assertThat(pluginInfo.getBasePlugin()).isNull();
+
+  }
+
   PluginInfo withMinSqVersion(@Nullable String version) {
     PluginInfo pluginInfo = new PluginInfo("foo");
     if (version != null) {

@@ -27,6 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
 
@@ -294,7 +295,13 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   public PluginInfo setBasePlugin(@Nullable String s) {
-    this.basePlugin = s;
+    if ("l10nen".equals(s)) {
+      Loggers.get(PluginInfo.class).info("Plugin [{}] still defines 'l10nen' as base plugin. " +
+        "This metadata can be removed from manifest of l10n plugins since version 5.2.", key);
+      basePlugin = null;
+    } else {
+      basePlugin = s;
+    }
     return this;
   }
 
