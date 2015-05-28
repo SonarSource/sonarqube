@@ -24,14 +24,12 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.ComputationContext;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
 
 public class ComponentImpl implements Component {
-  private final ComputationContext context;
   private final Type type;
   private final BatchReport.Component component;
   private final List<Component> children;
@@ -40,8 +38,7 @@ public class ComponentImpl implements Component {
   private String key;
   private String uuid;
 
-  public ComponentImpl(ComputationContext context, BatchReport.Component component, @Nullable Iterable<Component> children) {
-    this.context = context;
+  public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
     this.component = component;
     this.type = convertType(component.getType());
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
@@ -99,11 +96,6 @@ public class ComponentImpl implements Component {
   @Override
   public List<Component> getChildren() {
     return children;
-  }
-
-  @Override
-  public org.sonar.server.computation.context.ComputationContext getContext() {
-    return context;
   }
 
 }

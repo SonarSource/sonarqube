@@ -40,13 +40,13 @@ public class ParseReportStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    IssueDepthTraversalTypeAwareVisitor visitor = new IssueDepthTraversalTypeAwareVisitor(context);
+    IssueDepthTraversalTypeAwareVisitor visitor = new IssueDepthTraversalTypeAwareVisitor();
     visitor.visit(context.getRoot());
-    processDeletedComponents(context, visitor);
+    processDeletedComponents(visitor);
     issueComputation.afterReportProcessing();
   }
 
-  private void processDeletedComponents(ComputationContext context, IssueDepthTraversalTypeAwareVisitor visitor) {
+  private void processDeletedComponents(IssueDepthTraversalTypeAwareVisitor visitor) {
     int deletedComponentsCount = reportReader.readMetadata().getDeletedComponentsCount();
     for (int componentRef = 1; componentRef <= deletedComponentsCount; componentRef++) {
       BatchReport.Issues issues = reportReader.readDeletedComponentIssues(componentRef);
@@ -60,40 +60,36 @@ public class ParseReportStep implements ComputationStep {
   }
 
   private class IssueDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
-
-    private final ComputationContext context;
-
     private String projectKey;
     private String projectUuid;
 
-    public IssueDepthTraversalTypeAwareVisitor(ComputationContext context) {
+    public IssueDepthTraversalTypeAwareVisitor() {
       super(Component.Type.FILE, Order.PRE_ORDER);
-      this.context = context;
     }
 
     @Override
     public void visitProject(Component tree) {
       projectKey = tree.getKey();
       projectUuid = tree.getUuid();
-      executeForComponent(tree, context);
+      executeForComponent(tree);
     }
 
     @Override
     public void visitModule(Component module) {
-      executeForComponent(module, context);
+      executeForComponent(module);
     }
 
     @Override
     public void visitDirectory(Component directory) {
-      executeForComponent(directory, context);
+      executeForComponent(directory);
     }
 
     @Override
     public void visitFile(Component file) {
-      executeForComponent(file, context);
+      executeForComponent(file);
     }
 
-    private void executeForComponent(Component component, ComputationContext context) {
+    private void executeForComponent(Component component) {
       int componentRef = component.getRef();
       List<BatchReport.Issue> issues = reportReader.readComponentIssues(componentRef);
       issueComputation.processComponentIssues(issues, component.getUuid(), componentRef, projectKey, projectUuid);

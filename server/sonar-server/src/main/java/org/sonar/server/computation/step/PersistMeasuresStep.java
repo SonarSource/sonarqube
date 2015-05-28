@@ -68,17 +68,17 @@ public class PersistMeasuresStep implements ComputationStep {
   public void execute(ComputationContext context) {
     int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     try (DbSession dbSession = dbClient.openSession(true)) {
-      recursivelyProcessComponent(dbSession, context, rootComponentRef);
+      recursivelyProcessComponent(dbSession, rootComponentRef);
       dbSession.commit();
     }
   }
 
-  private void recursivelyProcessComponent(DbSession dbSession, ComputationContext context, int componentRef) {
+  private void recursivelyProcessComponent(DbSession dbSession, int componentRef) {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
     persistMeasures(dbSession, measures, component);
     for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(dbSession, context, childRef);
+      recursivelyProcessComponent(dbSession, childRef);
     }
   }
 

@@ -51,21 +51,21 @@ public class PersistEventsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-      recursivelyProcessComponent(session, context, rootComponentRef);
+      recursivelyProcessComponent(session, rootComponentRef);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DbSession session, ComputationContext context, int componentRef) {
+  private void recursivelyProcessComponent(DbSession session, int componentRef) {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     long analysisDate = reportReader.readMetadata().getAnalysisDate();
     processEvents(session, component, analysisDate);
     saveVersionEvent(session, component, analysisDate);
 
     for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(session, context, childRef);
+      recursivelyProcessComponent(session, childRef);
     }
   }
 

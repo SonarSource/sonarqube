@@ -80,7 +80,7 @@ public class PersistFileSourcesStep implements ComputationStep {
           }
         });
 
-      recursivelyProcessComponent(new FileSourcesContext(session, context, previousFileSourcesByUuid, projectUuid), rootComponentRef);
+      recursivelyProcessComponent(new FileSourcesContext(session, previousFileSourcesByUuid, projectUuid), rootComponentRef);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -153,12 +153,10 @@ public class PersistFileSourcesStep implements ComputationStep {
 
   private static class FileSourcesContext {
     DbSession session;
-    ComputationContext context;
     Map<String, FileSourceDto> previousFileSourcesByUuid;
     String projectUuid;
 
-    public FileSourcesContext(DbSession session, ComputationContext context, Map<String, FileSourceDto> previousFileSourcesByUuid, String projectUuid) {
-      this.context = context;
+    public FileSourcesContext(DbSession session, Map<String, FileSourceDto> previousFileSourcesByUuid, String projectUuid) {
       this.previousFileSourcesByUuid = previousFileSourcesByUuid;
       this.session = session;
       this.projectUuid = projectUuid;

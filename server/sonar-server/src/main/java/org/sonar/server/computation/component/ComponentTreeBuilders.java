@@ -24,7 +24,6 @@ import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.ComputationContext;
 
 import static java.util.Objects.requireNonNull;
 
@@ -41,7 +40,7 @@ public final class ComponentTreeBuilders {
     requireNonNull(root);
     return new ComponentTreeBuilder() {
       @Override
-      public Component build(ComputationContext context) {
+      public Component build() {
         return root;
       }
     };
@@ -59,17 +58,17 @@ public final class ComponentTreeBuilders {
     }
 
     @Override
-    public Component build(ComputationContext context) {
-      return buildComponentRoot(context, reportReader);
+    public Component build() {
+      return buildComponentRoot(reportReader);
     }
 
-    private Component buildComponentRoot(ComputationContext computationContext, BatchReportReader reportReader) {
+    private Component buildComponentRoot(BatchReportReader reportReader) {
       int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
       BatchReport.Component component = reportReader.readComponent(rootComponentRef);
-      return new ComponentImpl(computationContext, component, buildComponent(computationContext, rootComponentRef));
+      return new ComponentImpl(component, buildComponent(rootComponentRef));
     }
 
-    private Iterable<Component> buildComponent(final ComputationContext computationContext, int componentRef) {
+    private Iterable<Component> buildComponent(int componentRef) {
       BatchReport.Component component = reportReader.readComponent(componentRef);
       return Iterables.transform(
           component.getChildRefList(),
@@ -77,7 +76,7 @@ public final class ComponentTreeBuilders {
             @Override
             public Component apply(@Nonnull Integer componentRef) {
               BatchReport.Component component = reportReader.readComponent(componentRef);
-              return new ComponentImpl(computationContext, component, buildComponent(computationContext, componentRef));
+              return new ComponentImpl(component, buildComponent(componentRef));
             }
           }
       );

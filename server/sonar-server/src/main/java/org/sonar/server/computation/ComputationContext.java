@@ -26,7 +26,7 @@ public class ComputationContext implements org.sonar.server.computation.context.
   private final Component component;
 
   public ComputationContext(ComponentTreeBuilder componentTreeBuilder) {
-    this.component = componentTreeBuilder.build(this);
+    this.component = componentTreeBuilder.build();
   }
 
   @Override

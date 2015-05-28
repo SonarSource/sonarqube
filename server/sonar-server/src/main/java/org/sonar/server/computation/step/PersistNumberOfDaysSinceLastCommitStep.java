@@ -70,7 +70,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   @Override
   public void execute(ComputationContext context) {
     int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-    recursivelyProcessComponent(context, rootComponentRef);
+    recursivelyProcessComponent(rootComponentRef);
 
     if (!commitFound()) {
       Long lastCommitFromIndex = lastCommitFromIndex(dbComponentsRefCache.getByRef(rootComponentRef).getUuid());
@@ -82,13 +82,13 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private void recursivelyProcessComponent(ComputationContext context, int componentRef) {
+  private void recursivelyProcessComponent(int componentRef) {
     BatchReport.Component component = reportReader.readComponent(componentRef);
     BatchReport.Changesets scm = reportReader.readChangesets(componentRef);
     processScm(scm);
 
     for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(context, childRef);
+      recursivelyProcessComponent(childRef);
     }
   }
 
