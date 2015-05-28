@@ -32,7 +32,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
@@ -54,7 +53,7 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
       Component root = treeRootHolder.getRoot();

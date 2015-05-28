@@ -24,7 +24,6 @@ import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
@@ -47,7 +46,7 @@ public class PurgeDatastoresStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
       DbComponentsRefCache.DbComponent project = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef());

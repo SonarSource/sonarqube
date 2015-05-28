@@ -30,7 +30,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -72,7 +71,7 @@ public class ParseReportStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(root);
 
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(reportReader.readMetadata().getRootComponentRef()).isEqualTo(1);
     assertThat(reportReader.readMetadata().getDeletedComponentsCount()).isEqualTo(1);

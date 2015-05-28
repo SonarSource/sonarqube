@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
@@ -60,7 +59,7 @@ public class BuildComponentTreeStepTest {
 
   @Test(expected = NullPointerException.class)
   public void fails_if_root_component_does_not_exist_in_reportReader() {
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
   }
 
   @Test
@@ -69,7 +68,7 @@ public class BuildComponentTreeStepTest {
       int componentRef = 1;
       reportReader.putComponent(component(componentRef, componentType));
 
-      underTest.execute(mock(ComputationContext.class));
+      underTest.execute();
 
       Component root = treeRootHolder.getRoot();
       assertThat(root).isNotNull();
@@ -89,7 +88,7 @@ public class BuildComponentTreeStepTest {
     reportReader.putComponent(component(DIR_REF_2, DIRECTORY, FILE_3_REF));
     reportReader.putComponent(component(FILE_3_REF, FILE));
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     Component root = treeRootHolder.getRoot();
     assertThat(root).isNotNull();

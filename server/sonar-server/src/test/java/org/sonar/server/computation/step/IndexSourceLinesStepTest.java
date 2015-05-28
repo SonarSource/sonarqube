@@ -29,11 +29,8 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -84,7 +81,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step().execute();
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

@@ -35,12 +35,9 @@ import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -100,8 +97,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
     initReportWithProjectAndFile();
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(0);
   }
@@ -127,8 +123,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -186,7 +181,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -244,8 +239,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -310,8 +304,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(10, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -347,8 +340,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -377,8 +369,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute(new ComputationContext(
-        ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 

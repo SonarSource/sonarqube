@@ -31,7 +31,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -59,7 +58,7 @@ public class QualityProfileEventsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     new DepthTraversalTypeAwareVisitor(Component.Type.PROJECT, POST_ORDER) {
       @Override
       public void visitProject(Component tree) {

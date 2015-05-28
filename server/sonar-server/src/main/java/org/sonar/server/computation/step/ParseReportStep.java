@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import java.util.List;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
@@ -42,7 +41,7 @@ public class ParseReportStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     IssueDepthTraversalTypeAwareVisitor visitor = new IssueDepthTraversalTypeAwareVisitor();
     visitor.visit(treeRootHolder.getRoot());
     processDeletedComponents(visitor);

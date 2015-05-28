@@ -32,12 +32,9 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -74,7 +71,7 @@ public class PersistFileSourcesStepTest {
     long start = System.currentTimeMillis();
 
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache, reportReader);
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     long end = System.currentTimeMillis();
     long duration = end - start;

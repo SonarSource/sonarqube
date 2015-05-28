@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueIndexer;
 
 public class IndexIssuesStep implements ComputationStep {
@@ -32,7 +31,7 @@ public class IndexIssuesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     indexer.index();
   }
 

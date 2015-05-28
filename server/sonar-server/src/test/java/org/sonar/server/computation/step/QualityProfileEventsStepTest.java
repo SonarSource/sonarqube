@@ -39,7 +39,6 @@ import org.sonar.api.resources.Language;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
@@ -88,7 +87,7 @@ public class QualityProfileEventsStepTest {
   public void no_effect_if_no_previous_measure() {
     when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<MeasureDto>absent());
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verifyNoMoreInteractions(eventRepository);
   }
@@ -98,14 +97,14 @@ public class QualityProfileEventsStepTest {
     when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasureDto()));
     when(measureRepository.findCurrent(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<BatchReport.Measure>absent());
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
   }
 
   @Test
   public void no_event_if_no_qp_now_nor_before() {
     mockMeasures(treeRootHolder.getRoot(), null, null);
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verifyNoMoreInteractions(eventRepository);
   }
@@ -117,7 +116,7 @@ public class QualityProfileEventsStepTest {
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
@@ -131,7 +130,7 @@ public class QualityProfileEventsStepTest {
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
     mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
@@ -145,7 +144,7 @@ public class QualityProfileEventsStepTest {
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
@@ -159,7 +158,7 @@ public class QualityProfileEventsStepTest {
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
@@ -172,7 +171,7 @@ public class QualityProfileEventsStepTest {
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), arrayOf(qp));
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository, never()).add(any(Component.class), any(Event.class));
   }
@@ -185,7 +184,7 @@ public class QualityProfileEventsStepTest {
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp1), arrayOf(qp2));
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
@@ -219,7 +218,7 @@ public class QualityProfileEventsStepTest {
       ));
     mockNoLanguageInRepository();
 
-    underTest.execute(mock(ComputationContext.class));
+    underTest.execute();
 
     assertThat(events).extracting("name").containsOnly(
       "Stop using '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_1 + ")",

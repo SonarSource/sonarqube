@@ -38,11 +38,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -105,7 +102,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_sources() throws Exception {
     initBasicReport(2);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -147,7 +144,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build());
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -161,7 +158,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_source_hashes() throws Exception {
     initBasicReport(2);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource("FILE");
@@ -183,7 +180,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setOverallCoveredConditions(4)
       .build()));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -216,7 +213,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .addChangesetIndexByLine(0)
       .build());
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -242,7 +239,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build()
       ));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -268,7 +265,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         ).build()
       ));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -300,7 +297,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build()
       ));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -338,7 +335,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     // Sources from the report
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -372,7 +369,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -403,7 +400,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -428,7 +425,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       ));
 
     try {
-      sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+      sut.execute();
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Cannot persist sources of src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);

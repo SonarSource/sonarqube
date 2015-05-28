@@ -24,8 +24,8 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
@@ -38,19 +38,22 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final DbComponentsRefCache dbComponentsRefCache;
   private final IssueAuthorizationIndexer indexer;
   private final PermissionFacade permissionFacade;
+  private final TreeRootHolder treeRootHolder;
 
-  public ApplyPermissionsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, IssueAuthorizationIndexer indexer, PermissionFacade permissionFacade) {
+  public ApplyPermissionsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, IssueAuthorizationIndexer indexer,
+    PermissionFacade permissionFacade, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
     this.indexer = indexer;
     this.permissionFacade = permissionFacade;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      long projectId = dbComponentsRefCache.getByRef(context.getRoot().getRef()).getId();
+      long projectId = dbComponentsRefCache.getByRef(treeRootHolder.getRoot().getRef()).getId();
       if (permissionFacade.countComponentPermissions(session, projectId) == 0) {
         permissionFacade.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();

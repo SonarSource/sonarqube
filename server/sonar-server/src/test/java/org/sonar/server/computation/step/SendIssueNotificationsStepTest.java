@@ -31,12 +31,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -89,7 +85,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() throws IOException {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null))));
+    sut.execute();
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -101,7 +97,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null))));
+    sut.execute();
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));

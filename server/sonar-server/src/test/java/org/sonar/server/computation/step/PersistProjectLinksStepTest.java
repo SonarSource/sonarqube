@@ -33,11 +33,8 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentLinkDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -117,7 +114,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "add_links_on_project_and_module-result.xml", "project_links");
   }
@@ -139,7 +136,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml", "project_links");
   }
@@ -161,7 +158,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -183,7 +180,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "update_link-result.xml", "project_links");
   }
@@ -204,7 +201,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -225,7 +222,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .build());
 
-    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "not_delete_custom_link.xml", "project_links");
   }
@@ -249,7 +246,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .build());
 
     try {
-      step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
+      step.execute();
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");

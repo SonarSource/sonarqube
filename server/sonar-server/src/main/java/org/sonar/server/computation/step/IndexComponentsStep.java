@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 
@@ -40,7 +39,7 @@ public class IndexComponentsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     resourceIndexerDao.indexProject(dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getId());
   }
 

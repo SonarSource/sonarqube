@@ -26,8 +26,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.computation.activity.ActivityManager;
-import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
@@ -41,14 +39,12 @@ public class ComputationService {
 
   private final ReportQueue.Item item;
   private final ComputationSteps steps;
-  private final BatchReportReader reportReader;
   private final ActivityManager activityManager;
   private final System2 system;
 
-  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system, BatchReportReader reportReader) {
+  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system) {
     this.item = item;
     this.steps = steps;
-    this.reportReader = reportReader;
     this.activityManager = activityManager;
     this.system = system;
   }
@@ -60,11 +56,9 @@ public class ComputationService {
       );
 
     try {
-      ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-
       for (ComputationStep step : steps.instances()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
-        step.execute(context);
+        step.execute();
         stepProfiler.stopDebug();
       }
       item.dto.setStatus(SUCCESS);

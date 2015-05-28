@@ -31,11 +31,8 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.db.DbClient;
 
@@ -71,9 +68,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
-
-    sut.execute(context);
+    sut.execute();
 
     ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
     verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Settings.class));

@@ -34,7 +34,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentLinkDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.db.DbClient;
@@ -67,7 +66,7 @@ public class PersistProjectLinksStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
       int rootComponentRef = reportReader.readMetadata().getRootComponentRef();

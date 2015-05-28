@@ -96,7 +96,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setNew(true)
     ).close();
 
-    step.execute(null);
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "insert_new_issue-result.xml", new String[]{"id"}, "issues");
   }
@@ -117,7 +117,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setChanged(true)
     ).close();
 
-    step.execute(null);
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "close_issue-result.xml", "issues");
   }
@@ -145,7 +145,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         )
     ).close();
 
-    step.execute(null);
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "add_comment-result.xml", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
   }
@@ -171,7 +171,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
         )
     ).close();
 
-    step.execute(null);
+    step.execute();
 
     dbTester.assertDbUnit(getClass(), "add_change-result.xml", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
   }

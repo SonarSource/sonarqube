@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Test;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.mockito.Mockito.mock;
@@ -36,7 +35,7 @@ public class IndexIssuesStepTest {
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
     sut = new IndexIssuesStep(issueIndexer);
 
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     verify(issueIndexer).index();
   }
