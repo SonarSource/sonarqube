@@ -49,6 +49,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
@@ -62,20 +63,22 @@ public class PersistTestsStep implements ComputationStep {
   private final System2 system;
   private final DbComponentsRefCache dbComponentsRefCache;
   private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.system = system;
     this.dbComponentsRefCache = dbComponentsRefCache;
     this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute(final ComputationContext context) {
     DbSession session = dbClient.openSession(true);
     try {
-      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(context, session, dbComponentsRefCache);
-      visitor.visit(context.getRoot());
+      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session, dbComponentsRefCache);
+      visitor.visit(treeRootHolder.getRoot());
       session.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
         String projectKey = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getKey();
@@ -98,14 +101,14 @@ public class PersistTestsStep implements ComputationStep {
     final String projectUuid;
     boolean hasUnprocessedCoverageDetails = false;
 
-    public TestDepthTraversalTypeAwareVisitor(ComputationContext context, DbSession session, DbComponentsRefCache dbComponentsRefCache) {
+    public TestDepthTraversalTypeAwareVisitor(DbSession session, DbComponentsRefCache dbComponentsRefCache) {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.session = session;
       this.dbComponentsRefCache = dbComponentsRefCache;
       this.existingFileSourcesByUuid = new HashMap<>();
-      this.projectUuid = context.getRoot().getUuid();
+      this.projectUuid = treeRootHolder.getRoot().getUuid();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
-        ImmutableMap.of("projectUuid", context.getRoot().getUuid(), "dataType", Type.TEST),
+        ImmutableMap.of("projectUuid", treeRootHolder.getRoot().getUuid(), "dataType", Type.TEST),
         new ResultHandler() {
           @Override
           public void handleResult(ResultContext context) {

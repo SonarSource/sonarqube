@@ -37,6 +37,7 @@ import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.ReportExtractor;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.issue.IssueCache;
@@ -112,6 +113,8 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       ActivityManager.class,
       ReportExtractor.class,
       BatchReportReaderImpl.class,
+
+      TreeRootHolderImpl.class,
 
       // repositories
       PlatformLanguageRepository.class,

@@ -32,8 +32,8 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueComputation;
 
@@ -53,12 +53,14 @@ public class ParseReportStepTest extends BaseStepTest {
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
 
   IssueComputation issueComputation = mock(IssueComputation.class);
-  ParseReportStep sut = new ParseReportStep(issueComputation, reportReader);
+  ParseReportStep sut = new ParseReportStep(issueComputation, reportReader, treeRootHolder);
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
@@ -68,9 +70,9 @@ public class ParseReportStepTest extends BaseStepTest {
 
     generateReport();
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(root));
+    treeRootHolder.setRoot(root);
 
-    sut.execute(context);
+    sut.execute(mock(ComputationContext.class));
 
     assertThat(reportReader.readMetadata().getRootComponentRef()).isEqualTo(1);
     assertThat(reportReader.readMetadata().getDeletedComponentsCount()).isEqualTo(1);

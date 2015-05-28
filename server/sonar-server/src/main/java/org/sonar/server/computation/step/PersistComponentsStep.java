@@ -36,6 +36,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 public class PersistComponentsStep implements ComputationStep {
@@ -43,18 +44,20 @@ public class PersistComponentsStep implements ComputationStep {
   private final DbClient dbClient;
   private final DbComponentsRefCache dbComponentsRefCache;
   private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
     this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute(ComputationContext context) {
     DbSession session = dbClient.openSession(false);
     try {
-      Component root = context.getRoot();
+      Component root = treeRootHolder.getRoot();
       List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
       Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
       ComponentContext componentContext = new ComponentContext(session, componentDtosByKey);
