@@ -44,7 +44,7 @@ public class ComponentImpl implements Component {
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
 
-  private static Type convertType(Constants.ComponentType type) {
+  public static Type convertType(Constants.ComponentType type) {
     switch (type) {
       case PROJECT:
         return Type.PROJECT;
