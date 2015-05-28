@@ -6,7 +6,7 @@ lib.initMessages();
 lib.changeWorkingDirectory('users-spec');
 lib.configureCasper();
 
-casper.test.begin(testName('List'), 11, function (test) {
+casper.test.begin(testName('List'), 13, function (test) {
   casper
       .start(lib.buildUrl('users'), function () {
         lib.setDefaultViewport();
@@ -41,6 +41,12 @@ casper.test.begin(testName('List'), 11, function (test) {
         test.assertSelectorDoesntContain('[data-login="ryan"]', 'another@example.com');
         casper.click('[data-login="ryan"] .js-user-more-scm');
         test.assertSelectorContains('[data-login="ryan"]', 'another@example.com');
+      })
+
+      .then(function () {
+        test.assertSelectorDoesntContain('[data-login="ryan"]', 'four');
+        casper.click('[data-login="ryan"] .js-user-more-groups');
+        test.assertSelectorContains('[data-login="ryan"]', 'four');
       })
 
       .then(function () {

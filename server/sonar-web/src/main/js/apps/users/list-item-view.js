@@ -13,6 +13,7 @@ define([
 
     events: {
       'click .js-user-more-scm': 'onMoreScmClick',
+      'click .js-user-more-groups': 'onMoreGroupsClick',
       'click .js-user-update': 'onUpdateClick',
       'click .js-user-change-password': 'onChangePasswordClick',
       'click .js-user-deactivate': 'onDeactivateClick',
@@ -21,6 +22,7 @@ define([
 
     initialize: function () {
       this.scmLimit = 3;
+      this.groupsLimit = 3;
     },
 
     onRender: function () {
@@ -35,6 +37,11 @@ define([
     onMoreScmClick: function (e) {
       e.preventDefault();
       this.showMoreScm();
+    },
+
+    onMoreGroupsClick: function (e) {
+      e.preventDefault();
+      this.showMoreGroups();
     },
 
     onUpdateClick: function (e) {
@@ -62,6 +69,11 @@ define([
       this.render();
     },
 
+    showMoreGroups: function () {
+      this.groupsLimit = 10000;
+      this.render();
+    },
+
     updateUser: function () {
       new UpdateView({
         model: this.model,
@@ -86,10 +98,14 @@ define([
 
     serializeData: function () {
       var scmAccounts = this.model.get('scmAccounts'),
-          scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit;
+          scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit,
+          groups = this.model.get('groups'),
+          groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
-        moreScmAccountsCount: scmAccounts.length - scmAccountsLimit
+        moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,
+        firstGroups: _.first(groups, groupsLimit),
+        moreGroupsCount: groups.length - groupsLimit
       });
     }
   });

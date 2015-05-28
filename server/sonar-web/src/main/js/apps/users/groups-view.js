@@ -13,7 +13,7 @@ define([
       new window.SelectList({
         el: this.$('#users-groups'),
         width: '100%',
-        readOnly: false,
+        readOnly: true,
         focusSearch: false,
         format: function (item) {
           return item.name + '<br><span class="note">' + item.description + '</span>';

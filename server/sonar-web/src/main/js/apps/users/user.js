@@ -9,7 +9,7 @@ define(function () {
 
     defaults: function () {
       return {
-        groupsCount: 0,
+        groups: [],
         scmAccounts: []
       };
     },

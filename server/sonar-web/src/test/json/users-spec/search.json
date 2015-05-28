@@ -19,7 +19,8 @@
       "login": "ryan",
       "name": "John",
       "email": "john@example.com",
-      "scmAccounts": ["ryan@example.com", "ryan", "john", "another@example.com"]
+      "scmAccounts": ["ryan@example.com", "ryan", "john", "another@example.com"],
+      "groups": ["one", "two", "three", "four"]
     }
   ]
 }

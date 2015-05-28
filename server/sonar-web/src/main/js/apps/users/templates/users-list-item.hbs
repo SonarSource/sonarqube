@@ -42,11 +42,14 @@
     <strong>Groups</strong>
   </div>
   <ul class="overflow-hidden bordered-left">
-    <li class="spacer-left little-spacer-bottom">sonar-users ?</li>
-    <li class="spacer-left little-spacer-bottom">sonar-administrators ?</li>
+    {{#each firstGroups}}
+      <li class="spacer-left little-spacer-bottom">{{this}}</li>
+    {{/each}}
     <li class="spacer-left little-spacer-bottom">
-      <a class="js-user-more-groups" href="#">? more</a>
-      <a class="js-user-groups icon-bullet-list spacer-left" title="Update Groups" data-toggle="tooltip" href="#"></a>
+      {{#gt moreGroupsCount 0}}
+        <a class="js-user-more-groups spacer-right" href="#">{{moreGroupsCount}} more</a>
+      {{/gt}}
+      <a class="js-user-groups icon-bullet-list" title="Update Groups" data-toggle="tooltip" href="#"></a>
     </li>
   </ul>
 </div>
