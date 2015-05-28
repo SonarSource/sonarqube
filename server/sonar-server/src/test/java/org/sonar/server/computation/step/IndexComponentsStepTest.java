@@ -26,12 +26,9 @@ import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
-import org.sonar.server.computation.component.DumbComponent;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -58,9 +55,8 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
-    sut.execute(context);
+    sut.execute();
 
     verify(resourceIndexerDao).indexProject(123L);
   }

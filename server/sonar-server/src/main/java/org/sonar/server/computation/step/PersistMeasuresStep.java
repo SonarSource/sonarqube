@@ -28,7 +28,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.issue.RuleCache;
@@ -65,7 +64,7 @@ public class PersistMeasuresStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     try (DbSession dbSession = dbClient.openSession(true)) {
       recursivelyProcessComponent(dbSession, rootComponentRef);

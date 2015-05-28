@@ -29,7 +29,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
@@ -53,7 +52,7 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     new ComponentDepthTraversalTypeAwareVisitor().visit(treeRootHolder.getRoot());
   }
 

@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
@@ -67,7 +66,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbComponent project = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef());
     if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
       doExecute(project);

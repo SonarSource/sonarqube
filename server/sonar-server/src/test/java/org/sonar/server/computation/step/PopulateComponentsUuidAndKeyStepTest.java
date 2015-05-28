@@ -34,7 +34,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -111,7 +110,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -168,7 +167,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -211,7 +210,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 

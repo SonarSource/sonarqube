@@ -31,18 +31,14 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.server.computation.activity.ActivityManager;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,8 +46,6 @@ import static org.mockito.Mockito.when;
 
 public class ComputationServiceTest {
 
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public LogTester logTester = new LogTester();
 
@@ -65,18 +59,7 @@ public class ComputationServiceTest {
 
   @Before
   public void setUp() throws IOException {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey("project key")
-      .setName("Project name")
-      .build());
-
-    sut = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system,
-      reportReader);
+    sut = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system);
   }
 
   @Test
@@ -96,8 +79,8 @@ public class ComputationServiceTest {
     assertThat(logTester.logs(LoggerLevel.INFO).get(0)).startsWith("Analysis of project P1 (report 1) (done) | time=");
 
     // execute only the steps supporting the project qualifier
-    verify(projectStep1).execute(any(ComputationContext.class));
-    verify(projectStep2).execute(any(ComputationContext.class));
+    verify(projectStep1).execute();
+    verify(projectStep2).execute();
     verify(activityManager).saveActivity(dto);
   }
 
@@ -115,7 +98,7 @@ public class ComputationServiceTest {
   public void fail_if_step_throws_error() throws Exception {
     String errorMessage = "Failed to unzip";
     when(steps.instances()).thenReturn(ImmutableList.of(projectStep1));
-    doThrow(new IllegalStateException(errorMessage)).when(projectStep1).execute(any(ComputationContext.class));
+    doThrow(new IllegalStateException(errorMessage)).when(projectStep1).execute();
 
     try {
       sut.process();
@@ -130,7 +113,7 @@ public class ComputationServiceTest {
   @Test
   public void step_error() throws Exception {
     when(steps.instances()).thenReturn(Arrays.asList(projectStep1));
-    doThrow(new IllegalStateException("pb")).when(projectStep1).execute(any(ComputationContext.class));
+    doThrow(new IllegalStateException("pb")).when(projectStep1).execute();
 
     try {
       sut.process();

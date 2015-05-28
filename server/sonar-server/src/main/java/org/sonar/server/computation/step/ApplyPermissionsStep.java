@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 public class ApplyPermissionsStep implements ComputationStep {
@@ -32,7 +31,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     indexer.index();
   }
 

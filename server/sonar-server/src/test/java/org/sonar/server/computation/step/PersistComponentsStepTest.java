@@ -33,7 +33,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -123,7 +122,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
         new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
           new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java")))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -214,7 +213,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":/",
         new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":pom.xml"))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
     assertThat(directory).isNotNull();
@@ -256,7 +255,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":src/test/java/dir",
         new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":src/test/java/dir/FooTest.java"))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     ComponentDto file = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY + ":src/test/java/dir/FooTest.java");
     assertThat(file).isNotNull();
@@ -309,7 +308,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
         new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
           new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java")))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -385,7 +384,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         new DumbComponent(Component.Type.MODULE, 3, "CDEF", "SUB_MODULE_1_KEY",
           new DumbComponent(Component.Type.MODULE, 4, "DEFG", "SUB_MODULE_2_KEY",
             new DumbComponent(Component.Type.DIRECTORY, 5, "EFGH", "SUB_MODULE_2_KEY:src/main/java/dir"))))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -448,7 +447,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_A",
         new DumbComponent(Component.Type.MODULE, 3, "DEFG", "SUB_MODULE_A")),
       new DumbComponent(Component.Type.MODULE, 4, "CDEF", "MODULE_B")));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -522,7 +521,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
         new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
           new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java")))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY).getId()).isEqualTo(project.getId());
@@ -596,7 +595,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.name()).isEqualTo("New project name");
@@ -635,7 +634,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
     assertThat(projectReloaded.description()).isEqualTo("New project description");
@@ -673,7 +672,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     ComponentDto moduleReloaded = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");
     assertThat(moduleReloaded.path()).isEqualTo("New path");
@@ -734,7 +733,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         new DumbComponent(Component.Type.MODULE, 3, "BCDE", "MODULE_B",
           new DumbComponent(Component.Type.DIRECTORY, 4, "CDEF", "MODULE_B:src/main/java/dir",
             new DumbComponent(Component.Type.FILE, 5, "DEFG", "MODULE_B:src/main/java/dir/Foo.java"))))));
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 

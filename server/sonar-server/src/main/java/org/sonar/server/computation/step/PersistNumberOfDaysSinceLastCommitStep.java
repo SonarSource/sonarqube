@@ -29,7 +29,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.measure.MetricCache;
@@ -68,7 +67,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     recursivelyProcessComponent(rootComponentRef);
 
@@ -78,7 +77,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
 
     if (commitFound()) {
-      persistNumberOfDaysSinceLastCommit(context);
+      persistNumberOfDaysSinceLastCommit();
     }
   }
 
@@ -110,7 +109,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     return lastCommitDate == null ? null : lastCommitDate.getTime();
   }
 
-  private void persistNumberOfDaysSinceLastCommit(ComputationContext context) {
+  private void persistNumberOfDaysSinceLastCommit() {
     checkState(commitFound(), "The last commit time should exist");
 
     long numberOfDaysSinceLastCommit = (system.now() - lastCommitTimestamp) / MILLISECONDS_PER_DAY;

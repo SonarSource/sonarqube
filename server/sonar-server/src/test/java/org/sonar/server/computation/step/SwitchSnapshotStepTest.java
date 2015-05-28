@@ -30,7 +30,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -63,7 +62,7 @@ public class SwitchSnapshotStepTest {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setSnapshotId(1L).build());
 
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }

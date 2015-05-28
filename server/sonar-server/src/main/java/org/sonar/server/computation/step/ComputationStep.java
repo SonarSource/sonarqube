@@ -20,14 +20,12 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.ComputationContext;
-
 /**
  * Implementations must be declared into {@link org.sonar.server.computation.step.ComputationSteps#orderedStepClasses()}
  */
 public interface ComputationStep {
 
-  void execute(ComputationContext context);
+  void execute();
 
   String getDescription();
 }

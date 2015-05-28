@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
@@ -42,7 +41,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     mutableTreeRootHolder.setRoot(buildComponentRoot());
   }
 

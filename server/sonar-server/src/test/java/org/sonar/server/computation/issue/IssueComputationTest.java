@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
@@ -38,7 +37,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.user.index.UserDoc;
@@ -75,7 +73,6 @@ public class IssueComputationTest {
     .setStatus(Issue.STATUS_OPEN);
   Settings projectSettings;
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
-  ComputationContext context = mock(ComputationContext.class, Mockito.RETURNS_DEEP_STUBS);
   UserIndex userIndex = mock(UserIndex.class);
 
   // output

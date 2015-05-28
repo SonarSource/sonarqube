@@ -44,7 +44,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbComponentsRefCache;
@@ -74,7 +73,7 @@ public class PersistTestsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(final ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
       TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session, dbComponentsRefCache);

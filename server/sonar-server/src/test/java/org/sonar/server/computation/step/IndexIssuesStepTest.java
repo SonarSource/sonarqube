@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Test;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
@@ -38,7 +37,7 @@ public class IndexIssuesStepTest {
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
     sut = new IndexIssuesStep(authorizationIndexer, issueIndexer);
 
-    sut.execute(mock(ComputationContext.class));
+    sut.execute();
 
     verify(authorizationIndexer).index();
     verify(issueIndexer).index();

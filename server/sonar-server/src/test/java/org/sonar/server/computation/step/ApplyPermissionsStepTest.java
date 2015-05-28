@@ -20,7 +20,6 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Test;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.mockito.Mockito.mock;
@@ -33,7 +32,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   @Test
   public void index_issue_permissions() {
-    step.execute(mock(ComputationContext.class));
+    step.execute();
     verify(indexer).index();
   }
 

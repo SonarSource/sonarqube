@@ -32,7 +32,6 @@ import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.db.DbClient;
@@ -56,7 +55,7 @@ public class PersistIssuesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(true);
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     IssueChangeMapper changeMapper = session.getMapper(IssueChangeMapper.class);
