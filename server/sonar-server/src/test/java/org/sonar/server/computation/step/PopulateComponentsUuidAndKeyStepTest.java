@@ -37,12 +37,11 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.ComponentTreeBuilder;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
@@ -109,7 +108,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
@@ -166,7 +165,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
@@ -209,7 +208,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
