@@ -583,6 +583,7 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.component.ws.SearchAction.class,
       EventsWs.class,
       NewAlerts.class,
+      NewAlerts.newMetadata(),
       ComponentCleanerService.class,
       ProvisionedAction.class,
       GhostsAction.class,
