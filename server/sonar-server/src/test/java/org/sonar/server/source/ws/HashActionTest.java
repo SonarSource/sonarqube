@@ -51,6 +51,7 @@ public class HashActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -79,6 +80,15 @@ public class HashActionTest {
     userSessionRule.login("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", COMPONENT_KEY);
+    assertThat(request.execute().outputAsString()).isEqualTo("987654");
+  }
+
+  @Test
+  public void show_hashes_on_test_file() throws Exception {
+    db.prepareDbUnit(getClass(), "show_hashes_on_test_file.xml");
+    userSessionRule.login("polop").addProjectUuidPermissions(UserRole.USER, PROJECT_UUID);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", "ActionTest.java");
     assertThat(request.execute().outputAsString()).isEqualTo("987654");
   }
 

@@ -21,6 +21,9 @@
 package org.sonar.server.source.db;
 
 import com.google.common.base.Function;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,10 +32,6 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,16 +68,6 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_data() {
-    setupData("shared");
-
-    InputStreamToStringFunction fn = new InputStreamToStringFunction();
-    sut.readDataStream("FILE1_UUID", fn);
-
-    assertThat(fn.result).isNotEmpty();
-  }
-
-  @Test
   public void select_line_hashes() {
     setupData("shared");
 
@@ -94,6 +83,16 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
     sut.readLineHashesStream(session, "unknown", fn);
+
+    assertThat(fn.result).isNull();
+  }
+
+  @Test
+  public void no_line_hashes_when_only_test_data() {
+    setupData("no_line_hashes_when_only_test_data");
+
+    ReaderToStringFunction fn = new ReaderToStringFunction();
+    sut.readLineHashesStream(session, "FILE1_UUID", fn);
 
     assertThat(fn.result).isNull();
   }

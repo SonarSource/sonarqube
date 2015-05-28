@@ -1,0 +1,20 @@
+<dataset>
+
+  <projects id="100" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." path="[null]"/>
+  <projects id="101" kee="ActionTest.java" root_id="100" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
+            path="src/test/java/ActionTest.java"/>
+
+  <file_sources id="100" project_uuid="ABCD" file_uuid="CDEF"
+                binary_data="" data_hash="[null]"
+                line_hashes="[null]"
+                src_hash="[null]"
+                created_at="1414597442000" updated_at="1414683842000" data_type="TEST" />
+
+  <file_sources id="101" project_uuid="ABCD" file_uuid="CDEF"
+                binary_data="" data_hash="hash"
+                line_hashes="987654"
+                src_hash="12345"
+                created_at="1414597442000" updated_at="1414683842000" data_type="SOURCE" />
+
+
+</dataset>

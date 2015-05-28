@@ -19,15 +19,14 @@
  */
 package org.sonar.server.source.db;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.core.source.db.FileSourceDto;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.core.source.db.FileSourceDto;
 
 public class FileSourceTesting {
 
@@ -40,7 +39,7 @@ public class FileSourceTesting {
   }
 
   public static void updateDataColumn(Connection connection, String fileUuid, byte[] data) throws SQLException {
-    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=? AND data_type='SOURCE'");
+    PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=? AND data_type='" + FileSourceDto.Type.SOURCE + "'");
     stmt.setBytes(1, data);
     stmt.setString(2, fileUuid);
     stmt.executeUpdate();

@@ -21,6 +21,12 @@
 package org.sonar.server.source.db;
 
 import com.google.common.base.Function;
+import java.io.Reader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ServerSide;
@@ -30,15 +36,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.core.source.db.FileSourceMapper;
-
-import javax.annotation.CheckForNull;
-
-import java.io.InputStream;
-import java.io.Reader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @ServerSide
 public class FileSourceDao implements DaoComponent {
@@ -69,36 +66,13 @@ public class FileSourceDao implements DaoComponent {
     }
   }
 
-  public <T> void readDataStream(String fileUuid, Function<InputStream, T> function) {
-    DbSession dbSession = mybatis.openSession(false);
-    Connection connection = dbSession.getConnection();
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    InputStream input = null;
-    try {
-      pstmt = connection.prepareStatement("SELECT binary_data FROM file_sources WHERE file_uuid=?");
-      pstmt.setString(1, fileUuid);
-      rs = pstmt.executeQuery();
-      if (rs.next()) {
-        input = rs.getBinaryStream(1);
-        function.apply(input);
-      }
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to read FILE_SOURCES.BINARY_DATA of file " + fileUuid, e);
-    } finally {
-      IOUtils.closeQuietly(input);
-      DbUtils.closeQuietly(connection, pstmt, rs);
-      MyBatis.closeQuietly(dbSession);
-    }
-  }
-
   public <T> void readLineHashesStream(DbSession dbSession, String fileUuid, Function<Reader, T> function) {
     Connection connection = dbSession.getConnection();
     PreparedStatement pstmt = null;
     ResultSet rs = null;
     Reader reader = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=?");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type = '" + Type.SOURCE +"'");
       pstmt.setString(1, fileUuid);
       rs = pstmt.executeQuery();
       if (rs.next()) {
