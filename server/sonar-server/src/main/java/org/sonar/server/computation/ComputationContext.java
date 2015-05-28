@@ -29,13 +29,11 @@ import org.sonar.server.db.DbClient;
 public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
   private final DbClient dbClient;
   private final Component component;
-  private final LanguageRepository languageRepository;
 
   public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
     ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
     this.dbClient = dbClient;
     this.component = componentTreeBuilder.build(this);
-    this.languageRepository = languageRepository;
   }
 
   @Override
@@ -51,8 +49,4 @@ public class ComputationContext implements org.sonar.server.computation.context.
     return dbClient;
   }
 
-  @Override
-  public LanguageRepository getLanguageRepository() {
-    return languageRepository;
-  }
 }

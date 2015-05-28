@@ -20,12 +20,9 @@
 package org.sonar.server.computation.context;
 
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.language.LanguageRepository;
 
 public interface ComputationContext {
 
   Component getRoot();
-
-  LanguageRepository getLanguageRepository();
 
 }

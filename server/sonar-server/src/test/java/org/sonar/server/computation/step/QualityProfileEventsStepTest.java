@@ -76,7 +76,7 @@ public class QualityProfileEventsStepTest {
   private EventRepository eventRepository = mock(EventRepository.class);
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
 
-  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(measureRepository, eventRepository);
+  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(measureRepository, eventRepository, languageRepository);
 
   @Test
   public void no_effect_if_no_previous_measure() {

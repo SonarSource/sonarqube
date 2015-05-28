@@ -33,6 +33,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
+import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
@@ -47,10 +48,12 @@ import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisi
 public class QualityProfileEventsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
+  private final LanguageRepository languageRepository;
 
-  public QualityProfileEventsStep(MeasureRepository measureRepository, EventRepository eventRepository) {
+  public QualityProfileEventsStep(MeasureRepository measureRepository, EventRepository eventRepository, LanguageRepository languageRepository) {
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
+    this.languageRepository = languageRepository;
   }
 
   @Override
@@ -119,16 +122,16 @@ public class QualityProfileEventsStep implements ComputationStep {
     eventRepository.add(component, createQProfileEvent(component, profile, "Use %s"));
   }
 
-  private static Event createQProfileEvent(Component component, QualityProfile profile, String namePattern) {
+  private Event createQProfileEvent(Component component, QualityProfile profile, String namePattern) {
     return createQProfileEvent(component, profile, namePattern, null);
   }
 
-  private static Event createQProfileEvent(Component component, QualityProfile profile, String namePattern, @Nullable String data) {
+  private Event createQProfileEvent(Component component, QualityProfile profile, String namePattern, @Nullable String data) {
     return Event.createProfile(String.format(namePattern, profileLabel(component, profile)), data, null);
   }
 
-  private static String profileLabel(Component component, QualityProfile profile) {
-    Optional<Language> language = component.getContext().getLanguageRepository().find(profile.getLanguageKey());
+  private String profileLabel(Component component, QualityProfile profile) {
+    Optional<Language> language = languageRepository.find(profile.getLanguageKey());
     String languageName = language.isPresent() ? language.get().getName() : profile.getLanguageKey();
     return String.format("'%s' (%s)", profile.getQpName(), languageName);
   }
