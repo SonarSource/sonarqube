@@ -27,7 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -39,7 +38,6 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -55,19 +53,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
-  DbClient dbClient;
-  Settings projectSettings;
-  LanguageRepository languageRepository;
-
-  ComponentLinkDao dao;
-
-  I18n i18n;
-
   DbComponentsRefCache dbComponentsRefCache;
 
   PersistProjectLinksStep step;
@@ -75,12 +64,9 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   @Before
   public void setup() {
     session = dbTester.myBatis().openSession(false);
-    dao = new ComponentLinkDao();
-    projectSettings = new Settings();
-    languageRepository = mock(LanguageRepository.class);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), dao);
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentLinkDao());
 
-    i18n = mock(I18n.class);
+    I18n i18n = mock(I18n.class);
     when(i18n.message(Locale.ENGLISH, "project_links.homepage", null)).thenReturn("Home");
     when(i18n.message(Locale.ENGLISH, "project_links.scm", null)).thenReturn("Sources");
     when(i18n.message(Locale.ENGLISH, "project_links.scm_dev", null)).thenReturn("Developer connection");
@@ -110,28 +96,28 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     // project and 1 module
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .setAnalysisDate(150000000L)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .setAnalysisDate(150000000L)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .addChildRef(2)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar").build())
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM_DEV).setHref("scm:git:git@github.com:SonarSource/sonar.git/sonar").build())
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.ISSUE).setHref("http://jira.sonarsource.com/").build())
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .addChildRef(2)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar").build())
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM_DEV).setHref("scm:git:git@github.com:SonarSource/sonar.git/sonar").build())
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.ISSUE).setHref("http://jira.sonarsource.com/").build())
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
+      .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(2)
-        .setType(Constants.ComponentType.MODULE)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
-        .build());
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     dbTester.assertDbUnit(getClass(), "add_links_on_project_and_module-result.xml", "project_links");
   }
@@ -143,17 +129,17 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml", "project_links");
   }
@@ -165,17 +151,17 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.FILE)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.FILE)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -187,17 +173,17 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     dbTester.assertDbUnit(getClass(), "update_link-result.xml", "project_links");
   }
@@ -209,16 +195,16 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
   }
@@ -230,16 +216,16 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .build());
 
-    step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     dbTester.assertDbUnit(getClass(), "not_delete_custom_link.xml", "project_links");
   }
@@ -251,19 +237,19 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-        .setRootComponentRef(1)
-        .setProjectKey(PROJECT_KEY)
-        .build());
+      .setRootComponentRef(1)
+      .setProjectKey(PROJECT_KEY)
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-        .setRef(1)
-        .setType(Constants.ComponentType.PROJECT)
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-        .build());
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .build());
 
     try {
-      step.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), languageRepository));
+      step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Link of type 'homepage' has already been declared on component 'ABCD'");

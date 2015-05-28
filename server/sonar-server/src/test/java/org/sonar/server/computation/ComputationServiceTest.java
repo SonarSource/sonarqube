@@ -37,10 +37,8 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -78,7 +76,7 @@ public class ComputationServiceTest {
       .build());
 
     sut = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system,
-      reportReader, mock(DbClient.class), mock(LanguageRepository.class));
+      reportReader);
   }
 
   @Test

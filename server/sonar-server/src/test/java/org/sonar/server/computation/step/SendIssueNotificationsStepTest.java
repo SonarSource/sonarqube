@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
@@ -40,8 +39,6 @@ import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
-import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
@@ -64,19 +61,16 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  RuleCache ruleCache = mock(RuleCache.class);
   NotificationService notifService = mock(NotificationService.class);
   IssueCache issueCache;
-  DbComponentsRefCache dbComponentsRefCache;
-  NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
-  Settings projectSettings = new Settings();
   SendIssueNotificationsStep sut;
 
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new SendIssueNotificationsStep(issueCache, ruleCache, dbComponentsRefCache, notifService, reportReader, newIssuesNotificationFactory);
+    DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
+    NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
+    sut = new SendIssueNotificationsStep(issueCache, mock(RuleCache.class), dbComponentsRefCache, notifService, reportReader, newIssuesNotificationFactory);
 
     dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
 
@@ -95,8 +89,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() throws IOException {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
+    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null))));
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -108,8 +101,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-        mock(DbClient.class), ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null)), mock(LanguageRepository.class)));
+    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, null, null))));
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));

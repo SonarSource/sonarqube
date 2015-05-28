@@ -27,7 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
@@ -37,8 +36,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueComputation;
-import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +58,6 @@ public class ParseReportStepTest extends BaseStepTest {
   public static DbTester dbTester = new DbTester();
 
   IssueComputation issueComputation = mock(IssueComputation.class);
-
   ParseReportStep sut = new ParseReportStep(issueComputation, reportReader);
 
   @Test
@@ -72,8 +68,7 @@ public class ParseReportStepTest extends BaseStepTest {
 
     generateReport();
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, new Settings(),
-      mock(DbClient.class), ComponentTreeBuilders.from(root), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(root));
 
     sut.execute(context);
 

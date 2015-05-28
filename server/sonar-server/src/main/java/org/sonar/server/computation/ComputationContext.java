@@ -19,18 +19,13 @@
  */
 package org.sonar.server.computation;
 
-import org.sonar.api.config.Settings;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilder;
-import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 
 public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
   private final Component component;
 
-  public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
-    ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
+  public ComputationContext(ComponentTreeBuilder componentTreeBuilder) {
     this.component = componentTreeBuilder.build(this);
   }
 

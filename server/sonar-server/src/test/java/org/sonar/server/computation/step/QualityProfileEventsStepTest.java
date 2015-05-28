@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
@@ -39,7 +38,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilder;
 import org.sonar.server.computation.component.DumbComponent;
@@ -49,7 +47,6 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -296,17 +293,12 @@ public class QualityProfileEventsStepTest {
   }
 
   private ComputationContext newNoChildRootContext() {
-    return newContext(new ComponentTreeBuilder() {
+    return new ComputationContext(new ComponentTreeBuilder() {
       @Override
       public Component build(ComputationContext context) {
         return new DumbComponent(context, Component.Type.PROJECT, 1, "uuid", "key");
       }
     });
-  }
-
-  private ComputationContext newContext(ComponentTreeBuilder builder) {
-    return new ComputationContext(mock(BatchReportReader.class), "COMPONENT_KEY", new Settings(), mock(DbClient.class),
-      builder, languageRepository);
   }
 
 }
