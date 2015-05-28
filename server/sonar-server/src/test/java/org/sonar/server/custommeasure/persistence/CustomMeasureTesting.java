@@ -32,9 +32,9 @@ public class CustomMeasureTesting {
 
   public static CustomMeasureDto newDto() {
     return new CustomMeasureDto()
-      .setDescription(RandomStringUtils.random(255))
-      .setTextValue(RandomStringUtils.random(255))
-      .setUserLogin(RandomStringUtils.random(255))
+      .setDescription(RandomStringUtils.randomAlphanumeric(255))
+      .setTextValue(RandomStringUtils.randomAlphanumeric(255))
+      .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
       .setValue(RandomUtils.nextDouble())
       .setMetricId(RandomUtils.nextInt())
       .setResourceId(RandomUtils.nextInt())
