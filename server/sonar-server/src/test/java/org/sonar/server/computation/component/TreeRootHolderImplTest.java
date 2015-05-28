@@ -17,12 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.context;
+package org.sonar.server.computation.component;
 
-import org.sonar.server.computation.component.Component;
+import org.junit.Test;
 
-public interface ComputationContext {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  Component getRoot();
+public class TreeRootHolderImplTest {
 
+  TreeRootHolderImpl treeRootHolder = new TreeRootHolderImpl();
+  Component component = mock(Component.class);
+
+  @Test(expected = NullPointerException.class)
+  public void setRoot_throws_NPE_if_arg_is_null() {
+    treeRootHolder.setRoot(null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getRoot_throws_ISE_if_root_has_not_been_set_yet() {
+    treeRootHolder.getRoot();
+  }
+
+  @Test
+  public void verify_setRoot_getRoot() {
+    treeRootHolder.setRoot(component);
+    assertThat(treeRootHolder.getRoot()).isSameAs(component);
+  }
 }

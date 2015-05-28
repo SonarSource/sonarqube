@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.component;
 
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilder;
-
-public class ComputationContext {
-  private final Component component;
-
-  public ComputationContext(ComponentTreeBuilder componentTreeBuilder) {
-    this.component = componentTreeBuilder.build();
-  }
-
-  public Component getRoot() {
-    return component;
-  }
-
+public interface TreeRootHolder {
+  /**
+   * The root of the tree of Component representing the component in the current BatchReport.
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   */
+  Component getRoot();
 }

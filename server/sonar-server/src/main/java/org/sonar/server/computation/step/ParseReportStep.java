@@ -26,22 +26,25 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.IssueComputation;
 
 public class ParseReportStep implements ComputationStep {
 
   private final IssueComputation issueComputation;
   private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public ParseReportStep(IssueComputation issueComputation, BatchReportReader reportReader) {
+  public ParseReportStep(IssueComputation issueComputation, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.issueComputation = issueComputation;
     this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute(ComputationContext context) {
     IssueDepthTraversalTypeAwareVisitor visitor = new IssueDepthTraversalTypeAwareVisitor();
-    visitor.visit(context.getRoot());
+    visitor.visit(treeRootHolder.getRoot());
     processDeletedComponents(visitor);
     issueComputation.afterReportProcessing();
   }

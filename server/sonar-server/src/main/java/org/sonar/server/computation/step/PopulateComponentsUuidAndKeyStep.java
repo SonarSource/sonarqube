@@ -33,6 +33,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 /**
@@ -42,10 +43,12 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public PopulateComponentsUuidAndKeyStep(DbClient dbClient, BatchReportReader reportReader) {
+  public PopulateComponentsUuidAndKeyStep(DbClient dbClient, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
@@ -65,7 +68,7 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
       ComponentContext componentContext = new ComponentContext(reportReader, componentUuidsByKey, branch);
 
-      Component root = context.getRoot();
+      Component root = treeRootHolder.getRoot();
       processProject(componentContext, root, projectKey);
       processChildren(componentContext, root, root);
       session.commit();

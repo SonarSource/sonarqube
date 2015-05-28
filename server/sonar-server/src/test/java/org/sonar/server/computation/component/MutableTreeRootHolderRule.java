@@ -17,20 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.component;
 
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilder;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 
-public class ComputationContext {
-  private final Component component;
-
-  public ComputationContext(ComponentTreeBuilder componentTreeBuilder) {
-    this.component = componentTreeBuilder.build();
+public class MutableTreeRootHolderRule extends TreeRootHolderRule implements MutableTreeRootHolder {
+  @Override
+  public void setRoot(Component newRoot) {
+    super.setRoot(newRoot);
   }
-
-  public Component getRoot() {
-    return component;
-  }
-
 }

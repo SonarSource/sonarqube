@@ -36,6 +36,9 @@ public class ComputationSteps {
    */
   public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
+      // Builds Component tree
+      BuildComponentTreeStep.class,
+
       PopulateComponentsUuidAndKeyStep.class,
       ValidateProjectStep.class,
 

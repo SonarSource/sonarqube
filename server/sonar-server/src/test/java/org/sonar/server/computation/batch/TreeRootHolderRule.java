@@ -17,20 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.computation.batch;
 
+import java.util.Objects;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilder;
+import org.sonar.server.computation.component.TreeRootHolder;
 
-public class ComputationContext {
-  private final Component component;
+public class TreeRootHolderRule implements TestRule, TreeRootHolder {
+  private Component root;
 
-  public ComputationContext(ComponentTreeBuilder componentTreeBuilder) {
-    this.component = componentTreeBuilder.build();
+  @Override
+  public Statement apply(final Statement statement, Description description) {
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          statement.evaluate();
+        } finally {
+          clear();
+        }
+      }
+    };
   }
 
+  private void clear() {
+    this.root = null;
+  }
+
+  @Override
   public Component getRoot() {
-    return component;
+    if (root == null) {
+      throw new IllegalStateException("Root has not been set in " + TreeRootHolder.class.getSimpleName());
+    }
+    return root;
   }
 
+  public void setRoot(Component newRoot) {
+    this.root = Objects.requireNonNull(newRoot);
+  }
 }

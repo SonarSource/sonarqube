@@ -17,8 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.computation.component;
 
-@ParametersAreNonnullByDefault
-package org.sonar.server.computation.context;
+import java.util.Objects;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * Holds the reference to the root of the {@link Component} tree for the current CE run.
+ */
+public class TreeRootHolderImpl implements MutableTreeRootHolder {
+  private Component root;
+
+  @Override
+  public void setRoot(Component newRoot) {
+    this.root = Objects.requireNonNull(newRoot);
+  }
+
+  @Override
+  public Component getRoot() {
+    if (this.root == null) {
+      throw new IllegalStateException("Root has not been created yet");
+    }
+    return this.root;
+  }
+}

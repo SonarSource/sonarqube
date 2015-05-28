@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -38,8 +40,8 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilder;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
@@ -61,6 +63,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class QualityProfileEventsStepTest {
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   private static final String QP_NAME_1 = "qp_1";
   private static final String QP_NAME_2 = "qp_2";
@@ -73,36 +77,35 @@ public class QualityProfileEventsStepTest {
   private EventRepository eventRepository = mock(EventRepository.class);
   private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
 
-  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(measureRepository, eventRepository, languageRepository);
+  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(treeRootHolder, measureRepository, eventRepository, languageRepository);
+
+  @Before
+  public void setUp() throws Exception {
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "uuid", "key"));
+  }
 
   @Test
   public void no_effect_if_no_previous_measure() {
-    ComputationContext context = newNoChildRootContext();
+    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<MeasureDto>absent());
 
-    when(measureRepository.findPrevious(context.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<MeasureDto>absent());
-
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
     verifyNoMoreInteractions(eventRepository);
   }
 
   @Test(expected = IllegalStateException.class)
   public void ISE_if_no_current_measure() {
-    ComputationContext context = newNoChildRootContext();
+    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasureDto()));
+    when(measureRepository.findCurrent(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<BatchReport.Measure>absent());
 
-    when(measureRepository.findPrevious(context.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasureDto()));
-    when(measureRepository.findCurrent(context.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<BatchReport.Measure>absent());
-
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
   }
 
   @Test
   public void no_event_if_no_qp_now_nor_before() {
-    ComputationContext context = newNoChildRootContext();
+    mockMeasures(treeRootHolder.getRoot(), null, null);
 
-    mockMeasures(context.getRoot(), null, null);
-
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
     verifyNoMoreInteractions(eventRepository);
   }
@@ -110,14 +113,13 @@ public class QualityProfileEventsStepTest {
   @Test
   public void added_event_if_one_new_qp() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
-    ComputationContext context = newNoChildRootContext();
 
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
-    mockMeasures(context.getRoot(), null, arrayOf(qp));
+    mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
-    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
@@ -125,14 +127,13 @@ public class QualityProfileEventsStepTest {
   @Test
   public void added_event_uses_language_key_in_message_if_language_not_found() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
-    ComputationContext context = newNoChildRootContext();
 
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
-    mockMeasures(context.getRoot(), null, arrayOf(qp));
+    mockMeasures(treeRootHolder.getRoot(), null, arrayOf(qp));
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
-    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
@@ -140,14 +141,13 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_more_used_event_if_qp_no_more_listed() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
-    ComputationContext context = newNoChildRootContext();
 
-    mockMeasures(context.getRoot(), arrayOf(qp), null);
+    mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
-    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
@@ -155,14 +155,13 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_more_used_event_uses_language_key_in_message_if_language_not_found() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
-    ComputationContext context = newNoChildRootContext();
 
-    mockMeasures(context.getRoot(), arrayOf(qp), null);
+    mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), null);
     mockLanguageNotInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
-    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
@@ -170,11 +169,10 @@ public class QualityProfileEventsStepTest {
   @Test
   public void no_event_if_same_qp_with_same_date() {
     QualityProfile qp = qp(QP_NAME_1, LANGUAGE_KEY_1);
-    ComputationContext context = newNoChildRootContext();
 
-    mockMeasures(context.getRoot(), arrayOf(qp), arrayOf(qp));
+    mockMeasures(treeRootHolder.getRoot(), arrayOf(qp), arrayOf(qp));
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
     verify(eventRepository, never()).add(any(Component.class), any(Event.class));
   }
@@ -183,14 +181,13 @@ public class QualityProfileEventsStepTest {
   public void changed_event_if_same_qp_but_no_same_date() {
     QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"));
     QualityProfile qp2 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100"));
-    ComputationContext context = newNoChildRootContext();
 
-    mockMeasures(context.getRoot(), arrayOf(qp1), arrayOf(qp2));
+    mockMeasures(treeRootHolder.getRoot(), arrayOf(qp1), arrayOf(qp2));
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
-    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verify(eventRepository).add(eq(treeRootHolder.getRoot()), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(),
       "Changes in '" + qp2.getQpName() + "' (" + language.getName() + ")",
@@ -200,7 +197,6 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void verify_detection_with_complex_mix_of_qps() {
-    ComputationContext context = newNoChildRootContext();
     final Set<Event> events = new HashSet<>();
     doAnswer(new Answer() {
       @Override
@@ -208,10 +204,10 @@ public class QualityProfileEventsStepTest {
         events.add((Event) invocationOnMock.getArguments()[1]);
         return null;
       }
-    }).when(eventRepository).add(eq(context.getRoot()), any(Event.class));
+    }).when(eventRepository).add(eq(treeRootHolder.getRoot()), any(Event.class));
 
     mockMeasures(
-      context.getRoot(), arrayOf(
+      treeRootHolder.getRoot(), arrayOf(
         qp(QP_NAME_2, LANGUAGE_KEY_1),
         qp(QP_NAME_2, LANGUAGE_KEY_2),
         qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"))
@@ -223,7 +219,7 @@ public class QualityProfileEventsStepTest {
       ));
     mockNoLanguageInRepository();
 
-    underTest.execute(context);
+    underTest.execute(mock(ComputationContext.class));
 
     assertThat(events).extracting("name").containsOnly(
       "Stop using '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_1 + ")",
@@ -290,15 +286,6 @@ public class QualityProfileEventsStepTest {
   private static String toJson(@Nullable QualityProfile... qps) {
     List<QualityProfile> qualityProfiles = qps == null ? Collections.<QualityProfile>emptyList() : Arrays.asList(qps);
     return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
-  }
-
-  private ComputationContext newNoChildRootContext() {
-    return new ComputationContext(new ComponentTreeBuilder() {
-      @Override
-      public Component build() {
-        return new DumbComponent(Component.Type.PROJECT, 1, "uuid", "key");
-      }
-    });
   }
 
 }

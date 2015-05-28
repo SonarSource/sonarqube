@@ -38,12 +38,14 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
@@ -54,6 +56,8 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
   public static DbTester dbTester = new DbTester();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbClient dbClient;
   DbSession session;
@@ -66,7 +70,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
-    sut = new PopulateComponentsUuidAndKeyStep(dbClient, reportReader);
+    sut = new PopulateComponentsUuidAndKeyStep(dbClient, reportReader, treeRootHolder);
   }
 
   @After
@@ -109,10 +113,10 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(componentsByRef.get(1).getUuid()).isNotNull();
@@ -166,10 +170,11 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
+
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(componentsByRef.get(1).getUuid()).isEqualTo("ABCD");
@@ -223,10 +228,10 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(4).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir");
     assertThat(componentsByRef.get(5).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir/Foo.java");
@@ -266,10 +271,10 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(1).getKey()).isEqualTo("PROJECT_KEY:origin/master");
     assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY:origin/master");
@@ -319,10 +324,10 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(componentsByRef.get(1).getUuid()).isNotNull();
@@ -379,10 +384,10 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
-    sut.execute(context);
+    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    sut.execute(mock(ComputationContext.class));
 
-    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
     assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
     assertThat(componentsByRef.get(1).getUuid()).isNotNull();

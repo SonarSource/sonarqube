@@ -21,8 +21,7 @@ package org.sonar.server.computation.component;
 
 public interface ComponentTreeBuilder {
   /**
-   * Builds the tree of components for the specified ComputationContext and returns the Component of the root of this
-   * tree.
+   * Builds the tree of components and returns the Component of the root of this tree.
    */
   Component build();
 }
