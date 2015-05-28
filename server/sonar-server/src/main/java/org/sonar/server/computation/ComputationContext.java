@@ -27,26 +27,16 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 
 public class ComputationContext implements org.sonar.server.computation.context.ComputationContext {
-  private final DbClient dbClient;
   private final Component component;
 
   public ComputationContext(BatchReportReader reportReader, String projectKey, Settings projectSettings, DbClient dbClient,
     ComponentTreeBuilder componentTreeBuilder, LanguageRepository languageRepository) {
-    this.dbClient = dbClient;
     this.component = componentTreeBuilder.build(this);
   }
 
   @Override
   public Component getRoot() {
     return component;
-  }
-
-  /**
-   * @deprecated because dbclient is too low level to be exposed in the CE API
-   */
-  @Deprecated
-  public DbClient getDbClient() {
-    return dbClient;
   }
 
 }
