@@ -4,6 +4,7 @@ module.exports = (grunt) ->
     unzip: 'grunt-zip'
     replace: 'grunt-text-replace'
   });
+  require('time-grunt')(grunt);
 
   expressPort = '<%= grunt.option("port") || 3000 %>'
 
@@ -119,40 +120,39 @@ module.exports = (grunt) ->
         out: '<%= ASSETS_PATH %>/js/components/common/select-list.js'
 
       app: options:
-        name: 'apps/<%= APP %>/app'
+        name: 'apps/<%= grunt.option("app") %>/app'
         out: '<%= ASSETS_PATH %>/js/apps/<%= APP %>/app.js'
 
       widget: options:
-        name: 'widgets/<%= WIDGET %>/widget'
+        name: 'widgets/<%= grunt.option("widget") %>/widget'
         out: '<%= ASSETS_PATH %>/js/widgets/<%= WIDGET %>/widget.js'
 
 
-    parallel:
+    concurrent:
       build:
         tasks: [
-          { grunt: true, args: ['uglify:build'] }
+          'uglify:build'
           # apps
-          { grunt: true, args: ['requirejs:app', '--app=api-documentation'] }
-          { grunt: true, args: ['requirejs:app', '--app=coding-rules'] }
-          { grunt: true, args: ['requirejs:app', '--app=computation'] }
-          { grunt: true, args: ['requirejs:app', '--app=drilldown'] }
-          { grunt: true, args: ['requirejs:app', '--app=markdown'] }
-          { grunt: true, args: ['requirejs:app', '--app=measures'] }
-          { grunt: true, args: ['requirejs:app', '--app=nav'] }
-          { grunt: true, args: ['requirejs:app', '--app=provisioning'] }
-          { grunt: true, args: ['requirejs:app', '--app=quality-gates'] }
-          { grunt: true, args: ['requirejs:app', '--app=quality-profiles'] }
-          { grunt: true, args: ['requirejs:app', '--app=source-viewer'] }
-          { grunt: true, args: ['requirejs:app', '--app=users'] }
+          'build-app:api-documentation'
+          'build-app:coding-rules'
+          'build-app:computation'
+          'build-app:drilldown'
+          'build-app:markdown'
+          'build-app:measures'
+          'build-app:nav'
+          'build-app:provisioning'
+          'build-app:quality-gates'
+          'build-app:quality-profiles'
+          'build-app:source-viewer'
+          'build-app:users'
           # widgets
-          { grunt: true, args: ['requirejs:widget', '--widget=issue-filter'] }
+          'build-widget:issue-filter'
           # other
-          { grunt: true, args: ['requirejs:issues'] }
-          { grunt: true, args: ['requirejs:issuesContext'] }
-          { grunt: true, args: ['requirejs:selectList'] }
+          'requirejs:issues'
+          'requirejs:issuesContext'
+          'requirejs:selectList'
         ]
       casper:
-        options: grunt: true
         tasks: [
           'casper:apiDocumentation'
           'casper:application'
@@ -407,14 +407,22 @@ module.exports = (grunt) ->
       ['copy:assets-css', 'copy:assets-all-js']
 
   grunt.registerTask 'build-suffix',
-      ['copy:assets-css', 'copy:assets-js', 'parallel:build']
+      ['copy:assets-css', 'copy:assets-js', 'concurrent:build']
 
   grunt.registerTask 'test-suffix',
-      ['express:test', 'parallel:casper']
+      ['express:test', 'concurrent:casper']
 
   grunt.registerTask 'coverage-suffix',
-      ['express:testCoverage', 'curl:resetCoverage', 'parallel:casper', 'curl:downloadCoverage', 'unzip',
+      ['express:testCoverage', 'curl:resetCoverage', 'concurrent:casper', 'curl:downloadCoverage', 'unzip',
        'replace:lcov']
+
+  grunt.registerTask 'build-app', (app) ->
+    grunt.option 'app', app
+    grunt.task.run 'requirejs:app'
+
+  grunt.registerTask 'build-widget', (widget) ->
+    grunt.option 'widget', widget
+    grunt.task.run 'requirejs:widget'
 
   # Output tasks
   grunt.registerTask 'build-fast',
