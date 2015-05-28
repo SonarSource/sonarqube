@@ -78,7 +78,7 @@ public class ProcessEntryPoint implements Stoppable {
       boolean ready = false;
       while (!ready) {
         ready = monitored.isReady();
-        Thread.sleep(200L);
+        Thread.sleep(20L);
       }
 
       // notify monitor that process is ready
