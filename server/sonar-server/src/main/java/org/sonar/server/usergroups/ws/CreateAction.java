@@ -72,9 +72,8 @@ public class CreateAction extends AbstractGroupUpdate implements UserGroupsWsAct
 
     DbSession session = dbClient.openSession(false);
     try {
-      GroupDto newGroup = new GroupDto().setName(name).setDescription(description);
       checkNameIsUnique(name, session);
-      newGroup = dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
+      GroupDto newGroup = dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
       session.commit();
 
       JsonWriter json = response.newJsonWriter().beginObject();

@@ -42,7 +42,7 @@ public class UpdateAction extends AbstractGroupUpdate implements UserGroupsWsAct
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("update")
-      .setDescription("update a group.")
+      .setDescription("Update a group.")
       .setHandler(this)
       .setPost(true)
       .setResponseExample(getClass().getResource("example-update.json"))

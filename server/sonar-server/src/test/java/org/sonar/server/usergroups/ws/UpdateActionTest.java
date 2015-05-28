@@ -144,8 +144,10 @@ public class UpdateActionTest {
         "}");
   }
 
-  @Test(expected = ForbiddenException.class)
+  @Test
   public void require_admin_permission() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+
     userSession.login("not-admin");
     tester.newPostRequest("api/usergroups", "update")
       .setParam("id", "42")
@@ -154,10 +156,12 @@ public class UpdateActionTest {
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void name_too_short() throws Exception {
     GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
     session.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
     tester.newPostRequest("api/usergroups", "update")
@@ -166,10 +170,12 @@ public class UpdateActionTest {
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void name_too_long() throws Exception {
     GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
     session.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
     tester.newPostRequest("api/usergroups", "update")
@@ -178,10 +184,12 @@ public class UpdateActionTest {
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void forbidden_name() throws Exception {
     GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
     session.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
     tester.newPostRequest("api/usergroups", "update")
@@ -208,10 +216,12 @@ public class UpdateActionTest {
       .execute().assertStatus(HttpURLConnection.HTTP_CONFLICT);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void description_too_long() throws Exception {
     GroupDto existingGroup = groupDao.insert(session, new GroupDto().setName("old-name").setDescription("Old Description"));
     session.commit();
+
+    expectedException.expect(IllegalArgumentException.class);
 
     loginAsAdmin();
     tester.newPostRequest("api/usergroups", "update")
@@ -221,8 +231,10 @@ public class UpdateActionTest {
       .execute();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
   public void unknown_group() throws Exception {
+    expectedException.expect(NotFoundException.class);
+
     loginAsAdmin();
     tester.newPostRequest("api/usergroups", "update")
       .setParam("id", "42")
