@@ -19,46 +19,74 @@
  */
 package org.sonar.server.user;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class DoPrivilegedTest {
 
-  ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private static final String LOGIN = "dalailaHidou!";
+
+  private ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+  private MockUserSession session = new MockUserSession(LOGIN);
+
+  @Before
+  public void setUp() throws Exception {
+    threadLocalUserSession.set(session);
+  }
 
   @Test
   public void should_allow_everything_in_privileged_block_only() {
-    DoPrivileged.execute(new DoPrivileged.Task(threadLocalUserSession) {
-      @Override
-      protected void doPrivileged() {
-        UserSession userSession = threadLocalUserSession.get();
-        assertThat(userSession.isLoggedIn()).isFalse();
-        assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
-        assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
-      }
-    });
+    UserSessionCatcherTask catcher = new UserSessionCatcherTask();
 
-    assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
+    DoPrivileged.execute(catcher);
+
+    // verify the session used inside Privileged task
+    assertThat(catcher.userSession.isLoggedIn()).isFalse();
+    assertThat(catcher.userSession.hasGlobalPermission("any permission")).isTrue();
+    assertThat(catcher.userSession.hasProjectPermission("any permission", "any project")).isTrue();
+
+    // verify session in place after task is done
+    assertThat(threadLocalUserSession.get()).isSameAs(session);
   }
 
   @Test
   public void should_lose_privileges_on_exception() {
-    try {
-      DoPrivileged.execute(new DoPrivileged.Task(threadLocalUserSession) {
-        @Override
-        protected void doPrivileged() {
-          UserSession userSession = threadLocalUserSession.get();
-          assertThat(userSession.isLoggedIn()).isTrue();
-          assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
-          assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
+    UserSessionCatcherTask catcher = new UserSessionCatcherTask() {
+      @Override
+      protected void doPrivileged() {
+        super.doPrivileged();
+        throw new RuntimeException("Test to lose privileges");
+      }
+    };
 
-          throw new RuntimeException("Test to lose privileges");
-        }
-      });
-    } catch(Throwable ignored) {
-      assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
+    try {
+      DoPrivileged.execute(catcher);
+      fail("An exception should have been raised!");
+    } catch (Throwable ignored) {
+      // verify session in place after task is done
+      assertThat(threadLocalUserSession.get()).isSameAs(session);
+
+      // verify the session used inside Privileged task
+      assertThat(catcher.userSession.isLoggedIn()).isFalse();
+      assertThat(catcher.userSession.hasGlobalPermission("any permission")).isTrue();
+      assertThat(catcher.userSession.hasProjectPermission("any permission", "any project")).isTrue();
     }
   }
 
+  private class UserSessionCatcherTask extends DoPrivileged.Task {
+    UserSession userSession;
+
+    public UserSessionCatcherTask() {
+      super(DoPrivilegedTest.this.threadLocalUserSession);
+    }
+
+    @Override
+    protected void doPrivileged() {
+      userSession = threadLocalUserSession.get();
+    }
+  }
 }

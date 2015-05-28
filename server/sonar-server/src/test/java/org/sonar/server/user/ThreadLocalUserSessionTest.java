@@ -20,7 +20,9 @@
 package org.sonar.server.user;
 
 import java.util.Locale;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.tester.MockUserSession;
@@ -30,11 +32,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ThreadLocalUserSessionTest {
 
   ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
-  @org.junit.Rule
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void setUp() {
+    // for test isolation
+    threadLocalUserSession.remove();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    // clean up for next test
     threadLocalUserSession.remove();
   }
 

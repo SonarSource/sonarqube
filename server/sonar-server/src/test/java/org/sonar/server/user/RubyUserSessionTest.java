@@ -20,6 +20,7 @@
 package org.sonar.server.user;
 
 import java.util.Locale;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
@@ -38,8 +39,17 @@ public class RubyUserSessionTest {
 
   @Before
   public void setUp() {
+    // for test isolation
+    threadLocalUserSession.remove();
+
     when(platform.getContainer()).thenReturn(componentContainer);
     when(componentContainer.getComponentByType(ThreadLocalUserSession.class)).thenReturn(threadLocalUserSession);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    // clean up for next test
+    threadLocalUserSession.remove();
   }
 
   @Test
