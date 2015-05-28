@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultResourceTypesTest {
   @Test
   public void provide_types() {
-    ResourceTypeTree tree = new DefaultResourceTypes().provide();
+    ResourceTypeTree tree = DefaultResourceTypes.get();
 
     assertThat(tree.getTypes()).hasSize(7);
     assertThat(tree.getChildren(Qualifiers.PROJECT)).containsExactly(Qualifiers.MODULE);
@@ -37,7 +37,7 @@ public class DefaultResourceTypesTest {
 
   @Test
   public void projects_should_be_available_for_global_widgets() {
-    ResourceTypeTree tree = new DefaultResourceTypes().provide();
+    ResourceTypeTree tree = DefaultResourceTypes.get();
 
     ResourceType projectResourceType = tree.getTypes().get(0);
 

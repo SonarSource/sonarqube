@@ -84,7 +84,7 @@ public class BatchComponents {
 
   public static Collection all(DefaultAnalysisMode analysisMode) {
     List components = Lists.newArrayList(
-      DefaultResourceTypes.class,
+      DefaultResourceTypes.get(),
 
       // Maven
       MavenProjectBootstrapper.class, MavenProjectConverter.class, MavenProjectBuilder.class,

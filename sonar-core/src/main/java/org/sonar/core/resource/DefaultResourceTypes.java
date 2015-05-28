@@ -19,9 +19,7 @@
  */
 package org.sonar.core.resource;
 
-import org.sonar.api.ExtensionProvider;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
@@ -29,16 +27,17 @@ import org.sonar.api.server.ServerSide;
 
 @BatchSide
 @ServerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class DefaultResourceTypes extends ExtensionProvider {
+public final class DefaultResourceTypes {
 
   private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";
   private static final String CONFIGURABLE = "configurable";
   private static final String UPDATABLE_KEY = "updatable_key";
 
-  @Override
-  public ResourceTypeTree provide() {
+  private DefaultResourceTypes() {
+    // only static methods
+  }
 
+  public static ResourceTypeTree get() {
     return ResourceTypeTree.builder()
       .addType(ResourceType.builder(Qualifiers.PROJECT)
         .setProperty("deletable", true)

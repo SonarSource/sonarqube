@@ -343,7 +343,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DistributionAreaChart.class,
       Views.class,
       ResourceTypes.class,
-      DefaultResourceTypes.class,
+      DefaultResourceTypes.get(),
       SettingsChangeNotifier.class,
       PageDecorations.class,
       DefaultResourcePermissions.class,
