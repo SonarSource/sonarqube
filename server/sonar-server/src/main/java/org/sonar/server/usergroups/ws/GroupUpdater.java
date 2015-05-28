@@ -22,31 +22,30 @@ package org.sonar.server.usergroups.ws;
 import com.google.common.base.Preconditions;
 import java.net.HttpURLConnection;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.user.UserSession;
 
-abstract class AbstractGroupUpdate {
+@ServerSide
+public class GroupUpdater {
 
-  protected static final String PARAM_ID = "id";
-  protected static final String PARAM_DESCRIPTION = "description";
-  protected static final String PARAM_NAME = "name";
+  static final String PARAM_ID = "id";
+  static final String PARAM_DESCRIPTION = "description";
+  static final String PARAM_NAME = "name";
 
   // Database column size should be 500 (since migration #353),
   // but on some instances, column size is still 255,
   // hence the validation is done with 255
-  protected static final int NAME_MAX_LENGTH = 255;
-  protected static final int DESCRIPTION_MAX_LENGTH = 200;
+  static final int NAME_MAX_LENGTH = 255;
+  static final int DESCRIPTION_MAX_LENGTH = 200;
 
-  protected final DbClient dbClient;
-  protected final UserSession userSession;
+  private final DbClient dbClient;
 
-  protected AbstractGroupUpdate(DbClient dbClient, UserSession userSession) {
+  public GroupUpdater(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
   }
 
   protected void validateName(String name) {

@@ -68,7 +68,7 @@ public class CreateActionTest {
 
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), groupDao);
 
-    tester = new WsTester(new UserGroupsWs(new CreateAction(dbClient, userSession)));
+    tester = new WsTester(new UserGroupsWs(new CreateAction(dbClient, userSession, new GroupUpdater(dbClient))));
 
     session = dbClient.openSession(false);
   }

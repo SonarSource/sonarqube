@@ -41,7 +41,7 @@ public class UserGroupsWsTest {
   public void setUp() {
     WsTester tester = new WsTester(new UserGroupsWs(
       new SearchAction(mock(DbClient.class)),
-      new CreateAction(mock(DbClient.class), mock(UserSession.class))));
+      new CreateAction(mock(DbClient.class), mock(UserSession.class), mock(GroupUpdater.class))));
     controller = tester.controller("api/usergroups");
   }
 

@@ -32,11 +32,22 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.persistence.MyBatis.closeQuietly;
+import static org.sonar.server.usergroups.ws.GroupUpdater.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_DESCRIPTION;
+import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_ID;
+import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_NAME;
 
-public class UpdateAction extends AbstractGroupUpdate implements UserGroupsWsAction {
+public class UpdateAction implements UserGroupsWsAction {
 
-  public UpdateAction(DbClient dbClient, UserSession userSession) {
-    super(dbClient, userSession);
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final GroupUpdater groupUpdater;
+
+  public UpdateAction(DbClient dbClient, UserSession userSession, GroupUpdater groupUpdater) {
+    this.dbClient = dbClient;
+    this.groupUpdater = groupUpdater;
+    this.userSession = userSession;
   }
 
   @Override
@@ -73,21 +84,21 @@ public class UpdateAction extends AbstractGroupUpdate implements UserGroupsWsAct
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      checkNameIsUnique(name, dbSession);
+      groupUpdater.checkNameIsUnique(name, dbSession);
       GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
       if (name != null) {
-        validateName(name);
+        groupUpdater.validateName(name);
         group.setName(name);
       }
       if (description != null) {
-        validateDescription(description);
+        groupUpdater.validateDescription(description);
         group.setDescription(description);
       }
       dbClient.groupDao().update(dbSession, group);
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeGroup(json, group, dbClient.groupMembershipDao().countUsersByGroups(dbSession, Arrays.asList(groupId)).get(group.getName()));
+      groupUpdater.writeGroup(json, group, dbClient.groupMembershipDao().countUsersByGroups(dbSession, Arrays.asList(groupId)).get(group.getName()));
       json.endObject().close();
     } finally {
       closeQuietly(dbSession);

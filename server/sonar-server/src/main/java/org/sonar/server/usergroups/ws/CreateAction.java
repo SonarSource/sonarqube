@@ -31,11 +31,21 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.persistence.MyBatis.closeQuietly;
+import static org.sonar.server.usergroups.ws.GroupUpdater.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_DESCRIPTION;
+import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_NAME;
 
-public class CreateAction extends AbstractGroupUpdate implements UserGroupsWsAction {
+public class CreateAction implements UserGroupsWsAction {
 
-  public CreateAction(DbClient dbClient, UserSession userSession) {
-    super(dbClient, userSession);
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final GroupUpdater groupUpdater;
+
+  public CreateAction(DbClient dbClient, UserSession userSession, GroupUpdater groupUpdater) {
+    this.dbClient = dbClient;
+    this.groupUpdater = groupUpdater;
+    this.userSession = userSession;
   }
 
   @Override
@@ -65,19 +75,19 @@ public class CreateAction extends AbstractGroupUpdate implements UserGroupsWsAct
     String name = request.mandatoryParam(PARAM_NAME);
     String description = request.param(PARAM_DESCRIPTION);
 
-    validateName(name);
+    groupUpdater.validateName(name);
     if (description != null) {
-      validateDescription(description);
+      groupUpdater.validateDescription(description);
     }
 
     DbSession session = dbClient.openSession(false);
     try {
-      checkNameIsUnique(name, session);
+      groupUpdater.checkNameIsUnique(name, session);
       GroupDto newGroup = dbClient.groupDao().insert(session, new GroupDto().setName(name).setDescription(description));
       session.commit();
 
       JsonWriter json = response.newJsonWriter().beginObject();
-      writeGroup(json, newGroup, 0);
+      groupUpdater.writeGroup(json, newGroup, 0);
       json.endObject().close();
     } finally {
       closeQuietly(session);
