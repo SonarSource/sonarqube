@@ -20,21 +20,24 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-
-import java.util.List;
 
 /**
  * @since 2.12
  */
 public class ModuleSettings extends Settings {
+
+  private static final Logger LOG = Loggers.get(ModuleSettings.class);
 
   private final ProjectRepositories projectReferentials;
   private DefaultAnalysisMode analysisMode;
@@ -46,8 +49,9 @@ public class ModuleSettings extends Settings {
     this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
-    LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
+    Profiler profiler = Profiler.create(LOG).startInfo("Load module settings");
     init(moduleDefinition, batchSettings);
+    profiler.stopDebug();
   }
 
   private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {

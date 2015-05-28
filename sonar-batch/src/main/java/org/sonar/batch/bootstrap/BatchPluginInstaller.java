@@ -21,22 +21,22 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.CharUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.plugins.RemotePlugin;
-import org.sonar.core.plugins.RemotePluginFile;
-import org.sonar.home.cache.FileCache;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.Plugin;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.core.plugins.RemotePluginFile;
+import org.sonar.home.cache.FileCache;
 
 /**
  * Downloads the plugins installed on server and stores them in a local user cache
@@ -60,13 +60,16 @@ public class BatchPluginInstaller implements PluginInstaller {
   @Override
   public Map<String, PluginInfo> installRemotes() {
     Map<String, PluginInfo> infosByKey = new HashMap<>();
-    for (RemotePlugin remotePlugin : listRemotePlugins()) {
+    List<RemotePlugin> remotePlugins = listRemotePlugins();
+    Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
+    for (RemotePlugin remotePlugin : remotePlugins) {
       if (pluginPredicate.apply(remotePlugin.getKey())) {
         File jarFile = download(remotePlugin);
         PluginInfo info = PluginInfo.create(jarFile);
         infosByKey.put(info.getKey(), info);
       }
     }
+    profiler.stopDebug();
     return infosByKey;
   }
 
@@ -107,8 +110,9 @@ public class BatchPluginInstaller implements PluginInstaller {
   @VisibleForTesting
   List<RemotePlugin> listRemotePlugins() {
     try {
-      LOG.debug("Download index of plugins");
+      Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
       String indexContent = server.request(PLUGINS_INDEX_URL);
+      profiler.stopInfo();
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
       List<RemotePlugin> result = Lists.newArrayList();
       for (String row : rows) {
@@ -117,7 +121,7 @@ public class BatchPluginInstaller implements PluginInstaller {
       return result;
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to download list of plugins: " + PLUGINS_INDEX_URL, e);
+      throw new IllegalStateException("Fail to load plugin index: " + PLUGINS_INDEX_URL, e);
     }
   }
 }

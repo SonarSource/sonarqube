@@ -21,23 +21,6 @@ package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.filefilter.AndFileFilter;
-import org.apache.commons.io.filefilter.FileFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.util.BatchUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -50,6 +33,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.FileFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.util.BatchUtils;
 
 /**
  * Class that creates a project definition based on a set of properties.
@@ -58,7 +57,7 @@ public class ProjectReactorBuilder {
 
   private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectReactorBuilder.class);
+  private static final Logger LOG = Loggers.get(ProjectReactorBuilder.class);
 
   /**
    * @since 4.1 but not yet exposed in {@link CoreProperties}
@@ -112,6 +111,7 @@ public class ProjectReactorBuilder {
   }
 
   public ProjectReactor execute() {
+    Profiler profiler = Profiler.create(LOG).startInfo("Process project properties");
     Map<String, Map<String, String>> propertiesByModuleId = extractPropertiesByModule("", taskProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
@@ -121,6 +121,7 @@ public class ProjectReactorBuilder {
     for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
       taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
     }
+    profiler.stopInfo();
     return new ProjectReactor(rootProject);
   }
 
