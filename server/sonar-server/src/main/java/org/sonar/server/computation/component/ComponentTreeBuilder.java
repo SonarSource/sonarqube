@@ -19,12 +19,10 @@
  */
 package org.sonar.server.computation.component;
 
-import org.sonar.server.computation.ComputationContext;
-
 public interface ComponentTreeBuilder {
   /**
    * Builds the tree of components for the specified ComputationContext and returns the Component of the root of this
    * tree.
    */
-  Component build(ComputationContext context);
+  Component build();
 }

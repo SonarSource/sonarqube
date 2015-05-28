@@ -295,8 +295,8 @@ public class QualityProfileEventsStepTest {
   private ComputationContext newNoChildRootContext() {
     return new ComputationContext(new ComponentTreeBuilder() {
       @Override
-      public Component build(ComputationContext context) {
-        return new DumbComponent(context, Component.Type.PROJECT, 1, "uuid", "key");
+      public Component build() {
+        return new DumbComponent(Component.Type.PROJECT, 1, "uuid", "key");
       }
     });
   }
