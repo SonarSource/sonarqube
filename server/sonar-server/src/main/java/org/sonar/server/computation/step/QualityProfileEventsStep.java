@@ -32,6 +32,7 @@ import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.event.Event;
+import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
@@ -45,9 +46,11 @@ import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisi
 
 public class QualityProfileEventsStep implements ComputationStep {
   private final MeasureRepository measureRepository;
+  private final EventRepository eventRepository;
 
-  public QualityProfileEventsStep(MeasureRepository measureRepository) {
+  public QualityProfileEventsStep(MeasureRepository measureRepository, EventRepository eventRepository) {
     this.measureRepository = measureRepository;
+    this.eventRepository = eventRepository;
   }
 
   @Override
@@ -105,15 +108,15 @@ public class QualityProfileEventsStep implements ComputationStep {
         "key", profile.getQpKey(),
         "from", UtcDateUtils.formatDateTime(fixDate(from)),
         "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
-    component.getEventRepository().add(createQProfileEvent(component, profile, "Changes in %s", data));
+    eventRepository.add(component, createQProfileEvent(component, profile, "Changes in %s", data));
   }
 
   private void markAsRemoved(Component component, QualityProfile profile) {
-    component.getEventRepository().add(createQProfileEvent(component, profile, "Stop using %s"));
+    eventRepository.add(component, createQProfileEvent(component, profile, "Stop using %s"));
   }
 
   private void markAsAdded(Component component, QualityProfile profile) {
-    component.getEventRepository().add(createQProfileEvent(component, profile, "Use %s"));
+    eventRepository.add(component, createQProfileEvent(component, profile, "Use %s"));
   }
 
   private static Event createQProfileEvent(Component component, QualityProfile profile, String namePattern) {

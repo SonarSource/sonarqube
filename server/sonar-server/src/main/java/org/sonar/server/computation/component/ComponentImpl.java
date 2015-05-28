@@ -20,27 +20,21 @@
 package org.sonar.server.computation.component;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.computation.event.Event;
-import org.sonar.server.computation.event.EventRepository;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
-import static java.util.Objects.requireNonNull;
 
 public class ComponentImpl implements Component {
   private final ComputationContext context;
   private final Type type;
   private final BatchReport.Component component;
   private final List<Component> children;
-  private final EventRepository eventRepository = new SetEventRepository();
 
   // Mutable values
   private String key;
@@ -110,25 +104,6 @@ public class ComponentImpl implements Component {
   @Override
   public org.sonar.server.computation.context.ComputationContext getContext() {
     return context;
-  }
-
-  @Override
-  public EventRepository getEventRepository() {
-    return eventRepository;
-  }
-
-  private static class SetEventRepository implements EventRepository {
-    private final Set<Event> events = new HashSet<>();
-
-    @Override
-    public void add(Event event) {
-      events.add(requireNonNull(event));
-    }
-
-    @Override
-    public Iterable<Event> getEvents() {
-      return events;
-    }
   }
 
 }
