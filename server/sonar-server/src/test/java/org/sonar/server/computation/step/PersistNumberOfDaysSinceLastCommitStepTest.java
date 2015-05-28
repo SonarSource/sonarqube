@@ -96,8 +96,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
         )
         .build()
       );
-    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
-      languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
     sut.execute(context);
 
@@ -109,8 +108,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     Date sixDaysAgo = DateUtils.addDays(new Date(), -6);
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
-      languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
     sut.execute(context);
 
@@ -120,8 +118,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Test
   public void no_scm_information_in_report_and_index() {
     initReportWithProjectAndFile();
-    ComputationContext context = new ComputationContext(reportReader, "PROJECT_KEY", projectSettings, dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
-      languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
     sut.execute(context);
 

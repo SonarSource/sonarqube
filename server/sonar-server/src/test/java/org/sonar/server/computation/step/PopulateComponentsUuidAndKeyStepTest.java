@@ -28,24 +28,22 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
@@ -57,13 +55,8 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbSession session;
-
   DbClient dbClient;
-
-  Settings projectSettings;
-
-  LanguageRepository languageRepository = mock(LanguageRepository.class);
+  DbSession session;
 
   PopulateComponentsUuidAndKeyStep sut;
 
@@ -73,13 +66,12 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
-    projectSettings = new Settings();
     sut = new PopulateComponentsUuidAndKeyStep(dbClient, reportReader);
   }
 
   @After
   public void tearDown() throws Exception {
-    session.close();
+    MyBatis.closeQuietly(session);
   }
 
   @Override
@@ -117,8 +109,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -175,8 +166,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -233,8 +223,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -277,8 +266,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -331,8 +319,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
@@ -392,8 +379,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, projectSettings,
-      dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
     sut.execute(context);
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());

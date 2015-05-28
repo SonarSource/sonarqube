@@ -28,10 +28,8 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
@@ -46,18 +44,13 @@ public class ComputationService {
   private final BatchReportReader reportReader;
   private final ActivityManager activityManager;
   private final System2 system;
-  private final DbClient dbClient;
-  private final LanguageRepository languageRepository;
 
-  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system,
-    BatchReportReader reportReader, DbClient dbClient, LanguageRepository languageRepository) {
+  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system, BatchReportReader reportReader) {
     this.item = item;
     this.steps = steps;
     this.reportReader = reportReader;
     this.activityManager = activityManager;
     this.system = system;
-    this.dbClient = dbClient;
-    this.languageRepository = languageRepository;
   }
 
   public void process() {
@@ -67,7 +60,7 @@ public class ComputationService {
       );
 
     try {
-      ComputationContext context = new ComputationContext(reportReader, null, null, dbClient, ComponentTreeBuilders.from(reportReader), languageRepository);
+      ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(reportReader));
 
       for (ComputationStep step : steps.instances()) {
         Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());

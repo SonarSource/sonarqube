@@ -34,7 +34,6 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -44,7 +43,6 @@ import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class IndexSourceLinesStepTest extends BaseStepTest {
 
@@ -58,7 +56,6 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
-
   DbComponentsRefCache dbComponentsRefCache;
 
   @Before
@@ -87,8 +84,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    step().execute(new ComputationContext(reportReader, PROJECT_KEY, new Settings(), dbClient,
-      ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
+    step().execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     List<SearchHit> docs = esTester.getDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     assertThat(docs).hasSize(1);

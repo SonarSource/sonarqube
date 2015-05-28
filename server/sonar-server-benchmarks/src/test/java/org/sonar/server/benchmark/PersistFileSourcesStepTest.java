@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
@@ -39,13 +38,11 @@ import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class PersistFileSourcesStepTest {
 
@@ -77,8 +74,7 @@ public class PersistFileSourcesStepTest {
     long start = System.currentTimeMillis();
 
     PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache, reportReader);
-    step.execute(new ComputationContext(reportReader, "PROJECT_KEY", new Settings(), dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
-      mock(LanguageRepository.class)));
+    step.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
 
     long end = System.currentTimeMillis();
     long duration = end - start;

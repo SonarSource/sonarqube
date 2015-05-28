@@ -30,7 +30,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
@@ -52,7 +51,6 @@ import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -62,7 +60,6 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PersistMeasuresStepTest extends BaseStepTest {
@@ -71,20 +68,14 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final String METRIC_KEY = "metric-key";
   private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule-key");
 
-  DbSession session;
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
-  RuleCache ruleCache;
-  MetricCache metricCache;
-  MeasureDao measureDao;
+  DbSession session;
   DbComponentsRefCache dbComponentsRefCache;
-
   MetricDto metric;
   RuleDto rule;
 
@@ -96,8 +87,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     dbComponentsRefCache = new DbComponentsRefCache();
 
-    measureDao = new MeasureDao();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), measureDao, new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
     session = dbClient.openSession(false);
 
     metric = new MetricDto().setKey(METRIC_KEY).setEnabled(true).setOptimizedBestValue(false).setHidden(false).setDeleteHistoricalData(false);
@@ -106,8 +96,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbClient.ruleDao().insert(session, rule);
     session.commit();
 
-    ruleCache = new RuleCache(new RuleCacheLoader(dbClient));
-    metricCache = new MetricCache(dbClient);
+    RuleCache ruleCache = new RuleCache(new RuleCacheLoader(dbClient));
+    MetricCache metricCache = new MetricCache(dbClient);
     session.commit();
 
     sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache, dbComponentsRefCache, reportReader);
@@ -174,8 +164,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    sut.execute(new ComputationContext(reportReader, PROJECT_KEY, new Settings(),
-      dbClient, ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class)));
+    sut.execute(new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT)));
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);

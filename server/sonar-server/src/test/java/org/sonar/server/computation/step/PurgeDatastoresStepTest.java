@@ -37,7 +37,6 @@ import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
-import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,14 +55,12 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository, reportReader);
 
-  Settings projectSettings;
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository, reportReader);
 
   @Before
   public void setUp() throws Exception {
-    projectSettings = new Settings();
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(projectSettings);
+    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings());
   }
 
   @Test
@@ -74,8 +71,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, new Settings(),
-      mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT), mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
     sut.execute(context);
 

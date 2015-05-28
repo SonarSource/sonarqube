@@ -23,7 +23,6 @@ package org.sonar.server.computation.step;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
@@ -33,8 +32,6 @@ import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -61,8 +58,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
-    ComputationContext context = new ComputationContext(reportReader, PROJECT_KEY, new Settings(), mock(DbClient.class), ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT),
-      mock(LanguageRepository.class));
+    ComputationContext context = new ComputationContext(ComponentTreeBuilders.from(DumbComponent.DUMB_PROJECT));
 
     sut.execute(context);
 
