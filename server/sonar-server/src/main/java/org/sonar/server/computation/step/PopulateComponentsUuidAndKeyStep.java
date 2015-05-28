@@ -33,6 +33,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.db.DbClient;
 
 /**
@@ -48,90 +49,7 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
 
   @Override
   public void execute(ComputationContext context) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      BatchReportReader reportReader = context.getReportReader();
-      String branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
-      BatchReport.Component project = reportReader.readComponent(context.getReportMetadata().getRootComponentRef());
-      String projectKey = ComponentKeys.createKey(project.getKey(), branch);
-
-      Map<String, String> componentUuidByKey = new HashMap<>();
-      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, projectKey);
-      for (ComponentDto componentDto : components) {
-        componentUuidByKey.put(componentDto.getKey(), componentDto.uuid());
-      }
-
-      ComponentContext componentContext = new ComponentContext(reportReader, componentUuidByKey, branch);
-
-      Component root = context.getRoot();
-      processProject(componentContext, root, projectKey);
-      processChildren(componentContext, root, root);
-      session.commit();
-    } finally {
-      session.close();
-    }
-  }
-
-  private void recursivelyProcessComponent(ComponentContext componentContext, Component component, Component module) {
-    switch (component.getType()) {
-      case MODULE:
-        processModule(componentContext, component);
-        processChildren(componentContext, component, component);
-        break;
-      case DIRECTORY:
-      case FILE:
-        processDirectoryAndFile(componentContext, component, module);
-        processChildren(componentContext, component, module);
-        break;
-      default:
-        throw new IllegalStateException(String.format("Unsupported component type '%s'", component.getType()));
-    }
-  }
-
-  private void processChildren(ComponentContext componentContext, Component component, Component nearestModule) {
-    for (Component child : component.getChildren()) {
-      recursivelyProcessComponent(componentContext, child, nearestModule);
-    }
-  }
-
-  private void processProject(ComponentContext componentContext, Component component, String projectKey) {
-    feedComponent((ComponentImpl) component, projectKey, componentContext.componentUuidByKey);
-  }
-
-  private void processModule(ComponentContext componentContext, Component component) {
-    BatchReport.Component batchComponent = componentContext.reportReader.readComponent(component.getRef());
-    String componentKey = ComponentKeys.createKey(batchComponent.getKey(), componentContext.branch);
-    feedComponent((ComponentImpl) component, componentKey, componentContext.componentUuidByKey);
-  }
-
-  private void processDirectoryAndFile(ComponentContext componentContext, Component component, Component module) {
-    BatchReport.Component batchComponent = componentContext.reportReader.readComponent(component.getRef());
-    // TODO fail if path is null
-    String componentKey = ComponentKeys.createEffectiveKey(module.getKey(), batchComponent.getPath());
-    feedComponent((ComponentImpl) component, componentKey, componentContext.componentUuidByKey);
-  }
-
-  private void feedComponent(ComponentImpl component, String componentKey, Map<String, String> componentUuidByKey) {
-    component.setKey(componentKey);
-
-    String componentUuid = componentUuidByKey.get(componentKey);
-    if (componentUuid == null) {
-      component.setUuid(Uuids.create());
-    } else {
-      component.setUuid(componentUuid);
-    }
-  }
-
-  private static class ComponentContext {
-    private final BatchReportReader reportReader;
-    private final Map<String, String> componentUuidByKey;
-    private final String branch;
-
-    public ComponentContext(BatchReportReader reportReader, Map<String, String> componentUuidByKey, @Nullable String branch) {
-      this.reportReader = reportReader;
-      this.componentUuidByKey = new HashMap<>();
-      this.branch = branch;
-    }
+    new ComponentDepthTraversalTypeAwareVisitor(context).visit(context.getRoot());
   }
 
   @Override
@@ -139,4 +57,84 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
     return "Feed components uuid";
   }
 
+  private class ComponentDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
+
+    private final BatchReportReader reportReader;
+    private final Map<String, String> componentUuidByKey;
+
+    @Nullable
+    private final String branch;
+
+    private Component nearestModule;
+
+    public ComponentDepthTraversalTypeAwareVisitor(ComputationContext context) {
+      super(Component.Type.FILE, Order.PRE_ORDER);
+      this.componentUuidByKey = new HashMap<>();
+      this.branch = context.getReportMetadata().hasBranch() ? context.getReportMetadata().getBranch() : null;
+      this.reportReader = context.getReportReader();
+      this.nearestModule = null;
+    }
+
+    @Override
+    public void visitProject(Component project) {
+      executeForProject(project);
+      nearestModule = project;
+    }
+
+    @Override
+    public void visitModule(Component module) {
+      executeForModule(module);
+      nearestModule = module;
+    }
+
+    @Override
+    public void visitDirectory(Component directory) {
+      executeForDirectoryAndFile(directory);
+    }
+
+    @Override
+    public void visitFile(Component file) {
+      executeForDirectoryAndFile(file);
+    }
+
+    private void executeForProject(Component component) {
+      BatchReport.Component project = reportReader.readComponent(component.getRef());
+      String projectKey = ComponentKeys.createKey(project.getKey(), branch);
+      DbSession session = dbClient.openSession(false);
+      try {
+        List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, projectKey);
+        for (ComponentDto componentDto : components) {
+          componentUuidByKey.put(componentDto.getKey(), componentDto.uuid());
+        }
+
+        feedComponent((ComponentImpl) component, projectKey);
+      } finally {
+        session.close();
+      }
+    }
+
+    private void executeForModule(Component component) {
+      BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+      String componentKey = ComponentKeys.createKey(batchComponent.getKey(), branch);
+      feedComponent((ComponentImpl) component, componentKey);
+    }
+
+    private void executeForDirectoryAndFile(Component component) {
+      BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+      // TODO fail if path is null
+      String componentKey = ComponentKeys.createEffectiveKey(nearestModule.getKey(), batchComponent.getPath());
+      feedComponent((ComponentImpl) component, componentKey);
+    }
+
+    private void feedComponent(ComponentImpl component, String componentKey) {
+      component.setKey(componentKey);
+
+      String componentUuid = componentUuidByKey.get(componentKey);
+      if (componentUuid == null) {
+        component.setUuid(Uuids.create());
+      } else {
+        component.setUuid(componentUuid);
+      }
+    }
+  }
 }
