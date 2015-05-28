@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -126,24 +125,22 @@ public class CommandExecutorTest {
     assertThat(log).contains("Environment variable: 2");
   }
 
-  @Test(timeout = 3000L)
-  @Ignore
+  @Test(timeout = 6000L)
   public void should_stop_after_timeout() throws IOException {
     try {
       String executable = getScript("forever");
-      CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 300L);
+      CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 1000L);
       fail();
     } catch (TimeoutException e) {
       // ok
     }
   }
 
-  @Test(timeout = 3000L)
-  @Ignore
+  @Test(timeout = 6000L)
   public void should_stop_after_timeout_and_new_shell() throws IOException {
     try {
       String executable = getScript("forever");
-      CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 300L);
+      CommandExecutor.create().execute(Command.create(executable).setNewShell(true).setDirectory(workDir), 1000L);
       fail();
     } catch (TimeoutException e) {
       // ok
