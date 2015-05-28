@@ -22,30 +22,61 @@
      metric_map[ncloc.id] = ncloc
    end
    chartHeight = widget_properties["chartHeight"]
+   undefinedToZero = widget_properties["undefinedToZero"]
 
   unless metric_data_map.values.empty?
      # Retrieve metric trend information
-     options = {}
-     from_date = dashboard_configuration.from_datetime
-     if from_date
-       options[:from] = from_date
-     end
-     metric_count_per_snapshot_id = {}
-     TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
-       sid = trend_item["sid"]
-       if metric_count_per_snapshot_id[sid]
-         metric_count_per_snapshot_id[sid] += 1
-       else
-         metric_count_per_snapshot_id[sid] = 1
-       end
-       metric_data_map[trend_item["metric_id"].to_i] << {:date => Time.at(trend_item["created_at"].to_i/1000), :value => trend_item["value"], :sid => trend_item["sid"]}
-     end
+    options = {}
+    from_date = dashboard_configuration.from_datetime
+    if from_date
+      options[:from] = from_date
+    end
+    # Variables used if undefinedToZero is set to true
+    previous_snapshot_id = nil
+    previous_created_at = nil
+    first_trend_item = true
+    metric_previous_snapshot_id = {}
+    metric_count_per_snapshot_id = {}
+    total_number_of_metrics = metric_map.keys.size()
+    TrendsChart.time_machine_measures(@resource, metric_data_map.keys, options).each() do |trend_item|
+      sid = trend_item["sid"]
+      if undefinedToZero
+        if first_trend_item
+          first_trend_item = false
+          previous_snapshot_id = sid
+          previous_created_at = trend_item["created_at"]
+        end
+        if previous_snapshot_id != sid
+          if metric_count_per_snapshot_id[previous_snapshot_id] != total_number_of_metrics
+            metric_map.keys.each do |metric_id|
+              unless metric_previous_snapshot_id.include? (metric_id)
+                metric_data_map[metric_id] << {:date => previous_created_at, :value => 0.00, :sid => previous_snapshot_id}
+                if metric_count_per_snapshot_id[previous_snapshot_id]
+                  metric_count_per_snapshot_id[previous_snapshot_id] += 1
+                else
+                  metric_count_per_snapshot_id[previous_snapshot_id] = 1
+                end
+              end
+            end
+          end
+          previous_snapshot_id = sid
+          previous_created_at = trend_item["created_at"]
+          metric_previous_snapshot_id = {}
+        end
+        metric_previous_snapshot_id[trend_item["metric_id"].to_i] = 1
+      end
+      if metric_count_per_snapshot_id[sid]
+        metric_count_per_snapshot_id[sid] += 1
+      else
+        metric_count_per_snapshot_id[sid] = 1
+      end
+      metric_data_map[trend_item["metric_id"].to_i] << {:date => trend_item["created_at"], :value => trend_item["value"], :sid => trend_item["sid"]}
+    end
 
      # Create JS structures to print out in the HTML page
      js_data = "["
      js_snapshots = "["
      js_metrics = "["
-     total_number_of_metrics = metric_map.keys.size()
      metric_data_map.keys.each_with_index() do |metric_id, index|
        unless metric_data_map[metric_id].empty?
          js_metrics += "\"" + metric_map[metric_id].short_name + "\","
