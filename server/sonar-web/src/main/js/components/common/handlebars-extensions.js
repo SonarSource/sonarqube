@@ -573,7 +573,7 @@
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', size);
     return new Handlebars.SafeString(
-        '<img src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
+        '<img class="rounded" src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
     );
   });
 

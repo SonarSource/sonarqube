@@ -193,6 +193,13 @@
 
 .source-line-scm-inner {
   max-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:before {
+    content: attr(data-author);
+  }
 }
 
 .source-line-bar {
