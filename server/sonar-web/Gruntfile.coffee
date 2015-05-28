@@ -203,7 +203,7 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/components/issue/templates.js': [
             '<%= SOURCE_PATH %>/js/components/common/templates/**/*.hbs'
-            '<%= SOURCE_PATH %>/coffee/components/issue/templates/**/*.hbs'
+            '<%= SOURCE_PATH %>/js/components/issue/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/issues/templates.js': [
             '<%= SOURCE_PATH %>/coffee/apps/issues/templates/**/*.hbs'
