@@ -20,7 +20,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -29,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.AbstractLanguage;
@@ -50,8 +52,14 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 
@@ -65,8 +73,10 @@ public class QualityProfileEventsStepTest {
 
   private MeasureRepository measureRepository = mock(MeasureRepository.class);
   private LanguageRepository languageRepository = mock(LanguageRepository.class);
+  private EventRepository eventRepository = mock(EventRepository.class);
+  private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
 
-  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(measureRepository);
+  private QualityProfileEventsStep underTest = new QualityProfileEventsStep(measureRepository, eventRepository);
 
   @Test
   public void no_effect_if_no_previous_measure() {
@@ -76,7 +86,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    assertThat(context.getRoot().getEventRepository().getEvents()).isEmpty();
+    verifyNoMoreInteractions(eventRepository);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -97,7 +107,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    assertThat(context.getRoot().getEventRepository().getEvents()).isEmpty();
+    verifyNoMoreInteractions(eventRepository);
   }
 
   @Test
@@ -110,9 +120,9 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    List<Event> events = Lists.newArrayList(context.getRoot().getEventRepository().getEvents());
-    assertThat(events).hasSize(1);
-    verifyEvent(events.get(0), "Use '" + qp.getQpName() + "' (" + language.getName() + ")", null);
+    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verifyNoMoreInteractions(eventRepository);
+    verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
 
   @Test
@@ -125,9 +135,9 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    List<Event> events = Lists.newArrayList(context.getRoot().getEventRepository().getEvents());
-    assertThat(events).hasSize(1);
-    verifyEvent(events.get(0), "Use '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
+    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verifyNoMoreInteractions(eventRepository);
+    verifyEvent(eventArgumentCaptor.getValue(), "Use '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
 
   @Test
@@ -140,9 +150,9 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    List<Event> events = Lists.newArrayList(context.getRoot().getEventRepository().getEvents());
-    assertThat(events).hasSize(1);
-    verifyEvent(events.get(0), "Stop using '" + qp.getQpName() + "' (" + language.getName() + ")", null);
+    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verifyNoMoreInteractions(eventRepository);
+    verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + language.getName() + ")", null);
   }
 
   @Test
@@ -155,9 +165,9 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    List<Event> events = Lists.newArrayList(context.getRoot().getEventRepository().getEvents());
-    assertThat(events).hasSize(1);
-    verifyEvent(events.get(0), "Stop using '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
+    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verifyNoMoreInteractions(eventRepository);
+    verifyEvent(eventArgumentCaptor.getValue(), "Stop using '" + qp.getQpName() + "' (" + qp.getLanguageKey() + ")", null);
   }
 
   @Test
@@ -169,7 +179,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    assertThat(context.getRoot().getEventRepository().getEvents()).isEmpty();
+    verify(eventRepository, never()).add(any(Component.class), any(Event.class));
   }
 
   @Test
@@ -183,10 +193,9 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    List<Event> events = Lists.newArrayList(context.getRoot().getEventRepository().getEvents());
-    assertThat(events).hasSize(1);
-    verifyEvent(
-      events.get(0),
+    verify(eventRepository).add(eq(context.getRoot()), eventArgumentCaptor.capture());
+    verifyNoMoreInteractions(eventRepository);
+    verifyEvent(eventArgumentCaptor.getValue(),
       "Changes in '" + qp2.getQpName() + "' (" + language.getName() + ")",
       "from=" + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:14+0100")) + ";key=" + qp1.getQpKey() + ";to="
         + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:18+0100")));
@@ -195,6 +204,14 @@ public class QualityProfileEventsStepTest {
   @Test
   public void verify_detection_with_complex_mix_of_qps() {
     ComputationContext context = newNoChildRootContext();
+    final Set<Event> events = new HashSet<>();
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        events.add((Event) invocationOnMock.getArguments()[1]);
+        return null;
+      }
+    }).when(eventRepository).add(eq(context.getRoot()), any(Event.class));
 
     mockMeasures(
       context.getRoot(), arrayOf(
@@ -211,7 +228,7 @@ public class QualityProfileEventsStepTest {
 
     underTest.execute(context);
 
-    assertThat(context.getRoot().getEventRepository().getEvents()).extracting("name").containsOnly(
+    assertThat(events).extracting("name").containsOnly(
       "Stop using '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_1 + ")",
       "Use '" + QP_NAME_2 + "' (" + LANGUAGE_KEY_3 + ")",
       "Changes in '" + QP_NAME_1 + "' (" + LANGUAGE_KEY_1 + ")"
@@ -282,7 +299,7 @@ public class QualityProfileEventsStepTest {
     return newContext(new ComponentTreeBuilder() {
       @Override
       public Component build(ComputationContext context) {
-        return new EvenRepoComponent(context, Component.Type.PROJECT, 1);
+        return new DumbComponent(context, Component.Type.PROJECT, 1, "uuid", "key");
       }
     });
   }
@@ -290,32 +307,6 @@ public class QualityProfileEventsStepTest {
   private ComputationContext newContext(ComponentTreeBuilder builder) {
     return new ComputationContext(mock(BatchReportReader.class), "COMPONENT_KEY", new Settings(), mock(DbClient.class),
       builder, languageRepository);
-  }
-
-  private class EvenRepoComponent extends DumbComponent {
-    private final EventRepository eventRepository = new EventRepository() {
-      private final Set<Event> events = new HashSet<>();
-
-      @Override
-      public void add(Event event) {
-        events.add(event);
-      }
-
-      @Override
-      public Iterable<Event> getEvents() {
-        return events;
-      }
-    };
-
-    public EvenRepoComponent(@Nullable org.sonar.server.computation.context.ComputationContext context,
-      Type type, int ref, @Nullable Component... children) {
-      super(context, type, ref, null, null, children);
-    }
-
-    @Override
-    public EventRepository getEventRepository() {
-      return eventRepository;
-    }
   }
 
 }

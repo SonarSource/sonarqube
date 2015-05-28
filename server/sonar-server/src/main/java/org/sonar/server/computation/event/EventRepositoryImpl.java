@@ -19,10 +19,28 @@
  */
 package org.sonar.server.computation.event;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.Collections;
 import org.sonar.server.computation.component.Component;
 
-public interface EventRepository {
-  void add(Component component, Event event);
+import static java.util.Objects.requireNonNull;
 
-  Iterable<Event> getEvents(Component component);
+public class EventRepositoryImpl implements EventRepository {
+  private final Multimap<Component, Event> events = HashMultimap.create();
+
+  @Override
+  public void add(Component component, Event event) {
+    events.put(requireNonNull(component), requireNonNull(event));
+  }
+
+  @Override
+  public Iterable<Event> getEvents(Component component) {
+    Collection<Event> res = this.events.get(component);
+    if (res == null) {
+      return Collections.emptySet();
+    }
+    return res;
+  }
 }

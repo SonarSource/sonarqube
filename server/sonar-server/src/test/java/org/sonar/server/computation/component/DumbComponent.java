@@ -26,7 +26,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.context.ComputationContext;
-import org.sonar.server.computation.event.EventRepository;
 
 public class DumbComponent implements Component {
   public static final Component DUMB_PROJECT = new DumbComponent(Type.PROJECT, 1, "PROJECT_KEY", "PROJECT_UUID");
@@ -85,11 +84,6 @@ public class DumbComponent implements Component {
       throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
     }
     return context;
-  }
-
-  @Override
-  public EventRepository getEventRepository() {
-    throw new UnsupportedOperationException(UNSUPPORTED_OPERATION_ERROR);
   }
 
 }

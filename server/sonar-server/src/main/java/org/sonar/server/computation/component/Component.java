@@ -21,7 +21,6 @@ package org.sonar.server.computation.component;
 
 import java.util.List;
 import org.sonar.server.computation.context.ComputationContext;
-import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.step.PopulateComponentsUuidAndKeyStep;
 
 public interface Component {
@@ -61,10 +60,5 @@ public interface Component {
   int getRef();
 
   List<Component> getChildren();
-
-  /**
-   * The event repository for the current component
-   */
-  EventRepository getEventRepository();
 
 }
