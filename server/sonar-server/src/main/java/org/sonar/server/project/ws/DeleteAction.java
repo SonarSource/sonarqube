@@ -37,7 +37,8 @@ import java.util.List;
 
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
-  private static final String PARAM_UUIDS = "uuids";
+
+  private static final String PARAM_UUIDS = "ids";
   private static final String PARAM_KEYS = "keys";
 
   private final ComponentCleanerService componentCleanerService;

@@ -124,7 +124,7 @@ public class DeleteActionTest {
     long snapshotId4 = insertNewProjectInDbAndReturnSnapshotId(4);
 
     ws.newPostRequest("api/projects", "delete")
-      .setParam("uuids", "project-uuid-1, project-uuid-3, project-uuid-4").execute();
+      .setParam("ids", "project-uuid-1, project-uuid-3, project-uuid-4").execute();
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
@@ -180,7 +180,7 @@ public class DeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.ADMIN);
     insertNewProjectInDbAndReturnSnapshotId(1);
 
-    WsTester.Result result = ws.newPostRequest("api/projects", "delete").setParam("uuids", "project-uuid-1").execute();
+    WsTester.Result result = ws.newPostRequest("api/projects", "delete").setParam("ids", "project-uuid-1").execute();
 
     result.assertNoContent();
   }
