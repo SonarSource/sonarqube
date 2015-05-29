@@ -36,6 +36,9 @@ public class ComputationSteps {
    */
   public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
+      // extract report to a temp directory
+      ReportExtractionStep.class,
+
       // Builds Component tree
       BuildComponentTreeStep.class,
 

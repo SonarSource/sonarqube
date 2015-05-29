@@ -33,7 +33,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.util.CloseableIterator;
 
 public class BatchReportReaderImpl implements BatchReportReader {
@@ -41,8 +40,8 @@ public class BatchReportReaderImpl implements BatchReportReader {
   // caching of metadata which are read often
   private BatchReport.Metadata metadata;
 
-  public BatchReportReaderImpl(ReportExtractor reportExtractor, ReportQueue.Item item) {
-    this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(reportExtractor.extractReportInDir(item));
+  public BatchReportReaderImpl(BatchReportDirectoryHolder batchReportDirectoryHolder) {
+    this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(batchReportDirectoryHolder.getDirectory());
   }
 
   @Override
