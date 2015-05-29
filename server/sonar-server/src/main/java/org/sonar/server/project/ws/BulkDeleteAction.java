@@ -35,8 +35,8 @@ import javax.annotation.Nullable;
 
 import java.util.List;
 
-public class DeleteAction implements ProjectsWsAction {
-  private static final String ACTION = "delete";
+public class BulkDeleteAction implements ProjectsWsAction {
+  private static final String ACTION = "bulk_delete";
 
   private static final String PARAM_UUIDS = "ids";
   private static final String PARAM_KEYS = "keys";
@@ -45,7 +45,7 @@ public class DeleteAction implements ProjectsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public DeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession) {
+  public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession) {
     this.componentCleanerService = componentCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;

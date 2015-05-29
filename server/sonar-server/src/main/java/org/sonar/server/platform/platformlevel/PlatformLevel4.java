@@ -207,6 +207,7 @@ import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
+import org.sonar.server.project.ws.BulkDeleteAction;
 import org.sonar.server.project.ws.GhostsAction;
 import org.sonar.server.project.ws.ProjectsWs;
 import org.sonar.server.project.ws.ProvisionedAction;
@@ -578,7 +579,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ResourcesWs.class,
       ComponentsWs.class,
       ProjectsWs.class,
-      org.sonar.server.project.ws.DeleteAction.class,
+      BulkDeleteAction.class,
       org.sonar.server.component.ws.AppAction.class,
       org.sonar.server.component.ws.SearchAction.class,
       EventsWs.class,

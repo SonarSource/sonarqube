@@ -40,7 +40,7 @@ public class ProjectsWsTest {
   @Before
   public void setUp() {
     ws = new WsTester(new ProjectsWs(
-      new DeleteAction(mock(ComponentCleanerService.class), mock(DbClient.class), mock(UserSession.class)),
+      new BulkDeleteAction(mock(ComponentCleanerService.class), mock(DbClient.class), mock(UserSession.class)),
       new GhostsAction(mock(DbClient.class), mock(UserSession.class)),
       new ProvisionedAction(mock(DbClient.class), mock(UserSession.class))
     ));
