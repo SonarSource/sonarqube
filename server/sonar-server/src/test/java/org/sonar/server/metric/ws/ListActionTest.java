@@ -35,6 +35,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.metric.ws.ListAction.PARAM_IS_CUSTOM;
+import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
 public class ListActionTest {
 
@@ -130,7 +131,7 @@ public class ListActionTest {
 
   private void insertNewNonCustomMetric(String... ids) {
     for (String id : ids) {
-      dbClient.metricDao().insert(dbSession, MetricTesting.newDto()
+      dbClient.metricDao().insert(dbSession, newMetricDto()
         .setKey("non-custom-key-" + id)
         .setEnabled(true)
         .setUserManaged(false));
@@ -146,7 +147,7 @@ public class ListActionTest {
   }
 
   private MetricDto newCustomMetric(String id) {
-    return MetricTesting.newDto()
+    return newMetricDto()
       .setKey("custom-key-" + id)
       .setShortName("custom-name-" + id)
       .setDomain("custom-domain-" + id)

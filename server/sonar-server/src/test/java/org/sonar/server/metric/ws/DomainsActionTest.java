@@ -34,6 +34,8 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 import org.sonar.test.JsonAssert;
 
+import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+
 @Category(DbTests.class)
 public class DomainsActionTest {
 
@@ -64,7 +66,7 @@ public class DomainsActionTest {
     insertNewMetricDto(newEnabledMetric("Documentation"));
     insertNewMetricDto(newEnabledMetric(null));
     insertNewMetricDto(newEnabledMetric(""));
-    insertNewMetricDto(MetricTesting.newDto().setDomain("Domain of Deactivated Metric").setEnabled(false));
+    insertNewMetricDto(newMetricDto().setDomain("Domain of Deactivated Metric").setEnabled(false));
 
     WsTester.Result result = ws.newGetRequest(MetricsWs.ENDPOINT, "domains").execute();
 
@@ -77,6 +79,6 @@ public class DomainsActionTest {
   }
 
   private MetricDto newEnabledMetric(String domain) {
-    return MetricTesting.newDto().setDomain(domain).setEnabled(true);
+    return newMetricDto().setDomain(domain).setEnabled(true);
   }
 }

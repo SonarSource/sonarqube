@@ -30,7 +30,7 @@ public class MetricTesting {
     // static stuff only
   }
 
-  public static MetricDto newDto() {
+  public static MetricDto newMetricDto() {
     Metric.ValueType[] metricTypes = Metric.ValueType.values();
     return new MetricDto()
       .setId(RandomUtils.nextInt())

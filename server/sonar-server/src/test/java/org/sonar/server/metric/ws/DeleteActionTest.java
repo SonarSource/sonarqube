@@ -44,6 +44,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class DeleteActionTest {
@@ -146,7 +147,7 @@ public class DeleteActionTest {
   }
 
   private MetricDto newCustomEnabledMetric(int id) {
-    return MetricTesting.newDto().setEnabled(true).setUserManaged(true).setKey("key-" + id);
+    return newMetricDto().setEnabled(true).setUserManaged(true).setKey("key-" + id);
   }
 
   private void insertCustomEnabledMetrics(int... ids) {
