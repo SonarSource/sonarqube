@@ -58,6 +58,9 @@ public class UserUpdater {
   private static final String NAME_PARAM = "Name";
   private static final String EMAIL_PARAM = "Email";
 
+  private static final int LOGIN_MIN_LENGTH = 3;
+  private static final int LOGIN_MAX_LENGTH = 255;
+
   private final NewUserNotifier newUserNotifier;
   private final Settings settings;
   private final DbClient dbClient;
@@ -211,10 +214,10 @@ public class UserUpdater {
   private static void validateLoginFormat(@Nullable String login, List<Message> messages) {
     checkNotEmptyParam(login, LOGIN_PARAM, messages);
     if (!Strings.isNullOrEmpty(login)) {
-      if (login.length() <= 2) {
-        messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, 2));
-      } else if (login.length() >= 255) {
-        messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, 255));
+      if (login.length() < LOGIN_MIN_LENGTH) {
+        messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
+      } else if (login.length() >= LOGIN_MAX_LENGTH) {
+        messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
       } else if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
         messages.add(Message.of("user.bad_login"));
       }

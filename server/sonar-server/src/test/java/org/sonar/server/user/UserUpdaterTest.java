@@ -251,7 +251,7 @@ public class UserUpdaterTest {
         .setPasswordConfirmation("password"));
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_SHORT_MESSAGE, "Login", 2));
+      assertThat(e.errors().messages()).containsOnly(Message.of(Validation.IS_TOO_SHORT_MESSAGE, "Login", 3));
     }
   }
 
