@@ -46,24 +46,35 @@ public class UserRepository {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    InputSupplier<InputStream> request = serverClient.doRequest("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
-      @Override
-      public String apply(String input) {
-        return ServerClient.encodeForUrl(input);
-      }
-    })), "GET", null);
+
+    try {
+      InputSupplier<InputStream> request = serverClient.doRequest("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
+        @Override
+        public String apply(String input) {
+          return ServerClient.encodeForUrl(input);
+        }
+      })), "GET", null);
+
+      return parseUsers(request);
+
+    } catch (HttpDownloader.HttpException e) {
+      throw serverClient.handleHttpException(e);
+    }
+  }
+
+  private static Collection<BatchInput.User> parseUsers(InputSupplier<InputStream> input) {
     List<BatchInput.User> users = new ArrayList<>();
-    try (InputStream is = request.getInput()) {
+
+    try (InputStream is = input.getInput()) {
       BatchInput.User user = BatchInput.User.parseDelimitedFrom(is);
       while (user != null) {
         users.add(user);
         user = BatchInput.User.parseDelimitedFrom(is);
       }
-    } catch (HttpDownloader.HttpException e) {
-      throw serverClient.handleHttpException(e);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get user details from server", e);
     }
+
     return users;
   }
 

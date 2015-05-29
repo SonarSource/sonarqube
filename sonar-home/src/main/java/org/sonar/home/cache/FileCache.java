@@ -19,13 +19,13 @@
  */
 package org.sonar.home.cache;
 
-import org.apache.commons.io.FileUtils;
 import org.sonar.home.log.Log;
 
 import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -108,7 +108,7 @@ public class FileCache {
       log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
       log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity"));
       try {
-        FileUtils.moveFile(sourceFile, targetFile);
+        Files.move(sourceFile.toPath(), targetFile.toPath());
       } catch (IOException e) {
         throw new IllegalStateException("Fail to move " + sourceFile.getAbsolutePath() + " to " + targetFile, e);
       }
@@ -121,7 +121,7 @@ public class FileCache {
 
   private void mkdirQuietly(File hashDir) {
     try {
-      FileUtils.forceMkdir(hashDir);
+      Files.createDirectories(hashDir.toPath());
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create cache directory: " + hashDir, e);
     }
@@ -151,7 +151,7 @@ public class FileCache {
     if (!dir.isDirectory() || !dir.exists()) {
       log.debug("Create : " + dir.getAbsolutePath());
       try {
-        FileUtils.forceMkdir(dir);
+        Files.createDirectories(dir.toPath());
       } catch (IOException e) {
         throw new IllegalStateException("Unable to create " + debugTitle + dir.getAbsolutePath(), e);
       }
