@@ -15,9 +15,6 @@ module.exports = (grunt) ->
     ASSETS_PATH: grunt.option("assetsDir") || './src/main/webapp'
     BUILD_PATH: './build'
 
-    APP: grunt.option 'app'
-    WIDGET: grunt.option 'widget'
-
     less:
       build:
         options:
@@ -121,11 +118,11 @@ module.exports = (grunt) ->
 
       app: options:
         name: 'apps/<%= grunt.option("app") %>/app'
-        out: '<%= ASSETS_PATH %>/js/apps/<%= APP %>/app.js'
+        out: '<%= ASSETS_PATH %>/js/apps/<%= grunt.option("app") %>/app.js'
 
       widget: options:
         name: 'widgets/<%= grunt.option("widget") %>/widget'
-        out: '<%= ASSETS_PATH %>/js/widgets/<%= WIDGET %>/widget.js'
+        out: '<%= ASSETS_PATH %>/js/widgets/<%= grunt.option("widget") %>/widget.js'
 
 
     concurrent:
