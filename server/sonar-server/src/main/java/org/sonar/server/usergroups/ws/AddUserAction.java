@@ -37,8 +37,8 @@ import static org.sonar.core.persistence.MyBatis.closeQuietly;
 
 public class AddUserAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "id";
-  private static final String PARAM_LOGIN = "login";
+  private static final String PARAM_ID = "groupId";
+  private static final String PARAM_LOGIN = "userLogin";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -72,7 +72,7 @@ public class AddUserAction implements UserGroupsWsAction {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     Long groupId = request.mandatoryParamAsLong(PARAM_ID);
-    String login = request.param(PARAM_LOGIN);
+    String login = request.mandatoryParam(PARAM_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -82,7 +82,7 @@ public class AddUserAction implements UserGroupsWsAction {
         throw new NotFoundException(String.format("Could not find a user with login '%s'", login));
       }
 
-      if (!userIsAlreadyMemberOf(dbSession, login, group)) {
+      if (userIsNotYetMemberOf(dbSession, login, group)) {
         UserGroupDto userGroup = new UserGroupDto().setGroupId(group.getId()).setUserId(user.getId());
         dbClient.userGroupDao().insert(dbSession, userGroup);
         dbSession.commit();
@@ -95,7 +95,7 @@ public class AddUserAction implements UserGroupsWsAction {
 
   }
 
-  private boolean userIsAlreadyMemberOf(DbSession dbSession, String login, GroupDto group) {
-    return dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Arrays.asList(login)).get(login).contains(group.getName());
+  private boolean userIsNotYetMemberOf(DbSession dbSession, String login, GroupDto group) {
+    return !dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Arrays.asList(login)).get(login).contains(group.getName());
   }
 }

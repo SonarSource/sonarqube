@@ -36,8 +36,8 @@ import static org.sonar.core.persistence.MyBatis.closeQuietly;
 
 public class RemoveUserAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "id";
-  private static final String PARAM_LOGIN = "login";
+  private static final String PARAM_ID = "groupId";
+  private static final String PARAM_LOGIN = "userLogin";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -71,7 +71,7 @@ public class RemoveUserAction implements UserGroupsWsAction {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
 
     Long groupId = request.mandatoryParamAsLong(PARAM_ID);
-    String login = request.param(PARAM_LOGIN);
+    String login = request.mandatoryParam(PARAM_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

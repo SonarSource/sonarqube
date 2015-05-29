@@ -22,9 +22,6 @@ package org.sonar.core.user;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-/**
- * @since 5.2
- */
 public class UserMembershipDto {
 
   private Long id;

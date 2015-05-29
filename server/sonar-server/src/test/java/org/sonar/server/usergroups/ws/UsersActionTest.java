@@ -20,11 +20,13 @@
 
 package org.sonar.server.usergroups.ws;
 
+import org.sonar.server.ws.WsTester.TestRequest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -38,25 +40,23 @@ import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
+@Category(DbTests.class)
 public class UsersActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
 
-  WebService.Controller controller;
-
-  WsTester tester;
-
+  WsTester wsTester;
   DbClient dbClient;
-
   DbSession session;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
 
-    System2 system2 = new System2();
+    System2 system2 = System2.INSTANCE;
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     GroupDao groupDao = new GroupDao(system2);
     UserGroupDao userGroupDao = new UserGroupDao();
@@ -66,8 +66,7 @@ public class UsersActionTest {
     session = dbClient.openSession(false);
     session.commit();
 
-    tester = new WsTester(new UserGroupsWs(new UsersAction(dbClient)));
-    controller = tester.controller("api/users");
+    wsTester = new WsTester(new UserGroupsWs(new UsersAction(dbClient)));
 
   }
 
@@ -78,17 +77,21 @@ public class UsersActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", "42")
       .setParam("login", "john").execute();
   }
 
+  private TestRequest newUsersRequest() {
+    return wsTester.newGetRequest("api/usergroups", "users");
+  }
+
   @Test
   public void empty_users() throws Exception {
-    GroupDto group = createGroup();
+    GroupDto group = insertGroup();
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("login", "john")
       .setParam("id", group.getId().toString())
       .execute()
@@ -97,13 +100,13 @@ public class UsersActionTest {
 
   @Test
   public void all_users() throws Exception {
-    GroupDto group = createGroup();
-    UserDto groupUser = createUser("ada", "Ada Lovelace");
-    createUser("grace", "Grace Hopper");
+    GroupDto group = insertGroup();
+    UserDto groupUser = insertUser("ada", "Ada Lovelace");
+    insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .execute()
       .assertJson(getClass(), "all.json");
@@ -111,13 +114,13 @@ public class UsersActionTest {
 
   @Test
   public void selected_users() throws Exception {
-    GroupDto group = createGroup();
-    UserDto groupUser = createUser("ada", "Ada Lovelace");
-    createUser("grace", "Grace Hopper");
+    GroupDto group = insertGroup();
+    UserDto groupUser = insertUser("ada", "Ada Lovelace");
+    insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("selected", "selected")
       .execute()
@@ -126,13 +129,13 @@ public class UsersActionTest {
 
   @Test
   public void deselected_users() throws Exception {
-    GroupDto group = createGroup();
-    UserDto groupUser = createUser("ada", "Ada Lovelace");
-    createUser("grace", "Grace Hopper");
+    GroupDto group = insertGroup();
+    UserDto groupUser = insertUser("ada", "Ada Lovelace");
+    insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("selected", "deselected")
       .execute()
@@ -141,19 +144,19 @@ public class UsersActionTest {
 
   @Test
   public void paging() throws Exception {
-    GroupDto group = createGroup();
-    UserDto groupUser = createUser("ada", "Ada Lovelace");
-    createUser("grace", "Grace Hopper");
+    GroupDto group = insertGroup();
+    UserDto groupUser = insertUser("ada", "Ada Lovelace");
+    insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("ps", "1")
       .execute()
       .assertJson(getClass(), "all_page1.json");
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("ps", "1")
       .setParam("p", "2")
@@ -163,31 +166,31 @@ public class UsersActionTest {
 
   @Test
   public void filtering() throws Exception {
-    GroupDto group = createGroup();
-    UserDto groupUser = createUser("ada", "Ada Lovelace");
-    createUser("grace", "Grace Hopper");
+    GroupDto group = insertGroup();
+    UserDto groupUser = insertUser("ada", "Ada Lovelace");
+    insertUser("grace", "Grace Hopper");
     addUserToGroup(groupUser, group);
     session.commit();
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("q", "ace")
       .execute()
       .assertJson(getClass(), "all.json");
 
-    tester.newGetRequest("api/usergroups", "users")
+    newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("q", "love")
       .execute()
       .assertJson(getClass(), "all_ada.json");
   }
 
-  private GroupDto createGroup() {
+  private GroupDto insertGroup() {
     return dbClient.groupDao().insert(session, new GroupDto()
       .setName("sonar-users"));
   }
 
-  private UserDto createUser(String login, String name) {
+  private UserDto insertUser(String login, String name) {
     return dbClient.userDao().insert(session, new UserDto().setLogin(login).setName(name));
   }
 

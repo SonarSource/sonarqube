@@ -19,12 +19,15 @@
  */
 package org.sonar.core.user;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UserMembershipQuery {
 
@@ -34,7 +37,7 @@ public class UserMembershipQuery {
   public static final String ANY = "ANY";
   public static final String IN = "IN";
   public static final String OUT = "OUT";
-  public static final Set<String> AVAILABLE_MEMBERSHIP = ImmutableSet.of(ANY, IN, OUT);
+  public static final Set<String> AVAILABLE_MEMBERSHIPS = ImmutableSet.of(ANY, IN, OUT);
 
   private final Long groupId;
   private final String membership;
@@ -137,29 +140,22 @@ public class UserMembershipQuery {
     }
 
     private void initMembership() {
-      if (membership == null) {
-        membership = UserMembershipQuery.ANY;
-      } else {
-        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
-          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
-      }
+      membership = firstNonNull(membership, ANY);
+      checkArgument(AVAILABLE_MEMBERSHIPS.contains(membership),
+        "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIPS);
     }
 
     private void initPageSize() {
-      if (pageSize == null) {
-        pageSize = DEFAULT_PAGE_SIZE;
-      }
+      pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
     }
 
     private void initPageIndex() {
-      if (pageIndex == null) {
-        pageIndex = DEFAULT_PAGE_INDEX;
-      }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
+      pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
+      checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
     public UserMembershipQuery build() {
-      Preconditions.checkNotNull(groupId, "Group ID cant be null.");
+      checkNotNull(groupId, "Group ID cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();

@@ -19,14 +19,15 @@
  */
 package org.sonar.core.user;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.Set;
+import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class GroupMembershipQuery {
 
@@ -139,29 +140,22 @@ public class GroupMembershipQuery {
     }
 
     private void initMembership() {
-      if (membership == null) {
-        membership = GroupMembershipQuery.ANY;
-      } else {
-        Preconditions.checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
-          "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
-      }
+      membership = firstNonNull(membership, ANY);
+      checkArgument(AVAILABLE_MEMBERSHIP.contains(membership),
+        "Membership is not valid (got " + membership + "). Availables values are " + AVAILABLE_MEMBERSHIP);
     }
 
     private void initPageSize() {
-      if (pageSize == null) {
-        pageSize = DEFAULT_PAGE_SIZE;
-      }
+      pageSize = firstNonNull(pageSize, DEFAULT_PAGE_SIZE);
     }
 
     private void initPageIndex() {
-      if (pageIndex == null) {
-        pageIndex = DEFAULT_PAGE_INDEX;
-      }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
+      pageIndex = firstNonNull(pageIndex, DEFAULT_PAGE_INDEX);
+      checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
 
     public GroupMembershipQuery build() {
-      Preconditions.checkNotNull(login, "User login cant be null.");
+      checkNotNull(login, "User login cant be null.");
       initMembership();
       initPageIndex();
       initPageSize();

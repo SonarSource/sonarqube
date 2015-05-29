@@ -29,12 +29,11 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.GroupDto;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserMembershipDto;
 import org.sonar.core.user.UserMembershipQuery;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 
 public class UsersAction implements UserGroupsWsAction {
 
@@ -54,7 +53,7 @@ public class UsersAction implements UserGroupsWsAction {
   @Override
   public void define(NewController context) {
     NewAction action = context.createAction("users")
-      .setDescription("List the members of a group.")
+      .setDescription("Search for users with membership information with respect to a group.")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-users.json"))
       .setSince("5.2");
@@ -65,13 +64,11 @@ public class UsersAction implements UserGroupsWsAction {
       .setRequired(true);
 
     action.createParam(PARAM_SELECTED)
-      .setDescription("If specified, only show users who belong to this group (selected) or not (deselected).")
+      .setDescription("If specified, only show users who belong to a group (selected=selected) or only those who do not (selected=deselected).")
       .setPossibleValues(SELECTION_SELECTED, SELECTION_DESELECTED, SELECTION_ALL)
       .setDefaultValue(SELECTION_ALL);
 
-    action.createParam(Param.TEXT_QUERY)
-      .setDescription("If specified, only show users whose name or login contains the query.")
-      .setExampleValue("freddy");
+    action.addSearchQuery("freddy", "names", "logins");
 
     action.addPagingParams(25);
   }
@@ -92,22 +89,19 @@ public class UsersAction implements UserGroupsWsAction {
       .pageSize(pageSize)
       .build();
 
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectById(session, groupId);
-      if (group == null) {
-        throw new NotFoundException(String.format("Unable to find a group with ID '%d'", groupId));
-      }
-      int total = dbClient.groupMembershipDao().countMembers(session, query);
+      dbClient.groupDao().selectById(dbSession, groupId);
+      int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
       Paging paging = Paging.create(pageSize, page, total);
-      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(session, query, paging.offset(), pageSize);
+      List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
 
       JsonWriter json = response.newJsonWriter().beginObject();
       writeMembers(json, users);
       writePaging(json, paging);
       json.endObject().close();
     } finally {
-      session.close();
+      MyBatis.closeQuietly(dbSession);
     }
   }
 
@@ -124,8 +118,8 @@ public class UsersAction implements UserGroupsWsAction {
   }
 
   private void writePaging(JsonWriter json, Paging paging) {
-    json.prop("p", paging.pageIndex())
-      .prop("ps", paging.pageSize())
+    json.prop(Param.PAGE, paging.pageIndex())
+      .prop(Param.PAGE_SIZE, paging.pageSize())
       .prop("total", paging.total());
   }
 
