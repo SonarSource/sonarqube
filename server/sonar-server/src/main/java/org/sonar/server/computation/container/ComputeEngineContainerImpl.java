@@ -34,8 +34,8 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
+import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
-import org.sonar.server.computation.batch.ReportExtractor;
 import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
@@ -111,10 +111,12 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   private static List componentClasses() {
     return Arrays.asList(
       ActivityManager.class,
-      ReportExtractor.class,
-      BatchReportReaderImpl.class,
 
       TreeRootHolderImpl.class,
+
+      BatchReportReaderImpl.class,
+
+      BatchReportDirectoryHolderImpl.class,
 
       // repositories
       PlatformLanguageRepository.class,

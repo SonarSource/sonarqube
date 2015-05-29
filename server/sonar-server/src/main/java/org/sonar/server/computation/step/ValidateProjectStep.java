@@ -35,10 +35,10 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 /**
@@ -58,18 +58,20 @@ public class ValidateProjectStep implements ComputationStep {
   private final DbClient dbClient;
   private final Settings settings;
   private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public ValidateProjectStep(DbClient dbClient, Settings settings, BatchReportReader reportReader) {
+  public ValidateProjectStep(DbClient dbClient, Settings settings, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
-  public void execute(ComputationContext context) {
+  public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      List<ComponentDto> modules = dbClient.componentDao().selectModulesFromProjectKey(session, context.getRoot().getKey());
+      List<ComponentDto> modules = dbClient.componentDao().selectModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
       Map<String, ComponentDto> modulesByKey = Maps.uniqueIndex(modules, new Function<ComponentDto, String>() {
         @Override
         public String apply(@Nonnull ComponentDto input) {
@@ -77,7 +79,7 @@ public class ValidateProjectStep implements ComputationStep {
         }
       });
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
-      visitor.visit(context.getRoot());
+      visitor.visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
         throw new IllegalArgumentException("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));

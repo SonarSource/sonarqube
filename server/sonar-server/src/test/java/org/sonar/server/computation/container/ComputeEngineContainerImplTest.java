@@ -35,10 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ComputeEngineContainerImplTest {
+
   @Test(expected = NullPointerException.class)
   public void constructor_fails_fast_on_null_container() {
     new ComputeEngineContainerImpl(null, mock(ReportQueue.Item.class));
   }
+
   @Test(expected = NullPointerException.class)
   public void constructor_fails_fast_on_null_item() {
     new ComputeEngineContainerImpl(new ComponentContainer(), null);

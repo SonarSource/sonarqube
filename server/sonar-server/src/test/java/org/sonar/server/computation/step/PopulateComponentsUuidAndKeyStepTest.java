@@ -169,7 +169,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .build());
 
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
@@ -322,7 +322,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
@@ -382,7 +382,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(ComponentTreeBuilders.from(reportReader).build());
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());

@@ -35,10 +35,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentTreeBuilders;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 
@@ -53,6 +52,8 @@ public class ValidateProjectStepTest {
   public ExpectedException thrown = ExpectedException.none();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbClient dbClient;
 
@@ -69,7 +70,7 @@ public class ValidateProjectStepTest {
     dbSession = dbClient.openSession(false);
     settings = new Settings();
 
-    sut = new ValidateProjectStep(dbClient, settings, reportReader);
+    sut = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
   }
 
   @After
@@ -89,8 +90,9 @@ public class ValidateProjectStepTest {
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
     dbSession.commit();
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY))));
+    sut.execute();
   }
 
   @Test
@@ -106,8 +108,9 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY))));
+    sut.execute();
   }
 
   @Test
@@ -120,8 +123,9 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
 
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY))));
+    sut.execute();
   }
 
   @Test
@@ -134,9 +138,9 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":origin/master"));
 
-    sut.execute(new ComputationContext(
-      ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":origin/master"))));
+    sut.execute();
   }
 
   @Test
@@ -153,9 +157,9 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":bran#ch"));
 
-    sut.execute(new ComputationContext(
-      ComponentTreeBuilders.from(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":bran#ch"))));
+    sut.execute();
   }
 
   @Test
@@ -179,10 +183,10 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.MODULE)
       .setKey("Module$Key")
       .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", invalidProjectKey,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "Module$Key")));
 
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", invalidProjectKey,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "Module$Key"));
-    sut.execute(new ComputationContext(ComponentTreeBuilders.from(root)));
+    sut.execute();
   }
 
   @Test
@@ -210,10 +214,10 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(
-      ComponentTreeBuilders.from(root)));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
+
+    sut.execute();
   }
 
   @Test
@@ -243,10 +247,10 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, module);
     dbSession.commit();
 
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(
-      ComponentTreeBuilders.from(root)));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
+
+    sut.execute();
   }
 
   @Test
@@ -277,10 +281,9 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, module);
     dbSession.commit();
 
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY));
-    sut.execute(new ComputationContext(
-      ComponentTreeBuilders.from(root)));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
+    
+    sut.execute();
   }
-
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.batch;
+package org.sonar.server.computation.step;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,17 +28,27 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
 
-public class ReportExtractor {
-  private static final Logger LOG = Loggers.get(ReportExtractor.class);
+/**
+ * Extracts the content zip file of the {@link ReportQueue.Item} to a temp directory and adds a {@link File}
+ * representing that temp directory to the {@link MutableBatchReportDirectoryHolder}.
+ */
+public class ReportExtractionStep implements ComputationStep {
+  private static final Logger LOG = Loggers.get(ReportExtractionStep.class);
 
+  private final ReportQueue.Item item;
   private final TempFolder tempFolder;
+  private final MutableBatchReportDirectoryHolder reportDirectoryHolder;
 
-  public ReportExtractor(TempFolder tempFolder) {
+  public ReportExtractionStep(ReportQueue.Item item, TempFolder tempFolder, MutableBatchReportDirectoryHolder reportDirectoryHolder) {
+    this.item = item;
     this.tempFolder = tempFolder;
+    this.reportDirectoryHolder = reportDirectoryHolder;
   }
 
-  public File extractReportInDir(ReportQueue.Item item) {
+  @Override
+  public void execute() {
     File dir = tempFolder.newDir();
     try {
       Profiler profiler = Profiler.createIfDebug(LOG).start();
@@ -48,9 +58,15 @@ public class ReportExtractor {
             FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(dir)), item.dto.getProjectKey());
         profiler.stopDebug(message);
       }
-      return dir;
+      reportDirectoryHolder.setDirectory(dir);
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to unzip %s into %s", item.zipFile, dir), e);
     }
   }
+
+  @Override
+  public String getDescription() {
+    return "Extracting batch report to temp directory";
+  }
+
 }
