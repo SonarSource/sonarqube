@@ -1,7 +1,7 @@
 RAILS_GEM_VERSION = '2.3.15'
 
 # Avoid conflict with local ruby installations
-# See http://jira.codehaus.org/browse/SONAR-3579
+# See http://jira.sonarsource.com/browse/SONAR-3579
 ENV['GEM_HOME'] = $servlet_context.getRealPath('/WEB-INF/gems')
 
 # Bootstrap the Rails environment, frameworks, and default configuration
@@ -180,7 +180,7 @@ class ActiveRecord::Migration
   def self.add_varchar_index(table_name, column_name, options = {})
     if dialect()=='mysql' && !options[:length]
       # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
-      # See http://jira.codehaus.org/browse/SONAR-4137 and
+      # See http://jira.sonarsource.com/browse/SONAR-4137 and
       # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
       options[:length]=255
     end
@@ -315,5 +315,5 @@ DatabaseVersion.automatic_setup
 #
 
 # Increase size of form parameters
-# See http://jira.codehaus.org/browse/SONAR-5577
+# See http://jira.sonarsource.com/browse/SONAR-5577
 Rack::Utils.key_space_limit = 262144 # 4 times the default size

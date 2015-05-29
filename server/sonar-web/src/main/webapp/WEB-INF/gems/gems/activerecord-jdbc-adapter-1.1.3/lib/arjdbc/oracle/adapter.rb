@@ -160,7 +160,7 @@ module ::ArJdbc
 
     def sql_literal?(value)
       # SonarQube
-      # See http://jira.codehaus.org/browse/SONAR-4994
+      # See http://jira.sonarsource.com/browse/SONAR-4994
       # This code always returns false (we use ActiveRecord 2.3) and is heavy-CPU consuming
       # because of raised exceptions.
       #defined?(::Arel::SqlLiteral) && ::Arel::SqlLiteral === value

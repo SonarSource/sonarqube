@@ -66,7 +66,7 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
     .setDate(DateUtils.parseDate("2014-03-31"))
     .setDescription("Makes the plugin compatible with multi-language analysis introduced in SonarQube 4.2 and adds support of Emma 2.0 reports")
     .setDownloadUrl("http://repository.codehaus.org/org/codehaus/sonar-plugins/android/sonar-android-plugin/1.0/sonar-android-plugin-1.0.jar")
-    .setChangelogUrl("http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=13235&version=20187")
+    .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=13235&version=20187")
 
     .addOutgoingDependency(release(JAVA_PLUGIN, "1.0"));
 

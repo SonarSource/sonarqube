@@ -58,7 +58,7 @@ class Event < ActiveRecord::Base
   end
   
   # Use this method to display event description, as missing descriptions are not stored in the same way
-  # on different DBs (see https://jira.codehaus.org/browse/SONAR-3326)
+  # on different DBs (see https://jira.sonarsource.com/browse/SONAR-3326)
   def description_text
     description || ''
   end

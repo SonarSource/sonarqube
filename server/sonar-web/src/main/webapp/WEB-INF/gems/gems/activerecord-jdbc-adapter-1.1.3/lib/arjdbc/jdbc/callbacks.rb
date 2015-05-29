@@ -40,7 +40,7 @@ module ActiveRecord
         #sonar
         # Why do we try to reconnect ? It opens two connections instead of a single one.
         # Commenting the reconnection allows to have a single JDBC connection per HTTP request
-        # https://jira.codehaus.org/browse/SONAR-2784
+        # https://jira.sonarsource.com/browse/SONAR-2784
         #reconnect!
         #/sonar
       end

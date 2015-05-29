@@ -66,7 +66,7 @@ public class DatabaseChecker implements Startable {
     Connection connection = db.getDataSource().getConnection();
     try {
       // check version of db
-      // See http://jira.codehaus.org/browse/SONAR-6434
+      // See http://jira.sonarsource.com/browse/SONAR-6434
       int majorVersion = connection.getMetaData().getDatabaseMajorVersion();
       if (majorVersion < ORACLE_MIN_MAJOR_VERSION) {
         throw MessageException.of(String.format(

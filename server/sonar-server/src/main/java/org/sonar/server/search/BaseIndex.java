@@ -223,7 +223,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
     // In case there is a replication factor set by the index,
     // it is removed since we're using global cluster state
-    // see https://jira.codehaus.org/browse/SONAR-5687
+    // see https://jira.sonarsource.com/browse/SONAR-5687
     settings.remove("index.number_of_replicas");
 
     return settings.build();

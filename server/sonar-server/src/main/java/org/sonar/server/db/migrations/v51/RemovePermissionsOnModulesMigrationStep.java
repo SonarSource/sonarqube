@@ -29,7 +29,7 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
 /**
- * See http://jira.codehaus.org/browse/SONAR-5596
+ * See http://jira.sonarsource.com/browse/SONAR-5596
  *
  * It's no possible to set permission on a module or a sub-view, but the batch was setting default permission on it on their creation.
  * As now it's no more the case, we need to purge this useless data.

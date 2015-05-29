@@ -372,7 +372,7 @@ module ::ArJdbc
     end
 
     # SONAR - support the length parameter when creating indices
-    # See http://jira.codehaus.org/browse/SONAR-4137
+    # See http://jira.sonarsource.com/browse/SONAR-4137
     def quoted_columns_for_index(column_names, options = {})
       length = options[:length] if options.is_a?(Hash)
 

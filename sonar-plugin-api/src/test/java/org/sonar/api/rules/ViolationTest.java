@@ -35,7 +35,7 @@ public class ViolationTest {
   }
 
   /**
-   * See http://jira.codehaus.org/browse/SONAR-2386
+   * See http://jira.sonarsource.com/browse/SONAR-2386
    */
   @Test
   public void testLineIdContract() {

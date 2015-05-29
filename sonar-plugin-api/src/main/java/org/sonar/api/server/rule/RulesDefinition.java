@@ -456,7 +456,7 @@ public interface RulesDefinition {
       if (newRules.containsKey(ruleKey)) {
         // Should fail in a perfect world, but at the time being the Findbugs plugin
         // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
-        // See http://jira.codehaus.org/browse/SONARJAVA-428
+        // See http://jira.sonarsource.com/browse/SONARJAVA-428
         Loggers.get(getClass()).warn(String.format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
       }
       NewRule newRule = new NewRule(key, ruleKey);

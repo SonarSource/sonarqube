@@ -111,7 +111,7 @@ public class NotificationService implements Startable {
           LOG.error("Error in NotificationService", e);
         } finally {
           // Free Hibernate session
-          // See https://jira.codehaus.org/browse/SONAR-6566
+          // See https://jira.sonarsource.com/browse/SONAR-6566
           databaseSessionFactory.clear();
         }
       }

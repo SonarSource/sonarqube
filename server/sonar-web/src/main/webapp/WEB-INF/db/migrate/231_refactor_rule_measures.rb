@@ -20,7 +20,7 @@
 
 #
 # Sonar 2.13
-# http://jira.codehaus.org/browse/SONAR-1974
+# http://jira.sonarsource.com/browse/SONAR-1974
 #
 class RefactorRuleMeasures < ActiveRecord::Migration
 

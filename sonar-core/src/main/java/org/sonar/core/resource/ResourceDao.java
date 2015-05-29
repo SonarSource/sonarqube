@@ -208,7 +208,7 @@ public class ResourceDao implements DaoComponent {
    * Will return the component itself if it's already the root project
    * Can return null if the component does not exists.
    *
-   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   * The implementation should rather use a new column already containing the root project, see https://jira.sonarsource.com/browse/SONAR-5188.
    */
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
@@ -253,7 +253,7 @@ public class ResourceDao implements DaoComponent {
    * Will return the component itself if it's already the root project
    * Can return null if the component that does exists.
    *
-   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   * The implementation should rather use a new column already containing the root project, see https://jira.sonarsource.com/browse/SONAR-5188.
    */
   @CheckForNull
   public ResourceDto getRootProjectByComponentId(long componentId) {

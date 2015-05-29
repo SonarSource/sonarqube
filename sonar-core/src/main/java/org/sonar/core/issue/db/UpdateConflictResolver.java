@@ -26,7 +26,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 
 /**
  * Support concurrent modifications on issues made by analysis and users at the same time
- * See https://jira.codehaus.org/browse/SONAR-4309
+ * See https://jira.sonarsource.com/browse/SONAR-4309
  */
 public class UpdateConflictResolver {
 

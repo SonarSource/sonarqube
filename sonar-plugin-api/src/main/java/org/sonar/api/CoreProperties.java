@@ -77,7 +77,7 @@ public interface CoreProperties {
   /**
    * @see #SUBCATEGORY_DUPLICATIONS
    * @since 2.11
-   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
    */
   @Deprecated
   String CATEGORY_DUPLICATIONS = "duplications";
@@ -90,7 +90,7 @@ public interface CoreProperties {
   /**
    * @see #SUBCATEGORY_L10N
    * @since 2.11
-   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
    */
   @Deprecated
   String CATEGORY_L10N = "localization";
@@ -103,7 +103,7 @@ public interface CoreProperties {
   /**
    * @see #SUBCATEGORY_DIFFERENTIAL_VIEWS
    * @since 2.11
-   * @deprecated since 4.0. See http://jira.codehaus.org/browse/SONAR-4660. Do not forget to remove the properties from core bundles
+   * @deprecated since 4.0. See http://jira.sonarsource.com/browse/SONAR-4660. Do not forget to remove the properties from core bundles
    */
   @Deprecated
   String CATEGORY_DIFFERENTIAL_VIEWS = "differentialViews";
@@ -177,7 +177,7 @@ public interface CoreProperties {
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
 
   /**
-   * @deprecated since 4.3. See http://jira.codehaus.org/browse/SONAR-5185
+   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5185
    */
   @Deprecated
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
@@ -200,7 +200,7 @@ public interface CoreProperties {
   /* Sonar Core */
 
   /**
-   * @deprecated since 4.1. See http://jira.codehaus.org/browse/SONAR-4875
+   * @deprecated since 4.1. See http://jira.sonarsource.com/browse/SONAR-4875
    */
   @Deprecated
   String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
@@ -208,14 +208,14 @@ public interface CoreProperties {
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
 
   /**
-   * @deprecated since 4.3. See http://jira.codehaus.org/browse/SONAR-5109
+   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5109
    */
   @Deprecated
   String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
 
   /**
    * @since 4.0
-   * @deprecated since 4.3. See http://jira.codehaus.org/browse/SONAR-5109
+   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5109
    */
   @Deprecated
   String CORE_INCLUDED_MODULES_PROPERTY = "sonar.includedModules";
@@ -228,7 +228,7 @@ public interface CoreProperties {
   boolean CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE = false;
 
   /**
-   * @deprecated since 2.14. See http://jira.codehaus.org/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.
+   * @deprecated since 2.14. See http://jira.sonarsource.com/browse/SONAR-3153. Replaced by {@link #CORE_AUTHENTICATOR_REALM}.
    */
   @Deprecated
   String CORE_AUTHENTICATOR_CLASS = "sonar.authenticator.class";
@@ -274,7 +274,7 @@ public interface CoreProperties {
 
   /**
    * @deprecated in 5.0
-   * @see <a href="https://jira.codehaus.org/browse/SONAR-5339">SONAR-5339</a>
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5339">SONAR-5339</a>
    */
   @Deprecated
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
@@ -408,7 +408,7 @@ public interface CoreProperties {
 
   /**
    * @deprecated replaced in v3.4 by properties specific to languages, for example sonar.java.coveragePlugin
-   * See http://jira.codehaus.org/browse/SONARJAVA-39 for more details.
+   * See http://jira.sonarsource.com/browse/SONARJAVA-39 for more details.
    */
   @Deprecated
   String CORE_COVERAGE_PLUGIN_PROPERTY = "sonar.core.codeCoveragePlugin";

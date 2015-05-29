@@ -107,7 +107,7 @@ public class UpgradesActionTest {
       .setLicense("GNU LGPL 3")
       .setOrganization("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
-      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARPLUGINS/component/14663")
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARPLUGINS/component/14663")
       .setSourcesUrl("https://github.com/SonarCommunity/sonar-branding");
     Plugin viewsPlugin = new Plugin("views")
       .setName("Views")
@@ -125,7 +125,7 @@ public class UpgradesActionTest {
         .setDate(DateUtils.parseDate("2015-04-02"))
         .setDescription("New overall layout, merge Issues Drilldown [...]")
         .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
-        .setChangelogUrl("http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11694&version=20666")
+        .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666")
       );
 
     sonarUpdate.addIncompatiblePlugin(brandingPlugin);

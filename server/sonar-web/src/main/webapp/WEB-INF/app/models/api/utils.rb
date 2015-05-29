@@ -121,16 +121,16 @@ class Api::Utils
 
   # Splits a string into an array of lines
   # For history reference:
-  #   - http://jira.codehaus.org/browse/SONAR-2282 first modified the behaviour to keep the trailing lines
-  #   - then http://jira.codehaus.org/browse/SONAR-3003 reverted this modification to remove potential last empty line
-  #   - then http://jira.codehaus.org/browse/SONAR-3896 reactivate this modification to display last empty line
+  #   - http://jira.sonarsource.com/browse/SONAR-2282 first modified the behaviour to keep the trailing lines
+  #   - then http://jira.sonarsource.com/browse/SONAR-3003 reverted this modification to remove potential last empty line
+  #   - then http://jira.sonarsource.com/browse/SONAR-3896 reactivate this modification to display last empty line
   def self.split_newlines(input)
     input.split(/\r?\n|\r/, -1)
   end
 
   def self.convert_string_to_unix_newlines(input)
     # Don't use '\n' here
-    # See http://jira.codehaus.org/browse/SONAR-2571
+    # See http://jira.sonarsource.com/browse/SONAR-2571
     split_newlines(input).join("\n")
   end
 

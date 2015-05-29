@@ -9,7 +9,7 @@
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
       "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html",
-      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCGIT",
+      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARSCGIT",
       "implementationBuild": "9ce9d330c313c296fab051317cc5ad4b26319e07"
     },
     {
@@ -21,7 +21,7 @@
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
       "homepageUrl": "http://redirect.sonarsource.com/plugins/java.html",
-      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARJAVA",
+      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARJAVA",
       "implementationBuild": "65396a609ddface8b311a6a665aca92a7da694f1"
     }
   ],
@@ -35,7 +35,7 @@
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
       "homepageUrl": "http://redirect.sonarsource.com/plugins/scmsvn.html",
-      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCSVN",
+      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARSCSVN",
       "implementationBuild": "213fc8a8b582ff530b12dd4a59a6512be1071234"
     }
   ]

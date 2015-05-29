@@ -123,7 +123,7 @@ public class WildcardPatternTest {
   }
 
   /**
-   * See http://jira.codehaus.org/browse/SONAR-2193
+   * See http://jira.sonarsource.com/browse/SONAR-2193
    */
   @Test
   public void issue2193() {

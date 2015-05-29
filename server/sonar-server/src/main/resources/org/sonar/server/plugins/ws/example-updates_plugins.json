@@ -46,7 +46,7 @@
             "version": "1.0",
             "date": "2014-03-31",
             "description": "Makes the plugin compatible with multi-language analysis introduced in SonarQube 4.2 and adds support of Emma 2.0 reports",
-            "changeLogUrl": "http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=13235&version=20187"
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=13235&version=20187"
           },
           "status": "COMPATIBLE",
           "requires": [

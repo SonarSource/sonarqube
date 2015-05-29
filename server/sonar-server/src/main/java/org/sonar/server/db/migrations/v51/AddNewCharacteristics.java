@@ -38,7 +38,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 /**
- * See http://jira.codehaus.org/browse/SONAR-6187
+ * See http://jira.sonarsource.com/browse/SONAR-6187
  *
  * Add a new Characteristic 'Usability' with 2 sub-characteristics 'Accessibility' and 'Ease of Use'
  * and add a new sub-characteristic 'Compliance' for all characteristics.

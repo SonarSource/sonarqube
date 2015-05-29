@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 import java.util.Locale;
 
 /**
- * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+ * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
  */
 @Deprecated
 @BatchSide
@@ -47,7 +47,7 @@ public class RuleI18nManager implements RuleI18n {
   }
 
   /**
-   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Override
   @Deprecated
@@ -56,7 +56,7 @@ public class RuleI18nManager implements RuleI18n {
   }
 
   /**
-   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Override
   @Deprecated
@@ -65,7 +65,7 @@ public class RuleI18nManager implements RuleI18n {
   }
 
   /**
-   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Override
   @Deprecated
@@ -74,7 +74,7 @@ public class RuleI18nManager implements RuleI18n {
   }
 
   /**
-   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Override
   @Deprecated
@@ -112,7 +112,7 @@ public class RuleI18nManager implements RuleI18n {
    * Method used to ensure backward compatibility for language plugins that store HTML rule description files in the former
    * location (which was used prior to Sonar 3.0).
    * 
-   * See http://jira.codehaus.org/browse/SONAR-3319
+   * See http://jira.sonarsource.com/browse/SONAR-3319
    */
   private String lookUpDescriptionInFormerLocation(String ruleKey, String relatedProperty) {
     return defaultI18n.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);

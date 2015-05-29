@@ -57,7 +57,7 @@ public class PluginWSCommonsTest {
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
       "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"" +
+      "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"" +
       "}");
   }
 
@@ -77,7 +77,7 @@ public class PluginWSCommonsTest {
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
       "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-      "  \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+      "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
       "}");
   }
 
@@ -215,7 +215,7 @@ public class PluginWSCommonsTest {
       .setOrganizationName("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
       .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
-      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT");
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT");
   }
 
   private Plugin newPlugin() {

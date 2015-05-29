@@ -71,7 +71,7 @@ class Snapshot < ActiveRecord::Base
   end
 
   def self.for_timemachine_matrix(resource)
-    # http://jira.codehaus.org/browse/SONAR-1850
+    # http://jira.sonarsource.com/browse/SONAR-1850
     # Conditions on scope and qualifier are required to exclude library snapshots.
     # Use-case :
     #   1. project A 2.0 is analyzed -> new snapshot A with qualifier TRK

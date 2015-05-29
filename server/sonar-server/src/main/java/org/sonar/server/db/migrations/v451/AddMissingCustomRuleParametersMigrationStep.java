@@ -42,7 +42,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 /**
- * See http://jira.codehaus.org/browse/SONAR-5575
+ * See http://jira.sonarsource.com/browse/SONAR-5575
  *
  * Add missing parameters (with no value) on each custom rules
  *

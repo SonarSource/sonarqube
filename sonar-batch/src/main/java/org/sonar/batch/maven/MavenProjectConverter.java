@@ -144,7 +144,7 @@ public class MavenProjectConverter implements TaskExtension {
   }
 
   private static void guessEncoding(MavenProject pom, ProjectDefinition definition) {
-    // See http://jira.codehaus.org/browse/SONAR-2151
+    // See http://jira.sonarsource.com/browse/SONAR-2151
     String encoding = MavenUtils.getSourceEncoding(pom);
     if (encoding != null) {
       definition.setProperty(CoreProperties.ENCODING_PROPERTY, encoding);
@@ -152,7 +152,7 @@ public class MavenProjectConverter implements TaskExtension {
   }
 
   private static void guessJavaVersion(MavenProject pom, ProjectDefinition definition) {
-    // See http://jira.codehaus.org/browse/SONAR-2148
+    // See http://jira.sonarsource.com/browse/SONAR-2148
     // Get Java source and target versions from maven-compiler-plugin.
     String version = MavenUtils.getJavaSourceVersion(pom);
     if (version != null) {

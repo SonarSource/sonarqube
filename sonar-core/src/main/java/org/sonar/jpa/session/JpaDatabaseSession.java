@@ -130,7 +130,7 @@ public class JpaDatabaseSession extends DatabaseSession {
       getEntityManager().persist(model);
     } catch (PersistenceException e) {
       /*
-       * See http://jira.codehaus.org/browse/SONAR-2234
+       * See http://jira.sonarsource.com/browse/SONAR-2234
        * In some cases Hibernate can throw exceptions without meaningful information about context, so we improve them here.
        */
       throw new PersistenceException("Unable to persist : " + model, e);
@@ -197,7 +197,7 @@ public class JpaDatabaseSession extends DatabaseSession {
   @Override
   public <T> T getSingleResult(Query query, T defaultValue) {
     /*
-     * See http://jira.codehaus.org/browse/SONAR-2225
+     * See http://jira.sonarsource.com/browse/SONAR-2225
      * By default Hibernate throws NonUniqueResultException without meaningful information about context,
      * so we improve it here by adding all results in error message.
      * Note that in some rare situations we can receive too many results, which may lead to OOME,

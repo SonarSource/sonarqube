@@ -31,7 +31,7 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
 /**
- * See http://jira.codehaus.org/browse/SONAR-5758
+ * See http://jira.sonarsource.com/browse/SONAR-5758
  *
  * @since 4.5.1
  */

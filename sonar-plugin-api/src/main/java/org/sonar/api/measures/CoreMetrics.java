@@ -169,14 +169,14 @@ public final class CoreMetrics {
 
   /**
    * @deprecated since 5.0.
-   * @see <a href="https://jira.codehaus.org/browse/SONAR-5224">SONAR-5224</a>
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
    */
   @Deprecated
   public static final String ACCESSORS_KEY = "accessors";
 
   /**
    * @deprecated since 5.0.
-   * @see <a href="https://jira.codehaus.org/browse/SONAR-5224">SONAR-5224</a>
+   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
    */
   @Deprecated
   public static final Metric<Integer> ACCESSORS = new Metric.Builder(ACCESSORS_KEY, "Accessors", Metric.ValueType.INT)
@@ -1668,13 +1668,13 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final String LCOM4_KEY = "lcom4";
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final transient Metric<Double> LCOM4 = new Metric.Builder(LCOM4_KEY, "LCOM4", Metric.ValueType.FLOAT)
@@ -1687,13 +1687,13 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final String LCOM4_BLOCKS_KEY = "lcom4_blocks";
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final transient Metric<String> LCOM4_BLOCKS = new Metric.Builder(LCOM4_BLOCKS_KEY, "LCOM4 blocks", Metric.ValueType.DATA)
@@ -1706,13 +1706,13 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final String LCOM4_DISTRIBUTION_KEY = "lcom4_distribution";
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final transient Metric<String> LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class distribution /LCOM4", Metric.ValueType.DISTRIB)
@@ -1725,13 +1725,13 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final String SUSPECT_LCOM4_DENSITY_KEY = "suspect_lcom4_density";
 
   /**
-   * @deprecated in 4.1. See http://jira.codehaus.org/browse/SONAR-4853
+   * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
   public static final transient Metric<Double> SUSPECT_LCOM4_DENSITY = new Metric.Builder(SUSPECT_LCOM4_DENSITY_KEY, "Suspect LCOM4 density", Metric.ValueType.PERCENT)

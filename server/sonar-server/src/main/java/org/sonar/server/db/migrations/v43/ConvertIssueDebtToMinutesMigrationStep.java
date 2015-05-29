@@ -54,7 +54,7 @@ public class ConvertIssueDebtToMinutesMigrationStep extends BaseDataChange {
     final Date now = new Date(system2.now());
     MassUpdate massUpdate = context.prepareMassUpdate();
 
-    // See https://jira.codehaus.org/browse/SONAR-5394
+    // See https://jira.sonarsource.com/browse/SONAR-5394
     // The SQL request should not set the filter on technical_debt is not null. There's no index
     // on this column, so filtering is done programmatically.
     massUpdate.select("select id, technical_debt from issues");

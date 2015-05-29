@@ -27,7 +27,7 @@ import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigrationStep;
 
 /**
- * See http://jira.codehaus.org/browse/SONAR-5580
+ * See http://jira.sonarsource.com/browse/SONAR-5580
  * {@link ConvertProfileMeasuresMigrationStep}
  * introduced a regression in 4.4. Measures on orphan profiles were kept 
  * in old format (no JSON data but numeric value of profile id)

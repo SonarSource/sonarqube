@@ -438,7 +438,7 @@ public class Measure<G extends Serializable> implements Serializable {
 
   /**
    * Concept of measure trend is dropped.
-   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
+   * @deprecated since 5.2. See https://jira.sonarsource.com/browse/SONAR-6392
    * @return {@code null} since version 5.2
    */
   @Deprecated
@@ -449,7 +449,7 @@ public class Measure<G extends Serializable> implements Serializable {
 
   /**
    * Concept of measure trend is dropped. This method does nothing.
-   * @deprecated since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
+   * @deprecated since 5.2. See https://jira.sonarsource.com/browse/SONAR-6392
    * @return the measure object instance
    */
   @Deprecated

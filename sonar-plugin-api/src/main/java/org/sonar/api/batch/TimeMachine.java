@@ -42,7 +42,7 @@ public interface TimeMachine {
   List<Measure> getMeasures(TimeMachineQuery query);
 
   /**
-   * Return an empty list since 5.2. See https://jira.codehaus.org/browse/SONAR-6392
+   * Return an empty list since 5.2. See https://jira.sonarsource.com/browse/SONAR-6392
    */
   List<Object[]> getMeasuresFields(TimeMachineQuery query);
 

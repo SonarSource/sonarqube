@@ -70,7 +70,7 @@ public class RuleI18nManagerTest {
     verifyNoMoreInteractions(i18n);
   }
 
-  // see http://jira.codehaus.org/browse/SONAR-3319
+  // see http://jira.sonarsource.com/browse/SONAR-3319
   @Test
   public void shouldGetDescriptionFromFileWithBackwardCompatibility() {
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";

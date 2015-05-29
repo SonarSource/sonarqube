@@ -130,7 +130,7 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
-   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.sonarsource.com/browse/SONAR-1829
    */
   @Deprecated
   public RulePriority getPriority() {
@@ -138,7 +138,7 @@ public class ActiveRule implements Cloneable {
   }
 
   /**
-   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.sonarsource.com/browse/SONAR-1829
    */
   @Deprecated
   public void setPriority(RulePriority priority) {

@@ -128,7 +128,7 @@ public class QProfileService {
   }
 
   public void backup(String profileKey, Writer writer) {
-    // Allowed to non-admin users (see http://jira.codehaus.org/browse/SONAR-2039)
+    // Allowed to non-admin users (see http://jira.sonarsource.com/browse/SONAR-2039)
     backuper.backup(profileKey, writer);
   }
 

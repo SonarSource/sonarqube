@@ -31,7 +31,7 @@ import java.util.Locale;
  * {@link I18n}-companion component that provides translation facilities for rule names, descriptions and parameter names.
  * 
  * @since 3.2
- * @deprecated in 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+ * @deprecated in 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
  */
 @Deprecated
 @BatchSide
@@ -48,7 +48,7 @@ public interface RuleI18n {
    * @param ruleKey the rule key
    * @param locale not used
    * @return the translated name of the rule, or the default English one if the given locale is not supported, or null
-   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Deprecated
   @CheckForNull
@@ -76,7 +76,7 @@ public interface RuleI18n {
    * @param rule the rule
    * @param locale the locale to translate into
    * @return the translated name of the rule, or the default English one if the given locale is not supported, or the rule name.
-   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Deprecated
   @CheckForNull
@@ -104,7 +104,7 @@ public interface RuleI18n {
    * @param ruleKey the rule key
    * @param locale  the locale to translate into
    * @return the translated description of the rule, or the default English one if the given locale is not supported
-   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Deprecated
   String getDescription(String repositoryKey, String ruleKey, Locale locale);
@@ -133,7 +133,7 @@ public interface RuleI18n {
    * @param locale the locale to translate into
    * @return the translated name of the rule parameter, or the default English one if the given locale is not supported, or null if
    *         no translation can be found.
-   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.codehaus.org/browse/SONAR-4885
+   * @deprecated since 4.1. Rules are not localized anymore. See http://jira.sonarsource.com/browse/SONAR-4885
    */
   @Deprecated
   @CheckForNull

@@ -74,7 +74,7 @@ public class ProcessProperties {
   public static final String ES_PLUGIN_LISTUPDATE_VALUE = "value";
 
   public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
-    // jruby is slow with java 8: https://jira.codehaus.org/browse/SONAR-6115
+    // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
     "-Djruby.compile.invokedynamic=false";
 
   private ProcessProperties() {

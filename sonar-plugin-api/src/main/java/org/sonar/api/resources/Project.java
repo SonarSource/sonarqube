@@ -132,7 +132,7 @@ public class Project extends Resource implements Component {
 
   /**
    * @return the project's packaging
-   * @deprecated in 2.8. See http://jira.codehaus.org/browse/SONAR-2341
+   * @deprecated in 2.8. See http://jira.sonarsource.com/browse/SONAR-2341
    */
   @Deprecated
   public String getPackaging() {
@@ -173,7 +173,7 @@ public class Project extends Resource implements Component {
   /**
    * For internal use only.
    *
-   * @deprecated in 2.8. See http://jira.codehaus.org/browse/SONAR-2341
+   * @deprecated in 2.8. See http://jira.sonarsource.com/browse/SONAR-2341
    */
   @Deprecated
   public Project setPackaging(String packaging) {
@@ -220,7 +220,7 @@ public class Project extends Resource implements Component {
    * whether it's the latest analysis done on this project (displayed in sonar dashboard) or an analysis on a past revision.
    *
    * @since 2.0
-   * @deprecated in 3.6. The analysis is now always the latest one (past analysis must be done in a chronological order). See http://jira.codehaus.org/browse/SONAR-4334
+   * @deprecated in 3.6. The analysis is now always the latest one (past analysis must be done in a chronological order). See http://jira.sonarsource.com/browse/SONAR-4334
    */
   @Deprecated
   public boolean isLatestAnalysis() {
@@ -231,7 +231,7 @@ public class Project extends Resource implements Component {
    * For internal use only.
    *
    * @deprecated in 3.6. It's not possible to analyze a project before the latest known quality snapshot.
-   * See http://jira.codehaus.org/browse/SONAR-4334
+   * See http://jira.sonarsource.com/browse/SONAR-4334
    */
   @Deprecated
   public Project setLatestAnalysis(boolean b) {
@@ -385,7 +385,7 @@ public class Project extends Resource implements Component {
   /**
    * For internal use only.
    *
-   * @deprecated since 2.6. See http://jira.codehaus.org/browse/SONAR-2126
+   * @deprecated since 2.6. See http://jira.sonarsource.com/browse/SONAR-2126
    */
   @Deprecated
   public Project setFileSystem(ProjectFileSystem fs) {
@@ -394,7 +394,7 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011
+   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011
    */
   @Deprecated
   public String getGroupId() {
@@ -402,7 +402,7 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011
+   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011
    */
   @Deprecated
   public String getArtifactId() {
@@ -411,7 +411,7 @@ public class Project extends Resource implements Component {
 
   /**
    * @return the underlying Maven project
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2011 ,
+   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011 ,
    *             MavenProject can be retrieved as an IoC dependency
    */
   @Deprecated

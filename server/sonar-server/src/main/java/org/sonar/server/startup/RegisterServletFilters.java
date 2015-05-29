@@ -44,7 +44,7 @@ public class RegisterServletFilters {
     if (MasterServletFilter.INSTANCE != null) {
       // Probably a database upgrade. MasterSlaveFilter was instantiated by the servlet container
       // while picocontainer was not completely up.
-      // See https://jira.codehaus.org/browse/SONAR-3612
+      // See https://jira.sonarsource.com/browse/SONAR-3612
       MasterServletFilter.INSTANCE.initFilters(Arrays.asList(filters));
     }
   }

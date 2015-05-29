@@ -243,7 +243,7 @@ public class RulesDefinitionTest {
     RulesDefinition.NewRepository findbugs = context.createRepository("findbugs", "java");
     findbugs.createRule("NPE");
     findbugs.createRule("NPE");
-    // do not fail as long as http://jira.codehaus.org/browse/SONARJAVA-428 is not fixed
+    // do not fail as long as http://jira.sonarsource.com/browse/SONARJAVA-428 is not fixed
   }
 
   @Test

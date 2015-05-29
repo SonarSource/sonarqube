@@ -139,7 +139,7 @@ public class CountUnresolvedIssuesDecoratorTest {
   }
 
   /**
-   * See http://jira.codehaus.org/browse/SONAR-1729
+   * See http://jira.sonarsource.com/browse/SONAR-1729
    */
   @Test
   public void should_not_count_issues_if_measure_already_exists() {

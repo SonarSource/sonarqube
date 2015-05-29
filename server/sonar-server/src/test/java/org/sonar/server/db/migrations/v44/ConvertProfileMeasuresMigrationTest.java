@@ -66,7 +66,7 @@ public class ConvertProfileMeasuresMigrationTest {
   }
 
   /**
-   * http://jira.codehaus.org/browse/SONAR-5515
+   * http://jira.sonarsource.com/browse/SONAR-5515
    * Version of quality profile was introduced in SQ 2.9. Migration must not fail
    * when there are still some projects which last analysis was done with SQ <= 2.8.
    */
@@ -91,7 +91,7 @@ public class ConvertProfileMeasuresMigrationTest {
   }
 
   /**
-   * http://jira.codehaus.org/browse/SONAR-5580
+   * http://jira.sonarsource.com/browse/SONAR-5580
    */
   @Test
   public void delete_measure_when_profile_does_not_exist() throws Exception {

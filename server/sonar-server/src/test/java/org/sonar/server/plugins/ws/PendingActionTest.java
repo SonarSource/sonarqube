@@ -92,7 +92,7 @@ public class PendingActionTest {
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]," +
@@ -121,7 +121,7 @@ public class PendingActionTest {
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
-        "      \"issueTrackerUrl\": \"http://jira.codehaus.org/browse/SONARSCGIT\"," +
+        "      \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]" +
@@ -202,7 +202,7 @@ public class PendingActionTest {
       .setOrganizationName("SonarSource")
       .setOrganizationUrl("http://www.sonarsource.com")
       .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
-      .setIssueTrackerUrl("http://jira.codehaus.org/browse/SONARSCGIT")
+      .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT")
       .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
   }
 

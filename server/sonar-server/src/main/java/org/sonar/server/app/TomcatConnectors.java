@@ -120,7 +120,7 @@ class TomcatConnectors {
       setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
       setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS));
       // SSLv3 must not be enable because of Poodle vulnerability
-      // See https://jira.codehaus.org/browse/SONAR-5860
+      // See https://jira.sonarsource.com/browse/SONAR-5860
       setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
       setConnectorAttribute(connector, "sslProtocol", "TLS");
       setConnectorAttribute(connector, "SSLEnabled", true);

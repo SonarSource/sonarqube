@@ -127,7 +127,7 @@ public class Violation {
    */
   public Violation setLineId(Integer lineId) {
     if (lineId != null && lineId < 1) {
-      // TODO this normalization was added in 2.8, throw exception in future versions - see http://jira.codehaus.org/browse/SONAR-2386
+      // TODO this normalization was added in 2.8, throw exception in future versions - see http://jira.sonarsource.com/browse/SONAR-2386
       Loggers.get(getClass()).warn("line must not be less than 1 - in future versions this will cause IllegalArgumentException");
       this.lineId = null;
     } else {
@@ -162,7 +162,7 @@ public class Violation {
   }
 
   /**
-   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.sonarsource.com/browse/SONAR-1829
    */
   @Deprecated
   public RulePriority getPriority() {
@@ -172,7 +172,7 @@ public class Violation {
   /**
    * For internal use only
    *
-   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
+   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.sonarsource.com/browse/SONAR-1829
    */
   @Deprecated
   public Violation setPriority(RulePriority priority) {

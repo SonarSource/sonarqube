@@ -79,7 +79,7 @@ public class PersistIssuesStep implements ComputationStep {
             int updateCount = mapper.updateIfBeforeSelectedDate(dto);
             if (updateCount == 0) {
               // End-user and scan changed the issue at the same time.
-              // See https://jira.codehaus.org/browse/SONAR-4309
+              // See https://jira.sonarsource.com/browse/SONAR-4309
               conflictResolver.resolve(issue, mapper);
             }
           }
