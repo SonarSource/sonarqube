@@ -19,18 +19,17 @@
  */
 package org.sonar.process;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
 
-public class ProcessCommandsTest {
+public class DefaultProcessCommandsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -41,7 +40,7 @@ public class ProcessCommandsTest {
     FileUtils.deleteQuietly(dir);
 
     try {
-      new ProcessCommands(dir, 1);
+      new DefaultProcessCommands(dir, 1);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Not a valid directory: " + dir.getAbsolutePath());
@@ -52,14 +51,14 @@ public class ProcessCommandsTest {
   public void child_process_update_the_mapped_memory() throws Exception {
     File dir = temp.newFolder();
 
-    ProcessCommands commands = new ProcessCommands(dir, 1);
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, 1);
     assertThat(commands.isReady()).isFalse();
-    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(ProcessCommands.EMPTY);
+    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(DefaultProcessCommands.EMPTY);
     assertThat(commands.mappedByteBuffer.getLong(2 + commands.offset())).isEqualTo(0L);
 
     commands.setReady();
     assertThat(commands.isReady()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(ProcessCommands.READY);
+    assertThat(commands.mappedByteBuffer.get(commands.offset())).isEqualTo(DefaultProcessCommands.READY);
 
     long currentTime = System.currentTimeMillis();
     commands.ping();
@@ -70,26 +69,26 @@ public class ProcessCommandsTest {
   public void ask_for_stop() throws Exception {
     File dir = temp.newFolder();
 
-    ProcessCommands commands = new ProcessCommands(dir, 1);
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isNotEqualTo(ProcessCommands.STOP);
+    DefaultProcessCommands commands = new DefaultProcessCommands(dir, 1);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isNotEqualTo(DefaultProcessCommands.STOP);
     assertThat(commands.askedForStop()).isFalse();
 
     commands.askForStop();
     assertThat(commands.askedForStop()).isTrue();
-    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isEqualTo(ProcessCommands.STOP);
+    assertThat(commands.mappedByteBuffer.get(commands.offset() + 1)).isEqualTo(DefaultProcessCommands.STOP);
   }
 
   @Test
   public void test_max_processes() throws Exception {
     File dir = temp.newFolder();
     try {
-      new ProcessCommands(dir, -2);
+      new DefaultProcessCommands(dir, -2);
       failBecauseExceptionWasNotThrown(AssertionError.class);
     } catch (AssertionError e) {
       assertThat(e).hasMessage("Incorrect process number");
     }
     try {
-      new ProcessCommands(dir, ProcessCommands.getMaxProcesses() + 1);
+      new DefaultProcessCommands(dir, ProcessCommands.MAX_PROCESSES + 1);
       failBecauseExceptionWasNotThrown(AssertionError.class);
     } catch (AssertionError e) {
       assertThat(e).hasMessage("Incorrect process number");

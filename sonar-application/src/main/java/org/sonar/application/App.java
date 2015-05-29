@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessProperties;
@@ -54,7 +55,7 @@ public class App implements Stoppable {
   public void start(Props props) {
     if (props.valueAsBoolean(ProcessProperties.ENABLE_STOP_COMMAND, false)) {
       File tempDir = props.nonNullValueAsFile(ProcessProperties.PATH_TEMP);
-      ProcessCommands commands = new ProcessCommands(tempDir, 0);
+      ProcessCommands commands = new DefaultProcessCommands(tempDir, 0);
       stopWatcher = new StopWatcher(commands, this);
       stopWatcher.start();
     }

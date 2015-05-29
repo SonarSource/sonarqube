@@ -20,6 +20,11 @@
 package org.sonar.process.monitor;
 
 import com.github.kevinsawicki.http.HttpRequest;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -27,16 +32,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.Lifecycle.State;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -211,7 +210,8 @@ public class MonitorTest {
 
   @Test
   public void test_too_many_processes() {
-    while (Monitor.getNextProcessId() < ProcessCommands.getMaxProcesses() - 1) {}
+    while (Monitor.getNextProcessId() < ProcessCommands.MAX_PROCESSES - 1) {
+    }
     try {
       newDefaultMonitor();
     } catch (IllegalStateException e) {

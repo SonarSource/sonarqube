@@ -21,6 +21,7 @@ package org.sonar.process.monitor;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessUtils;
@@ -45,7 +46,7 @@ public class JavaProcessLauncher {
     Process process = null;
     try {
       // cleanup existing monitor files
-      ProcessCommands commands = new ProcessCommands(command.getTempDir(), command.getProcessIndex());
+      ProcessCommands commands = new DefaultProcessCommands(command.getTempDir(), command.getProcessIndex());
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",

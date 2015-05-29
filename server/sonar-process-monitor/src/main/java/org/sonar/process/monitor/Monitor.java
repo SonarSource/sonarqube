@@ -19,14 +19,13 @@
  */
 package org.sonar.process.monitor;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Monitor {
 
@@ -165,8 +164,8 @@ public class Monitor {
   }
 
   public static int getNextProcessId() {
-    if (nextProcessId >= ProcessCommands.getMaxProcesses()) {
-      throw new IllegalStateException("The maximum number of processes launched has been reached " + ProcessCommands.getMaxProcesses());
+    if (nextProcessId >= ProcessCommands.MAX_PROCESSES) {
+      throw new IllegalStateException("The maximum number of processes launched has been reached " + ProcessCommands.MAX_PROCESSES);
     }
     return nextProcessId++;
   }
