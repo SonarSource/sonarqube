@@ -52,12 +52,13 @@ public class ComputationStepsTest {
       mock(PopulateComponentsUuidAndKeyStep.class),
       mock(PersistComponentsStep.class),
       mock(IndexTestsStep.class),
-      mock(QualityProfileEventsStep.class)
+      mock(QualityProfileEventsStep.class),
+      mock(ValidateProjectStep.class)
       );
 
-    assertThat(registry.orderedSteps()).hasSize(20);
+    assertThat(registry.orderedSteps()).hasSize(21);
     assertThat(registry.orderedSteps().get(0)).isInstanceOf(PopulateComponentsUuidAndKeyStep.class);
-    assertThat(registry.orderedSteps().get(19)).isInstanceOf(SendIssueNotificationsStep.class);
+    assertThat(registry.orderedSteps().get(20)).isInstanceOf(SendIssueNotificationsStep.class);
   }
 
   @Test

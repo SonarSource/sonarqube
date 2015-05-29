@@ -20,6 +20,8 @@
 
 package org.sonar.server.component.db;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,9 +35,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -311,23 +310,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void find_modules_by_project() {
-    db.prepareDbUnit(getClass(), "multi-modules.xml");
-
-    List<ComponentDto> results = sut.selectModulesByProject("org.struts:struts", session);
-    assertThat(results).hasSize(1);
-    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core");
-
-    results = sut.selectModulesByProject("org.struts:struts-core", session);
-    assertThat(results).hasSize(1);
-    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
-
-    assertThat(sut.selectModulesByProject("org.struts:struts-data", session)).isEmpty();
-
-    assertThat(sut.selectModulesByProject("unknown", session)).isEmpty();
-  }
-
-  @Test
   public void find_sub_projects_by_component_keys() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
@@ -461,6 +443,16 @@ public class ComponentDaoTest {
     assertThat(components).hasSize(5);
 
     assertThat(sut.selectComponentsFromProjectKey(session, "UNKNOWN")).isEmpty();
+  }
+
+  @Test
+  public void select_modules_from_project() {
+    db.prepareDbUnit(getClass(), "multi-modules.xml");
+
+    List<ComponentDto> components = sut.selectModulesFromProjectKey(session, "org.struts:struts");
+    assertThat(components).hasSize(3);
+
+    assertThat(sut.selectModulesFromProjectKey(session, "UNKNOWN")).isEmpty();
   }
 
   @Test
