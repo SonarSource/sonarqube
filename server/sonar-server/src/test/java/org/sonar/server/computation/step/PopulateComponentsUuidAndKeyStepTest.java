@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,8 +35,10 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
 import org.sonar.server.computation.component.Component;
@@ -82,13 +85,18 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     sut = new PopulateComponentsUuidAndKeyStep(dbClient);
   }
 
+  @After
+  public void tearDown() throws Exception {
+    session.close();
+  }
+
   @Override
   protected ComputationStep step() {
     return sut;
   }
 
   @Test
-  public void add_components() throws Exception {
+  public void compute_keys_and_uuids() throws Exception {
     File reportDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(reportDir);
     writer.writeMetadata(BatchReport.Metadata.newBuilder()
@@ -137,6 +145,67 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
 
     assertThat(componentsByRef.get(4).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir/Foo.java");
     assertThat(componentsByRef.get(4).getUuid()).isNotNull();
+  }
+
+  @Test
+  public void return_existing_uuids() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(session, project);
+    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY");
+    dbClient.componentDao().insert(session, module);
+    ComponentDto directory = ComponentTesting.newDirectory(module, "CDEF", "src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
+    ComponentDto file = ComponentTesting.newFileDto(module, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    dbClient.componentDao().insert(session, directory, file);
+    session.commit();
+
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .addChildRef(3)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+
+    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
+    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    sut.execute(context);
+
+    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+
+    assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
+    assertThat(componentsByRef.get(1).getUuid()).isEqualTo("ABCD");
+
+    assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY");
+    assertThat(componentsByRef.get(2).getUuid()).isEqualTo("BCDE");
+
+    assertThat(componentsByRef.get(3).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir");
+    assertThat(componentsByRef.get(3).getUuid()).isEqualTo("CDEF");
+
+    assertThat(componentsByRef.get(4).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir/Foo.java");
+    assertThat(componentsByRef.get(4).getUuid()).isEqualTo("DEFG");
   }
 
   @Test
@@ -238,6 +307,137 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY:origin/master");
     assertThat(componentsByRef.get(3).getKey()).isEqualTo("MODULE_KEY:origin/master:src/main/java/dir");
     assertThat(componentsByRef.get(4).getKey()).isEqualTo("MODULE_KEY:origin/master:src/main/java/dir/Foo.java");
+  }
+
+  @Test
+  public void compute_keys_and_uuids_on_project_having_module_and_directory() throws Exception {
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .addChildRef(5)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .addChildRef(3)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(5)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("/")
+      .addChildRef(6)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(6)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("pom.xml")
+      .build());
+
+    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
+    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    sut.execute(context);
+
+    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+
+    assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
+    assertThat(componentsByRef.get(1).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY");
+    assertThat(componentsByRef.get(2).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(3).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir");
+    assertThat(componentsByRef.get(3).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(4).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir/Foo.java");
+    assertThat(componentsByRef.get(4).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(5).getKey()).isEqualTo(PROJECT_KEY + ":/");
+    assertThat(componentsByRef.get(5).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(6).getKey()).isEqualTo(PROJECT_KEY + ":pom.xml");
+    assertThat(componentsByRef.get(6).getUuid()).isNotNull();
+  }
+
+  @Test
+  public void compute_keys_and_uuids_on_multi_modules() throws Exception {
+    File reportDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .addChildRef(3)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("SUB_MODULE_KEY")
+      .addChildRef(4)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(5)
+      .build());
+    writer.writeComponent(BatchReport.Component.newBuilder()
+      .setRef(5)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+
+    BatchReportReader batchReportReader = new BatchReportReader(reportDir);
+    ComputationContext context = new ComputationContext(batchReportReader, PROJECT_KEY, projectSettings,
+      dbClient, ComponentTreeBuilders.from(batchReportReader), languageRepository);
+    sut.execute(context);
+
+    Map<Integer, Component> componentsByRef = getComponentsByRef(context.getRoot());
+
+    assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
+    assertThat(componentsByRef.get(1).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY");
+    assertThat(componentsByRef.get(2).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(3).getKey()).isEqualTo("SUB_MODULE_KEY");
+    assertThat(componentsByRef.get(3).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(4).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir");
+    assertThat(componentsByRef.get(4).getUuid()).isNotNull();
+
+    assertThat(componentsByRef.get(5).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir/Foo.java");
+    assertThat(componentsByRef.get(5).getUuid()).isNotNull();
   }
 
   private static Map<Integer, Component> getComponentsByRef(Component root) {

@@ -46,8 +46,7 @@ public class ComponentTesting {
       .setLanguage("xoo");
   }
 
-  public static ComponentDto newDirectory(ComponentDto module, String path) {
-    String uuid = Uuids.create();
+  public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
     return newChildComponent(uuid, module)
       .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
       .setName(path)
@@ -55,6 +54,10 @@ public class ComponentTesting {
       .setPath(path)
       .setScope(Scopes.DIRECTORY)
       .setQualifier(Qualifiers.DIRECTORY);
+  }
+
+  public static ComponentDto newDirectory(ComponentDto module, String path) {
+    return newDirectory(module, Uuids.create(), path);
   }
 
   public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
