@@ -19,7 +19,9 @@
       "status": "FAILURE",
       "durationInMs": 14,
       "coveredLines": 1,
-      "testUuid": "test-uuid-3"
+      "testUuid": "test-uuid-3",
+      "message": "Failure Message",
+      "stacktrace": "Failure Stacktrace"
     },
     {
       "name": "test4",

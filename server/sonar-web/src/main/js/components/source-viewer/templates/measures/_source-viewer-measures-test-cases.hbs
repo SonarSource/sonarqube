@@ -61,11 +61,12 @@
       {{/notEq}}
 
       {{#notEq selectedTest.status 'OK'}}
+        {{log selectedTest}}
         <div class="bubble-popup-title">{{t 'component_viewer.details'}}</div>
         {{#if selectedTest.message}}
           <pre>{{selectedTest.message}}</pre>
         {{/if}}
-        <pre>{{selectedTest.stackTrace}}</pre>
+        <pre>{{selectedTest.stacktrace}}</pre>
       {{/notEq}}
     </div>
   </div>

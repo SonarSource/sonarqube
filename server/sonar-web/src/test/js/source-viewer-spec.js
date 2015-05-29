@@ -368,7 +368,7 @@ casper.test.begin(testName('Details'), 15, function (test) {
 });
 
 
-casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
+casper.test.begin(testName('Details', 'Tests'), 41, function (test) {
   casper
       .start(lib.buildUrl('source-viewer'), function () {
         lib.setDefaultViewport();
@@ -382,6 +382,8 @@ casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
         lib.mockRequestFromFile('/api/tests/list', 'tests.json', { data: { testFileUuid: 'uuid' } });
         lib.mockRequestFromFile('/api/tests/covered_files', 'covered-files.json',
             { data: { testUuid: 'test-uuid-1' } });
+        lib.mockRequestFromFile('/api/tests/covered_files', 'covered-files.json',
+            { data: { testUuid: 'test-uuid-3' } });
       })
 
       .then(function () {
@@ -473,6 +475,16 @@ casper.test.begin(testName('Details', 'Tests'), 39, function (test) {
       .then(function () {
         test.assertSelectorContains('.js-selected-test', 'src/main/java/com/sonar/CoveredFile1.java');
         test.assertSelectorContains('.js-selected-test', '2');
+      })
+
+      .then(function () {
+        casper.click('.js-show-test[data-id="test-uuid-3"]');
+        casper.waitForText('Failure Message');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.js-selected-test', 'Failure Message');
+        test.assertSelectorContains('.js-selected-test', 'Failure Stacktrace');
       })
 
       .then(function () {
