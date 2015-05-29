@@ -20,16 +20,17 @@
 
 package org.sonar.core.component.db;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.FilePathWithHashDto;
 import org.sonar.core.component.UuidWithProjectUuidDto;
+
+import javax.annotation.CheckForNull;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.3
@@ -44,6 +45,11 @@ public interface ComponentMapper {
 
   @CheckForNull
   ComponentDto selectByUuid(String uuid);
+
+  /**
+   * Return direct modules from a project/module
+   */
+  List<ComponentDto> selectModulesByProject(@Param("projectKey") String projectKey);
 
   /**
    * Return sub project of component keys
@@ -90,7 +96,7 @@ public interface ComponentMapper {
   /**
    * Return all components of a project
    */
-  List<ComponentDto> selectComponentsFromProjectKeyAndScope(@Param("projectKey") String projectKey, @Nullable @Param("scope") String scope);
+  List<ComponentDto> selectComponentsFromProjectKey(@Param("projectKey") String projectKey);
 
   /**
    * Return technical projects from a view or a sub-view
