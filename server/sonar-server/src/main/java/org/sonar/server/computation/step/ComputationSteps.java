@@ -37,6 +37,7 @@ public class ComputationSteps {
   public static List<Class<? extends ComputationStep>> orderedStepClasses() {
     return Arrays.asList(
       PopulateComponentsUuidAndKeyStep.class,
+      ValidateProjectStep.class,
 
       // Read report
       ParseReportStep.class,
