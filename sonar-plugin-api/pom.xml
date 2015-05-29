@@ -18,6 +18,11 @@
   </properties>
   
   <dependencies>
+
+    <!--
+    The following artifacts are shaded and relocated in an internal package.
+    They are not visible by plugins
+    -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -26,6 +31,30 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <!--
+    The following artifacts are shaded but not relocated. They
+    are provided at runtime, so plugins can use them but
+    can not change their version.
+    Long-term target is to remove them from API. They should be
+    embedded by plugins.
+    -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-check-api</artifactId>
@@ -50,23 +79,45 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-graph</artifactId>
+    </dependency>
 
+
+    <!-- TODO to be clarified -->
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>woodstox-core-lgpl</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>stax</groupId>
+          <artifactId>stax-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>stax2-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.staxmate</groupId>
+      <artifactId>staxmate</artifactId>
+    </dependency>
     <dependency>
       <groupId>jfree</groupId>
       <artifactId>jfreechart</artifactId>
       <scope>provided</scope>
     </dependency>
+
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-graph</artifactId>
-      <!-- Set to provided to not be visible by plugins -->
-      <scope>provided</scope>
-    </dependency>
+
+
     <!-- TODO we can't remove hibernate-annotations, because currently it's used
     moreover it contains transitive dependency on dom4j, which is used in some plugins
     -->
@@ -88,22 +139,6 @@
 
 
     <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <optional>true</optional>
@@ -113,24 +148,6 @@
       <groupId>xpp3</groupId>
       <artifactId>xpp3</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.woodstox</groupId>
-      <artifactId>woodstox-core-lgpl</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>stax</groupId>
-          <artifactId>stax-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.woodstox</groupId>
-      <artifactId>stax2-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.staxmate</groupId>
-      <artifactId>staxmate</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

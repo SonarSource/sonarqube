@@ -29,7 +29,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PluginExploderTest {
+public class PluginJarExploderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -40,7 +40,7 @@ public class PluginExploderTest {
     final File toDir = temp.newFolder();
     PluginInfo pluginInfo = new PluginInfo("checkstyle").setJarFile(jarFile);
 
-    PluginExploder exploder = new PluginExploder() {
+    PluginJarExploder exploder = new PluginJarExploder() {
       @Override
       public ExplodedPlugin explode(PluginInfo info) {
         try {
@@ -63,7 +63,7 @@ public class PluginExploderTest {
     final File toDir = temp.newFolder();
     PluginInfo pluginInfo = new PluginInfo("foo").setJarFile(jarFile);
 
-    PluginExploder exploder = new PluginExploder() {
+    PluginJarExploder exploder = new PluginJarExploder() {
       @Override
       public ExplodedPlugin explode(PluginInfo info) {
         return explodeFromUnzippedDir("foo", info.getNonNullJarFile(), toDir);

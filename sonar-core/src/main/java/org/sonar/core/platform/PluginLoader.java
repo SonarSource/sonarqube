@@ -21,23 +21,16 @@ package org.sonar.core.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.Plugin;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.classloader.ClassloaderBuilder;
-import org.sonar.classloader.Mask;
-
 import java.io.Closeable;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.SystemUtils;
+import org.sonar.api.Plugin;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
-import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.PARENT_FIRST;
-import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
 
 /**
  * Loads the plugin JAR files by creating the appropriate classloaders and by instantiating
@@ -45,117 +38,98 @@ import static org.sonar.classloader.ClassloaderBuilder.LoadingOrder.SELF_FIRST;
  * environment (minimal sonarqube version, compatibility between plugins, ...):
  * <ul>
  *   <li>server verifies compatibility of JARs before deploying them at startup (see ServerPluginRepository)</li>
- *   <li>batch loads only the plugins deployed on server</li>
+ *   <li>batch loads only the plugins deployed on server (see BatchPluginRepository)</li>
  * </ul>
  * <p/>
- * Standard plugins have their own isolated classloader. Some others can extend a "base" plugin.
- * In this case they share the same classloader then the base plugin.
+ * Plugins have their own isolated classloader, inheriting only from API classes.
+ * Some plugins can extend a "base" plugin, sharing the same classloader.
  * <p/>
- * This class is stateless. It does not keep classloaders and {@link Plugin} in memory.
+ * This class is stateless. It does not keep pointers to classloaders and {@link Plugin}.
  */
 public class PluginLoader {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
+  public static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
-  // underscores are used to not conflict with plugin keys (if someday a plugin key is "api")
-  private static final String API_CLASSLOADER_KEY = "_api_";
+  private final PluginJarExploder jarExploder;
+  private final PluginClassloaderFactory classloaderFactory;
 
-  private final PluginExploder exploder;
-
-  public PluginLoader(PluginExploder exploder) {
-    this.exploder = exploder;
+  public PluginLoader(PluginJarExploder jarExploder, PluginClassloaderFactory classloaderFactory) {
+    this.jarExploder = jarExploder;
+    this.classloaderFactory = classloaderFactory;
   }
 
   public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
-    Collection<ClassloaderDef> defs = defineClassloaders(infoByKeys);
-    buildClassloaders(defs);
-    return instantiatePluginInstances(defs);
+    Collection<PluginClassloaderDef> defs = defineClassloaders(infoByKeys);
+    Map<PluginClassloaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
+    return instantiatePluginClasses(classloaders);
   }
 
   /**
-   * Step 1 - define the different classloaders to be created. Number of classloaders can be
+   * Defines the different classloaders to be created. Number of classloaders can be
    * different than number of plugins.
    */
   @VisibleForTesting
-  Collection<ClassloaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
-    Map<String, ClassloaderDef> classloadersByBasePlugin = new HashMap<>();
+  Collection<PluginClassloaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
+    Map<String, PluginClassloaderDef> classloadersByBasePlugin = new HashMap<>();
 
     for (PluginInfo info : infoByKeys.values()) {
       String baseKey = basePluginKey(info, infoByKeys);
-      ClassloaderDef def = classloadersByBasePlugin.get(baseKey);
+      PluginClassloaderDef def = classloadersByBasePlugin.get(baseKey);
       if (def == null) {
-        def = new ClassloaderDef(baseKey);
+        def = new PluginClassloaderDef(baseKey);
         classloadersByBasePlugin.put(baseKey, def);
       }
-      ExplodedPlugin explodedPlugin = exploder.explode(info);
+      ExplodedPlugin explodedPlugin = jarExploder.explode(info);
       def.addFiles(asList(explodedPlugin.getMain()));
       def.addFiles(explodedPlugin.getLibs());
       def.addMainClass(info.getKey(), info.getMainClass());
 
       for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-        def.getMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
+        def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
       }
+
+      // The plugins that extend other plugins can only add some files to classloader.
+      // They can't change metadata like ordering strategy or compatibility mode.
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
-        // The plugins that extend other plugins can only add some files to classloader.
-        // They can't change ordering strategy.
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
+        Version minSqVersion = info.getMinimalSqVersion();
+        boolean compatibilityMode = (minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0);
+        def.setCompatibilityMode(compatibilityMode);
+        if (compatibilityMode) {
+          Loggers.get(getClass()).info("API compatibility mode is enabled on plugin {} [{}] " +
+            "(built with API lower than {})",
+            info.getName(), info.getKey(), COMPATIBILITY_MODE_MAX_VERSION);
+        }
       }
     }
     return classloadersByBasePlugin.values();
   }
 
   /**
-   * Step 2 - create classloaders with appropriate constituents and metadata
-   */
-  private void buildClassloaders(Collection<ClassloaderDef> defs) {
-    ClassloaderBuilder builder = new ClassloaderBuilder();
-    builder.newClassloader(API_CLASSLOADER_KEY, baseClassloader());
-    for (ClassloaderDef def : defs) {
-      builder
-        .newClassloader(def.getBasePluginKey())
-        .setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask())
-        // resources to be exported to other plugin classloaders (siblings)
-        .setExportMask(def.getBasePluginKey(), def.getMask())
-        .setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
-      for (File file : def.getFiles()) {
-        builder.addURL(def.getBasePluginKey(), fileToUrl(file));
-      }
-      for (ClassloaderDef sibling : defs) {
-        if (!sibling.getBasePluginKey().equals(def.getBasePluginKey())) {
-          builder.addSibling(def.getBasePluginKey(), sibling.getBasePluginKey(), new Mask());
-        }
-      }
-    }
-    Map<String, ClassLoader> classloadersByBasePluginKey = builder.build();
-    for (ClassloaderDef def : defs) {
-      ClassLoader builtClassloader = classloadersByBasePluginKey.get(def.getBasePluginKey());
-      if (builtClassloader == null) {
-        throw new IllegalStateException(String.format("Fail to create classloader for plugin [%s]", def.getBasePluginKey()));
-      }
-      def.setBuiltClassloader(builtClassloader);
-    }
-  }
-
-  /**
-   * Step 3 - instantiate plugin instances ({@link Plugin}
+   * Instantiates collection of ({@link Plugin} according to given metadata and classloaders
    *
    * @return the instances grouped by plugin key
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
-  private Map<String, Plugin> instantiatePluginInstances(Collection<ClassloaderDef> defs) {
+   @VisibleForTesting
+   Map<String, Plugin> instantiatePluginClasses(Map<PluginClassloaderDef, ClassLoader> classloaders) {
     // instantiate plugins
     Map<String, Plugin> instancesByPluginKey = new HashMap<>();
-    for (ClassloaderDef def : defs) {
+    for (Map.Entry<PluginClassloaderDef, ClassLoader> entry : classloaders.entrySet()) {
+      PluginClassloaderDef def = entry.getKey();
+      ClassLoader classLoader = entry.getValue();
+
       // the same classloader can be used by multiple plugins
-      for (Map.Entry<String, String> entry : def.getMainClassesByPluginKey().entrySet()) {
-        String pluginKey = entry.getKey();
-        String mainClass = entry.getValue();
+      for (Map.Entry<String, String> mainClassEntry : def.getMainClassesByPluginKey().entrySet()) {
+        String pluginKey = mainClassEntry.getKey();
+        String mainClass = mainClassEntry.getValue();
         try {
-          instancesByPluginKey.put(pluginKey, (Plugin) def.getBuiltClassloader().loadClass(mainClass).newInstance());
+          instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).newInstance());
         } catch (UnsupportedClassVersionError e) {
           throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
             pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+        } catch (Throwable e) {
           throw new IllegalStateException(String.format(
             "Fail to instantiate class [%s] of plugin [%s]", mainClass, pluginKey), e);
         }
@@ -167,7 +141,7 @@ public class PluginLoader {
   public void unload(Collection<Plugin> plugins) {
     for (Plugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
-      if (classLoader instanceof Closeable && classLoader != baseClassloader()) {
+      if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassloader()) {
         try {
           ((Closeable) classLoader).close();
         } catch (Exception e) {
@@ -175,13 +149,6 @@ public class PluginLoader {
         }
       }
     }
-  }
-
-  /**
-   * This method can be overridden to change the base classloader.
-   */
-  protected ClassLoader baseClassloader() {
-    return getClass().getClassLoader();
   }
 
   /**
@@ -197,13 +164,5 @@ public class PluginLoader {
       parentKey = parentPlugin.getBasePlugin();
     }
     return base;
-  }
-
-  private static URL fileToUrl(File file) {
-    try {
-      return file.toURI().toURL();
-    } catch (MalformedURLException e) {
-      throw new IllegalStateException(e);
-    }
   }
 }

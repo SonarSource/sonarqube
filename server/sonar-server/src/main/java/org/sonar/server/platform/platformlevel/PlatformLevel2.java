@@ -22,6 +22,7 @@ package org.sonar.server.platform.platformlevel;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
+import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.db.migrations.PlatformDatabaseMigration;
@@ -30,7 +31,7 @@ import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.ServerPluginExploder;
+import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ruby.PlatformRubyBridge;
 import org.sonar.server.ui.JRubyI18n;
@@ -51,8 +52,9 @@ public class PlatformLevel2 extends PlatformLevel {
 
       // plugins
       ServerPluginRepository.class,
-      ServerPluginExploder.class,
+      ServerPluginJarExploder.class,
       PluginLoader.class,
+      PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       ServerExtensionInstaller.class,
 

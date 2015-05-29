@@ -20,7 +20,15 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import com.google.common.io.Closeables;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.Map;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
 import org.sonar.api.charts.Chart;
 import org.sonar.api.charts.ChartParameters;
@@ -33,17 +41,6 @@ import org.sonar.server.charts.deprecated.DeprecatedChart;
 import org.sonar.server.charts.deprecated.PieChart;
 import org.sonar.server.charts.deprecated.SparkLinesChart;
 import org.sonar.server.platform.Platform;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Map;
 
 public class ChartsServlet extends HttpServlet {
 
@@ -145,15 +142,11 @@ public class ChartsServlet extends HttpServlet {
     }
 
     if (chart != null) {
-      OutputStream out = null;
-      try {
-        out = response.getOutputStream();
+      try (OutputStream out = response.getOutputStream()) {
         response.setContentType("image/png");
         chart.exportChartAsPNG(out);
       } catch (Exception e) {
         LOG.error("Generating chart " + chart.getClass().getName(), e);
-      } finally {
-        Closeables.closeQuietly(out);
       }
     }
   }

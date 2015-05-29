@@ -61,13 +61,13 @@ import static org.apache.commons.io.FileUtils.moveFileToDirectory;
 import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 
 /**
- * Manages installation and loading of plugins:
+ * Entry point to install and load plugins on server startup. It manages
  * <ul>
  *   <li>installation of bundled plugins on first server startup</li>
  *   <li>installation of new plugins (effective after server startup)</li>
  *   <li>un-installation of plugins (effective after server startup)</li>
  *   <li>cancel pending installations/un-installations</li>
- *   <li>load plugin bytecode</li>
+ *   <li>instantiation of plugin entry-points</li>
  * </ul>
  */
 public class ServerPluginRepository implements PluginRepository, Startable {

@@ -32,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerPluginExploderTest {
+public class ServerPluginJarExploderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
-  ServerPluginExploder underTest = new ServerPluginExploder(fs);
+  ServerPluginJarExploder underTest = new ServerPluginJarExploder(fs);
 
   @Test
   public void copy_all_classloader_files_to_dedicated_directory() throws Exception {

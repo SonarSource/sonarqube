@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
-import org.sonar.core.platform.PluginExploder;
+import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileCache;
 
@@ -32,11 +32,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 @BatchSide
-public class BatchPluginExploder extends PluginExploder {
+public class BatchPluginJarExploder extends PluginJarExploder {
 
   private final FileCache fileCache;
 
-  public BatchPluginExploder(FileCache fileCache) {
+  public BatchPluginJarExploder(FileCache fileCache) {
     this.fileCache = fileCache;
   }
 

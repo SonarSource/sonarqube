@@ -59,7 +59,8 @@ public class ServerExtensionInstaller {
             container.declareExtension(pluginInfo, extension);
           }
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
+        // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
         throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }
@@ -71,7 +72,8 @@ public class ServerExtensionInstaller {
           ExtensionProvider provider = (ExtensionProvider) container.getComponentByKey(extension);
           installProvider(container, pluginInfo, provider);
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
+        // catch Throwable because we want to catch Error too (IncompatibleClassChangeError, ...)
         throw new IllegalStateException(String.format("Fail to load plugin %s [%s]", pluginInfo.getName(), pluginInfo.getKey()), e);
       }
     }

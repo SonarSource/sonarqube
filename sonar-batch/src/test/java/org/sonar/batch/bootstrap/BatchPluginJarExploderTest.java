@@ -34,19 +34,19 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchPluginExploderTest {
+public class BatchPluginJarExploderTest {
 
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
   File userHome;
-  BatchPluginExploder underTest;
+  BatchPluginJarExploder underTest;
 
   @Before
   public void setUp() throws IOException {
     userHome = temp.newFolder();
     FileCache fileCache = new FileCacheBuilder().setUserHome(userHome).build();
-    underTest = new BatchPluginExploder(fileCache);
+    underTest = new BatchPluginJarExploder(fileCache);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class BatchPluginExploderTest {
   }
 
   File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(BatchPluginExploderTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginUnzipperTest/" + filename));
+    File src = FileUtils.toFile(BatchPluginJarExploderTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginUnzipperTest/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);
     return destFile;

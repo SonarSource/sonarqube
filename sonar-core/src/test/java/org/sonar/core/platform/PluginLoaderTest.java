@@ -20,43 +20,57 @@
 package org.sonar.core.platform;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.utils.ZipUtils;
+import org.sonar.updatecenter.common.Version;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PluginLoaderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  PluginClassloaderFactory classloaderFactory = mock(PluginClassloaderFactory.class);
+  PluginLoader loader = new PluginLoader(new FakePluginExploder(), classloaderFactory);
+
   @Test
-  public void load_and_unload_plugins() {
-    File checkstyleJar = FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/sonar-checkstyle-plugin-2.8.jar"));
-    PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
+  public void instantiate_plugin_entry_point() {
+    PluginClassloaderDef def = new PluginClassloaderDef("fake");
+    def.addMainClass("fake", FakePlugin.class.getName());
 
-    PluginLoader loader = new PluginLoader(new TempPluginExploder());
-    Map<String, Plugin> instances = loader.load(ImmutableMap.of("checkstyle", checkstyleInfo));
+    Map<String, Plugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
+    assertThat(instances).containsOnlyKeys("fake");
+    assertThat(instances.get("fake")).isInstanceOf(FakePlugin.class);
+  }
 
-    assertThat(instances).containsOnlyKeys("checkstyle");
-    Plugin checkstyleInstance = instances.get("checkstyle");
-    assertThat(checkstyleInstance.getClass().getName()).isEqualTo("org.sonar.plugins.checkstyle.CheckstylePlugin");
+  @Test
+  public void plugin_entry_point_must_be_no_arg_public() {
+    PluginClassloaderDef def = new PluginClassloaderDef("fake");
+    def.addMainClass("fake", IncorrectPlugin.class.getName());
 
-    loader.unload(instances.values());
-    // TODO test that classloaders are closed. Two strategies:
-    //
+    try {
+      loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Fail to instantiate class [org.sonar.core.platform.PluginLoaderTest$IncorrectPlugin] of plugin [fake]");
+    }
   }
 
   @Test
@@ -64,26 +78,40 @@ public class PluginLoaderTest {
     File jarFile = temp.newFile();
     PluginInfo info = new PluginInfo("foo")
       .setJarFile(jarFile)
-      .setMainClass("org.foo.FooPlugin");
+      .setMainClass("org.foo.FooPlugin")
+      .setMinimalSqVersion(Version.create("5.2"));
 
-    PluginLoader loader = new PluginLoader(new FakePluginExploder());
-    Collection<ClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
+    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
 
     assertThat(defs).hasSize(1);
-    ClassloaderDef def = defs.iterator().next();
+    PluginClassloaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
     assertThat(def.getFiles()).containsOnly(jarFile);
     assertThat(def.getMainClassesByPluginKey()).containsOnly(MapEntry.entry("foo", "org.foo.FooPlugin"));
     // TODO test mask - require change in sonar-classloader
+
+    // built with SQ 5.2+ -> does not need API compatibility mode
+    assertThat(def.isCompatibilityMode()).isFalse();
+  }
+
+  @Test
+  public void enable_compatibility_mode_if_plugin_is_built_before_5_2() throws Exception {
+    File jarFile = temp.newFile();
+    PluginInfo info = new PluginInfo("foo")
+      .setJarFile(jarFile)
+      .setMainClass("org.foo.FooPlugin")
+      .setMinimalSqVersion(Version.create("4.5.2"));
+
+    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
+    assertThat(defs.iterator().next().isCompatibilityMode()).isTrue();
   }
 
   /**
-   * A plugin can be extended by other plugins. In this case they share the same classloader.
-   * The first plugin is named "base plugin".
+   * A plugin (the "base" plugin) can be extended by other plugins. In this case they share the same classloader.
    */
   @Test
-  public void define_same_classloader_for_multiple_plugins() throws Exception {
+  public void test_plugins_sharing_the_same_classloader() throws Exception {
     File baseJarFile = temp.newFile(), extensionJar1 = temp.newFile(), extensionJar2 = temp.newFile();
     PluginInfo base = new PluginInfo("foo")
       .setJarFile(baseJarFile)
@@ -105,13 +133,11 @@ public class PluginLoaderTest {
       .setBasePlugin("foo")
       .setUseChildFirstClassLoader(true);
 
-    PluginLoader loader = new PluginLoader(new FakePluginExploder());
-
-    Collection<ClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of(
+    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of(
       base.getKey(), base, extension1.getKey(), extension1, extension2.getKey(), extension2));
 
     assertThat(defs).hasSize(1);
-    ClassloaderDef def = defs.iterator().next();
+    PluginClassloaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
     assertThat(def.getFiles()).containsOnly(baseJarFile, extensionJar1, extensionJar2);
@@ -122,27 +148,35 @@ public class PluginLoaderTest {
     // TODO test mask - require change in sonar-classloader
   }
 
+
+
   /**
    * Does not unzip jar file. It directly returns the JAR file defined on PluginInfo.
    */
-  private static class FakePluginExploder extends PluginExploder {
+  private static class FakePluginExploder extends PluginJarExploder {
     @Override
     public ExplodedPlugin explode(PluginInfo info) {
       return new ExplodedPlugin(info.getKey(), info.getNonNullJarFile(), Collections.<File>emptyList());
     }
   }
 
-  private class TempPluginExploder extends PluginExploder {
+  public static class FakePlugin extends SonarPlugin {
     @Override
-    public ExplodedPlugin explode(PluginInfo info) {
-      try {
-        File tempDir = temp.newFolder();
-        ZipUtils.unzip(info.getNonNullJarFile(), tempDir, newLibFilter());
-        return explodeFromUnzippedDir(info.getKey(), info.getNonNullJarFile(), tempDir);
+    public List getExtensions() {
+      return Collections.emptyList();
+    }
+  }
 
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
-      }
+  /**
+   * No public empty-param constructor
+   */
+  public static class IncorrectPlugin extends SonarPlugin {
+    public IncorrectPlugin(String s) {
+    }
+
+    @Override
+    public List getExtensions() {
+      return Collections.emptyList();
     }
   }
 }

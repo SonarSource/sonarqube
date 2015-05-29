@@ -118,6 +118,7 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api-deps</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
       <scope>runtime</scope>
     </dependency>
 
@@ -199,7 +200,7 @@
         <executions>
           <execution>
             <id>copy-deprecated-api-deps</id>
-            <phase>process-resources</phase>
+            <phase>generate-resources</phase>
             <goals>
               <goal>copy</goal>
             </goals>

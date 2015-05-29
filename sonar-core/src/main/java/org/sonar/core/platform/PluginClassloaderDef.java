@@ -21,30 +21,33 @@ package org.sonar.core.platform;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.util.Collection;
-import javax.annotation.Nullable;
-import org.sonar.classloader.Mask;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.classloader.Mask;
 
 /**
- * Information about the classloader to be created for a set of plugins.
+ * Temporary information about the classloader to be created for a plugin (or a group of plugins).
  */
-class ClassloaderDef {
+class PluginClassloaderDef {
 
   private final String basePluginKey;
   private final Map<String, String> mainClassesByPluginKey = new HashMap<>();
   private final List<File> files = new ArrayList<>();
   private final Mask mask = new Mask();
   private boolean selfFirstStrategy = false;
-  private ClassLoader classloader = null;
 
-  ClassloaderDef(String basePluginKey) {
-    Preconditions.checkNotNull(basePluginKey);
+  /**
+   * Compatibility with API classloader as defined before version 5.2
+   */
+  private boolean compatibilityMode = false;
+
+  PluginClassloaderDef(String basePluginKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(basePluginKey));
     this.basePluginKey = basePluginKey;
   }
 
@@ -52,15 +55,15 @@ class ClassloaderDef {
     return basePluginKey;
   }
 
-  Map<String, String> getMainClassesByPluginKey() {
-    return mainClassesByPluginKey;
-  }
-
   List<File> getFiles() {
     return files;
   }
 
-  Mask getMask() {
+  void addFiles(Collection<File> f) {
+    this.files.addAll(f);
+  }
+
+  Mask getExportMask() {
     return mask;
   }
 
@@ -72,26 +75,38 @@ class ClassloaderDef {
     this.selfFirstStrategy = selfFirstStrategy;
   }
 
-  /**
-   * Returns the newly created classloader. Throws an exception
-   * if null, for example because called before {@link #setBuiltClassloader(ClassLoader)}
-   */
-  ClassLoader getBuiltClassloader() {
-    Preconditions.checkState(classloader != null);
-    return classloader;
-  }
-
-  void setBuiltClassloader(ClassLoader c) {
-    this.classloader = c;
-  }
-
-  void addFiles(Collection<File> c) {
-    this.files.addAll(c);
+  Map<String, String> getMainClassesByPluginKey() {
+    return mainClassesByPluginKey;
   }
 
   void addMainClass(String pluginKey, @Nullable String mainClass) {
     if (!Strings.isNullOrEmpty(mainClass)) {
       mainClassesByPluginKey.put(pluginKey, mainClass);
     }
+  }
+
+  boolean isCompatibilityMode() {
+    return compatibilityMode;
+  }
+
+  void setCompatibilityMode(boolean b) {
+    this.compatibilityMode = b;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PluginClassloaderDef that = (PluginClassloaderDef) o;
+    return basePluginKey.equals(that.basePluginKey);
+  }
+
+  @Override
+  public int hashCode() {
+    return basePluginKey.hashCode();
   }
 }

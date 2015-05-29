@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
-import org.sonar.core.platform.PluginExploder;
+import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
@@ -33,11 +33,11 @@ import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
 @ServerSide
-public class ServerPluginExploder extends PluginExploder {
+public class ServerPluginJarExploder extends PluginJarExploder {
 
   private final DefaultServerFileSystem fs;
 
-  public ServerPluginExploder(DefaultServerFileSystem fs) {
+  public ServerPluginJarExploder(DefaultServerFileSystem fs) {
     this.fs = fs;
   }
 

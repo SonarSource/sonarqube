@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.codehaus.sonar.tests</groupId>
+  <artifactId>dependent-plugin</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>sonar-plugin</packaging>
+  <name>Dependent Plugin</name>
+  <description>Fake plugin used to verify that plugins can export some resources to other plugins</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>5.2-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.tests</groupId>
+      <artifactId>base-plugin</artifactId>
+      <version>0.1-SNAPSHOT</version>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.13</version>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>dependent</pluginKey>
+          <pluginClass>org.sonar.plugins.dependent.DependentPlugin</pluginClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

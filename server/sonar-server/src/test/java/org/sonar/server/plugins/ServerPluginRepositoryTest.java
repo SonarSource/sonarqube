@@ -21,6 +21,8 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -39,9 +41,6 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
-import java.io.File;
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -58,7 +57,7 @@ public class ServerPluginRepositoryTest {
   Server server = mock(Server.class);
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
   DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class, Mockito.RETURNS_DEEP_STUBS);
-  PluginLoader pluginLoader = new PluginLoader(new ServerPluginExploder(fs));
+  PluginLoader pluginLoader = mock(PluginLoader.class);
   ServerPluginRepository underTest = new ServerPluginRepository(server, upgradeStatus, fs, pluginLoader);
 
   @Before
@@ -91,9 +90,6 @@ public class ServerPluginRepositoryTest {
 
     // both plugins are installed
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("core", "testbase");
-    assertThat(underTest.getPluginInstance("core").getClass().getName()).isEqualTo("CorePlugin");
-    assertThat(underTest.getPluginInstance("testbase").getClass().getName()).isEqualTo("BasePlugin");
-    assertThat(underTest.hasPlugin("testbase")).isTrue();
   }
 
   @Test
@@ -115,8 +111,6 @@ public class ServerPluginRepositoryTest {
 
     // both plugins are installed
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("core", "testbase");
-    assertThat(underTest.getPluginInstance("core").getClass().getName()).isEqualTo("CorePlugin");
-    assertThat(underTest.getPluginInstance("testbase").getClass().getName()).isEqualTo("BasePlugin");
   }
 
   /**
@@ -160,7 +154,6 @@ public class ServerPluginRepositoryTest {
     assertThat(downloadedJar).doesNotExist();
     assertThat(new File(fs.getInstalledPluginsDir(), downloadedJar.getName())).isFile().exists();
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
-    assertThat(underTest.getPluginInstance("testbase").getClass().getName()).isEqualTo("BasePlugin");
   }
 
   @Test
