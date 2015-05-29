@@ -160,9 +160,14 @@
   .issues-workspace-component-viewer {
     display: none;
   }
+
+  .issues-workspace-home {
+    display: block;
+  }
 }
 
 .issues-workspace-home {
+  display: none;
   width: ~"calc(100vw - @{sideWidth})";
   max-width: 900px;
   margin-left: auto;
@@ -170,4 +175,5 @@
   padding-left: 10px;
   padding-right: 10px;
   .box-sizing(border-box);
+  overflow: hidden;
 }
