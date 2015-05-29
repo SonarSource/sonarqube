@@ -57,13 +57,14 @@ public class DomainsActionTest {
 
   @Test
   public void json_example_validated() throws Exception {
-    insertNewMetricDto(MetricTesting.newDto().setDomain("API Compatibility"));
-    insertNewMetricDto(MetricTesting.newDto().setDomain("Issues"));
-    insertNewMetricDto(MetricTesting.newDto().setDomain("Rules"));
-    insertNewMetricDto(MetricTesting.newDto().setDomain("Tests"));
-    insertNewMetricDto(MetricTesting.newDto().setDomain("Documentation"));
-    insertNewMetricDto(MetricTesting.newDto().setDomain(null));
-    insertNewMetricDto(MetricTesting.newDto().setDomain(""));
+    insertNewMetricDto(newEnabledMetric("API Compatibility"));
+    insertNewMetricDto(newEnabledMetric("Issues"));
+    insertNewMetricDto(newEnabledMetric("Rules"));
+    insertNewMetricDto(newEnabledMetric("Tests"));
+    insertNewMetricDto(newEnabledMetric("Documentation"));
+    insertNewMetricDto(newEnabledMetric(null));
+    insertNewMetricDto(newEnabledMetric(""));
+    insertNewMetricDto(MetricTesting.newDto().setDomain("Domain of Deactivated Metric").setEnabled(false));
 
     WsTester.Result result = ws.newGetRequest(MetricsWs.ENDPOINT, "domains").execute();
 
@@ -73,5 +74,9 @@ public class DomainsActionTest {
   private void insertNewMetricDto(MetricDto metric) {
     dbClient.metricDao().insert(dbSession, metric);
     dbSession.commit();
+  }
+
+  private MetricDto newEnabledMetric(String domain) {
+    return MetricTesting.newDto().setDomain(domain).setEnabled(true);
   }
 }

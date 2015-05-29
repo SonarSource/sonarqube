@@ -66,7 +66,7 @@
   <select id="selectDomains" resultType="String">
     select distinct domain
     from metrics m
-    where m.domain is not null
+    where m.domain is not null and m.enabled=${_true}
   </select>
 
   <update id="disable">
