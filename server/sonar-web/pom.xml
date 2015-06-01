@@ -13,7 +13,7 @@
 
   <properties>
     <!-- self-analysis -->
-    <sonar.sources>src/main/js,src/main/coffee,src/main/less</sonar.sources>
+    <sonar.sources>src/main/js,src/main/less</sonar.sources>
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js</sonar.exclusions>
     <sonar.javascript.lcov.reportPath>target/js-coverage/lcov.info</sonar.javascript.lcov.reportPath>
   </properties>
@@ -141,7 +141,7 @@
         <configuration>
           <packagingExcludes>
             **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*,
-            build/**,coffee/**,less/**,templates/**
+            build/**,less/**,templates/**
           </packagingExcludes>
           <warSourceExcludes>
             js/**,css/**
