@@ -56,7 +56,7 @@ define([
       this.app.router.navigate('');
       this.app.layout.headerRegion.reset();
       this.app.layout.detailsRegion.reset();
-      //this.app.layout.renderIntro();
+      this.app.layout.renderIntro();
       this.app.gatesView.highlight(null);
     }
 
