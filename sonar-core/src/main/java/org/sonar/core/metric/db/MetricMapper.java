@@ -42,4 +42,6 @@ public interface MetricMapper {
   void disable(@Param("ids") List<Integer> ids);
 
   int countCustom();
+
+  void update(MetricDto metric);
 }

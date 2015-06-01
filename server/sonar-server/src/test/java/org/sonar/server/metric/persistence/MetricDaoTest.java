@@ -58,7 +58,7 @@ public class MetricDaoTest {
   public void get_by_key() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    MetricDto result = dao.selectByKey(session, "coverage");
+    MetricDto result = dao.selectNullableByKey(session, "coverage");
     assertThat(result.getId()).isEqualTo(2);
     assertThat(result.getKey()).isEqualTo("coverage");
     assertThat(result.getShortName()).isEqualTo("Coverage");
@@ -77,7 +77,7 @@ public class MetricDaoTest {
     assertThat(result.isEnabled()).isTrue();
 
     // Disabled metrics are returned
-    result = dao.selectByKey(session, "disabled");
+    result = dao.selectNullableByKey(session, "disabled");
     assertThat(result.getId()).isEqualTo(3);
     assertThat(result.isEnabled()).isFalse();
   }
@@ -86,7 +86,7 @@ public class MetricDaoTest {
   public void get_manual_metric() {
     dbTester.prepareDbUnit(getClass(), "manual_metric.xml");
 
-    MetricDto result = dao.selectByKey(session, "manual");
+    MetricDto result = dao.selectNullableByKey(session, "manual");
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getKey()).isEqualTo("manual");
     assertThat(result.getShortName()).isEqualTo("Manual metric");
@@ -132,7 +132,7 @@ public class MetricDaoTest {
       .setDeleteHistoricalData(true)
       .setEnabled(true));
 
-    MetricDto result = dao.selectByKey(session, "coverage");
+    MetricDto result = dao.selectNullableByKey(session, "coverage");
     assertThat(result.getId()).isNotNull();
     assertThat(result.getKey()).isEqualTo("coverage");
     assertThat(result.getShortName()).isEqualTo("Coverage");

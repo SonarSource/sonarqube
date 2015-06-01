@@ -94,7 +94,7 @@ public class DeleteAction implements MetricsWsAction {
         }
       });
     } else if (keys != null) {
-      ids = Lists.transform(dbClient.metricDao().selectByKeys(dbSession, keys), new Function<MetricDto, Integer>() {
+      ids = Lists.transform(dbClient.metricDao().selectNullableByKeys(dbSession, keys), new Function<MetricDto, Integer>() {
         @Override
         public Integer apply(@Nonnull MetricDto input) {
           return input.getId();

@@ -44,8 +44,17 @@ import static com.google.common.collect.Lists.newArrayList;
 public class MetricDao implements DaoComponent {
 
   @CheckForNull
-  public MetricDto selectByKey(DbSession session, String key) {
+  public MetricDto selectNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  public List<MetricDto> selectNullableByKeys(final DbSession session, List<String> keys) {
+    return DaoUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
+      @Override
+      public List<MetricDto> apply(@Nonnull List<String> input) {
+        return mapper(session).selectByKeys(input);
+      }
+    });
   }
 
   public List<MetricDto> selectEnabled(DbSession session) {
@@ -78,15 +87,6 @@ public class MetricDao implements DaoComponent {
     return session.getMapper(MetricMapper.class);
   }
 
-  public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
-    return DaoUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
-      @Override
-      public List<MetricDto> apply(@Nonnull List<String> input) {
-        return mapper(session).selectByKeys(input);
-      }
-    });
-  }
-
   public void disable(final DbSession session, List<Integer> ids) {
     DaoUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
       @Override
@@ -99,5 +99,9 @@ public class MetricDao implements DaoComponent {
 
   public int countCustom(DbSession session) {
     return mapper(session).countCustom();
+  }
+
+  public void update(DbSession session, MetricDto metric) {
+    mapper(session).update(metric);
   }
 }

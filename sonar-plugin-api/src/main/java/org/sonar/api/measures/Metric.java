@@ -19,13 +19,7 @@
  */
 package org.sonar.api.measures;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.server.ServerSide;
-
+import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -36,8 +30,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import java.io.Serializable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.server.ServerSide;
 
 /**
  * This class represents the definition of a metric in Sonar.
@@ -91,6 +89,16 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     public String description() {
       return description;
+    }
+
+    public static String[] names() {
+      ValueType[] values = values();
+      String[] names = new String[values.length];
+      for (int i = 0; i < values.length; i += 1) {
+        names[i] = values[i].name();
+      }
+
+      return names;
     }
 
     public static String descriptionOf(String key) {

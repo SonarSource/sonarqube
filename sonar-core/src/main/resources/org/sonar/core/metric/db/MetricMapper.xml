@@ -71,6 +71,17 @@
     )
   </insert>
 
+  <update id="update" parameterType="org.sonar.core.metric.db.MetricDto">
+    update metrics
+    set
+    enabled=#{enabled, jdbcType=BOOLEAN},
+    short_name=#{shortName, jdbcType=VARCHAR},
+    val_type=#{valueType, jdbcType=VARCHAR},
+    domain=#{domain, jdbcType=VARCHAR},
+    description=#{description, jdbcType=VARCHAR}
+    where id=#{id}
+  </update>
+
   <select id="selectDomains" resultType="String">
     select distinct domain
     from metrics m

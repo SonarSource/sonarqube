@@ -52,7 +52,7 @@ public class PersistDuplicationsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      MetricDto duplicationMetric = dbClient.metricDao().selectByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
+      MetricDto duplicationMetric = dbClient.metricDao().selectNullableByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
       DuplicationContext duplicationContext = new DuplicationContext(duplicationMetric, session);
       int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
       recursivelyProcessComponent(duplicationContext, rootComponentRef);
