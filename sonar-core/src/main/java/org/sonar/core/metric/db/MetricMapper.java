@@ -40,4 +40,6 @@ public interface MetricMapper {
   List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
 
   void disable(@Param("ids") List<Integer> ids);
+
+  int countCustom();
 }

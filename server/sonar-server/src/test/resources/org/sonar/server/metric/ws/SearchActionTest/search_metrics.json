@@ -21,5 +21,8 @@
       "domain":"custom-domain-3",
       "description":"custom-description-3"
     }
-  ]
+  ],
+  "total":3,
+  "ps":100,
+  "p":1
 }

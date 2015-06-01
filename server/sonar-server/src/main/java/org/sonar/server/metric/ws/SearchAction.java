@@ -20,6 +20,9 @@
 
 package org.sonar.server.metric.ws;
 
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,14 +35,11 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Set;
-
 import static com.google.common.collect.Sets.newHashSet;
 
-public class ListAction implements MetricsWsAction {
+public class SearchAction implements MetricsWsAction {
+
+  private static final String ACTION = "search";
 
   public static final String PARAM_IS_CUSTOM = "is_custom";
 
@@ -49,21 +49,25 @@ public class ListAction implements MetricsWsAction {
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_DOMAIN = "domain";
   public static final String FIELD_TYPE = "type";
-  private static final Set<String> POSSIBLE_FIELDS = newHashSet(FIELD_ID, FIELD_KEY, FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE);
+  private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE);
+  private final Set<String> ALL_POSSIBLE_FIELDS;
 
   private final DbClient dbClient;
 
-  public ListAction(DbClient dbClient) {
+  public SearchAction(DbClient dbClient) {
     this.dbClient = dbClient;
+    Set<String> possibleFields = newHashSet(FIELD_ID, FIELD_KEY);
+    possibleFields.addAll(OPTIONAL_FIELDS);
+    ALL_POSSIBLE_FIELDS = possibleFields;
   }
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("list")
+    WebService.NewAction action = context.createAction(ACTION)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("example-list.json"))
       .addPagingParams(100)
-      .addFieldsParam(POSSIBLE_FIELDS)
+      .addFieldsParam(OPTIONAL_FIELDS)
       .setHandler(this);
 
     action.createParam(PARAM_IS_CUSTOM)
@@ -85,10 +89,12 @@ public class ListAction implements MetricsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions);
+      int nbMetrics = dbClient.metricDao().countCustom(dbSession);
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       Set<String> desiredFields = desiredFields(request.paramAsStrings(Param.FIELDS));
       writeMetrics(json, metrics, desiredFields);
+      searchOptions.writeJson(json, nbMetrics);
       json.endObject();
       json.close();
     } finally {
@@ -98,7 +104,7 @@ public class ListAction implements MetricsWsAction {
 
   private Set<String> desiredFields(@Nullable List<String> fields) {
     if (fields == null || fields.isEmpty()) {
-      return POSSIBLE_FIELDS;
+      return ALL_POSSIBLE_FIELDS;
     }
 
     return newHashSet(fields);

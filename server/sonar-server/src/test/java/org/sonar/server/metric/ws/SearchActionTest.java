@@ -34,10 +34,10 @@ import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.metric.ws.ListAction.PARAM_IS_CUSTOM;
+import static org.sonar.server.metric.ws.SearchAction.PARAM_IS_CUSTOM;
 import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
-public class ListActionTest {
+public class SearchActionTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
@@ -49,7 +49,7 @@ public class ListActionTest {
   public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao());
     dbSession = dbClient.openSession(false);
-    ws = new WsTester(new MetricsWs(new ListAction(dbClient)));
+    ws = new WsTester(new MetricsWs(new SearchAction(dbClient)));
     db.truncateTables();
   }
 
@@ -59,16 +59,16 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_metrics_in_database() throws Exception {
+  public void search_metrics_in_database() throws Exception {
     insertNewCustomMetric("1", "2", "3");
 
     WsTester.Result result = newRequest().execute();
 
-    result.assertJson(getClass(), "list_metrics.json");
+    result.assertJson(getClass(), "search_metrics.json");
   }
 
   @Test
-  public void list_metrics_ordered_by_name_case_insensitive() throws Exception {
+  public void search_metrics_ordered_by_name_case_insensitive() throws Exception {
     insertNewCustomMetric("3", "1", "2");
 
     String firstResult = newRequest().setParam(Param.PAGE, "1").setParam(Param.PAGE_SIZE, "1").execute().outputAsString();
@@ -81,7 +81,7 @@ public class ListActionTest {
   }
 
   @Test
-  public void list_metrics_with_pagination() throws Exception {
+  public void search_metrics_with_pagination() throws Exception {
     insertNewCustomMetric("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
     WsTester.Result result = newRequest()
@@ -158,6 +158,6 @@ public class ListActionTest {
   }
 
   private WsTester.TestRequest newRequest() {
-    return ws.newGetRequest("api/metrics", "list");
+    return ws.newGetRequest("api/metrics", "search");
   }
 }

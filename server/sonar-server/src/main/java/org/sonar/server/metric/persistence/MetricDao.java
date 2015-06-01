@@ -96,4 +96,8 @@ public class MetricDao implements DaoComponent {
       }
     });
   }
+
+  public int countCustom(DbSession session) {
+    return mapper(session).countCustom();
+  }
 }

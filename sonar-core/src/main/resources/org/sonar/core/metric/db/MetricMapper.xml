@@ -48,6 +48,14 @@
     </where>
     ORDER BY UPPER(m.short_name)
   </select>
+  <select id="countCustom" resultType="Integer">
+    SELECT COUNT(*)
+    FROM metrics m
+    <where>
+      AND m.enabled=${_true}
+      AND m.user_managed=${_true}
+    </where>
+  </select>
 
   <insert id="insert" parameterType="org.sonar.core.metric.db.MetricDto" useGeneratedKeys="true" keyColumn="id"
           keyProperty="id">

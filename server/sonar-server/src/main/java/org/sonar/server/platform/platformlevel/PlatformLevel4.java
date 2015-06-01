@@ -170,6 +170,7 @@ import org.sonar.server.measure.ws.ManualMeasuresWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.ws.MetricsWs;
+import org.sonar.server.metric.ws.SearchAction;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
@@ -496,7 +497,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
       ManualMeasuresWs.class,
       MetricsWs.class,
-      org.sonar.server.metric.ws.ListAction.class,
+      SearchAction.class,
       org.sonar.server.metric.ws.TypesAction.class,
       org.sonar.server.metric.ws.DomainsAction.class,
       org.sonar.server.metric.ws.DeleteAction.class,
