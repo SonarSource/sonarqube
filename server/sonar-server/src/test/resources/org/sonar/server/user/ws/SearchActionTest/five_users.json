@@ -9,8 +9,7 @@
       "email": "user-0@mail.com",
       "scmAccounts": [
         "user-0"
-      ],
-      "groups": []
+      ]
     },
     {
       "login": "user-1",
@@ -18,8 +17,7 @@
       "email": "user-1@mail.com",
       "scmAccounts": [
         "user-1"
-      ],
-      "groups": []
+      ]
     },
     {
       "login": "user-2",
@@ -27,8 +25,7 @@
       "email": "user-2@mail.com",
       "scmAccounts": [
         "user-2"
-      ],
-      "groups": []
+      ]
     },
     {
       "login": "user-3",
@@ -36,8 +33,7 @@
       "email": "user-3@mail.com",
       "scmAccounts": [
         "user-3"
-      ],
-      "groups": []
+      ]
     },
     {
       "login": "user-4",
@@ -45,8 +41,7 @@
       "email": "user-4@mail.com",
       "scmAccounts": [
         "user-4"
-      ],
-      "groups": []
+      ]
     }
   ]
 }

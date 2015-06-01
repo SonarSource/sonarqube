@@ -42,7 +42,6 @@ import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
@@ -101,7 +100,6 @@ public class SearchActionTest {
 
   @Test
   public void search_empty() throws Exception {
-    loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "empty.json");
   }
 
@@ -109,7 +107,6 @@ public class SearchActionTest {
   public void search_without_parameters() throws Exception {
     injectUsers(5);
 
-    loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "five_users.json");
   }
 
@@ -117,7 +114,6 @@ public class SearchActionTest {
   public void search_with_query() throws Exception {
     injectUsers(5);
 
-    loginAsAdmin();
     tester.newGetRequest("api/users", "search").setParam("q", "user-1").execute().assertJson(getClass(), "user_one.json");
   }
 
@@ -125,7 +121,6 @@ public class SearchActionTest {
   public void search_with_paging() throws Exception {
     injectUsers(10);
 
-    loginAsAdmin();
     tester.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").execute().assertJson(getClass(), "page_one.json");
     tester.newGetRequest("api/users", "search").setParam(Param.PAGE_SIZE, "5").setParam(Param.PAGE, "2").execute().assertJson(getClass(), "page_two.json");
   }
@@ -134,21 +129,19 @@ public class SearchActionTest {
   public void search_with_fields() throws Exception {
     injectUsers(1);
 
-    loginAsAdmin();
-
     assertThat(tester.newGetRequest("api/users", "search").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts")
-      .contains("groups");
+      .doesNotContain("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "").execute().outputAsString())
       .contains("login")
       .contains("name")
       .contains("email")
       .contains("scmAccounts")
-      .contains("groups");
+      .doesNotContain("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "login").execute().outputAsString())
       .contains("login")
@@ -163,6 +156,22 @@ public class SearchActionTest {
       .doesNotContain("email")
       .contains("scmAccounts")
       .doesNotContain("groups");
+
+    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
+      .doesNotContain("login")
+      .doesNotContain("name")
+      .doesNotContain("email")
+      .doesNotContain("scmAccounts")
+      .doesNotContain("groups");
+
+    loginAsAdmin();
+
+    assertThat(tester.newGetRequest("api/users", "search").execute().outputAsString())
+      .contains("login")
+      .contains("name")
+      .contains("email")
+      .contains("scmAccounts")
+      .contains("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
       .doesNotContain("login")
@@ -184,12 +193,6 @@ public class SearchActionTest {
 
     loginAsAdmin();
     tester.newGetRequest("api/users", "search").execute().assertJson(getClass(), "user_with_groups.json");
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void fail_on_missing_permission() throws Exception {
-    userSession.login("not-admin");
-    tester.newGetRequest("api/users", "search").execute();
   }
 
   private List<UserDto> injectUsers(int numberOfUsers) throws Exception {

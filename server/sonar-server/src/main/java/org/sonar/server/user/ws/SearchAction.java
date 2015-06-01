@@ -67,7 +67,7 @@ public class SearchAction implements UsersWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
-      .setDescription("Get a list of active users. Requires Administer System permission.")
+      .setDescription("Get a list of active users. Administer System permission is required to show the 'groups' field.")
       .setSince("3.6")
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"));
@@ -81,8 +81,6 @@ public class SearchAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-
     SearchOptions options = new SearchOptions()
       .setPage(request.mandatoryParamAsInt(Param.PAGE), request.mandatoryParamAsInt(Param.PAGE_SIZE));
     List<String> fields = request.paramAsStrings(Param.FIELDS);
@@ -130,7 +128,7 @@ public class SearchAction implements UsersWsAction {
   }
 
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable List<String> fields) {
-    if (fieldIsWanted(FIELD_GROUPS, fields)) {
+    if (fieldIsWanted(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       json.name(FIELD_GROUPS).beginArray();
       for (String groupName : groups) {
         json.value(groupName);
