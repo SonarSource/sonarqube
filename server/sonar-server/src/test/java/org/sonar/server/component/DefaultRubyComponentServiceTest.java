@@ -20,6 +20,8 @@
 
 package org.sonar.server.component;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,29 +30,31 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
-
-import java.util.List;
-import java.util.Map;
+import org.sonar.server.permission.InternalPermissionService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyListOf;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultRubyComponentServiceTest {
 
-  ResourceDao resourceDao;
-  DefaultComponentFinder finder;
-  ComponentService componentService;
+  ResourceDao resourceDao = mock(ResourceDao.class);
+  DefaultComponentFinder finder = mock(DefaultComponentFinder.class);
+  ComponentService componentService = mock(ComponentService.class);
+  InternalPermissionService permissionService = mock(InternalPermissionService.class);
 
   DefaultRubyComponentService service;
 
   @Before
   public void before() {
-    resourceDao = mock(ResourceDao.class);
-    finder = mock(DefaultComponentFinder.class);
-    componentService = mock(ComponentService.class);
-    service = new DefaultRubyComponentService(resourceDao, finder, componentService);
+    service = new DefaultRubyComponentService(resourceDao, finder, componentService, permissionService);
   }
 
   @Test
@@ -80,12 +84,15 @@ public class DefaultRubyComponentServiceTest {
     service.createComponent(componentKey, componentName, qualifier);
 
     ArgumentCaptor<NewComponent> newComponentArgumentCaptor = ArgumentCaptor.forClass(NewComponent.class);
+
     verify(componentService).create(newComponentArgumentCaptor.capture());
     NewComponent newComponent = newComponentArgumentCaptor.getValue();
     assertThat(newComponent.key()).isEqualTo(componentKey);
     assertThat(newComponent.name()).isEqualTo(componentName);
     assertThat(newComponent.branch()).isNull();
     assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
+
+    verify(permissionService).applyDefaultPermissionTemplate(componentKey);
   }
 
   @Test
@@ -95,6 +102,7 @@ public class DefaultRubyComponentServiceTest {
     service.createComponent("new-project", "New Project", Qualifiers.SUBVIEW);
 
     verify(componentService, never()).create(any(NewComponent.class));
+    verify(permissionService, never()).applyDefaultPermissionTemplate(anyString());
   }
 
   @Test(expected = BadRequestException.class)

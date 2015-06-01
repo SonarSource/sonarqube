@@ -20,6 +20,10 @@
 package org.sonar.server.component;
 
 import com.google.common.base.Strings;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.resources.Qualifiers;
@@ -27,24 +31,21 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.util.RubyUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
   private final ComponentService componentService;
+  private final InternalPermissionService permissionService;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, InternalPermissionService permissionService) {
     this.resourceDao = resourceDao;
     this.finder = finder;
     this.componentService = componentService;
+    this.permissionService = permissionService;
   }
 
   @Override
@@ -75,6 +76,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
       if (component == null) {
         throw new BadRequestException(String.format("Component not created: %s", createdKey));
       }
+      permissionService.applyDefaultPermissionTemplate(createdKey);
       return component.getId();
     }
     return null;

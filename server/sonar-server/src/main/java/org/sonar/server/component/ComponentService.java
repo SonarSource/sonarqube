@@ -24,9 +24,17 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.web.UserRole;
@@ -39,18 +47,7 @@ import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -62,17 +59,15 @@ public class ComponentService {
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final I18n i18n;
   private final ResourceIndexerDao resourceIndexerDao;
-  private final InternalPermissionService permissionService;
   private final UserSession userSession;
   private final System2 system2;
 
   public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
-                          InternalPermissionService permissionService, UserSession userSession, System2 system2) {
+                          UserSession userSession, System2 system2) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;
     this.resourceIndexerDao = resourceIndexerDao;
-    this.permissionService = permissionService;
     this.userSession = userSession;
     this.system2 = system2;
   }
@@ -185,7 +180,6 @@ public class ComponentService {
       resourceIndexerDao.indexResource(session, component.getId());
       session.commit();
 
-      permissionService.applyDefaultPermissionTemplate(component.key());
       return component.key();
     } finally {
       session.close();
