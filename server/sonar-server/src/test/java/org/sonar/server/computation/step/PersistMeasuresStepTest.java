@@ -20,6 +20,11 @@
 
 package org.sonar.server.computation.step;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -58,12 +63,6 @@ import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -211,7 +210,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   @Test
   public void map_full_batch_measure() {
     BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
+    ComponentDto componentDto = addComponent(component.getRef(), "component-key");
 
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(MeasureValueType.DOUBLE)
@@ -233,13 +232,29 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
 
-    assertThat(measure).isEqualToComparingFieldByField(expectedFullMeasure());
+    assertThat(measure).isEqualToComparingFieldByField(new MeasureDto()
+      .setComponentId(componentDto.getId())
+      .setSnapshotId(3L)
+      .setCharacteristicId(123456)
+      .setPersonId(5432)
+      .setValue(123.123d)
+      .setVariation(1, 1.1d)
+      .setVariation(2, 2.2d)
+      .setVariation(3, 3.3d)
+      .setVariation(4, 4.4d)
+      .setVariation(5, 5.5d)
+      .setAlertStatus("WARN")
+      .setAlertText("Open issues > 0")
+      .setDescription("measure-description")
+      .setSeverity(Severity.CRITICAL)
+      .setMetricId(metric.getId())
+      .setRuleId(rule.getId()));
   }
 
   @Test
   public void map_minimal_batch_measure() {
     BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
+    ComponentDto componentDto = addComponent(component.getRef(), "component-key");
 
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setValueType(MeasureValueType.INT)
@@ -248,7 +263,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     MeasureDto measure = sut.toMeasureDto(batchMeasure, component);
 
-    assertThat(measure).isEqualToComparingFieldByField(expectedMinimalistMeasure());
+    assertThat(measure).isEqualToComparingFieldByField(new MeasureDto()
+      .setComponentId(componentDto.getId())
+      .setSnapshotId(3L)
+      .setMetricId(metric.getId()));
   }
 
   @Test
@@ -413,13 +431,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setSeverity(Severity.CRITICAL)
       .setMetricId(metric.getId())
       .setRuleId(rule.getId());
-  }
-
-  private MeasureDto expectedMinimalistMeasure() {
-    return new MeasureDto()
-      .setComponentId(2L)
-      .setSnapshotId(3L)
-      .setMetricId(metric.getId());
   }
 
   private BatchReport.Component.Builder defaultComponent() {

@@ -20,12 +20,10 @@
 
 package org.sonar.core.measure.db;
 
-import org.sonar.api.rule.Severity;
-
+import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.nio.charset.StandardCharsets;
+import org.sonar.api.rule.Severity;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -43,7 +41,7 @@ public class MeasureDto {
   private String description;
   private Integer severityIndex;
 
-  private Long projectId;
+  private Long componentId;
   private Long snapshotId;
   private Integer metricId;
   private Integer ruleId;
@@ -168,11 +166,11 @@ public class MeasureDto {
   }
 
   public Long getComponentId() {
-    return projectId;
+    return componentId;
   }
 
   public MeasureDto setComponentId(Long componentId) {
-    this.projectId = componentId;
+    this.componentId = componentId;
     return this;
   }
 
