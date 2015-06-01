@@ -1,53 +1,53 @@
-<h1 class='page-title dropdown'>
+<h1 class="page-title dropdown">
   {{#if state.canManageFilters}}
-    <a class='search-navigator-filters-show-list dropdown-toggle' data-toggle='dropdown'>
-      <i class='icon-list'></i><span class='issues-filters-name'>{{> '_issues-filter-name'}}</span>
+    <a class="search-navigator-filters-show-list dropdown-toggle" data-toggle="dropdown">
+      <i class="icon-list"></i><span class="issues-filters-name">{{> "_issues-filter-name"}}</span>
     </a>
-    <ul class='dropdown-menu'>
+    <ul class="dropdown-menu">
       {{#each items}}
         <li>
-          <a class='search-navigator-filters-button search-navigator-filters-filter js-filter' data-id='{{id}}'>
+          <a class="search-navigator-filters-button search-navigator-filters-filter js-filter" data-id="{{id}}">
             {{name}}
           </a>
         </li>
       {{/each}}
       {{#notEmpty items}}
-        <li class='divider'></li>
+        <li class="divider"></li>
       {{/notEmpty}}
       <li>
-        <a class='search-navigator-filters-manage' href='{{link '/issues/manage'}}'>{{t 'manage'}}</a>
+        <a class="search-navigator-filters-manage" href="{{link "/issues/manage"}}">{{t "manage"}}</a>
       </li>
     </ul>
     {{#if filter.description}}
-      <div class='search-navigator-filters-description'>{{filter.description}}</div>
+      <div class="search-navigator-filters-description">{{filter.description}}</div>
     {{/if}}
   {{else}}
-    <span class='search-navigator-filters-name'>{{t 'issues'}}</span>
+    <span class="search-navigator-filters-name">{{t "issues"}}</span>
   {{/if}}
 </h1>
 
-<div class='page-actions'>
-  <div class='button-group'>
+<div class="page-actions">
+  <div class="button-group">
     {{#if state.canManageFilters}}
       {{#if filter.canModify}}
         {{#if state.changed}}
-          <button class='js-filter-save' id='issues-filter-save'>{{t 'save'}}</button>
+          <button class="js-filter-save" id="issues-filter-save">{{t "save"}}</button>
         {{/if}}
       {{/if}}
 
       {{#unless filter.id}}
-        <button class='js-filter-save-as' id='issues-filter-save-as'>{{t 'save_as'}}</button>
+        <button class="js-filter-save-as" id="issues-filter-save-as">{{t "save_as"}}</button>
       {{/unless}}
 
       {{#if filter.id}}
         {{#unless state.changed}}
-          <button class='js-filter-copy' id='issues-filter-copy'>{{t 'copy'}}</button>
+          <button class="js-filter-copy" id="issues-filter-copy">{{t "copy"}}</button>
         {{/unless}}
       {{/if}}
 
       {{#if filter.canModify}}
         {{#if filter.id}}
-          <button class='js-filter-edit' id='issues-filter-edit'>{{t 'edit'}}</button>
+          <button class="js-filter-edit" id="issues-filter-edit">{{t "edit"}}</button>
         {{/if}}
       {{/if}}
     {{/if}}
