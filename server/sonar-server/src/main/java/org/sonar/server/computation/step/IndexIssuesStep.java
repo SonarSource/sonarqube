@@ -21,22 +21,18 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 public class IndexIssuesStep implements ComputationStep {
 
-  private final IssueAuthorizationIndexer authorizationIndexer;
   private final IssueIndexer indexer;
 
-  public IndexIssuesStep(IssueAuthorizationIndexer authorizationIndexer, IssueIndexer indexer) {
-    this.authorizationIndexer = authorizationIndexer;
+  public IndexIssuesStep(IssueIndexer indexer) {
     this.indexer = indexer;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    authorizationIndexer.index();
     indexer.index();
   }
 

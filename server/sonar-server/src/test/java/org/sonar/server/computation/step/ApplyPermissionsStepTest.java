@@ -19,22 +19,155 @@
  */
 package org.sonar.server.computation.step;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import org.elasticsearch.search.SearchHit;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportReader;
+import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentTreeBuilders;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.test.DbTests;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class ApplyPermissionsStepTest extends BaseStepTest {
 
-  IssueAuthorizationIndexer indexer = mock(IssueAuthorizationIndexer.class);
-  ApplyPermissionsStep step = new ApplyPermissionsStep(indexer);
+  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_UUID = "PROJECT_UUID";
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  DbSession dbSession;
+
+  DbClient dbClient;
+
+  Settings settings;
+
+  DbComponentsRefCache dbComponentsRefCache;
+
+  IssueAuthorizationIndexer issueAuthorizationIndexer;
+  ApplyPermissionsStep step;
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+    esTester.truncateIndices();
+
+    RoleDao roleDao = new RoleDao();
+    PermissionTemplateDao permissionTemplateDao = new PermissionTemplateDao(dbTester.myBatis(), System2.INSTANCE);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), roleDao, permissionTemplateDao);
+    dbSession = dbClient.openSession(false);
+
+    settings = new Settings();
+
+    issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
+    issueAuthorizationIndexer.setEnabled(true);
+
+    dbComponentsRefCache = new DbComponentsRefCache();
+
+    step = new ApplyPermissionsStep(dbClient, dbComponentsRefCache, issueAuthorizationIndexer, new PermissionFacade(roleDao, null,
+      new ResourceDao(dbTester.myBatis(), System2.INSTANCE), permissionTemplateDao, settings));
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    dbSession.close();
+  }
 
   @Test
-  public void index_issue_permissions() {
-    step.execute(mock(ComputationContext.class));
-    verify(indexer).index();
+  public void grant_permission() throws Exception {
+    ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(dbSession, projectDto);
+
+    // Create a permission template containing browse permission for anonymous group
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().createPermissionTemplate("Default", null, null);
+    settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
+    dbClient.permissionTemplateDao().addGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
+    dbSession.commit();
+
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID);
+
+    step.execute(new ComputationContext(createDumbBatchReportReader(), null, null, null, ComponentTreeBuilders.from(project), null));
+    dbSession.commit();
+
+    assertThat(dbClient.componentDao().selectByKey(dbSession, PROJECT_KEY).getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
+    List<SearchHit> issueAuthorizationHits = esTester.getDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
+    assertThat(issueAuthorizationHits).hasSize(1);
+    Map<String, Object> issueAhutorization = issueAuthorizationHits.get(0).sourceAsMap();
+    assertThat(issueAhutorization.get("project")).isEqualTo(PROJECT_UUID);
+    assertThat((List<String>) issueAhutorization.get("groups")).containsOnly(DefaultGroups.ANYONE);
+    assertThat((List<String>) issueAhutorization.get("users")).isEmpty();
+  }
+
+  @Test
+  public void nothing_to_do() throws Exception {
+    long authorizationUpdatedAt = 1000L;
+
+    ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY).setAuthorizationUpdatedAt(authorizationUpdatedAt);
+    dbClient.componentDao().insert(dbSession, projectDto);
+    // Permissions are already set on the project
+    dbClient.roleDao().insertGroupRole(new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()), dbSession);
+
+    dbSession.commit();
+
+    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID);
+
+    step.execute(new ComputationContext(createDumbBatchReportReader(), null, null, null, ComponentTreeBuilders.from(project), null));
+    dbSession.commit();
+
+    // Check that authorization updated at has not been changed -> Nothing has been done
+    assertThat(projectDto.getAuthorizationUpdatedAt()).isEqualTo(authorizationUpdatedAt);
+  }
+
+  private BatchReportReader createDumbBatchReportReader() throws IOException {
+    File dir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(dir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+      .build());
+    return new BatchReportReader(dir);
   }
 
   @Override

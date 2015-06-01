@@ -224,8 +224,11 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_fail_when_no_default_template_is_defined() {
+  public void fail_when_no_default_template_is_defined() {
     throwable.expect(IllegalStateException.class);
+    throwable.expectMessage("At least one default permission template should be defined");
+
+    setupData("fail_when_no_default_template_is_defined");
 
     permissions.grantDefaultRoles(project);
   }

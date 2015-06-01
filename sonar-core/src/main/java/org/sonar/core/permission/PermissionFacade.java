@@ -21,11 +21,16 @@
 package org.sonar.core.permission;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -34,13 +39,6 @@ import org.sonar.core.user.GroupRoleDto;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserRoleDto;
-
-import javax.annotation.Nullable;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * This facade wraps db operations related to permissions
@@ -201,9 +199,6 @@ public class PermissionFacade {
 
   public void grantDefaultRoles(DbSession session, Long componentId, String qualifier) {
     ResourceDto resource = resourceDao.getResource(componentId, session);
-    if (resource == null) {
-      throw new IllegalStateException("Unable to find resource with id " + componentId);
-    }
     String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
     applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);
   }

@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import org.junit.Test;
 import org.sonar.server.computation.ComputationContext;
-import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import static org.mockito.Mockito.mock;
@@ -34,13 +33,11 @@ public class IndexIssuesStepTest {
 
   @Test
   public void call_indexers() {
-    IssueAuthorizationIndexer authorizationIndexer = mock(IssueAuthorizationIndexer.class);
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
-    sut = new IndexIssuesStep(authorizationIndexer, issueIndexer);
+    sut = new IndexIssuesStep(issueIndexer);
 
     sut.execute(mock(ComputationContext.class));
 
-    verify(authorizationIndexer).index();
     verify(issueIndexer).index();
   }
 }

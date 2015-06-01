@@ -20,25 +20,50 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.ComputationContext;
+import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
+/**
+ * Apply default permissions on new projects and index issues/authorization
+ */
 public class ApplyPermissionsStep implements ComputationStep {
 
+  private final DbClient dbClient;
+  private final DbComponentsRefCache dbComponentsRefCache;
   private final IssueAuthorizationIndexer indexer;
+  private final PermissionFacade permissionFacade;
 
-  public ApplyPermissionsStep(IssueAuthorizationIndexer indexer) {
+  public ApplyPermissionsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, IssueAuthorizationIndexer indexer, PermissionFacade permissionFacade) {
+    this.dbClient = dbClient;
+    this.dbComponentsRefCache = dbComponentsRefCache;
     this.indexer = indexer;
+    this.permissionFacade = permissionFacade;
   }
 
   @Override
   public void execute(ComputationContext context) {
-    indexer.index();
+    DbSession session = dbClient.openSession(false);
+    try {
+      long projectId = dbComponentsRefCache.getByRef(context.getRoot().getRef()).getId();
+      if (permissionFacade.countComponentPermissions(session, projectId) == 0) {
+        permissionFacade.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
+        session.commit();
+        indexer.index();
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Override
   public String getDescription() {
-    return "Index project permissions";
+    return "Apply project permissions";
   }
 
 }
