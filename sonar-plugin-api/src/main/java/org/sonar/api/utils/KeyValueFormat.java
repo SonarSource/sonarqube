@@ -19,22 +19,18 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
-import org.apache.commons.collections.Bag;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.rules.RulePriority;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.collections.Bag;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.api.rules.RulePriority;
 
 /**
  * <p>Formats and parses key/value pairs with the text representation : "key1=value1;key2=value2". Field typing
@@ -308,7 +304,7 @@ public final class KeyValueFormat {
    * If input is null, then an empty map is returned.
    */
   public static <K, V> Map<K, V> parse(@Nullable String input, Converter<K> keyConverter, Converter<V> valueConverter) {
-    Map<K, V> map = Maps.newLinkedHashMap();
+    Map<K, V> map = new LinkedHashMap<>();
     if (input != null) {
       FieldParser reader = new FieldParser(input);
       boolean end = false;
@@ -395,21 +391,6 @@ public final class KeyValueFormat {
     return sb.toString();
   }
 
-  private static <K> String formatEntries(Set<Multiset.Entry<K>> entries, Converter<K> keyConverter) {
-    StringBuilder sb = new StringBuilder();
-    boolean first = true;
-    for (Multiset.Entry<K> entry : entries) {
-      if (!first) {
-        sb.append(PAIR_SEPARATOR);
-      }
-      sb.append(keyConverter.format(entry.getElement()));
-      sb.append(FIELD_SEPARATOR);
-      sb.append(newIntegerConverter().format(entry.getCount()));
-      first = false;
-    }
-    return sb.toString();
-  }
-
   /**
    * @since 2.7
    */
@@ -457,17 +438,6 @@ public final class KeyValueFormat {
    */
   public static String formatStringInt(Map<String, Integer> map) {
     return format(map, newStringConverter(), newIntegerConverter());
-  }
-
-  /**
-   * @since 2.7
-   */
-  public static <K> String format(Multiset<K> multiset, Converter<K> keyConverter) {
-    return formatEntries(multiset.entrySet(), keyConverter);
-  }
-
-  public static String format(Multiset multiset) {
-    return format(multiset, newToStringConverter());
   }
 
   /**

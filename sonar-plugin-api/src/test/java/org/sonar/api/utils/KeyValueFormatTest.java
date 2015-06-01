@@ -20,24 +20,19 @@
 package org.sonar.api.utils;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.LinkedHashMultiset;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multiset;
-import com.google.common.collect.TreeMultiset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.collections.bag.TreeBag;
-import org.junit.Assert;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.test.TestUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.hamcrest.Matchers.is;
 
 public class KeyValueFormatTest {
 
@@ -107,7 +102,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void keep_order_of_linked_map() {
-    Map<String, String> map = Maps.newLinkedHashMap();
+    Map<String, String> map = new LinkedHashMap<>();
     map.put("lucky", "luke");
     map.put("aste", "rix");
     String s = KeyValueFormat.format(map);
@@ -116,7 +111,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatMapOfIntegerString() {
-    Map<Integer, String> map = Maps.newLinkedHashMap();
+    Map<Integer, String> map = new LinkedHashMap<>();
     map.put(3, "three");
     map.put(5, "five");
     String s = KeyValueFormat.formatIntString(map);
@@ -125,7 +120,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatMapOfIntDouble() {
-    Map<Integer, Double> map = Maps.newLinkedHashMap();
+    Map<Integer, Double> map = new LinkedHashMap<>();
     map.put(13, 2.0);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
@@ -134,7 +129,7 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldSetEmptyFieldWhenNullValue() {
-    Map<Integer, Double> map = Maps.newLinkedHashMap();
+    Map<Integer, Double> map = new LinkedHashMap<>();
     map.put(13, null);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
@@ -143,14 +138,14 @@ public class KeyValueFormatTest {
 
   @Test
   public void shouldFormatBlank() {
-    Map<Integer, String> map = Maps.newTreeMap();
+    Map<Integer, String> map = new TreeMap<>();
     String s = KeyValueFormat.formatIntString(map);
     assertThat(s).isEqualTo("");
   }
 
   @Test
   public void shouldFormatDate() throws ParseException {
-    Map<Integer, Date> map = Maps.newLinkedHashMap();
+    Map<Integer, Date> map = new LinkedHashMap<>();
     map.put(4, new SimpleDateFormat("yyyy-MM-dd").parse("2010-12-25"));
     map.put(20, new SimpleDateFormat("yyyy-MM-dd").parse("2009-05-28"));
     map.put(12, null);
@@ -221,17 +216,8 @@ public class KeyValueFormatTest {
   }
 
   @Test
-  public void format_multiset() {
-    Multiset<String> set = LinkedHashMultiset.create();
-    set.add("foo");
-    set.add("foo");
-    set.add("bar");
-    assertThat(KeyValueFormat.format(set)).isEqualTo("foo=2;bar=1");
-  }
-
-  @Test
   public void escape_strings() {
-    Map<String, String> input = Maps.newLinkedHashMap();
+    Map<String, String> input = new LinkedHashMap<>();
     input.put("foo", "a=b=c");
     input.put("bar", "a;b;c");
     input.put("baz", "double\"quote");
@@ -255,7 +241,7 @@ public class KeyValueFormatTest {
     TreeBag bag = new TreeBag();
     bag.add("hello", 1);
     bag.add("key", 3);
-    Assert.assertThat(KeyValueFormat.format(bag, 0), is("hello=1;key=3"));
+    assertThat(KeyValueFormat.format(bag, 0)).isEqualTo("hello=1;key=3");
   }
 
   @Test
@@ -263,15 +249,7 @@ public class KeyValueFormatTest {
     TreeBag bag = new TreeBag();
     bag.add("hello", 1);
     bag.add("key", 3);
-    Assert.assertThat(KeyValueFormat.format(bag, -1), is("hello=0;key=2"));
-  }
-
-  @Test
-  public void formatMultiset() {
-    Multiset<String> set = TreeMultiset.create();
-    set.add("hello", 1);
-    set.add("key", 3);
-    Assert.assertThat(KeyValueFormat.format(set), is("hello=1;key=3"));
+    assertThat(KeyValueFormat.format(bag, -1)).isEqualTo("hello=0;key=2");
   }
 
 }
