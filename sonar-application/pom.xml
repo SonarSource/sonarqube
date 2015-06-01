@@ -89,14 +89,7 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- core plugins -->
-    <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-email-notifications-plugin</artifactId>
-      <version>${project.version}</version>
-      <type>sonar-plugin</type>
-      <scope>provided</scope>
-    </dependency>
+    <!-- default plugins -->
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>

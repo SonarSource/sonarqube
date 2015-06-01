@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications;
+package org.sonar.server.notifications.email;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.EmailSettings;
@@ -60,9 +60,9 @@ public class AlertsEmailTemplate extends EmailTemplate {
 
     // And finally return the email that will be sent
     return new EmailMessage()
-        .setMessageId("alerts/" + projectId)
-        .setSubject(subject)
-        .setMessage(messageBody);
+      .setMessageId("alerts/" + projectId)
+      .setSubject(subject)
+      .setMessage(messageBody);
   }
 
   private static String generateSubject(String projectName, String alertLevel, boolean isNewAlert) {

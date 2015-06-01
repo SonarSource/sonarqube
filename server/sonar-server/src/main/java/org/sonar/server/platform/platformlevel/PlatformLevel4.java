@@ -172,6 +172,8 @@ import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
+import org.sonar.server.notifications.email.AlertsEmailTemplate;
+import org.sonar.server.notifications.email.EmailNotificationChannel;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
@@ -619,6 +621,8 @@ public class PlatformLevel4 extends PlatformLevel {
       DoNotFixNotificationDispatcher.class,
       DoNotFixNotificationDispatcher.newMetadata(),
       NewIssuesNotificationFactory.class,
+      EmailNotificationChannel.class,
+      AlertsEmailTemplate.class,
 
       // issue filters
       IssueFilterService.class,

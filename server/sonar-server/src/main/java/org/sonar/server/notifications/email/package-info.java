@@ -17,15 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.emailnotifications;
+@ParametersAreNonnullByDefault
+package org.sonar.server.notifications.email;
 
-import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class EmailNotificationsPluginTest {
-  @Test
-  public void should_get_extensions() {
-    assertThat(new EmailNotificationsPlugin().getExtensions()).hasSize(2);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

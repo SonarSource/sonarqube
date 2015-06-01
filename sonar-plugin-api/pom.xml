@@ -212,7 +212,6 @@
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <artifactSet>
                 <excludes>
-                  <exclude>org.codehaus.sonar.plugins:sonar-email-notifications-plugin</exclude>
                   <exclude>org.codehaus.woodstox:woodstox-core-lgpl</exclude>
                   <exclude>org.codehaus.woodstox:stax2-api</exclude>
                   <exclude>org.codehaus.staxmate:staxmate</exclude>
