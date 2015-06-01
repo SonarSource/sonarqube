@@ -20,22 +20,21 @@
 package org.sonar.batch.scm;
 
 import com.google.common.base.Joiner;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 @Properties({
   @Property(
@@ -57,14 +56,14 @@ public final class ScmConfiguration implements Startable {
 
   public static final String FORCE_RELOAD_KEY = "sonar.scm.forceReloadAll";
 
-  private final ProjectReactor projectReactor;
+  private final ImmutableProjectReactor projectReactor;
   private final Settings settings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<>();
   private final AnalysisMode analysisMode;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
+  public ScmConfiguration(ImmutableProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings, ScmProvider... providers) {
     this.projectReactor = projectReactor;
     this.analysisMode = analysisMode;
     this.settings = settings;
@@ -73,7 +72,7 @@ public final class ScmConfiguration implements Startable {
     }
   }
 
-  public ScmConfiguration(ProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings) {
+  public ScmConfiguration(ImmutableProjectReactor projectReactor, AnalysisMode analysisMode, Settings settings) {
     this(projectReactor, analysisMode, settings, new ScmProvider[0]);
   }
 

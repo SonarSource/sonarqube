@@ -27,7 +27,7 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
 /**
- * Immutable copy of project reactor after all modifications have been applied (see {@link MutableProjectReactorProvider}).
+ * Immutable copy of project reactor after all modifications have been applied (see {@link ImmutableProjectReactorProvider}).
  */
 @BatchSide
 public class ImmutableProjectReactor {

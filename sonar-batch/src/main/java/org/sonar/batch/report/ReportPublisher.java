@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
@@ -40,6 +39,7 @@ import org.sonar.api.utils.ZipUtils;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 @BatchSide
 public class ReportPublisher implements Startable {
@@ -50,7 +50,7 @@ public class ReportPublisher implements Startable {
   private final ServerClient serverClient;
   private final Server server;
   private final Settings settings;
-  private final ProjectReactor projectReactor;
+  private final ImmutableProjectReactor projectReactor;
   private final DefaultAnalysisMode analysisMode;
   private final TempFolder temp;
 
@@ -60,7 +60,7 @@ public class ReportPublisher implements Startable {
   private BatchReportWriter writer;
 
   public ReportPublisher(Settings settings, ServerClient serverClient, Server server,
-    ProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+    ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
     this.projectReactor = projectReactor;

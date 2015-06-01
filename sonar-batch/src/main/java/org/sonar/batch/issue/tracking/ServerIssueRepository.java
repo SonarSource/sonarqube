@@ -20,29 +20,27 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-import org.sonar.api.batch.BatchSide;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.component.ComponentKeys;
-
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
@@ -53,12 +51,12 @@ public class ServerIssueRepository {
   private final Caches caches;
   private Cache<ServerIssue> issuesCache;
   private final ServerIssuesLoader previousIssuesLoader;
-  private final ProjectReactor reactor;
+  private final ImmutableProjectReactor reactor;
   private final BatchComponentCache resourceCache;
   private final AnalysisMode analysisMode;
   private final InputPathCache inputPathCache;
 
-  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ProjectReactor reactor, BatchComponentCache resourceCache,
+  public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, BatchComponentCache resourceCache,
     AnalysisMode analysisMode, InputPathCache inputPathCache) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;

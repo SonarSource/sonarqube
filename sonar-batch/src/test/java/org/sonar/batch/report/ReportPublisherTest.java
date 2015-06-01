@@ -24,13 +24,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.mockito.Mockito.mock;
@@ -43,12 +43,12 @@ public class ReportPublisherTest extends AbstractDbUnitTestCase {
 
   BatchComponentCache resourceCache = mock(BatchComponentCache.class);
 
-  private ProjectReactor reactor;
+  private ImmutableProjectReactor reactor;
 
   @Before
   public void setUp() {
     mode = mock(DefaultAnalysisMode.class);
-    reactor = mock(ProjectReactor.class);
+    reactor = mock(ImmutableProjectReactor.class);
     when(reactor.getRoot()).thenReturn(ProjectDefinition.create().setKey("struts"));
   }
 
