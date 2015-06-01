@@ -19,19 +19,17 @@
  */
 package org.sonar.core.platform;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.google.common.collect.Ordering.natural;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +58,7 @@ public class PluginInfoTest {
   }
 
   @Test
-   public void test_comparison() {
+  public void test_comparison() {
     PluginInfo java1 = new PluginInfo("java").setVersion(Version.create("1.0"));
     PluginInfo java2 = new PluginInfo("java").setVersion(Version.create("2.0"));
     PluginInfo javaNoVersion = new PluginInfo("java");
@@ -142,7 +140,6 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getVersion().getName()).isEqualTo("1.0");
     assertThat(pluginInfo.getJarFile()).isSameAs(jarFile);
     assertThat(pluginInfo.getMainClass()).isEqualTo("org.foo.FooPlugin");
-    assertThat(pluginInfo.isCore()).isFalse();
     assertThat(pluginInfo.getBasePlugin()).isNull();
     assertThat(pluginInfo.getDescription()).isNull();
     assertThat(pluginInfo.getHomepageUrl()).isNull();
@@ -171,10 +168,10 @@ public class PluginInfoTest {
     manifest.setOrganization("SonarSource");
     manifest.setOrganizationUrl("http://sonarsource.com");
     manifest.setIssueTrackerUrl("http://jira.com");
-    manifest.setRequirePlugins(new String[]{"java:2.0", "pmd:1.3"});
+    manifest.setRequirePlugins(new String[] {"java:2.0", "pmd:1.3"});
 
     File jarFile = temp.newFile();
-    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest).setCore(true);
+    PluginInfo pluginInfo = PluginInfo.create(jarFile, manifest);
 
     assertThat(pluginInfo.getBasePlugin()).isEqualTo("findbugs");
     assertThat(pluginInfo.getDescription()).isEqualTo("the desc");
@@ -186,7 +183,6 @@ public class PluginInfoTest {
     assertThat(pluginInfo.getOrganizationUrl()).isEqualTo("http://sonarsource.com");
     assertThat(pluginInfo.getMinimalSqVersion().getName()).isEqualTo("4.5.1");
     assertThat(pluginInfo.getRequiredPlugins()).extracting("key").containsOnly("java", "pmd");
-    assertThat(pluginInfo.isCore()).isTrue();
   }
 
   @Test

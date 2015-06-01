@@ -19,33 +19,30 @@
  */
 package org.sonar.core.plugins;
 
+import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileHashes;
 
-import java.io.File;
-
 public class RemotePlugin {
   private String pluginKey;
   private RemotePluginFile file = null;
-  private boolean core;
 
-  public RemotePlugin(String pluginKey, boolean core) {
+  public RemotePlugin(String pluginKey) {
     this.pluginKey = pluginKey;
-    this.core = core;
   }
 
   public static RemotePlugin create(PluginInfo pluginInfo) {
-    RemotePlugin result = new RemotePlugin(pluginInfo.getKey(), pluginInfo.isCore());
+    RemotePlugin result = new RemotePlugin(pluginInfo.getKey());
     result.setFile(pluginInfo.getNonNullJarFile());
     return result;
   }
 
   public static RemotePlugin unmarshal(String row) {
     String[] fields = StringUtils.split(row, ",");
-    RemotePlugin result = new RemotePlugin(fields[0], Boolean.parseBoolean(fields[1]));
-    if (fields.length > 2) {
-      String[] nameAndHash = StringUtils.split(fields[2], "|");
+    RemotePlugin result = new RemotePlugin(fields[0]);
+    if (fields.length >= 2) {
+      String[] nameAndHash = StringUtils.split(fields[1], "|");
       result.setFile(nameAndHash[0], nameAndHash[1]);
     }
     return result;
@@ -53,18 +50,13 @@ public class RemotePlugin {
 
   public String marshal() {
     StringBuilder sb = new StringBuilder();
-    sb.append(pluginKey).append(",");
-    sb.append(String.valueOf(core));
+    sb.append(pluginKey);
     sb.append(",").append(file.getFilename()).append("|").append(file.getHash());
     return sb.toString();
   }
 
   public String getKey() {
     return pluginKey;
-  }
-
-  public boolean isCore() {
-    return core;
   }
 
   public RemotePlugin setFile(String filename, String hash) {

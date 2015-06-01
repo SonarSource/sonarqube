@@ -135,10 +135,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return new File(getHomeDir(), "lib/bundled-plugins");
   }
 
-  public File getCorePluginsDir() {
-    return new File(getHomeDir(), "lib/core-plugins");
-  }
-
   public File getDeprecatedPluginsDir() {
     return new File(getHomeDir(), "extensions/deprecated");
   }

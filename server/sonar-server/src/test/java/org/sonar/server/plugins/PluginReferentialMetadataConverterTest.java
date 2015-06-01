@@ -38,12 +38,4 @@ public class PluginReferentialMetadataConverterTest {
     assertThat(pluginReferential.getPlugins().get(0).getKey()).isEqualTo("foo");
   }
 
-  @Test
-  public void should_not_add_core_plugin() {
-    PluginInfo info = new PluginInfo("foo").setCore(true);
-
-    PluginReferential pluginReferential = PluginReferentialMetadataConverter.getInstalledPluginReferential(newArrayList(info));
-    assertThat(pluginReferential).isNotNull();
-    assertThat(pluginReferential.getPlugins()).hasSize(0);
-  }
 }

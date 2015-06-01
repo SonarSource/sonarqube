@@ -48,9 +48,7 @@ public class PluginReferentialMetadataConverter {
   private static List<PluginManifest> getPluginManifestList(Collection<PluginInfo> metadata) {
     List<PluginManifest> pluginManifestList = newArrayList();
     for (PluginInfo plugin : metadata) {
-      if (!plugin.isCore()) {
-        pluginManifestList.add(toPluginManifest(plugin));
-      }
+      pluginManifestList.add(toPluginManifest(plugin));
     }
     return pluginManifestList;
   }

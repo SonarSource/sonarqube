@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -28,8 +29,6 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Version;
-
-import java.io.File;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,19 +77,10 @@ public class InstalledActionTest {
   }
 
   @Test
-  public void core_plugin_are_not_returned() throws Exception {
-    when(pluginRepository.getPluginInfos()).thenReturn(of(corePlugin("core1", "1.0")));
-
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
-  }
-
-  @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
     when(pluginRepository.getPluginInfos()).thenReturn(
       of(
-      new PluginInfo("").setName("").setCore(false)
+      new PluginInfo("").setName("")
       )
       );
 
@@ -105,7 +95,6 @@ public class InstalledActionTest {
     when(pluginRepository.getPluginInfos()).thenReturn(of(
       new PluginInfo("plugKey")
         .setName("plugName")
-        .setCore(false)
         .setDescription("desc_it")
         .setVersion(Version.create("1.0"))
         .setLicense("license_hey")
@@ -189,11 +178,7 @@ public class InstalledActionTest {
     assertThat(response.outputAsString()).containsOnlyOnce("name2");
   }
 
-  private PluginInfo corePlugin(String key, String version) {
-    return new PluginInfo(key).setName(key).setCore(true).setVersion(Version.create(version));
-  }
-
   private PluginInfo plugin(String key, String name) {
-    return new PluginInfo(key).setName(name).setCore(false).setVersion(Version.create("1.0"));
+    return new PluginInfo(key).setName(name).setVersion(Version.create("1.0"));
   }
 }

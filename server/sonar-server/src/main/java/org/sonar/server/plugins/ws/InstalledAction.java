@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.SortedSet;
 
+import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 
@@ -76,10 +77,7 @@ public class InstalledAction implements PluginsWsAction {
   }
 
   private SortedSet<PluginInfo> retrieveAndSortPluginMetadata() {
-    return ImmutableSortedSet.copyOf(
-      NAME_KEY_PLUGIN_METADATA_COMPARATOR,
-      filter(pluginRepository.getPluginInfos(), NotCorePluginsPredicate.INSTANCE)
-      );
+    return copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, pluginRepository.getPluginInfos());
   }
 
   private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginInfo> pluginMetadatas) {
@@ -89,14 +87,5 @@ public class InstalledAction implements PluginsWsAction {
       pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
     }
     jsonWriter.endArray();
-  }
-
-  private enum NotCorePluginsPredicate implements Predicate<PluginInfo> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nullable PluginInfo input) {
-      return input != null && !input.isCore();
-    }
   }
 }

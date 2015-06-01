@@ -63,7 +63,6 @@ public class ServerPluginRepositoryTest {
   @Before
   public void setUp() throws IOException {
     when(fs.getBundledPluginsDir()).thenReturn(temp.newFolder());
-    when(fs.getCorePluginsDir()).thenReturn(temp.newFolder());
     when(fs.getDeployedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getDownloadedPluginsDir()).thenReturn(temp.newFolder());
     when(fs.getHomeDir()).thenReturn(temp.newFolder());
@@ -78,18 +77,17 @@ public class ServerPluginRepositoryTest {
   }
 
   /**
-   * The first server startup (fresh db) installs bundled plugins and instantiates bundled + core plugins.
+   * The first server startup (fresh db) installs bundled plugins and instantiates bundled plugins.
    */
   @Test
   public void first_startup_installs_bundled_plugins() throws Exception {
     copyTestPluginTo("test-base-plugin", fs.getBundledPluginsDir());
-    copyTestPluginTo("test-core-plugin", fs.getCorePluginsDir());
     when(upgradeStatus.isFreshInstall()).thenReturn(true);
 
     underTest.start();
 
     // both plugins are installed
-    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("core", "testbase");
+    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
   }
 
   @Test
@@ -103,20 +101,14 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void standard_startup_loads_core_and_installed_plugins() throws Exception {
+  public void standard_startup_loads_installed_plugins() throws Exception {
     copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    copyTestPluginTo("test-core-plugin", fs.getCorePluginsDir());
 
     underTest.start();
 
-    // both plugins are installed
-    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("core", "testbase");
+    assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
   }
 
-  /**
-   * That sounds impossible, there are still core plugins for now, but it's still valuable
-   * to test sensibility to null values.
-   */
   @Test
   public void no_plugins_at_all_on_startup() {
     underTest.start();

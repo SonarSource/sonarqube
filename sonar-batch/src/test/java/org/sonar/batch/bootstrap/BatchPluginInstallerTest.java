@@ -51,7 +51,7 @@ public class BatchPluginInstallerTest {
   public void listRemotePlugins() {
 
     ServerClient server = mock(ServerClient.class);
-    when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle,false\nsqale,false");
+    when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle\nsqale");
     BatchPluginInstaller installer = new BatchPluginInstaller(server, fileCache, pluginPredicate);
 
     List<RemotePlugin> remotePlugins = installer.listRemotePlugins();
@@ -66,7 +66,7 @@ public class BatchPluginInstallerTest {
     ServerClient server = mock(ServerClient.class);
     BatchPluginInstaller installer = new BatchPluginInstaller(server, fileCache, pluginPredicate);
 
-    RemotePlugin remote = new RemotePlugin("checkstyle", true).setFile("checkstyle-plugin.jar", "fakemd5_1");
+    RemotePlugin remote = new RemotePlugin("checkstyle").setFile("checkstyle-plugin.jar", "fakemd5_1");
     File file = installer.download(remote);
 
     assertThat(file).isEqualTo(pluginJar);

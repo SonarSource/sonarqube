@@ -25,7 +25,16 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -38,17 +47,6 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.DefaultServerFileSystem;
-
-import javax.annotation.Nonnull;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Iterables.transform;
@@ -73,7 +71,7 @@ import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 public class ServerPluginRepository implements PluginRepository, Startable {
 
   private static final Logger LOG = Loggers.get(ServerPluginRepository.class);
-  private static final String[] JAR_FILE_EXTENSIONS = new String[]{"jar"};
+  private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
   private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport");
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 
@@ -105,7 +103,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     loadPreInstalledPlugins();
     copyBundledPlugins();
     moveDownloadedPlugins();
-    loadCorePlugins();
     unloadIncompatiblePlugins();
     logInstalledPlugins();
     loadInstances();
@@ -208,13 +205,6 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     }
   }
 
-  private void loadCorePlugins() {
-    for (File file : listJarFiles(fs.getCorePluginsDir())) {
-      PluginInfo info = PluginInfo.create(file).setCore(true);
-      registerPluginInfo(info);
-    }
-  }
-
   /**
    * Removes the plugins that are not compatible with current environment.
    */
@@ -294,15 +284,13 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
     for (String uninstallKey : uninstallKeys) {
       PluginInfo info = pluginInfosByKeys.get(uninstallKey);
-      if (!info.isCore()) {
-        try {
-          LOG.info("Uninstalling plugin {} [{}]", info.getName(), info.getKey());
-          // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
-          File masterFile = new File(fs.getInstalledPluginsDir(), info.getNonNullJarFile().getName());
-          moveFileToDirectory(masterFile, uninstalledPluginsDir(), true);
-        } catch (IOException e) {
-          throw new IllegalStateException(format("Fail to uninstall plugin %s [%s]", info.getName(), info.getKey()), e);
-        }
+      try {
+        LOG.info("Uninstalling plugin {} [{}]", info.getName(), info.getKey());
+        // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
+        File masterFile = new File(fs.getInstalledPluginsDir(), info.getNonNullJarFile().getName());
+        moveFileToDirectory(masterFile, uninstalledPluginsDir(), true);
+      } catch (IOException e) {
+        throw new IllegalStateException(format("Fail to uninstall plugin %s [%s]", info.getName(), info.getKey()), e);
       }
     }
   }

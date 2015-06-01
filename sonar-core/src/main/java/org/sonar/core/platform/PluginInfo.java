@@ -133,8 +133,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
   @CheckForNull
   private String basePlugin;
 
-  private boolean core = false;
-
   @CheckForNull
   private String implementationBuild;
 
@@ -223,10 +221,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
     return basePlugin;
   }
 
-  public boolean isCore() {
-    return core;
-  }
-
   @CheckForNull
   public String getImplementationBuild() {
     return implementationBuild;
@@ -302,11 +296,6 @@ public class PluginInfo implements Comparable<PluginInfo> {
     } else {
       basePlugin = s;
     }
-    return this;
-  }
-
-  public PluginInfo setCore(boolean b) {
-    this.core = b;
     return this;
   }
 

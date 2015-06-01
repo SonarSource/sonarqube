@@ -20,15 +20,10 @@
 
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.LinkedHashMap;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.updatecenter.common.Version;
-
-import javax.annotation.Nonnull;
-
-import java.util.LinkedHashMap;
 
 /**
  * Installed plugins (excluding core plugins)
@@ -48,7 +43,7 @@ public class PluginsMonitor implements Monitor {
   @Override
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    for (PluginInfo plugin : plugins()) {
+    for (PluginInfo plugin : repository.getPluginInfos()) {
       LinkedHashMap<String, Object> pluginAttributes = new LinkedHashMap<>();
       pluginAttributes.put("Name", plugin.getName());
       Version version = plugin.getVersion();
@@ -58,14 +53,5 @@ public class PluginsMonitor implements Monitor {
       attributes.put(plugin.getKey(), pluginAttributes);
     }
     return attributes;
-  }
-
-  private Iterable<PluginInfo> plugins() {
-    return Iterables.filter(repository.getPluginInfos(), new Predicate<PluginInfo>() {
-      @Override
-      public boolean apply(@Nonnull PluginInfo info) {
-        return !info.isCore();
-      }
-    });
   }
 }
