@@ -19,7 +19,7 @@ define([
     highlight: function (id) {
       this.highlighted = id;
       this.render();
-    },
+    }
   });
 
 });

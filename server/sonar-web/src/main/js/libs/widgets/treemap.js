@@ -297,8 +297,8 @@
     }).done(function (r) {
       var components = that.formatComponents(r);
       if (components != null) {
-        components = _.sortBy(components, function (d) {
-          return -that.sizeMetric.value(d);
+        components = _.sortBy(components, function (component) {
+          return -that.sizeMetric.value(component);
         });
         components = _.initial(components, components.length - that.options().maxItems - 1);
         that.updateTreemap(components, components.length > that.options().maxItems);

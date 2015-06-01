@@ -55,10 +55,10 @@ define([
         return !metric.hidden;
       });
       metrics = _.groupBy(metrics, 'domain');
-      metrics = _.map(metrics, function (metrics, domain) {
+      metrics = _.map(metrics, function (list, domain) {
         return {
           domain: domain,
-          metrics: _.sortBy(metrics, 'short_name')
+          metrics: _.sortBy(list, 'short_name')
         };
       });
       return _.sortBy(metrics, 'domain');

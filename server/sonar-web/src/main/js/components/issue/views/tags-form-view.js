@@ -133,19 +133,19 @@ define([
     onInputKeydown: function (e) {
       this.query = this.$('input').val();
       if (e.keyCode === 38) {
-        return this.selectPreviousOption();
+        this.selectPreviousOption();
       }
       if (e.keyCode === 40) {
-        return this.selectNextOption();
+        this.selectNextOption();
       }
       if (e.keyCode === 13) {
-        return this.selectActiveOption();
-      }
-      if (e.keyCode === 9) {
-        return false;
+        this.selectActiveOption();
       }
       if (e.keyCode === 27) {
-        return this.close();
+        this.close();
+      }
+      if ([9, 13, 27, 38, 40].indexOf(e.keyCode) !== -1) {
+        return false;
       }
     },
 
