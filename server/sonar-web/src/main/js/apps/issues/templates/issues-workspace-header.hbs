@@ -1,12 +1,24 @@
 <div class="issues-header-component nowrap">
   {{#if state.component}}
-    <a class="js-back">{{t "issues.return_to_list"}}</a>&nbsp;&nbsp;&nbsp;
+    <div class="component-name">
+      <div class="component-name-parent">
+        <a class="js-back">{{t "issues.return_to_list"}}</a>&nbsp;&nbsp;&nbsp;
+      </div>
 
-    {{#with state.component}}
-      {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
-      &nbsp;&nbsp;
-      {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
-    {{/with}}
+      {{#with state.component}}
+        <div class="component-name-parent">
+          {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
+        </div>
+        {{#if subProject}}
+          <div class="component-name-parent">
+            {{qualifierIcon "TRK"}}&nbsp;<a href="{{dashboardUrl subProject}}" title="{{subProjectName}}">{{subProjectName}}</a>
+          </div>
+        {{/if}}
+        <div class="component-name-file">
+          {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
+        </div>
+      {{/with}}
+    </div>
   {{else}}
     &nbsp;
   {{/if}}

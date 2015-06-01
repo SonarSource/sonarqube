@@ -200,6 +200,8 @@ define([
         key: issue.get('component'),
         name: issue.get('componentLongName'),
         qualifier: issue.get('componentQualifier'),
+        subProject: issue.get('subProject'),
+        subProjectName: issue.get('subProjectLongName'),
         project: issue.get('project'),
         projectName: issue.get('projectLongName')
       };
