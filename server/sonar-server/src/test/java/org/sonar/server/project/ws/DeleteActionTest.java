@@ -21,7 +21,6 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,7 +38,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.purge.PurgeDao;
@@ -75,13 +73,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_UUIDS;
+import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
+import static org.sonar.server.project.ws.DeleteAction.PARAM_UUID;
 
 @Category(DbTests.class)
-public class BulkDeleteActionTest {
+public class DeleteActionTest {
 
-  private static final String ACTION = "bulk_delete";
+  private static final String ACTION = "delete";
   @ClassRule
   public static DbTester db = new DbTester();
   @ClassRule
@@ -107,9 +105,9 @@ public class BulkDeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ws = new WsTester(new ProjectsWs(new BulkDeleteAction(new ComponentCleanerService(dbClient, new IssueAuthorizationIndexer(dbClient, es.client()), new IssueIndexer(
+    ws = new WsTester(new ProjectsWs(new DeleteAction(new ComponentCleanerService(dbClient, new IssueAuthorizationIndexer(dbClient, es.client()), new IssueIndexer(
       dbClient, es.client()), new SourceLineIndexer(dbClient, es.client()), new TestIndexer(dbClient, es.client()), mockResourceTypes), dbClient, userSessionRule)));
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSessionRule.login("login").setGlobalPermissions(UserRole.ADMIN);
     db.truncateTables();
     es.truncateIndices();
   }
@@ -120,50 +118,65 @@ public class BulkDeleteActionTest {
   }
 
   @Test
-  public void delete_projects_and_data_in_db_by_uuids() throws Exception {
+  public void delete_project_and_data_in_db_by_uuid() throws Exception {
     long snapshotId1 = insertNewProjectInDbAndReturnSnapshotId(1);
     long snapshotId2 = insertNewProjectInDbAndReturnSnapshotId(2);
-    long snapshotId3 = insertNewProjectInDbAndReturnSnapshotId(3);
-    long snapshotId4 = insertNewProjectInDbAndReturnSnapshotId(4);
 
-    ws.newPostRequest("api/projects", ACTION)
-      .setParam(PARAM_UUIDS, "project-uuid-1, project-uuid-3, project-uuid-4").execute();
+    newRequest()
+      .setParam(PARAM_UUID, "project-uuid-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
+    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
     assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId1)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId3)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId4)).isNull();
     assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId2)).isNotNull();
-    assertThat(dbClient.issueDao().selectByKeys(dbSession, Arrays.asList("issue-key-1", "issue-key-3", "issue-key-4"))).isEmpty();
+    assertThat(dbClient.issueDao().selectNullableByKey(dbSession, "issue-key-1")).isNull();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
   }
 
   @Test
-  public void delete_projects_and_data_in_db_by_keys() throws Exception {
+  public void delete_projects_and_data_in_db_by_key() throws Exception {
     insertNewProjectInDbAndReturnSnapshotId(1);
     insertNewProjectInDbAndReturnSnapshotId(2);
-    insertNewProjectInDbAndReturnSnapshotId(3);
-    insertNewProjectInDbAndReturnSnapshotId(4);
 
-    ws.newPostRequest("api/projects", ACTION)
-      .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
+    newRequest()
+      .setParam(PARAM_KEY, "project-key-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
+    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
+  }
+
+  @Test
+  public void delete_projects_by_uuid_when_admin_on_the_project() throws Exception {
+    insertNewProjectInDbAndReturnSnapshotId(1);
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid-1");
+
+    newRequest().setParam(PARAM_UUID, "project-uuid-1").execute();
+    dbSession.commit();
+
+    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
+  }
+
+  @Test
+  public void delete_projects_by_key_when_admin_on_the_project() throws Exception {
+    insertNewProjectInDbAndReturnSnapshotId(1);
+    // can't use addProjectUuidPermissions as mock keep separated lists
+    userSessionRule.login("login").addProjectPermissions(UserRole.ADMIN, "project-key-1");
+
+    newRequest().setParam(PARAM_KEY, "project-key-1").execute();
+    dbSession.commit();
+
+    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
   }
 
   @Test
   public void delete_documents_indexes() throws Exception {
     insertNewProjectInIndexes(1);
     insertNewProjectInIndexes(2);
-    insertNewProjectInIndexes(3);
-    insertNewProjectInIndexes(4);
 
-    ws.newPostRequest("api/projects", ACTION)
-      .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
+    newRequest()
+      .setParam(PARAM_KEY, "project-key-1").execute();
 
     String remainingProjectUuid = "project-uuid-2";
     assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID))
@@ -180,7 +193,7 @@ public class BulkDeleteActionTest {
   public void web_service_returns_204() throws Exception {
     insertNewProjectInDbAndReturnSnapshotId(1);
 
-    WsTester.Result result = ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "project-uuid-1").execute();
+    WsTester.Result result = newRequest().setParam(PARAM_UUID, "project-uuid-1").execute();
 
     result.assertNoContent();
   }
@@ -190,7 +203,7 @@ public class BulkDeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "whatever-the-uuid").execute();
+    newRequest().setParam(PARAM_UUID, "whatever-the-uuid").execute();
   }
 
   @Test
@@ -199,7 +212,7 @@ public class BulkDeleteActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), "file-uuid"));
     dbSession.commit();
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "file-uuid").execute();
+    newRequest().setParam(PARAM_UUID, "file-uuid").execute();
   }
 
   @Test
@@ -209,7 +222,7 @@ public class BulkDeleteActionTest {
     dbSession.commit();
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "project-uuid").execute();
+    newRequest().setParam(PARAM_UUID, "project-uuid").execute();
   }
 
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {
@@ -246,5 +259,9 @@ public class BulkDeleteActionTest {
     es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, sourceLineDoc);
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return ws.newPostRequest(ProjectsWs.ENDPOINT, ACTION);
   }
 }

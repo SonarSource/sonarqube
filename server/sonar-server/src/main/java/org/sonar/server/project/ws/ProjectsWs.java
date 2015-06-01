@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
-  private static final String ENDPOINT = "api/projects";
+  public static final String ENDPOINT = "api/projects";
 
   private final ProjectsWsAction[] actions;
 

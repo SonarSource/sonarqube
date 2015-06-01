@@ -38,8 +38,8 @@ import java.util.List;
 public class BulkDeleteAction implements ProjectsWsAction {
   private static final String ACTION = "bulk_delete";
 
-  private static final String PARAM_UUIDS = "ids";
-  private static final String PARAM_KEYS = "keys";
+  public static final String PARAM_UUIDS = "ids";
+  public static final String PARAM_KEYS = "keys";
 
   private final ComponentCleanerService componentCleanerService;
   private final DbClient dbClient;

@@ -207,10 +207,7 @@ import org.sonar.server.plugins.ws.PluginWSCommons;
 import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
-import org.sonar.server.project.ws.BulkDeleteAction;
-import org.sonar.server.project.ws.GhostsAction;
-import org.sonar.server.project.ws.ProjectsWs;
-import org.sonar.server.project.ws.ProvisionedAction;
+import org.sonar.server.project.ws.ProjectsWsModule;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
@@ -573,21 +570,18 @@ public class PlatformLevel4 extends PlatformLevel {
       PermissionsWs.class,
 
       // components
+      ProjectsWsModule.class,
       DefaultComponentFinder.class,
       DefaultRubyComponentService.class,
       ComponentService.class,
       ResourcesWs.class,
       ComponentsWs.class,
-      ProjectsWs.class,
-      BulkDeleteAction.class,
       org.sonar.server.component.ws.AppAction.class,
       org.sonar.server.component.ws.SearchAction.class,
       EventsWs.class,
       NewAlerts.class,
       NewAlerts.newMetadata(),
       ComponentCleanerService.class,
-      ProvisionedAction.class,
-      GhostsAction.class,
 
       // views
       ViewIndexDefinition.class,
