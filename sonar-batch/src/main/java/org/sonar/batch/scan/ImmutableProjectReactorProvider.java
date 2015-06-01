@@ -24,17 +24,21 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 public class ImmutableProjectReactorProvider extends ProviderAdapter {
 
+  private ImmutableProjectReactor singleton;
+
   public ImmutableProjectReactor provide(ProjectReactor reactor, ProjectBuildersExecutor projectBuildersExecutor, ProjectExclusions exclusions, ProjectReactorValidator validator) {
+    if (singleton == null) {
+      // 1 Apply project builders
+      projectBuildersExecutor.execute(reactor);
 
-    // 1 Apply project builders
-    projectBuildersExecutor.execute(reactor);
+      // 2 Apply project exclusions
+      exclusions.apply(reactor);
 
-    // 2 Apply project exclusions
-    exclusions.apply(reactor);
+      // 3 Validate final reactor
+      validator.validate(reactor);
 
-    // 3 Validate final reactor
-    validator.validate(reactor);
-
-    return new ImmutableProjectReactor(reactor.getRoot());
+      singleton = new ImmutableProjectReactor(reactor.getRoot());
+    }
+    return singleton;
   }
 }

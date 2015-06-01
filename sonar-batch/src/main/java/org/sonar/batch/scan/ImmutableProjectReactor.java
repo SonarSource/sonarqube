@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.scan;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Immutable copy of project reactor after all modifications have been applied (see {@link MutableProjectReactorProvider}).
@@ -32,39 +33,39 @@ import java.util.List;
 public class ImmutableProjectReactor {
 
   private ProjectDefinition root;
+  private Map<String, ProjectDefinition> byKey = new HashMap<>();
 
   public ImmutableProjectReactor(ProjectDefinition root) {
     if (root.getParent() != null) {
       throw new IllegalArgumentException("Not a root project: " + root);
     }
     this.root = root;
+    collectProjects(root);
   }
 
-  public List<ProjectDefinition> getProjects() {
-    return collectProjects(root, new ArrayList<ProjectDefinition>());
+  public Collection<ProjectDefinition> getProjects() {
+    return byKey.values();
   }
 
   /**
    * Populates list of projects from hierarchy.
    */
-  private static List<ProjectDefinition> collectProjects(ProjectDefinition def, List<ProjectDefinition> collected) {
-    collected.add(def);
-    for (ProjectDefinition child : def.getSubProjects()) {
-      collectProjects(child, collected);
+  private void collectProjects(ProjectDefinition def) {
+    if (byKey.containsKey(def.getKeyWithBranch())) {
+      throw new IllegalStateException("Duplicate module key in reactor: " + def.getKeyWithBranch());
     }
-    return collected;
+    byKey.put(def.getKeyWithBranch(), def);
+    for (ProjectDefinition child : def.getSubProjects()) {
+      collectProjects(child);
+    }
   }
 
   public ProjectDefinition getRoot() {
     return root;
   }
 
-  public ProjectDefinition getProject(String key) {
-    for (ProjectDefinition p : getProjects()) {
-      if (key.equals(p.getKey())) {
-        return p;
-      }
-    }
-    return null;
+  @CheckForNull
+  public ProjectDefinition getProjectDefinition(String keyWithBranch) {
+    return byKey.get(keyWithBranch);
   }
 }

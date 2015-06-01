@@ -21,7 +21,12 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import javax.annotation.Nullable;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.resources.Project;
@@ -32,29 +37,24 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 public class IssuesPublisher implements ReportPublisherStep {
 
-  private final BatchComponentCache resourceCache;
+  private final BatchComponentCache componentCache;
   private final IssueCache issueCache;
-  private final ProjectReactor reactor;
+  private final ImmutableProjectReactor reactor;
 
-  public IssuesPublisher(ProjectReactor reactor, BatchComponentCache resourceCache, IssueCache issueCache) {
+  public IssuesPublisher(ImmutableProjectReactor reactor, BatchComponentCache componentCache, IssueCache issueCache) {
     this.reactor = reactor;
-    this.resourceCache = resourceCache;
+    this.componentCache = componentCache;
     this.issueCache = issueCache;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
     Collection<Object> deletedComponentKeys = issueCache.componentKeys();
-    for (BatchComponent resource : resourceCache.all()) {
+    for (BatchComponent resource : componentCache.all()) {
       String componentKey = resource.resource().getEffectiveKey();
       Iterable<DefaultIssue> issues = issueCache.byComponent(componentKey);
       writer.writeComponentIssues(resource.batchId(), Iterables.transform(issues, new Function<DefaultIssue, BatchReport.Issue>() {
@@ -74,12 +74,18 @@ public class IssuesPublisher implements ReportPublisherStep {
   }
 
   private void exportMetadata(BatchReportWriter writer, int count) {
-    BatchComponent rootProject = resourceCache.get(reactor.getRoot().getKeyWithBranch());
+    ProjectDefinition root = reactor.getRoot();
+    BatchComponent rootProject = componentCache.getRoot();
     BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
-      .setProjectKey(((Project) rootProject.resource()).key())
+      // Here we want key without branch
+      .setProjectKey(root.getKey())
       .setRootComponentRef(rootProject.batchId())
       .setDeletedComponentsCount(count);
+    String branch = root.properties().get(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    if (branch != null) {
+      builder.setBranch(branch);
+    }
     Integer sid = rootProject.snapshotId();
     if (sid != null) {
       builder.setSnapshotId(sid);

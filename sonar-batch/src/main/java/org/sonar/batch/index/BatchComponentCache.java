@@ -59,13 +59,12 @@ public class BatchComponentCache {
     String componentKey = resource.getEffectiveKey();
     Preconditions.checkState(!Strings.isNullOrEmpty(componentKey), "Missing resource effective key");
     BatchComponent parent = parentResource != null ? get(parentResource.getEffectiveKey()) : null;
-    BatchComponent batchResource = new BatchComponent(components.size() + 1, resource, parent);
-    // Libraries can have the same effective key than a project so we can't cache by effectiveKey
-    components.put(componentKey, batchResource);
+    BatchComponent batchComponent = new BatchComponent(components.size() + 1, resource, parent);
+    components.put(componentKey, batchComponent);
     if (parent == null) {
-      root = batchResource;
+      root = batchComponent;
     }
-    return batchResource;
+    return batchComponent;
   }
 
   public Collection<BatchComponent> all() {

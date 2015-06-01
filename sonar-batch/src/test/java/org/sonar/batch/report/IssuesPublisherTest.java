@@ -19,12 +19,16 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -36,11 +40,7 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -55,17 +55,21 @@ public class IssuesPublisherTest {
   private IssueCache issueCache;
   private IssuesPublisher publisher;
 
+  private ProjectDefinition root;
+
+  private Project p;
+
   @Before
   public void prepare() {
-    ProjectDefinition root = ProjectDefinition.create().setKey("foo");
-    Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
-    BatchComponentCache resourceCache = new BatchComponentCache();
+    root = ProjectDefinition.create().setKey("foo");
+    p = new Project("foo").setAnalysisDate(new Date(1234567L));
+    BatchComponentCache componentCache = new BatchComponentCache();
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
-    resourceCache.add(sampleFile, null);
+    componentCache.add(p, null).setSnapshot(new Snapshot().setId(2));
+    componentCache.add(sampleFile, p);
     issueCache = mock(IssueCache.class);
     when(issueCache.byComponent(anyString())).thenReturn(Collections.<DefaultIssue>emptyList());
-    publisher = new IssuesPublisher(new ProjectReactor(root), resourceCache, issueCache);
+    publisher = new IssuesPublisher(new ImmutableProjectReactor(root), componentCache, issueCache);
   }
 
   @Test
@@ -112,6 +116,26 @@ public class IssuesPublisherTest {
     assertThat(reader.readComponentIssues(1)).hasSize(0);
     assertThat(reader.readComponentIssues(2)).hasSize(2);
 
+  }
+
+  @Test
+  public void publishMatadataWithBranch() throws Exception {
+    root.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
+    p.setKey("foo:myBranch");
+    p.setEffectiveKey("foo:myBranch");
+
+    File outputDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
+
+    publisher.publish(writer);
+
+    BatchReportReader reader = new BatchReportReader(outputDir);
+    Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
+    assertThat(metadata.getProjectKey()).isEqualTo("foo");
+    assertThat(metadata.getBranch()).isEqualTo("myBranch");
+    assertThat(metadata.getDeletedComponentsCount()).isEqualTo(0);
+    assertThat(metadata.getSnapshotId()).isEqualTo(2);
   }
 
   @Test

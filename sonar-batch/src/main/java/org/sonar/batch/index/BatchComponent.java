@@ -19,17 +19,16 @@
  */
 package org.sonar.batch.index;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import org.sonar.api.resources.ResourceUtils;
 
 public class BatchComponent {
 
@@ -103,5 +102,9 @@ public class BatchComponent {
   @CheckForNull
   public InputPath inputPath() {
     return inputPath;
+  }
+
+  public boolean isProjectOrModule() {
+    return ResourceUtils.isProject(r);
   }
 }

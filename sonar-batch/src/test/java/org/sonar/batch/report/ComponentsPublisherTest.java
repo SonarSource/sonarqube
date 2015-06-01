@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Directory;
@@ -42,6 +41,7 @@ import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,23 +52,20 @@ public class ComponentsPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ProjectReactor reactor;
   private BatchComponentCache resourceCache;
-  private ComponentsPublisher publisher;
   private EventCache eventCache;
 
   @Before
   public void prepare() {
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    reactor.getRoot().properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
     resourceCache = new BatchComponentCache();
     eventCache = mock(EventCache.class);
-    publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
   }
 
   @Test
   public void add_components_to_report() throws Exception {
-    // inputs
+
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
+    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
     Project root = new Project("foo").setName("Root project").setDescription("Root description")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
@@ -78,7 +75,7 @@ public class ComponentsPublisherTest {
     module1.setParent(root);
     module1.setId(2).setUuid("MODULE_UUID");
     resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
-    reactor.getRoot().addSubProject(ProjectDefinition.create().setKey("module1"));
+    rootDef.addSubProject(ProjectDefinition.create().setKey("module1"));
 
     Directory dir = Directory.create("src");
     dir.setEffectiveKey("module1:src");
@@ -99,6 +96,10 @@ public class ComponentsPublisherTest {
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
     resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16)).setInputPath(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+
+    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -130,12 +131,14 @@ public class ComponentsPublisherTest {
   @Test
   public void add_components_with_links_and_branch() throws Exception {
     // inputs
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
+    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
     Project root = new Project("foo:my_branch").setName("Root project")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
     resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
-    reactor.getRoot().properties().put(CoreProperties.LINKS_HOME_PAGE, "http://home");
-    reactor.getRoot().properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
+    rootDef.properties().put(CoreProperties.LINKS_HOME_PAGE, "http://home");
+    rootDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
 
     Project module1 = new Project("module1:my_branch").setName("Module1");
     module1.setParent(root);
@@ -143,7 +146,7 @@ public class ComponentsPublisherTest {
     resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
     ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
     moduleDef.properties().put(CoreProperties.LINKS_CI, "http://ci");
-    reactor.getRoot().addSubProject(moduleDef);
+    rootDef.addSubProject(moduleDef);
 
     Directory dir = Directory.create("src");
     dir.setEffectiveKey("module1:my_branch:my_branch:src");
@@ -154,6 +157,10 @@ public class ComponentsPublisherTest {
     file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
     resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14)).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+
+    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -176,6 +183,8 @@ public class ComponentsPublisherTest {
   @Test
   public void add_components_with_events() throws Exception {
     // inputs
+    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
+    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
     Project root = new Project("foo").setName("Root project")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
@@ -186,7 +195,7 @@ public class ComponentsPublisherTest {
     module1.setId(2).setUuid("MODULE_UUID");
     resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
     ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
-    reactor.getRoot().addSubProject(moduleDef);
+    rootDef.addSubProject(moduleDef);
 
     when(eventCache.getEvents(2)).thenReturn(Arrays.asList(Event.newBuilder().setName("name").setCategory(EventCategory.ALERT).setComponentRef(2).build()));
 
@@ -194,6 +203,10 @@ public class ComponentsPublisherTest {
     dir.setEffectiveKey("module1:src");
     dir.setId(3).setUuid("DIR_UUID");
     resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
+
+    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);

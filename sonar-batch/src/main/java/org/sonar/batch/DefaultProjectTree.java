@@ -21,14 +21,14 @@ package org.sonar.batch;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-
-import java.util.List;
-import java.util.Map;
 
 public class DefaultProjectTree implements Startable {
 
@@ -53,7 +53,7 @@ public class DefaultProjectTree implements Startable {
     // Nothing to do
   }
 
-  void doStart(List<ProjectDefinition> definitions) {
+  void doStart(Collection<ProjectDefinition> definitions) {
     projects = Lists.newArrayList();
     projectsByDef = Maps.newHashMap();
 

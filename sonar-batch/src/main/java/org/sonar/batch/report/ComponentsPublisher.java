@@ -23,7 +23,6 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;
@@ -37,6 +36,7 @@ import org.sonar.batch.protocol.output.BatchReport.Component.Builder;
 import org.sonar.batch.protocol.output.BatchReport.ComponentLink;
 import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.scan.ImmutableProjectReactor;
 
 /**
  * Adds components and analysis metadata to output report
@@ -44,10 +44,10 @@ import org.sonar.batch.protocol.output.BatchReportWriter;
 public class ComponentsPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache resourceCache;
-  private final ProjectReactor reactor;
+  private final ImmutableProjectReactor reactor;
   private final EventCache eventCache;
 
-  public ComponentsPublisher(ProjectReactor reactor, BatchComponentCache resourceCache, EventCache eventCache) {
+  public ComponentsPublisher(ImmutableProjectReactor reactor, BatchComponentCache resourceCache, EventCache eventCache) {
     this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.eventCache = eventCache;
@@ -59,28 +59,30 @@ public class ComponentsPublisher implements ReportPublisherStep {
     recursiveWriteComponent(rootProject, writer);
   }
 
-  private void recursiveWriteComponent(BatchComponent batchResource, BatchReportWriter writer) {
-    Resource r = batchResource.resource();
+  private void recursiveWriteComponent(BatchComponent batchComponent, BatchReportWriter writer) {
+    Resource r = batchComponent.resource();
     BatchReport.Component.Builder builder = BatchReport.Component.newBuilder();
 
     // non-null fields
-    builder.setRef(batchResource.batchId());
+    builder.setRef(batchComponent.batchId());
     builder.setType(getType(r));
 
     // Don't set key on directories and files to save space since it can be deduced from path
-    if (ResourceUtils.isProject(r)) {
-      builder.setKey(r.getKey());
+    if (batchComponent.isProjectOrModule()) {
+      // Here we want key without branch
+      ProjectDefinition def = reactor.getProjectDefinition(batchComponent.key());
+      builder.setKey(def.getKey());
     }
 
     // protocol buffers does not accept null values
 
-    Integer sid = batchResource.snapshotId();
+    Integer sid = batchComponent.snapshotId();
     if (sid != null) {
       builder.setSnapshotId(sid);
     }
-    if (batchResource.isFile()) {
+    if (batchComponent.isFile()) {
       builder.setIsTest(ResourceUtils.isUnitTestFile(r));
-      builder.setLines(((InputFile) batchResource.inputPath()).lines());
+      builder.setLines(((InputFile) batchComponent.inputPath()).lines());
     }
     String name = getName(r);
     if (name != null) {
@@ -98,15 +100,15 @@ public class ComponentsPublisher implements ReportPublisherStep {
     if (lang != null) {
       builder.setLanguage(lang);
     }
-    for (BatchComponent child : batchResource.children()) {
+    for (BatchComponent child : batchComponent.children()) {
       builder.addChildRef(child.batchId());
     }
-    writeLinks(r, builder);
-    writeVersion(r, builder);
-    writeEvents(batchResource, builder);
+    writeLinks(batchComponent, builder);
+    writeVersion(batchComponent, builder);
+    writeEvents(batchComponent, builder);
     writer.writeComponent(builder.build());
 
-    for (BatchComponent child : batchResource.children()) {
+    for (BatchComponent child : batchComponent.children()) {
       recursiveWriteComponent(child, writer);
     }
   }
@@ -119,9 +121,9 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
   }
 
-  private void writeVersion(Resource r, BatchReport.Component.Builder builder) {
-    if (ResourceUtils.isProject(r)) {
-      ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
+  private void writeVersion(BatchComponent c, BatchReport.Component.Builder builder) {
+    if (c.isProjectOrModule()) {
+      ProjectDefinition def = reactor.getProjectDefinition(c.key());
       String version = getVersion(def);
       builder.setVersion(version);
     }
@@ -132,9 +134,9 @@ public class ComponentsPublisher implements ReportPublisherStep {
     return StringUtils.isNotBlank(version) ? version : getVersion(def.getParent());
   }
 
-  private void writeLinks(Resource r, BatchReport.Component.Builder builder) {
-    if (ResourceUtils.isProject(r)) {
-      ProjectDefinition def = getProjectDefinition(reactor, r.getKey());
+  private void writeLinks(BatchComponent c, BatchReport.Component.Builder builder) {
+    if (c.isProjectOrModule()) {
+      ProjectDefinition def = reactor.getProjectDefinition(c.key());
       ComponentLink.Builder linkBuilder = ComponentLink.newBuilder();
 
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_HOME_PAGE, ComponentLinkType.HOME);
@@ -143,15 +145,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES, ComponentLinkType.SCM);
       writeProjectLink(builder, def, linkBuilder, CoreProperties.LINKS_SOURCES_DEV, ComponentLinkType.SCM_DEV);
     }
-  }
-
-  private ProjectDefinition getProjectDefinition(ProjectReactor reactor, String keyWithBranch) {
-    for (ProjectDefinition p : reactor.getProjects()) {
-      if (keyWithBranch.equals(p.getKeyWithBranch())) {
-        return p;
-      }
-    }
-    return null;
   }
 
   private void writeProjectLink(BatchReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
