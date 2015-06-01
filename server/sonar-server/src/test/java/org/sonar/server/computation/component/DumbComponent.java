@@ -37,6 +37,10 @@ public class DumbComponent implements Component {
   private final String key;
   private final List<Component> children;
 
+  public DumbComponent(int ref, Type type, @Nullable Component... children) {
+    this(type, ref, null, null, children);
+  }
+
   public DumbComponent(Type type, int ref, @Nullable String uuid, @Nullable String key, @Nullable Component... children) {
     this.type = type;
     this.ref = ref;
