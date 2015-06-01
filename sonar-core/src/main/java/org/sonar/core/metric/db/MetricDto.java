@@ -27,7 +27,7 @@ public class MetricDto {
 
   private Integer id;
 
-  private String name;
+  private String key;
 
   private String shortName;
 
@@ -67,11 +67,11 @@ public class MetricDto {
   }
 
   public String getKey() {
-    return name;
+    return key;
   }
 
   public MetricDto setKey(String name) {
-    this.name = name;
+    this.key = name;
     return this;
   }
 

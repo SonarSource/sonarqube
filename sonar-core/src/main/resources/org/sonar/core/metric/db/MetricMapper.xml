@@ -5,7 +5,7 @@
 
   <sql id="metricColumns">
     m.id,
-    m.name,
+    m.name as key,
     m.description,
     m.direction,
     m.domain,
@@ -63,7 +63,7 @@
     name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, origin, worst_value,
     best_value, optimized_best_value, hidden, delete_historical_data)
     VALUES (
-    #{name, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
+    #{key, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
     #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
     #{origin, jdbcType=VARCHAR}, #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
