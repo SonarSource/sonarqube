@@ -88,7 +88,7 @@
     <skipSanityChecks>false</skipSanityChecks>
 
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
-    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
+    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=160m</argLine>
   </properties>
 
   <build>
