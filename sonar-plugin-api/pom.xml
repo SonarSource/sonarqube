@@ -80,6 +80,7 @@
       </exclusions>
     </dependency>
     <dependency>
+      <!-- to be kept for backward-compatibility of org.sonar.api.design.Dependency -->
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-graph</artifactId>
     </dependency>
