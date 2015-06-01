@@ -54,8 +54,9 @@ public class ApplyPermissionsStep implements ComputationStep {
       if (permissionFacade.countComponentPermissions(session, projectId) == 0) {
         permissionFacade.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();
-        indexer.index();
       }
+      // As batch is still apply permission on project, indexing of issue authorization must always been done
+      indexer.index();
     } finally {
       MyBatis.closeQuietly(session);
     }
