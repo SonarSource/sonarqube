@@ -64,18 +64,6 @@
     </where>
   </select>
 
-  <select id="selectModulesByProject" parameterType="String" resultType="Component">
-    SELECT <include refid="componentColumns"/>
-    FROM projects p
-    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
-    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND parent_snapshots.islast=${_true}
-    INNER JOIN projects parent ON parent.id=parent_snapshots.project_id AND parent.enabled=${_true} AND parent.kee=#{projectKey}
-    <where>
-      AND p.enabled=${_true}
-      AND p.scope='PRJ'
-    </where>
-  </select>
-
   <select id="selectByKeys" parameterType="String" resultType="Component">
     select <include refid="componentColumns"/>
     from projects p
@@ -213,12 +201,15 @@
     </where>
   </select>
 
-  <select id="selectComponentsFromProjectKey" parameterType="map" resultType="Component">
+  <select id="selectComponentsFromProjectKeyAndScope" parameterType="map" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey}
     <where>
       AND p.enabled=${_true}
+      <if test="scope != null">
+        AND p.scope=#{scope}
+      </if>
     </where>
   </select>
 
