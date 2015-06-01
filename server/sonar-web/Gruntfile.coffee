@@ -35,17 +35,6 @@ module.exports = (grunt) ->
           ]
 
 
-    coffee:
-      build:
-        files: [
-          expand: true
-          cwd: '<%= SOURCE_PATH %>/coffee'
-          src: ['**/*.coffee']
-          dest: '<%= BUILD_PATH %>/js'
-          ext: '.js'
-        ]
-
-
     concat:
       build:
         files:
@@ -206,7 +195,7 @@ module.exports = (grunt) ->
             '<%= SOURCE_PATH %>/js/components/issue/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/issues/templates.js': [
-            '<%= SOURCE_PATH %>/coffee/apps/issues/templates/**/*.hbs'
+            '<%= SOURCE_PATH %>/js/apps/issues/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/api-documentation/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/api-documentation/templates/**/*.hbs'
@@ -383,10 +372,6 @@ module.exports = (grunt) ->
         files: '<%= SOURCE_PATH %>/less/**/*.less'
         tasks: ['less:build', 'copy:assets-css']
 
-      coffee:
-        files: '<%= SOURCE_PATH %>/coffee/**/*.coffee'
-        tasks: ['coffee:build', 'copy:js', 'concat:build', 'copy:assets-all-js']
-
       js:
         files: '<%= SOURCE_PATH %>/js/**/*.js'
         tasks: ['copy:js', 'concat:build', 'copy:assets-all-js']
@@ -398,7 +383,7 @@ module.exports = (grunt) ->
 
   # Basic tasks
   grunt.registerTask 'prepare',
-      ['clean:css', 'clean:js', 'clean:build', 'less:build', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:build']
+      ['clean:css', 'clean:js', 'clean:build', 'less:build', 'handlebars:build', 'copy:js', 'concat:build']
 
   grunt.registerTask 'build-fast-suffix',
       ['copy:assets-css', 'copy:assets-all-js']
