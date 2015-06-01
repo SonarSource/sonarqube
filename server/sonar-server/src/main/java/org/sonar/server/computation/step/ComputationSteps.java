@@ -41,7 +41,6 @@ public class ComputationSteps {
 
       // Builds Component tree
       BuildComponentTreeStep.class,
-
       PopulateComponentsUuidAndKeyStep.class,
       ValidateProjectStep.class,
 
@@ -50,6 +49,7 @@ public class ComputationSteps {
 
       // data computation
       QualityProfileEventsStep.class,
+      QualityGateEventsStep.class,
 
       // Persist data
       PersistComponentsAndSnapshotsStep.class,
