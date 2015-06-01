@@ -22,19 +22,42 @@ package org.sonar.server.view.index;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.user.GroupRoleDto;
+import org.sonar.core.user.RoleDao;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.es.SearchResult;
+import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.DbTests;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +69,14 @@ public class ViewIndexerTest {
   public static DbTester dbTester = new DbTester();
 
   @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new ViewIndexDefinition(new Settings()));
+  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
+  DbClient dbClient;
+  
+  DbSession dbSession;
 
   ViewIndexer indexer;
 
@@ -54,9 +84,17 @@ public class ViewIndexerTest {
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
-    indexer = new ViewIndexer(new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao()), esTester.client());
-    indexer.setEnabled(true);
+
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(System2.INSTANCE), new ComponentDao(), new IssueDao(dbTester.myBatis()), new RoleDao());
+    dbSession = dbClient.openSession(false);
+    indexer = (ViewIndexer) new ViewIndexer(dbClient, esTester.client()).setEnabled(true);
   }
+
+  @After
+  public void after() {
+    dbSession.close();
+  }
+
 
   @Test
   public void index_nothing() {
@@ -129,6 +167,59 @@ public class ViewIndexerTest {
     ViewDoc view = docs.get(0);
     assertThat(view.uuid()).isEqualTo("EFGH");
     assertThat(view.projects()).containsOnly("KLMN", "JKLM");
+  }
+
+  @Test
+  public void clear_views_lookup_cache_on_index_view_uuid() {
+    IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule);
+    IssueIndexer issueIndexer = (IssueIndexer) new IssueIndexer(dbClient, esTester.client()).setEnabled(true);
+    IssueAuthorizationIndexer issueAuthorizationIndexer = (IssueAuthorizationIndexer) new IssueAuthorizationIndexer(dbClient, esTester.client()).setEnabled(true);
+
+    String viewUuid = "ABCD";
+
+    RuleDto rule = RuleTesting.newXooX1();
+    dbClient.ruleDao().insert(dbSession, rule);
+    ComponentDto project1 = addProjectWithIssue(rule);
+    issueIndexer.indexAll();
+    issueAuthorizationIndexer.index();
+
+    ComponentDto view = ComponentTesting.newView("ABCD");
+    ComponentDto techProject1 = ComponentTesting.newProjectCopy("CDEF", project1, view);
+    dbClient.componentDao().insert(dbSession, view, techProject1);
+    dbSession.commit();
+
+    // First view indexation
+    indexer.index(viewUuid);
+
+    // Execute issue query on view -> 1 issue on view
+    SearchResult<IssueDoc> docs = issueIndex.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(), new SearchOptions());
+    assertThat(docs.getDocs()).hasSize(1);
+
+    // Add a project to the view and index it again
+    ComponentDto project2 = addProjectWithIssue(rule);
+    issueIndexer.indexAll();
+    issueAuthorizationIndexer.index();
+
+    ComponentDto techProject2 = ComponentTesting.newProjectCopy("EFGH", project2, view);
+    dbClient.componentDao().insert(dbSession, techProject2);
+    dbSession.commit();
+    indexer.index(viewUuid);
+
+    // Execute issue query on view -> issue of project2 are well taken into account : the cache has been cleared
+    assertThat(issueIndex.search(IssueQuery.builder(userSessionRule).viewUuids(newArrayList(viewUuid)).build(), new SearchOptions()).getDocs()).hasSize(2);
+  }
+
+  private ComponentDto addProjectWithIssue(RuleDto rule) {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    dbClient.componentDao().insert(dbSession, project, file);
+    dbClient.roleDao().insertGroupRole(new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(project.getId()), dbSession);
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    dbClient.issueDao().insert(dbSession, issue);
+    dbSession.commit();
+
+    return project;
   }
 
 }
