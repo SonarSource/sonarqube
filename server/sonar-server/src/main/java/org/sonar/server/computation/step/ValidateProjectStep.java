@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.persistence.DbSession;
@@ -75,7 +74,7 @@ public class ValidateProjectStep implements ComputationStep {
         }
       });
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), context.getReportMetadata(),
-        context.getReportReader(), settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
+        settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
       visitor.visit(context.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
@@ -95,21 +94,18 @@ public class ValidateProjectStep implements ComputationStep {
     private final DbSession session;
     private final ComponentDao componentDao;
     private final BatchReport.Metadata reportMetadata;
-    private final BatchReportReader batchReportReader;
     private final boolean preventAutomaticProjectCreation;
     private final Map<String, ComponentDto> modulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
     private Component root;
 
-    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, BatchReport.Metadata reportMetadata, BatchReportReader batchReportReader,
-      boolean preventAutomaticProjectCreation, Map<String, ComponentDto> modulesByKey) {
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, BatchReport.Metadata reportMetadata, boolean preventAutomaticProjectCreation,
+      Map<String, ComponentDto> modulesByKey) {
       super(Component.Type.MODULE, Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
       this.reportMetadata = reportMetadata;
-      this.batchReportReader = batchReportReader;
-
       this.preventAutomaticProjectCreation = preventAutomaticProjectCreation;
       this.modulesByKey = modulesByKey;
     }
@@ -118,7 +114,6 @@ public class ValidateProjectStep implements ComputationStep {
     public void visitProject(Component project) {
       this.root = project;
       validateBranch();
-      validateBatchKey(project);
 
       String projectKey = project.getKey();
       ComponentDto projectDto = loadComponent(projectKey);
@@ -133,13 +128,14 @@ public class ValidateProjectStep implements ComputationStep {
           + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           projectKey, anotherProject.key(), anotherProject.key(), projectKey));
       }
+      validateKey(projectKey);
     }
 
     @Override
     public void visitModule(Component module) {
-      String projectKey = root.getKey();
       String moduleKey = module.getKey();
-      validateBatchKey(module);
+      String projectKey = root.getKey();
+      validateKey(moduleKey);
 
       ComponentDto moduleDto = loadComponent(moduleKey);
       if (moduleDto == null) {
@@ -156,11 +152,10 @@ public class ValidateProjectStep implements ComputationStep {
       }
     }
 
-    private void validateBatchKey(Component component) {
-      String batchKey = batchReportReader.readComponent(component.getRef()).getKey();
-      if (!ComponentKeys.isValidModuleKey(batchKey)) {
+    private void validateKey(String moduleKey) {
+      if (!ComponentKeys.isValidModuleKey(moduleKey)) {
         validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
-          + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", batchKey));
+          + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleKey));
       }
     }
 
