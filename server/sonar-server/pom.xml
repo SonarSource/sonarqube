@@ -11,10 +11,6 @@
   <artifactId>sonar-server</artifactId>
   <name>SonarQube :: Server</name>
 
-  <properties>
-    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.slf4j</groupId>
