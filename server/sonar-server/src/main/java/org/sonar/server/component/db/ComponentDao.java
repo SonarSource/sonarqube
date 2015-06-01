@@ -22,12 +22,6 @@ package org.sonar.server.component.db;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -41,6 +35,14 @@ import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
@@ -78,6 +80,10 @@ public class ComponentDao implements DaoComponent {
 
   public boolean existsById(Long id, DbSession session) {
     return mapper(session).countById(id) > 0;
+  }
+
+  public List<ComponentDto> selectModulesByProject(String projectKey, DbSession session) {
+    return mapper(session).selectModulesByProject(projectKey);
   }
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
@@ -131,11 +137,7 @@ public class ComponentDao implements DaoComponent {
   }
 
   public List<ComponentDto> selectComponentsFromProjectKey(DbSession session, String projectKey) {
-    return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, null);
-  }
-
-  public List<ComponentDto> selectModulesFromProjectKey(DbSession session, String projectKey) {
-    return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT);
+    return mapper(session).selectComponentsFromProjectKey(projectKey);
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
