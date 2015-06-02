@@ -31,7 +31,6 @@ public class QGatesWs implements WebService {
   static final String PARAM_PAGE_SIZE = "pageSize";
   static final String PARAM_PAGE = "page";
   static final String PARAM_QUERY = "query";
-  static final String PARAM_SELECTED = "selected";
   static final String PARAM_NAME = "name";
   static final String PARAM_ERROR = "error";
   static final String PARAM_WARNING = "warning";

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import org.sonar.api.server.ws.WebService.Param;
+
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
@@ -46,14 +49,9 @@ import java.util.List;
 public class ProjectsAction implements QProfileWsAction {
 
   private static final String PARAM_KEY = "key";
-  private static final String PARAM_SELECTED = "selected";
   private static final String PARAM_QUERY = "query";
   private static final String PARAM_PAGE_SIZE = "pageSize";
   private static final String PARAM_PAGE = "page";
-
-  private static final String SELECTION_ALL = "all";
-  private static final String SELECTION_SELECTED = "selected";
-  private static final String SELECTION_DESELECTED = "deselected";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -74,10 +72,7 @@ public class ProjectsAction implements QProfileWsAction {
       .setDescription("A quality profile key.")
       .setRequired(true)
       .setExampleValue("sonar-way-java-12345");
-    projects.createParam(PARAM_SELECTED)
-      .setDescription("If specified, return only selected or deselected projects.")
-      .setPossibleValues(SELECTION_SELECTED, SELECTION_DESELECTED, SELECTION_ALL)
-      .setDefaultValue(SELECTION_ALL);
+    projects.addSelectionModeParam();
     projects.createParam(PARAM_QUERY)
       .setDescription("If specified, return only projects whose name match the query.");
     projects.createParam(PARAM_PAGE_SIZE)
@@ -94,7 +89,7 @@ public class ProjectsAction implements QProfileWsAction {
 
     try {
       checkProfileExists(profileKey, session);
-      String selected = request.param(PARAM_SELECTED);
+      String selected = request.param(Param.SELECTED);
       String query = request.param(PARAM_QUERY);
       int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
       int page = request.mandatoryParamAsInt(PARAM_PAGE);
@@ -151,9 +146,10 @@ public class ProjectsAction implements QProfileWsAction {
 
   private List<ProjectQprofileAssociationDto> loadProjects(String profileKey, DbSession session, String selected, String query) {
     List<ProjectQprofileAssociationDto> projects = Lists.newArrayList();
-    if (SELECTION_SELECTED.equals(selected)) {
+    SelectionMode selectionMode = SelectionMode.fromParam(selected);
+    if (SelectionMode.SELECTED == selectionMode) {
       projects.addAll(dbClient.qualityProfileDao().selectSelectedProjects(profileKey, query, session));
-    } else if (SELECTION_DESELECTED.equals(selected)) {
+    } else if (SelectionMode.DESELECTED == selectionMode) {
       projects.addAll(dbClient.qualityProfileDao().selectDeselectedProjects(profileKey, query, session));
     } else {
       projects.addAll(dbClient.qualityProfileDao().selectProjectAssociations(profileKey, query, session));

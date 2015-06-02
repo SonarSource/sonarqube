@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -111,6 +112,7 @@ public class GroupsActionTest {
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all.json");
   }
@@ -125,7 +127,12 @@ public class GroupsActionTest {
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
-      .setParam("selected", "selected")
+      .execute()
+      .assertJson(getClass(), "selected.json");
+
+    tester.newGetRequest("api/users", "groups")
+      .setParam("login", "john")
+      .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
       .assertJson(getClass(), "selected.json");
   }
@@ -140,7 +147,7 @@ public class GroupsActionTest {
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
-      .setParam("selected", "deselected")
+      .setParam(Param.SELECTED, SelectionMode.DESELECTED.value())
       .execute()
       .assertJson(getClass(), "deselected.json");
   }
@@ -165,6 +172,7 @@ public class GroupsActionTest {
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
       .setParam(Param.PAGE_SIZE, "1")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_page1.json");
 
@@ -172,6 +180,7 @@ public class GroupsActionTest {
       .setParam("login", "john")
       .setParam(Param.PAGE_SIZE, "1")
       .setParam(Param.PAGE, "2")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_page2.json");
   }
@@ -187,12 +196,14 @@ public class GroupsActionTest {
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
       .setParam("q", "users")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_users.json");
 
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john")
       .setParam("q", "admin")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_admin.json");
   }

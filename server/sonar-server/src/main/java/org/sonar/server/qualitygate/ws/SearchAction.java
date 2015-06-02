@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.WebService.Param;
+
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -54,11 +56,7 @@ public class SearchAction implements QGateWsAction {
       .setDescription("To search for projects containing this string. If this parameter is set, \"selected\" is set to \"all\".")
       .setExampleValue("abc");
 
-    action.createParam(QGatesWs.PARAM_SELECTED)
-      .setDescription("If \"selected\", search for projects associated to the quality gate")
-      .setDefaultValue(ProjectQgateAssociationQuery.IN)
-      .setPossibleValues(ProjectQgateAssociationQuery.AVAILABLE_MEMBERSHIP)
-      .setExampleValue(ProjectQgateAssociationQuery.OUT);
+    action.addSelectionModeParam();
 
     action.createParam(QGatesWs.PARAM_PAGE)
       .setDescription("Page number")
@@ -74,7 +72,7 @@ public class SearchAction implements QGateWsAction {
   public void handle(Request request, Response response) {
     QgateProjectFinder.Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
       .gateId(request.mandatoryParam(QGatesWs.PARAM_GATE_ID))
-      .membership(request.param(QGatesWs.PARAM_QUERY) == null ? request.param(QGatesWs.PARAM_SELECTED) : ProjectQgateAssociationQuery.ANY)
+      .membership(request.param(QGatesWs.PARAM_QUERY) == null ? request.param(Param.SELECTED) : ProjectQgateAssociationQuery.ANY)
       .projectSearch(request.param(QGatesWs.PARAM_QUERY))
       .pageIndex(request.paramAsInt(QGatesWs.PARAM_PAGE))
       .pageSize(request.paramAsInt(QGatesWs.PARAM_PAGE_SIZE))
@@ -83,7 +81,7 @@ public class SearchAction implements QGateWsAction {
     writer.beginObject().prop("more", associations.hasMoreResults());
     writer.name("results").beginArray();
     for (ProjectQgateAssociation project : associations.projects()) {
-      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(QGatesWs.PARAM_SELECTED, project.isMember()).endObject();
+      writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(Param.SELECTED, project.isMember()).endObject();
     }
     writer.endArray().endObject().close();
   }

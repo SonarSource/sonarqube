@@ -26,6 +26,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -122,6 +124,7 @@ public class UsersActionTest {
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all.json");
   }
@@ -136,7 +139,12 @@ public class UsersActionTest {
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
-      .setParam("selected", "selected")
+      .execute()
+      .assertJson(getClass(), "selected.json");
+
+    newUsersRequest()
+      .setParam("id", group.getId().toString())
+      .setParam(Param.SELECTED, SelectionMode.SELECTED.value())
       .execute()
       .assertJson(getClass(), "selected.json");
   }
@@ -151,7 +159,7 @@ public class UsersActionTest {
 
     newUsersRequest()
       .setParam("id", group.getId().toString())
-      .setParam("selected", "deselected")
+      .setParam(Param.SELECTED, SelectionMode.DESELECTED.value())
       .execute()
       .assertJson(getClass(), "deselected.json");
   }
@@ -167,6 +175,7 @@ public class UsersActionTest {
     newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("ps", "1")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_page1.json");
 
@@ -174,6 +183,7 @@ public class UsersActionTest {
       .setParam("id", group.getId().toString())
       .setParam("ps", "1")
       .setParam("p", "2")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all_page2.json");
   }
@@ -189,6 +199,7 @@ public class UsersActionTest {
     newUsersRequest()
       .setParam("id", group.getId().toString())
       .setParam("q", "ace")
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
       .execute()
       .assertJson(getClass(), "all.json");
 

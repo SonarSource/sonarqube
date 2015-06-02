@@ -20,12 +20,12 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
@@ -40,13 +40,8 @@ import org.sonar.server.user.UserSession;
 public class UsersAction implements UserGroupsWsAction {
 
   private static final String PARAM_ID = "id";
-  private static final String PARAM_SELECTED = "selected";
 
-  private static final String SELECTION_ALL = "all";
-  private static final String SELECTION_SELECTED = PARAM_SELECTED;
-  private static final String SELECTION_DESELECTED = "deselected";
-
-  private static final String FIELD_SELECTED = PARAM_SELECTED;
+  private static final String FIELD_SELECTED = "selected";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_LOGIN = "login";
 
@@ -71,10 +66,7 @@ public class UsersAction implements UserGroupsWsAction {
       .setExampleValue("42")
       .setRequired(true);
 
-    action.createParam(PARAM_SELECTED)
-      .setDescription("If specified, only show users who belong to a group (selected=selected) or only those who do not (selected=deselected).")
-      .setPossibleValues(SELECTION_SELECTED, SELECTION_DESELECTED, SELECTION_ALL)
-      .setDefaultValue(SELECTION_ALL);
+    action.addSelectionModeParam();
 
     action.addSearchQuery("freddy", "names", "logins");
 
@@ -89,7 +81,7 @@ public class UsersAction implements UserGroupsWsAction {
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
     String queryString = request.param(Param.TEXT_QUERY);
-    String selected = request.param(PARAM_SELECTED);
+    String selected = request.mandatoryParam(Param.SELECTED);
 
     UserMembershipQuery query = UserMembershipQuery.builder()
       .groupId(groupId)
@@ -115,7 +107,7 @@ public class UsersAction implements UserGroupsWsAction {
     }
   }
 
-  private void writeMembers(JsonWriter json, List<UserMembershipDto> users) {
+  private static void writeMembers(JsonWriter json, List<UserMembershipDto> users) {
     json.name("users").beginArray();
     for (UserMembershipDto user : users) {
       json.beginObject()
@@ -127,17 +119,18 @@ public class UsersAction implements UserGroupsWsAction {
     json.endArray();
   }
 
-  private void writePaging(JsonWriter json, Paging paging) {
+  private static void writePaging(JsonWriter json, Paging paging) {
     json.prop(Param.PAGE, paging.pageIndex())
       .prop(Param.PAGE_SIZE, paging.pageSize())
       .prop("total", paging.total());
   }
 
-  private String getMembership(@Nullable String selected) {
+  private String getMembership(String selected) {
+    SelectionMode selectionMode = SelectionMode.fromParam(selected);
     String membership = GroupMembershipQuery.ANY;
-    if (SELECTION_SELECTED.equals(selected)) {
+    if (SelectionMode.SELECTED == selectionMode) {
       membership = GroupMembershipQuery.IN;
-    } else if (SELECTION_DESELECTED.equals(selected)) {
+    } else if (SelectionMode.DESELECTED == selectionMode) {
       membership = GroupMembershipQuery.OUT;
     }
     return membership;

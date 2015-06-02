@@ -20,6 +20,8 @@
 
 package org.sonar.server.permission;
 
+import org.sonar.api.server.ws.WebService.SelectionMode;
+
 import org.sonar.core.permission.PermissionQuery;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
@@ -27,9 +29,6 @@ import org.sonar.server.util.RubyUtils;
 import java.util.Map;
 
 public class PermissionQueryParser {
-
-  private static final String SELECTED_MEMBERSHIP = "selected";
-  private static final String DESELECTED_MEMBERSHIP = "deselected";
 
   private PermissionQueryParser(){
     // Utility class
@@ -48,10 +47,10 @@ public class PermissionQueryParser {
   }
 
   private static String membership(Map<String, Object> params) {
-    String selected = (String) params.get("selected");
-    if (SELECTED_MEMBERSHIP.equals(selected)) {
+    SelectionMode selectionMode = SelectionMode.fromParam((String) params.get("selected"));
+    if (SelectionMode.SELECTED == selectionMode) {
       return GroupMembershipQuery.IN;
-    } else if (DESELECTED_MEMBERSHIP.equals(selected)) {
+    } else if (SelectionMode.DESELECTED == selectionMode) {
       return GroupMembershipQuery.OUT;
     } else {
       return GroupMembershipQuery.ANY;

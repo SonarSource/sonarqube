@@ -19,7 +19,9 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.io.FilenameUtils;
@@ -385,6 +388,18 @@ public interface WebService extends Definable<WebService.Context> {
         .setDefaultValue(defaultAscending);
       return this;
     }
+
+    /**
+     * Add 'selected=(selected|deselected|all)' for select-list oriented WS.
+     */
+    public NewAction addSelectionModeParam() {
+      createParam(Param.SELECTED)
+        .setDescription("Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), " +
+          "or all items with their selection status (selected=all).")
+        .setDefaultValue(SelectionMode.SELECTED.value())
+        .setPossibleValues(SelectionMode.possibleValues());
+      return this;
+    }
   }
 
   @Immutable
@@ -592,6 +607,36 @@ public interface WebService extends Definable<WebService.Context> {
     }
   }
 
+  enum SelectionMode {
+    SELECTED("selected"), DESELECTED("deselected"), ALL("all");
+
+    private final String paramValue;
+
+    private static final Map<String, SelectionMode> BY_VALUE = Maps.uniqueIndex(Arrays.asList(values()), new Function<SelectionMode, String>() {
+      @Override
+      public String apply(@Nonnull SelectionMode input) {
+        return input.paramValue;
+      }
+    });
+
+    private SelectionMode(String paramValue) {
+      this.paramValue = paramValue;
+    }
+
+    public String value() {
+      return paramValue;
+    }
+
+    public static SelectionMode fromParam(String paramValue) {
+      Preconditions.checkArgument(BY_VALUE.containsKey(paramValue));
+      return BY_VALUE.get(paramValue);
+    }
+
+    public static Collection<String> possibleValues() {
+      return BY_VALUE.keySet();
+    }
+  }
+
   @Immutable
   class Param {
     public static final String TEXT_QUERY = "q";
@@ -601,6 +646,7 @@ public interface WebService extends Definable<WebService.Context> {
     public static final String SORT = "s";
     public static final String ASCENDING = "asc";
     public static final String FACETS = "facets";
+    public static final String SELECTED = "selected";
 
     private final String key, deprecatedKey, description, exampleValue, defaultValue;
     private final boolean required;
