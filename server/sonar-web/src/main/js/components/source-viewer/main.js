@@ -479,8 +479,8 @@ define([
                 line: line,
                 row: $(e.currentTarget).closest('.source-line')
               });
-          popup.on('onManualIssueAdded', function (data) {
-            that.addIssue(new Issue(data));
+          popup.on('onManualIssueAdded', function (issue) {
+            that.addIssue(issue);
           });
           popup.render();
         },

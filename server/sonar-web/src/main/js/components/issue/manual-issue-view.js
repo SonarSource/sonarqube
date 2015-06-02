@@ -1,10 +1,9 @@
 define([
+  './models/issue',
   './templates'
-], function () {
+], function (Issue) {
 
-  var $ = jQuery,
-      API_ISSUE = baseUrl + '/api/issues/show',
-      API_ADD_MANUAL_ISSUE = baseUrl + '/api/issues/create';
+  var $ = jQuery;
 
   return Marionette.ItemView.extend({
     template: Templates['manual-issue'],
@@ -44,57 +43,26 @@ define([
       }
     },
 
-    showSpinner: function () {
-      this.$('.js-submit').hide();
-      this.$('.js-spinner').show();
-    },
-
-    hideSpinner: function () {
-      this.$('.js-submit').show();
-      this.$('.js-spinner').hide();
-    },
-
-    validateFields: function () {
-      var message = this.$('[name=message]');
-      if (!message.val()) {
-        message.addClass('invalid').focus();
-        return false;
-      }
-      return true;
-    },
-
     formSubmit: function (e) {
       var that = this;
       e.preventDefault();
-      if (!this.validateFields()) {
-        return;
-      }
-      this.showSpinner();
-      var data = $(e.currentTarget).serialize();
-      $.post(API_ADD_MANUAL_ISSUE, data)
-          .done(function (r) {
-            if (typeof r === 'string') {
-              r = JSON.parse(r);
-            }
-            that.addIssue(r.issue.key);
-          }).fail(function (r) {
-            that.hideSpinner();
-            if (r.responseJSON && r.responseJSON.errors) {
-              that.showError(_.pluck(r.responseJSON.errors, 'msg').join('. '));
-            }
-          });
-    },
-
-    addIssue: function (key) {
-      var that = this;
-      return $.get(API_ISSUE, { key: key }).done(function (r) {
-        that.trigger('add', r.issue);
-        that.close();
+      var issue = new Issue({
+        component: this.options.component,
+        line: this.options.line,
+        message: this.$('[name="message"]').val(),
+        rule: this.$('[name="rule"]').val()
+      });
+      issue.save().done(function () {
+        that.addIssue(issue);
       });
     },
 
-    showError: function (msg) {
-      this.$('.code-issue-errors').removeClass('hidden').text(msg);
+    addIssue: function (issue) {
+      var that = this;
+      return issue.fetch().done(function () {
+        that.trigger('add', issue);
+        that.close();
+      });
     },
 
     cancel: function (e) {
@@ -103,9 +71,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        line: this.options.line,
-        component: this.options.component,
+      return _.extend(this._super(), {
         rules: _.sortBy(this.rules, 'name')
       });
     }
