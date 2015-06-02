@@ -52,13 +52,13 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   @Override
   public Optional<BatchReport.Measure> findCurrent(Component component, final Metric<?> metric) {
     return Optional.fromNullable(Iterables.find(
-        reportReader.readComponentMeasures(component.getRef()),
-        new Predicate<BatchReport.Measure>() {
-          @Override
-          public boolean apply(@Nonnull BatchReport.Measure input) {
-            return input.getMetricKey().equals(metric.getKey());
-          }
+      reportReader.readComponentMeasures(component.getRef()),
+      new Predicate<BatchReport.Measure>() {
+        @Override
+        public boolean apply(@Nonnull BatchReport.Measure input) {
+          return input.getMetricKey().equals(metric.getKey());
         }
-    ));
+      }
+      , null));
   }
 }
