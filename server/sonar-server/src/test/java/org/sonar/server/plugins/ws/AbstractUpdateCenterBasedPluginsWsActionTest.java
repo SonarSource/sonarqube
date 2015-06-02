@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
 import static org.sonar.updatecenter.common.Version.create;
 
-public class AbstractUpdateCenterBasedPluginsWsActionTest {
+public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
   protected static final String DUMMY_CONTROLLER_KEY = "dummy";
   protected static final String JSON_EMPTY_PLUGIN_LIST =
     "{" +
