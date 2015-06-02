@@ -80,7 +80,6 @@ public class GlobalAction implements BatchWsAction {
 
   private void addMetrics(GlobalRepositories ref, DbSession session) {
     for (MetricDto metric : dbClient.metricDao().selectEnabled(session)) {
-      Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.addMetric(
         new org.sonar.batch.protocol.input.Metric(metric.getId(), metric.getKey(),
           metric.getValueType(),
@@ -91,7 +90,7 @@ public class GlobalAction implements BatchWsAction {
           metric.isUserManaged(),
           metric.getWorstValue(),
           metric.getBestValue(),
-          optimizedBestValue != null ? optimizedBestValue : false));
+          metric.isOptimizedBestValue()));
     }
   }
 

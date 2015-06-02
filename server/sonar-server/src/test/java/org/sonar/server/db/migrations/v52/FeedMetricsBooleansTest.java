@@ -17,18 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
+package org.sonar.server.db.migrations.v52;
+
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.migrations.MigrationStep;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class FeedMetricsBooleansTest {
+  @ClassRule
+  public static DbTester db = new DbTester().schema(FeedMetricsBooleansTest.class, "schema.sql");
 
-public class MigrationStepModuleTest {
+  MigrationStep migration;
+
+  @Before
+  public void setUp() {
+    db.executeUpdateSql("truncate table metrics");
+
+    migration = new FeedMetricsBooleans(db.database());
+  }
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() throws Exception {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(55);
+  public void migrate_empty_db() throws Exception {
+    migration.execute();
+  }
+
+  @Test
+  public void migrate() throws Exception {
+    db.prepareDbUnit(this.getClass(), "migrate.xml");
+    migration.execute();
+    db.assertDbUnit(this.getClass(), "migrate-result.xml", "metrics");
   }
 }

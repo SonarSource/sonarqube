@@ -158,6 +158,9 @@ public class CreateAction implements MetricsWsAction {
       .setUserManaged(true)
       .setDirection(0)
       .setQualitative(false)
+      .setHidden(false)
+      .setOptimizedBestValue(false)
+      .setDeleteHistoricalData(false)
       .setOrigin("GUI");
 
     dbClient.metricDao().insert(dbSession, metric);

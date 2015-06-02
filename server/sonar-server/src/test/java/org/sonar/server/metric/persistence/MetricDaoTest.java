@@ -99,9 +99,9 @@ public class MetricDaoTest {
     assertThat(result.isUserManaged()).isTrue();
     assertThat(result.getWorstValue()).isNull();
     assertThat(result.getBestValue()).isNull();
-    assertThat(result.isOptimizedBestValue()).isNull();
-    assertThat(result.isDeleteHistoricalData()).isNull();
-    assertThat(result.isHidden()).isNull();
+    assertThat(result.isOptimizedBestValue()).isFalse();
+    assertThat(result.isDeleteHistoricalData()).isFalse();
+    assertThat(result.isHidden()).isFalse();
     assertThat(result.isEnabled()).isTrue();
   }
 

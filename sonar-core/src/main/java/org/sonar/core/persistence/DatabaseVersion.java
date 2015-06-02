@@ -35,7 +35,7 @@ import java.util.List;
 @ServerSide
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 915;
+  public static final int LAST_VERSION = 916;
 
   /**
    * List of all the tables.n

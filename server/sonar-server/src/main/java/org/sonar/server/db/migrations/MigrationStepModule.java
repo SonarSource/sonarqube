@@ -70,6 +70,7 @@ import org.sonar.server.db.migrations.v52.DropDependenciesComponentColumns;
 import org.sonar.server.db.migrations.v52.FeedDependenciesComponentUuids;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedFileSourcesDataType;
+import org.sonar.server.db.migrations.v52.FeedMetricsBooleans;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 
@@ -144,6 +145,7 @@ public class MigrationStepModule extends Module {
       FeedDependenciesComponentUuids.class,
       DropDependenciesComponentColumns.class,
       FeedFileSourcesDataType.class,
+      FeedMetricsBooleans.class,
       AddDependenciesColumns.class);
   }
 }

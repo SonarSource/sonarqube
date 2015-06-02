@@ -47,13 +47,13 @@ public class MetricDto {
 
   private Double bestValue;
 
-  private Boolean optimizedBestValue;
+  private boolean optimizedBestValue;
 
   private String origin;
 
-  private Boolean hidden;
+  private boolean hidden;
 
-  private Boolean deleteHistoricalData;
+  private boolean deleteHistoricalData;
 
   private boolean enabled;
 
@@ -162,15 +162,11 @@ public class MetricDto {
     return this;
   }
 
-  /**
-   * @return null for manual metrics
-   */
-  @CheckForNull
-  public Boolean isOptimizedBestValue() {
+  public boolean isOptimizedBestValue() {
     return optimizedBestValue;
   }
 
-  public MetricDto setOptimizedBestValue(@Nullable Boolean optimizedBestValue) {
+  public MetricDto setOptimizedBestValue(boolean optimizedBestValue) {
     this.optimizedBestValue = optimizedBestValue;
     return this;
   }
@@ -184,28 +180,20 @@ public class MetricDto {
     return this;
   }
 
-  /**
-   * @return null for manual metrics
-   */
-  @CheckForNull
-  public Boolean isHidden() {
+  public boolean isHidden() {
     return hidden;
   }
 
-  public MetricDto setHidden(@Nullable Boolean hidden) {
+  public MetricDto setHidden(boolean hidden) {
     this.hidden = hidden;
     return this;
   }
 
-  /**
-   * @return null for manual metrics
-   */
-  @CheckForNull
-  public Boolean isDeleteHistoricalData() {
+  public boolean isDeleteHistoricalData() {
     return deleteHistoricalData;
   }
 
-  public MetricDto setDeleteHistoricalData(@Nullable Boolean deleteHistoricalData) {
+  public MetricDto setDeleteHistoricalData(boolean deleteHistoricalData) {
     this.deleteHistoricalData = deleteHistoricalData;
     return this;
   }

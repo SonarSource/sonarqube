@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.server.db.migrations.v52;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.sql.SQLException;
+import org.sonar.core.persistence.Database;
+import org.sonar.server.db.migrations.BaseDataChange;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() throws Exception {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(55);
+public class FeedMetricsBooleans extends BaseDataChange {
+
+  public FeedMetricsBooleans(Database db) {
+    super(db);
+  }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.prepareUpsert("update metrics set OPTIMIZED_BEST_VALUE=?, HIDDEN=?, DELETE_HISTORICAL_DATA=? where user_managed=? or OPTIMIZED_BEST_VALUE is null or HIDDEN is null or DELETE_HISTORICAL_DATA is null")
+      .setBoolean(1, false)
+      .setBoolean(2, false)
+      .setBoolean(3, false)
+      .setBoolean(4, true)
+      .execute().commit();
   }
 }
