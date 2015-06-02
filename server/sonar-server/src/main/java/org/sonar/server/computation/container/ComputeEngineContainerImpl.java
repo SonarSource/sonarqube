@@ -153,7 +153,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   }
 
   public void cleanup() {
-    stopComponents();
+    stopComponents(true);
   }
 
   @Override
