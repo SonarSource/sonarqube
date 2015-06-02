@@ -125,35 +125,42 @@ public class BatchReportReaderImpl implements BatchReportReader {
   public CloseableIterator<String> readFileSource(int fileRef) {
     File file = delegate.readFileSource(fileRef);
     if (file == null) {
-      throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
+      throw new IllegalStateException("Unable to find source for file #" + fileRef);
     }
 
     try {
-      final LineIterator lineIterator = IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8);
-      return new CloseableIterator<String>() {
-        @Override
-        public boolean hasNext() {
-          return lineIterator.hasNext();
-        }
-
-        @Override
-        public String next() {
-          return lineIterator.next();
-        }
-
-        @Override
-        protected String doNext() {
-          // never called anyway
-          throw new NoSuchElementException("Empty closeable Iterator has no element");
-        }
-
-        @Override
-        protected void doClose() throws Exception {
-          lineIterator.close();
-        }
-      };
+      return new CloseableLineIterator(IOUtils.lineIterator(FileUtils.openInputStream(file), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new IllegalStateException("Fail to traverse file: " + file, e);
+    }
+  }
+
+  private static class CloseableLineIterator extends CloseableIterator<String> {
+    private final LineIterator lineIterator;
+
+    public CloseableLineIterator(LineIterator lineIterator) {
+      this.lineIterator = lineIterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return lineIterator.hasNext();
+    }
+
+    @Override
+    public String next() {
+      return lineIterator.next();
+    }
+
+    @Override
+    protected String doNext() {
+      // never called anyway
+      throw new NoSuchElementException("Empty closeable Iterator has no element");
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      lineIterator.close();
     }
   }
 
