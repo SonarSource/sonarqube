@@ -47,12 +47,10 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbSession session;
   PersistEventsStep step;
@@ -138,7 +136,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
+        new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
