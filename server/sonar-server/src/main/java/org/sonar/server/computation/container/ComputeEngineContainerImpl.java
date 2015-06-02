@@ -67,6 +67,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     this.steps = new ComputationSteps(this);
 
     populateContainer(requireNonNull(item));
+    startComponents();
   }
 
   @Override
