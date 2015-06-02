@@ -20,14 +20,14 @@
 
 package org.sonar.server.usergroups.ws;
 
-import org.sonar.server.ws.WsTester.TestRequest;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
@@ -35,11 +35,14 @@ import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
 import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsTester.TestRequest;
 import org.sonar.test.DbTests;
 
 @Category(DbTests.class)
@@ -47,6 +50,8 @@ public class UsersActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   WsTester wsTester;
   DbClient dbClient;
@@ -66,7 +71,8 @@ public class UsersActionTest {
     session = dbClient.openSession(false);
     session.commit();
 
-    wsTester = new WsTester(new UserGroupsWs(new UsersAction(dbClient)));
+    wsTester = new WsTester(new UserGroupsWs(new UsersAction(dbClient, userSession)));
+    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
   }
 
@@ -77,6 +83,14 @@ public class UsersActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
+    newUsersRequest()
+      .setParam("id", "42")
+      .setParam("login", "john").execute();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    userSession.login("not-admin");
     newUsersRequest()
       .setParam("id", "42")
       .setParam("login", "john").execute();

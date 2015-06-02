@@ -19,6 +19,8 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -26,15 +28,13 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupMembershipDto;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
+import org.sonar.server.user.UserSession;
 
 public class GroupsAction implements UsersWsAction {
 
@@ -42,13 +42,19 @@ public class GroupsAction implements UsersWsAction {
   private static final String PARAM_SELECTED = "selected";
 
   private static final String SELECTION_ALL = "all";
-  private static final String SELECTION_SELECTED = "selected";
+  private static final String SELECTION_SELECTED = PARAM_SELECTED;
   private static final String SELECTION_DESELECTED = "deselected";
 
-  private final DbClient dbClient;
+  private static final String FIELD_SELECTED = PARAM_SELECTED;
+  private static final String FIELD_DESCRIPTION = "description";
+  private static final String FIELD_NAME = "name";
 
-  public GroupsAction(DbClient dbClient) {
+  private final DbClient dbClient;
+  private final UserSession userSession;
+
+  public GroupsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -78,6 +84,8 @@ public class GroupsAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     String login = request.mandatoryParam(PARAM_LOGIN);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
@@ -112,9 +120,9 @@ public class GroupsAction implements UsersWsAction {
     json.name("groups").beginArray();
     for (GroupMembershipDto group : groups) {
       json.beginObject()
-        .prop("name", group.getName())
-        .prop("description", group.getDescription())
-        .prop("selected", group.getUserId() != null)
+        .prop(FIELD_NAME, group.getName())
+        .prop(FIELD_DESCRIPTION, group.getDescription())
+        .prop(FIELD_SELECTED, group.getUserId() != null)
         .endObject();
     }
     json.endArray();

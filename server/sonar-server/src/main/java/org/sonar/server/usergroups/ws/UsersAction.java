@@ -28,12 +28,14 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserMembershipDto;
 import org.sonar.core.user.UserMembershipQuery;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.user.UserSession;
 
 public class UsersAction implements UserGroupsWsAction {
 
@@ -41,13 +43,19 @@ public class UsersAction implements UserGroupsWsAction {
   private static final String PARAM_SELECTED = "selected";
 
   private static final String SELECTION_ALL = "all";
-  private static final String SELECTION_SELECTED = "selected";
+  private static final String SELECTION_SELECTED = PARAM_SELECTED;
   private static final String SELECTION_DESELECTED = "deselected";
 
-  private final DbClient dbClient;
+  private static final String FIELD_SELECTED = PARAM_SELECTED;
+  private static final String FIELD_NAME = "name";
+  private static final String FIELD_LOGIN = "login";
 
-  public UsersAction(DbClient dbClient) {
+  private final DbClient dbClient;
+  private final UserSession userSession;
+
+  public UsersAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -75,6 +83,8 @@ public class UsersAction implements UserGroupsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+
     Long groupId = request.mandatoryParamAsLong(PARAM_ID);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     int page = request.mandatoryParamAsInt(Param.PAGE);
@@ -109,9 +119,9 @@ public class UsersAction implements UserGroupsWsAction {
     json.name("users").beginArray();
     for (UserMembershipDto user : users) {
       json.beginObject()
-        .prop("login", user.getLogin())
-        .prop("name", user.getName())
-        .prop("selected", user.getGroupId() != null)
+        .prop(FIELD_LOGIN, user.getLogin())
+        .prop(FIELD_NAME, user.getName())
+        .prop(FIELD_SELECTED, user.getGroupId() != null)
         .endObject();
     }
     json.endArray();

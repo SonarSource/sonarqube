@@ -23,10 +23,11 @@ package org.sonar.server.user.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
@@ -34,7 +35,9 @@ import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
@@ -44,13 +47,11 @@ public class GroupsActionTest {
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
-
-  WebService.Controller controller;
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   WsTester tester;
-
   DbClient dbClient;
-
   DbSession session;
 
   @Before
@@ -67,9 +68,8 @@ public class GroupsActionTest {
     session = dbClient.openSession(false);
     session.commit();
 
-    tester = new WsTester(new UsersWs(new GroupsAction(dbClient)));
-    controller = tester.controller("api/users");
-
+    tester = new WsTester(new UsersWs(new GroupsAction(dbClient, userSession)));
+    userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -79,6 +79,13 @@ public class GroupsActionTest {
 
   @Test(expected = NotFoundException.class)
   public void fail_on_unknown_user() throws Exception {
+    tester.newGetRequest("api/users", "groups")
+      .setParam("login", "john").execute();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_on_missing_permission() throws Exception {
+    userSession.login("not-admin");
     tester.newGetRequest("api/users", "groups")
       .setParam("login", "john").execute();
   }
