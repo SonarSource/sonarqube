@@ -44,8 +44,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   public Optional<MeasureDto> findPrevious(Component component, Metric<?> metric) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       return Optional.fromNullable(
-        // TODO replace component.getKey() by ${link #getKey} as component.getKey() is only for project/module and does not take into
-        // account usage of the branch
         dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey())
         );
     }
