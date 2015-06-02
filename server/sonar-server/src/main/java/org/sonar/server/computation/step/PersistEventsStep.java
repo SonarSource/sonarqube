@@ -21,11 +21,9 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.persistence.DbSession;
@@ -34,6 +32,8 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.event.Event;
+import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Iterables.transform;
@@ -44,40 +44,23 @@ public class PersistEventsStep implements ComputationStep {
   private final System2 system2;
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
+  private final EventRepository eventRepository;
 
-  public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+    EventRepository eventRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.eventRepository = eventRepository;
   }
 
   @Override
   public void execute() {
     final DbSession session = dbClient.openSession(false);
     try {
-      final long analysisDate = reportReader.readMetadata().getAnalysisDate();
-      new DepthTraversalTypeAwareVisitor(Component.Type.FILE, DepthTraversalTypeAwareVisitor.Order.PRE_ORDER) {
-        @Override
-        public void visitProject(Component project) {
-          processComponent(project, session, analysisDate);
-        }
-
-        @Override
-        public void visitModule(Component module) {
-          processComponent(module, session, analysisDate);
-        }
-
-        @Override
-        public void visitDirectory(Component directory) {
-          processComponent(directory, session, analysisDate);
-        }
-
-        @Override
-        public void visitFile(Component file) {
-          processComponent(file, session, analysisDate);
-        }
-      }.visit(treeRootHolder.getRoot());
+      long analysisDate = reportReader.readMetadata().getAnalysisDate();
+      new PersistEventComponentVisitor(session, analysisDate).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -91,23 +74,22 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   private void processEvents(DbSession session, final BatchReport.Component batchComponent, final Component component, final Long analysisDate) {
-    List<BatchReport.Event> events = batchComponent.getEventList();
+    final List<BatchReport.Event> events = batchComponent.getEventList();
     if (events.isEmpty()) {
       return;
     }
 
-    List<EventDto> batchEventDtos = Lists.newArrayList(transform(events, new Function<BatchReport.Event, EventDto>() {
+    Function<Event, EventDto> eventToEventDto = new Function<Event, EventDto>() {
       @Override
-      public EventDto apply(@Nonnull BatchReport.Event event) {
+      public EventDto apply(@Nonnull Event event) {
         return newBaseEvent(batchComponent, component, analysisDate)
             .setName(event.getName())
             .setCategory(convertCategory(event.getCategory()))
-            .setDescription(event.hasDescription() ? event.getDescription() : null)
-            .setData(event.hasEventData() ? event.getEventData() : null);
+            .setDescription(event.getDescription())
+            .setData(event.getData());
       }
-    }));
-
-    for (EventDto batchEventDto : batchEventDtos) {
+    };
+    for (EventDto batchEventDto : transform(eventRepository.getEvents(component), eventToEventDto)) {
       dbClient.eventDao().insert(session, batchEventDto);
     }
   }
@@ -138,7 +120,7 @@ public class PersistEventsStep implements ComputationStep {
       .setDate(analysisDate);
   }
 
-  private static String convertCategory(Constants.EventCategory category) {
+  private static String convertCategory(Event.Category category) {
     switch (category) {
       case ALERT:
         return EventDto.CATEGORY_ALERT;
@@ -152,5 +134,36 @@ public class PersistEventsStep implements ComputationStep {
   @Override
   public String getDescription() {
     return "Persist component links";
+  }
+
+  private class PersistEventComponentVisitor extends DepthTraversalTypeAwareVisitor {
+    private final DbSession session;
+    private final long analysisDate;
+
+    public PersistEventComponentVisitor(DbSession session, long analysisDate) {
+      super(Component.Type.FILE, Order.PRE_ORDER);
+      this.session = session;
+      this.analysisDate = analysisDate;
+    }
+
+    @Override
+    public void visitProject(Component project) {
+      processComponent(project, session, analysisDate);
+    }
+
+    @Override
+    public void visitModule(Component module) {
+      processComponent(module, session, analysisDate);
+    }
+
+    @Override
+    public void visitDirectory(Component directory) {
+      processComponent(directory, session, analysisDate);
+    }
+
+    @Override
+    public void visitFile(Component file) {
+      processComponent(file, session, analysisDate);
+    }
   }
 }

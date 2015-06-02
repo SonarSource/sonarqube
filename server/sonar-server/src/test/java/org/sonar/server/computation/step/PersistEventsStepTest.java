@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,10 +37,13 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.event.Event;
+import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,6 +58,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbSession session;
+  EventRepository eventRepository = mock(EventRepository.class);
   PersistEventsStep step;
 
   @Before
@@ -63,7 +69,9 @@ public class PersistEventsStepTest extends BaseStepTest {
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(1225630680000L);
 
-    step = new PersistEventsStep(dbClient, system2, treeRootHolder, reportReader);
+    step = new PersistEventsStep(dbClient, system2, treeRootHolder, reportReader, eventRepository);
+
+    when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 
   @Override
@@ -101,7 +109,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null);
+    treeRootHolder.setRoot(root);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -126,6 +135,12 @@ public class PersistEventsStepTest extends BaseStepTest {
       )
       .build());
 
+    when(eventRepository.getEvents(root)).thenReturn(ImmutableList.of(
+      Event.createAlert("Red (was Orange)", null, "Open issues > 0"),
+      Event.createProfile("Changes in 'Default' (Java)", "from=2014-10-12T08:36:25+0000;key=java-default;to=2014-10-12T10:36:25+0000", null))
+      );
+
+    treeRootHolder.setRoot(root);
     step.execute();
 
     dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
@@ -135,8 +150,9 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
-        new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
+    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null));
+    treeRootHolder.setRoot(root);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -166,6 +182,12 @@ public class PersistEventsStepTest extends BaseStepTest {
         .build()
       ).build());
 
+    Component child = root.getChildren().get(0);
+
+    when(eventRepository.getEvents(root)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
+    when(eventRepository.getEvents(child)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
+
+    treeRootHolder.setRoot(root);
     step.execute();
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
