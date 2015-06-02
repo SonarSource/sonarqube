@@ -18,6 +18,7 @@ define([
         format: function (item) {
           return item.name + '<br><span class="note">' + item.description + '</span>';
         },
+        queryParam: 'q',
         searchUrl: baseUrl + '/api/users/groups?ps=100&login=' + this.model.id,
         selectUrl: baseUrl + '/api/usergroups/add_user',
         deselectUrl: baseUrl + '/api/usergroups/remove_user',
