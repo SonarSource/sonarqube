@@ -31,7 +31,7 @@ import static com.google.common.collect.Iterables.filter;
 
 public class ComponentImpl implements Component {
   private final Type type;
-  private final BatchReport.Component component;
+  private final int ref;
   private final List<Component> children;
 
   // Mutable values
@@ -39,7 +39,7 @@ public class ComponentImpl implements Component {
   private String uuid;
 
   public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
-    this.component = component;
+    this.ref = component.getRef();
     this.type = convertType(component.getType());
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
@@ -66,7 +66,7 @@ public class ComponentImpl implements Component {
 
   @Override
   public int getRef() {
-    return component.getRef();
+    return ref;
   }
 
   public String getUuid() {

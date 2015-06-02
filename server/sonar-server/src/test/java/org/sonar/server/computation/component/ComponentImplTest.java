@@ -29,6 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ComponentImplTest {
   private ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
 
+  @Test(expected = NullPointerException.class)
+  public void constructor_throws_NPE_if_component_arg_is_Null() {
+    new ComponentImpl(null, null);
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void getUuid_throws_UOE_if_uuid_has_not_been_set_yet() {
     component.getUuid();
