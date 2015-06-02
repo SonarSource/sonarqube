@@ -50,7 +50,7 @@ public class SearchAction implements MetricsWsAction {
   public static final String FIELD_DOMAIN = "domain";
   public static final String FIELD_TYPE = "type";
   private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE);
-  private final Set<String> ALL_POSSIBLE_FIELDS;
+  private final Set<String> allPossibleFields;
 
   private final DbClient dbClient;
 
@@ -58,7 +58,7 @@ public class SearchAction implements MetricsWsAction {
     this.dbClient = dbClient;
     Set<String> possibleFields = newHashSet(FIELD_ID, FIELD_KEY);
     possibleFields.addAll(OPTIONAL_FIELDS);
-    ALL_POSSIBLE_FIELDS = possibleFields;
+    allPossibleFields = possibleFields;
   }
 
   @Override
@@ -104,7 +104,7 @@ public class SearchAction implements MetricsWsAction {
 
   private Set<String> desiredFields(@Nullable List<String> fields) {
     if (fields == null || fields.isEmpty()) {
-      return ALL_POSSIBLE_FIELDS;
+      return allPossibleFields;
     }
 
     return newHashSet(fields);
