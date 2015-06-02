@@ -1,0 +1,35 @@
+define(function () {
+
+  return Backbone.Model.extend({
+    urlRoot: function () {
+      return baseUrl + '/api/usergroups';
+    },
+
+    sync: function (method, model, options) {
+      var opts = options || {};
+      if (method === 'create') {
+        _.defaults(opts, {
+          url: this.urlRoot() + '/create',
+          type: 'POST',
+          data: _.pick(model.toJSON(), 'name', 'description')
+        });
+      }
+      if (method === 'update') {
+        _.defaults(opts, {
+          url: this.urlRoot() + '/update',
+          type: 'POST',
+          data: _.pick(model.toJSON(), 'id', 'name', 'description')
+        });
+      }
+      if (method === 'delete') {
+        _.defaults(opts, {
+          url: this.urlRoot() + '/delete',
+          type: 'POST',
+          data: { id: this.id }
+        });
+      }
+      return Backbone.ajax(opts);
+    }
+  });
+
+});

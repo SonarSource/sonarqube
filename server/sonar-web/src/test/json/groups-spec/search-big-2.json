@@ -1,0 +1,13 @@
+{
+  "total": 2,
+  "p": 2,
+  "ps": 1,
+  "groups": [
+    {
+      "id": "2",
+      "name": "sonar-administrators",
+      "description": "System administrators",
+      "membersCount": 1
+    }
+  ]
+}

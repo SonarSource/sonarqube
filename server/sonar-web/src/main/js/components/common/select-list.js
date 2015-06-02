@@ -329,7 +329,8 @@ define(function () {
     search: function () {
       var query = this.$('.select-list-search-control input').val(),
           hasQuery = query.length > 0,
-          that = this;
+          that = this,
+          data = {};
 
       this.$('.select-list-check-control').toggleClass('disabled', hasQuery);
       this.$('.select-list-search-control').toggleClass('disabled', !hasQuery);
@@ -338,10 +339,11 @@ define(function () {
         this.showFetchSpinner();
         this.currentFilter = 'all';
 
+        data[this.settings.queryParam] = query;
         this.collection.fetch({
           url: this.settings.searchUrl,
           reset: true,
-          data: { query: query },
+          data: data,
           success: function () {
             that.hideFetchSpinner();
           },
@@ -430,6 +432,8 @@ define(function () {
       this.more = r.more;
       return r.results;
     },
+
+    queryParam: 'query',
 
     labels: {
       selected: 'Selected',
