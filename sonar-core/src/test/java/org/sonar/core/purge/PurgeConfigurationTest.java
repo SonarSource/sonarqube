@@ -19,10 +19,12 @@
  */
 package org.sonar.core.purge;
 
-import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
-
 import java.util.Date;
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,8 +45,32 @@ public class PurgeConfigurationTest {
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
     Date toDate = conf.maxLiveDateOfClosedIssues(now);
 
-    assertThat(toDate.getYear()).isEqualTo(113);//=2013
+    assertThat(toDate.getYear()).isEqualTo(113);// =2013
     assertThat(toDate.getMonth()).isEqualTo(3); // means April
     assertThat(toDate.getDate()).isEqualTo(18);
+  }
+
+  @Test
+  public void do_not_delete_directory_by_default() {
+    Settings settings = new Settings();
+    settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, false);
+    settings.setProperty(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
+    Date now = new Date();
+
+    PurgeConfiguration sut = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+
+    assertThat(sut.scopesWithoutHistoricalData()).contains(Scopes.FILE)
+      .doesNotContain(Scopes.DIRECTORY);
+    assertThat(sut.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
+  }
+
+  @Test
+  public void delete_directory_if_in_settings() {
+    Settings settings = new Settings();
+    settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, true);
+
+    PurgeConfiguration sut = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+
+    assertThat(sut.scopesWithoutHistoricalData()).contains(Scopes.DIRECTORY, Scopes.FILE);
   }
 }
