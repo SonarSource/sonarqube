@@ -20,6 +20,11 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -51,13 +56,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import static com.google.common.collect.Maps.newHashMap;
 
 public class ShowAction implements IssuesWsAction {
@@ -79,8 +77,8 @@ public class ShowAction implements IssuesWsAction {
   private final UserSession userSession;
 
   public ShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueCommentService commentService,
-                    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
-                    I18n i18n, Durations durations, UserSession userSession) {
+    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
+    I18n i18n, Durations durations, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
@@ -177,9 +175,9 @@ public class ShowAction implements IssuesWsAction {
 
     String projectName = project.longName() != null ? project.longName() : project.name();
     // Do not display sub project long name if sub project and project are the same
-    boolean displayParentProjectLongName = parentProject != null && !parentProject.getId().equals(project.getId());
-    String parentProjectKey = displayParentProjectLongName ? parentProject.key() : null;
-    String parentProjectName = displayParentProjectLongName ? parentProject.longName() != null ? parentProject.longName() : parentProject.name() : null;
+    boolean displayParentProjectName = parentProject != null && !parentProject.getId().equals(project.getId());
+    String parentProjectKey = displayParentProjectName ? parentProject.key() : null;
+    String parentProjectName = displayParentProjectName ? projectName(parentProject) : null;
 
     json
       .prop("component", component.key())
@@ -191,6 +189,10 @@ public class ShowAction implements IssuesWsAction {
       // TODO replace subProject names by parentProject
       .prop("subProject", parentProjectKey)
       .prop("subProjectName", parentProjectName);
+  }
+
+  private String projectName(ComponentDto project) {
+    return project.longName() != null ? project.longName() : project.name();
   }
 
   private void writeComments(Issue issue, JsonWriter json) {
