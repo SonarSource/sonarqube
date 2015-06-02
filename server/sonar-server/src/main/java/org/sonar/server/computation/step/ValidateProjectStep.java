@@ -78,7 +78,8 @@ public class ValidateProjectStep implements ComputationStep {
           return input.key();
         }
       });
-      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(), settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
+      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
+        settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
       visitor.visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
