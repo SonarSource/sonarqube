@@ -9,7 +9,6 @@ define([
     itemTemplate: Templates['users-group'],
 
     onRender: function () {
-      console.log(this.model);
       Modal.prototype.onRender.apply(this, arguments);
       new window.SelectList({
         el: this.$('#users-groups'),
