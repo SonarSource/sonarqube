@@ -37,8 +37,7 @@ define([
     },
 
     getValuesWithLabels: function () {
-      var values = this.model.getValues(),
-          tags = this.options.app.facets.tags;
+      var values = this.model.getValues();
       values.forEach(function (v) {
         v.label = v.val;
         v.extra = '';

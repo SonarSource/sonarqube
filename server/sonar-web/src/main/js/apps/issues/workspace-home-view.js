@@ -1,7 +1,6 @@
 define([
-  'widgets/issue-filter/widget',
   './templates'
-], function (IssueFilter) {
+], function () {
 
   var $ = jQuery;
 

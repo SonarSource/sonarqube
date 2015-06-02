@@ -39,13 +39,12 @@ define([
       });
       var values = this.model.getValues();
       if (!(_.isArray(values) && values.length > 0)) {
-        var date = moment(),
-            i, j;
+        var date = moment();
         values = [];
-        for (i = j = 0; j <= 10; i = ++j) {
-          values.push({ count: 0, val: date.toDate().toString() });
-          date = date.subtract(1, 'days');
-        }
+        _.times(10, function () {
+            values.push({ count: 0, val: date.toDate().toString() });
+            date = date.subtract(1, 'days');
+        });
         values.reverse();
       }
       return this.$('.js-barchart').barchart(values);

@@ -21,44 +21,29 @@ define([
              TagFacet, ResolutionFacet, CreationDateFacet, ActionPlanFacet, FileFacet, ReporterFacet, LanguageFacet,
              AuthorFacet, IssueKeyFacet, ContextFacet) {
 
+  var viewsMapping = {
+    severities: SeverityFacet,
+    statuses: StatusFacet,
+    assignees: AssigneeFacet,
+    resolutions: ResolutionFacet,
+    createdAt: CreationDateFacet,
+    projectUuids: ProjectFacet,
+    moduleUuids: ModuleFacet,
+    rules: RuleFacet,
+    tags: TagFacet,
+    actionPlans: ActionPlanFacet,
+    fileUuids: FileFacet,
+    reporters: ReporterFacet,
+    languages: LanguageFacet,
+    authors: AuthorFacet,
+    issues: IssueKeyFacet,
+    context: ContextFacet
+  };
+
   return FacetsView.extend({
     getItemView: function (model) {
-      switch (model.get('property')) {
-        case 'severities':
-          return SeverityFacet;
-        case 'statuses':
-          return StatusFacet;
-        case 'assignees':
-          return AssigneeFacet;
-        case 'resolutions':
-          return ResolutionFacet;
-        case 'createdAt':
-          return CreationDateFacet;
-        case 'projectUuids':
-          return ProjectFacet;
-        case 'moduleUuids':
-          return ModuleFacet;
-        case 'rules':
-          return RuleFacet;
-        case 'tags':
-          return TagFacet;
-        case 'actionPlans':
-          return ActionPlanFacet;
-        case 'fileUuids':
-          return FileFacet;
-        case 'reporters':
-          return ReporterFacet;
-        case 'languages':
-          return LanguageFacet;
-        case 'authors':
-          return AuthorFacet;
-        case 'issues':
-          return IssueKeyFacet;
-        case 'context':
-          return ContextFacet;
-        default:
-          return BaseFacet;
-      }
+      var view = viewsMapping[model.get('property')];
+      return view ? view : BaseFacet;
     }
   });
 

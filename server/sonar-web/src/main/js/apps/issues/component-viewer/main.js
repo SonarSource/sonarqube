@@ -109,8 +109,8 @@ define([
 
     selectIssue: function (e) {
       var key = $(e.currentTarget).data('issue-key'),
-          issue = this.issues.find(function (issue) {
-            return issue.get('key') === key;
+          issue = this.issues.find(function (model) {
+            return model.get('key') === key;
           }),
           index = this.options.app.list.indexOf(issue);
       return this.options.app.state.set({ selectedIndex: index });
