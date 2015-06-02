@@ -9,7 +9,7 @@
     <result property="rootId" column="root_snapshot_id"/>
     <result property="createdAt" column="created_at"/>
     <result property="buildDate" column="build_date"/>
-    <result property="resourceId" column="project_id"/>
+    <result property="componentId" column="project_id"/>
     <result property="status" column="status"/>
     <result property="purgeStatus" column="purge_status"/>
     <result property="last" column="islast"/>

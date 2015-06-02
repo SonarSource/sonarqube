@@ -19,6 +19,8 @@
  */
 package org.sonar.server.ui.ws;
 
+import java.util.Date;
+import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -51,6 +53,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
@@ -61,9 +64,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
-import java.util.Locale;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -187,7 +187,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop");
     dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto().setCreatedAt(snapshotDate.getTime()).setVersion("3.14")
-      .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+      .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
     userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
@@ -238,7 +238,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+      .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
@@ -257,7 +257,7 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(session, project);
     dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true).setQualifier(project.qualifier()).setResourceId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+      .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
     session.commit();
 
     userSessionRule
@@ -473,33 +473,13 @@ public class ComponentNavigationActionTest {
       .setPath(directory.path());
     dbClient.componentDao().insert(session, project, module, directory, file);
 
-    SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true)
-      .setQualifier(project.qualifier())
-      .setResourceId(project.getId())
-      .setRootProjectId(project.getId())
-      .setScope(project.scope()));
-    SnapshotDto moduleSnapshot = dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true)
-      .setQualifier(module.qualifier())
-      .setResourceId(module.getId())
-      .setRootProjectId(project.getId())
-      .setScope(module.scope())
-      .setParentId(projectSnapshot.getId()));
-    SnapshotDto directorySnapshot = dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true)
-      .setQualifier(directory.qualifier())
-      .setResourceId(directory.getId())
-      .setRootProjectId(project.getId())
-      .setScope(directory.scope())
-      .setParentId(moduleSnapshot.getId()));
-    dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true)
-      .setQualifier(file.qualifier())
-      .setResourceId(file.getId())
-      .setRootProjectId(project.getId())
-      .setScope(file.scope())
-      .setParentId(directorySnapshot.getId()));
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
+    dbClient.snapshotDao().insert(session, projectSnapshot);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
+    dbClient.snapshotDao().insert(session, moduleSnapshot);
+    SnapshotDto directorySnapshot = SnapshotTesting.createForComponent(directory, moduleSnapshot);
+    dbClient.snapshotDao().insert(session, directorySnapshot);
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, directorySnapshot));
 
     session.commit();
 

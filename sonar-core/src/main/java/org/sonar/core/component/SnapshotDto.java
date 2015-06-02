@@ -36,7 +36,7 @@ public final class SnapshotDto {
 
   private Long createdAt;
   private Long buildDate;
-  private Long resourceId;
+  private Long componentId;
   private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
   private Boolean last;
@@ -100,12 +100,12 @@ public final class SnapshotDto {
     return this;
   }
 
-  public Long getResourceId() {
-    return resourceId;
+  public Long getComponentId() {
+    return componentId;
   }
 
-  public SnapshotDto setResourceId(Long resourceId) {
-    this.resourceId = resourceId;
+  public SnapshotDto setComponentId(Long componentId) {
+    this.componentId = componentId;
     return this;
   }
 

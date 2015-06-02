@@ -20,6 +20,13 @@
 package org.sonar.server.ui.ws;
 
 import com.google.common.collect.Lists;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -45,15 +52,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 public class ComponentNavigationAction implements NavigationWsAction {
 
@@ -111,7 +109,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
-      SnapshotDto snapshot = dbClient.snapshotDao().getLastSnapshot(session, new SnapshotDto().setResourceId(component.getId()));
+      SnapshotDto snapshot = dbClient.snapshotDao().getLastSnapshot(session, new SnapshotDto().setComponentId(component.getId()));
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
@@ -262,7 +260,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       SnapshotDto currentSnapshot = snapshot;
       while (currentSnapshot.getParentId() != null) {
         currentSnapshot = dbClient.snapshotDao().getByKey(session, currentSnapshot.getParentId());
-        componentPath.add(0, dbClient.componentDao().selectById(currentSnapshot.getResourceId(), session));
+        componentPath.add(0, dbClient.componentDao().selectById(currentSnapshot.getComponentId(), session));
       }
     }
 

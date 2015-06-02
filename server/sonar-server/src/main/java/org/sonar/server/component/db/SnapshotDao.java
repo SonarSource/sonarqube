@@ -20,6 +20,9 @@
 
 package org.sonar.server.component.db;
 
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
@@ -27,10 +30,6 @@ import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class SnapshotDao implements DaoComponent {
 
@@ -64,12 +63,12 @@ public class SnapshotDao implements DaoComponent {
 
   @CheckForNull
   public SnapshotDto getLastSnapshot(DbSession session, SnapshotDto snapshot) {
-    return mapper(session).selectLastSnapshot(snapshot.getResourceId());
+    return mapper(session).selectLastSnapshot(snapshot.getComponentId());
   }
 
   @CheckForNull
   public SnapshotDto getLastSnapshotOlderThan(DbSession session, SnapshotDto snapshot) {
-    return mapper(session).selectLastSnapshotOlderThan(snapshot.getResourceId(), snapshot.getCreatedAt());
+    return mapper(session).selectLastSnapshotOlderThan(snapshot.getComponentId(), snapshot.getCreatedAt());
   }
 
   public List<SnapshotDto> findSnapshotAndChildrenOfProjectScope(DbSession session, SnapshotDto snapshot) {

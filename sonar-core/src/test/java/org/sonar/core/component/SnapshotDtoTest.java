@@ -35,7 +35,7 @@ public class SnapshotDtoTest {
       .setRootId(3L)
       .setRootProjectId(20L)
       .setBuildDate(parseDate("2014-07-02").getTime())
-      .setResourceId(21L)
+      .setComponentId(21L)
       .setLast(true)
       .setScope("FIL")
       .setQualifier("FIL")
@@ -64,7 +64,7 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getRootId()).isEqualTo(3L);
     assertThat(snapshotDto.getRootProjectId()).isEqualTo(20L);
     assertThat(snapshotDto.getBuildDate()).isEqualTo(parseDate("2014-07-02").getTime());
-    assertThat(snapshotDto.getResourceId()).isEqualTo(21L);
+    assertThat(snapshotDto.getComponentId()).isEqualTo(21L);
     assertThat(snapshotDto.getLast()).isTrue();
     assertThat(snapshotDto.getScope()).isEqualTo("FIL");
     assertThat(snapshotDto.getQualifier()).isEqualTo("FIL");

@@ -7,7 +7,7 @@
     s.parent_snapshot_id as parentId,
     s.root_snapshot_id as rootId,
     s.root_project_id as rootProjectId,
-    s.project_id as resourceId,
+    s.project_id as componentId,
     s.created_at as createdAt,
     s.build_date as buildDate,
     s.status as status,
@@ -91,7 +91,7 @@
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots
     <include refid="insertColumns"/>
-    values (#{parentId}, #{rootId}, #{rootProjectId}, #{resourceId}, #{createdAt}, #{buildDate}, #{status},
+    values (#{parentId}, #{rootId}, #{rootProjectId}, #{componentId}, #{createdAt}, #{buildDate}, #{status},
     #{purgeStatus}, #{last}, #{scope}, #{qualifier}, #{version}, #{path}, #{depth},
     #{period1Mode}, #{period2Mode}, #{period3Mode}, #{period4Mode}, #{period5Mode},
     #{period1Param}, #{period2Param}, #{period3Param}, #{period4Param}, #{period5Param},
