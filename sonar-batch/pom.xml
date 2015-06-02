@@ -57,10 +57,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-java-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <exclusions>
         <exclusion>
@@ -131,6 +127,12 @@
       <artifactId>dbunit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-java-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <!-- local database -->
       <groupId>com.h2database</groupId>
