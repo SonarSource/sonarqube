@@ -37,10 +37,6 @@ public abstract class Module {
 
   protected abstract void configureModule();
 
-  protected <T> T getComponentByType(Class<T> tClass) {
-    return container.getComponentByType(tClass);
-  }
-
   protected void add(@Nullable Object... objects) {
     if (objects == null) {
       return;
