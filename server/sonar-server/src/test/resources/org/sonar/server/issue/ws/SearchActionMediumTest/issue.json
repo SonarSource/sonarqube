@@ -13,7 +13,12 @@
       "severity": "MAJOR",
       "debt": "10min",
       "author": "John",
-      "assignee": "simon",
+      "assignee": {
+        "login": "simon",
+        "name": "Simon",
+        "active": true,
+        "email": "simon@email.com"
+      },
       "reporter": "fabrice",
       "actionPlan": "AP-ABCD",
       "updateDate": "2017-12-04T00:00:00+0100",

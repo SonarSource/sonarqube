@@ -20,6 +20,7 @@
 
 package org.sonar.server.user.ws;
 
+import com.google.common.collect.ImmutableSet;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -45,12 +46,14 @@ public class CreateAction implements UsersWsAction {
   private final UserUpdater userUpdater;
   private final I18n i18n;
   private final UserSession userSession;
+  private final UserJsonWriter userWriter;
 
-  public CreateAction(UserIndex index, UserUpdater userUpdater, I18n i18n, UserSession userSession) {
+  public CreateAction(UserIndex index, UserUpdater userUpdater, I18n i18n, UserSession userSession, UserJsonWriter userWriter) {
     this.index = index;
     this.userUpdater = userUpdater;
     this.i18n = i18n;
     this.userSession = userSession;
+    this.userWriter = userWriter;
   }
 
   @Override
@@ -116,13 +119,8 @@ public class CreateAction implements UsersWsAction {
   }
 
   private void writeUser(JsonWriter json, UserDoc user) {
-    json.name("user").beginObject()
-      .prop("login", user.login())
-      .prop("name", user.name())
-      .prop("email", user.email())
-      .prop("active", user.active())
-      .name("scmAccounts").beginArray().values(user.scmAccounts()).endArray()
-      .endObject();
+    json.name("user");
+    userWriter.write(json, user, ImmutableSet.<String>of(), UserJsonWriter.FIELDS);
   }
 
   private void writeReactivationMessage(JsonWriter json, String login) {

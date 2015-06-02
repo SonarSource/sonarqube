@@ -33,6 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -87,14 +88,15 @@ public class DeactivateActionTest {
 
     System2 system2 = new System2();
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, new GroupMembershipDao(dbTester.myBatis()));
     session = dbClient.openSession(false);
     session.commit();
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new DeactivateAction(index,
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule)));
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule,
+      new UserJsonWriter(userSessionRule), dbClient)));
     controller = tester.controller("api/users");
 
   }

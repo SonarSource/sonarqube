@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupMembershipDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -84,7 +85,7 @@ public class UpdateActionTest {
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     UserGroupDao userGroupDao = new UserGroupDao();
     GroupDao groupDao = new GroupDao(system2);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao, new GroupMembershipDao(dbTester.myBatis()));
     session = dbClient.openSession(false);
     groupDao.insert(session, new GroupDto().setName("sonar-users"));
     session.commit();
@@ -92,7 +93,8 @@ public class UpdateActionTest {
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new UpdateAction(index,
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule)));
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule,
+      new UserJsonWriter(userSessionRule), dbClient)));
     controller = tester.controller("api/users");
   }
 

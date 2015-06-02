@@ -103,7 +103,7 @@ public class CreateActionTest {
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new CreateAction(index,
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)),
-      i18n, userSessionRule)));
+      i18n, userSessionRule, new UserJsonWriter(userSessionRule))));
     controller = tester.controller("api/users");
 
   }

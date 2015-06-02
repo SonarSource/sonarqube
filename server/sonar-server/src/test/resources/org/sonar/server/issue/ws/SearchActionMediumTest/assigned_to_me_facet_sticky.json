@@ -9,7 +9,9 @@
       "severity": "MAJOR",
       "debt": "10min",
       "fUpdateAge": "less than a minute",
-      "assignee": "alice"
+      "assignee": {
+        "login": "alice"
+      }
     }
   ],
   "facets": [

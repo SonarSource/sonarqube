@@ -23,11 +23,9 @@ package org.sonar.server.user.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -35,33 +33,24 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
 public class SearchAction implements UsersWsAction {
 
-  private static final String FIELD_LOGIN = "login";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_EMAIL = "email";
-  private static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
-  private static final String FIELD_GROUPS = "groups";
-  private static final Set<String> FIELDS = ImmutableSet.of(FIELD_LOGIN, FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS);
-
   private final UserIndex userIndex;
   private final DbClient dbClient;
-  private final UserSession userSession;
+  private final UserJsonWriter userWriter;
 
-  public SearchAction(UserIndex userIndex, DbClient dbClient, UserSession userSession) {
+  public SearchAction(UserIndex userIndex, DbClient dbClient, UserJsonWriter userWriter) {
     this.userIndex = userIndex;
     this.dbClient = dbClient;
-    this.userSession = userSession;
+    this.userWriter = userWriter;
   }
 
   @Override
@@ -72,7 +61,7 @@ public class SearchAction implements UsersWsAction {
       .setHandler(this)
       .setResponseExample(getClass().getResource("example-search.json"));
 
-    action.addFieldsParam(FIELDS);
+    action.addFieldsParam(UserJsonWriter.FIELDS);
     action.addPagingParams(50);
 
     action.createParam(Param.TEXT_QUERY)
@@ -110,43 +99,9 @@ public class SearchAction implements UsersWsAction {
 
     json.name("users").beginArray();
     for (UserDoc user : result.getDocs()) {
-      json.beginObject();
-      writeIfNeeded(json, user.login(), FIELD_LOGIN, fields);
-      writeIfNeeded(json, user.name(), FIELD_NAME, fields);
-      writeIfNeeded(json, user.email(), FIELD_EMAIL, fields);
-      writeGroupsIfNeeded(json, groupsByLogin.get(user.login()), fields);
-      writeScmAccountsIfNeeded(json, fields, user);
-      json.endObject();
+      Collection<String> groups = groupsByLogin.get(user.login());
+      userWriter.write(json, user, groups, fields);
     }
     json.endArray();
-  }
-
-  private void writeIfNeeded(JsonWriter json, @Nullable String value, String field, @Nullable List<String> fields) {
-    if (fieldIsWanted(field, fields)) {
-      json.prop(field, value);
-    }
-  }
-
-  private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable List<String> fields) {
-    if (fieldIsWanted(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      json.name(FIELD_GROUPS).beginArray();
-      for (String groupName : groups) {
-        json.value(groupName);
-      }
-      json.endArray();
-    }
-  }
-
-  private void writeScmAccountsIfNeeded(JsonWriter json, List<String> fields, UserDoc user) {
-    if (fieldIsWanted(FIELD_SCM_ACCOUNTS, fields)) {
-      json.name(FIELD_SCM_ACCOUNTS)
-        .beginArray()
-        .values(user.scmAccounts())
-        .endArray();
-    }
-  }
-
-  private boolean fieldIsWanted(String field, @Nullable List<String> fields) {
-    return fields == null || fields.isEmpty() || fields.contains(field);
   }
 }

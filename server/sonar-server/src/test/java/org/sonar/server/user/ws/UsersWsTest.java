@@ -27,7 +27,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.ws.WsTester;
@@ -43,12 +42,12 @@ public class UsersWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
-      new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule),
-      new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
+      new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
+      new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule),
-      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule),
+      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
-      new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserSession.class))));
+      new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));
     controller = tester.controller("api/users");
   }
 
