@@ -37,9 +37,9 @@ import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
 import org.sonar.server.computation.issue.RuleCache;
@@ -153,7 +153,15 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   }
 
   public void cleanup() {
-    stopComponents(true);
+    ReportQueue.Item item = null;
+    try {
+      item = getComponentByType(ReportQueue.Item.class);
+      stopComponents();
+    } catch (Throwable t) {
+      Loggers.get(ComputeEngineContainerImpl.class).error(
+        String.format("Cleanup of container for item '%s' failed", item == null ? null : item.dto),
+        t);
+    }
   }
 
   @Override
