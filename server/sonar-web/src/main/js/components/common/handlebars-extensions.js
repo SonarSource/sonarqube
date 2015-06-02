@@ -571,7 +571,7 @@
     var emailHash = window.md5((email || '').trim()),
         url = ('' + window.SS.lf.gravatarServerUrl)
             .replace('{EMAIL_MD5}', emailHash)
-            .replace('{SIZE}', size);
+            .replace('{SIZE}', size * 2); // double the size for high pixel density screens
     return new Handlebars.SafeString(
         '<img class="rounded" src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
     );

@@ -22,7 +22,9 @@
       <tr>
         <td class="thin text-left text-top" nowrap>{{dt creationDate}}</td>
         <td class="thin text-left text-top" nowrap>
-          {{#ifShowAvatars}}{{avatarHelper email 16}}{{/ifShowAvatars}}
+          {{#if userName}}
+            {{#ifShowAvatars}}{{avatarHelper email 16}}{{/ifShowAvatars}}
+          {{/if}}
           {{userName}}
         </td>
         <td class="text-left text-top">
