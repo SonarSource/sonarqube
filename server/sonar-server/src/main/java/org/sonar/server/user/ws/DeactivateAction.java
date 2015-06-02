@@ -20,12 +20,18 @@
 
 package org.sonar.server.user.ws;
 
+import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
@@ -39,11 +45,15 @@ public class DeactivateAction implements UsersWsAction {
   private final UserIndex index;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
+  private final UserJsonWriter userWriter;
+  private final DbClient dbClient;
 
-  public DeactivateAction(UserIndex index, UserUpdater userUpdater, UserSession userSession) {
+  public DeactivateAction(UserIndex index, UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient) {
     this.index = index;
     this.userUpdater = userUpdater;
     this.userSession = userSession;
+    this.userWriter = userWriter;
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -81,12 +91,14 @@ public class DeactivateAction implements UsersWsAction {
   }
 
   private void writeUser(JsonWriter json, UserDoc user) {
-    json.name("user").beginObject()
-      .prop("login", user.login())
-      .prop("name", user.name())
-      .prop("email", user.email())
-      .prop("active", user.active())
-      .name("scmAccounts").beginArray().values(user.scmAccounts()).endArray()
-      .endObject();
+    json.name("user");
+    Set<String> groups = Sets.newHashSet();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Arrays.asList(user.login())).get(user.login()));
+    } finally {
+      MyBatis.closeQuietly(dbSession);
+    }
+    userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
   }
 }

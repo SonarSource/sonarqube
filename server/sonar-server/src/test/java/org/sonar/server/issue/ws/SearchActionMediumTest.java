@@ -441,6 +441,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void filter_by_assigned_to_me() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("john").setName("John").setEmail("john@email.com"));
+
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
@@ -513,6 +515,8 @@ public class SearchActionMediumTest {
 
   @Test
   public void assigned_to_me_facet_is_sticky_relative_to_assignees() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("alice").setName("Alice").setEmail("alice@email.com"));
+
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));

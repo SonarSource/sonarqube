@@ -89,7 +89,7 @@ public class SearchActionTest {
     session = dbClient.openSession(false);
 
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new SearchAction(index, dbClient, userSession)));
+    tester = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
     controller = tester.controller("api/users");
   }
 
@@ -143,22 +143,15 @@ public class SearchActionTest {
       .contains("scmAccounts")
       .doesNotContain("groups");
 
-    assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "login").execute().outputAsString())
-      .contains("login")
-      .doesNotContain("name")
-      .doesNotContain("email")
-      .doesNotContain("scmAccounts")
-      .doesNotContain("groups");
-
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "scmAccounts").execute().outputAsString())
-      .doesNotContain("login")
+      .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .contains("scmAccounts")
       .doesNotContain("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
-      .doesNotContain("login")
+      .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts")
@@ -174,7 +167,7 @@ public class SearchActionTest {
       .contains("groups");
 
     assertThat(tester.newGetRequest("api/users", "search").setParam(Param.FIELDS, "groups").execute().outputAsString())
-      .doesNotContain("login")
+      .contains("login")
       .doesNotContain("name")
       .doesNotContain("email")
       .doesNotContain("scmAccounts")

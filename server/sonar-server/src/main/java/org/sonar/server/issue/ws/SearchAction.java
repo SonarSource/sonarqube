@@ -69,6 +69,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ws.UserJsonWriter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -100,10 +101,11 @@ public class SearchAction implements IssuesWsAction {
   private final Durations durations;
   private final Languages languages;
   private final UserSession userSession;
+  private final UserJsonWriter userWriter;
 
   public SearchAction(DbClient dbClient, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
     RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages,
-    UserSession userSession) {
+    UserSession userSession, UserJsonWriter userWriter) {
     this.dbClient = dbClient;
     this.service = service;
     this.actionsWriter = actionsWriter;
@@ -115,6 +117,7 @@ public class SearchAction implements IssuesWsAction {
     this.durations = durations;
     this.languages = languages;
     this.userSession = userSession;
+    this.userWriter = userWriter;
   }
 
   @Override
@@ -541,7 +544,6 @@ public class SearchAction implements IssuesWsAction {
         .prop("line", issue.line())
         .prop("debt", debt != null ? durations.encode(debt) : null)
         .prop("reporter", issue.reporter())
-        .prop("assignee", issue.assignee())
         .prop("author", issue.authorLogin())
         .prop("actionPlan", actionPlanKey)
         .prop("creationDate", isoDate(issue.creationDate()))
@@ -549,6 +551,9 @@ public class SearchAction implements IssuesWsAction {
         // TODO Remove as part of Front-end rework on Issue Domain
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
+
+      json.name("assignee");
+      userWriter.write(json, usersByLogin.get(issue.assignee()));
 
       writeTags(issue, json);
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
@@ -560,7 +565,7 @@ public class SearchAction implements IssuesWsAction {
     json.endArray();
   }
 
-  private void writeTags(Issue issue, JsonWriter json) {
+  private static void writeTags(Issue issue, JsonWriter json) {
     Collection<String> tags = issue.tags();
     if (tags != null && !tags.isEmpty()) {
       json.name("tags").beginArray();
@@ -593,7 +598,7 @@ public class SearchAction implements IssuesWsAction {
     }
   }
 
-  private void writeIssueAttributes(Issue issue, JsonWriter json) {
+  private static void writeIssueAttributes(Issue issue, JsonWriter json) {
     if (!issue.attributes().isEmpty()) {
       json.name("attr").beginObject();
       for (Map.Entry<String, String> entry : issue.attributes().entrySet()) {
@@ -669,7 +674,7 @@ public class SearchAction implements IssuesWsAction {
     json.endArray();
   }
 
-  private void writeProjects(JsonWriter json, List<ComponentDto> projects) {
+  private static void writeProjects(JsonWriter json, List<ComponentDto> projects) {
     json.name("projects").beginArray();
     for (ComponentDto project : projects) {
       json.beginObject()
@@ -754,7 +759,7 @@ public class SearchAction implements IssuesWsAction {
     return buildProjectsByComponentUuid(components, projectsByUuid);
   }
 
-  private Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
+  private static Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
     for (ComponentDto project : projects) {
       if (project == null) {
@@ -768,7 +773,7 @@ public class SearchAction implements IssuesWsAction {
     return projectsByUuid;
   }
 
-  private Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
+  private static Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
     for (ComponentDto component : components) {
       if (component.uuid() == null) {
@@ -783,7 +788,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   @CheckForNull
-  private String isoDate(@Nullable Date date) {
+  private static String isoDate(@Nullable Date date) {
     if (date != null) {
       return DateUtils.formatDateTime(date);
     }
@@ -817,7 +822,7 @@ public class SearchAction implements IssuesWsAction {
     }
   }
 
-  private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+  private static void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
     List<String> requestParams = request.paramAsStrings(facetName);
     if (requestParams != null) {
       for (String param : requestParams) {
