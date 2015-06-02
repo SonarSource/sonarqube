@@ -21,6 +21,7 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedMap;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -75,15 +76,23 @@ public class QualityProfileEventsStep implements ComputationStep {
     }
 
     // Load current profiles
-    Map<String, QualityProfile> previousProfiles = QPMeasureData.fromJson(previousMeasure.get().getData()).getProfilesByKey();
     Optional<BatchReport.Measure> currentMeasure = measureRepository.findCurrent(projectComponent, CoreMetrics.QUALITY_PROFILES);
     if (!currentMeasure.isPresent()) {
       throw new IllegalStateException("Missing measure " + CoreMetrics.QUALITY_PROFILES + " for component " + projectComponent.getRef());
     }
     Map<String, QualityProfile> currentProfiles = QPMeasureData.fromJson(currentMeasure.get().getStringValue()).getProfilesByKey();
 
+    Map<String, QualityProfile> previousProfiles = parseJsonData(previousMeasure);
     detectNewOrUpdatedProfiles(projectComponent, previousProfiles, currentProfiles);
     detectNoMoreUsedProfiles(projectComponent, previousProfiles, currentProfiles);
+  }
+
+  private static Map<String, QualityProfile> parseJsonData(Optional<MeasureDto> previousMeasure) {
+    String data = previousMeasure.get().getData();
+    if (data == null) {
+      return Collections.emptyMap();
+    }
+    return QPMeasureData.fromJson(data).getProfilesByKey();
   }
 
   private void detectNoMoreUsedProfiles(Component context, Map<String, QualityProfile> previousProfiles, Map<String, QualityProfile> currentProfiles) {
