@@ -6,8 +6,8 @@ define([
   return ModalForm.extend({
     template: Templates['provisioning-delete'],
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     },
 

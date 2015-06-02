@@ -8,7 +8,7 @@ define([
     template: Templates['groups-users'],
 
     onRender: function () {
-      Modal.prototype.onRender.apply(this, arguments);
+      this._super();
       new window.SelectList({
         el: this.$('#groups-users'),
         width: '100%',
@@ -35,7 +35,7 @@ define([
 
     onClose: function () {
       this.model.collection.refresh();
-      Modal.prototype.onClose.apply(this, arguments);
+      this._super();
     }
   });
 

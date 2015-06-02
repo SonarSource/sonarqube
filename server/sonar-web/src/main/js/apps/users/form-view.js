@@ -9,23 +9,23 @@ define([
     template: Templates['users-form'],
 
     events: function () {
-      return _.extend(ModalForm.prototype.events.apply(this, arguments), {
+      return _.extend(this._super(), {
         'click #create-user-add-scm-account': 'onAddScmAccountClick'
       });
     },
 
     onRender: function () {
-      ModalForm.prototype.onRender.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
     onClose: function () {
-      ModalForm.prototype.onClose.apply(this, arguments);
+      this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
-    onFormSubmit: function () {
-      ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    onFormSubmit: function (e) {
+      this._super(e);
       this.sendRequest();
     },
 

@@ -101,7 +101,7 @@ define([
           scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit,
           groups = this.model.get('groups'),
           groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
-      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
         moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,
         firstGroups: _.first(groups, groupsLimit),

@@ -23,7 +23,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         total: this.collection.total,
         count: this.collection.length,
         more: this.collection.hasMore()

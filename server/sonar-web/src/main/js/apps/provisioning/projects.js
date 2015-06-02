@@ -19,7 +19,7 @@ define([
     fetch: function (options) {
       var d = (options && options.data) || {};
       this.q = d.q;
-      return Backbone.Collection.prototype.fetch.apply(this, arguments);
+      return this._super(options);
     },
 
     fetchMore: function () {

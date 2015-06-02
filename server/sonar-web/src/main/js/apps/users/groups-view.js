@@ -9,7 +9,7 @@ define([
     itemTemplate: Templates['users-group'],
 
     onRender: function () {
-      Modal.prototype.onRender.apply(this, arguments);
+      this._super();
       new window.SelectList({
         el: this.$('#users-groups'),
         width: '100%',
