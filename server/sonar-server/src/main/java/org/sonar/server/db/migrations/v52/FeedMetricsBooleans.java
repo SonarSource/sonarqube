@@ -32,7 +32,8 @@ public class FeedMetricsBooleans extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.prepareUpsert("update metrics set OPTIMIZED_BEST_VALUE=?, HIDDEN=?, DELETE_HISTORICAL_DATA=? where user_managed=? or OPTIMIZED_BEST_VALUE is null or HIDDEN is null or DELETE_HISTORICAL_DATA is null")
+    context.prepareUpsert("update metrics set optimized_best_value=?, hidden=?, delete_historical_data=? " +
+      "where user_managed=? or optimized_best_value is null or hidden is null or delete_historical_data is null")
       .setBoolean(1, false)
       .setBoolean(2, false)
       .setBoolean(3, false)
