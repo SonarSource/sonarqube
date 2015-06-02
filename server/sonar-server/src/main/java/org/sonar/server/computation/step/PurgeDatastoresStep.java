@@ -37,7 +37,8 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final ProjectSettingsRepository projectSettingsRepository;
   private final BatchReportReader reportReader;
 
-  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbComponentsRefCache dbComponentsRefCache, ProjectSettingsRepository projectSettingsRepository, BatchReportReader reportReader) {
+  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbComponentsRefCache dbComponentsRefCache,
+    ProjectSettingsRepository projectSettingsRepository, BatchReportReader reportReader) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.dbComponentsRefCache = dbComponentsRefCache;
