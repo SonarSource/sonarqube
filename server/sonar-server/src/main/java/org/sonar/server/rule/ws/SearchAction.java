@@ -58,7 +58,7 @@ import org.sonar.server.user.UserSession;
 /**
  * @since 4.4
  */
-public class SearchAction implements RulesWsAction, org.sonar.api.server.ws.RequestHandler {
+public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
   public static final String PARAM_REPOSITORIES = "repositories";
