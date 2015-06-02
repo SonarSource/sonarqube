@@ -53,7 +53,9 @@ public interface Component {
    */
   String getKey();
 
-  // FIXME we should not expose a batch specific information
+  /**
+   * The component ref in the batch report.
+   */
   int getRef();
 
   List<Component> getChildren();
