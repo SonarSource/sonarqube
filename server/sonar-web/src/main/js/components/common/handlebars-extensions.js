@@ -568,10 +568,11 @@
   });
 
   Handlebars.registerHelper('avatarHelper', function (email, size) {
+    // double the size for high pixel density screens
     var emailHash = window.md5((email || '').trim()),
         url = ('' + window.SS.lf.gravatarServerUrl)
             .replace('{EMAIL_MD5}', emailHash)
-            .replace('{SIZE}', size * 2); // double the size for high pixel density screens
+            .replace('{SIZE}', size * 2);
     return new Handlebars.SafeString(
         '<img class="rounded" src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
     );
