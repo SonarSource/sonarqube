@@ -147,20 +147,18 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       );
   }
 
+  @Override
   public void process() {
     // calls the first
     getComponentByType(ComputationService.class).process();
   }
 
+  @Override
   public void cleanup() {
-    ReportQueue.Item item = null;
     try {
-      item = getComponentByType(ReportQueue.Item.class);
       stopComponents();
     } catch (Throwable t) {
-      Loggers.get(ComputeEngineContainerImpl.class).error(
-        String.format("Cleanup of container for item '%s' failed", item == null ? null : item.dto),
-        t);
+      Loggers.get(ComputeEngineContainerImpl.class).error(String.format("Cleanup of container for item '%s' failed", item), t);
     }
   }
 
