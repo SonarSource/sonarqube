@@ -22,35 +22,33 @@ package org.sonar.batch.scan;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext;
-import org.sonar.batch.events.BatchStepEvent;
-import org.sonar.batch.events.EventBus;
-
-import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
 
 public class ProjectBuildersExecutor {
 
-  private final ProjectBuilder[] projectBuilders;
-  private final EventBus eventBus;
+  private static final Logger LOG = Loggers.get(ProjectBuildersExecutor.class);
 
-  public ProjectBuildersExecutor(EventBus eventBus, @Nullable ProjectBuilder... projectBuilders) {
-    this.eventBus = eventBus;
+  private final ProjectBuilder[] projectBuilders;
+
+  public ProjectBuildersExecutor(ProjectBuilder... projectBuilders) {
     this.projectBuilders = projectBuilders;
   }
 
-  public ProjectBuildersExecutor(EventBus eventBus) {
-    this(eventBus, new ProjectBuilder[0]);
+  public ProjectBuildersExecutor() {
+    this(new ProjectBuilder[0]);
   }
 
   public void execute(ProjectReactor reactor) {
     if (projectBuilders.length > 0) {
-      String stepName = "Execute project builders";
-      eventBus.fireEvent(new BatchStepEvent(stepName, true));
+      Profiler profiler = Profiler.create(LOG).startInfo("Execute project builders");
       ProjectBuilderContext context = new ProjectBuilderContext(reactor);
 
       for (ProjectBuilder projectBuilder : projectBuilders) {
         projectBuilder.build(context);
       }
-      eventBus.fireEvent(new BatchStepEvent(stepName, false));
+      profiler.stopInfo();
     }
   }
 }
