@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -12,11 +13,11 @@
   <packaging>jar</packaging>
 
   <name>SonarQube :: Plugin API</name>
-  
+
   <properties>
     <sonar.clirr.reportPath>${project.build.directory}/clirr-report.txt</sonar.clirr.reportPath>
   </properties>
-  
+
   <dependencies>
 
     <!--
@@ -86,7 +87,11 @@
     </dependency>
 
 
-    <!-- TODO to be clarified -->
+    <!--
+      Transitive dependencies available at runtime. They are not shaded with API
+      as they are not managed by SonarSource. Versions should not be
+      overridden by plugins though.
+    -->
     <dependency>
       <groupId>org.codehaus.woodstox</groupId>
       <artifactId>woodstox-core-lgpl</artifactId>
@@ -105,6 +110,8 @@
       <groupId>org.codehaus.staxmate</groupId>
       <artifactId>staxmate</artifactId>
     </dependency>
+
+
     <dependency>
       <groupId>jfree</groupId>
       <artifactId>jfreechart</artifactId>
@@ -131,10 +138,10 @@
           <groupId>org.hibernate</groupId>
           <artifactId>hibernate-core</artifactId>
         </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -252,7 +259,7 @@
       </resource>
     </resources>
   </build>
-  
+
   <profiles>
     <profile>
       <id>clirr</id>

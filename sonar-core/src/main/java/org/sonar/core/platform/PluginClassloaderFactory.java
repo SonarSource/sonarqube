@@ -156,6 +156,12 @@ public class PluginClassloaderFactory {
       .addInclusion("net/sourceforge/pmd/")
       .addInclusion("org/apache/maven/")
       .addInclusion("org/slf4j/")
+      .addInclusion("org/codehaus/stax2/")
+      .addInclusion("org/codehaus/staxmate/")
+      .addInclusion("com/ctc/wstx/")
+
+      // required for internal tests at SonarSource
+      .addInclusion("org/sonar/server/platform/")
 
       // exclusions
       .addExclusion("org/sonar/api/internal/");

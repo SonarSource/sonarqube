@@ -73,7 +73,6 @@
     <elasticsearch.version>1.4.4</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
-    <maven.api.version>3.0.5</maven.api.version>
     <jdk.min.version>1.7</jdk.min.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>

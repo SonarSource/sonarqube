@@ -65,6 +65,6 @@ class Api::UpdatecenterController < Api::ApiController
   end
 
   def user_plugins
-    java_facade.getPluginInfos().select{|plugin| !plugin.isCore()}.to_a.sort
+    java_facade.getPluginInfos().to_a.sort
   end
 end

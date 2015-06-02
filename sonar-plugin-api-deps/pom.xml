@@ -84,10 +84,24 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
+      <version>3.0.5</version>
+      <exclusions>
+        <exclusion>
+          <!-- See SONAR-2455 -->
+          <groupId>classworlds</groupId>
+          <artifactId>classworlds</artifactId>
+        </exclusion>
+        <exclusion>
+          <!-- this fork conflicts with google's guava -->
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guava</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-artifact</artifactId>
+      <version>3.0.5</version>
     </dependency>
   </dependencies>
 
