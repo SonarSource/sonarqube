@@ -32,6 +32,11 @@ define([
           return r.groups;
         }
       });
+    },
+
+    onClose: function () {
+      this.model.collection.refresh();
+      Modal.prototype.onClose.apply(this, arguments);
     }
   });
 
