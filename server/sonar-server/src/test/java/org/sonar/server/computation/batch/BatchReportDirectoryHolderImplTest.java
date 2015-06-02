@@ -20,21 +20,23 @@
 package org.sonar.server.computation.batch;
 
 import java.io.File;
-import java.util.Objects;
+import org.junit.Test;
 
-public class BatchReportDirectoryHolderImpl implements MutableBatchReportDirectoryHolder {
-  private File directory;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  @Override
-  public void setDirectory(File newDirectory) {
-    this.directory = Objects.requireNonNull(newDirectory);
+public class BatchReportDirectoryHolderImplTest {
+
+  @Test(expected = IllegalStateException.class)
+  public void getDirectory_throws_ISE_if_holder_is_empty() {
+    new BatchReportDirectoryHolderImpl().getDirectory();
   }
 
-  @Override
-  public File getDirectory() {
-    if (this.directory == null) {
-      throw new IllegalStateException("Directory has not been set yet");
-    }
-    return this.directory;
+  @Test
+  public void getDirectory_returns_File_set_with_setDirectory() {
+    File file = new File("");
+    BatchReportDirectoryHolderImpl holder = new BatchReportDirectoryHolderImpl();
+    holder.setDirectory(file);
+
+    assertThat(holder.getDirectory()).isSameAs(file);
   }
 }
