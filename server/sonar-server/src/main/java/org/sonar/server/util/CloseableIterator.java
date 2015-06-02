@@ -20,6 +20,7 @@
 package org.sonar.server.util;
 
 import com.google.common.base.Throwables;
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
@@ -59,28 +60,8 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
   public static <T> CloseableIterator<T> from(final Iterator<T> iterator) {
     // early fail
     requireNonNull(iterator);
-    checkArgument(!(iterator instanceof CloseableIterator), "This method does not support creating a CloseableIterator from a CloseableIterator");
-    return new CloseableIterator<T>() {
-      @Override
-      public boolean hasNext() {
-        return iterator.hasNext();
-      }
-
-      @Override
-      public T next() {
-        return iterator.next();
-      }
-
-      @Override
-      protected T doNext() {
-        throw new UnsupportedOperationException("hasNext has been override, doNext is never called");
-      }
-
-      @Override
-      protected void doClose() throws Exception {
-        // do nothing
-      }
-    };
+    checkArgument(!(iterator instanceof AutoCloseable), "This method does not support creating a CloseableIterator from an Iterator which is Closeable");
+    return new RegularIteratorWrapper<>(iterator);
   }
 
   private O nextObject = null;
@@ -157,4 +138,31 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
 
   protected abstract void doClose() throws Exception;
 
+  private static class RegularIteratorWrapper<T> extends CloseableIterator<T> {
+    private final Iterator<T> iterator;
+
+    public RegularIteratorWrapper(Iterator<T> iterator) {
+      this.iterator = iterator;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public T next() {
+      return iterator.next();
+    }
+
+    @Override
+    protected T doNext() {
+      throw new UnsupportedOperationException("hasNext has been override, doNext is never called");
+    }
+
+    @Override
+    protected void doClose() throws Exception {
+      // do nothing
+    }
+  }
 }

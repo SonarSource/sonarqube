@@ -19,7 +19,9 @@
  */
 package org.sonar.server.util;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.junit.Test;
 
@@ -117,7 +119,7 @@ public class CloseableIteratorTest {
   }
 
   @Test(expected = NoSuchElementException.class)
-  public void emptyIterator_next_throws_NoSuchElemetException() {
+  public void emptyIterator_next_throws_NoSuchElementException() {
     CloseableIterator.emptyCloseableIterator().next();
   }
 
@@ -129,6 +131,35 @@ public class CloseableIteratorTest {
   @Test(expected = IllegalArgumentException.class)
   public void from_iterator_throws_IAE_if_arg_is_a_CloseableIterator() {
     CloseableIterator.from(new SimpleCloseableIterator());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void from_iterator_throws_IAE_if_arg_is_a_AutoCloseable() {
+    CloseableIterator.from(new CloseableIt());
+  }
+
+  private static class CloseableIt implements Iterator<String>, AutoCloseable {
+    private final Iterator<String> delegate = Collections.<String>emptyList().iterator();
+
+    @Override
+    public void remove() {
+      delegate.remove();
+    }
+
+    @Override
+    public String next() {
+      return delegate.next();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return delegate.hasNext();
+    }
+
+    @Override
+    public void close() throws IOException {
+      // no need to implement it for real
+    }
   }
 
   @Test
