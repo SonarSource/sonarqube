@@ -160,6 +160,9 @@ public class PluginClassloaderFactory {
       .addInclusion("org/codehaus/staxmate/")
       .addInclusion("com/ctc/wstx/")
 
+      // commons-logging is provided by SLF4j bridge
+      .addInclusion("org/apache/commons/logging/")
+
       // required for internal tests at SonarSource
       .addInclusion("org/sonar/server/platform/")
 

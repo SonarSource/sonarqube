@@ -625,6 +625,12 @@
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-java-api</artifactId>
         <version>5.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.sonar</groupId>
+            <artifactId>sonar-deprecated</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
