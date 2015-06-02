@@ -9,9 +9,9 @@
         <label for="create-user-login">Login<em class="mandatory">*</em></label>
         {{! keep this fake field to hack browser autofill }}
         <input id="create-user-login-fake" name="login-fake" type="text" class="hidden">
-        <input id="create-user-login" name="login" type="text" size="50" minlength="2" maxlength="255" required
+        <input id="create-user-login" name="login" type="text" size="50" minlength="3" maxlength="255" required
             value="{{login}}">
-        <p class="note">Minimum 2 characters</p>
+        <p class="note">Minimum 3 characters</p>
       </div>
     {{/unless}}
     <div class="modal-field">
