@@ -19,6 +19,7 @@
  */
 package org.sonar.core.component;
 
+import javax.annotation.Nullable;
 import org.sonar.core.platform.ComponentContainer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -40,7 +41,11 @@ public abstract class Module {
     return container.getComponentByType(tClass);
   }
 
-  protected void add(Object... objects) {
+  protected void add(@Nullable Object... objects) {
+    if (objects == null) {
+      return;
+    }
+
     for (Object object : objects) {
       if (object != null) {
         container.addComponent(object, true);
