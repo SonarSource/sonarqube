@@ -123,6 +123,7 @@ module.exports = (grunt) ->
           'build-app:coding-rules'
           'build-app:computation'
           'build-app:drilldown'
+          'build-app:groups'
           'build-app:markdown'
           'build-app:measures'
           'build-app:nav'
@@ -156,6 +157,7 @@ module.exports = (grunt) ->
           'casper:ui'
           'casper:workspace'
           'casper:users'
+          'casper:groups'
           'casper:provisioning'
           'casper:computation'
         ]
@@ -214,6 +216,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/users/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/users/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/groups/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/groups/templates/**/*.hbs'
           ]
           '<%= BUILD_PATH %>/js/apps/provisioning/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/provisioning/templates/**/*.hbs'
@@ -319,6 +324,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/provisioning*.js']
       computation:
         src: ['src/test/js/computation*.js']
+      groups:
+        src: ['src/test/js/groups-spec.js']
 
     uglify:
       build:

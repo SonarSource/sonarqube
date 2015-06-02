@@ -5,31 +5,29 @@ define([
 ], function (Modal) {
 
   return Modal.extend({
-    template: Templates['users-groups'],
-    itemTemplate: Templates['users-group'],
+    template: Templates['groups-users'],
 
     onRender: function () {
-      console.log(this.model);
       Modal.prototype.onRender.apply(this, arguments);
       new window.SelectList({
-        el: this.$('#users-groups'),
+        el: this.$('#groups-users'),
         width: '100%',
         readOnly: false,
         focusSearch: false,
         format: function (item) {
-          return item.name + '<br><span class="note">' + item.description + '</span>';
+          return item.name + '<br><span class="note">' + item.login + '</span>';
         },
-        searchUrl: baseUrl + '/api/users/groups?ps=100&login=' + this.model.id,
+        searchUrl: baseUrl + '/api/usergroups/users?ps=100&id=' + this.model.id,
         selectUrl: baseUrl + '/api/usergroups/add_user',
         deselectUrl: baseUrl + '/api/usergroups/remove_user',
         extra: {
-          userLogin: this.model.id
+          groupId: this.model.id
         },
-        selectParameter: 'groupId',
-        selectParameterValue: 'id',
+        selectParameter: 'userLogin',
+        selectParameterValue: 'login',
         parse: function (r) {
           this.more = false;
-          return r.groups;
+          return r.users;
         }
       });
     }

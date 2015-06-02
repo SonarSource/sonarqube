@@ -23,12 +23,7 @@ class GroupsController < ApplicationController
   before_filter :admin_required
 
   def index
-    @groups = Group.find(:all, :order => 'name')
-    if params[:id]
-      @group = Group.find(params[:id])
-    else
-      @group = Group.new
-    end
+
   end
 
   def create_form

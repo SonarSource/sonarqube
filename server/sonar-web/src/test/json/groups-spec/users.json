@@ -1,0 +1,17 @@
+{
+  "users": [
+    {
+      "login": "bob",
+      "name": "Bob",
+      "selected": true
+    },
+    {
+      "login": "john",
+      "name": "John",
+      "selected": true
+    }
+  ],
+  "p": 1,
+  "ps": 100,
+  "total": 2
+}

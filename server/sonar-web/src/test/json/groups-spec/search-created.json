@@ -1,0 +1,25 @@
+{
+  "total": 3,
+  "p": 1,
+  "ps": 50,
+  "groups": [
+    {
+      "id": "1",
+      "name": "sonar-users",
+      "description": "Any new users created will automatically join this group",
+      "membersCount": 3
+    },
+    {
+      "id": "2",
+      "name": "sonar-administrators",
+      "description": "System administrators",
+      "membersCount": 1
+    },
+    {
+      "id": "3",
+      "name": "name",
+      "description": "description",
+      "membersCount": 0
+    }
+  ]
+}

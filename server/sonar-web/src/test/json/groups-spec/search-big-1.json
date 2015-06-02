@@ -1,0 +1,13 @@
+{
+  "total": 2,
+  "p": 1,
+  "ps": 1,
+  "groups": [
+    {
+      "id": "1",
+      "name": "sonar-users",
+      "description": "Any new users created will automatically join this group",
+      "membersCount": 3
+    }
+  ]
+}
