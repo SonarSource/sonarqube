@@ -16,7 +16,6 @@
   <properties>
     <assembly.recompressZippedFiles>true</assembly.recompressZippedFiles>
     <assembly.format>zip</assembly.format>
-    <assembly.includeBaseDirectory>true</assembly.includeBaseDirectory>
     <checksum.failOnError>true</checksum.failOnError>
   </properties>
 
