@@ -26,7 +26,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;

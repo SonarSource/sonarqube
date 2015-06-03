@@ -20,10 +20,10 @@
 package org.sonar.core.issue.workflow;
 
 import org.sonar.api.batch.BatchSide;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.IssueUpdater;
 

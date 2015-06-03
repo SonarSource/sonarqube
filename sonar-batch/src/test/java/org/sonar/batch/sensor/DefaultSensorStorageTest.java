@@ -144,7 +144,7 @@ public class DefaultSensorStorageTest {
   public void shouldAddIssueOnFile() {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php").setLines(4);
 
-    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
+    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onFile(file)
@@ -155,7 +155,7 @@ public class DefaultSensorStorageTest {
 
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
 
-    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
+    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isEqualTo(3);
@@ -167,7 +167,7 @@ public class DefaultSensorStorageTest {
   public void shouldAddIssueOnDirectory() {
     InputDir dir = new DefaultInputDir("foo", "src");
 
-    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
+    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onDir(dir)
@@ -177,7 +177,7 @@ public class DefaultSensorStorageTest {
 
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
 
-    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
+    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isNull();
@@ -187,7 +187,7 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void shouldAddIssueOnProject() {
-    ArgumentCaptor<org.sonar.api.issue.internal.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.issue.internal.DefaultIssue.class);
+    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
       .onProject()
@@ -198,7 +198,7 @@ public class DefaultSensorStorageTest {
 
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
 
-    org.sonar.api.issue.internal.DefaultIssue issue = argumentCaptor.getValue();
+    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isNull();

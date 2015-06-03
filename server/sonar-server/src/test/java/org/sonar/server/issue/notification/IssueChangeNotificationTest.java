@@ -20,8 +20,8 @@
 package org.sonar.server.issue.notification;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;

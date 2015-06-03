@@ -20,17 +20,19 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.issue.DefaultIssue;
 
 /**
  * Support concurrent modifications on issues made by analysis and users at the same time
  * See https://jira.sonarsource.com/browse/SONAR-4309
+ *
+ * TODO move to compute engine
  */
 public class UpdateConflictResolver {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IssueStorage.class);
+  private static final Logger LOG = Loggers.get(UpdateConflictResolver.class);
 
   public void resolve(DefaultIssue issue, IssueMapper mapper) {
     LOG.debug("Resolve conflict on issue " + issue.key());

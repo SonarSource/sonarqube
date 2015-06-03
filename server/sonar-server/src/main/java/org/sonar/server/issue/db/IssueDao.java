@@ -19,16 +19,15 @@
  */
 package org.sonar.server.issue.db;
 
-import org.apache.ibatis.session.ResultHandler;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.CheckForNull;
-import java.util.List;
 
 public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoComponent {
 
@@ -57,12 +56,8 @@ public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoCom
     return mapper(session).selectByKeys(keys);
   }
 
-  public void selectNonClosedIssuesByModuleUuid(DbSession session, String moduleUuid, ResultHandler handler) {
-    session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModuleUuid", moduleUuid, handler);
-  }
-
-  public void selectNonClosedIssuesByProjectUuid(DbSession session, String projectUuid, ResultHandler handler) {
-    session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByProjectUuid", projectUuid, handler);
+  public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
+    return mapper(session).selectComponentUuidsOfOpenIssuesForProjectUuid(projectUuid);
   }
 
   public void insert(DbSession session, IssueDto dto) {

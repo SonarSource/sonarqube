@@ -21,6 +21,7 @@
 package org.sonar.server.source.db;
 
 import com.google.common.base.Function;
+import com.google.common.base.Splitter;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,6 +41,7 @@ import org.sonar.core.source.db.FileSourceMapper;
 @ServerSide
 public class FileSourceDao implements DaoComponent {
 
+  private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
   private final MyBatis mybatis;
 
   public FileSourceDao(MyBatis myBatis) {
@@ -63,6 +65,27 @@ public class FileSourceDao implements DaoComponent {
       return mapper(session).select(fileUuid, Type.TEST);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public Iterable<String> selectLineHashes(DbSession dbSession, String fileUuid) {
+    Connection connection = dbSession.getConnection();
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    try {
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type=?");
+      pstmt.setString(1, fileUuid);
+      pstmt.setString(2, Type.SOURCE);
+      rs = pstmt.executeQuery();
+      if (rs.next()) {
+        return END_OF_LINE_SPLITTER.split(rs.getString(1));
+      }
+      return null;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to read FILE_SOURCES.LINE_HASHES of file " + fileUuid, e);
+    } finally {
+      DbUtils.closeQuietly(connection, pstmt, rs);
     }
   }
 

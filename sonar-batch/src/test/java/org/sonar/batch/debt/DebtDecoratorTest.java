@@ -37,7 +37,7 @@ import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;

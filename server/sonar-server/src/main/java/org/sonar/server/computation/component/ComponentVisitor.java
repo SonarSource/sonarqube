@@ -23,6 +23,16 @@ public interface ComponentVisitor {
   void visit(Component tree);
 
   enum Order {
-    PRE_ORDER, POST_ORDER
+    /**
+     * Each component is visited BEFORE its children. Top-down traversal of
+     * tree of components.
+     */
+    PRE_ORDER,
+
+    /**
+     * Each component is visited AFTER its children. Bottom-up traversal of
+     * tree of components.
+     */
+    POST_ORDER
   }
 }

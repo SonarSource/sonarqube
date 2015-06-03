@@ -53,7 +53,6 @@ import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
 import org.sonar.batch.issue.tracking.LocalIssueTracking;
 import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
@@ -217,10 +216,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new DebtModelProvider(),
 
     // technical debt
-      DefaultTechnicalDebtModel.class,
-
-    // Issue tracking
-      InitialOpenIssuesStack.class);
+      DefaultTechnicalDebtModel.class);
   }
 
   private void addBatchExtensions() {

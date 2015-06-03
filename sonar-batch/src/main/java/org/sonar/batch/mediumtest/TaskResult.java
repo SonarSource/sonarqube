@@ -37,7 +37,7 @@ import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.measures.Measure;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Cache.Entry;

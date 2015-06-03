@@ -29,7 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;

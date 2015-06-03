@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.issue.IssueCache;

@@ -39,7 +39,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, BatchReport.Changesets> changesets = new HashMap<>();
   private Map<Integer, BatchReport.Component> components = new HashMap<>();
   private Map<Integer, List<BatchReport.Issue>> issues = new HashMap<>();
-  private Map<Integer, BatchReport.Issues> deletedIssues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
   private Map<Integer, List<BatchReport.Symbols.Symbol>> symbols = new HashMap<>();
   private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
@@ -55,8 +54,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
       public void evaluate() throws Throwable {
         try {
           statement.evaluate();
-        }
-        finally {
+        } finally {
           clear();
         }
       }
@@ -69,7 +67,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     this.changesets.clear();
     this.components.clear();
     this.issues.clear();
-    this.deletedIssues.clear();
     this.duplications.clear();
     this.symbols.clear();
     this.syntaxHighlightings.clear();
@@ -130,19 +127,6 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   public void putIssues(int componentRef, List<BatchReport.Issue> issue) {
     this.issues.put(componentRef, issue);
-  }
-
-  @Override
-  public BatchReport.Issues readDeletedComponentIssues(int deletedComponentRef) {
-    BatchReport.Issues issues = this.deletedIssues.get(deletedComponentRef);
-    if (issues == null) {
-      throw new IllegalStateException("Unable to issues for deleted component #" + deletedComponentRef);
-    }
-    return issues;
-  }
-
-  public void putDeletedIssues(int componentRef, BatchReport.Issues issues) {
-    this.deletedIssues.put(componentRef, issues);
   }
 
   @Override

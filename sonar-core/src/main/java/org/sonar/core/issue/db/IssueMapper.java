@@ -20,10 +20,15 @@
 package org.sonar.core.issue.db;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IssueMapper {
 
   IssueDto selectByKey(String key);
+
+  List<IssueDto> selectOpenByComponentUuid(String componentUuid);
+
+  Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 
   List<IssueDto> selectByKeys(List<String> keys);
 
@@ -34,5 +39,4 @@ public interface IssueMapper {
   int update(IssueDto issue);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
-
 }

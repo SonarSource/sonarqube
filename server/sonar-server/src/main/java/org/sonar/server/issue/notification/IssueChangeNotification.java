@@ -21,8 +21,8 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.notifications.Notification;
 
 import javax.annotation.CheckForNull;

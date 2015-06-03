@@ -20,17 +20,15 @@
 package org.sonar.api.issue;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
-
-import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 
 /**
  * @since 3.6

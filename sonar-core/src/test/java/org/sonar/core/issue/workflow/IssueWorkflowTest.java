@@ -25,8 +25,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.IssueUpdater;
 
@@ -106,7 +106,7 @@ public class IssueWorkflowTest {
   public void list_no_out_transition_from_status_closed() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED);
+    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(transitions).isEmpty();
   }
@@ -149,7 +149,7 @@ public class IssueWorkflowTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
-      .setEndOfLife(true);
+      .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -167,7 +167,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_OPEN)
       .setNew(false)
-      .setEndOfLife(true);
+      .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -185,7 +185,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_REOPENED)
       .setNew(false)
-      .setEndOfLife(true);
+      .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -203,7 +203,7 @@ public class IssueWorkflowTest {
       .setResolution(null)
       .setStatus(Issue.STATUS_CONFIRMED)
       .setNew(false)
-      .setEndOfLife(true);
+      .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
@@ -222,7 +222,7 @@ public class IssueWorkflowTest {
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus("xxx")
       .setNew(false)
-      .setEndOfLife(true);
+      .setBeingClosed(true);
     try {
       workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(new Date()));
       fail();
@@ -346,7 +346,7 @@ public class IssueWorkflowTest {
       .setStatus(Issue.STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon")
-      .setEndOfLife(true)
+      .setBeingClosed(true)
       .setOnDisabledRule(true);
 
     workflow.start();
@@ -364,7 +364,7 @@ public class IssueWorkflowTest {
       .setStatus(Issue.STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon")
-      .setEndOfLife(true)
+      .setBeingClosed(true)
       .setOnDisabledRule(false);
 
     workflow.start();

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;

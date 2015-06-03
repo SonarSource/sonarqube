@@ -56,14 +56,12 @@ public class BatchReportReaderTest {
     BatchReport.Metadata.Builder metadata = BatchReport.Metadata.newBuilder()
       .setAnalysisDate(15000000L)
       .setProjectKey("PROJECT_A")
-      .setRootComponentRef(1)
-      .setDeletedComponentsCount(10);
+      .setRootComponentRef(1);
     writer.writeMetadata(metadata.build());
 
     BatchReport.Metadata readMetadata = sut.readMetadata();
     assertThat(readMetadata.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(readMetadata.getProjectKey()).isEqualTo("PROJECT_A");
-    assertThat(readMetadata.getDeletedComponentsCount()).isEqualTo(10);
     assertThat(readMetadata.getRootComponentRef()).isEqualTo(1);
   }
 
@@ -92,23 +90,12 @@ public class BatchReportReaderTest {
   public void read_issues() {
     BatchReportWriter writer = new BatchReportWriter(dir);
     BatchReport.Issue issue = BatchReport.Issue.newBuilder()
-      .setUuid("ISSUE_A")
       .setLine(50)
       .build();
     writer.writeComponentIssues(1, Arrays.asList(issue));
-    writer.writeDeletedComponentIssues(1, "compUuid", Arrays.asList(issue));
 
     assertThat(sut.readComponentIssues(1)).hasSize(1);
     assertThat(sut.readComponentIssues(200)).isEmpty();
-
-    BatchReport.Issues deletedComponentIssues = sut.readDeletedComponentIssues(1);
-    assertThat(deletedComponentIssues.getComponentUuid()).isEqualTo("compUuid");
-    assertThat(deletedComponentIssues.getIssueList()).hasSize(1);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_missing_file_on_deleted_component() {
-    sut.readDeletedComponentIssues(UNKNOWN_COMPONENT_REF);
   }
 
   @Test

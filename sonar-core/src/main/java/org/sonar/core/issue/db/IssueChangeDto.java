@@ -21,8 +21,8 @@ package org.sonar.core.issue.db;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.utils.System2;
 
 import javax.annotation.CheckForNull;

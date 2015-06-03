@@ -21,10 +21,10 @@ package org.sonar.server.computation.step;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueChangeMapper;
 import org.sonar.core.issue.db.IssueDto;

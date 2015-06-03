@@ -34,8 +34,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueUpdater;
 
 import static com.google.common.collect.Lists.newArrayList;

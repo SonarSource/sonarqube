@@ -29,8 +29,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
@@ -166,7 +166,7 @@ public class LocalIssueTracking {
 
       // non-persisted fields
       issue.setNew(false);
-      issue.setEndOfLife(false);
+      issue.setBeingClosed(false);
       issue.setOnDisabledRule(false);
 
       // fields to update with old values
@@ -226,9 +226,9 @@ public class LocalIssueTracking {
     boolean manualIssue = issue.ruleKey().isManual();
     boolean isRemovedRule = activeRule == null;
     if (manualIssue) {
-      issue.setEndOfLife(forceEndOfLife || isRemovedRule);
+      issue.setBeingClosed(forceEndOfLife || isRemovedRule);
     } else {
-      issue.setEndOfLife(true);
+      issue.setBeingClosed(true);
     }
     issue.setOnDisabledRule(isRemovedRule);
   }

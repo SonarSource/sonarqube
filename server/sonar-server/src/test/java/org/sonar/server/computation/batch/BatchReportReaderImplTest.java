@@ -42,7 +42,7 @@ public class BatchReportReaderImplTest {
   private static final BatchReport.Measure MEASURE = BatchReport.Measure.newBuilder().build();
   private static final BatchReport.Component COMPONENT = BatchReport.Component.newBuilder().setRef(COMPONENT_REF).build();
   private static final BatchReport.Issue ISSUE = BatchReport.Issue.newBuilder().build();
-  private static final BatchReport.Issues ISSUES = BatchReport.Issues.newBuilder().setComponentRef(COMPONENT_REF).setComponentUuid(COMPONENT_UUID).addIssue(ISSUE).build();
+  private static final BatchReport.Issues ISSUES = BatchReport.Issues.newBuilder().setComponentRef(COMPONENT_REF).addIssue(ISSUE).build();
   private static final BatchReport.Duplication DUPLICATION = BatchReport.Duplication.newBuilder().build();
   private static final BatchReport.Symbols.Symbol SYMBOL = BatchReport.Symbols.Symbol.newBuilder().build();
   private static final BatchReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_1 = BatchReport.SyntaxHighlighting.newBuilder().build();
@@ -164,25 +164,6 @@ public class BatchReportReaderImplTest {
     writer.writeComponentIssues(COMPONENT_REF, of(ISSUE));
 
     assertThat(underTest.readComponentIssues(COMPONENT_REF)).isNotSameAs(underTest.readComponentIssues(COMPONENT_REF));
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void readDeletedComponentIssues_throws_ISE_if_file_does_not_exist() {
-    underTest.readDeletedComponentIssues(COMPONENT_REF);
-  }
-
-  @Test
-  public void verify_readDeletedComponentIssues_returns_Issues() {
-    writer.writeDeletedComponentIssues(COMPONENT_REF, COMPONENT_UUID, of(ISSUE));
-
-    assertThat(underTest.readDeletedComponentIssues(COMPONENT_REF)).isEqualTo(ISSUES);
-  }
-
-  @Test
-  public void readDeletedComponentIssues_it_not_cached() {
-    writer.writeDeletedComponentIssues(COMPONENT_REF, COMPONENT_UUID, of(ISSUE));
-
-    assertThat(underTest.readDeletedComponentIssues(COMPONENT_REF)).isNotSameAs(underTest.readDeletedComponentIssues(COMPONENT_REF));
   }
 
   @Test

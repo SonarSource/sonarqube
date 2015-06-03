@@ -74,11 +74,6 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public BatchReport.Issues readDeletedComponentIssues(int deletedComponentRef) {
-    return delegate.readDeletedComponentIssues(deletedComponentRef);
-  }
-
-  @Override
   public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
     return delegate.readComponentDuplications(componentRef);
   }

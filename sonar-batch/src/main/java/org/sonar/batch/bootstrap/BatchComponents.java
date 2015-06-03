@@ -40,10 +40,7 @@ import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
-import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
-import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
-import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
@@ -91,11 +88,6 @@ public class BatchComponents {
       IssueChangelogDebtCalculator.class,
       DebtDecorator.class,
       NewDebtDecorator.class,
-
-      // Issue tracking
-      IssueTrackingDecorator.class,
-      IssueHandlers.class,
-      InitialOpenIssuesSensor.class,
 
       // to be moved to compute engine
       UnitTestDecorator.class,

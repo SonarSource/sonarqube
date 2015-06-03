@@ -80,20 +80,6 @@ public class BatchReportWriter {
     return file;
   }
 
-  /**
-   * Issues on components which have been deleted are stored in another location.
-   * Temporary hack, waiting for computation stack
-   */
-  public File writeDeletedComponentIssues(int componentRef, String componentUuid, Iterable<BatchReport.Issue> issues) {
-    BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
-    issuesBuilder.setComponentRef(componentRef);
-    issuesBuilder.setComponentUuid(componentUuid);
-    issuesBuilder.addAllIssue(issues);
-    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, componentRef);
-    ProtobufUtil.writeToFile(issuesBuilder.build(), file);
-    return file;
-  }
-
   public File writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
     BatchReport.Duplications.Builder builder = BatchReport.Duplications.newBuilder();
     builder.setComponentRef(componentRef);

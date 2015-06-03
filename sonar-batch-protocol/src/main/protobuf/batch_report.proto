@@ -45,9 +45,6 @@ message Metadata {
   optional string project_key = 2;
   optional string branch = 3;
   optional int32 root_component_ref = 4;
-
-  // temporary fields used during development of computation stack
-  optional int32 deleted_components_count = 5;
 }
 
 message ComponentLink {
@@ -111,36 +108,16 @@ message Issue {
   optional string msg = 4;
   optional Severity severity = 5;
   repeated string tag = 6;
-
-  // temporary fields during development of computation stack
   optional double effort_to_fix = 7;
-  optional bool is_new = 8;
-  optional string uuid = 9;
-  optional int64 debt_in_minutes = 10;
-  optional string resolution = 11;
-  optional string status = 12;
-  optional string checksum = 13;
-  optional bool manual_severity = 14;
-  optional string reporter = 15;
-  optional string assignee = 16;
-  optional string action_plan_key = 17;
-  optional string attributes = 18;
-  optional string author_login = 19;
-  optional int64 creation_date = 20;
-  optional int64 close_date = 21;
-  optional int64 update_date = 22;
-  optional int64 selected_at = 23;
-  optional string diff_fields = 24;
-  optional bool is_changed = 25;
-  optional bool must_send_notification = 26;
+  optional string attributes = 8;
+
+  // TODO should it be moved to compute engine?
+  optional int64 debt_in_minutes = 9;
 }
 
 message Issues {
   optional int32 component_ref = 1;
   repeated Issue issue = 2;
-
-  // Temporary field for issues on deleted components
-  optional string component_uuid = 3;
 }
 
 message Changesets {

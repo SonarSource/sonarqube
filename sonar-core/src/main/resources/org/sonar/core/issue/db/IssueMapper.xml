@@ -148,7 +148,42 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectNonClosedIssuesByModule" parameterType="Long" resultType="Issue">
+  <select id="selectOpenByComponentUuid" parameterType="String" resultType="Issue">
+    select
+    i.id,
+    i.kee as kee,
+    i.rule_id as ruleId,
+    i.action_plan_key as actionPlanKey,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.message as message,
+    i.line as line,
+    i.effort_to_fix as effortToFix,
+    i.technical_debt as debt,
+    i.status as status,
+    i.resolution as resolution,
+    i.checksum as checksum,
+    i.reporter as reporter,
+    i.assignee as assignee,
+    i.author_login as authorLogin,
+    i.tags as tagsString,
+    i.issue_attributes as issueAttributes,
+    i.issue_creation_date as issueCreationTime,
+    i.issue_update_date as issueUpdateTime,
+    i.issue_close_date as issueCloseTime,
+    i.created_at as createdAt,
+    i.updated_at as updatedAt,
+    r.plugin_rule_key as ruleKey,
+    i.component_uuid as componentUuid,
+    i.project_uuid as projectUuid
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    where
+    i.component_uuid=#{componentUuid} and
+    i.status &lt;&gt; 'CLOSED'
+  </select>
+
+  <select id="selectNonClosedIssuesByModule" parameterType="long" resultType="Issue">
     select
     i.id,
     i.kee as kee,
@@ -184,6 +219,12 @@
     inner join rules r on r.id=i.rule_id
     left outer join projects root on root.uuid=i.project_uuid
     where i.status &lt;&gt; 'CLOSED'
+  </select>
+
+  <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
+    select distinct(i.component_uuid)
+    from issues i
+    where i.project_uuid=#{projectUuid} and i.status &lt;&gt; 'CLOSED'
   </select>
 
   <select id="selectByKeys" parameterType="map" resultType="Issue">

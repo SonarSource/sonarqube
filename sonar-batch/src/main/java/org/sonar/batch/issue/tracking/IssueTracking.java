@@ -29,7 +29,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
 

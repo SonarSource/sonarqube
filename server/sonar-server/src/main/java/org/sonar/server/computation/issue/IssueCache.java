@@ -19,13 +19,12 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.server.util.cache.DiskCache;
-
 import java.io.File;
 import java.io.IOException;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.util.cache.DiskCache;
 
 /**
  * Cache of all the issues involved in the analysis. Their state is as it will be

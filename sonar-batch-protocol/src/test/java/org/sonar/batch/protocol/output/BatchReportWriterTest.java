@@ -101,7 +101,6 @@ public class BatchReportWriterTest {
 
     // write data
     BatchReport.Issue issue = BatchReport.Issue.newBuilder()
-      .setUuid("ISSUE_A")
       .setLine(50)
       .setMsg("the message")
       .build();
@@ -113,30 +112,6 @@ public class BatchReportWriterTest {
     assertThat(file).exists().isFile();
     BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.hasComponentUuid()).isFalse();
-    assertThat(read.getIssueCount()).isEqualTo(1);
-  }
-
-  @Test
-  public void write_issues_of_deleted_component() {
-    // no data yet
-    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isFalse();
-
-    // write data
-    BatchReport.Issue issue = BatchReport.Issue.newBuilder()
-      .setUuid("ISSUE_A")
-      .setLine(50)
-      .setMsg("the message")
-      .build();
-
-    sut.writeDeletedComponentIssues(1, "componentUuid", Arrays.asList(issue));
-
-    assertThat(sut.hasComponentData(FileStructure.Domain.ISSUES_ON_DELETED, 1)).isTrue();
-    File file = sut.getFileStructure().fileFor(FileStructure.Domain.ISSUES_ON_DELETED, 1);
-    assertThat(file).exists().isFile();
-    BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
-    assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.getComponentUuid()).isEqualTo("componentUuid");
     assertThat(read.getIssueCount()).isEqualTo(1);
   }
 

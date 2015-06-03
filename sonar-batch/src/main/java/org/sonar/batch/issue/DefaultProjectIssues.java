@@ -23,7 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.ProjectIssues;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 
 import javax.annotation.Nullable;
 

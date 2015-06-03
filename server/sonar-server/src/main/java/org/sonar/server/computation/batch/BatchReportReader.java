@@ -36,8 +36,6 @@ public interface BatchReportReader {
 
   List<BatchReport.Issue> readComponentIssues(int componentRef);
 
-  BatchReport.Issues readDeletedComponentIssues(int deletedComponentRef);
-
   List<BatchReport.Duplication> readComponentDuplications(int componentRef);
 
   List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef);

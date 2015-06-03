@@ -47,41 +47,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_by_key() {
-    setupData("shared", "should_select_by_key");
-
-    IssueDto issue = dao.selectByKey("ABCDE");
-    assertThat(issue.getKee()).isEqualTo("ABCDE");
-    assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getRuleId()).isEqualTo(500);
-    assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(issue.isManualSeverity()).isFalse();
-    assertThat(issue.getMessage()).isNull();
-    assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
-    assertThat(issue.getStatus()).isEqualTo("OPEN");
-    assertThat(issue.getResolution()).isEqualTo("FIXED");
-    assertThat(issue.getChecksum()).isEqualTo("XXX");
-    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
-    assertThat(issue.getReporter()).isEqualTo("arthur");
-    assertThat(issue.getAssignee()).isEqualTo("perceval");
-    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
-    assertThat(issue.getIssueCreationDate()).isNotNull();
-    assertThat(issue.getIssueUpdateDate()).isNotNull();
-    assertThat(issue.getIssueCloseDate()).isNotNull();
-    assertThat(issue.getCreatedAt()).isNotNull();
-    assertThat(issue.getUpdatedAt()).isNotNull();
-    assertThat(issue.getRuleRepo()).isEqualTo("squid");
-    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
-    assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
-    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getModuleUuid()).isEqualTo("BCDE");
-    assertThat(issue.getModuleUuidPath()).isEqualTo(".ABCD.BCDE.");
-    assertThat(issue.getProjectKey()).isEqualTo("struts"); // ABCD
-    assertThat(issue.getProjectUuid()).isEqualTo("ABCD"); // null
-  }
-
-  @Test
   public void select_non_closed_issues_by_module() {
     setupData("shared", "should_select_non_closed_issues_by_module");
 

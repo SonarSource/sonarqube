@@ -21,7 +21,7 @@ package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
 import org.sonar.api.issue.condition.Condition;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

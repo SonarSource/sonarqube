@@ -21,9 +21,9 @@ package org.sonar.core.issue.db;
 
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.persistence.BatchSession;

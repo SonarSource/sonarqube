@@ -30,8 +30,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
@@ -41,6 +39,8 @@ import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -110,7 +110,6 @@ public class IssuesPublisherTest {
     Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getDeletedComponentsCount()).isEqualTo(0);
 
     assertThat(reader.readComponentIssues(1)).hasSize(0);
     assertThat(reader.readComponentIssues(2)).hasSize(2);
@@ -118,7 +117,7 @@ public class IssuesPublisherTest {
   }
 
   @Test
-  public void publishMatadataWithBranch() throws Exception {
+  public void publishMetadataWithBranch() throws Exception {
     root.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "myBranch");
     p.setKey("foo:myBranch");
     p.setEffectiveKey("foo:myBranch");
@@ -133,56 +132,6 @@ public class IssuesPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getBranch()).isEqualTo("myBranch");
-    assertThat(metadata.getDeletedComponentsCount()).isEqualTo(0);
   }
 
-  @Test
-  public void publishIssuesOfDeletedComponents() throws Exception {
-
-    DefaultIssue issue1 = new DefaultIssue();
-    issue1.setKey("uuid");
-    issue1.setComponentUuid("deletedUuid");
-    issue1.setSeverity("MAJOR");
-    issue1.setRuleKey(RuleKey.of("repo", "rule"));
-    DefaultIssue issue2 = new DefaultIssue();
-    issue2.setKey("uuid2");
-    issue2.setComponentUuid("deletedUuid");
-    issue2.setSeverity("MAJOR");
-    issue2.setRuleKey(RuleKey.of("repo", "rule"));
-    issue2.setLine(2);
-    issue2.setMessage("msg");
-    issue2.setEffortToFix(2d);
-    issue2.setDebt(Duration.create(2));
-    issue2.setResolution("FIXED");
-    issue2.setStatus("RESOLVED");
-    issue2.setChecksum("checksum");
-    issue2.setReporter("reporter");
-    issue2.setAssignee("assignee");
-    issue2.setActionPlanKey("action");
-    issue2.setAuthorLogin("author");
-    issue2.setCurrentChange(new FieldDiffs().setUserLogin("foo"));
-    issue2.setCreationDate(new Date());
-    issue2.setUpdateDate(new Date());
-    issue2.setCloseDate(new Date());
-    issue2.setSelectedAt(1234L);
-
-    when(issueCache.byComponent("foo:deleted.php")).thenReturn(Arrays.asList(issue1, issue2));
-
-    when(issueCache.componentKeys()).thenReturn(Arrays.<Object>asList("foo:deleted.php"));
-
-    File outputDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(outputDir);
-
-    publisher.publish(writer);
-
-    BatchReportReader reader = new BatchReportReader(outputDir);
-    Metadata metadata = reader.readMetadata();
-    assertThat(metadata.getDeletedComponentsCount()).isEqualTo(1);
-
-    assertThat(reader.readComponentIssues(1)).hasSize(0);
-    assertThat(reader.readComponentIssues(2)).hasSize(0);
-    assertThat(reader.readDeletedComponentIssues(1).getComponentUuid()).isEqualTo("deletedUuid");
-    assertThat(reader.readDeletedComponentIssues(1).getIssueList()).hasSize(2);
-
-  }
 }

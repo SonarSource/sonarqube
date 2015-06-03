@@ -79,15 +79,6 @@ public class BatchReportReader {
     return Collections.emptyList();
   }
 
-  public Issues readDeletedComponentIssues(int deletedComponentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES_ON_DELETED, deletedComponentRef);
-    if (!doesFileExists(file)) {
-      throw new IllegalStateException("Unable to find report for deleted component #" + deletedComponentRef);
-    }
-    // all the issues are loaded in memory
-    return ProtobufUtil.readFile(file, Issues.PARSER);
-  }
-
   public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
     if (doesFileExists(file)) {

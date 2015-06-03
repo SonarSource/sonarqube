@@ -44,7 +44,6 @@ public final class PhaseExecutor {
   private final SensorContext sensorContext;
   private final DefaultIndex index;
   private final ProjectInitializer pi;
-  private final PersistersExecutor persistersExecutor;
   private final FileSystemLogger fsLogger;
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
@@ -57,7 +56,7 @@ public final class PhaseExecutor {
     InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
-    PersistersExecutor persistersExecutor, FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
+    FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, LocalIssueTracking localIssueTracking) {
     this.decoratorsExecutor = decoratorsExecutor;
     this.postJobsExecutor = postJobsExecutor;
@@ -68,7 +67,6 @@ public final class PhaseExecutor {
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.pi = pi;
-    this.persistersExecutor = persistersExecutor;
     this.fsLogger = fsLogger;
     this.issuesReport = jsonReport;
     this.fs = fs;
@@ -106,16 +104,11 @@ public final class PhaseExecutor {
         localIssueTracking();
       }
       issuesReport();
-
-      if (!analysisMode.isPreview()) {
-        persistersExecutor.execute();
-      }
-
       publishReportJob();
       postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();
-    eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+      eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
   }
 
   private void publishReportJob() {

@@ -22,16 +22,11 @@ package org.sonar.core.issue.workflow;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 
-class IsManual implements Condition {
-
-  private final boolean manual;
-
-  IsManual(boolean manual) {
-    this.manual = manual;
-  }
+enum IsManual implements Condition {
+  INSTANCE;
 
   @Override
   public boolean matches(Issue issue) {
-    return manual==(issue.reporter()!=null);
+    return issue.ruleKey().isManual();
   }
 }

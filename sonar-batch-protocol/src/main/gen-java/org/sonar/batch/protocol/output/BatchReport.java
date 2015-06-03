@@ -69,23 +69,6 @@ public final class BatchReport {
      * <code>optional int32 root_component_ref = 4;</code>
      */
     int getRootComponentRef();
-
-    /**
-     * <code>optional int32 deleted_components_count = 5;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    boolean hasDeletedComponentsCount();
-    /**
-     * <code>optional int32 deleted_components_count = 5;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    int getDeletedComponentsCount();
   }
   /**
    * Protobuf type {@code Metadata}
@@ -159,11 +142,6 @@ public final class BatchReport {
             case 32: {
               bitField0_ |= 0x00000008;
               rootComponentRef_ = input.readInt32();
-              break;
-            }
-            case 40: {
-              bitField0_ |= 0x00000010;
-              deletedComponentsCount_ = input.readInt32();
               break;
             }
           }
@@ -332,35 +310,11 @@ public final class BatchReport {
       return rootComponentRef_;
     }
 
-    public static final int DELETED_COMPONENTS_COUNT_FIELD_NUMBER = 5;
-    private int deletedComponentsCount_;
-    /**
-     * <code>optional int32 deleted_components_count = 5;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    public boolean hasDeletedComponentsCount() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional int32 deleted_components_count = 5;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    public int getDeletedComponentsCount() {
-      return deletedComponentsCount_;
-    }
-
     private void initFields() {
       analysisDate_ = 0L;
       projectKey_ = "";
       branch_ = "";
       rootComponentRef_ = 0;
-      deletedComponentsCount_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -387,9 +341,6 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, rootComponentRef_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt32(5, deletedComponentsCount_);
-      }
       getUnknownFields().writeTo(output);
     }
 
@@ -414,10 +365,6 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, rootComponentRef_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(5, deletedComponentsCount_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -544,8 +491,6 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000004);
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        deletedComponentsCount_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -590,10 +535,6 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000008;
         }
         result.rootComponentRef_ = rootComponentRef_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
-        result.deletedComponentsCount_ = deletedComponentsCount_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -625,9 +566,6 @@ public final class BatchReport {
         }
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
-        }
-        if (other.hasDeletedComponentsCount()) {
-          setDeletedComponentsCount(other.getDeletedComponentsCount());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -892,54 +830,6 @@ public final class BatchReport {
       public Builder clearRootComponentRef() {
         bitField0_ = (bitField0_ & ~0x00000008);
         rootComponentRef_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private int deletedComponentsCount_ ;
-      /**
-       * <code>optional int32 deleted_components_count = 5;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public boolean hasDeletedComponentsCount() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional int32 deleted_components_count = 5;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public int getDeletedComponentsCount() {
-        return deletedComponentsCount_;
-      }
-      /**
-       * <code>optional int32 deleted_components_count = 5;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public Builder setDeletedComponentsCount(int value) {
-        bitField0_ |= 0x00000010;
-        deletedComponentsCount_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 deleted_components_count = 5;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public Builder clearDeletedComponentsCount() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        deletedComponentsCount_ = 0;
         onChanged();
         return this;
       }
@@ -6941,241 +6831,43 @@ public final class BatchReport {
 
     /**
      * <code>optional double effort_to_fix = 7;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
      */
     boolean hasEffortToFix();
     /**
      * <code>optional double effort_to_fix = 7;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
      */
     double getEffortToFix();
 
     /**
-     * <code>optional bool is_new = 8;</code>
-     */
-    boolean hasIsNew();
-    /**
-     * <code>optional bool is_new = 8;</code>
-     */
-    boolean getIsNew();
-
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    boolean hasUuid();
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    java.lang.String getUuid();
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    com.google.protobuf.ByteString
-        getUuidBytes();
-
-    /**
-     * <code>optional int64 debt_in_minutes = 10;</code>
-     */
-    boolean hasDebtInMinutes();
-    /**
-     * <code>optional int64 debt_in_minutes = 10;</code>
-     */
-    long getDebtInMinutes();
-
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    boolean hasResolution();
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    java.lang.String getResolution();
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    com.google.protobuf.ByteString
-        getResolutionBytes();
-
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    boolean hasStatus();
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    java.lang.String getStatus();
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    com.google.protobuf.ByteString
-        getStatusBytes();
-
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    boolean hasChecksum();
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    java.lang.String getChecksum();
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    com.google.protobuf.ByteString
-        getChecksumBytes();
-
-    /**
-     * <code>optional bool manual_severity = 14;</code>
-     */
-    boolean hasManualSeverity();
-    /**
-     * <code>optional bool manual_severity = 14;</code>
-     */
-    boolean getManualSeverity();
-
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    boolean hasReporter();
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    java.lang.String getReporter();
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    com.google.protobuf.ByteString
-        getReporterBytes();
-
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    boolean hasAssignee();
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    java.lang.String getAssignee();
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    com.google.protobuf.ByteString
-        getAssigneeBytes();
-
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    boolean hasActionPlanKey();
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    java.lang.String getActionPlanKey();
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    com.google.protobuf.ByteString
-        getActionPlanKeyBytes();
-
-    /**
-     * <code>optional string attributes = 18;</code>
+     * <code>optional string attributes = 8;</code>
      */
     boolean hasAttributes();
     /**
-     * <code>optional string attributes = 18;</code>
+     * <code>optional string attributes = 8;</code>
      */
     java.lang.String getAttributes();
     /**
-     * <code>optional string attributes = 18;</code>
+     * <code>optional string attributes = 8;</code>
      */
     com.google.protobuf.ByteString
         getAttributesBytes();
 
     /**
-     * <code>optional string author_login = 19;</code>
+     * <code>optional int64 debt_in_minutes = 9;</code>
+     *
+     * <pre>
+     * TODO should it be moved to compute engine?
+     * </pre>
      */
-    boolean hasAuthorLogin();
+    boolean hasDebtInMinutes();
     /**
-     * <code>optional string author_login = 19;</code>
+     * <code>optional int64 debt_in_minutes = 9;</code>
+     *
+     * <pre>
+     * TODO should it be moved to compute engine?
+     * </pre>
      */
-    java.lang.String getAuthorLogin();
-    /**
-     * <code>optional string author_login = 19;</code>
-     */
-    com.google.protobuf.ByteString
-        getAuthorLoginBytes();
-
-    /**
-     * <code>optional int64 creation_date = 20;</code>
-     */
-    boolean hasCreationDate();
-    /**
-     * <code>optional int64 creation_date = 20;</code>
-     */
-    long getCreationDate();
-
-    /**
-     * <code>optional int64 close_date = 21;</code>
-     */
-    boolean hasCloseDate();
-    /**
-     * <code>optional int64 close_date = 21;</code>
-     */
-    long getCloseDate();
-
-    /**
-     * <code>optional int64 update_date = 22;</code>
-     */
-    boolean hasUpdateDate();
-    /**
-     * <code>optional int64 update_date = 22;</code>
-     */
-    long getUpdateDate();
-
-    /**
-     * <code>optional int64 selected_at = 23;</code>
-     */
-    boolean hasSelectedAt();
-    /**
-     * <code>optional int64 selected_at = 23;</code>
-     */
-    long getSelectedAt();
-
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    boolean hasDiffFields();
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    java.lang.String getDiffFields();
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    com.google.protobuf.ByteString
-        getDiffFieldsBytes();
-
-    /**
-     * <code>optional bool is_changed = 25;</code>
-     */
-    boolean hasIsChanged();
-    /**
-     * <code>optional bool is_changed = 25;</code>
-     */
-    boolean getIsChanged();
-
-    /**
-     * <code>optional bool must_send_notification = 26;</code>
-     */
-    boolean hasMustSendNotification();
-    /**
-     * <code>optional bool must_send_notification = 26;</code>
-     */
-    boolean getMustSendNotification();
+    long getDebtInMinutes();
   }
   /**
    * Protobuf type {@code Issue}
@@ -7277,109 +6969,15 @@ public final class BatchReport {
               effortToFix_ = input.readDouble();
               break;
             }
-            case 64: {
+            case 66: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
-              isNew_ = input.readBool();
-              break;
-            }
-            case 74: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000080;
-              uuid_ = bs;
-              break;
-            }
-            case 80: {
-              bitField0_ |= 0x00000100;
-              debtInMinutes_ = input.readInt64();
-              break;
-            }
-            case 90: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000200;
-              resolution_ = bs;
-              break;
-            }
-            case 98: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000400;
-              status_ = bs;
-              break;
-            }
-            case 106: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000800;
-              checksum_ = bs;
-              break;
-            }
-            case 112: {
-              bitField0_ |= 0x00001000;
-              manualSeverity_ = input.readBool();
-              break;
-            }
-            case 122: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00002000;
-              reporter_ = bs;
-              break;
-            }
-            case 130: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00004000;
-              assignee_ = bs;
-              break;
-            }
-            case 138: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00008000;
-              actionPlanKey_ = bs;
-              break;
-            }
-            case 146: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00010000;
               attributes_ = bs;
               break;
             }
-            case 154: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00020000;
-              authorLogin_ = bs;
-              break;
-            }
-            case 160: {
-              bitField0_ |= 0x00040000;
-              creationDate_ = input.readInt64();
-              break;
-            }
-            case 168: {
-              bitField0_ |= 0x00080000;
-              closeDate_ = input.readInt64();
-              break;
-            }
-            case 176: {
-              bitField0_ |= 0x00100000;
-              updateDate_ = input.readInt64();
-              break;
-            }
-            case 184: {
-              bitField0_ |= 0x00200000;
-              selectedAt_ = input.readInt64();
-              break;
-            }
-            case 194: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00400000;
-              diffFields_ = bs;
-              break;
-            }
-            case 200: {
-              bitField0_ |= 0x00800000;
-              isChanged_ = input.readBool();
-              break;
-            }
-            case 208: {
-              bitField0_ |= 0x01000000;
-              mustSendNotification_ = input.readBool();
+            case 72: {
+              bitField0_ |= 0x00000080;
+              debtInMinutes_ = input.readInt64();
               break;
             }
           }
@@ -7614,374 +7212,27 @@ public final class BatchReport {
     private double effortToFix_;
     /**
      * <code>optional double effort_to_fix = 7;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
      */
     public boolean hasEffortToFix() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional double effort_to_fix = 7;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
      */
     public double getEffortToFix() {
       return effortToFix_;
     }
 
-    public static final int IS_NEW_FIELD_NUMBER = 8;
-    private boolean isNew_;
+    public static final int ATTRIBUTES_FIELD_NUMBER = 8;
+    private java.lang.Object attributes_;
     /**
-     * <code>optional bool is_new = 8;</code>
+     * <code>optional string attributes = 8;</code>
      */
-    public boolean hasIsNew() {
+    public boolean hasAttributes() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional bool is_new = 8;</code>
-     */
-    public boolean getIsNew() {
-      return isNew_;
-    }
-
-    public static final int UUID_FIELD_NUMBER = 9;
-    private java.lang.Object uuid_;
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    public boolean hasUuid() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    public java.lang.String getUuid() {
-      java.lang.Object ref = uuid_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          uuid_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string uuid = 9;</code>
-     */
-    public com.google.protobuf.ByteString
-        getUuidBytes() {
-      java.lang.Object ref = uuid_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        uuid_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int DEBT_IN_MINUTES_FIELD_NUMBER = 10;
-    private long debtInMinutes_;
-    /**
-     * <code>optional int64 debt_in_minutes = 10;</code>
-     */
-    public boolean hasDebtInMinutes() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional int64 debt_in_minutes = 10;</code>
-     */
-    public long getDebtInMinutes() {
-      return debtInMinutes_;
-    }
-
-    public static final int RESOLUTION_FIELD_NUMBER = 11;
-    private java.lang.Object resolution_;
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    public boolean hasResolution() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    public java.lang.String getResolution() {
-      java.lang.Object ref = resolution_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          resolution_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string resolution = 11;</code>
-     */
-    public com.google.protobuf.ByteString
-        getResolutionBytes() {
-      java.lang.Object ref = resolution_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        resolution_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int STATUS_FIELD_NUMBER = 12;
-    private java.lang.Object status_;
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    public boolean hasStatus() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
-    }
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    public java.lang.String getStatus() {
-      java.lang.Object ref = status_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          status_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string status = 12;</code>
-     */
-    public com.google.protobuf.ByteString
-        getStatusBytes() {
-      java.lang.Object ref = status_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        status_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int CHECKSUM_FIELD_NUMBER = 13;
-    private java.lang.Object checksum_;
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    public boolean hasChecksum() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
-    }
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    public java.lang.String getChecksum() {
-      java.lang.Object ref = checksum_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          checksum_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string checksum = 13;</code>
-     */
-    public com.google.protobuf.ByteString
-        getChecksumBytes() {
-      java.lang.Object ref = checksum_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        checksum_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int MANUAL_SEVERITY_FIELD_NUMBER = 14;
-    private boolean manualSeverity_;
-    /**
-     * <code>optional bool manual_severity = 14;</code>
-     */
-    public boolean hasManualSeverity() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
-    }
-    /**
-     * <code>optional bool manual_severity = 14;</code>
-     */
-    public boolean getManualSeverity() {
-      return manualSeverity_;
-    }
-
-    public static final int REPORTER_FIELD_NUMBER = 15;
-    private java.lang.Object reporter_;
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    public boolean hasReporter() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
-    }
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    public java.lang.String getReporter() {
-      java.lang.Object ref = reporter_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          reporter_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string reporter = 15;</code>
-     */
-    public com.google.protobuf.ByteString
-        getReporterBytes() {
-      java.lang.Object ref = reporter_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        reporter_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ASSIGNEE_FIELD_NUMBER = 16;
-    private java.lang.Object assignee_;
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    public boolean hasAssignee() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
-    }
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    public java.lang.String getAssignee() {
-      java.lang.Object ref = assignee_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          assignee_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string assignee = 16;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAssigneeBytes() {
-      java.lang.Object ref = assignee_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        assignee_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ACTION_PLAN_KEY_FIELD_NUMBER = 17;
-    private java.lang.Object actionPlanKey_;
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    public boolean hasActionPlanKey() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
-    }
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    public java.lang.String getActionPlanKey() {
-      java.lang.Object ref = actionPlanKey_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          actionPlanKey_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string action_plan_key = 17;</code>
-     */
-    public com.google.protobuf.ByteString
-        getActionPlanKeyBytes() {
-      java.lang.Object ref = actionPlanKey_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        actionPlanKey_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ATTRIBUTES_FIELD_NUMBER = 18;
-    private java.lang.Object attributes_;
-    /**
-     * <code>optional string attributes = 18;</code>
-     */
-    public boolean hasAttributes() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
-    }
-    /**
-     * <code>optional string attributes = 18;</code>
+     * <code>optional string attributes = 8;</code>
      */
     public java.lang.String getAttributes() {
       java.lang.Object ref = attributes_;
@@ -7998,7 +7249,7 @@ public final class BatchReport {
       }
     }
     /**
-     * <code>optional string attributes = 18;</code>
+     * <code>optional string attributes = 8;</code>
      */
     public com.google.protobuf.ByteString
         getAttributesBytes() {
@@ -8014,178 +7265,27 @@ public final class BatchReport {
       }
     }
 
-    public static final int AUTHOR_LOGIN_FIELD_NUMBER = 19;
-    private java.lang.Object authorLogin_;
+    public static final int DEBT_IN_MINUTES_FIELD_NUMBER = 9;
+    private long debtInMinutes_;
     /**
-     * <code>optional string author_login = 19;</code>
+     * <code>optional int64 debt_in_minutes = 9;</code>
+     *
+     * <pre>
+     * TODO should it be moved to compute engine?
+     * </pre>
      */
-    public boolean hasAuthorLogin() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+    public boolean hasDebtInMinutes() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>optional string author_login = 19;</code>
+     * <code>optional int64 debt_in_minutes = 9;</code>
+     *
+     * <pre>
+     * TODO should it be moved to compute engine?
+     * </pre>
      */
-    public java.lang.String getAuthorLogin() {
-      java.lang.Object ref = authorLogin_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          authorLogin_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string author_login = 19;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAuthorLoginBytes() {
-      java.lang.Object ref = authorLogin_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        authorLogin_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int CREATION_DATE_FIELD_NUMBER = 20;
-    private long creationDate_;
-    /**
-     * <code>optional int64 creation_date = 20;</code>
-     */
-    public boolean hasCreationDate() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
-    }
-    /**
-     * <code>optional int64 creation_date = 20;</code>
-     */
-    public long getCreationDate() {
-      return creationDate_;
-    }
-
-    public static final int CLOSE_DATE_FIELD_NUMBER = 21;
-    private long closeDate_;
-    /**
-     * <code>optional int64 close_date = 21;</code>
-     */
-    public boolean hasCloseDate() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
-    }
-    /**
-     * <code>optional int64 close_date = 21;</code>
-     */
-    public long getCloseDate() {
-      return closeDate_;
-    }
-
-    public static final int UPDATE_DATE_FIELD_NUMBER = 22;
-    private long updateDate_;
-    /**
-     * <code>optional int64 update_date = 22;</code>
-     */
-    public boolean hasUpdateDate() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
-    }
-    /**
-     * <code>optional int64 update_date = 22;</code>
-     */
-    public long getUpdateDate() {
-      return updateDate_;
-    }
-
-    public static final int SELECTED_AT_FIELD_NUMBER = 23;
-    private long selectedAt_;
-    /**
-     * <code>optional int64 selected_at = 23;</code>
-     */
-    public boolean hasSelectedAt() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
-    }
-    /**
-     * <code>optional int64 selected_at = 23;</code>
-     */
-    public long getSelectedAt() {
-      return selectedAt_;
-    }
-
-    public static final int DIFF_FIELDS_FIELD_NUMBER = 24;
-    private java.lang.Object diffFields_;
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    public boolean hasDiffFields() {
-      return ((bitField0_ & 0x00400000) == 0x00400000);
-    }
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    public java.lang.String getDiffFields() {
-      java.lang.Object ref = diffFields_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          diffFields_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string diff_fields = 24;</code>
-     */
-    public com.google.protobuf.ByteString
-        getDiffFieldsBytes() {
-      java.lang.Object ref = diffFields_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        diffFields_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int IS_CHANGED_FIELD_NUMBER = 25;
-    private boolean isChanged_;
-    /**
-     * <code>optional bool is_changed = 25;</code>
-     */
-    public boolean hasIsChanged() {
-      return ((bitField0_ & 0x00800000) == 0x00800000);
-    }
-    /**
-     * <code>optional bool is_changed = 25;</code>
-     */
-    public boolean getIsChanged() {
-      return isChanged_;
-    }
-
-    public static final int MUST_SEND_NOTIFICATION_FIELD_NUMBER = 26;
-    private boolean mustSendNotification_;
-    /**
-     * <code>optional bool must_send_notification = 26;</code>
-     */
-    public boolean hasMustSendNotification() {
-      return ((bitField0_ & 0x01000000) == 0x01000000);
-    }
-    /**
-     * <code>optional bool must_send_notification = 26;</code>
-     */
-    public boolean getMustSendNotification() {
-      return mustSendNotification_;
+    public long getDebtInMinutes() {
+      return debtInMinutes_;
     }
 
     private void initFields() {
@@ -8196,25 +7296,8 @@ public final class BatchReport {
       severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
       tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       effortToFix_ = 0D;
-      isNew_ = false;
-      uuid_ = "";
-      debtInMinutes_ = 0L;
-      resolution_ = "";
-      status_ = "";
-      checksum_ = "";
-      manualSeverity_ = false;
-      reporter_ = "";
-      assignee_ = "";
-      actionPlanKey_ = "";
       attributes_ = "";
-      authorLogin_ = "";
-      creationDate_ = 0L;
-      closeDate_ = 0L;
-      updateDate_ = 0L;
-      selectedAt_ = 0L;
-      diffFields_ = "";
-      isChanged_ = false;
-      mustSendNotification_ = false;
+      debtInMinutes_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -8251,61 +7334,10 @@ public final class BatchReport {
         output.writeDouble(7, effortToFix_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBool(8, isNew_);
+        output.writeBytes(8, getAttributesBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(9, getUuidBytes());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeInt64(10, debtInMinutes_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(11, getResolutionBytes());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(12, getStatusBytes());
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeBytes(13, getChecksumBytes());
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeBool(14, manualSeverity_);
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeBytes(15, getReporterBytes());
-      }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeBytes(16, getAssigneeBytes());
-      }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeBytes(17, getActionPlanKeyBytes());
-      }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeBytes(18, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        output.writeBytes(19, getAuthorLoginBytes());
-      }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        output.writeInt64(20, creationDate_);
-      }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        output.writeInt64(21, closeDate_);
-      }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        output.writeInt64(22, updateDate_);
-      }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
-        output.writeInt64(23, selectedAt_);
-      }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
-        output.writeBytes(24, getDiffFieldsBytes());
-      }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
-        output.writeBool(25, isChanged_);
-      }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
-        output.writeBool(26, mustSendNotification_);
+        output.writeInt64(9, debtInMinutes_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -8351,79 +7383,11 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(8, isNew_);
+          .computeBytesSize(8, getAttributesBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getUuidBytes());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(10, debtInMinutes_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(11, getResolutionBytes());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(12, getStatusBytes());
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(13, getChecksumBytes());
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(14, manualSeverity_);
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(15, getReporterBytes());
-      }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(16, getAssigneeBytes());
-      }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(17, getActionPlanKeyBytes());
-      }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(18, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(19, getAuthorLoginBytes());
-      }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(20, creationDate_);
-      }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(21, closeDate_);
-      }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(22, updateDate_);
-      }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(23, selectedAt_);
-      }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(24, getDiffFieldsBytes());
-      }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(25, isChanged_);
-      }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(26, mustSendNotification_);
+          .computeInt64Size(9, debtInMinutes_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -8556,44 +7520,10 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000020);
         effortToFix_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000040);
-        isNew_ = false;
-        bitField0_ = (bitField0_ & ~0x00000080);
-        uuid_ = "";
-        bitField0_ = (bitField0_ & ~0x00000100);
-        debtInMinutes_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000200);
-        resolution_ = "";
-        bitField0_ = (bitField0_ & ~0x00000400);
-        status_ = "";
-        bitField0_ = (bitField0_ & ~0x00000800);
-        checksum_ = "";
-        bitField0_ = (bitField0_ & ~0x00001000);
-        manualSeverity_ = false;
-        bitField0_ = (bitField0_ & ~0x00002000);
-        reporter_ = "";
-        bitField0_ = (bitField0_ & ~0x00004000);
-        assignee_ = "";
-        bitField0_ = (bitField0_ & ~0x00008000);
-        actionPlanKey_ = "";
-        bitField0_ = (bitField0_ & ~0x00010000);
         attributes_ = "";
-        bitField0_ = (bitField0_ & ~0x00020000);
-        authorLogin_ = "";
-        bitField0_ = (bitField0_ & ~0x00040000);
-        creationDate_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00080000);
-        closeDate_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00100000);
-        updateDate_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00200000);
-        selectedAt_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00400000);
-        diffFields_ = "";
-        bitField0_ = (bitField0_ & ~0x00800000);
-        isChanged_ = false;
-        bitField0_ = (bitField0_ & ~0x01000000);
-        mustSendNotification_ = false;
-        bitField0_ = (bitField0_ & ~0x02000000);
+        bitField0_ = (bitField0_ & ~0x00000080);
+        debtInMinutes_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
 
@@ -8654,79 +7584,11 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.isNew_ = isNew_;
+        result.attributes_ = attributes_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.uuid_ = uuid_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000100;
-        }
         result.debtInMinutes_ = debtInMinutes_;
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
-          to_bitField0_ |= 0x00000200;
-        }
-        result.resolution_ = resolution_;
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
-          to_bitField0_ |= 0x00000400;
-        }
-        result.status_ = status_;
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
-          to_bitField0_ |= 0x00000800;
-        }
-        result.checksum_ = checksum_;
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
-          to_bitField0_ |= 0x00001000;
-        }
-        result.manualSeverity_ = manualSeverity_;
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
-          to_bitField0_ |= 0x00002000;
-        }
-        result.reporter_ = reporter_;
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
-          to_bitField0_ |= 0x00004000;
-        }
-        result.assignee_ = assignee_;
-        if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
-          to_bitField0_ |= 0x00008000;
-        }
-        result.actionPlanKey_ = actionPlanKey_;
-        if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
-          to_bitField0_ |= 0x00010000;
-        }
-        result.attributes_ = attributes_;
-        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
-          to_bitField0_ |= 0x00020000;
-        }
-        result.authorLogin_ = authorLogin_;
-        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
-          to_bitField0_ |= 0x00040000;
-        }
-        result.creationDate_ = creationDate_;
-        if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
-          to_bitField0_ |= 0x00080000;
-        }
-        result.closeDate_ = closeDate_;
-        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
-          to_bitField0_ |= 0x00100000;
-        }
-        result.updateDate_ = updateDate_;
-        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
-          to_bitField0_ |= 0x00200000;
-        }
-        result.selectedAt_ = selectedAt_;
-        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
-          to_bitField0_ |= 0x00400000;
-        }
-        result.diffFields_ = diffFields_;
-        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
-          to_bitField0_ |= 0x00800000;
-        }
-        result.isChanged_ = isChanged_;
-        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
-          to_bitField0_ |= 0x01000000;
-        }
-        result.mustSendNotification_ = mustSendNotification_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -8777,82 +7639,13 @@ public final class BatchReport {
         if (other.hasEffortToFix()) {
           setEffortToFix(other.getEffortToFix());
         }
-        if (other.hasIsNew()) {
-          setIsNew(other.getIsNew());
-        }
-        if (other.hasUuid()) {
-          bitField0_ |= 0x00000100;
-          uuid_ = other.uuid_;
+        if (other.hasAttributes()) {
+          bitField0_ |= 0x00000080;
+          attributes_ = other.attributes_;
           onChanged();
         }
         if (other.hasDebtInMinutes()) {
           setDebtInMinutes(other.getDebtInMinutes());
-        }
-        if (other.hasResolution()) {
-          bitField0_ |= 0x00000400;
-          resolution_ = other.resolution_;
-          onChanged();
-        }
-        if (other.hasStatus()) {
-          bitField0_ |= 0x00000800;
-          status_ = other.status_;
-          onChanged();
-        }
-        if (other.hasChecksum()) {
-          bitField0_ |= 0x00001000;
-          checksum_ = other.checksum_;
-          onChanged();
-        }
-        if (other.hasManualSeverity()) {
-          setManualSeverity(other.getManualSeverity());
-        }
-        if (other.hasReporter()) {
-          bitField0_ |= 0x00004000;
-          reporter_ = other.reporter_;
-          onChanged();
-        }
-        if (other.hasAssignee()) {
-          bitField0_ |= 0x00008000;
-          assignee_ = other.assignee_;
-          onChanged();
-        }
-        if (other.hasActionPlanKey()) {
-          bitField0_ |= 0x00010000;
-          actionPlanKey_ = other.actionPlanKey_;
-          onChanged();
-        }
-        if (other.hasAttributes()) {
-          bitField0_ |= 0x00020000;
-          attributes_ = other.attributes_;
-          onChanged();
-        }
-        if (other.hasAuthorLogin()) {
-          bitField0_ |= 0x00040000;
-          authorLogin_ = other.authorLogin_;
-          onChanged();
-        }
-        if (other.hasCreationDate()) {
-          setCreationDate(other.getCreationDate());
-        }
-        if (other.hasCloseDate()) {
-          setCloseDate(other.getCloseDate());
-        }
-        if (other.hasUpdateDate()) {
-          setUpdateDate(other.getUpdateDate());
-        }
-        if (other.hasSelectedAt()) {
-          setSelectedAt(other.getSelectedAt());
-        }
-        if (other.hasDiffFields()) {
-          bitField0_ |= 0x00800000;
-          diffFields_ = other.diffFields_;
-          onChanged();
-        }
-        if (other.hasIsChanged()) {
-          setIsChanged(other.getIsChanged());
-        }
-        if (other.hasMustSendNotification()) {
-          setMustSendNotification(other.getMustSendNotification());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -9272,30 +8065,18 @@ public final class BatchReport {
       private double effortToFix_ ;
       /**
        * <code>optional double effort_to_fix = 7;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
        */
       public boolean hasEffortToFix() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional double effort_to_fix = 7;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
        */
       public double getEffortToFix() {
         return effortToFix_;
       }
       /**
        * <code>optional double effort_to_fix = 7;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
        */
       public Builder setEffortToFix(double value) {
         bitField0_ |= 0x00000040;
@@ -9305,10 +8086,6 @@ public final class BatchReport {
       }
       /**
        * <code>optional double effort_to_fix = 7;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
        */
       public Builder clearEffortToFix() {
         bitField0_ = (bitField0_ & ~0x00000040);
@@ -9317,643 +8094,15 @@ public final class BatchReport {
         return this;
       }
 
-      private boolean isNew_ ;
+      private java.lang.Object attributes_ = "";
       /**
-       * <code>optional bool is_new = 8;</code>
+       * <code>optional string attributes = 8;</code>
        */
-      public boolean hasIsNew() {
+      public boolean hasAttributes() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional bool is_new = 8;</code>
-       */
-      public boolean getIsNew() {
-        return isNew_;
-      }
-      /**
-       * <code>optional bool is_new = 8;</code>
-       */
-      public Builder setIsNew(boolean value) {
-        bitField0_ |= 0x00000080;
-        isNew_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool is_new = 8;</code>
-       */
-      public Builder clearIsNew() {
-        bitField0_ = (bitField0_ & ~0x00000080);
-        isNew_ = false;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object uuid_ = "";
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public boolean hasUuid() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
-      }
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public java.lang.String getUuid() {
-        java.lang.Object ref = uuid_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            uuid_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public com.google.protobuf.ByteString
-          getUuidBytes() {
-        java.lang.Object ref = uuid_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          uuid_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public Builder setUuid(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000100;
-        uuid_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public Builder clearUuid() {
-        bitField0_ = (bitField0_ & ~0x00000100);
-        uuid_ = getDefaultInstance().getUuid();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string uuid = 9;</code>
-       */
-      public Builder setUuidBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000100;
-        uuid_ = value;
-        onChanged();
-        return this;
-      }
-
-      private long debtInMinutes_ ;
-      /**
-       * <code>optional int64 debt_in_minutes = 10;</code>
-       */
-      public boolean hasDebtInMinutes() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 10;</code>
-       */
-      public long getDebtInMinutes() {
-        return debtInMinutes_;
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 10;</code>
-       */
-      public Builder setDebtInMinutes(long value) {
-        bitField0_ |= 0x00000200;
-        debtInMinutes_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 10;</code>
-       */
-      public Builder clearDebtInMinutes() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        debtInMinutes_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object resolution_ = "";
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public boolean hasResolution() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
-      }
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public java.lang.String getResolution() {
-        java.lang.Object ref = resolution_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            resolution_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public com.google.protobuf.ByteString
-          getResolutionBytes() {
-        java.lang.Object ref = resolution_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          resolution_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public Builder setResolution(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        resolution_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public Builder clearResolution() {
-        bitField0_ = (bitField0_ & ~0x00000400);
-        resolution_ = getDefaultInstance().getResolution();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string resolution = 11;</code>
-       */
-      public Builder setResolutionBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        resolution_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object status_ = "";
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public boolean hasStatus() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
-      }
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public java.lang.String getStatus() {
-        java.lang.Object ref = status_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            status_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public com.google.protobuf.ByteString
-          getStatusBytes() {
-        java.lang.Object ref = status_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          status_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public Builder setStatus(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000800;
-        status_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public Builder clearStatus() {
-        bitField0_ = (bitField0_ & ~0x00000800);
-        status_ = getDefaultInstance().getStatus();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string status = 12;</code>
-       */
-      public Builder setStatusBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000800;
-        status_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object checksum_ = "";
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public boolean hasChecksum() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
-      }
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public java.lang.String getChecksum() {
-        java.lang.Object ref = checksum_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            checksum_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public com.google.protobuf.ByteString
-          getChecksumBytes() {
-        java.lang.Object ref = checksum_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          checksum_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public Builder setChecksum(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00001000;
-        checksum_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public Builder clearChecksum() {
-        bitField0_ = (bitField0_ & ~0x00001000);
-        checksum_ = getDefaultInstance().getChecksum();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string checksum = 13;</code>
-       */
-      public Builder setChecksumBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00001000;
-        checksum_ = value;
-        onChanged();
-        return this;
-      }
-
-      private boolean manualSeverity_ ;
-      /**
-       * <code>optional bool manual_severity = 14;</code>
-       */
-      public boolean hasManualSeverity() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
-      }
-      /**
-       * <code>optional bool manual_severity = 14;</code>
-       */
-      public boolean getManualSeverity() {
-        return manualSeverity_;
-      }
-      /**
-       * <code>optional bool manual_severity = 14;</code>
-       */
-      public Builder setManualSeverity(boolean value) {
-        bitField0_ |= 0x00002000;
-        manualSeverity_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool manual_severity = 14;</code>
-       */
-      public Builder clearManualSeverity() {
-        bitField0_ = (bitField0_ & ~0x00002000);
-        manualSeverity_ = false;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object reporter_ = "";
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public boolean hasReporter() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
-      }
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public java.lang.String getReporter() {
-        java.lang.Object ref = reporter_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            reporter_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public com.google.protobuf.ByteString
-          getReporterBytes() {
-        java.lang.Object ref = reporter_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          reporter_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public Builder setReporter(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00004000;
-        reporter_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public Builder clearReporter() {
-        bitField0_ = (bitField0_ & ~0x00004000);
-        reporter_ = getDefaultInstance().getReporter();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string reporter = 15;</code>
-       */
-      public Builder setReporterBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00004000;
-        reporter_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object assignee_ = "";
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public boolean hasAssignee() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
-      }
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public java.lang.String getAssignee() {
-        java.lang.Object ref = assignee_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            assignee_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAssigneeBytes() {
-        java.lang.Object ref = assignee_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          assignee_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public Builder setAssignee(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
-        assignee_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public Builder clearAssignee() {
-        bitField0_ = (bitField0_ & ~0x00008000);
-        assignee_ = getDefaultInstance().getAssignee();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string assignee = 16;</code>
-       */
-      public Builder setAssigneeBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
-        assignee_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object actionPlanKey_ = "";
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public boolean hasActionPlanKey() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
-      }
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public java.lang.String getActionPlanKey() {
-        java.lang.Object ref = actionPlanKey_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            actionPlanKey_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public com.google.protobuf.ByteString
-          getActionPlanKeyBytes() {
-        java.lang.Object ref = actionPlanKey_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          actionPlanKey_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public Builder setActionPlanKey(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00010000;
-        actionPlanKey_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public Builder clearActionPlanKey() {
-        bitField0_ = (bitField0_ & ~0x00010000);
-        actionPlanKey_ = getDefaultInstance().getActionPlanKey();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string action_plan_key = 17;</code>
-       */
-      public Builder setActionPlanKeyBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00010000;
-        actionPlanKey_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object attributes_ = "";
-      /**
-       * <code>optional string attributes = 18;</code>
-       */
-      public boolean hasAttributes() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
-      }
-      /**
-       * <code>optional string attributes = 18;</code>
+       * <code>optional string attributes = 8;</code>
        */
       public java.lang.String getAttributes() {
         java.lang.Object ref = attributes_;
@@ -9970,7 +8119,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string attributes = 18;</code>
+       * <code>optional string attributes = 8;</code>
        */
       public com.google.protobuf.ByteString
           getAttributesBytes() {
@@ -9986,381 +8135,85 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string attributes = 18;</code>
+       * <code>optional string attributes = 8;</code>
        */
       public Builder setAttributes(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00020000;
+  bitField0_ |= 0x00000080;
         attributes_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string attributes = 18;</code>
+       * <code>optional string attributes = 8;</code>
        */
       public Builder clearAttributes() {
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00000080);
         attributes_ = getDefaultInstance().getAttributes();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string attributes = 18;</code>
+       * <code>optional string attributes = 8;</code>
        */
       public Builder setAttributesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00020000;
+  bitField0_ |= 0x00000080;
         attributes_ = value;
         onChanged();
         return this;
       }
 
-      private java.lang.Object authorLogin_ = "";
+      private long debtInMinutes_ ;
       /**
-       * <code>optional string author_login = 19;</code>
+       * <code>optional int64 debt_in_minutes = 9;</code>
+       *
+       * <pre>
+       * TODO should it be moved to compute engine?
+       * </pre>
        */
-      public boolean hasAuthorLogin() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
+      public boolean hasDebtInMinutes() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional string author_login = 19;</code>
+       * <code>optional int64 debt_in_minutes = 9;</code>
+       *
+       * <pre>
+       * TODO should it be moved to compute engine?
+       * </pre>
        */
-      public java.lang.String getAuthorLogin() {
-        java.lang.Object ref = authorLogin_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            authorLogin_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public long getDebtInMinutes() {
+        return debtInMinutes_;
       }
       /**
-       * <code>optional string author_login = 19;</code>
+       * <code>optional int64 debt_in_minutes = 9;</code>
+       *
+       * <pre>
+       * TODO should it be moved to compute engine?
+       * </pre>
        */
-      public com.google.protobuf.ByteString
-          getAuthorLoginBytes() {
-        java.lang.Object ref = authorLogin_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          authorLogin_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string author_login = 19;</code>
-       */
-      public Builder setAuthorLogin(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00040000;
-        authorLogin_ = value;
+      public Builder setDebtInMinutes(long value) {
+        bitField0_ |= 0x00000100;
+        debtInMinutes_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string author_login = 19;</code>
+       * <code>optional int64 debt_in_minutes = 9;</code>
+       *
+       * <pre>
+       * TODO should it be moved to compute engine?
+       * </pre>
        */
-      public Builder clearAuthorLogin() {
-        bitField0_ = (bitField0_ & ~0x00040000);
-        authorLogin_ = getDefaultInstance().getAuthorLogin();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string author_login = 19;</code>
-       */
-      public Builder setAuthorLoginBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00040000;
-        authorLogin_ = value;
-        onChanged();
-        return this;
-      }
-
-      private long creationDate_ ;
-      /**
-       * <code>optional int64 creation_date = 20;</code>
-       */
-      public boolean hasCreationDate() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
-      }
-      /**
-       * <code>optional int64 creation_date = 20;</code>
-       */
-      public long getCreationDate() {
-        return creationDate_;
-      }
-      /**
-       * <code>optional int64 creation_date = 20;</code>
-       */
-      public Builder setCreationDate(long value) {
-        bitField0_ |= 0x00080000;
-        creationDate_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 creation_date = 20;</code>
-       */
-      public Builder clearCreationDate() {
-        bitField0_ = (bitField0_ & ~0x00080000);
-        creationDate_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long closeDate_ ;
-      /**
-       * <code>optional int64 close_date = 21;</code>
-       */
-      public boolean hasCloseDate() {
-        return ((bitField0_ & 0x00100000) == 0x00100000);
-      }
-      /**
-       * <code>optional int64 close_date = 21;</code>
-       */
-      public long getCloseDate() {
-        return closeDate_;
-      }
-      /**
-       * <code>optional int64 close_date = 21;</code>
-       */
-      public Builder setCloseDate(long value) {
-        bitField0_ |= 0x00100000;
-        closeDate_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 close_date = 21;</code>
-       */
-      public Builder clearCloseDate() {
-        bitField0_ = (bitField0_ & ~0x00100000);
-        closeDate_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long updateDate_ ;
-      /**
-       * <code>optional int64 update_date = 22;</code>
-       */
-      public boolean hasUpdateDate() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
-      }
-      /**
-       * <code>optional int64 update_date = 22;</code>
-       */
-      public long getUpdateDate() {
-        return updateDate_;
-      }
-      /**
-       * <code>optional int64 update_date = 22;</code>
-       */
-      public Builder setUpdateDate(long value) {
-        bitField0_ |= 0x00200000;
-        updateDate_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 update_date = 22;</code>
-       */
-      public Builder clearUpdateDate() {
-        bitField0_ = (bitField0_ & ~0x00200000);
-        updateDate_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long selectedAt_ ;
-      /**
-       * <code>optional int64 selected_at = 23;</code>
-       */
-      public boolean hasSelectedAt() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
-      }
-      /**
-       * <code>optional int64 selected_at = 23;</code>
-       */
-      public long getSelectedAt() {
-        return selectedAt_;
-      }
-      /**
-       * <code>optional int64 selected_at = 23;</code>
-       */
-      public Builder setSelectedAt(long value) {
-        bitField0_ |= 0x00400000;
-        selectedAt_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 selected_at = 23;</code>
-       */
-      public Builder clearSelectedAt() {
-        bitField0_ = (bitField0_ & ~0x00400000);
-        selectedAt_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object diffFields_ = "";
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public boolean hasDiffFields() {
-        return ((bitField0_ & 0x00800000) == 0x00800000);
-      }
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public java.lang.String getDiffFields() {
-        java.lang.Object ref = diffFields_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            diffFields_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public com.google.protobuf.ByteString
-          getDiffFieldsBytes() {
-        java.lang.Object ref = diffFields_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          diffFields_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public Builder setDiffFields(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00800000;
-        diffFields_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public Builder clearDiffFields() {
-        bitField0_ = (bitField0_ & ~0x00800000);
-        diffFields_ = getDefaultInstance().getDiffFields();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string diff_fields = 24;</code>
-       */
-      public Builder setDiffFieldsBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00800000;
-        diffFields_ = value;
-        onChanged();
-        return this;
-      }
-
-      private boolean isChanged_ ;
-      /**
-       * <code>optional bool is_changed = 25;</code>
-       */
-      public boolean hasIsChanged() {
-        return ((bitField0_ & 0x01000000) == 0x01000000);
-      }
-      /**
-       * <code>optional bool is_changed = 25;</code>
-       */
-      public boolean getIsChanged() {
-        return isChanged_;
-      }
-      /**
-       * <code>optional bool is_changed = 25;</code>
-       */
-      public Builder setIsChanged(boolean value) {
-        bitField0_ |= 0x01000000;
-        isChanged_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool is_changed = 25;</code>
-       */
-      public Builder clearIsChanged() {
-        bitField0_ = (bitField0_ & ~0x01000000);
-        isChanged_ = false;
-        onChanged();
-        return this;
-      }
-
-      private boolean mustSendNotification_ ;
-      /**
-       * <code>optional bool must_send_notification = 26;</code>
-       */
-      public boolean hasMustSendNotification() {
-        return ((bitField0_ & 0x02000000) == 0x02000000);
-      }
-      /**
-       * <code>optional bool must_send_notification = 26;</code>
-       */
-      public boolean getMustSendNotification() {
-        return mustSendNotification_;
-      }
-      /**
-       * <code>optional bool must_send_notification = 26;</code>
-       */
-      public Builder setMustSendNotification(boolean value) {
-        bitField0_ |= 0x02000000;
-        mustSendNotification_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional bool must_send_notification = 26;</code>
-       */
-      public Builder clearMustSendNotification() {
-        bitField0_ = (bitField0_ & ~0x02000000);
-        mustSendNotification_ = false;
+      public Builder clearDebtInMinutes() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        debtInMinutes_ = 0L;
         onChanged();
         return this;
       }
@@ -10412,32 +8265,6 @@ public final class BatchReport {
      */
     org.sonar.batch.protocol.output.BatchReport.IssueOrBuilder getIssueOrBuilder(
         int index);
-
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    boolean hasComponentUuid();
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    java.lang.String getComponentUuid();
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    com.google.protobuf.ByteString
-        getComponentUuidBytes();
   }
   /**
    * Protobuf type {@code Issues}
@@ -10502,12 +8329,6 @@ public final class BatchReport {
                 mutable_bitField0_ |= 0x00000002;
               }
               issue_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.Issue.PARSER, extensionRegistry));
-              break;
-            }
-            case 26: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000002;
-              componentUuid_ = bs;
               break;
             }
           }
@@ -10603,64 +8424,9 @@ public final class BatchReport {
       return issue_.get(index);
     }
 
-    public static final int COMPONENT_UUID_FIELD_NUMBER = 3;
-    private java.lang.Object componentUuid_;
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    public boolean hasComponentUuid() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    public java.lang.String getComponentUuid() {
-      java.lang.Object ref = componentUuid_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          componentUuid_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string component_uuid = 3;</code>
-     *
-     * <pre>
-     * Temporary field for issues on deleted components
-     * </pre>
-     */
-    public com.google.protobuf.ByteString
-        getComponentUuidBytes() {
-      java.lang.Object ref = componentUuid_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        componentUuid_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
     private void initFields() {
       componentRef_ = 0;
       issue_ = java.util.Collections.emptyList();
-      componentUuid_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -10681,9 +8447,6 @@ public final class BatchReport {
       for (int i = 0; i < issue_.size(); i++) {
         output.writeMessage(2, issue_.get(i));
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(3, getComponentUuidBytes());
-      }
       getUnknownFields().writeTo(output);
     }
 
@@ -10700,10 +8463,6 @@ public final class BatchReport {
       for (int i = 0; i < issue_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, issue_.get(i));
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getComponentUuidBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -10831,8 +8590,6 @@ public final class BatchReport {
         } else {
           issueBuilder_.clear();
         }
-        componentUuid_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -10874,10 +8631,6 @@ public final class BatchReport {
         } else {
           result.issue_ = issueBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.componentUuid_ = componentUuid_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -10922,11 +8675,6 @@ public final class BatchReport {
               issueBuilder_.addAllMessages(other.issue_);
             }
           }
-        }
-        if (other.hasComponentUuid()) {
-          bitField0_ |= 0x00000004;
-          componentUuid_ = other.componentUuid_;
-          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -11225,106 +8973,6 @@ public final class BatchReport {
           issue_ = null;
         }
         return issueBuilder_;
-      }
-
-      private java.lang.Object componentUuid_ = "";
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public boolean hasComponentUuid() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public java.lang.String getComponentUuid() {
-        java.lang.Object ref = componentUuid_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            componentUuid_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public com.google.protobuf.ByteString
-          getComponentUuidBytes() {
-        java.lang.Object ref = componentUuid_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          componentUuid_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public Builder setComponentUuid(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-        componentUuid_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public Builder clearComponentUuid() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        componentUuid_ = getDefaultInstance().getComponentUuid();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string component_uuid = 3;</code>
-       *
-       * <pre>
-       * Temporary field for issues on deleted components
-       * </pre>
-       */
-      public Builder setComponentUuidBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000004;
-        componentUuid_ = value;
-        onChanged();
-        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:Issues)
@@ -22057,76 +19705,66 @@ public final class BatchReport {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022batch_report.proto\032\017constants.proto\"\204\001" +
-      "\n\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013pro" +
-      "ject_key\030\002 \001(\t\022\016\n\006branch\030\003 \001(\t\022\032\n\022root_c" +
-      "omponent_ref\030\004 \001(\005\022 \n\030deleted_components" +
-      "_count\030\005 \001(\005\"?\n\rComponentLink\022 \n\004type\030\001 " +
-      "\001(\0162\022.ComponentLinkType\022\014\n\004href\030\002 \001(\t\"\354\001" +
-      "\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014" +
-      "\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.ComponentTy" +
-      "pe\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001(\t\022\025\n" +
-      "\tchild_ref\030\007 \003(\005B\002\020\001\022\034\n\004link\030\010 \003(\0132\016.Com",
-      "ponentLink\022\017\n\007version\030\t \001(\t\022\013\n\003key\030\n \001(\t" +
-      "\022\r\n\005lines\030\013 \001(\005\022\023\n\013description\030\014 \001(\t\"\261\003\n" +
-      "\007Measure\022%\n\nvalue_type\030\001 \001(\0162\021.MeasureVa" +
-      "lueType\022\025\n\rboolean_value\030\002 \001(\010\022\021\n\tint_va" +
-      "lue\030\003 \001(\005\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014double_" +
-      "value\030\005 \001(\001\022\024\n\014string_value\030\006 \001(\t\022\022\n\nmet" +
-      "ric_key\030\007 \001(\t\022\023\n\013description\030\t \001(\t\022\020\n\010ru" +
-      "le_key\030\n \001(\t\022\024\n\014alert_status\030\014 \001(\t\022\022\n\nal" +
-      "ert_text\030\r \001(\t\022\031\n\021variation_value_1\030\016 \001(" +
-      "\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031\n\021variatio",
-      "n_value_3\030\020 \001(\001\022\031\n\021variation_value_4\030\021 \001" +
-      "(\001\022\031\n\021variation_value_5\030\022 \001(\001\022\026\n\016charact" +
-      "eric_id\030\023 \001(\005\022\021\n\tperson_id\030\024 \001(\005\"<\n\010Meas" +
-      "ures\022\025\n\rcomponent_ref\030\001 \001(\005\022\031\n\007measure\030\002" +
-      " \003(\0132\010.Measure\"\231\004\n\005Issue\022\027\n\017rule_reposit" +
-      "ory\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(" +
-      "\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Sever" +
-      "ity\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022" +
-      "\016\n\006is_new\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in" +
-      "_minutes\030\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006st",
-      "atus\030\014 \001(\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_s" +
-      "everity\030\016 \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assig" +
-      "nee\030\020 \001(\t\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nat" +
-      "tributes\030\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\r" +
-      "creation_date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022" +
-      "\023\n\013update_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(" +
-      "\003\022\023\n\013diff_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001" +
-      "(\010\022\036\n\026must_send_notification\030\032 \001(\010\"N\n\006Is" +
-      "sues\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003" +
-      "(\0132\006.Issue\022\026\n\016component_uuid\030\003 \001(\t\"\254\001\n\nC",
-      "hangesets\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchan" +
-      "geset\030\002 \003(\0132\025.Changesets.Changeset\022 \n\024ch" +
-      "angesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangese" +
-      "t\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004d" +
-      "ate\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other_file_ref" +
-      "\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016other_f" +
-      "ile_key\030\003 \001(\t\"M\n\013Duplication\022\037\n\017origin_p" +
-      "osition\030\001 \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\013" +
-      "2\n.Duplicate\"H\n\014Duplications\022\025\n\rcomponen" +
-      "t_ref\030\001 \001(\005\022!\n\013duplication\030\002 \003(\0132\014.Dupli",
-      "cation\"W\n\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010e" +
-      "nd_line\030\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\ne" +
-      "nd_offset\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001" +
-      " \001(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n" +
-      "\006Symbol\022\033\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\t" +
-      "reference\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004" +
-      "line\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hit" +
-      "s\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_c" +
-      "onditions\030\005 \001(\005\022\035\n\025it_covered_conditions" +
-      "\030\006 \001(\005\022\"\n\032overall_covered_conditions\030\007 \001",
-      "(\005\"L\n\022SyntaxHighlighting\022\025\n\005range\030\001 \001(\0132" +
-      "\006.Range\022\037\n\004type\030\002 \001(\0162\021.HighlightingType" +
-      "\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013" +
-      ".TestStatus\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\ns" +
-      "tacktrace\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016Coverag" +
-      "eDetail\022\021\n\ttest_name\030\001 \001(\t\0221\n\014covered_fi" +
-      "le\030\002 \003(\0132\033.CoverageDetail.CoveredFile\0329\n" +
-      "\013CoveredFile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covere" +
-      "d_line\030\002 \003(\005B\002\020\001B#\n\037org.sonar.batch.prot" +
-      "ocol.outputH\001"
+      "\n\022batch_report.proto\032\017constants.proto\"b\n" +
+      "\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013proj" +
+      "ect_key\030\002 \001(\t\022\016\n\006branch\030\003 \001(\t\022\032\n\022root_co" +
+      "mponent_ref\030\004 \001(\005\"?\n\rComponentLink\022 \n\004ty" +
+      "pe\030\001 \001(\0162\022.ComponentLinkType\022\014\n\004href\030\002 \001" +
+      "(\t\"\354\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 " +
+      "\001(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compon" +
+      "entType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001" +
+      "(\t\022\025\n\tchild_ref\030\007 \003(\005B\002\020\001\022\034\n\004link\030\010 \003(\0132" +
+      "\016.ComponentLink\022\017\n\007version\030\t \001(\t\022\013\n\003key\030",
+      "\n \001(\t\022\r\n\005lines\030\013 \001(\005\022\023\n\013description\030\014 \001(" +
+      "\t\"\261\003\n\007Measure\022%\n\nvalue_type\030\001 \001(\0162\021.Meas" +
+      "ureValueType\022\025\n\rboolean_value\030\002 \001(\010\022\021\n\ti" +
+      "nt_value\030\003 \001(\005\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014do" +
+      "uble_value\030\005 \001(\001\022\024\n\014string_value\030\006 \001(\t\022\022" +
+      "\n\nmetric_key\030\007 \001(\t\022\023\n\013description\030\t \001(\t\022" +
+      "\020\n\010rule_key\030\n \001(\t\022\024\n\014alert_status\030\014 \001(\t\022" +
+      "\022\n\nalert_text\030\r \001(\t\022\031\n\021variation_value_1" +
+      "\030\016 \001(\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031\n\021var" +
+      "iation_value_3\030\020 \001(\001\022\031\n\021variation_value_",
+      "4\030\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022\026\n\016ch" +
+      "aracteric_id\030\023 \001(\005\022\021\n\tperson_id\030\024 \001(\005\"<\n" +
+      "\010Measures\022\025\n\rcomponent_ref\030\001 \001(\005\022\031\n\007meas" +
+      "ure\030\002 \003(\0132\010.Measure\"\273\001\n\005Issue\022\027\n\017rule_re" +
+      "pository\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line" +
+      "\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t." +
+      "Severity\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007" +
+      " \001(\001\022\022\n\nattributes\030\010 \001(\t\022\027\n\017debt_in_minu" +
+      "tes\030\t \001(\003\"6\n\006Issues\022\025\n\rcomponent_ref\030\001 \001" +
+      "(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\"\254\001\n\nChangesets",
+      "\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003" +
+      "(\0132\025.Changesets.Changeset\022 \n\024changesetIn" +
+      "dexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revi" +
+      "sion\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003" +
+      "\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n" +
+      "\005range\030\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003" +
+      " \001(\t\"M\n\013Duplication\022\037\n\017origin_position\030\001" +
+      " \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplic" +
+      "ate\"H\n\014Duplications\022\025\n\rcomponent_ref\030\001 \001" +
+      "(\005\022!\n\013duplication\030\002 \003(\0132\014.Duplication\"W\n",
+      "\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002" +
+      " \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset" +
+      "\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006s" +
+      "ymbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033" +
+      "\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\treference" +
+      "\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(" +
+      "\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017" +
+      "\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions" +
+      "\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n" +
+      "\032overall_covered_conditions\030\007 \001(\005\"L\n\022Syn",
+      "taxHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037" +
+      "\n\004type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022" +
+      "\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStat" +
+      "us\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace" +
+      "\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021" +
+      "\n\ttest_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132" +
+      "\033.CoverageDetail.CoveredFile\0329\n\013CoveredF" +
+      "ile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 " +
+      "\003(\005B\002\020\001B#\n\037org.sonar.batch.protocol.outp" +
+      "utH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -22146,7 +19784,7 @@ public final class BatchReport {
     internal_static_Metadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Metadata_descriptor,
-        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", "DeletedComponentsCount", });
+        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", });
     internal_static_ComponentLink_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_ComponentLink_fieldAccessorTable = new
@@ -22176,13 +19814,13 @@ public final class BatchReport {
     internal_static_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issue_descriptor,
-        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tag", "EffortToFix", "IsNew", "Uuid", "DebtInMinutes", "Resolution", "Status", "Checksum", "ManualSeverity", "Reporter", "Assignee", "ActionPlanKey", "Attributes", "AuthorLogin", "CreationDate", "CloseDate", "UpdateDate", "SelectedAt", "DiffFields", "IsChanged", "MustSendNotification", });
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tag", "EffortToFix", "Attributes", "DebtInMinutes", });
     internal_static_Issues_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_Issues_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issues_descriptor,
-        new java.lang.String[] { "ComponentRef", "Issue", "ComponentUuid", });
+        new java.lang.String[] { "ComponentRef", "Issue", });
     internal_static_Changesets_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_Changesets_fieldAccessorTable = new

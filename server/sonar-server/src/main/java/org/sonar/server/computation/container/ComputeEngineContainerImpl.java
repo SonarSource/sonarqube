@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.component.Module;
 import org.sonar.core.issue.db.UpdateConflictResolver;
+import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.ReportQueue;
@@ -43,13 +44,21 @@ import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.formula.CoreFormulaRepositoryImpl;
+import org.sonar.server.computation.issue.BaseIssuesLoader;
+import org.sonar.server.computation.issue.DebtCalculator;
+import org.sonar.server.computation.issue.DefaultAssignee;
+import org.sonar.server.computation.issue.IssueAssigner;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.IssueComputation;
+import org.sonar.server.computation.issue.IssueLifecycle;
+import org.sonar.server.computation.issue.IssueListeners;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
-import org.sonar.server.computation.issue.ScmAccountCache;
-import org.sonar.server.computation.issue.ScmAccountCacheLoader;
-import org.sonar.server.computation.issue.SourceLinesCache;
+import org.sonar.server.computation.issue.RuleTagsCopier;
+import org.sonar.server.computation.issue.ScmAccountToUser;
+import org.sonar.server.computation.issue.ScmAccountToUserLoader;
+import org.sonar.server.computation.issue.TrackerBaseInputFactory;
+import org.sonar.server.computation.issue.TrackerExecution;
+import org.sonar.server.computation.issue.TrackerRawInputFactory;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.newcoverage.NewCoverageMetricKeysModule;
@@ -156,14 +165,23 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       NewCoverageMetricKeysModule.class,
 
       // issues
-      ScmAccountCacheLoader.class,
-      ScmAccountCache.class,
-      SourceLinesCache.class,
-      IssueComputation.class,
+      ScmAccountToUserLoader.class,
+      ScmAccountToUser.class,
+      IssueAssigner.class,
+      RuleTagsCopier.class,
       RuleCache.class,
       RuleCacheLoader.class,
       IssueCache.class,
+      DefaultAssignee.class,
+      DebtCalculator.class,
+      IssueListeners.class,
+      IssueLifecycle.class,
       UpdateConflictResolver.class,
+      TrackerBaseInputFactory.class,
+      TrackerRawInputFactory.class,
+      Tracker.class,
+      TrackerExecution.class,
+      BaseIssuesLoader.class,
 
       // views
       ViewIndex.class,

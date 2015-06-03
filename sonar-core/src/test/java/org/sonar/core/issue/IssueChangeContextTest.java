@@ -20,7 +20,6 @@
 package org.sonar.core.issue;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.IssueChangeContext;
 
 import java.util.Date;
 
