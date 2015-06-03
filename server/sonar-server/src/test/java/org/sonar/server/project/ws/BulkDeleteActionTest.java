@@ -76,7 +76,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_UUIDS;
+import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_IDS;
 
 @Category(DbTests.class)
 public class BulkDeleteActionTest {
@@ -127,7 +127,7 @@ public class BulkDeleteActionTest {
     long snapshotId4 = insertNewProjectInDbAndReturnSnapshotId(4);
 
     ws.newPostRequest("api/projects", ACTION)
-      .setParam(PARAM_UUIDS, "project-uuid-1, project-uuid-3, project-uuid-4").execute();
+      .setParam(PARAM_IDS, "project-uuid-1, project-uuid-3, project-uuid-4").execute();
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
@@ -180,7 +180,7 @@ public class BulkDeleteActionTest {
   public void web_service_returns_204() throws Exception {
     insertNewProjectInDbAndReturnSnapshotId(1);
 
-    WsTester.Result result = ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "project-uuid-1").execute();
+    WsTester.Result result = ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "project-uuid-1").execute();
 
     result.assertNoContent();
   }
@@ -190,7 +190,7 @@ public class BulkDeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "whatever-the-uuid").execute();
+    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "whatever-the-uuid").execute();
   }
 
   @Test
@@ -199,7 +199,7 @@ public class BulkDeleteActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), "file-uuid"));
     dbSession.commit();
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "file-uuid").execute();
+    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "file-uuid").execute();
   }
 
   @Test
@@ -209,7 +209,7 @@ public class BulkDeleteActionTest {
     dbSession.commit();
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
-    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_UUIDS, "project-uuid").execute();
+    ws.newPostRequest("api/projects", ACTION).setParam(PARAM_IDS, "project-uuid").execute();
   }
 
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {

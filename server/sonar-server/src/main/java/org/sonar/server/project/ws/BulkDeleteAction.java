@@ -38,7 +38,7 @@ import java.util.List;
 public class BulkDeleteAction implements ProjectsWsAction {
   private static final String ACTION = "bulk_delete";
 
-  public static final String PARAM_UUIDS = "ids";
+  public static final String PARAM_IDS = "ids";
   public static final String PARAM_KEYS = "keys";
 
   private final ComponentCleanerService componentCleanerService;
@@ -61,8 +61,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
       .setHandler(this);
 
     action
-      .createParam(PARAM_UUIDS)
-      .setDescription("List of project UUIDs to delete")
+      .createParam(PARAM_IDS)
+      .setDescription("List of project ids to delete")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d,c526ef20-131b-4486-9357-063fa64b5079");
 
     action
@@ -74,7 +74,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkGlobalPermission(UserRole.ADMIN);
-    List<String> uuids = request.paramAsStrings(PARAM_UUIDS);
+    List<String> uuids = request.paramAsStrings(PARAM_IDS);
     List<String> keys = request.paramAsStrings(PARAM_KEYS);
 
     DbSession dbSession = dbClient.openSession(false);
@@ -96,6 +96,6 @@ public class BulkDeleteAction implements ProjectsWsAction {
       return dbClient.componentDao().selectByKeys(dbSession, keys);
     }
 
-    throw new IllegalArgumentException("UUIDs or keys must be provided");
+    throw new IllegalArgumentException("ids or keys must be provided");
   }
 }
