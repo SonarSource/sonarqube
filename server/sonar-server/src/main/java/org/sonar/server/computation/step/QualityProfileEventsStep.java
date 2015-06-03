@@ -121,26 +121,26 @@ public class QualityProfileEventsStep implements ComputationStep {
       "key", profile.getQpKey(),
       "from", UtcDateUtils.formatDateTime(fixDate(from)),
       "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
-    eventRepository.add(component, createQProfileEvent(component, profile, "Changes in %s", data));
+    eventRepository.add(component, createQProfileEvent(profile, "Changes in %s", data));
   }
 
   private void markAsRemoved(Component component, QualityProfile profile) {
-    eventRepository.add(component, createQProfileEvent(component, profile, "Stop using %s"));
+    eventRepository.add(component, createQProfileEvent(profile, "Stop using %s"));
   }
 
   private void markAsAdded(Component component, QualityProfile profile) {
-    eventRepository.add(component, createQProfileEvent(component, profile, "Use %s"));
+    eventRepository.add(component, createQProfileEvent(profile, "Use %s"));
   }
 
-  private Event createQProfileEvent(Component component, QualityProfile profile, String namePattern) {
-    return createQProfileEvent(component, profile, namePattern, null);
+  private Event createQProfileEvent(QualityProfile profile, String namePattern) {
+    return createQProfileEvent(profile, namePattern, null);
   }
 
-  private Event createQProfileEvent(Component component, QualityProfile profile, String namePattern, @Nullable String data) {
-    return Event.createProfile(String.format(namePattern, profileLabel(component, profile)), data, null);
+  private Event createQProfileEvent(QualityProfile profile, String namePattern, @Nullable String data) {
+    return Event.createProfile(String.format(namePattern, profileLabel(profile)), data, null);
   }
 
-  private String profileLabel(Component component, QualityProfile profile) {
+  private String profileLabel(QualityProfile profile) {
     Optional<Language> language = languageRepository.find(profile.getLanguageKey());
     String languageName = language.isPresent() ? language.get().getName() : profile.getLanguageKey();
     return String.format("'%s' (%s)", profile.getQpName(), languageName);
@@ -149,7 +149,7 @@ public class QualityProfileEventsStep implements ComputationStep {
   /**
    * This hack must be done because date precision is millisecond in db/es and date format is select only
    */
-  private Date fixDate(Date date) {
+  private static Date fixDate(Date date) {
     return DateUtils.addSeconds(date, 1);
   }
 

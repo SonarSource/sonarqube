@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,8 +31,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.SonarUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
-
-import java.util.List;
 
 /**
  * Implementation of the {@code upgrades} action for the System WebService.
@@ -110,7 +109,7 @@ public class UpgradesAction implements SystemWsAction {
     jsonWriter.endObject();
   }
 
-  private void writeMetadata(JsonWriter jsonWriter, Release release) {
+  private static void writeMetadata(JsonWriter jsonWriter, Release release) {
     jsonWriter.prop(PROPERTY_VERSION, release.getVersion().getName());
     jsonWriter.prop(PROPERTY_DESCRIPTION, release.getDescription());
     jsonWriter.propDate(PROPERTY_RELEASE_DATE, release.getDate());

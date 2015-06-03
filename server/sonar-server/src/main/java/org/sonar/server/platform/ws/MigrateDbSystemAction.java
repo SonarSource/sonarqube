@@ -55,9 +55,7 @@ public class MigrateDbSystemAction implements SystemWsAction {
   private final DatabaseMigration databaseMigration;
   private final Database database;
 
-  public MigrateDbSystemAction(DatabaseVersion databaseVersion,
-                               Database database,
-                               DatabaseMigration databaseMigration) {
+  public MigrateDbSystemAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
     this.databaseVersion = databaseVersion;
     this.database = database;
     this.databaseMigration = databaseMigration;
@@ -114,7 +112,7 @@ public class MigrateDbSystemAction implements SystemWsAction {
     }
   }
 
-  private void writeNotSupportedResponse(Response response) {
+  private static void writeNotSupportedResponse(Response response) {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
       .prop(PROPERTY_STATE, STATUS_NOT_SUPPORTED)
@@ -126,10 +124,10 @@ public class MigrateDbSystemAction implements SystemWsAction {
   private void writeNoneResponse(Response response, DatabaseMigration databaseMigration) {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject()
-        .prop(PROPERTY_STATE, statusToJson(RUNNING))
-        .prop(PROPERTY_MESSAGE, MESSAGE_STATUS_RUNNING)
-        .propDateTime(PROPERTY_STARTED_AT, databaseMigration.startedAt())
-        .endObject();
+      .prop(PROPERTY_STATE, statusToJson(RUNNING))
+      .prop(PROPERTY_MESSAGE, MESSAGE_STATUS_RUNNING)
+      .propDateTime(PROPERTY_STARTED_AT, databaseMigration.startedAt())
+      .endObject();
     jsonWriter.close();
   }
 
