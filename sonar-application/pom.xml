@@ -15,8 +15,10 @@
 
   <properties>
     <assembly.recompressZippedFiles>true</assembly.recompressZippedFiles>
+    <assembly.format>zip</assembly.format>
+    <assembly.includeBaseDirectory>true</assembly.includeBaseDirectory>
+    <checksum.failOnError>true</checksum.failOnError>
   </properties>
-
 
   <dependencies>
     <dependency>
@@ -206,6 +208,7 @@
           <execution>
             <phase>package</phase>
             <configuration>
+              <failOnError>${checksum.failOnError}</failOnError>
               <target>
                 <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5" />
                 <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha" />

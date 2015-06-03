@@ -2,9 +2,9 @@
 <assembly>
   <id>distribution</id>
   <formats>
-    <format>zip</format>
+    <format>${assembly.format}</format>
   </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
+  <includeBaseDirectory>${assembly.includeBaseDirectory}</includeBaseDirectory>
   <dependencySets>
     <!-- Libraries -->
     <dependencySet>
