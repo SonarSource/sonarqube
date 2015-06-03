@@ -4,7 +4,7 @@
   <formats>
     <format>${assembly.format}</format>
   </formats>
-  <includeBaseDirectory>${assembly.includeBaseDirectory}</includeBaseDirectory>
+  <includeBaseDirectory>true</includeBaseDirectory>
   <dependencySets>
     <!-- Libraries -->
     <dependencySet>
