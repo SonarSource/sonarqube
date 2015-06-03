@@ -25,15 +25,6 @@ define([
       'change': 'render'
     },
 
-    ui: {
-      tagsChange: '.js-issue-edit-tags',
-      tagInput: '.issue-tag-input',
-      tagsEdit: '.issue-tag-edit',
-      tagsEditDone: '.issue-tag-edit-done',
-      tagsEditCancel: '.issue-tag-edit-cancel',
-      tagsList: '.issue-tag-list'
-    },
-
     events: function () {
       return {
         'click .js-issue-comment': 'comment',
@@ -52,7 +43,6 @@ define([
     },
 
     onRender: function () {
-      this.ui.tagsEdit.hide();
       this.$el.attr('data-key', this.model.get('key'));
     },
 
@@ -68,11 +58,7 @@ define([
       var that = this;
       var key = this.model.get('key'),
           componentUuid = this.model.get('componentUuid');
-      this.model.clear({ silent: true });
-      this.model.set({
-        key: key,
-        componentUuid: componentUuid
-      }, { silent: true });
+      this.model.reset({ key: key, componentUuid: componentUuid }, { silent: true });
       return this.model.fetch(options).done(function () {
         return that.trigger('reset');
       });
@@ -253,82 +239,6 @@ define([
         model: this.model
       });
       this.popup.render();
-    },
-
-    changeTags: function () {
-      var that = this;
-      return jQuery.ajax({
-        url: baseUrl + '/api/issues/tags?ps=0'
-      }).done(function (r) {
-        if (that.ui.tagInput.select2) {
-          that.ui.tagInput.select2({
-            tags: _.difference(r.tags, that.model.get('tags')),
-            width: '300px'
-          });
-        }
-        if (that.ui.tagsEdit.show) {
-          that.ui.tagsEdit.show();
-        }
-        if (that.ui.tagsList.hide) {
-          that.ui.tagsList.hide();
-        }
-        that.tagsBuffer = that.ui.tagInput.select2('val');
-        var keyScope = key.getScope();
-        if (keyScope !== 'tags') {
-          that.previousKeyScope = keyScope;
-        }
-        key.setScope('tags');
-        key('escape', 'tags', function () {
-          return that.cancelEdit();
-        });
-        that.$('.select2-input').keyup(function (event) {
-          if (event.which === 27) {
-            return that.cancelEdit();
-          }
-        });
-        that.ui.tagInput.select2('focus');
-      });
-    },
-
-    cancelEdit: function () {
-      this.resetKeyScope();
-      if (this.ui.tagsList.show) {
-        this.ui.tagsList.show();
-      }
-      if (this.ui.tagInput.select2) {
-        this.ui.tagInput.select2('val', this.tagsBuffer);
-        this.ui.tagInput.select2('close');
-      }
-      if (this.ui.tagsEdit.hide) {
-        return this.ui.tagsEdit.hide();
-      }
-    },
-
-    editDone: function () {
-      var that = this;
-      this.resetKeyScope();
-      var _tags = this.model.get('tags'),
-          tags = this.ui.tagInput.val(),
-          splitTags = tags ? tags.split(',') : null;
-      this.model.set('tags', splitTags);
-      return $.post(baseUrl + '/api/issues/set_tags', {
-        key: this.model.get('key'),
-        tags: tags
-      }).done(function () {
-        that.cancelEdit();
-      }).fail(function () {
-        that.model.set('tags', _tags);
-      }).always(function () {
-        that.render();
-      });
-    },
-
-    resetKeyScope: function () {
-      key.unbind('escape', 'tags');
-      if (this.previousKeyScope) {
-        key.setScope(this.previousKeyScope);
-        this.previousKeyScope = null;
-      }
     },
 
     serializeData: function () {

@@ -41,6 +41,15 @@ define(function () {
       var xhr = options.xhr = Backbone.ajax(opts);
       model.trigger('request', model, xhr, options);
       return xhr;
+    },
+
+    reset: function (attrs, options) {
+      for (var key in this.attributes) {
+        if (this.attributes.hasOwnProperty(key) && !(key in attrs)) {
+          attrs[key] = void 0;
+        }
+      }
+      return this.set(attrs, options);
     }
   });
 

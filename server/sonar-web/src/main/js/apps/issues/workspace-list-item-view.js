@@ -87,8 +87,7 @@ define([
       var key = this.model.get('key'),
           componentUuid = this.model.get('componentUuid'),
           index = this.model.get('index');
-      this.model.clear({ silent: true });
-      this.model.set({ key: key, componentUuid: componentUuid, index: index }, { silent: true });
+      this.model.reset({ key: key, componentUuid: componentUuid, index: index }, { silent: true });
       return this.model.fetch(options).done(function () {
         return that.trigger('reset');
       });
