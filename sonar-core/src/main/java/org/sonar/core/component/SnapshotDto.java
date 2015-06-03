@@ -19,6 +19,9 @@
  */
 package org.sonar.core.component;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public final class SnapshotDto {
 
   /**
@@ -73,20 +76,25 @@ public final class SnapshotDto {
     return this;
   }
 
+  @CheckForNull
   public Long getParentId() {
     return parentId;
   }
 
-  public SnapshotDto setParentId(Long parentId) {
+  public SnapshotDto setParentId(@Nullable Long parentId) {
     this.parentId = parentId;
     return this;
   }
 
+  /**
+   * Root id is null on project's snapshot
+   */
+  @CheckForNull
   public Long getRootId() {
     return rootId;
   }
 
-  public SnapshotDto setRootId(Long rootId) {
+  public SnapshotDto setRootId(@Nullable Long rootId) {
     this.rootId = rootId;
     return this;
   }
@@ -118,11 +126,12 @@ public final class SnapshotDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getPurgeStatus() {
     return purgeStatus;
   }
 
-  public SnapshotDto setPurgeStatus(Integer purgeStatus) {
+  public SnapshotDto setPurgeStatus(@Nullable Integer purgeStatus) {
     this.purgeStatus = purgeStatus;
     return this;
   }
@@ -154,11 +163,15 @@ public final class SnapshotDto {
     return this;
   }
 
+  /**
+   * Version is only available on projects and modules
+   */
+  @CheckForNull
   public String getVersion() {
     return version;
   }
 
-  public SnapshotDto setVersion(String version) {
+  public SnapshotDto setVersion(@Nullable String version) {
     this.version = version;
     return this;
   }
@@ -190,7 +203,7 @@ public final class SnapshotDto {
     return this;
   }
 
-  public SnapshotDto setPeriodMode(int index, String p) {
+  public SnapshotDto setPeriodMode(int index, @Nullable String p) {
     switch (index) {
       case 1:
         period1Mode = p;
@@ -213,6 +226,7 @@ public final class SnapshotDto {
     return this;
   }
 
+  @CheckForNull
   public String getPeriodMode(int index) {
     switch (index) {
       case 1:
@@ -230,7 +244,7 @@ public final class SnapshotDto {
     }
   }
 
-  public SnapshotDto setPeriodParam(int index, String p) {
+  public SnapshotDto setPeriodParam(int index, @Nullable String p) {
     switch (index) {
       case 1:
         period1Param = p;
@@ -253,6 +267,7 @@ public final class SnapshotDto {
     return this;
   }
 
+  @CheckForNull
   public String getPeriodModeParameter(int periodIndex) {
     switch (periodIndex) {
       case 1:
@@ -270,7 +285,7 @@ public final class SnapshotDto {
     }
   }
 
-  public SnapshotDto setPeriodDate(int index, Long date) {
+  public SnapshotDto setPeriodDate(int index, @Nullable Long date) {
     switch (index) {
       case 1:
         period1Date = date;
@@ -293,6 +308,7 @@ public final class SnapshotDto {
     return this;
   }
 
+  @CheckForNull
   public Long getPeriodDate(int periodIndex) {
     switch (periodIndex) {
       case 1:
@@ -308,10 +324,6 @@ public final class SnapshotDto {
       default:
         throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
-  }
-
-  public Long getKey() {
-    return id;
   }
 
   public SnapshotDto setCreatedAt(Long createdAt) {
