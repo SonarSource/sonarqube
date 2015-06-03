@@ -40,6 +40,7 @@ public class GroupsAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
 
+  private static final String FIELD_ID = "id";
   private static final String FIELD_NAME = "name";
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_SELECTED = "selected";
@@ -110,6 +111,7 @@ public class GroupsAction implements UsersWsAction {
     json.name("groups").beginArray();
     for (GroupMembershipDto group : groups) {
       json.beginObject()
+        .prop(FIELD_ID, group.getId().toString())
         .prop(FIELD_NAME, group.getName())
         .prop(FIELD_DESCRIPTION, group.getDescription())
         .prop(FIELD_SELECTED, group.getUserId() != null)
