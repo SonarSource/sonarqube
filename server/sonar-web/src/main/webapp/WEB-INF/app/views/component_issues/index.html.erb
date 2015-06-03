@@ -6,9 +6,9 @@
 
 <script>
   var config = {
-    resource: '<%= @resource.uuid -%>',
-    resourceQualifier: '<%= @resource.qualifier -%>',
-    resourceName: '<%= @resource.name -%>',
-    periodDate: <% if @period %>'<%= @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
+    resource: '<%= escape_javascript @resource.uuid -%>',
+    resourceQualifier: '<%= escape_javascript @resource.qualifier -%>',
+    resourceName: '<%= escape_javascript @resource.name -%>',
+    periodDate: <% if @period %>'<%= escape_javascript @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
   };
 </script>
