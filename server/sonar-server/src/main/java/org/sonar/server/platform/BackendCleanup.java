@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.server.ServerSide;
@@ -31,9 +33,6 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 @ServerSide
 public class BackendCleanup {
@@ -138,7 +137,7 @@ public class BackendCleanup {
     }
   }
 
-  private void deleteWhereResourceIdNotNull(String tableName, Connection connection) {
+  private static void deleteWhereResourceIdNotNull(String tableName, Connection connection) {
     try {
       connection.prepareStatement("DELETE FROM " + tableName + " WHERE resource_id IS NOT NULL").execute();
       // commit is useless on some databases
@@ -148,7 +147,7 @@ public class BackendCleanup {
     }
   }
 
-  private void deleteManualRules(Connection connection) {
+  private static void deleteManualRules(Connection connection) {
     try {
       connection.prepareStatement("DELETE FROM rules WHERE rules.plugin_name='manual'").execute();
       // commit is useless on some databases

@@ -22,10 +22,15 @@ package org.sonar.server.issue.actionplan;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.server.ServerSide;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanDeadlineComparator;
 import org.sonar.core.issue.ActionPlanStats;
@@ -44,13 +49,6 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -205,11 +203,11 @@ public class ActionPlanService {
     return resourceDto;
   }
 
-  private void checkUserCanAccessProject(String projectKey, UserSession userSession) {
+  private static void checkUserCanAccessProject(String projectKey, UserSession userSession) {
     userSession.checkProjectPermission(UserRole.USER, projectKey);
   }
 
-  private void checkUserIsProjectAdministrator(String projectKey, UserSession userSession) {
+  private static void checkUserIsProjectAdministrator(String projectKey, UserSession userSession) {
     userSession.checkProjectPermission(UserRole.ADMIN, projectKey);
   }
 

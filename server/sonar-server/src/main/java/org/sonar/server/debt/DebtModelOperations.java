@@ -22,6 +22,10 @@ package org.sonar.server.debt;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -37,12 +41,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Date;
-import java.util.List;
 
 @ServerSide
 public class DebtModelOperations {
@@ -150,7 +148,7 @@ public class DebtModelOperations {
     }
   }
 
-  private int getOrder(CharacteristicDto characteristicDto) {
+  private static int getOrder(CharacteristicDto characteristicDto) {
     Integer order = characteristicDto.getOrder();
     if (order == null) {
       throw new IllegalArgumentException(String.format("The order of the characteristic '%s' should not be null", characteristicDto.getKey()));

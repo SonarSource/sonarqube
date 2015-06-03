@@ -175,7 +175,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     context.saveMeasure(newUncoveredConditions);
   }
 
-  private Map<Integer, Integer> parseCountByLine(@Nullable Measure measure) {
+  private static Map<Integer, Integer> parseCountByLine(@Nullable Measure measure) {
     if (measure != null && measure.hasData()) {
       return KeyValueFormat.parseIntInt(measure.getData());
     }

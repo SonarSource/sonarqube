@@ -41,7 +41,7 @@ public class PermissionsWs implements WebService {
     controller.done();
   }
 
-  private void defineAddAction(NewController controller) {
+  private static void defineAddAction(NewController controller) {
     NewAction action = controller.createAction("add")
       .setDescription("Add a global or a project permission. Requires Administer System permission for global permissions, " +
         "requires Administer permission on project for project permissions")
@@ -65,7 +65,7 @@ public class PermissionsWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineRemoveAction(NewController controller) {
+  private static void defineRemoveAction(NewController controller) {
     NewAction action = controller.createAction("remove")
       .setDescription("Remove a global or a project permission. Requires Administer System permission for global permissions, " +
         "requires Administer permission on project for project permissions")

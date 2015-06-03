@@ -23,25 +23,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.text.XmlWriter;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.search.IndexClient;
-
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;
@@ -50,6 +31,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.codehaus.staxmate.SMInputFactory;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.search.IndexClient;
 
 @ServerSide
 public class QProfileBackuper {
@@ -79,7 +77,7 @@ public class QProfileBackuper {
     writeXml(writer, profile, activeRules.iterator());
   }
 
-  private void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRule> activeRules) {
+  private static void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRule> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin("profile");
     xml.prop("name", profile.getName());

@@ -61,7 +61,7 @@ public final class LogServerId {
     }
   }
 
-  private void addQuotedValue(PropertyDto property, StringBuilder message) {
+  private static void addQuotedValue(PropertyDto property, StringBuilder message) {
     message.append("\"");
     message.append(property.getValue());
     message.append("\"\n");

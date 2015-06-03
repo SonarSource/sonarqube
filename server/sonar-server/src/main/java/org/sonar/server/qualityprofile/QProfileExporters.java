@@ -19,22 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.profiles.ProfileExporter;
-import org.sonar.api.profiles.ProfileImporter;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -46,6 +30,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 
 @ServerSide
 public class QProfileExporters {
@@ -169,7 +168,7 @@ public class QProfileExporters {
     throw new BadRequestException("No such importer : " + importerKey);
   }
 
-  private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
+  private static void processValidationMessages(ValidationMessages messages, QProfileResult result) {
     if (!messages.getErrors().isEmpty()) {
       throw new BadRequestException(messages);
     }
@@ -177,7 +176,7 @@ public class QProfileExporters {
     result.addInfos(messages.getInfos());
   }
 
-  private RuleActivation toRuleActivation(org.sonar.api.rules.ActiveRule activeRule) {
+  private static RuleActivation toRuleActivation(org.sonar.api.rules.ActiveRule activeRule) {
     RuleActivation ruleActivation = new RuleActivation(activeRule.getRule().ruleKey());
     ruleActivation.setSeverity(activeRule.getSeverity().name());
     for (ActiveRuleParam activeRuleParam : activeRule.getActiveRuleParams()) {

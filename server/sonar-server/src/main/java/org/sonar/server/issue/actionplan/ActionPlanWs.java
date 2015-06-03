@@ -41,17 +41,17 @@ public class ActionPlanWs implements WebService {
     controller.done();
   }
 
-  private void defineSearchAction(NewController controller) {
+  private static void defineSearchAction(NewController controller) {
     WebService.NewAction action = controller.createAction("search")
       .setDescription("Get a list of action plans. Requires Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
+      .setResponseExample(Resources.getResource(ActionPlanWs.class, "example-search.json"));
     addProjectParam(action);
     addFormatParam(action);
   }
 
-  private void defineCreateAction(NewController controller) {
+  private static void defineCreateAction(NewController controller) {
     WebService.NewAction action = controller.createAction("create")
       .setDescription("Create an action plan. Requires Administer permission on project")
       .setSince("3.6")
@@ -64,7 +64,7 @@ public class ActionPlanWs implements WebService {
     addFormatParam(action);
   }
 
-  private void defineUpdateAction(NewController controller) {
+  private static void defineUpdateAction(NewController controller) {
     WebService.NewAction action = controller.createAction("update")
       .setDescription("Update an action plan. Requires Administer permission on project")
       .setSince("3.6")
@@ -77,7 +77,7 @@ public class ActionPlanWs implements WebService {
     addFormatParam(action);
   }
 
-  private void defineDeleteAction(NewController controller) {
+  private static void defineDeleteAction(NewController controller) {
     WebService.NewAction action = controller.createAction("delete")
       .setDescription("Delete an action plan. Requires Administer permission on project")
       .setSince("3.6")
@@ -87,7 +87,7 @@ public class ActionPlanWs implements WebService {
     addFormatParam(action);
   }
 
-  private void defineOpenAction(NewController controller) {
+  private static void defineOpenAction(NewController controller) {
     WebService.NewAction action = controller.createAction("open")
       .setDescription("Open an action plan. Requires Administer permission on project")
       .setSince("3.6")
@@ -97,7 +97,7 @@ public class ActionPlanWs implements WebService {
     addFormatParam(action);
   }
 
-  private void defineCloseAction(NewController controller) {
+  private static void defineCloseAction(NewController controller) {
     WebService.NewAction action = controller.createAction("close")
       .setDescription("Close an action plan. Requires Administer permission on project")
       .setSince("3.6")

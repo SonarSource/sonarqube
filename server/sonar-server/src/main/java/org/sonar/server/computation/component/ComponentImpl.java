@@ -69,6 +69,7 @@ public class ComponentImpl implements Component {
     return ref;
   }
 
+  @Override
   public String getUuid() {
     if (uuid == null) {
       throw new UnsupportedOperationException(String.format("Component uuid of ref '%s' has not be fed yet", getRef()));
@@ -81,6 +82,7 @@ public class ComponentImpl implements Component {
     return this;
   }
 
+  @Override
   public String getKey() {
     if (key == null) {
       throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", getRef()));

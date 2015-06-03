@@ -120,7 +120,7 @@ public class SearchAction implements RequestHandler {
     json.close();
   }
 
-  private Set<Long> pagedProjectIds(Collection<Long> projectIds, SearchOptions options) {
+  private static Set<Long> pagedProjectIds(Collection<Long> projectIds, SearchOptions options) {
     Set<Long> results = Sets.newLinkedHashSet();
     int index = 0;
     for (Long projectId : projectIds) {

@@ -72,8 +72,9 @@ public class FileSourceDao implements DaoComponent {
     ResultSet rs = null;
     Reader reader = null;
     try {
-      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type = '" + Type.SOURCE +"'");
+      pstmt = connection.prepareStatement("SELECT line_hashes FROM file_sources WHERE file_uuid=? AND data_type=?");
       pstmt.setString(1, fileUuid);
+      pstmt.setString(2, Type.SOURCE);
       rs = pstmt.executeQuery();
       if (rs.next()) {
         reader = rs.getCharacterStream(1);

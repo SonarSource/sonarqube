@@ -23,27 +23,25 @@ package org.sonar.server.debt;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
@@ -88,7 +86,7 @@ public class DebtRulesXMLImporter {
     return ruleDebts;
   }
 
-  private SMInputFactory initStax() {
+  private static SMInputFactory initStax() {
     XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
@@ -141,7 +139,7 @@ public class DebtRulesXMLImporter {
     return null;
   }
 
-  private Property processProperty(ValidationMessages validationMessages, SMInputCursor cursor) throws XMLStreamException {
+  private static Property processProperty(ValidationMessages validationMessages, SMInputCursor cursor) throws XMLStreamException {
     SMInputCursor c = cursor.childElementCursor();
     String key = null;
     int value = 0;
@@ -183,7 +181,7 @@ public class DebtRulesXMLImporter {
   }
 
   @CheckForNull
-  private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String coefficient, @Nullable String offset, ValidationMessages validationMessages) {
+  private static RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String coefficient, @Nullable String offset, ValidationMessages validationMessages) {
     if ("linear_threshold".equals(function) && coefficient != null) {
       validationMessages.addWarningText(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
       return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient(coefficient);

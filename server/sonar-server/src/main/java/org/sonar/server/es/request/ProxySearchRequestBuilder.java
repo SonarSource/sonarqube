@@ -20,6 +20,8 @@
 
 package org.sonar.server.es.request;
 
+import java.io.IOException;
+import java.util.Arrays;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -30,9 +32,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.es.EsClient;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 public class ProxySearchRequestBuilder extends SearchRequestBuilder {
 
@@ -82,7 +81,7 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
     return message.toString();
   }
 
-  private String xContentToString(ToXContent toXContent) {
+  private static String xContentToString(ToXContent toXContent) {
     try {
       XContentBuilder builder = XContentFactory.jsonBuilder();
       toXContent.toXContent(builder, ToXContent.EMPTY_PARAMS);

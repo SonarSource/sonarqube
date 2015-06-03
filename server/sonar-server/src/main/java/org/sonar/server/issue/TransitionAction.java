@@ -20,20 +20,18 @@
 
 package org.sonar.server.issue;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.issue.workflow.Transition;
-import org.sonar.server.user.UserSession;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class TransitionAction extends Action {
@@ -77,7 +75,7 @@ public class TransitionAction extends Action {
     }, null) != null;
   }
 
-  private String transition(Map<String, Object> properties) {
+  private static String transition(Map<String, Object> properties) {
     String param = (String) properties.get("transition");
     if (Strings.isNullOrEmpty(param)) {
       throw new IllegalArgumentException("Missing parameter : 'transition'");

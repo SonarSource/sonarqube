@@ -22,14 +22,13 @@ package org.sonar.server.component;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -98,7 +97,7 @@ public class DefaultComponentFinder {
     }
   }
 
-  private Collection<? extends Component> pagedComponents(Collection<? extends Component> components, Paging paging) {
+  private static Collection<? extends Component> pagedComponents(Collection<? extends Component> components, Paging paging) {
     Set<Component> pagedComponents = Sets.newLinkedHashSet();
     int index = 0;
     for (Component component : components) {

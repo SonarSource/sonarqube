@@ -20,6 +20,8 @@
 
 package org.sonar.server.user.index;
 
+import java.sql.Connection;
+import java.util.Iterator;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
@@ -27,9 +29,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-
-import java.sql.Connection;
-import java.util.Iterator;
 
 public class UserIndexer extends BaseIndexer {
 
@@ -71,7 +70,7 @@ public class UserIndexer extends BaseIndexer {
     return maxUpdatedAt;
   }
 
-  private UpdateRequest newUpsertRequest(UserDoc user) {
+  private static UpdateRequest newUpsertRequest(UserDoc user) {
     return new UpdateRequest(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user.login())
       .doc(user.getFields())
       .upsert(user.getFields());

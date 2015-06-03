@@ -25,6 +25,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
@@ -48,11 +56,6 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.startup.RegisterDebtModel;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -160,7 +163,7 @@ public class RegisterRules implements Startable {
   }
 
   @CheckForNull
-  private CharacteristicDto characteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, Map<String, CharacteristicDto> allCharacteristics) {
+  private static CharacteristicDto characteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, Map<String, CharacteristicDto> allCharacteristics) {
     String subCharacteristic = ruleDef.debtSubCharacteristic();
     String repo = ruleDef.repository().key();
     String ruleKey = ruleDef.key();

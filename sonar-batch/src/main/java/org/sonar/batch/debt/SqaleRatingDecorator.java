@@ -22,6 +22,10 @@ package org.sonar.batch.debt;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -34,12 +38,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Decorator that computes Sqale Rating metric
@@ -95,7 +93,7 @@ public class SqaleRatingDecorator implements Decorator {
     }
   }
 
-  private Measure createRatingMeasure(int rating) {
+  private static Measure createRatingMeasure(int rating) {
     return new Measure(CoreMetrics.SQALE_RATING).setIntValue(rating).setData(toRatingLetter(rating));
   }
 
@@ -132,7 +130,7 @@ public class SqaleRatingDecorator implements Decorator {
     return sum;
   }
 
-  private long getMeasureValue(DecoratorContext context, Metric metric) {
+  private static long getMeasureValue(DecoratorContext context, Metric metric) {
     Measure measure = context.getMeasure(metric);
     if (measure != null) {
       return measure.getValue().longValue();

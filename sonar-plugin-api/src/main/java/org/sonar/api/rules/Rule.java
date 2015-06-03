@@ -22,16 +22,10 @@ package org.sonar.api.rules;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.SonarException;
-import org.sonar.check.Cardinality;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
@@ -48,11 +42,15 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.SonarException;
+import org.sonar.check.Cardinality;
 
 @Entity
 @Table(name = "rules")
@@ -560,7 +558,7 @@ public class Rule {
   }
 
   @CheckForNull
-  private String removeNewLineCharacters(@Nullable String text) {
+  private static String removeNewLineCharacters(@Nullable String text) {
     String removedCRLF = StringUtils.remove(text, "\n");
     removedCRLF = StringUtils.remove(removedCRLF, "\r");
     removedCRLF = StringUtils.remove(removedCRLF, "\n\r");

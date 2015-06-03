@@ -25,10 +25,18 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.core.notification.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.log.Logger;
@@ -36,6 +44,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.notification.NotificationManager;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -45,17 +54,6 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -167,7 +165,7 @@ public class IssueBulkChangeService {
     return bulkActions;
   }
 
-  private void applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery, IssueBulkChangeResult result) {
+  private static void applyAction(Action action, ActionContext actionContext, IssueBulkChangeQuery issueBulkChangeQuery, IssueBulkChangeResult result) {
     Issue issue = actionContext.issue();
     try {
       if (action.supports(issue) && action.execute(issueBulkChangeQuery.properties(action.key()), actionContext)) {

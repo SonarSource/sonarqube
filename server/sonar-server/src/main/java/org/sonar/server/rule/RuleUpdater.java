@@ -22,12 +22,16 @@ package org.sonar.server.rule;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
@@ -38,11 +42,6 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -141,7 +140,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateName(RuleUpdate update, Context context) {
+  private static void updateName(RuleUpdate update, Context context) {
     String name = update.getName();
     if (Strings.isNullOrEmpty(name)) {
       throw new IllegalArgumentException("The name is missing");
@@ -150,7 +149,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateDescription(RuleUpdate update, Context context) {
+  private static void updateDescription(RuleUpdate update, Context context) {
     String description = update.getMarkdownDescription();
     if (Strings.isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
@@ -159,7 +158,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateSeverity(RuleUpdate update, Context context) {
+  private static void updateSeverity(RuleUpdate update, Context context) {
     String severity = update.getSeverity();
     if (Strings.isNullOrEmpty(severity) || !Severity.ALL.contains(severity)) {
       throw new IllegalArgumentException("The severity is invalid");
@@ -168,7 +167,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateStatus(RuleUpdate update, Context context) {
+  private static void updateStatus(RuleUpdate update, Context context) {
     RuleStatus status = update.getStatus();
     if (status == null) {
       throw new IllegalArgumentException("The status is missing");
@@ -177,7 +176,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateTags(RuleUpdate update, Context context) {
+  private static void updateTags(RuleUpdate update, Context context) {
     Set<String> tags = update.getTags();
     if (tags == null || tags.isEmpty()) {
       context.rule.setTags(Collections.<String>emptySet());
@@ -186,7 +185,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateDebtSubCharacteristic(RuleUpdate update, Context context) {
+  private static void updateDebtSubCharacteristic(RuleUpdate update, Context context) {
     if (update.getDebtSubCharacteristicKey() == null) {
       // set to "none"
       Integer id = context.rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null;
@@ -216,7 +215,7 @@ public class RuleUpdater {
     }
   }
 
-  private void updateDebtRemediationFunction(RuleUpdate update, Context context) {
+  private static void updateDebtRemediationFunction(RuleUpdate update, Context context) {
     Integer subChar = context.rule.getSubCharacteristicId();
     boolean noChar =
       (context.rule.getDefaultSubCharacteristicId() == null && subChar == null) ||

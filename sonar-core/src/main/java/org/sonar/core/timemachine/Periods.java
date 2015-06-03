@@ -19,22 +19,20 @@
  */
 package org.sonar.core.timemachine;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.batch.RequiresDB;
-import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.i18n.I18n;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.RequiresDB;
+import org.sonar.api.config.Settings;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.server.ServerSide;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -133,7 +131,7 @@ public class Periods {
   }
 
   @CheckForNull
-  private String convertDate(Date date) {
+  private static String convertDate(Date date) {
     if (date != null) {
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MMM dd");
       return dateFormat.format(date);
@@ -141,7 +139,7 @@ public class Periods {
     return null;
   }
 
-  private Locale getLocale() {
+  private static Locale getLocale() {
     return Locale.ENGLISH;
   }
 
@@ -168,7 +166,7 @@ public class Periods {
       }
     }
 
-    private Integer findByDays(String property) {
+    private static Integer findByDays(String property) {
       try {
         return Integer.parseInt(property);
       } catch (NumberFormatException e) {
@@ -176,7 +174,7 @@ public class Periods {
       }
     }
 
-    private Date findByDate(String property) {
+    private static Date findByDate(String property) {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
       try {
         return format.parse(property);

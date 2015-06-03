@@ -25,9 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-
 import javax.annotation.Nullable;
-
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -103,7 +101,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     return newFields.toString();
   }
 
-  private void append(PreparedStatement pstmt, StringBuilder newFields, @Nullable String projectKey) throws SQLException {
+  private static void append(PreparedStatement pstmt, StringBuilder newFields, @Nullable String projectKey) throws SQLException {
     if (projectKey != null) {
       pstmt.setString(1, projectKey);
       ResultSet rs = null;

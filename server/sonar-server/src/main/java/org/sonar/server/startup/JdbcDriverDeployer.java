@@ -19,16 +19,14 @@
  */
 package org.sonar.server.startup;
 
+import java.io.File;
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileHashes;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.platform.DefaultServerFileSystem;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
 
 public class JdbcDriverDeployer {
 
@@ -66,7 +64,7 @@ public class JdbcDriverDeployer {
     }
   }
 
-  private String driverIndexContent(@Nullable File deployedDriver) {
+  private static String driverIndexContent(@Nullable File deployedDriver) {
     if (deployedDriver != null) {
       String hash = new FileHashes().of(deployedDriver);
       return deployedDriver.getName() + "|" + hash;

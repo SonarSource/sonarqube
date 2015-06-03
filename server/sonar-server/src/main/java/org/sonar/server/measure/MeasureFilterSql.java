@@ -23,16 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.MsSql;
-import org.sonar.core.persistence.dialect.Oracle;
-
-import javax.annotation.Nullable;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -40,6 +30,14 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.dialect.MsSql;
+import org.sonar.core.persistence.dialect.Oracle;
 
 class MeasureFilterSql {
 
@@ -257,7 +255,7 @@ class MeasureFilterSql {
   /**
    * Replace escape percent and underscore by adding a slash just before
    */
-  private String escapePercentAndUnderscrore(String value) {
+  private static String escapePercentAndUnderscrore(String value) {
     return value.replaceAll("%", "\\\\%").replaceAll("_", "\\\\_");
   }
 

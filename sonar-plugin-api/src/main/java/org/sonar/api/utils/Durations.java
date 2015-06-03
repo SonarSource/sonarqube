@@ -20,15 +20,13 @@
 
 package org.sonar.api.utils;
 
+import java.util.Locale;
+import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Locale;
 
 /**
  * Used through ruby code <pre>Internal.durations</pre>
@@ -133,15 +131,15 @@ public class Durations {
     return i18n.message(locale, key, null, parameter);
   }
 
-  private boolean displayHours(int days, int hours) {
+  private static boolean displayHours(int days, int hours) {
     return hours > 0 && days < 10;
   }
 
-  private boolean displayMinutes(int days, int hours, int minutes) {
+  private static boolean displayMinutes(int days, int hours, int minutes) {
     return minutes > 0 && hours < 10 && days == 0;
   }
 
-  private void addSpaceIfNeeded(StringBuilder message) {
+  private static void addSpaceIfNeeded(StringBuilder message) {
     if (message.length() > 0) {
       message.append(" ");
     }

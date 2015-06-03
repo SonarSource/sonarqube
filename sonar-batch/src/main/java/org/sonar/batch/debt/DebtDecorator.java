@@ -21,6 +21,12 @@
 package org.sonar.batch.debt;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
@@ -46,14 +52,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -182,7 +180,7 @@ public final class DebtDecorator implements Decorator {
     }
   }
 
-  private void saveMeasure(DecoratorContext context, Measure measure, Double value, boolean inMemory) {
+  private static void saveMeasure(DecoratorContext context, Measure measure, Double value, boolean inMemory) {
     measure.setValue(value);
     if (inMemory) {
       measure.setPersistenceMode(PersistenceMode.MEMORY);

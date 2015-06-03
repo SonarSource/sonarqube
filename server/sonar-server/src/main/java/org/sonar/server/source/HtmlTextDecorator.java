@@ -20,15 +20,13 @@
 package org.sonar.server.source;
 
 import com.google.common.io.Closeables;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.Nullable;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -127,11 +125,11 @@ class HtmlTextDecorator {
     }
   }
 
-  private boolean canAddLine(int currentLine, @Nullable Integer from) {
+  private static boolean canAddLine(int currentLine, @Nullable Integer from) {
     return from == null || currentLine >= from;
   }
 
-  private boolean shouldStop(int currentLine, @Nullable Integer to) {
+  private static boolean shouldStop(int currentLine, @Nullable Integer to) {
     return to != null && to < currentLine;
   }
 

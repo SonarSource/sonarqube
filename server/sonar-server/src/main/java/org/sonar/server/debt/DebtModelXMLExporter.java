@@ -24,14 +24,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.xml.sax.InputSource;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.xml.transform.OutputKeys;
@@ -41,14 +40,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.xml.sax.InputSource;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -147,7 +145,7 @@ public class DebtModelXMLExporter {
     return result;
   }
 
-  private void processProperty(String key, @Nullable String val, String text, StringBuilder xml) {
+  private static void processProperty(String key, @Nullable String val, String text, StringBuilder xml) {
     xml.append("<" + PROPERTY + "><" + PROPERTY_KEY + ">");
     xml.append(StringEscapeUtils.escapeXml(key));
     xml.append("</" + PROPERTY_KEY + ">");
@@ -164,7 +162,7 @@ public class DebtModelXMLExporter {
     xml.append("</" + PROPERTY + ">");
   }
 
-  private String prettyFormatXml(String xml) {
+  private static String prettyFormatXml(String xml) {
     try {
       Transformer serializer = SAXTransformerFactory.newInstance().newTransformer();
       serializer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -240,7 +238,7 @@ public class DebtModelXMLExporter {
       });
     }
 
-    private List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {
+    private static List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {
       Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
         @Override
         public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
@@ -253,7 +251,7 @@ public class DebtModelXMLExporter {
       return characteristics;
     }
 
-    private List<DebtCharacteristic> sortByName(List<DebtCharacteristic> characteristics) {
+    private static List<DebtCharacteristic> sortByName(List<DebtCharacteristic> characteristics) {
       Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
         @Override
         public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {

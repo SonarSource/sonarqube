@@ -160,11 +160,11 @@ public class PersistTestsStep implements ComputationStep {
       BatchReport.Component component) {
       Set<String> unprocessedCoverageDetailNames = new HashSet<>(coveredFilesByName.rowKeySet());
       unprocessedCoverageDetailNames.removeAll(testsByName.keySet());
-      boolean hasUnprocessedCoverageDetails = !unprocessedCoverageDetailNames.isEmpty();
-      if (hasUnprocessedCoverageDetails) {
+      boolean hasUnprocessedCoverage = !unprocessedCoverageDetailNames.isEmpty();
+      if (hasUnprocessedCoverage) {
         LOG.trace("The following test coverages for file '{}' have not been taken into account: {}", component.getPath(), Joiner.on(", ").join(unprocessedCoverageDetailNames));
       }
-      return hasUnprocessedCoverageDetails;
+      return hasUnprocessedCoverage;
     }
 
     private List<FileSourceDb.Test> addCoveredFilesToTests(Multimap<String, FileSourceDb.Test.Builder> testsByName,

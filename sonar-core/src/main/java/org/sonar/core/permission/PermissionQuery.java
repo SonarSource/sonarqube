@@ -22,12 +22,10 @@ package org.sonar.core.permission;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Query used to get users and groups from a permission
@@ -70,7 +68,7 @@ public class PermissionQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  private String searchToSql(@Nullable String s) {
+  private static String searchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
       sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");

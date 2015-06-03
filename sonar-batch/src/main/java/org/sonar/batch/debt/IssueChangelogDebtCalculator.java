@@ -22,16 +22,6 @@ package org.sonar.batch.debt;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.core.issue.IssueUpdater;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,6 +29,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.IssueUpdater;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -82,7 +80,7 @@ public class IssueChangelogDebtCalculator {
    * SONAR-5059
    */
   @CheckForNull
-  private Long subtractNeverNegative(@Nullable Long value, Long with) {
+  private static Long subtractNeverNegative(@Nullable Long value, @Nullable Long with) {
     Long result = (value != null ? value : 0) - (with != null ? with : 0);
     return result > 0 ? result : null;
   }
@@ -103,7 +101,7 @@ public class IssueChangelogDebtCalculator {
     return Collections.emptyList();
   }
 
-  private List<FieldDiffs> changesOnField(Collection<FieldDiffs> fieldDiffs) {
+  private static List<FieldDiffs> changesOnField(Collection<FieldDiffs> fieldDiffs) {
     List<FieldDiffs> diffs = newArrayList();
     for (FieldDiffs fieldDiff : fieldDiffs) {
       if (fieldDiff.diffs().containsKey(IssueUpdater.TECHNICAL_DEBT)) {
@@ -114,7 +112,7 @@ public class IssueChangelogDebtCalculator {
   }
 
   @CheckForNull
-  private Long newValue(FieldDiffs fieldDiffs) {
+  private static Long newValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         return entry.getValue().newValueLong();
@@ -124,7 +122,7 @@ public class IssueChangelogDebtCalculator {
   }
 
   @CheckForNull
-  private Long oldValue(FieldDiffs fieldDiffs) {
+  private static Long oldValue(FieldDiffs fieldDiffs) {
     for (Map.Entry<String, FieldDiffs.Diff> entry : fieldDiffs.diffs().entrySet()) {
       if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
         return entry.getValue().oldValueLong();
@@ -133,11 +131,11 @@ public class IssueChangelogDebtCalculator {
     return null;
   }
 
-  private boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {
+  private static boolean isAfter(@Nullable Date currentDate, @Nullable Date pastDate) {
     return pastDate == null || (currentDate != null && DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) > 0);
   }
 
-  private boolean isLesserOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
+  private static boolean isLesserOrEqual(@Nullable Date currentDate, @Nullable Date pastDate) {
     return (currentDate != null) && (pastDate == null || (DateUtils.truncatedCompareTo(currentDate, pastDate, Calendar.SECOND) <= 0));
   }
 

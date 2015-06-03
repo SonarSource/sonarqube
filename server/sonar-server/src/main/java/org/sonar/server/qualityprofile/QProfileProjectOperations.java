@@ -122,11 +122,11 @@ public class QProfileProjectOperations {
     return qualityProfile;
   }
 
-  private void checkPermission(UserSession userSession) {
+  private static void checkPermission(UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  private void checkPermission(UserSession userSession, String projectKey) {
+  private static void checkPermission(UserSession userSession, String projectKey) {
     if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
       throw new ForbiddenException("Insufficient privileges");
     }

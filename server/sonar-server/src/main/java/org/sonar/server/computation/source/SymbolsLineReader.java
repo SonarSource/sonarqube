@@ -20,9 +20,6 @@
 
 package org.sonar.server.computation.source;
 
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.source.db.FileSourceDb;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -68,7 +67,7 @@ public class SymbolsLineReader implements LineReader {
     }
   }
 
-  private void appendSymbol(StringBuilder lineSymbol, BatchReport.Range range, int line, int symbolId, String sourceLine) {
+  private static void appendSymbol(StringBuilder lineSymbol, BatchReport.Range range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
       String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
@@ -105,7 +104,7 @@ public class SymbolsLineReader implements LineReader {
     return range.getStartLine() <= line && range.getEndLine() >= line;
   }
 
-  private Map<BatchReport.Symbols.Symbol, Integer> createIdsBySymbolMap(List<BatchReport.Symbols.Symbol> symbols) {
+  private static Map<BatchReport.Symbols.Symbol, Integer> createIdsBySymbolMap(List<BatchReport.Symbols.Symbol> symbols) {
     Map<BatchReport.Symbols.Symbol, Integer> map = new HashMap<>();
     int symbolId = 1;
     for (BatchReport.Symbols.Symbol symbol : symbols) {

@@ -44,12 +44,12 @@ public class ProfilesWs implements WebService {
     controller.done();
   }
 
-  private void defineListAction(NewController controller) {
+  private static void defineListAction(NewController controller) {
     WebService.NewAction action = controller.createAction("list")
       .setDescription("Get a list of profiles")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-list.json"));
+      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-list.json"));
 
     action.createParam("language")
       .setDescription("Profile language")
@@ -60,12 +60,12 @@ public class ProfilesWs implements WebService {
     RailsHandler.addJsonOnlyFormatParam(action);
   }
 
-  private void defineIndexAction(NewController controller) {
+  private static void defineIndexAction(NewController controller) {
     WebService.NewAction action = controller.createAction("index")
       .setDescription("Get a profile")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+      .setResponseExample(Resources.getResource(ProfilesWs.class, "example-index.json"));
 
     action.createParam("language")
       .setDescription("Profile language")
@@ -77,7 +77,7 @@ public class ProfilesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineBackupAction(NewController controller) {
+  private static void defineBackupAction(NewController controller) {
     WebService.NewAction action = controller.createAction("backup")
       .setDescription("Backup a quality profile. Requires Administer Quality Profiles permission")
       .setSince("3.1")
@@ -94,7 +94,7 @@ public class ProfilesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineRestoreAction(NewController controller) {
+  private static void defineRestoreAction(NewController controller) {
     WebService.NewAction action = controller.createAction("restore")
       .setDescription("Restore a quality profile backup. Requires Administer Quality Profiles permission")
       .setSince("3.1")
@@ -107,7 +107,7 @@ public class ProfilesWs implements WebService {
     RailsHandler.addJsonOnlyFormatParam(action);
   }
 
-  private void defineDestroyAction(NewController controller) {
+  private static void defineDestroyAction(NewController controller) {
     WebService.NewAction action = controller.createAction("destroy")
       .setDescription("Delete a quality profile. Requires Administer Quality Profiles permission")
       .setSince("3.3")
@@ -124,7 +124,7 @@ public class ProfilesWs implements WebService {
       .setExampleValue("Sonar way");
   }
 
-  private void defineSetAsDefaultAction(NewController controller) {
+  private static void defineSetAsDefaultAction(NewController controller) {
     WebService.NewAction action = controller.createAction("set_as_default")
       .setDescription("Set a quality profile as Default. Requires Administer Quality Profiles permission")
       .setSince("3.3")

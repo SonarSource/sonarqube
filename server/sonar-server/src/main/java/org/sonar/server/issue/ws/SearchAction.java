@@ -684,7 +684,7 @@ public class SearchAction implements IssuesWsAction {
     json.endArray();
   }
 
-  private void writeUsers(JsonWriter json, Map<String, User> usersByLogin) {
+  private static void writeUsers(JsonWriter json, Map<String, User> usersByLogin) {
     json.name("users").beginArray();
     for (User user : usersByLogin.values()) {
       json.beginObject()

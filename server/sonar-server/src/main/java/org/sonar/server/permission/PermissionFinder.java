@@ -21,9 +21,12 @@ package org.sonar.server.permission;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.GroupWithPermission;
 import org.sonar.core.permission.GroupWithPermissionDto;
@@ -37,11 +40,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -97,7 +95,7 @@ public class PermissionFinder {
     return new UserWithPermissionQueryResult(toUserWithPermissionList(dtos), hasMoreResults);
   }
 
-  private List<UserWithPermission> toUserWithPermissionList(List<UserWithPermissionDto> dtos) {
+  private static List<UserWithPermission> toUserWithPermissionList(List<UserWithPermissionDto> dtos) {
     List<UserWithPermission> users = newArrayList();
     for (UserWithPermissionDto dto : dtos) {
       users.add(dto.toUserWithPermission());
@@ -106,7 +104,7 @@ public class PermissionFinder {
   }
 
   @Nullable
-  private Long componentId(String componentKey) {
+  private Long componentId(@Nullable String componentKey) {
     if (componentKey == null) {
       return null;
     } else {
@@ -135,13 +133,13 @@ public class PermissionFinder {
     return dto.getId();
   }
 
-  private int offset(PermissionQuery query) {
+  private static int offset(PermissionQuery query) {
     int pageSize = query.pageSize();
     int pageIndex = query.pageIndex();
     return (pageIndex - 1) * pageSize;
   }
 
-  private int limit(PermissionQuery query) {
+  private static int limit(PermissionQuery query) {
     // Add one to page size in order to be able to know if there's more results or not
     return query.pageSize() + 1;
   }
@@ -176,7 +174,7 @@ public class PermissionFinder {
     }
   }
 
-  private List<GroupWithPermission> pagedGroups(Collection<GroupWithPermissionDto> dtos, Paging paging) {
+  private static List<GroupWithPermission> pagedGroups(Collection<GroupWithPermissionDto> dtos, Paging paging) {
     List<GroupWithPermission> groups = newArrayList();
     int index = 0;
     for (GroupWithPermissionDto dto : dtos) {

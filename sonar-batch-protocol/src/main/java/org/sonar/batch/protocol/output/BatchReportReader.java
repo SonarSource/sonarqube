@@ -19,14 +19,12 @@
  */
 package org.sonar.batch.protocol.output;
 
-import org.sonar.batch.protocol.ProtobufUtil;
-import org.sonar.batch.protocol.output.BatchReport.Issues;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.batch.protocol.output.BatchReport.Issues;
 
 public class BatchReportReader {
 
@@ -161,7 +159,7 @@ public class BatchReportReader {
     return null;
   }
 
-  private boolean doesFileExists(File file) {
+  private static boolean doesFileExists(File file) {
     return file.exists() && file.isFile();
   }
 }

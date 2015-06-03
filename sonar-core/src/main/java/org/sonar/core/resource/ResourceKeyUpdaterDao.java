@@ -22,15 +22,14 @@ package org.sonar.core.resource;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 
 /**
  * Class used to rename the key of a project and its resources.
@@ -117,11 +116,11 @@ public class ResourceKeyUpdaterDao {
     }
   }
 
-  private String computeNewKey(ResourceDto resource, String stringToReplace, String replacementString) {
+  private static String computeNewKey(ResourceDto resource, String stringToReplace, String replacementString) {
     return resource.getKey().replaceAll(stringToReplace, replacementString);
   }
 
-  private void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ResourceKeyUpdaterMapper mapper) {
+  private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto resource : resources) {
       String resourceKey = resource.getKey();
       resource.setKey(newKey + resourceKey.substring(oldKey.length(), resourceKey.length()));

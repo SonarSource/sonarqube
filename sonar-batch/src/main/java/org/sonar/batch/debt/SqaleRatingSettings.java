@@ -20,12 +20,11 @@
 
 package org.sonar.batch.debt;
 
-import org.sonar.api.batch.BatchSide;
+import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
-
-import javax.annotation.Nullable;
 
 @BatchSide
 public class SqaleRatingSettings {
@@ -76,7 +75,7 @@ public class SqaleRatingSettings {
     return getMetricForKey(settings.getString(CoreProperties.SIZE_METRIC), metrics);
   }
 
-  private Metric getMetricForKey(String sizeMetricKey, Metric[] metrics) {
+  private static Metric getMetricForKey(String sizeMetricKey, Metric[] metrics) {
     for (Metric metric : metrics) {
       if (metric.getKey().equals(sizeMetricKey)) {
         return metric;

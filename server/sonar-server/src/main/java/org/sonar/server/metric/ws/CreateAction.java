@@ -116,7 +116,7 @@ public class CreateAction implements MetricsWsAction {
     }
   }
 
-  private MetricDto newMetricTemplate(Request request) {
+  private static MetricDto newMetricTemplate(Request request) {
     String key = request.mandatoryParam(PARAM_KEY);
     String name = request.mandatoryParam(PARAM_NAME);
     String type = Metric.ValueType.valueOf(request.mandatoryParam(PARAM_TYPE)).name();

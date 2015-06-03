@@ -21,6 +21,10 @@
 package org.sonar.batch.debt;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
@@ -38,12 +42,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -109,7 +107,7 @@ public final class NewDebtDecorator implements Decorator {
     return result;
   }
 
-  private boolean shouldSaveNewMetrics(DecoratorContext context) {
+  private static boolean shouldSaveNewMetrics(DecoratorContext context) {
     return context.getMeasure(CoreMetrics.NEW_TECHNICAL_DEBT) == null;
   }
 

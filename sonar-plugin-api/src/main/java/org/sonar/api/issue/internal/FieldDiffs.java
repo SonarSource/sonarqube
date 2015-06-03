@@ -22,13 +22,11 @@ package org.sonar.api.issue.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * PLUGINS MUST NOT USE THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -168,7 +166,7 @@ public class FieldDiffs implements Serializable {
     }
 
     @CheckForNull
-    private Long toLong(Serializable value) {
+    private static Long toLong(@Nullable Serializable value) {
       if (value != null && !"".equals(value)) {
         try {
           return Long.valueOf((String) value);

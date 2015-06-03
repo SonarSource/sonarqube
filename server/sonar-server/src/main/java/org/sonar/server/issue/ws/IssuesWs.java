@@ -75,12 +75,12 @@ public class IssuesWs implements WebService {
     defineBulkChangeAction(controller);
   }
 
-  private void defineChangelogAction(NewController controller) {
+  private static void defineChangelogAction(NewController controller) {
     WebService.NewAction action = controller.createAction(CHANGELOG_ACTION)
       .setDescription("Display changelog of an issue")
       .setSince("4.1")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-changelog.json"));
+      .setResponseExample(Resources.getResource(IssuesWs.class, "example-changelog.json"));
 
     action.createParam("issue")
       .setDescription("Key of the issue")
@@ -89,7 +89,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineAssignAction(NewController controller) {
+  private static void defineAssignAction(NewController controller) {
     WebService.NewAction action = controller.createAction(ASSIGN_ACTION)
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -106,7 +106,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineAddCommentAction(NewController controller) {
+  private static void defineAddCommentAction(NewController controller) {
     WebService.NewAction action = controller.createAction(ADD_COMMENT_ACTION)
       .setDescription("Add a comment. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -123,7 +123,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineDeleteCommentAction(NewController controller) {
+  private static void defineDeleteCommentAction(NewController controller) {
     WebService.NewAction action = controller.createAction(DELETE_COMMENT_ACTION)
       .setDescription("Delete a comment. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -136,7 +136,7 @@ public class IssuesWs implements WebService {
       .setExampleValue("392160d3-a4f2-4c52-a565-e4542cfa2096");
   }
 
-  private void defineEditCommentAction(NewController controller) {
+  private static void defineEditCommentAction(NewController controller) {
     WebService.NewAction action = controller.createAction(EDIT_COMMENT_ACTION)
       .setDescription("Edit a comment. Requires authentication and User role on project")
       .setSince("3.6")
@@ -153,7 +153,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineSetSeverityAction(NewController controller) {
+  private static void defineSetSeverityAction(NewController controller) {
     WebService.NewAction action = controller.createAction(SET_SEVERITY_ACTION)
       .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -171,7 +171,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void definePlanAction(NewController controller) {
+  private static void definePlanAction(NewController controller) {
     WebService.NewAction action = controller.createAction(PLAN_ACTION)
       .setDescription("Plan/Unplan an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -188,7 +188,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineDoTransitionAction(NewController controller) {
+  private static void defineDoTransitionAction(NewController controller) {
     WebService.NewAction action = controller.createAction(DO_TRANSITION_ACTION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -206,12 +206,12 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineTransitionsAction(NewController controller) {
+  private static void defineTransitionsAction(NewController controller) {
     WebService.NewAction action = controller.createAction(TRANSITIONS_ACTION)
       .setDescription("Get Possible Workflow Transitions for an Issue. Requires Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-transitions.json"));
+      .setResponseExample(Resources.getResource(IssuesWs.class, "example-transitions.json"));
 
     action.createParam("issue")
       .setDescription("Key of the issue")
@@ -219,7 +219,7 @@ public class IssuesWs implements WebService {
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
   }
 
-  private void defineCreateAction(NewController controller) {
+  private static void defineCreateAction(NewController controller) {
     WebService.NewAction action = controller.createAction(CREATE_ACTION)
       .setDescription("Create a manual issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -248,7 +248,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineDoActionAction(NewController controller) {
+  private static void defineDoActionAction(NewController controller) {
     WebService.NewAction action = controller.createAction(DO_ACTION_ACTION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -265,7 +265,7 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private void defineBulkChangeAction(NewController controller) {
+  private static void defineBulkChangeAction(NewController controller) {
     WebService.NewAction action = controller.createAction(BULK_CHANGE_ACTION)
       .setDescription("Bulk change on issues. Requires authentication and User role on project(s)")
       .setSince("3.7")

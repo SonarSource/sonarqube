@@ -146,7 +146,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     }
   }
 
-  private void saveTotalIssues(DecoratorContext context, Collection<Issue> issues) {
+  private static void saveTotalIssues(DecoratorContext context, Collection<Issue> issues) {
     if (context.getMeasure(CoreMetrics.VIOLATIONS) == null) {
       Collection<Measure> childrenIssues = context.getChildrenMeasures(CoreMetrics.VIOLATIONS);
       Double sum = MeasureUtils.sum(true, childrenIssues);
@@ -161,7 +161,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     }
   }
 
-  private void saveIssuesForSeverity(DecoratorContext context, RulePriority ruleSeverity, Multiset<RulePriority> severitiesBag) {
+  private static void saveIssuesForSeverity(DecoratorContext context, RulePriority ruleSeverity, Multiset<RulePriority> severitiesBag) {
     Metric metric = SeverityUtils.severityToIssueMetric(ruleSeverity);
     if (context.getMeasure(metric) == null) {
       Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.metric(metric));
@@ -248,11 +248,11 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private void saveMeasure(DecoratorContext context, Metric metric, int value) {
+  private static void saveMeasure(DecoratorContext context, Metric metric, int value) {
     context.saveMeasure(metric, (double) (value + sumChildren(context, metric)));
   }
 
-  private int sumChildren(DecoratorContext context, Metric metric) {
+  private static int sumChildren(DecoratorContext context, Metric metric) {
     int sum = 0;
     if (!ResourceUtils.isFile(context.getResource())) {
       sum = MeasureUtils.sum(true, context.getChildrenMeasures(metric)).intValue();
@@ -260,7 +260,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     return sum;
   }
 
-  private Multiset<RuleKey> initRules(Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity, RulePriority severity) {
+  private static Multiset<RuleKey> initRules(Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity, RulePriority severity) {
     Multiset<RuleKey> rulesBag = rulesPerSeverity.get(severity);
     if (rulesBag == null) {
       rulesBag = HashMultiset.create();
@@ -289,11 +289,11 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     return count;
   }
 
-  private boolean isAfter(Issue issue, @Nullable Date date) {
+  private static boolean isAfter(Issue issue, @Nullable Date date) {
     return date == null || (issue.creationDate() != null && DateUtils.truncatedCompareTo(issue.creationDate(), date, Calendar.SECOND) > 0);
   }
 
-  private boolean shouldSaveNewMetrics(DecoratorContext context) {
+  private static boolean shouldSaveNewMetrics(DecoratorContext context) {
     return context.getMeasure(CoreMetrics.NEW_VIOLATIONS) == null;
   }
 

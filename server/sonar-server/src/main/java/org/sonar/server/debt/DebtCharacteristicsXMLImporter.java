@@ -20,6 +20,12 @@
 
 package org.sonar.server.debt;
 
+import java.io.Reader;
+import java.io.StringReader;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
@@ -29,14 +35,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
-import java.io.Reader;
-import java.io.StringReader;
 
 import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
 import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_KEY;
@@ -74,7 +72,7 @@ public class DebtCharacteristicsXMLImporter {
     return debtModel;
   }
 
-  private SMInputFactory initStax() {
+  private static SMInputFactory initStax() {
     XMLInputFactory xmlFactory = XMLInputFactory2.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);

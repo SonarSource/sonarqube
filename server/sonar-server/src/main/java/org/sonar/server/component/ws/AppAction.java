@@ -20,6 +20,10 @@
 
 package org.sonar.server.component.ws;
 
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -40,12 +44,6 @@ import org.sonar.core.properties.PropertyQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -149,7 +147,7 @@ public class AppAction implements RequestHandler {
     json.prop("fav", isFavourite);
   }
 
-  private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
+  private static void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
     boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component.key());
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
     json.prop("canCreateManualIssue", userSession.isLoggedIn() && hasBrowsePermission);
@@ -168,7 +166,7 @@ public class AppAction implements RequestHandler {
     json.endObject();
   }
 
-  private MeasureDto coverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
+  private static MeasureDto coverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
     MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
     MeasureDto itCoverage = measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY);
     MeasureDto utCoverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);

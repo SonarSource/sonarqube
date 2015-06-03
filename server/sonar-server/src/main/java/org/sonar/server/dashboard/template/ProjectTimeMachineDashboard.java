@@ -55,7 +55,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     return dashboard;
   }
 
-  private void addFirstColumn(Dashboard dashboard) {
+  private static void addFirstColumn(Dashboard dashboard) {
     Widget timelineWidget = dashboard.addWidget("timeline", 1);
     timelineWidget.setProperty(METRIC1, CoreMetrics.COMPLEXITY_KEY);
     timelineWidget.setProperty(METRIC2, CoreMetrics.TECHNICAL_DEBT_KEY);
@@ -83,7 +83,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     duplicationTimeMachineWidget.setProperty(METRIC4, CoreMetrics.DUPLICATED_FILES_KEY);
   }
 
-  private void addSecondColumn(Dashboard dashboard) {
+  private static void addSecondColumn(Dashboard dashboard) {
     Widget rulesTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     rulesTimeMachineWidget.setProperty(METRIC1, CoreMetrics.VIOLATIONS_KEY);
     rulesTimeMachineWidget.setProperty(METRIC2, CoreMetrics.BLOCKER_VIOLATIONS_KEY);
@@ -110,15 +110,15 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     testsTimeMachineWidget.setProperty(METRIC8, CoreMetrics.TEST_EXECUTION_TIME_KEY);
   }
 
-  private Widget addTimeMachineWidgetOnFirstColumn(Dashboard dashboard) {
+  private static Widget addTimeMachineWidgetOnFirstColumn(Dashboard dashboard) {
     return addTimeMachineWidget(dashboard, 1);
   }
 
-  private Widget addTimeMachineWidgetOnSecondColumn(Dashboard dashboard) {
+  private static Widget addTimeMachineWidgetOnSecondColumn(Dashboard dashboard) {
     return addTimeMachineWidget(dashboard, 2);
   }
 
-  private Widget addTimeMachineWidget(Dashboard dashboard, int columnIndex) {
+  private static Widget addTimeMachineWidget(Dashboard dashboard, int columnIndex) {
     Widget widget = dashboard.addWidget("time_machine", columnIndex);
     widget.setProperty("displaySparkLine", "true");
     return widget;

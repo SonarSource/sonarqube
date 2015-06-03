@@ -20,19 +20,17 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Strings;
 import java.util.Collection;
 import java.util.Map;
-
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
-
-import com.google.common.base.Strings;
 
 @ServerSide
 public class SetSeverityAction extends Action {
@@ -69,7 +67,7 @@ public class SetSeverityAction extends Action {
     return issueUpdater.setManualSeverity((DefaultIssue) context.issue(), severity(properties), context.issueChangeContext());
   }
 
-  private String severity(Map<String, Object> properties) {
+  private static String severity(Map<String, Object> properties) {
     String param = (String) properties.get("severity");
     if (Strings.isNullOrEmpty(param)) {
       throw new IllegalArgumentException("Missing parameter : 'severity'");

@@ -20,11 +20,10 @@
 
 package org.sonar.server.user;
 
+import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
-
-import java.util.Map;
 
 /**
  * Used by ruby code <pre>Internal.group_membership</pre>
@@ -55,7 +54,7 @@ public class GroupMembershipService {
     return builder.build();
   }
 
-  private String membership(Map<String, Object> params) {
+  private static String membership(Map<String, Object> params) {
     String selected = (String) params.get("selected");
     if (SELECTED_MEMBERSHIP.equals(selected)) {
       return GroupMembershipQuery.IN;

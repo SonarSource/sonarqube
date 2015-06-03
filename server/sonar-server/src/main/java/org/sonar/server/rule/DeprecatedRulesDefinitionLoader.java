@@ -21,13 +21,18 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.io.Reader;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -39,13 +44,6 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Reader;
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -124,7 +122,7 @@ public class DeprecatedRulesDefinitionLoader {
     }
   }
 
-  private DebtRemediationFunction remediationFunction(DebtRemediationFunction.Type function, @Nullable String coefficient, @Nullable String offset,
+  private static DebtRemediationFunction remediationFunction(DebtRemediationFunction.Type function, @Nullable String coefficient, @Nullable String offset,
     RulesDefinition.DebtRemediationFunctions functions, String repoKey, String ruleKey) {
     if (DebtRemediationFunction.Type.LINEAR.equals(function) && coefficient != null) {
       return functions.linear(coefficient);

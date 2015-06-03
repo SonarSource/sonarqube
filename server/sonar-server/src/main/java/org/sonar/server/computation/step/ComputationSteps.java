@@ -52,7 +52,7 @@ public class ComputationSteps {
       QualityProfileEventsStep.class,
 
       // Persist data
-      PersistComponentsStep.class,
+      PersistComponentsAndSnapshotsStep.class,
       PersistNumberOfDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,
       PersistIssuesStep.class,

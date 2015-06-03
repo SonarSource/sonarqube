@@ -115,7 +115,7 @@ public class PopulateComponentsUuidAndKeyStep implements ComputationStep {
     feedComponent((ComponentImpl) component, componentKey, componentContext.componentUuidsByKey);
   }
 
-  private void feedComponent(ComponentImpl component, String componentKey, Map<String, String> componentUuidByKey) {
+  private static void feedComponent(ComponentImpl component, String componentKey, Map<String, String> componentUuidByKey) {
     component.setKey(componentKey);
 
     String componentUuid = componentUuidByKey.get(componentKey);

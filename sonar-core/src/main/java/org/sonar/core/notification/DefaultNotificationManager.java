@@ -25,6 +25,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.RequiresDB;
@@ -34,13 +39,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
-
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @since 2.10
@@ -175,7 +173,7 @@ public class DefaultNotificationManager implements NotificationManager {
     return Arrays.asList(notificationChannels);
   }
 
-  private void addUsersToRecipientListForChannel(List<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
+  private static void addUsersToRecipientListForChannel(List<String> users, SetMultimap<String, NotificationChannel> recipients, NotificationChannel channel) {
     for (String username : users) {
       recipients.put(username, channel);
     }

@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -34,8 +35,6 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.issue.DefaultIssueBuilder;
-
-import javax.annotation.Nullable;
 
 /**
  * Initialize the issues raised during scan.
@@ -98,7 +97,7 @@ public class ModuleIssues {
     return false;
   }
 
-  private void validateRule(DefaultIssue issue, Rule rule) {
+  private static void validateRule(DefaultIssue issue, @Nullable Rule rule) {
     RuleKey ruleKey = issue.ruleKey();
     if (rule == null) {
       throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));

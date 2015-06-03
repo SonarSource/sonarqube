@@ -65,7 +65,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
         .setMessage(messageBody);
   }
 
-  private String generateSubject(String projectName, String alertLevel, boolean isNewAlert) {
+  private static String generateSubject(String projectName, String alertLevel, boolean isNewAlert) {
     StringBuilder subjectBuilder = new StringBuilder();
     if (Metric.Level.OK.toString().equals(alertLevel)) {
       subjectBuilder.append("\"").append(projectName).append("\" is back to green");

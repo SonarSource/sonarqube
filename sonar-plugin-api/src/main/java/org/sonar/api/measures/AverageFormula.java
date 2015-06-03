@@ -20,9 +20,8 @@
 
 package org.sonar.api.measures;
 
-import org.sonar.api.resources.ResourceUtils;
-
 import java.util.List;
+import org.sonar.api.resources.ResourceUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -130,7 +129,7 @@ public class AverageFormula implements Formula {
     return result;
   }
 
-  private boolean shouldDecorateResource(FormulaData data, FormulaContext context) {
+  private static boolean shouldDecorateResource(FormulaData data, FormulaContext context) {
     return !MeasureUtils.hasValue(data.getMeasure(context.getTargetMetric()));
   }
 }

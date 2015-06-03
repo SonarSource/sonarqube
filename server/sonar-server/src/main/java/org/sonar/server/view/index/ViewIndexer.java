@@ -20,6 +20,8 @@
 
 package org.sonar.server.view.index;
 
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.UuidWithProjectUuidDto;
@@ -29,9 +31,6 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndex;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -121,7 +120,7 @@ public class ViewIndexer extends BaseIndexer {
     }
   }
 
-  private UpdateRequest newUpsertRequest(ViewDoc doc) {
+  private static UpdateRequest newUpsertRequest(ViewDoc doc) {
     return new UpdateRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, doc.uuid())
       .doc(doc.getFields())
       .upsert(doc.getFields());

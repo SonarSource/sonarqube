@@ -96,7 +96,7 @@ public class PersistIssuesStep implements ComputationStep {
     }
   }
 
-  private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
+  private static void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {
       DefaultIssueComment c = (DefaultIssueComment) comment;
       if (c.isNew()) {

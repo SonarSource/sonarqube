@@ -19,11 +19,10 @@
  */
 package org.sonar.api.server.rule;
 
+import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -75,7 +74,7 @@ public final class RuleParamType {
     this.multiple = multiple;
   }
 
-  private String valuesToCsv(String... values) {
+  private static String valuesToCsv(String... values) {
     StringBuilder sb = new StringBuilder();
     for (String value : values) {
       sb.append(StringEscapeUtils.escapeCsv(value));

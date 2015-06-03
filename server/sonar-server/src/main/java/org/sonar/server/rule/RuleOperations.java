@@ -21,9 +21,11 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.core.permission.GlobalPermissions;
@@ -35,9 +37,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -151,7 +150,7 @@ public class RuleOperations {
       .isEquals();
   }
 
-  private void checkPermission(UserSession userSession) {
+  private static void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }

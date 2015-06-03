@@ -21,6 +21,8 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
+import java.util.Collection;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,10 +31,6 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
-
-import javax.annotation.Nullable;
-
-import java.util.Collection;
 
 public class ShowAction implements QGateWsAction {
 
@@ -82,7 +80,7 @@ public class ShowAction implements QGateWsAction {
     writer.endObject().close();
   }
 
-  private void checkOneOfIdOrNamePresent(@Nullable Long qGateId, @Nullable String qGateName) {
+  private static void checkOneOfIdOrNamePresent(@Nullable Long qGateId, @Nullable String qGateName) {
     if (qGateId == null && qGateName == null) {
       throw new BadRequestException("Either one of 'id' or 'name' is required.");
     } else if (qGateId != null && qGateName != null) {

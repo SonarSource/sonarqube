@@ -24,6 +24,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -53,14 +59,6 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -188,7 +186,7 @@ public class ProjectRepositoryLoader {
     }
   }
 
-  private Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
+  private static Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
     Map<String, String> properties = newHashMap();
     for (PropertyDto propertyDto : propertyDtos) {
       String key = propertyDto.getKey();
@@ -292,7 +290,7 @@ public class ProjectRepositoryLoader {
     }
   }
 
-  private void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
+  private static void addFileData(DbSession session, ProjectRepositories ref, List<ComponentDto> moduleChildren, List<FilePathWithHashDto> files) {
     Map<String, String> moduleKeysByUuid = newHashMap();
     for (ComponentDto module : moduleChildren) {
       moduleKeysByUuid.put(module.uuid(), module.key());
@@ -320,7 +318,7 @@ public class ProjectRepositoryLoader {
     }
   }
 
-  private Map<String, String> moduleUuidsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+  private static Map<String, String> moduleUuidsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
     Map<String, String> moduleUuidsByKey = newHashMap();
     for (ComponentDto componentDto : moduleChildren) {
       moduleUuidsByKey.put(componentDto.key(), componentDto.uuid());
@@ -328,7 +326,7 @@ public class ProjectRepositoryLoader {
     return moduleUuidsByKey;
   }
 
-  private Map<String, Long> moduleIdsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
+  private static Map<String, Long> moduleIdsByKey(ComponentDto module, List<ComponentDto> moduleChildren) {
     Map<String, Long> moduleIdsByKey = newHashMap();
     for (ComponentDto componentDto : moduleChildren) {
       moduleIdsByKey.put(componentDto.key(), componentDto.getId());

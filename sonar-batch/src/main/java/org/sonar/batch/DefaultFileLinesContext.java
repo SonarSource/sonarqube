@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.Measure;
@@ -32,8 +33,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
-
-import java.util.Map;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
@@ -143,7 +142,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
    * @see #loadData(String, Converter)
    * @see #save()
    */
-  private boolean shouldSave(Map<Integer, Object> lines) {
+  private static boolean shouldSave(Map<Integer, Object> lines) {
     return !(lines instanceof ImmutableMap);
   }
 

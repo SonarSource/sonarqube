@@ -21,14 +21,13 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Strings;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.core.issue.IssueUpdater;
-import org.sonar.server.user.UserSession;
-
 import java.util.Collection;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class CommentAction extends Action {
@@ -55,7 +54,7 @@ public class CommentAction extends Action {
     return true;
   }
 
-  private String comment(Map<String, Object> properties) {
+  private static String comment(Map<String, Object> properties) {
     String param = (String) properties.get(COMMENT_PROPERTY);
     if (Strings.isNullOrEmpty(param)) {
       throw new IllegalArgumentException("Missing parameter : '" + COMMENT_PROPERTY + "'");

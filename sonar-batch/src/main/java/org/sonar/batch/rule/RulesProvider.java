@@ -22,6 +22,8 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
@@ -37,9 +39,6 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * Loads all enabled and non manual rules
@@ -88,7 +87,7 @@ public class RulesProvider extends ProviderAdapter {
     return rulesBuilder.build();
   }
 
-  private DebtCharacteristic effectiveCharacteristic(RuleDto ruleDto, RuleKey ruleKey, DefaultDebtModel debtModel) {
+  private static DebtCharacteristic effectiveCharacteristic(RuleDto ruleDto, RuleKey ruleKey, DefaultDebtModel debtModel) {
     Integer subCharacteristicId = ruleDto.getSubCharacteristicId();
     Integer defaultSubCharacteristicId = ruleDto.getDefaultSubCharacteristicId();
     Integer effectiveSubCharacteristicId = subCharacteristicId != null ? subCharacteristicId : defaultSubCharacteristicId;
@@ -121,7 +120,7 @@ public class RulesProvider extends ProviderAdapter {
    * Return true is the characteristic has not been overridden and a default characteristic is existing or
    * if the characteristic has been overridden but is not disabled
    */
-  private boolean hasCharacteristic(RuleDto ruleDto) {
+  private static boolean hasCharacteristic(RuleDto ruleDto) {
     Integer subCharacteristicId = ruleDto.getSubCharacteristicId();
     return (subCharacteristicId == null && ruleDto.getDefaultSubCharacteristicId() != null) ||
       (subCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(subCharacteristicId));

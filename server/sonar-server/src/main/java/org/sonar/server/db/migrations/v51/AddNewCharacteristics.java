@@ -19,13 +19,13 @@
  */
 package org.sonar.server.db.migrations.v51;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
@@ -33,9 +33,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 /**
  * See http://jira.sonarsource.com/browse/SONAR-6187
@@ -97,7 +94,7 @@ public class AddNewCharacteristics extends BaseDataChange {
    *
    * If the characteristic 'Usability' is already at the right place, nothing will be done.
    */
-  private int moveCharacteristicsDownToBeAbleToInsertUsability(CharacteristicsContext characteristicsContext) throws SQLException {
+  private static int moveCharacteristicsDownToBeAbleToInsertUsability(CharacteristicsContext characteristicsContext) throws SQLException {
     Characteristic security = characteristicsContext.findCharacteristicByKey(SECURITY_KEY);
     Characteristic usability = characteristicsContext.findCharacteristicByKey(USABILITY_KEY);
 

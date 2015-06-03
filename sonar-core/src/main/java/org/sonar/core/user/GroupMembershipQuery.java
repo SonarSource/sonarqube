@@ -64,7 +64,7 @@ public class GroupMembershipQuery {
     this.pageIndex = builder.pageIndex;
   }
 
-  private String groupSearchToSql(@Nullable String s) {
+  private static String groupSearchToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
       sql = StringUtils.replace(StringUtils.upperCase(s), "%", "/%");

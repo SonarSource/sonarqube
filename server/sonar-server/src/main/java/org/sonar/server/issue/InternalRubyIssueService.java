@@ -26,8 +26,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -36,6 +41,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
@@ -54,14 +60,6 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -385,7 +383,7 @@ public class InternalRubyIssueService {
     }
   }
 
-  private Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result) {
+  private static Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result) {
     Date deadLine = null;
     if (!Strings.isNullOrEmpty(deadLineParam)) {
       try {
@@ -492,7 +490,7 @@ public class InternalRubyIssueService {
     return execute(props);
   }
 
-  private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
+  private static void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
     for (Map.Entry<String, Object> entry : overrideProps.entrySet()) {
       props.put(entry.getKey(), entry.getValue());
     }
@@ -609,32 +607,32 @@ public class InternalRubyIssueService {
     return issueBulkChangeService.execute(issueBulkChangeQuery, userSession);
   }
 
-  private void checkMandatoryParameter(String value, String paramName, Result result) {
+  private static void checkMandatoryParameter(String value, String paramName, Result result) {
     if (Strings.isNullOrEmpty(value)) {
       result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName));
     }
   }
 
-  private void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
+  private static void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
     checkMandatoryParameter(value, paramName, result);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
-  private void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
+  private static void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
     }
   }
 
-  private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
+  private static void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 
-  public int maxPageSize() {
+  public static int maxPageSize() {
     return QueryContext.MAX_LIMIT;
   }
 

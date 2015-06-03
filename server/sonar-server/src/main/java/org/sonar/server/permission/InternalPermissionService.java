@@ -20,8 +20,12 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.api.server.ServerSide;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -35,12 +39,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Used by ruby code <pre>Internal.permissions</pre>
@@ -261,7 +259,7 @@ public class InternalPermissionService {
     }
   }
 
-  private Object badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {
+  private static Object badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {
     if (component == null) {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }

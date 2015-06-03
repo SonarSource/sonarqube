@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
@@ -42,9 +43,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
-public class PersistComponentsStepTest extends BaseStepTest {
+public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
@@ -52,17 +54,20 @@ public class PersistComponentsStepTest extends BaseStepTest {
   public static DbTester dbTester = new DbTester();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  System2 system2 = mock(System2.class);
 
   DbIdsRepository dbIdsRepository;
 
   DbSession session;
+
   DbClient dbClient;
 
-  PersistComponentsStep sut;
+  PersistComponentsAndSnapshotsStep sut;
 
   @Before
   public void setup() throws Exception {
@@ -70,8 +75,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+
     dbIdsRepository = new DbIdsRepository();
-    sut = new PersistComponentsStep(dbClient, dbIdsRepository, reportReader, treeRootHolder);
+    sut = new PersistComponentsAndSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository);
   }
 
   @Override
@@ -86,10 +93,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_components() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -191,10 +194,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_file_directly_attached_on_root_directory() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -217,6 +216,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":/",
         new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":pom.xml"))));
+
     sut.execute();
 
     ComponentDto directory = dbClient.componentDao().selectNullableByKey(session, "PROJECT_KEY:/");
@@ -232,10 +232,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_unit_test() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -259,6 +255,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.DIRECTORY, 2, "CDEF", PROJECT_KEY + ":src/test/java/dir",
         new DumbComponent(Component.Type.FILE, 3, "DEFG", PROJECT_KEY + ":src/test/java/dir/FooTest.java"))));
+
     sut.execute();
 
     ComponentDto file = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY + ":src/test/java/dir/FooTest.java");
@@ -277,10 +274,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(session, module);
     session.commit();
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -312,6 +305,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
         new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
           new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java")))));
+
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
@@ -345,10 +339,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void compute_parent_project_id() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -388,6 +378,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         new DumbComponent(Component.Type.MODULE, 3, "CDEF", "SUB_MODULE_1_KEY",
           new DumbComponent(Component.Type.MODULE, 4, "DEFG", "SUB_MODULE_2_KEY",
             new DumbComponent(Component.Type.DIRECTORY, 5, "EFGH", "SUB_MODULE_2_KEY:src/main/java/dir"))))));
+
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
@@ -415,10 +406,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   @Test
   public void persist_multi_modules() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -451,6 +438,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_A",
         new DumbComponent(Component.Type.MODULE, 3, "DEFG", "SUB_MODULE_A")),
       new DumbComponent(Component.Type.MODULE, 4, "CDEF", "MODULE_B")));
+
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
@@ -491,10 +479,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, directory, file);
     session.commit();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -525,6 +509,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY",
         new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir",
           new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java")))));
+
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
@@ -578,10 +563,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, module);
     session.commit();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -599,6 +580,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
+    
     sut.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
@@ -615,10 +597,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
     dbClient.componentDao().insert(session, module);
     session.commit();
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -638,6 +616,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
+    
     sut.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
@@ -654,10 +633,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setPath("path");
     dbClient.componentDao().insert(session, module);
     session.commit();
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -676,6 +651,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
       new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY")));
+
     sut.execute();
 
     ComponentDto moduleReloaded = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");
@@ -693,10 +669,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
     ComponentDto file = ComponentTesting.newFileDto(moduleB, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_B:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(session, directory, file);
     session.commit();
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -737,6 +709,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         new DumbComponent(Component.Type.MODULE, 3, "BCDE", "MODULE_B",
           new DumbComponent(Component.Type.DIRECTORY, 4, "CDEF", "MODULE_B:src/main/java/dir",
             new DumbComponent(Component.Type.FILE, 5, "DEFG", "MODULE_B:src/main/java/dir/Foo.java"))))));
+
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);

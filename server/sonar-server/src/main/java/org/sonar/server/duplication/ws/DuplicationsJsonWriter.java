@@ -21,16 +21,14 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.db.ComponentDao;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -65,7 +63,7 @@ public class DuplicationsJsonWriter {
     }
   }
 
-  private void writeDuplication(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication, JsonWriter json) {
+  private static void writeDuplication(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication, JsonWriter json) {
     String ref = null;
     ComponentDto componentDto = duplication.file();
     if (componentDto != null) {
@@ -104,13 +102,13 @@ public class DuplicationsJsonWriter {
     }
   }
 
-  private void addFile(JsonWriter json, ComponentDto file) {
+  private static void addFile(JsonWriter json, ComponentDto file) {
     json.prop("key", file.key());
     json.prop("uuid", file.uuid());
     json.prop("name", file.longName());
   }
 
-  private void addProject(JsonWriter json, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
+  private static void addProject(JsonWriter json, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
     if (project != null) {
       json.prop("project", project.key());
       json.prop("projectUuid", project.uuid());

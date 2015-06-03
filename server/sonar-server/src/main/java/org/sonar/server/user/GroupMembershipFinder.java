@@ -20,6 +20,7 @@
 
 package org.sonar.server.user;
 
+import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.user.GroupMembership;
 import org.sonar.core.user.GroupMembershipDao;
@@ -28,8 +29,6 @@ import org.sonar.core.user.GroupMembershipQuery;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -88,7 +87,7 @@ public class GroupMembershipFinder {
     return userDto.getId();
   }
 
-  private List<GroupMembership> toGroupMembership(List<GroupMembershipDto> dtos) {
+  private static List<GroupMembership> toGroupMembership(List<GroupMembershipDto> dtos) {
     List<GroupMembership> groups = newArrayList();
     for (GroupMembershipDto groupMembershipDto : dtos) {
       groups.add(groupMembershipDto.toGroupMembership());
