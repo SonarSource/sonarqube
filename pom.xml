@@ -1200,8 +1200,8 @@
   </scm>
 
   <ciManagement>
-    <system>bamboo</system>
-    <url>http://bamboo.ci.codehaus.org/browse/SONAR-DEF</url>
+    <system>travis-ci</system>
+    <url>https://travis-ci.org/SonarSource/sonarqube</url>
   </ciManagement>
 
   <licenses>
