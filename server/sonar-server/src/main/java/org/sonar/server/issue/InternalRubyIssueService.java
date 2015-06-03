@@ -632,7 +632,10 @@ public class InternalRubyIssueService {
     }
   }
 
-  public static int maxPageSize() {
+  /**
+   * Do not make this method static as it's called by rails
+   */
+  public int maxPageSize() {
     return QueryContext.MAX_LIMIT;
   }
 
