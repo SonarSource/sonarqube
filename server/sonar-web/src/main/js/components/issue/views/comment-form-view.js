@@ -49,6 +49,14 @@ define([
       this.options.detailView.updateAfterAction(false);
     },
 
+    disableForm: function () {
+      this.$(':input').prop('disabled', true);
+    },
+
+    enableForm: function () {
+      this.$(':input').prop('disabled', false);
+    },
+
     submit: function () {
       var that = this;
       var text = this.ui.textarea.val(),
@@ -61,9 +69,13 @@ define([
       } else {
         data.issue = this.options.issue.id;
       }
-      return $.post(url, data).done(function () {
-        that.options.detailView.updateAfterAction(true);
-      });
+      this.disableForm();
+      return $.post(url, data)
+          .done(function () {
+            that.options.detailView.updateAfterAction(true);
+          }).fail(function () {
+            that.enableForm();
+          });
     }
   });
 
