@@ -8,25 +8,15 @@
     <version>5.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>sonar-batch-maven-compat</artifactId>
-  <name>SonarQube :: Batch Maven Compat</name>
-  <description>Compatibility layer, which provides MavenProject for non-Maven environments.</description>
+  <artifactId>sonar-batch-shaded</artifactId>
+  <name>SonarQube :: Batch Shaded</name>
+  <description>All batch dependencies in a single jar</description>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-batch</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-container-default</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 

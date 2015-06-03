@@ -19,20 +19,17 @@
  */
 package org.sonar.api.resources;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * A class that manipulates Projects in the Sonar way.
@@ -74,12 +71,10 @@ public class Project extends Resource implements Component {
     }
   }
 
-  private MavenProject pom;
   private String branch;
   private ProjectFileSystem fileSystem;
   private String name;
   private String description;
-  private String packaging;
   private Language language;
   private Date analysisDate;
   private AnalysisType analysisType;
@@ -122,23 +117,6 @@ public class Project extends Resource implements Component {
     return this;
   }
 
-  /**
-   * For internal use only.
-   */
-  public final Project setPom(MavenProject pom) {
-    this.pom = pom;
-    return this;
-  }
-
-  /**
-   * @return the project's packaging
-   * @deprecated in 2.8. See http://jira.sonarsource.com/browse/SONAR-2341
-   */
-  @Deprecated
-  public String getPackaging() {
-    return packaging;
-  }
-
   @Override
   public String getName() {
     return name;
@@ -167,17 +145,6 @@ public class Project extends Resource implements Component {
    */
   public Project setDescription(String description) {
     this.description = description;
-    return this;
-  }
-
-  /**
-   * For internal use only.
-   *
-   * @deprecated in 2.8. See http://jira.sonarsource.com/browse/SONAR-2341
-   */
-  @Deprecated
-  public Project setPackaging(String packaging) {
-    this.packaging = packaging;
     return this;
   }
 
@@ -391,32 +358,6 @@ public class Project extends Resource implements Component {
   public Project setFileSystem(ProjectFileSystem fs) {
     this.fileSystem = fs;
     return this;
-  }
-
-  /**
-   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011
-   */
-  @Deprecated
-  public String getGroupId() {
-    return pom.getGroupId();
-  }
-
-  /**
-   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011
-   */
-  @Deprecated
-  public String getArtifactId() {
-    return pom.getArtifactId();
-  }
-
-  /**
-   * @return the underlying Maven project
-   * @deprecated since 2.5. See http://jira.sonarsource.com/browse/SONAR-2011 ,
-   *             MavenProject can be retrieved as an IoC dependency
-   */
-  @Deprecated
-  public MavenProject getPom() {
-    return pom;
   }
 
   public static Project createFromMavenIds(String groupId, String artifactId) {

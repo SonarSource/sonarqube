@@ -1,2 +1,2 @@
-sonar-batch-maven-compat-4.4.jar|2d7cbec208114970ea419ce963775f68
+sonar-batch-4.4.jar|2d7cbec208114970ea419ce963775f68
 sonar-batch-library-2.3.jar|86f577369ec914ae079411803cebc7d2

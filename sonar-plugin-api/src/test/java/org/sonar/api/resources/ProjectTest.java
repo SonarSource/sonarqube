@@ -20,21 +20,10 @@
 package org.sonar.api.resources;
 
 import org.junit.Test;
-import org.sonar.api.test.MavenTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectTest {
-
-  @Test
-  public void equalsProject() {
-    Project project1 = MavenTestUtils.loadProjectFromPom(getClass(), "equalsProject/pom.xml");
-    Project project2 = MavenTestUtils.loadProjectFromPom(getClass(), "equalsProject/pom.xml");
-
-    assertThat(project1).isEqualTo(project2);
-    assertThat(project1).isNotEqualTo("foo:bar");
-    assertThat(project1.hashCode()).isEqualTo(project2.hashCode());
-  }
 
   @Test
   public void effectiveKeyShouldEqualKey() {

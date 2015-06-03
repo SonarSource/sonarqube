@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.maven;
+package org.sonar.plugins.batch.maven;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -51,7 +51,8 @@ public class MavenProjectBuilder extends ProjectBuilder {
   private void setMavenProjectIfApplicable(ProjectDefinition definition) {
     if (mavenSession != null) {
       String moduleKey = definition.getKey();
-      for (MavenProject mavenModule : (List<MavenProject>) mavenSession.getSortedProjects()) {
+      for (MavenProject mavenModule : (List<MavenProject>) mavenSession.getProjects()) {
+        // FIXME assumption that moduleKey was not modified by user and follow convention <groupId>:<artifactId>
         String mavenModuleKey = mavenModule.getGroupId() + ":" + mavenModule.getArtifactId();
         if (mavenModuleKey.equals(moduleKey) && !definition.getContainerExtensions().contains(mavenModule)) {
           definition.addContainerExtension(mavenModule);

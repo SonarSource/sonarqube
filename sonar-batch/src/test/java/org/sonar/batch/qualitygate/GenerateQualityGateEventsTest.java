@@ -32,7 +32,6 @@ import org.sonar.core.notification.NotificationManager;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.test.ProjectTestBuilder;
 import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.report.EventCache;
 
@@ -65,7 +64,7 @@ public class GenerateQualityGateEventsTest {
     notificationManager = mock(NotificationManager.class);
     eventCache = mock(EventCache.class);
     decorator = new GenerateQualityGateEvents(qualityGate, timeMachine, notificationManager, eventCache);
-    project = new ProjectTestBuilder().build();
+    project = new Project("mygroup:myartifact");
     when(context.getResource()).thenReturn(project);
   }
 

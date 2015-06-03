@@ -23,18 +23,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharEncoding;
-import org.apache.maven.project.MavenProject;
 import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -50,18 +43,12 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   private final DefaultModuleFileSystem target;
   private final PathResolver pathResolver = new PathResolver();
-  private final MavenProject pom;
 
-  public ProjectFileSystemAdapter(DefaultModuleFileSystem target, Project project, @Nullable MavenProject pom) {
+  public ProjectFileSystemAdapter(DefaultModuleFileSystem target, Project project) {
     this.target = target;
-    this.pom = pom;
 
     // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
     project.setFileSystem(this);
-  }
-
-  public ProjectFileSystemAdapter(DefaultModuleFileSystem target, Project project) {
-    this(target, project, null);
   }
 
   public void start() {
@@ -123,9 +110,6 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   @Override
   public File getReportOutputDir() {
-    if (pom != null) {
-      return resolvePath(pom.getReporting().getOutputDirectory());
-    }
     // emulate Maven report output dir
     return new File(getBuildDir(), "site");
   }
@@ -209,7 +193,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return Lists.newArrayList((Iterable) target.inputFiles(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.MAIN),
       target.predicates().hasLanguages(Arrays.asList(langs))
-    )));
+      )));
 
   }
 
@@ -218,7 +202,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return Lists.newArrayList((Iterable) target.inputFiles(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
       target.predicates().hasLanguages(Arrays.asList(langs))
-    )));
+      )));
   }
 
   private FilePredicate newHasLanguagesPredicate(Language... languages) {
