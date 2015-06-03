@@ -22,9 +22,9 @@ define([
         selectUrl: baseUrl + '/api/usergroups/add_user',
         deselectUrl: baseUrl + '/api/usergroups/remove_user',
         extra: {
-          groupId: this.model.id
+          id: this.model.id
         },
-        selectParameter: 'userLogin',
+        selectParameter: 'login',
         selectParameterValue: 'login',
         parse: function (r) {
           this.more = false;

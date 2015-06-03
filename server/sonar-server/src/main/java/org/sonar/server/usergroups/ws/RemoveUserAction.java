@@ -36,8 +36,8 @@ import static org.sonar.core.persistence.MyBatis.closeQuietly;
 
 public class RemoveUserAction implements UserGroupsWsAction {
 
-  private static final String PARAM_ID = "groupId";
-  private static final String PARAM_LOGIN = "userLogin";
+  private static final String PARAM_ID = "id";
+  private static final String PARAM_LOGIN = "login";
 
   private final DbClient dbClient;
   private final UserSession userSession;

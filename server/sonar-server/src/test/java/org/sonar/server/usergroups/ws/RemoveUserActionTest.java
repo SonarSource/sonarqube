@@ -96,8 +96,8 @@ public class RemoveUserActionTest {
 
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/usergroups", "remove_user")
-      .setParam("groupId", group.getId().toString())
-      .setParam("userLogin", user.getLogin())
+      .setParam("id", group.getId().toString())
+      .setParam("login", user.getLogin())
       .execute()
       .assertNoContent();
 
@@ -114,8 +114,8 @@ public class RemoveUserActionTest {
 
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/usergroups", "remove_user")
-      .setParam("groupId", users.getId().toString())
-      .setParam("userLogin", user.getLogin())
+      .setParam("id", users.getId().toString())
+      .setParam("login", user.getLogin())
       .execute()
       .assertNoContent();
 
@@ -134,8 +134,8 @@ public class RemoveUserActionTest {
 
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/usergroups", "remove_user")
-      .setParam("groupId", admins.getId().toString())
-      .setParam("userLogin", user.getLogin())
+      .setParam("id", admins.getId().toString())
+      .setParam("login", user.getLogin())
       .execute()
       .assertNoContent();
 
@@ -152,8 +152,8 @@ public class RemoveUserActionTest {
 
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/usergroups", "remove_user")
-      .setParam("groupId", "42")
-      .setParam("userLogin", user.getLogin())
+      .setParam("id", "42")
+      .setParam("login", user.getLogin())
       .execute();
   }
 
@@ -166,8 +166,8 @@ public class RemoveUserActionTest {
 
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     tester.newPostRequest("api/usergroups", "remove_user")
-      .setParam("groupId", group.getId().toString())
-      .setParam("userLogin", "my-admin")
+      .setParam("id", group.getId().toString())
+      .setParam("login", "my-admin")
       .execute();
   }
 
