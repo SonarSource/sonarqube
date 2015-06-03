@@ -37,6 +37,7 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -55,6 +56,14 @@ public class MetricDao implements DaoComponent {
         return mapper(session).selectByKeys(input);
       }
     });
+  }
+
+  public MetricDto selectByKey(DbSession session, String key) {
+    MetricDto metric = selectNullableByKey(session, key);
+    if (metric == null) {
+      throw new NotFoundException(String.format("Metric '%s' not found", key));
+    }
+    return metric;
   }
 
   public List<MetricDto> selectEnabled(DbSession session) {

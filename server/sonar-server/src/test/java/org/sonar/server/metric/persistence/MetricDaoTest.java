@@ -28,6 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,6 +81,11 @@ public class MetricDaoTest {
     result = dao.selectNullableByKey(session, "disabled");
     assertThat(result.getId()).isEqualTo(3);
     assertThat(result.isEnabled()).isFalse();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void get_nullable_by_key() {
+    dao.selectByKey(session, "unknown");
   }
 
   @Test
