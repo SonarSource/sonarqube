@@ -19,15 +19,21 @@
  */
 package org.sonar.server.computation.batch;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
+
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
 
 public class TreeRootHolderRule implements TestRule, TreeRootHolder {
   private Component root;
+  private Map<Integer, Component> componentsByRef = new HashMap<>();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -55,7 +61,26 @@ public class TreeRootHolderRule implements TestRule, TreeRootHolder {
     return root;
   }
 
+  @Override
+  public Component getComponentByRef(int ref) {
+    if (root == null) {
+      throw new IllegalStateException("Root has not been set in " + TreeRootHolder.class.getSimpleName());
+    }
+
+    Component component = componentsByRef.get(ref);
+    if (component == null) {
+      throw new IllegalArgumentException(String.format("Component '%s' hasn't been found", ref));
+    }
+    return component;
+  }
+
   public void setRoot(Component newRoot) {
     this.root = Objects.requireNonNull(newRoot);
+    new DepthTraversalTypeAwareVisitor(Component.Type.FILE, POST_ORDER) {
+      @Override
+      public void visitAny(Component component) {
+        componentsByRef.put(component.getRef(), component);
+      }
+    }.visit(root);
   }
 }
