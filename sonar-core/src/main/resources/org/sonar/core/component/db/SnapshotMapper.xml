@@ -51,15 +51,6 @@
     where s.islast=${_true} and s.project_id = #{resource}
   </select>
 
-  <select id="selectLastSnapshotOlderThan" parameterType="map" resultType="Snapshot">
-    select
-    <include refid="snapshotColumns"/>
-    from snapshots s
-    where s.islast=${_true}
-    and s.project_id = #{resource}
-    and s.created_at &lt; #{createdAt}
-  </select>
-
   <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">
     select
     <include refid="snapshotColumns"/>

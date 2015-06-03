@@ -59,7 +59,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void get_by_key() {
     setupData("shared");
 
-    SnapshotDto result = sut.getNullableByKey(session, 3L);
+    SnapshotDto result = sut.selectNullableById(session, 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
     assertThat(result.getComponentId()).isEqualTo(3L);
@@ -94,7 +94,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     assertThat(result.getCreatedAt()).isEqualTo(1228172400000L);
     assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
-    assertThat(sut.getNullableByKey(session, 999L)).isNull();
+    assertThat(sut.selectNullableById(session, 999L)).isNull();
   }
 
   @Test
@@ -116,7 +116,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_returns_null_when_no_last_snapshot() {
     setupData("empty");
 
-    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot());
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 123L);
 
     assertThat(snapshot).isNull();
   }
@@ -125,7 +125,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_from_one_resource() {
     setupData("snapshots");
 
-    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot().setComponentId(2L));
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 2L);
 
     assertThat(snapshot).isNotNull();
     assertThat(snapshot.getId()).isEqualTo(4L);
@@ -135,39 +135,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_from_one_resource_without_last_is_null() {
     setupData("snapshots");
 
-    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot().setComponentId(5L));
-
-    assertThat(snapshot).isNull();
-  }
-
-  @Test
-  public void no_last_snapshot_older_than_another_one_in_a_empty_table() {
-    setupData("empty");
-
-    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, defaultSnapshot());
-
-    assertThat(snapshot).isNull();
-  }
-
-  @Test
-  public void last_snapshot_older__than_a_reference() {
-    setupData("snapshots");
-
-    SnapshotDto referenceSnapshot = defaultSnapshot().setComponentId(1L);
-    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-03").getTime());
-    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
-
-    assertThat(snapshot).isNotNull();
-    assertThat(snapshot.getId()).isEqualTo(1L);
-  }
-
-  @Test
-  public void last_snapshot_earlier__than_a_reference() {
-    setupData("snapshots");
-
-    SnapshotDto referenceSnapshot = defaultSnapshot().setComponentId(1L);
-    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-01").getTime());
-    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 5L);
 
     assertThat(snapshot).isNull();
   }
@@ -176,7 +144,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void snapshot_and_child_retrieved() {
     setupData("snapshots");
 
-    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, defaultSnapshot().setId(1L));
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
 
     assertThat(snapshots).isNotEmpty();
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
@@ -190,7 +158,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     sut.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
     session.commit();
 
-    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
     assertThat(snapshots).extracting("last").containsOnly(false);
@@ -205,7 +173,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     sut.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
     session.commit();
 
-    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
     assertThat(snapshots).extracting("last").containsOnly(false);

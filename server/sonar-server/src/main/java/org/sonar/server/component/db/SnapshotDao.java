@@ -40,39 +40,25 @@ public class SnapshotDao implements DaoComponent {
   }
 
   @CheckForNull
-  public SnapshotDto getNullableByKey(DbSession session, Long id) {
+  public SnapshotDto selectNullableById(DbSession session, Long id) {
     return mapper(session).selectByKey(id);
   }
 
-  public SnapshotDto getByKey(DbSession session, Long key) {
-    SnapshotDto value = getNullableByKey(session, key);
+  public SnapshotDto selectById(DbSession session, Long key) {
+    SnapshotDto value = selectNullableById(session, key);
     if (value == null) {
       throw new NotFoundException(String.format("Key '%s' not found", key));
     }
-
     return value;
   }
 
-  public SnapshotDto insert(DbSession session, SnapshotDto item) {
-    if (item.getCreatedAt() == null) {
-      item.setCreatedAt(system2.now());
-    }
-    mapper(session).insert(item);
-    return item;
-  }
-
   @CheckForNull
-  public SnapshotDto getLastSnapshot(DbSession session, SnapshotDto snapshot) {
-    return mapper(session).selectLastSnapshot(snapshot.getComponentId());
+  public SnapshotDto selectLastSnapshotByComponentId(DbSession session, long componentId) {
+    return mapper(session).selectLastSnapshot(componentId);
   }
 
-  @CheckForNull
-  public SnapshotDto getLastSnapshotOlderThan(DbSession session, SnapshotDto snapshot) {
-    return mapper(session).selectLastSnapshotOlderThan(snapshot.getComponentId(), snapshot.getCreatedAt());
-  }
-
-  public List<SnapshotDto> findSnapshotAndChildrenOfProjectScope(DbSession session, SnapshotDto snapshot) {
-    return mapper(session).selectSnapshotAndChildrenOfScope(snapshot.getId(), Scopes.PROJECT);
+  public List<SnapshotDto> selectSnapshotAndChildrenOfProjectScope(DbSession session, long snapshotId) {
+    return mapper(session).selectSnapshotAndChildrenOfScope(snapshotId, Scopes.PROJECT);
   }
 
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
@@ -91,8 +77,16 @@ public class SnapshotDao implements DaoComponent {
     return mapper(session).updateSnapshotAndChildrenLastFlag(rootId, pathRootId, path, isLast);
   }
 
-  public boolean isLast(SnapshotDto snapshotTested, @Nullable SnapshotDto previousLastSnapshot) {
+  public static boolean isLast(SnapshotDto snapshotTested, @Nullable SnapshotDto previousLastSnapshot) {
     return previousLastSnapshot == null || previousLastSnapshot.getCreatedAt() < snapshotTested.getCreatedAt();
+  }
+
+  public SnapshotDto insert(DbSession session, SnapshotDto item) {
+    if (item.getCreatedAt() == null) {
+      item.setCreatedAt(system2.now());
+    }
+    mapper(session).insert(item);
+    return item;
   }
 
   private SnapshotMapper mapper(DbSession session) {

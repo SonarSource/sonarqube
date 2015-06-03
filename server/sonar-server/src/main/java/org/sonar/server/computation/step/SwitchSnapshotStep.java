@@ -20,14 +20,13 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.List;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.db.DbClient;
-
-import java.util.List;
 
 public class SwitchSnapshotStep implements ComputationStep {
 
@@ -57,9 +56,9 @@ public class SwitchSnapshotStep implements ComputationStep {
   }
 
   private void disablePreviousSnapshot(DbSession session, long reportSnapshotId) {
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().findSnapshotAndChildrenOfProjectScope(session, dbClient.snapshotDao().getByKey(session, reportSnapshotId));
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotAndChildrenOfProjectScope(session, reportSnapshotId);
     for (SnapshotDto snapshot : snapshots) {
-      SnapshotDto previousLastSnapshot = dbClient.snapshotDao().getLastSnapshot(session, snapshot);
+      SnapshotDto previousLastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, snapshot.getComponentId());
       if (previousLastSnapshot != null) {
         dbClient.snapshotDao().updateSnapshotAndChildrenLastFlag(session, previousLastSnapshot, false);
         session.commit();
@@ -69,8 +68,8 @@ public class SwitchSnapshotStep implements ComputationStep {
 
   private void enableCurrentSnapshot(DbSession session, long reportSnapshotId) {
     SnapshotDao dao = dbClient.snapshotDao();
-    SnapshotDto snapshot = dao.getByKey(session, reportSnapshotId);
-    SnapshotDto previousLastSnapshot = dao.getLastSnapshot(session, snapshot);
+    SnapshotDto snapshot = dao.selectById(session, reportSnapshotId);
+    SnapshotDto previousLastSnapshot = dao.selectLastSnapshotByComponentId(session, snapshot.getComponentId());
 
     boolean isLast = dao.isLast(snapshot, previousLastSnapshot);
     dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, isLast, SnapshotDto.STATUS_PROCESSED);

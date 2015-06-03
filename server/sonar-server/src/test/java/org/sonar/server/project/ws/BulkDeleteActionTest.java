@@ -75,8 +75,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
 import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_IDS;
+import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
 
 @Category(DbTests.class)
 public class BulkDeleteActionTest {
@@ -132,10 +132,10 @@ public class BulkDeleteActionTest {
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId1)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId3)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId4)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId2)).isNotNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId3)).isNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId4)).isNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectByKeys(dbSession, Arrays.asList("issue-key-1", "issue-key-3", "issue-key-4"))).isEmpty();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
   }

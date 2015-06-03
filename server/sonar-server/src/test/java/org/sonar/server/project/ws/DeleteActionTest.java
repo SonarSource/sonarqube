@@ -73,8 +73,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
+import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 
 @Category(DbTests.class)
 public class DeleteActionTest {
@@ -128,8 +128,8 @@ public class DeleteActionTest {
 
     assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId1)).isNull();
-    assertThat(dbClient.snapshotDao().getNullableByKey(dbSession, snapshotId2)).isNotNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
+    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectNullableByKey(dbSession, "issue-key-1")).isNull();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
   }
