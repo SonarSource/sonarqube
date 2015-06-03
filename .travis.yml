@@ -5,12 +5,19 @@ install: true
 jdk:
   - oraclejdk8
 
+env:
+  - DATABASE=H2
+  - DATABASE=POSTGRES
+  - DATABASE=MYSQL
+
 script:
-  - mvn verify -B -e -V
+  - ./travis.sh
 
 cache:
   directories:
     - '$HOME/.m2/repository'
+before_cache:
+  - 'rm -rf $HOME/.m2/repository/org/codehaus/sonar'
 
 notifications:
   email: false
