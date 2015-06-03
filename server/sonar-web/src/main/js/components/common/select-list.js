@@ -340,6 +340,7 @@ define(function () {
         this.currentFilter = 'all';
 
         data[this.settings.queryParam] = query;
+        data.selected = 'all';
         this.collection.fetch({
           url: this.settings.searchUrl,
           reset: true,
