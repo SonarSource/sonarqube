@@ -26,6 +26,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class MinimumViableSystemTest {
@@ -61,7 +62,7 @@ public class MinimumViableSystemTest {
       mve.checkJavaVersion("1.9");
       fail();
     } catch (MessageException e) {
-      Assertions.assertThat(e).hasMessage("Supported versions of Java are 1.6, 1.7 and 1.8. Got 1.9.");
+      assertThat(e).hasMessage("Supported versions of Java are 1.6, 1.7 and 1.8. Got 1.9.");
     }
   }
 
@@ -76,7 +77,7 @@ public class MinimumViableSystemTest {
       mve.checkJavaOptions();
       fail();
     } catch (MessageException e) {
-      Assertions.assertThat(e).hasMessage("JVM option '" + key + "' must be set to 'true'. Got 'false'");
+      assertThat(e).hasMessage("JVM option '" + key + "' must be set to 'true'. Got 'false'");
     }
 
     System.setProperty(key, "true");
@@ -96,7 +97,7 @@ public class MinimumViableSystemTest {
       mve.checkWritableDir(dir.getAbsolutePath());
       fail();
     } catch (IllegalStateException e) {
-      Assertions.assertThat(e).hasMessage("Temp directory is not writable: " + dir.getAbsolutePath());
+      assertThat(e).hasMessage("Temp directory is not writable: " + dir.getAbsolutePath());
     }
   }
 }

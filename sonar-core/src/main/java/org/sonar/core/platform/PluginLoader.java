@@ -94,7 +94,7 @@ public class PluginLoader {
       if (Strings.isNullOrEmpty(info.getBasePlugin())) {
         def.setSelfFirstStrategy(info.isUseChildFirstClassLoader());
         Version minSqVersion = info.getMinimalSqVersion();
-        boolean compatibilityMode = (minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0);
+        boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         def.setCompatibilityMode(compatibilityMode);
         if (compatibilityMode) {
           Loggers.get(getClass()).info("API compatibility mode is enabled on plugin {} [{}] " +
@@ -112,8 +112,8 @@ public class PluginLoader {
    * @return the instances grouped by plugin key
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
-   @VisibleForTesting
-   Map<String, Plugin> instantiatePluginClasses(Map<PluginClassloaderDef, ClassLoader> classloaders) {
+  @VisibleForTesting
+  Map<String, Plugin> instantiatePluginClasses(Map<PluginClassloaderDef, ClassLoader> classloaders) {
     // instantiate plugins
     Map<String, Plugin> instancesByPluginKey = new HashMap<>();
     for (Map.Entry<PluginClassloaderDef, ClassLoader> entry : classloaders.entrySet()) {

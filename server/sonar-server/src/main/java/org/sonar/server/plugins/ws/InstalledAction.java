@@ -19,9 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
+import java.util.Collection;
+import java.util.SortedSet;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,13 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
 
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.SortedSet;
-
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
-import static com.google.common.collect.Iterables.filter;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 
 /**
@@ -47,8 +41,7 @@ public class InstalledAction implements PluginsWsAction {
   private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
 
-  public InstalledAction(ServerPluginRepository pluginRepository,
-                         PluginWSCommons pluginWSCommons) {
+  public InstalledAction(ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons) {
     this.pluginRepository = pluginRepository;
     this.pluginWSCommons = pluginWSCommons;
   }

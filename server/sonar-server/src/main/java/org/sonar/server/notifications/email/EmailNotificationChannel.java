@@ -163,7 +163,7 @@ public class EmailNotificationChannel extends NotificationChannel {
       }
       // Set general information
       email.setCharset("UTF-8");
-      String from = StringUtils.isBlank(emailMessage.getFrom()) ? FROM_NAME_DEFAULT : emailMessage.getFrom() + " (SonarQube)";
+      String from = StringUtils.isBlank(emailMessage.getFrom()) ? FROM_NAME_DEFAULT : (emailMessage.getFrom() + " (SonarQube)");
       email.setFrom(configuration.getFrom(), from);
       email.addTo(emailMessage.getTo(), " ");
       String subject = StringUtils.defaultIfBlank(StringUtils.trimToEmpty(configuration.getPrefix()) + " ", "")

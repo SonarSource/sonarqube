@@ -21,6 +21,7 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,8 +30,6 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
-
-import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 
@@ -47,7 +46,7 @@ public class InstallAction implements PluginsWsAction {
   private final UserSession userSession;
 
   public InstallAction(UpdateCenterMatrixFactory updateCenterFactory,
-                       PluginDownloader pluginDownloader, UserSession userSession) {
+    PluginDownloader pluginDownloader, UserSession userSession) {
     this.updateCenterFactory = updateCenterFactory;
     this.pluginDownloader = pluginDownloader;
     this.userSession = userSession;

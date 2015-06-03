@@ -19,18 +19,15 @@
  */
 package org.sonar.api.utils;
 
-import org.assertj.core.api.Assertions;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 
 public class DateUtilsTest {
 
@@ -40,7 +37,7 @@ public class DateUtilsTest {
   @Test
   public void parseDate_valid_format() {
     Date date = DateUtils.parseDate("2010-05-18");
-    assertThat(date.getDate(), is(18));
+    assertThat(date.getDate()).isEqualTo(18);
   }
 
   @Test
@@ -51,9 +48,9 @@ public class DateUtilsTest {
 
   @Test
   public void parseDateQuietly() {
-    assertNull(DateUtils.parseDateQuietly("2010/05/18"));
+    assertThat(DateUtils.parseDateQuietly("2010/05/18")).isNull();
     Date date = DateUtils.parseDateQuietly("2010-05-18");
-    assertThat(date.getDate(), is(18));
+    assertThat(date.getDate()).isEqualTo(18);
   }
 
   @Test
@@ -65,7 +62,7 @@ public class DateUtilsTest {
   @Test
   public void parseDateTime_valid_format() {
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
-    assertThat(date.getMinutes(), is(50));
+    assertThat(date.getMinutes()).isEqualTo(50);
   }
 
   @Test
@@ -82,42 +79,42 @@ public class DateUtilsTest {
 
   @Test
   public void parseDateTimeQuietly() {
-    assertNull(DateUtils.parseDateTimeQuietly("2010/05/18 10:55"));
+    assertThat(DateUtils.parseDateTimeQuietly("2010/05/18 10:55")).isNull();
     Date date = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+0100");
-    assertThat(date.getMinutes(), is(50));
+    assertThat(date.getMinutes()).isEqualTo(50);
   }
 
   @Test
   public void shouldFormatDate() {
-    assertThat(DateUtils.formatDate(new Date()), startsWith("20"));
-    assertThat(DateUtils.formatDate(new Date()).length(), is(10));
+    assertThat(DateUtils.formatDate(new Date())).startsWith("20");
+    assertThat(DateUtils.formatDate(new Date()).length()).isEqualTo(10);
   }
 
   @Test
   public void shouldFormatDateTime() {
-    assertThat(DateUtils.formatDateTime(new Date()), startsWith("20"));
-    assertThat(DateUtils.formatDateTime(new Date()).length(), greaterThan(20));
+    assertThat(DateUtils.formatDateTime(new Date())).startsWith("20");
+    assertThat(DateUtils.formatDateTime(new Date()).length()).isGreaterThan(20);
   }
 
   @Test
   public void format_date_time_null_safe() {
-    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date())).startsWith("20");
-    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(new Date()).length()).isGreaterThan(20);
-    Assertions.assertThat(DateUtils.formatDateTimeNullSafe(null)).isEmpty();
+    assertThat(DateUtils.formatDateTimeNullSafe(new Date())).startsWith("20");
+    assertThat(DateUtils.formatDateTimeNullSafe(new Date()).length()).isGreaterThan(20);
+    assertThat(DateUtils.formatDateTimeNullSafe(null)).isEmpty();
   }
 
   @Test
   public void long_to_date() {
     Date date = new Date();
-    Assertions.assertThat(DateUtils.longToDate(date.getTime())).isEqualTo(date);
-    Assertions.assertThat(DateUtils.longToDate(null)).isNull();
+    assertThat(DateUtils.longToDate(date.getTime())).isEqualTo(date);
+    assertThat(DateUtils.longToDate(null)).isNull();
   }
 
   @Test
   public void date_to_long() {
     Date date = new Date();
-    Assertions.assertThat(DateUtils.dateToLong(date)).isEqualTo(date.getTime());
-    Assertions.assertThat(DateUtils.dateToLong(null)).isEqualTo(null);
+    assertThat(DateUtils.dateToLong(date)).isEqualTo(date.getTime());
+    assertThat(DateUtils.dateToLong(null)).isEqualTo(null);
   }
 
   /**
@@ -155,7 +152,7 @@ public class DateUtilsTest {
             while (i < 1000 && !interrupted()) {
               String formatted = format.format(now);
               Thread.yield();
-              assertEquals(now, format.parse(formatted));
+              assertThat(now).isEqualTo(format.parse(formatted));
               ++i;
             }
           } catch (Exception e) {
@@ -193,7 +190,7 @@ public class DateUtilsTest {
       }
     }
 
-    assertThat(throwables.size(), is(0));
-    assertThat(counter[0], greaterThanOrEqualTo(threads.length));
+    assertThat(throwables).isEmpty();
+    assertThat(counter[0]).isGreaterThanOrEqualTo(threads.length);
   }
 }

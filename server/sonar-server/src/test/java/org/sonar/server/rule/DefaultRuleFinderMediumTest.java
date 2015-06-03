@@ -19,8 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import org.assertj.core.api.Assertions;
-import org.junit.*;
+import java.util.Collections;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
@@ -29,8 +33,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.Collections;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -92,7 +94,7 @@ public class DefaultRuleFinderMediumTest {
         .setSeverity(2)
         .setStatus(RuleStatus.READY),
       RuleTesting.newManualRule("Manual_Rule").setName("Manual Rule")
-    );
+      );
     session.commit();
     session.close();
   }
@@ -106,39 +108,39 @@ public class DefaultRuleFinderMediumTest {
   public void should_success_finder_wrap() {
 
     // has Id
-    Assertions.assertThat(finder.findById(1).getId()).isEqualTo(1);
+    assertThat(finder.findById(1).getId()).isEqualTo(1);
 
     // should_find_by_id
-    Assertions.assertThat(finder.findById(3).getConfigKey()).isEqualTo("Checker/Treewalker/AnnotationUseStyleCheck");
+    assertThat(finder.findById(3).getConfigKey()).isEqualTo("Checker/Treewalker/AnnotationUseStyleCheck");
 
     // should_not_find_disabled_rule_by_id
-    Assertions.assertThat(finder.findById(2)).isNull();
+    assertThat(finder.findById(2)).isNull();
 
     // should_find_by_ids
     assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(2);
 
     // should_find_by_key
     Rule rule = finder.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
-    Assertions.assertThat(rule).isNotNull();
-    Assertions.assertThat(rule.getKey()).isEqualTo(("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"));
-    Assertions.assertThat(rule.isEnabled()).isTrue();
+    assertThat(rule).isNotNull();
+    assertThat(rule.getKey()).isEqualTo(("com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"));
+    assertThat(rule.isEnabled()).isTrue();
 
     // find_should_return_null_if_no_results
-    Assertions.assertThat(finder.findByKey("checkstyle", "unknown")).isNull();
-    Assertions.assertThat(finder.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown"))).isNull();
+    assertThat(finder.findByKey("checkstyle", "unknown")).isNull();
+    assertThat(finder.find(RuleQuery.create().withRepositoryKey("checkstyle").withConfigKey("unknown"))).isNull();
 
     // find_repository_rules
-    Assertions.assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
+    assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(4);
+    assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
+    assertThat(finder.findAll(RuleQuery.create())).hasSize(4);
 
     // do_not_find_disabled_rules
-    Assertions.assertThat(finder.findByKey("checkstyle", "DisabledCheck")).isNull();
+    assertThat(finder.findByKey("checkstyle", "DisabledCheck")).isNull();
 
     // do_not_find_unknown_rules
-    Assertions.assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"))).isEmpty();
+    assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("unknown_repository"))).isEmpty();
 
     // should_find_by_ids_empty
     tester.clearDbAndIndexes();
@@ -170,17 +172,17 @@ public class DefaultRuleFinderMediumTest {
   @Test
   public void find_all_not_include_removed_rule() {
     // find rule with id 2 is REMOVED
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
+    assertThat(finder.findAll(RuleQuery.create())).extracting("id").containsOnly(1, 3, 4, 5);
   }
 
   @Test
   public void find_manual_rule() {
     // find by id
-    Assertions.assertThat(finder.findById(5)).isNotNull();
+    assertThat(finder.findById(5)).isNotNull();
 
     // find by key
     Rule rule = finder.findByKey("manual", "Manual_Rule");
-    Assertions.assertThat(rule).isNotNull();
-    Assertions.assertThat(rule.isEnabled()).isTrue();
+    assertThat(rule).isNotNull();
+    assertThat(rule.isEnabled()).isTrue();
   }
 }

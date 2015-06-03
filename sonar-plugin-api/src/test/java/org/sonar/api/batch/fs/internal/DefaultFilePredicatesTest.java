@@ -54,7 +54,7 @@ public class DefaultFilePredicatesTest {
 
   @Test
   public void all() {
-    Assertions.assertThat(predicates.all().apply(javaFile)).isTrue();
+    assertThat(predicates.all().apply(javaFile)).isTrue();
   }
 
   @Test
