@@ -23,38 +23,35 @@ package org.sonar.server.computation.step;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DumbComponent;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class IndexComponentsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
+  @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
-  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
-  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbComponentsRefCache, reportReader);
+  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbIdsRepository, treeRootHolder);
 
   @Test
   public void call_indexProject_of_dao() throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponent(123L, PROJECT_KEY, "PROJECT_UUID"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
-    ComponentDto project = mock(ComponentDto.class);
-    when(project.getId()).thenReturn(123L);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "PROJECT_UUID", PROJECT_KEY);
+    dbIdsRepository.setComponentId(project, 123L);
+    treeRootHolder.setRoot(project);
 
     sut.execute();
 

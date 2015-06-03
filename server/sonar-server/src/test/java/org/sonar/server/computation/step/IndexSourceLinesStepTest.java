@@ -27,10 +27,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -43,43 +43,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexSourceLinesStepTest extends BaseStepTest {
 
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbClient dbClient;
-  DbComponentsRefCache dbComponentsRefCache;
 
   @Before
   public void setUp() {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
-    dbComponentsRefCache = new DbComponentsRefCache();
   }
 
   @Override
   protected ComputationStep step() {
     SourceLineIndexer sourceLineIndexer = new SourceLineIndexer(dbClient, esTester.client());
     sourceLineIndexer.setEnabled(true);
-    return new IndexSourceLinesStep(sourceLineIndexer, dbComponentsRefCache, reportReader);
+    return new IndexSourceLinesStep(sourceLineIndexer, treeRootHolder);
   }
 
   @Test
   public void index_source() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     Connection connection = dbTester.openConnection();
     FileSourceTesting.updateDataColumn(connection, "FILE1_UUID", FileSourceTesting.newRandomData(1).build());
     connection.close();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", "PROJECT_KEY"));
 
     step().execute();
 

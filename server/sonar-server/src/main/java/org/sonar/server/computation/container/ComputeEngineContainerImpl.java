@@ -36,7 +36,7 @@ import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
@@ -126,7 +126,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       ProjectSettingsRepository.class,
 
       // component caches
-      DbComponentsRefCache.class,
+      DbIdsRepository.class,
 
       // issues
       ScmAccountCacheLoader.class,

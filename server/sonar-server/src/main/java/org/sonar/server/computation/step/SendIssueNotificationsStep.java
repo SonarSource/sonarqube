@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -50,16 +50,16 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   private final IssueCache issueCache;
   private final RuleCache rules;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final TreeRootHolder treeRootHolder;
   private final NotificationService service;
   private final BatchReportReader reportReader;
   private NewIssuesNotificationFactory newIssuesNotificationFactory;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, DbComponentsRefCache dbComponentsRefCache, NotificationService service,
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, TreeRootHolder treeRootHolder, NotificationService service,
     BatchReportReader reportReader, NewIssuesNotificationFactory newIssuesNotificationFactory) {
     this.issueCache = issueCache;
     this.rules = rules;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.treeRootHolder = treeRootHolder;
     this.service = service;
     this.reportReader = reportReader;
     this.newIssuesNotificationFactory = newIssuesNotificationFactory;
@@ -67,13 +67,13 @@ public class SendIssueNotificationsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbComponent project = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef());
+    Component project = treeRootHolder.getRoot();
     if (service.hasProjectSubscribersForTypes(project.getUuid(), NOTIF_TYPES)) {
       doExecute(project);
     }
   }
 
-  private void doExecute(DbComponent project) {
+  private void doExecute(Component project) {
     NewIssuesStatistics newIssuesStats = new NewIssuesStatistics();
     CloseableIterator<DefaultIssue> issues = issueCache.traverse();
     String projectName = reportReader.readComponent(reportReader.readMetadata().getRootComponentRef()).getName();
@@ -97,7 +97,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     sendNewIssuesStatistics(newIssuesStats, project, projectName);
   }
 
-  private void sendNewIssuesStatistics(NewIssuesStatistics statistics, DbComponent project, String projectName) {
+  private void sendNewIssuesStatistics(NewIssuesStatistics statistics, Component project, String projectName) {
     if (statistics.hasIssues()) {
       NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
       long analysisDate = reportReader.readMetadata().getAnalysisDate();

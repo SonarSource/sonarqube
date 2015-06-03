@@ -35,10 +35,13 @@ import org.sonar.core.component.ComponentLinkDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 /**
  * Persist project and module links
@@ -47,7 +50,7 @@ public class PersistProjectLinksStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final I18n i18n;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
   private static final Map<Constants.ComponentLinkType, String> typesConverter = ImmutableMap.of(
@@ -58,10 +61,10 @@ public class PersistProjectLinksStep implements ComputationStep {
     Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
     );
 
-  public PersistProjectLinksStep(DbClient dbClient, I18n i18n, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistProjectLinksStep(DbClient dbClient, I18n i18n, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.i18n = i18n;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
@@ -69,65 +72,76 @@ public class PersistProjectLinksStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-      recursivelyProcessComponent(session, rootComponentRef);
+      new PorjectLinkVisitor(session).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DbSession session, int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    processLinks(session, component);
+  private class PorjectLinkVisitor extends DepthTraversalTypeAwareVisitor {
 
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(session, childRef);
+    private final DbSession session;
+
+    private PorjectLinkVisitor(DbSession session) {
+      super(Component.Type.FILE, PRE_ORDER);
+      this.session = session;
     }
-  }
 
-  private void processLinks(DbSession session, BatchReport.Component component) {
-    if (component.getType().equals(Constants.ComponentType.PROJECT) || component.getType().equals(Constants.ComponentType.MODULE)) {
-      List<BatchReport.ComponentLink> links = component.getLinkList();
-      String componentUuid = dbComponentsRefCache.getByRef(component.getRef()).getUuid();
+    @Override
+    public void visitProject(Component project) {
+      processComponent(project);
+    }
+
+    @Override
+    public void visitModule(Component module) {
+      processComponent(module);
+    }
+
+    private void processComponent(Component component) {
+      BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+      processLinks(component.getUuid(), batchComponent.getLinkList());
+    }
+
+    private void processLinks(String componentUuid, List<BatchReport.ComponentLink> links) {
       List<ComponentLinkDto> previousLinks = dbClient.componentLinkDao().selectByComponentUuid(session, componentUuid);
       mergeLinks(session, componentUuid, links, previousLinks);
     }
-  }
 
-  private void mergeLinks(DbSession session, String componentUuid, List<BatchReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
-    Set<String> linkType = newHashSet();
-    for (final BatchReport.ComponentLink link : links) {
-      String type = convertType(link.getType());
-      if (!linkType.contains(type)) {
-        linkType.add(type);
-      } else {
-        throw new IllegalArgumentException(String.format("Link of type '%s' has already been declared on component '%s'", type, componentUuid));
-      }
-
-      ComponentLinkDto previousLink = Iterables.find(previousLinks, new Predicate<ComponentLinkDto>() {
-        @Override
-        public boolean apply(@Nullable ComponentLinkDto input) {
-          return input != null && input.getType().equals(convertType(link.getType()));
+    private void mergeLinks(DbSession session, String componentUuid, List<BatchReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
+      Set<String> linkType = newHashSet();
+      for (final BatchReport.ComponentLink link : links) {
+        String type = convertType(link.getType());
+        if (!linkType.contains(type)) {
+          linkType.add(type);
+        } else {
+          throw new IllegalArgumentException(String.format("Link of type '%s' has already been declared on component '%s'", type, componentUuid));
         }
-      }, null);
-      if (previousLink == null) {
-        dbClient.componentLinkDao().insert(session,
-          new ComponentLinkDto()
-            .setComponentUuid(componentUuid)
-            .setType(type)
-            .setName(i18n.message(Locale.ENGLISH, "project_links." + type, null))
-            .setHref(link.getHref())
-          );
-      } else {
-        previousLink.setHref(link.getHref());
-        dbClient.componentLinkDao().update(session, previousLink);
-      }
-    }
 
-    for (ComponentLinkDto dto : previousLinks) {
-      if (!linkType.contains(dto.getType()) && ComponentLinkDto.PROVIDED_TYPES.contains(dto.getType())) {
-        dbClient.componentLinkDao().delete(session, dto.getId());
+        ComponentLinkDto previousLink = Iterables.find(previousLinks, new Predicate<ComponentLinkDto>() {
+          @Override
+          public boolean apply(@Nullable ComponentLinkDto input) {
+            return input != null && input.getType().equals(convertType(link.getType()));
+          }
+        }, null);
+        if (previousLink == null) {
+          dbClient.componentLinkDao().insert(session,
+            new ComponentLinkDto()
+              .setComponentUuid(componentUuid)
+              .setType(type)
+              .setName(i18n.message(Locale.ENGLISH, "project_links." + type, null))
+              .setHref(link.getHref())
+            );
+        } else {
+          previousLink.setHref(link.getHref());
+          dbClient.componentLinkDao().update(session, previousLink);
+        }
+      }
+
+      for (ComponentLinkDto dto : previousLinks) {
+        if (!linkType.contains(dto.getType()) && ComponentLinkDto.PROVIDED_TYPES.contains(dto.getType())) {
+          dbClient.componentLinkDao().delete(session, dto.getId());
+        }
       }
     }
   }

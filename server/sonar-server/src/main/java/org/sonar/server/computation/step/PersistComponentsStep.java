@@ -34,20 +34,20 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 public class PersistComponentsStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final DbIdsRepository dbIdsRepository;
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
 
-  public PersistComponentsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
+  public PersistComponentsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.dbIdsRepository = dbIdsRepository;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
   }
@@ -109,7 +109,7 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setProjectUuid(componentDto.uuid());
     componentDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
-    return persistComponent(project.getRef(), componentDto, componentContext);
+    return persistComponent(project, componentDto, componentContext);
   }
 
   public ComponentDto processModule(Component module, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
@@ -130,7 +130,7 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setModuleUuid(lastModule.uuid());
     componentDto.setModuleUuidPath((lastModule.moduleUuidPath() + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP));
 
-    return persistComponent(module.getRef(), componentDto, componentContext);
+    return persistComponent(module, componentDto, componentContext);
   }
 
   public void processDirectory(Component directory, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
@@ -149,7 +149,7 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setModuleUuid(lastModule.uuid());
     componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
-    persistComponent(directory.getRef(), componentDto, componentContext);
+    persistComponent(directory, componentDto, componentContext);
   }
 
   public void processFile(Component file, BatchReport.Component reportComponent, ComponentContext componentContext, ComponentDto lastModule, long projectId) {
@@ -171,7 +171,7 @@ public class PersistComponentsStep implements ComputationStep {
     componentDto.setModuleUuid(lastModule.uuid());
     componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
-    persistComponent(file.getRef(), componentDto, componentContext);
+    persistComponent(file, componentDto, componentContext);
   }
 
   private ComponentDto createComponentDto(Component component) {
@@ -186,17 +186,17 @@ public class PersistComponentsStep implements ComputationStep {
     return componentDto;
   }
 
-  private ComponentDto persistComponent(int componentRef, ComponentDto componentDto, ComponentContext componentContext) {
+  private ComponentDto persistComponent(Component component, ComponentDto componentDto, ComponentContext componentContext) {
     ComponentDto existingComponent = componentContext.componentDtosByKey.get(componentDto.getKey());
     if (existingComponent == null) {
       dbClient.componentDao().insert(componentContext.dbSession, componentDto);
-      dbComponentsRefCache.addComponent(componentRef, new DbComponentsRefCache.DbComponent(componentDto.getId(), componentDto.getKey(), componentDto.uuid()));
+      dbIdsRepository.setComponentId(component, componentDto.getId());
       return componentDto;
     } else {
       if (updateComponent(existingComponent, componentDto)) {
         dbClient.componentDao().update(componentContext.dbSession, existingComponent);
       }
-      dbComponentsRefCache.addComponent(componentRef, new DbComponentsRefCache.DbComponent(existingComponent.getId(), existingComponent.getKey(), existingComponent.uuid()));
+      dbIdsRepository.setComponentId(component, existingComponent.getId());
       return existingComponent;
     }
   }

@@ -40,8 +40,6 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -53,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PersistTestsStepTest extends BaseStepTest {
+
   private static final String PROJECT_UUID = "PROJECT";
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final int TEST_FILE_REF_1 = 3;
@@ -68,16 +67,18 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public LogTester log = new LogTester();
 
   DbSession session;
   DbClient dbClient;
-  DbComponentsRefCache dbComponentsRefCache;
   Component root;
 
   PersistTestsStep sut;
@@ -93,8 +94,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
 
-    dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistTestsStep(dbClient, system2, dbComponentsRefCache, reportReader, treeRootHolder);
+    sut = new PersistTestsStep(dbClient, system2, reportReader, treeRootHolder);
 
     initBasicReport();
 
@@ -218,8 +218,8 @@ public class PersistTestsStepTest extends BaseStepTest {
   public void aggregate_coverage_details() {
     reportReader.putTests(TEST_FILE_REF_1, Arrays.asList(newTest(1)));
     reportReader.putCoverageDetails(TEST_FILE_REF_1, Arrays.asList(
-        newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
-        newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
+      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 1, 3),
+      newCoverageDetailWithLines(1, MAIN_FILE_REF_1, 2, 4)));
 
     sut.execute();
 
@@ -300,13 +300,6 @@ public class PersistTestsStepTest extends BaseStepTest {
   }
 
   private void initBasicReport() {
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT_KEY", PROJECT_UUID));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "MODULE"));
-    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "TEST_FILE1_KEY", TEST_FILE_UUID_1));
-    dbComponentsRefCache.addComponent(4, new DbComponent(4L, "TEST_FILE2_KEY", TEST_FILE_UUID_2));
-    dbComponentsRefCache.addComponent(5, new DbComponent(5L, "MAIN_FILE1_KEY", MAIN_FILE_UUID_1));
-    dbComponentsRefCache.addComponent(6, new DbComponent(6L, "MAIN_FILE2_KEY", MAIN_FILE_UUID_2));
-
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setProjectKey(PROJECT_KEY)

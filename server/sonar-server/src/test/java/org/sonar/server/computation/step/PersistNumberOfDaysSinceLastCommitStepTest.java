@@ -33,7 +33,9 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
@@ -48,6 +50,10 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
@@ -59,8 +65,6 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   Settings projectSettings;
   LanguageRepository languageRepository;
 
-  DbComponentsRefCache dbComponentsRefCache;
-
   @Before
   public void setUp() throws Exception {
     db.truncateTables();
@@ -70,9 +74,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     projectSettings = new Settings();
     languageRepository = mock(LanguageRepository.class);
     when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
-    dbComponentsRefCache = new DbComponentsRefCache();
 
-    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, dbComponentsRefCache, reportReader);
+    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, treeRootHolder, reportReader);
   }
 
   @Override
@@ -120,25 +123,21 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "project-uuid"));
-    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", "file-uuid"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "project-uuid", null,
+      new DumbComponent(Component.Type.FILE, 2, "file-uuid", null)));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
       .setSnapshotId(1000)
       .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .setKey("PROJECT_KEY")
-      .setSnapshotId(10L)
       .addChildRef(2)
       .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(11L)
       .build());
   }
 }

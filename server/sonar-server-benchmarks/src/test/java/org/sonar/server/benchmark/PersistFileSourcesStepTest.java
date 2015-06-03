@@ -33,8 +33,9 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -49,12 +50,15 @@ public class PersistFileSourcesStepTest {
   public static final int NUMBER_OF_LINES = 1000;
   public static final String PROJECT_UUID = Uuids.create();
 
-  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
-
   @Rule
   public DbTester dbTester = new DbTester();
+
   @Rule
   public Benchmark benchmark = new Benchmark();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
@@ -70,7 +74,7 @@ public class PersistFileSourcesStepTest {
 
     long start = System.currentTimeMillis();
 
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, dbComponentsRefCache, reportReader);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, reportReader);
     step.execute();
 
     long end = System.currentTimeMillis();
@@ -92,17 +96,17 @@ public class PersistFileSourcesStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT);
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, "PROJECT", PROJECT_UUID));
-
+    List<Component> components = new ArrayList<>();
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
-      generateFileReport(fileRef);
+      components.add(generateFileReport(fileRef));
       project.addChildRef(fileRef);
     }
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, "PROJECT", components.toArray(new Component[components.size()])));
 
     reportReader.putComponent(project.build());
   }
 
-  private void generateFileReport(int fileRef) throws IOException {
+  private Component generateFileReport(int fileRef) throws IOException {
     LineData lineData = new LineData();
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
@@ -113,14 +117,14 @@ public class PersistFileSourcesStepTest {
       .setLines(NUMBER_OF_LINES)
       .build());
 
-    dbComponentsRefCache.addComponent(fileRef, new DbComponent((long) fileRef, "PROJECT:" + fileRef, Uuids.create()));
-
     reportReader.putFileSourceLines(fileRef, lineData.lines);
     reportReader.putCoverage(fileRef, lineData.coverages);
     reportReader.putChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
     reportReader.putSyntaxHighlighting(fileRef, lineData.highlightings);
     reportReader.putSymbols(fileRef, lineData.symbols);
     reportReader.putDuplications(fileRef, lineData.duplications);
+
+    return new DumbComponent(Component.Type.FILE, fileRef, Uuids.create(), "PROJECT:" + fileRef);
   }
 
   private static class LineData {

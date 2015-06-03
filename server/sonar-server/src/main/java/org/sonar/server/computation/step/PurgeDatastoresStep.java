@@ -24,34 +24,35 @@ import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.IdUuidPair;
-import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 public class PurgeDatastoresStep implements ComputationStep {
 
   private final ProjectCleaner projectCleaner;
   private final DbClient dbClient;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final DbIdsRepository dbIdsRepository;
+  private final TreeRootHolder treeRootHolder;
   private final ProjectSettingsRepository projectSettingsRepository;
-  private final BatchReportReader reportReader;
 
-  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbComponentsRefCache dbComponentsRefCache,
-    ProjectSettingsRepository projectSettingsRepository, BatchReportReader reportReader) {
+  public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
+    ProjectSettingsRepository projectSettingsRepository) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.dbIdsRepository = dbIdsRepository;
+    this.treeRootHolder = treeRootHolder;
     this.projectSettingsRepository = projectSettingsRepository;
-    this.reportReader = reportReader;
   }
 
   @Override
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      DbComponentsRefCache.DbComponent project = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef());
-      projectCleaner.purge(session, new IdUuidPair(project.getId(), project.getUuid()), projectSettingsRepository.getProjectSettings(project.getKey()));
+      Component project = treeRootHolder.getRoot();
+      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(project), project.getUuid()), projectSettingsRepository.getProjectSettings(project.getKey()));
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

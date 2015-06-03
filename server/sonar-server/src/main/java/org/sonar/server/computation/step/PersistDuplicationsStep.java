@@ -30,8 +30,13 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
+
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 /**
  * Persist duplications into
@@ -39,12 +44,14 @@ import org.sonar.server.db.DbClient;
 public class PersistDuplicationsStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final DbIdsRepository dbIdsRepository;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  public PersistDuplicationsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.dbIdsRepository = dbIdsRepository;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
@@ -52,102 +59,89 @@ public class PersistDuplicationsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      MetricDto duplicationMetric = dbClient.metricDao().selectNullableByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
-      DuplicationContext duplicationContext = new DuplicationContext(duplicationMetric, session);
-      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-      recursivelyProcessComponent(duplicationContext, rootComponentRef);
+      MetricDto duplicationMetric = dbClient.metricDao().selectByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
+      new DuplicationVisitor(session, duplicationMetric).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DuplicationContext duplicationContext, int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(componentRef);
-    if (!duplications.isEmpty()) {
-      saveDuplications(duplicationContext, component, duplications);
-    }
+  private class DuplicationVisitor extends DepthTraversalTypeAwareVisitor {
 
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(duplicationContext, childRef);
-    }
-  }
+    private final DbSession session;
+    private final MetricDto duplicationMetric;
 
-  private void saveDuplications(DuplicationContext duplicationContext, BatchReport.Component component, List<BatchReport.Duplication> duplications) {
-
-    DbComponentsRefCache.DbComponent dbComponent = dbComponentsRefCache.getByRef(component.getRef());
-    String duplicationXml = createXmlDuplications(duplicationContext, dbComponent.getKey(), duplications);
-    MeasureDto measureDto = new MeasureDto()
-      .setMetricId(duplicationContext.metric().getId())
-      .setData(duplicationXml)
-      .setComponentId(dbComponent.getId())
-      .setSnapshotId(component.getSnapshotId());
-    dbClient.measureDao().insert(duplicationContext.session(), measureDto);
-  }
-
-  private String createXmlDuplications(DuplicationContext duplicationContext, String componentKey, Iterable<BatchReport.Duplication> duplications) {
-
-    StringBuilder xml = new StringBuilder();
-    xml.append("<duplications>");
-    for (BatchReport.Duplication duplication : duplications) {
-      xml.append("<g>");
-      appendDuplication(xml, componentKey, duplication.getOriginPosition());
-      for (BatchReport.Duplicate duplicationBlock : duplication.getDuplicateList()) {
-        processDuplicationBlock(duplicationContext, xml, duplicationBlock, componentKey);
-      }
-      xml.append("</g>");
-    }
-    xml.append("</duplications>");
-    return xml.toString();
-  }
-
-  private void processDuplicationBlock(DuplicationContext duplicationContext, StringBuilder xml, BatchReport.Duplicate duplicate, String componentKey) {
-
-    if (duplicate.hasOtherFileKey()) {
-      // componentKey is only set for cross project duplications
-      String crossProjectComponentKey = duplicate.getOtherFileKey();
-      appendDuplication(xml, crossProjectComponentKey, duplicate);
-    } else {
-      if (duplicate.hasOtherFileRef()) {
-        // Duplication is on a different file
-        BatchReport.Component duplicationComponent = reportReader.readComponent(duplicate.getOtherFileRef());
-        DbComponentsRefCache.DbComponent dbComponent = dbComponentsRefCache.getByRef(duplicationComponent.getRef());
-        appendDuplication(xml, dbComponent.getKey(), duplicate);
-      } else {
-        // Duplication is on a the same file
-        appendDuplication(xml, componentKey, duplicate);
-      }
-    }
-  }
-
-  private static void appendDuplication(StringBuilder xml, String componentKey, BatchReport.Duplicate duplicate) {
-    appendDuplication(xml, componentKey, duplicate.getRange());
-  }
-
-  private static void appendDuplication(StringBuilder xml, String componentKey, Range range) {
-    int length = range.getEndLine() - range.getStartLine() + 1;
-    xml.append("<b s=\"").append(range.getStartLine())
-      .append("\" l=\"").append(length)
-      .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
-      .append("\"/>");
-  }
-
-  private static class DuplicationContext {
-    private DbSession session;
-    private MetricDto duplicationMetric;
-
-    DuplicationContext(MetricDto duplicationMetric, DbSession session) {
-      this.duplicationMetric = duplicationMetric;
+    private DuplicationVisitor(DbSession session, MetricDto duplicationMetric) {
+      super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
+      this.duplicationMetric = duplicationMetric;
     }
 
-    public MetricDto metric() {
-      return duplicationMetric;
+    @Override
+    public void visitFile(Component file) {
+      visitComponent(file);
     }
 
-    public DbSession session() {
-      return session;
+    private void visitComponent(Component component) {
+      List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getRef());
+      if (!duplications.isEmpty()) {
+        BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+        saveDuplications(batchComponent, component, duplications);
+      }
+    }
+
+    private void saveDuplications(BatchReport.Component batchComponent, Component component, List<BatchReport.Duplication> duplications) {
+      String duplicationXml = createXmlDuplications(component.getKey(), duplications);
+      MeasureDto measureDto = new MeasureDto()
+        .setMetricId(duplicationMetric.getId())
+        .setData(duplicationXml)
+        .setComponentId(dbIdsRepository.getComponentId(component))
+        .setSnapshotId(batchComponent.getSnapshotId());
+      dbClient.measureDao().insert(session, measureDto);
+    }
+
+    private String createXmlDuplications(String componentKey, Iterable<BatchReport.Duplication> duplications) {
+      StringBuilder xml = new StringBuilder();
+      xml.append("<duplications>");
+      for (BatchReport.Duplication duplication : duplications) {
+        xml.append("<g>");
+        appendDuplication(xml, componentKey, duplication.getOriginPosition());
+        for (BatchReport.Duplicate duplicationBlock : duplication.getDuplicateList()) {
+          processDuplicationBlock(xml, duplicationBlock, componentKey);
+        }
+        xml.append("</g>");
+      }
+      xml.append("</duplications>");
+      return xml.toString();
+    }
+
+    private void processDuplicationBlock(StringBuilder xml, BatchReport.Duplicate duplicate, String componentKey) {
+      if (duplicate.hasOtherFileKey()) {
+        // componentKey is only set for cross project duplications
+        String crossProjectComponentKey = duplicate.getOtherFileKey();
+        appendDuplication(xml, crossProjectComponentKey, duplicate);
+      } else {
+        if (duplicate.hasOtherFileRef()) {
+          // Duplication is on a different file
+          appendDuplication(xml, treeRootHolder.getComponentByRef(duplicate.getOtherFileRef()).getKey(), duplicate);
+        } else {
+          // Duplication is on a the same file
+          appendDuplication(xml, componentKey, duplicate);
+        }
+      }
+    }
+
+    private void appendDuplication(StringBuilder xml, String componentKey, BatchReport.Duplicate duplicate) {
+      appendDuplication(xml, componentKey, duplicate.getRange());
+    }
+
+    private void appendDuplication(StringBuilder xml, String componentKey, Range range) {
+      int length = range.getEndLine() - range.getStartLine() + 1;
+      xml.append("<b s=\"").append(range.getStartLine())
+        .append("\" l=\"").append(length)
+        .append("\" r=\"").append(StringEscapeUtils.escapeXml(componentKey))
+        .append("\"/>");
     }
   }
 

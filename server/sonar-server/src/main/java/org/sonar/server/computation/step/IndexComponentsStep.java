@@ -21,26 +21,27 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.TreeRootHolder;
 
 /**
  * Components are currently indexed in db table RESOURCE_INDEX, not in Elasticsearch
  */
 public class IndexComponentsStep implements ComputationStep {
-  private final ResourceIndexerDao resourceIndexerDao;
-  private final DbComponentsRefCache dbComponentsRefCache;
-  private final BatchReportReader reportReader;
 
-  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  private final ResourceIndexerDao resourceIndexerDao;
+  private final DbIdsRepository dbIdsRepository;
+  private final TreeRootHolder treeRootHolder;
+
+  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder) {
     this.resourceIndexerDao = resourceIndexerDao;
-    this.dbComponentsRefCache = dbComponentsRefCache;
-    this.reportReader = reportReader;
+    this.dbIdsRepository = dbIdsRepository;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute() {
-    resourceIndexerDao.indexProject(dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getId());
+    resourceIndexerDao.indexProject(dbIdsRepository.getComponentId(treeRootHolder.getRoot()));
   }
 
   @Override

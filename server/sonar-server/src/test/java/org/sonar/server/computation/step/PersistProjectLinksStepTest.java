@@ -34,7 +34,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.ComponentLinkDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -46,15 +48,16 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
-  DbComponentsRefCache dbComponentsRefCache;
 
   PersistProjectLinksStep step;
 
@@ -70,8 +73,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     when(i18n.message(Locale.ENGLISH, "project_links.ci", null)).thenReturn("Continuous integration");
     when(i18n.message(Locale.ENGLISH, "project_links.issue", null)).thenReturn("Issues");
 
-    dbComponentsRefCache = new DbComponentsRefCache();
-    step = new PersistProjectLinksStep(dbClient, i18n, dbComponentsRefCache, reportReader);
+    step = new PersistProjectLinksStep(dbClient, i18n, treeRootHolder, reportReader);
   }
 
   @Override
@@ -88,16 +90,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void add_links_on_project_and_module() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "MODULE_KEY", "BCDE"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
 
     // project and 1 module
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .setAnalysisDate(150000000L)
-      .build());
-
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -123,12 +119,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void nothing_to_do_when_link_already_exists() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -145,15 +136,16 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void do_not_add_links_on_file() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
+      new DumbComponent(Component.Type.FILE, 2, "BCDE", null)));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
       .setType(Constants.ComponentType.FILE)
       .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
@@ -167,12 +159,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void update_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "update_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -189,12 +176,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void delete_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "delete_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -210,12 +192,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void not_delete_custom_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "not_delete_custom_link.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -231,12 +208,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void fail_when_trying_to_add_same_link_type_multiple_times() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, "ABCD"));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)

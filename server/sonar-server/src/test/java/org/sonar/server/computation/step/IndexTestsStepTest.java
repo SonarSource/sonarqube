@@ -28,10 +28,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDao;
@@ -46,40 +46,36 @@ public class IndexTestsStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbClient dbClient;
-  DbComponentsRefCache dbComponentsRefCache;
 
   @Before
   public void setUp() {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
     esTester.truncateIndices();
-    dbComponentsRefCache = new DbComponentsRefCache();
   }
 
   @Override
   protected ComputationStep step() {
     TestIndexer testIndexer = new TestIndexer(dbClient, esTester.client());
     testIndexer.setEnabled(true);
-    return new IndexTestsStep(testIndexer, dbComponentsRefCache, reportReader);
+    return new IndexTestsStep(testIndexer, treeRootHolder);
   }
 
   @Test
   public void index_test() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, "PROJECT_KEY", "ABCD"));
-
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     Connection connection = dbTester.openConnection();
     TestTesting.updateDataColumn(connection, "FILE1_UUID", TestTesting.newRandomTests(1));
     connection.close();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", "PROJECT_KEY"));
 
     step().execute();
 

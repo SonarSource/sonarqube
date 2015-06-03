@@ -19,25 +19,22 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.source.index.SourceLineIndexer;
 
 public class IndexSourceLinesStep implements ComputationStep {
 
   private final SourceLineIndexer indexer;
-  private final DbComponentsRefCache dbComponentsRefCache;
-  private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
 
-  public IndexSourceLinesStep(SourceLineIndexer indexer, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public IndexSourceLinesStep(SourceLineIndexer indexer, TreeRootHolder treeRootHolder) {
     this.indexer = indexer;
-    this.dbComponentsRefCache = dbComponentsRefCache;
-    this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute() {
-    indexer.index(dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getUuid());
+    indexer.index(treeRootHolder.getRoot().getUuid());
   }
 
   @Override

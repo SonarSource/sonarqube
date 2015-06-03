@@ -20,26 +20,43 @@
 
 package org.sonar.server.computation.component;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DbComponentsRefCacheTest {
+public class DbIdsRepositoryTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  Component component = DumbComponent.DUMB_PROJECT;
 
   @Test
   public void add_and_get_component() throws Exception {
-    DbComponentsRefCache cache = new DbComponentsRefCache();
-    cache.addComponent(1, new DbComponentsRefCache.DbComponent(10L, "Key", "Uuid"));
+    DbIdsRepository cache = new DbIdsRepository();
+    cache.setComponentId(component, 10L);
 
-    assertThat(cache.getByRef(1)).isNotNull();
-    assertThat(cache.getByRef(1).getId()).isEqualTo(10L);
-    assertThat(cache.getByRef(1).getKey()).isEqualTo("Key");
-    assertThat(cache.getByRef(1).getUuid()).isEqualTo("Uuid");
+    assertThat(cache.getComponentId(component)).isEqualTo(10L);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void fail_on_unknown_ref() throws Exception {
-    new DbComponentsRefCache().getByRef(1);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Component ref '" + component.getRef() + "' has no component id");
+
+    new DbIdsRepository().getComponentId(DumbComponent.DUMB_PROJECT);
+  }
+
+  @Test
+  public void fail_if_component_id_already_set() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Component ref '" + component.getRef() + "' has already a component id");
+
+    DbIdsRepository cache = new DbIdsRepository();
+    cache.setComponentId(component, 10L);
+    cache.setComponentId(component, 11L);
   }
 
 }

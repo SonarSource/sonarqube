@@ -24,7 +24,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -35,15 +35,15 @@ import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 public class ApplyPermissionsStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final DbIdsRepository dbIdsRepository;
   private final IssueAuthorizationIndexer indexer;
   private final PermissionFacade permissionFacade;
   private final TreeRootHolder treeRootHolder;
 
-  public ApplyPermissionsStep(DbClient dbClient, DbComponentsRefCache dbComponentsRefCache, IssueAuthorizationIndexer indexer,
+  public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer,
     PermissionFacade permissionFacade, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
     this.permissionFacade = permissionFacade;
     this.treeRootHolder = treeRootHolder;
@@ -53,7 +53,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      long projectId = dbComponentsRefCache.getByRef(treeRootHolder.getRoot().getRef()).getId();
+      long projectId = dbIdsRepository.getComponentId(treeRootHolder.getRoot());
       if (permissionFacade.countComponentPermissions(session, projectId) == 0) {
         permissionFacade.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();

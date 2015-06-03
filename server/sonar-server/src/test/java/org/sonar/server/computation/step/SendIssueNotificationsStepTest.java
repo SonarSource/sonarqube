@@ -32,7 +32,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -54,6 +56,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -64,11 +70,10 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
-    sut = new SendIssueNotificationsStep(issueCache, mock(RuleCache.class), dbComponentsRefCache, notifService, reportReader, newIssuesNotificationFactory);
+    sut = new SendIssueNotificationsStep(issueCache, mock(RuleCache.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -93,7 +98,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_notifications_if_subscribers() {
     issueCache.newAppender().append(new DefaultIssue()
-        .setSeverity(Severity.BLOCKER)).close();
+      .setSeverity(Severity.BLOCKER)).close();
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 

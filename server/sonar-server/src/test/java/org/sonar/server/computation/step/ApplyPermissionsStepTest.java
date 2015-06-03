@@ -45,7 +45,7 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -63,8 +63,10 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
@@ -74,7 +76,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   Settings settings;
 
-  DbComponentsRefCache dbComponentsRefCache;
+  DbIdsRepository dbIdsRepository;
 
   IssueAuthorizationIndexer issueAuthorizationIndexer;
   ApplyPermissionsStep step;
@@ -94,10 +96,10 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
     issueAuthorizationIndexer.setEnabled(true);
 
-    dbComponentsRefCache = new DbComponentsRefCache();
+    dbIdsRepository = new DbIdsRepository();
 
-    step = new ApplyPermissionsStep(dbClient, dbComponentsRefCache, issueAuthorizationIndexer, new PermissionFacade(roleDao, null,
-        new ResourceDao(dbTester.myBatis(), System2.INSTANCE), permissionTemplateDao, settings), treeRootHolder);
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionFacade(roleDao, null,
+      new ResourceDao(dbTester.myBatis(), System2.INSTANCE), permissionTemplateDao, settings), treeRootHolder);
   }
 
   @After
@@ -116,8 +118,9 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbClient.permissionTemplateDao().addGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
     dbSession.commit();
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID));
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY);
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+    treeRootHolder.setRoot(project);
 
     step.execute();
     dbSession.commit();
@@ -143,8 +146,9 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     dbSession.commit();
 
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(projectDto.getId(), PROJECT_KEY, PROJECT_UUID));
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_KEY, PROJECT_UUID));
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY);
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+    treeRootHolder.setRoot(project);
 
     step.execute();
     dbSession.commit();

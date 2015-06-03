@@ -32,7 +32,10 @@ import org.sonar.core.computation.dbcleaner.ProjectCleaner;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.IdUuidPair;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.db.DbClient;
 
@@ -49,11 +52,15 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
+  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
-  DbComponentsRefCache dbComponentsRefCache = new DbComponentsRefCache();
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
 
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbComponentsRefCache, projectSettingsRepository, reportReader);
+  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, projectSettingsRepository);
 
   @Before
   public void setUp() throws Exception {
@@ -62,7 +69,9 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   @Test
   public void call_purge_method_of_the_purge_task() throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(123L, PROJECT_KEY, "UUID-1234"));
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "UUID-1234", PROJECT_KEY);
+    treeRootHolder.setRoot(project);
+    dbIdsRepository.setComponentId(project, 123L);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

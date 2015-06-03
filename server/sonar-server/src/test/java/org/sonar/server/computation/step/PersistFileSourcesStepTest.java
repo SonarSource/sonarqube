@@ -39,7 +39,9 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
@@ -63,6 +65,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
@@ -71,7 +77,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   DbSession session;
   DbClient dbClient;
-  DbComponentsRefCache dbComponentsRefCache;
   PersistFileSourcesStep sut;
 
   long now = 123456789L;
@@ -84,8 +89,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
-    dbComponentsRefCache = new DbComponentsRefCache();
-    sut = new PersistFileSourcesStep(dbClient, system2, dbComponentsRefCache, reportReader);
+    sut = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader);
   }
 
   @Override
@@ -124,13 +128,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void persist_last_line() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
-    dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(2L, "PROJECT_KEY:file", FILE_UUID));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
+      new DumbComponent(Component.Type.FILE, FILE_REF, FILE_UUID, "PROJECT_KEY:file")));
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -428,19 +428,14 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       sut.execute();
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Cannot persist sources of src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);
+      assertThat(e).hasMessage("Cannot persist sources of MODULE_KEY:src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);
     }
   }
 
   private void initBasicReport(int numberOfLines) throws IOException {
-    dbComponentsRefCache.addComponent(1, new DbComponentsRefCache.DbComponent(1L, PROJECT_KEY, PROJECT_UUID));
-    dbComponentsRefCache.addComponent(2, new DbComponentsRefCache.DbComponent(2L, "MODULE_KEY", "MODULE"));
-    dbComponentsRefCache.addComponent(FILE_REF, new DbComponentsRefCache.DbComponent(3L, "MODULE_KEY:src/Foo.java", FILE_UUID));
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "MODULE", "MODULE_KEY",
+        new DumbComponent(Component.Type.FILE, FILE_REF, FILE_UUID, "MODULE_KEY:src/Foo.java"))));
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -455,7 +450,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      .setPath("src/Foo.java")
       .setLines(numberOfLines)
       .build());
 

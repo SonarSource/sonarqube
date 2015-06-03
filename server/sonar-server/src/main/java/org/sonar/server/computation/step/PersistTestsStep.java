@@ -46,7 +46,6 @@ import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbComponentsRefCache;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
@@ -60,14 +59,12 @@ public class PersistTestsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system;
-  private final DbComponentsRefCache dbComponentsRefCache;
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
 
-  public PersistTestsStep(DbClient dbClient, System2 system, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
+  public PersistTestsStep(DbClient dbClient, System2 system, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.system = system;
-    this.dbComponentsRefCache = dbComponentsRefCache;
     this.reportReader = reportReader;
     this.treeRootHolder = treeRootHolder;
   }
@@ -76,12 +73,11 @@ public class PersistTestsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session, dbComponentsRefCache);
+      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session);
       visitor.visit(treeRootHolder.getRoot());
       session.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
-        String projectKey = dbComponentsRefCache.getByRef(reportReader.readMetadata().getRootComponentRef()).getKey();
-        LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", projectKey);
+        LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", visitor.getProjectKey());
       }
     } finally {
       MyBatis.closeQuietly(session);
@@ -95,17 +91,17 @@ public class PersistTestsStep implements ComputationStep {
 
   private class TestDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
     final DbSession session;
-    final DbComponentsRefCache dbComponentsRefCache;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     final String projectUuid;
+    final String projectKey;
     boolean hasUnprocessedCoverageDetails = false;
 
-    public TestDepthTraversalTypeAwareVisitor(DbSession session, DbComponentsRefCache dbComponentsRefCache) {
+    public TestDepthTraversalTypeAwareVisitor(DbSession session) {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.session = session;
-      this.dbComponentsRefCache = dbComponentsRefCache;
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = treeRootHolder.getRoot().getUuid();
+      this.projectKey = treeRootHolder.getRoot().getKey();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
         ImmutableMap.of("projectUuid", treeRootHolder.getRoot().getUuid(), "dataType", Type.TEST),
         new ResultHandler() {
@@ -247,7 +243,11 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private String getUuid(int fileRef) {
-      return dbComponentsRefCache.getByRef(fileRef).getUuid();
+      return treeRootHolder.getComponentByRef(fileRef).getUuid();
+    }
+
+    public String getProjectKey() {
+      return projectKey;
     }
   }
 

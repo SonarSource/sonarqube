@@ -29,12 +29,16 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
 
@@ -46,15 +50,17 @@ public class PersistMeasuresStep implements ComputationStep {
   private final DbClient dbClient;
   private final RuleCache ruleCache;
   private final MetricCache metricCache;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final DbIdsRepository dbIdsRepository;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
   public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache,
-    DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+    DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.ruleCache = ruleCache;
     this.metricCache = metricCache;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.dbIdsRepository = dbIdsRepository;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
@@ -65,33 +71,45 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-    try (DbSession dbSession = dbClient.openSession(true)) {
-      recursivelyProcessComponent(dbSession, rootComponentRef);
+    DbSession dbSession = dbClient.openSession(true);
+    try {
+      new MeasureVisitor(dbSession).visit(treeRootHolder.getRoot());
       dbSession.commit();
+    } finally {
+      dbSession.close();
     }
   }
 
-  private void recursivelyProcessComponent(DbSession dbSession, int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
-    persistMeasures(dbSession, measures, component);
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(dbSession, childRef);
-    }
-  }
+  private class MeasureVisitor extends DepthTraversalTypeAwareVisitor {
 
-  private void persistMeasures(DbSession dbSession, List<BatchReport.Measure> batchReportMeasures, final BatchReport.Component component) {
-    for (BatchReport.Measure measure : batchReportMeasures) {
-      if (FORBIDDEN_METRIC_KEYS.contains(measure.getMetricKey())) {
-        throw new IllegalStateException(String.format("Measures on metric '%s' cannot be send in the report", measure.getMetricKey()));
+    private final DbSession session;
+
+    private MeasureVisitor(DbSession session) {
+      super(Component.Type.FILE, PRE_ORDER);
+      this.session = session;
+    }
+
+    @Override
+    protected void visitAny(Component component) {
+      int componentRef = component.getRef();
+      BatchReport.Component batchComponent = reportReader.readComponent(componentRef);
+      List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
+      persistMeasures(measures, dbIdsRepository.getComponentId(component), batchComponent.getSnapshotId());
+
+    }
+
+    private void persistMeasures(List<BatchReport.Measure> batchReportMeasures, long componentId, long snapshotId) {
+      for (BatchReport.Measure measure : batchReportMeasures) {
+        if (FORBIDDEN_METRIC_KEYS.contains(measure.getMetricKey())) {
+          throw new IllegalStateException(String.format("Measures on metric '%s' cannot be send in the report", measure.getMetricKey()));
+        }
+        dbClient.measureDao().insert(session, toMeasureDto(measure, componentId, snapshotId));
       }
-      dbClient.measureDao().insert(dbSession, toMeasureDto(measure, component));
     }
   }
 
   @VisibleForTesting
-  MeasureDto toMeasureDto(BatchReport.Measure in, BatchReport.Component component) {
+  MeasureDto toMeasureDto(BatchReport.Measure in, long componentId, long snapshotId) {
     if (!in.hasValueType()) {
       throw new IllegalStateException(String.format("Measure %s does not have value type", in));
     }
@@ -109,14 +127,21 @@ public class PersistMeasuresStep implements ComputationStep {
     out.setAlertText(in.hasAlertText() ? in.getAlertText() : null);
     out.setDescription(in.hasDescription() ? in.getDescription() : null);
     out.setSeverity(in.hasSeverity() ? in.getSeverity().name() : null);
-    out.setComponentId(dbComponentsRefCache.getByRef(component.getRef()).getId());
-    out.setSnapshotId(component.getSnapshotId());
+    out.setComponentId(componentId);
+    out.setSnapshotId(snapshotId);
     out.setMetricId(metricCache.get(in.getMetricKey()).getId());
     out.setRuleId(in.hasRuleKey() ? ruleCache.get(RuleKey.parse(in.getRuleKey())).getId() : null);
     out.setCharacteristicId(in.hasCharactericId() ? in.getCharactericId() : null);
     out.setPersonId(in.hasPersonId() ? in.getPersonId() : null);
     out.setValue(valueAsDouble(in));
     setData(in, out);
+    return out;
+  }
+
+  private MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
+    if (in.hasStringValue()) {
+      out.setData(in.getStringValue());
+    }
     return out;
   }
 
@@ -138,13 +163,5 @@ public class PersistMeasuresStep implements ComputationStep {
       default:
         return null;
     }
-  }
-
-  private MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
-    if (in.hasStringValue()) {
-      out.setData(in.getStringValue());
-    }
-
-    return out;
   }
 }

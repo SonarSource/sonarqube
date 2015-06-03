@@ -27,7 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -36,9 +35,10 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
-import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -46,7 +46,6 @@ import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class PersistDuplicationsStepTest extends BaseStepTest {
@@ -59,14 +58,14 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
+  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+
   DbSession session;
 
   DbClient dbClient;
-
-  Settings projectSettings;
-  LanguageRepository languageRepository;
-
-  DbComponentsRefCache dbComponentsRefCache;
 
   PersistDuplicationsStep sut;
 
@@ -76,10 +75,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao());
 
-    projectSettings = new Settings();
-    dbComponentsRefCache = new DbComponentsRefCache();
-    languageRepository = mock(LanguageRepository.class);
-    sut = new PersistDuplicationsStep(dbClient, dbComponentsRefCache, reportReader);
+    sut = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, reportReader);
   }
 
   @Override
@@ -135,16 +131,18 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_module() throws Exception {
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "BCDE"));
-    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "MODULE_KEY:file", "CDEF"));
+    Component file = new DumbComponent(Component.Type.FILE, 3, "CDEF", "MODULE_KEY:file");
+    Component module = new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY", file);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, module);
+    treeRootHolder.setRoot(project);
+
+    dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setComponentId(module, 3);
+    dbIdsRepository.setComponentId(file, 2);
 
     saveDuplicationMetric();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
+    // TODO remove this when snapshot id will come from the DbIdsRepo
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -192,17 +190,18 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_folder() {
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "PROJECT_KEY:dir", "BCDE"));
-    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "PROJECT_KEY:file", "CDEF"));
+    Component file = new DumbComponent(Component.Type.FILE, 3, "CDEF", "PROJECT_KEY:file");
+    Component directory = new DumbComponent(Component.Type.DIRECTORY, 2, "BCDE", "PROJECT_KEY:dir", file);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, directory);
+    treeRootHolder.setRoot(project);
 
+    dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setComponentId(directory, 3);
+    dbIdsRepository.setComponentId(file, 2);
 
     saveDuplicationMetric();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
+    // TODO remove this when snapshot id will come from the DbIdsRepo
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -250,17 +249,20 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_sub_folder() {
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "PROJECT_KEY:dir", "BCDE"));
-    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "PROJECT_KEY:dir", "CDEF"));
-    dbComponentsRefCache.addComponent(10, new DbComponent(10L, "PROJECT_KEY:file", "DEFG"));
+    Component file = new DumbComponent(Component.Type.FILE, 10, "DEFG", "PROJECT_KEY:file");
+    Component directory1 = new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "PROJECT_KEY:dir1", file);
+    Component directory2 = new DumbComponent(Component.Type.DIRECTORY, 2, "BCDE", "PROJECT_KEY:dir2", directory1);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, directory2);
+    treeRootHolder.setRoot(project);
+
+    dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setComponentId(directory1, 2);
+    dbIdsRepository.setComponentId(directory2, 3);
+    dbIdsRepository.setComponentId(file, 10);
 
     saveDuplicationMetric();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
-
+    // TODO remove this when snapshot id will come from the DbIdsRepo
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -314,10 +316,30 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_different_files() {
-    dbComponentsRefCache.addComponent(3, new DbComponent(3L, "PROJECT_KEY:file2", "CDEF"));
     saveDuplicationMetric();
-    initReportWithProjectAndFile();
 
+    Component file2 = new DumbComponent(Component.Type.FILE, 3, "CDEF", "PROJECT_KEY:file2");
+    Component file = new DumbComponent(Component.Type.FILE, 2, "BCDE", "PROJECT_KEY:file");
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, file, file2);
+    treeRootHolder.setRoot(project);
+
+    dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setComponentId(file, 2);
+
+    // TODO remove this when snapshot id will come from the DbIdsRepo
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setSnapshotId(10L)
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.FILE)
+      .setSnapshotId(11L)
+      .setPath("file")
+      .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
@@ -379,13 +401,14 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "PROJECT_KEY:file", "BCDE"));
+    Component file = new DumbComponent(Component.Type.FILE, 2, "BCDE", "PROJECT_KEY:file");
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, file);
+    treeRootHolder.setRoot(project);
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .build());
+    dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setComponentId(file, 2);
 
+    // TODO remove this when snapshot id will come from the DbIdsRepo
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)

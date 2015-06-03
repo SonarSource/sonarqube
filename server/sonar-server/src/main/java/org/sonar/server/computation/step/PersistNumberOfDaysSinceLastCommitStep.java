@@ -30,13 +30,15 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static com.google.common.base.Objects.firstNonNull;
-import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
@@ -46,18 +48,16 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   private final SourceLineIndex sourceLineIndex;
   private final MetricCache metricCache;
   private final System2 system;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  private long lastCommitTimestamp = 0L;
-
   public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache,
-                                                DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+    TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
     this.metricCache = metricCache;
     this.system = system;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
@@ -68,38 +68,17 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
   @Override
   public void execute() {
-    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-    recursivelyProcessComponent(rootComponentRef);
+    NumberOfDaysSinceLastCommitVisitor visitor = new NumberOfDaysSinceLastCommitVisitor();
+    visitor.visit(treeRootHolder.getRoot());
 
-    if (!commitFound()) {
-      Long lastCommitFromIndex = lastCommitFromIndex(dbComponentsRefCache.getByRef(rootComponentRef).getUuid());
+    long lastCommitTimestamp = visitor.lastCommitTimestampFromReport;
+    if (lastCommitTimestamp == 0L) {
+      Long lastCommitFromIndex = lastCommitFromIndex(treeRootHolder.getRoot().getUuid());
       lastCommitTimestamp = firstNonNull(lastCommitFromIndex, lastCommitTimestamp);
     }
 
-    if (commitFound()) {
-      persistNumberOfDaysSinceLastCommit();
-    }
-  }
-
-  private void recursivelyProcessComponent(int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    BatchReport.Changesets scm = reportReader.readChangesets(componentRef);
-    processScm(scm);
-
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(childRef);
-    }
-  }
-
-  private void processScm(@Nullable BatchReport.Changesets scm) {
-    if (scm == null) {
-      return;
-    }
-
-    for (BatchReport.Changesets.Changeset changeset : scm.getChangesetList()) {
-      if (changeset.hasDate() && changeset.getDate() > lastCommitTimestamp) {
-        lastCommitTimestamp = changeset.getDate();
-      }
+    if (lastCommitTimestamp != 0L) {
+      persistNumberOfDaysSinceLastCommit(lastCommitTimestamp);
     }
   }
 
@@ -109,9 +88,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     return lastCommitDate == null ? null : lastCommitDate.getTime();
   }
 
-  private void persistNumberOfDaysSinceLastCommit() {
-    checkState(commitFound(), "The last commit time should exist");
-
+  private void persistNumberOfDaysSinceLastCommit(long lastCommitTimestamp) {
     long numberOfDaysSinceLastCommit = (system.now() - lastCommitTimestamp) / MILLISECONDS_PER_DAY;
     DbSession dbSession = dbClient.openSession(true);
     try {
@@ -125,7 +102,30 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private boolean commitFound() {
-    return lastCommitTimestamp != 0L;
+  private class NumberOfDaysSinceLastCommitVisitor extends DepthTraversalTypeAwareVisitor {
+
+    private long lastCommitTimestampFromReport = 0L;
+
+    private NumberOfDaysSinceLastCommitVisitor() {
+      super(Component.Type.FILE, PRE_ORDER);
+    }
+
+    @Override
+    public void visitFile(Component component) {
+      BatchReport.Changesets scm = reportReader.readChangesets(component.getRef());
+      processScm(scm);
+    }
+
+    private void processScm(@Nullable BatchReport.Changesets scm) {
+      if (scm == null) {
+        return;
+      }
+
+      for (BatchReport.Changesets.Changeset changeset : scm.getChangesetList()) {
+        if (changeset.hasDate() && changeset.getDate() > lastCommitTimestampFromReport) {
+          lastCommitTimestampFromReport = changeset.getDate();
+        }
+      }
+    }
   }
 }

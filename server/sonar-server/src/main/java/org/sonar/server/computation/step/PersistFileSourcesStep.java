@@ -29,14 +29,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.source.ComputeFileSourceData;
 import org.sonar.server.computation.source.CoverageLineReader;
 import org.sonar.server.computation.source.DuplicationLineReader;
@@ -48,28 +49,48 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.util.CloseableIterator;
 
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+
 public class PersistFileSourcesStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system2;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  public PersistFileSourcesStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.system2 = system2;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
   @Override
   public void execute() {
-    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
-      final Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
-      String projectUuid = dbComponentsRefCache.getByRef(rootComponentRef).getUuid();
+      new FileSourceVisitor(session).visit(treeRootHolder.getRoot());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private class FileSourceVisitor extends DepthTraversalTypeAwareVisitor {
+
+    private final DbSession session;
+
+    private Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
+    private String projectUuid;
+
+    private FileSourceVisitor(DbSession session) {
+      super(Component.Type.FILE, PRE_ORDER);
+      this.session = session;
+    }
+
+    @Override
+    public void visitProject(Component project) {
+      this.projectUuid = project.getUuid();
       session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
         new ResultHandler() {
           @Override
@@ -78,87 +99,66 @@ public class PersistFileSourcesStep implements ComputationStep {
             previousFileSourcesByUuid.put(dto.getFileUuid(), dto);
           }
         });
-
-      recursivelyProcessComponent(new FileSourcesContext(session, previousFileSourcesByUuid, projectUuid), rootComponentRef);
-    } finally {
-      MyBatis.closeQuietly(session);
     }
-  }
 
-  private void recursivelyProcessComponent(FileSourcesContext fileSourcesContext, int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    if (component.getType().equals(Constants.ComponentType.FILE)) {
-      CloseableIterator<String> linesIterator = reportReader.readFileSource(componentRef);
-      LineReaders lineReaders = new LineReaders(reportReader, componentRef);
+    @Override
+    public void visitFile(Component file) {
+      int fileRef = file.getRef();
+      BatchReport.Component component = reportReader.readComponent(fileRef);
+      CloseableIterator<String> linesIterator = reportReader.readFileSource(fileRef);
+      LineReaders lineReaders = new LineReaders(reportReader, fileRef);
       try {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), component.getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
-        persistSource(fileSourcesContext, fileSourceData, component);
+        persistSource(fileSourceData, file.getUuid());
       } catch (Exception e) {
-        throw new IllegalStateException(String.format("Cannot persist sources of %s", component.getPath()), e);
+        throw new IllegalStateException(String.format("Cannot persist sources of %s", file.getKey()), e);
       } finally {
         linesIterator.close();
         lineReaders.close();
       }
     }
 
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(fileSourcesContext, childRef);
-    }
-  }
+    private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid) {
+      FileSourceDb.Data fileData = fileSourceData.getFileSourceData();
 
-  private void persistSource(FileSourcesContext fileSourcesContext, ComputeFileSourceData.Data fileSourceData, BatchReport.Component component) {
-    FileSourceDb.Data fileData = fileSourceData.getFileSourceData();
+      byte[] data = FileSourceDto.encodeSourceData(fileData);
+      String dataHash = DigestUtils.md5Hex(data);
+      String srcHash = fileSourceData.getSrcHash();
+      String lineHashes = fileSourceData.getLineHashes();
+      FileSourceDto previousDto = previousFileSourcesByUuid.get(componentUuid);
 
-    byte[] data = FileSourceDto.encodeSourceData(fileData);
-    String dataHash = DigestUtils.md5Hex(data);
-    String srcHash = fileSourceData.getSrcHash();
-    String lineHashes = fileSourceData.getLineHashes();
-    String componentUuid = dbComponentsRefCache.getByRef(component.getRef()).getUuid();
-    FileSourceDto previousDto = fileSourcesContext.previousFileSourcesByUuid.get(componentUuid);
-
-    if (previousDto == null) {
-      FileSourceDto dto = new FileSourceDto()
-        .setProjectUuid(fileSourcesContext.projectUuid)
-        .setFileUuid(componentUuid)
-        .setDataType(Type.SOURCE)
-        .setBinaryData(data)
-        .setSrcHash(srcHash)
-        .setDataHash(dataHash)
-        .setLineHashes(lineHashes)
-        .setCreatedAt(system2.now())
-        .setUpdatedAt(system2.now());
-      dbClient.fileSourceDao().insert(fileSourcesContext.session, dto);
-      fileSourcesContext.session.commit();
-    } else {
-      // Update only if data_hash has changed or if src_hash is missing (progressive migration)
-      boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
-      boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
-      if (binaryDataUpdated || srcHashUpdated) {
-        previousDto
+      if (previousDto == null) {
+        FileSourceDto dto = new FileSourceDto()
+          .setProjectUuid(projectUuid)
+          .setFileUuid(componentUuid)
+          .setDataType(Type.SOURCE)
           .setBinaryData(data)
-          .setDataHash(dataHash)
           .setSrcHash(srcHash)
-          .setLineHashes(lineHashes);
-        // Optimization only change updated at when updating binary data to avoid unnecessary indexation by E/S
-        if (binaryDataUpdated) {
-          previousDto.setUpdatedAt(system2.now());
+          .setDataHash(dataHash)
+          .setLineHashes(lineHashes)
+          .setCreatedAt(system2.now())
+          .setUpdatedAt(system2.now());
+        dbClient.fileSourceDao().insert(session, dto);
+        session.commit();
+      } else {
+        // Update only if data_hash has changed or if src_hash is missing (progressive migration)
+        boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
+        boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
+        if (binaryDataUpdated || srcHashUpdated) {
+          previousDto
+            .setBinaryData(data)
+            .setDataHash(dataHash)
+            .setSrcHash(srcHash)
+            .setLineHashes(lineHashes);
+          // Optimization only change updated at when updating binary data to avoid unnecessary indexation by E/S
+          if (binaryDataUpdated) {
+            previousDto.setUpdatedAt(system2.now());
+          }
+          dbClient.fileSourceDao().update(previousDto);
+          session.commit();
         }
-        dbClient.fileSourceDao().update(previousDto);
-        fileSourcesContext.session.commit();
       }
-    }
-  }
-
-  private static class FileSourcesContext {
-    DbSession session;
-    Map<String, FileSourceDto> previousFileSourcesByUuid;
-    String projectUuid;
-
-    public FileSourcesContext(DbSession session, Map<String, FileSourceDto> previousFileSourcesByUuid, String projectUuid) {
-      this.previousFileSourcesByUuid = previousFileSourcesByUuid;
-      this.session = session;
-      this.projectUuid = projectUuid;
     }
   }
 

@@ -28,20 +28,24 @@ import org.sonar.core.event.EventDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.server.computation.component.DbComponentsRefCache;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
+
+import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 public class PersistEventsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system2;
-  private final DbComponentsRefCache dbComponentsRefCache;
+  private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  public PersistEventsStep(DbClient dbClient, System2 system2, DbComponentsRefCache dbComponentsRefCache, BatchReportReader reportReader) {
+  public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.system2 = system2;
-    this.dbComponentsRefCache = dbComponentsRefCache;
+    this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
   }
 
@@ -49,73 +53,89 @@ public class PersistEventsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
-      recursivelyProcessComponent(session, rootComponentRef);
+      new EventVisitor(session, reportReader.readMetadata().getAnalysisDate()).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void recursivelyProcessComponent(DbSession session, int componentRef) {
-    BatchReport.Component component = reportReader.readComponent(componentRef);
-    long analysisDate = reportReader.readMetadata().getAnalysisDate();
-    processEvents(session, component, analysisDate);
-    saveVersionEvent(session, component, analysisDate);
+  private class EventVisitor extends DepthTraversalTypeAwareVisitor {
 
-    for (Integer childRef : component.getChildRefList()) {
-      recursivelyProcessComponent(session, childRef);
+    private final DbSession session;
+    private final long analysisDate;
+
+    private EventVisitor(DbSession session, long analysisDate) {
+      super(Component.Type.FILE, PRE_ORDER);
+      this.session = session;
+      this.analysisDate = analysisDate;
     }
-  }
 
-  private void processEvents(DbSession session, BatchReport.Component component, Long analysisDate) {
-    List<BatchReport.Event> events = component.getEventList();
-    if (!events.isEmpty()) {
-      for (BatchReport.Event event : component.getEventList()) {
-        dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
-          .setName(event.getName())
-          .setCategory(convertCategory(event.getCategory()))
-          .setDescription(event.hasDescription() ? event.getDescription() : null)
-          .setData(event.hasEventData() ? event.getEventData() : null)
+    @Override
+    public void visitModule(Component module) {
+      visitProjectOrModule(module);
+    }
+
+    @Override
+    public void visitProject(Component project) {
+      visitProjectOrModule(project);
+    }
+
+    private void visitProjectOrModule(Component component) {
+      BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+      processEvents(batchComponent, component);
+      saveVersionEvent(batchComponent, component);
+    }
+
+    private void processEvents(BatchReport.Component batchComponent, Component component) {
+      List<BatchReport.Event> events = batchComponent.getEventList();
+      if (!events.isEmpty()) {
+        for (BatchReport.Event event : events) {
+          dbClient.eventDao().insert(session, newBaseEvent(component, batchComponent.getSnapshotId())
+            .setName(event.getName())
+            .setCategory(convertCategory(event.getCategory()))
+            .setDescription(event.hasDescription() ? event.getDescription() : null)
+            .setData(event.hasEventData() ? event.getEventData() : null)
+            );
+        }
+      }
+    }
+
+    private void saveVersionEvent(BatchReport.Component batchComponent, Component component) {
+      if (batchComponent.hasVersion()) {
+        deletePreviousEventsHavingSameVersion(batchComponent, component);
+        dbClient.eventDao().insert(session, newBaseEvent(component, batchComponent.getSnapshotId())
+          .setName(batchComponent.getVersion())
+          .setCategory(EventDto.CATEGORY_VERSION)
           );
       }
     }
-  }
 
-  private void saveVersionEvent(DbSession session, BatchReport.Component component, Long analysisDate) {
-    if (component.hasVersion()) {
-      deletePreviousEventsHavingSameVersion(session, component);
-      dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
-        .setName(component.getVersion())
-        .setCategory(EventDto.CATEGORY_VERSION)
-        );
-    }
-  }
-
-  private void deletePreviousEventsHavingSameVersion(DbSession session, BatchReport.Component component) {
-    for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, dbComponentsRefCache.getByRef(component.getRef()).getUuid())) {
-      if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(component.getVersion())) {
-        dbClient.eventDao().delete(session, dto.getId());
+    private void deletePreviousEventsHavingSameVersion(BatchReport.Component batchComponent, Component component) {
+      for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
+        if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(batchComponent.getVersion())) {
+          dbClient.eventDao().delete(session, dto.getId());
+        }
       }
     }
-  }
 
-  private EventDto newBaseEvent(BatchReport.Component component, Long analysisDate) {
-    return new EventDto()
-      .setComponentUuid(dbComponentsRefCache.getByRef(component.getRef()).getUuid())
-      .setSnapshotId(component.getSnapshotId())
-      .setCreatedAt(system2.now())
-      .setDate(analysisDate);
-  }
+    private EventDto newBaseEvent(Component component, long snapshotId) {
+      return new EventDto()
+        .setComponentUuid(component.getUuid())
+        .setSnapshotId(snapshotId)
+        .setCreatedAt(system2.now())
+        .setDate(analysisDate);
+    }
 
-  private static String convertCategory(Constants.EventCategory category) {
-    switch (category) {
-      case ALERT:
-        return EventDto.CATEGORY_ALERT;
-      case PROFILE:
-        return EventDto.CATEGORY_PROFILE;
-      default:
-        throw new IllegalArgumentException(String.format("Unsupported category %s", category.name()));
+    private String convertCategory(Constants.EventCategory category) {
+      switch (category) {
+        case ALERT:
+          return EventDto.CATEGORY_ALERT;
+        case PROFILE:
+          return EventDto.CATEGORY_PROFILE;
+        default:
+          throw new IllegalArgumentException(String.format("Unsupported category %s", category.name()));
+      }
     }
   }
 

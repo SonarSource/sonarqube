@@ -32,8 +32,9 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.component.DbComponentsRefCache;
-import org.sonar.server.computation.component.DbComponentsRefCache.DbComponent;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.event.db.EventDao;
 import org.sonar.test.DbTests;
@@ -44,15 +45,16 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistEventsStepTest extends BaseStepTest {
 
-  private static final String PROJECT_KEY = "PROJECT_KEY";
-
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
-  DbComponentsRefCache dbComponentsRefCache;
   PersistEventsStep step;
 
   @Before
@@ -63,8 +65,7 @@ public class PersistEventsStepTest extends BaseStepTest {
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(1225630680000L);
 
-    dbComponentsRefCache = new DbComponentsRefCache();
-    step = new PersistEventsStep(dbClient, system2, dbComponentsRefCache, reportReader);
+    step = new PersistEventsStep(dbClient, system2, treeRootHolder, reportReader);
   }
 
   @Override
@@ -81,11 +82,10 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -103,11 +103,10 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -138,12 +137,11 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
-    dbComponentsRefCache.addComponent(2, new DbComponent(2L, "MODULE_KEY", "BCDE"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -179,11 +177,10 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
@@ -203,11 +200,10 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() throws Exception {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    dbComponentsRefCache.addComponent(1, new DbComponent(1L, PROJECT_KEY, "ABCD"));
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
       .setAnalysisDate(150000000L)
       .build());
 
