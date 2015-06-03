@@ -43,17 +43,17 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
     }
 
     if (order == Order.PRE_ORDER) {
-      visitNode(component);
+      visitAny(component);
     }
 
     visitChildren(component);
 
     if (order == Order.POST_ORDER) {
-      visitNode(component);
+      visitAny(component);
     }
   }
 
-  private void visitNode(Component component) {
+  protected void visitAny(Component component) {
     switch (component.getType()) {
       case PROJECT:
         visitProject(component);
