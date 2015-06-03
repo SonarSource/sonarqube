@@ -4,25 +4,36 @@ set -euo pipefail
 
 function installTravisTools {
   curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/master/install.sh | sh
-	source /tmp/travis-utils/utils.sh
+  source /tmp/travis-utils/utils.sh
 }
 
-# Which build do we start?
-if [ "$DATABASE" == "H2" ]; then
-	mvn verify -B -e -V
-elif [ "$DATABASE" == "POSTGRES" ]; then
+case "$DATABASE" in
+
+H2)
+  mvn verify -B -e -V
+  ;;
+
+POSTGRES)
   installTravisTools
 
-	psql -c 'create database sonar;' -U postgres
+  psql -c 'create database sonar;' -U postgres
 
   runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ''
-elif [ "$DATABASE" == "MYSQL" ]; then
+  ;;
+
+MYSQL)
   installTravisTools
 
-	mysql -e "CREATE DATABASE sonar CHARACTER SET UTF8;" -uroot
-	mysql -e "CREATE USER 'sonar'@'localhost' IDENTIFIED BY 'sonar';" -uroot
-	mysql -e "GRANT ALL ON sonar.* TO 'sonar'@'localhost';" -uroot
-	mysql -e "FLUSH PRIVILEGES;" -uroot
+  mysql -e "CREATE DATABASE sonar CHARACTER SET UTF8;" -uroot
+  mysql -e "CREATE USER 'sonar'@'localhost' IDENTIFIED BY 'sonar';" -uroot
+  mysql -e "GRANT ALL ON sonar.* TO 'sonar'@'localhost';" -uroot
+  mysql -e "FLUSH PRIVILEGES;" -uroot
 
   runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" 'sonar'
-fi
+  ;;
+
+*)
+  echo "Invalid DATABASE choice [$DATABASE]"
+  exit 1
+
+esac
