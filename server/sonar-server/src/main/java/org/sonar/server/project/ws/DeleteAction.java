@@ -37,7 +37,7 @@ import org.sonar.server.user.UserSession;
 public class DeleteAction implements ProjectsWsAction {
   private static final String ACTION = "delete";
 
-  public static final String PARAM_UUID = "id";
+  public static final String PARAM_ID = "id";
   public static final String PARAM_KEY = "key";
 
   private final ComponentCleanerService componentCleanerService;
@@ -60,8 +60,8 @@ public class DeleteAction implements ProjectsWsAction {
       .setHandler(this);
 
     action
-      .createParam(PARAM_UUID)
-      .setDescription("Project UUID")
+      .createParam(PARAM_ID)
+      .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
 
     action
@@ -72,7 +72,7 @@ public class DeleteAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String uuid = request.param(PARAM_UUID);
+    String uuid = request.param(PARAM_ID);
     String key = request.param(PARAM_KEY);
     checkPermissions(uuid, key);
 
@@ -109,6 +109,6 @@ public class DeleteAction implements ProjectsWsAction {
       return dbClient.componentDao().selectByKey(dbSession, key);
     }
 
-    throw new IllegalArgumentException("UUID or key must be provided");
+    throw new IllegalArgumentException("Id or key must be provided");
   }
 }

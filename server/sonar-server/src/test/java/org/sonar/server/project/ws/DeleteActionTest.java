@@ -74,7 +74,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
-import static org.sonar.server.project.ws.DeleteAction.PARAM_UUID;
+import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
 
 @Category(DbTests.class)
 public class DeleteActionTest {
@@ -123,7 +123,7 @@ public class DeleteActionTest {
     long snapshotId2 = insertNewProjectInDbAndReturnSnapshotId(2);
 
     newRequest()
-      .setParam(PARAM_UUID, "project-uuid-1").execute();
+      .setParam(PARAM_ID, "project-uuid-1").execute();
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
@@ -152,7 +152,7 @@ public class DeleteActionTest {
     insertNewProjectInDbAndReturnSnapshotId(1);
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid-1");
 
-    newRequest().setParam(PARAM_UUID, "project-uuid-1").execute();
+    newRequest().setParam(PARAM_ID, "project-uuid-1").execute();
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
@@ -193,7 +193,7 @@ public class DeleteActionTest {
   public void web_service_returns_204() throws Exception {
     insertNewProjectInDbAndReturnSnapshotId(1);
 
-    WsTester.Result result = newRequest().setParam(PARAM_UUID, "project-uuid-1").execute();
+    WsTester.Result result = newRequest().setParam(PARAM_ID, "project-uuid-1").execute();
 
     result.assertNoContent();
   }
@@ -203,7 +203,7 @@ public class DeleteActionTest {
     userSessionRule.setGlobalPermissions(UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, UserRole.USER);
     expectedException.expect(ForbiddenException.class);
 
-    newRequest().setParam(PARAM_UUID, "whatever-the-uuid").execute();
+    newRequest().setParam(PARAM_ID, "whatever-the-uuid").execute();
   }
 
   @Test
@@ -212,7 +212,7 @@ public class DeleteActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newFileDto(ComponentTesting.newProjectDto(), "file-uuid"));
     dbSession.commit();
 
-    newRequest().setParam(PARAM_UUID, "file-uuid").execute();
+    newRequest().setParam(PARAM_ID, "file-uuid").execute();
   }
 
   @Test
@@ -222,7 +222,7 @@ public class DeleteActionTest {
     dbSession.commit();
     when(resourceType.getBooleanProperty(anyString())).thenReturn(false);
 
-    newRequest().setParam(PARAM_UUID, "project-uuid").execute();
+    newRequest().setParam(PARAM_ID, "project-uuid").execute();
   }
 
   private long insertNewProjectInDbAndReturnSnapshotId(int id) {
