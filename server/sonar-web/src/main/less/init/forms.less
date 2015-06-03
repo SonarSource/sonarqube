@@ -139,6 +139,34 @@ input[type=button] {
   color: @baseFontColor;
 }
 
+.button-link {
+  display: inline;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: @darkBlue;
+  font-weight: 400;
+  font-size: inherit;
+  line-height: inherit;
+  .trans;
+
+  &:hover, &:active, &:focus {
+    background: transparent;
+    color: @blue;
+  }
+
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:active,
+  &[disabled]:focus {
+    color: @secondFontColor;
+    background: transparent;
+    cursor: default;
+  }
+}
+
 .button-group {
   display: inline-block;
   vertical-align: middle;

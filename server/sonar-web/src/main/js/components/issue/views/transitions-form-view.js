@@ -20,6 +20,7 @@ define([
 
     submit: function (transition) {
       var that = this;
+      this.options.view.disableControls();
       return $.ajax({
         type: 'POST',
         url: baseUrl + '/api/issues/do_transition',

@@ -56,6 +56,14 @@ define([
       this.$el.attr('data-key', this.model.get('key'));
     },
 
+    disableControls: function () {
+      this.$(':input').prop('disabled', true);
+    },
+
+    enableControls: function () {
+      this.$(':input').prop('disabled', false);
+    },
+
     resetIssue: function (options) {
       var that = this;
       var key = this.model.get('key'),
@@ -132,6 +140,7 @@ define([
       var commentKey = $(e.target).closest('[data-comment-key]').data('comment-key'),
           confirmMsg = $(e.target).data('confirm-msg');
       if (confirm(confirmMsg)) {
+        this.disableControls();
         return $.ajax({
           type: 'POST',
           url: baseUrl + '/api/issues/delete_comment?key=' + commentKey
@@ -218,6 +227,7 @@ define([
 
     action: function (action) {
       var that = this;
+      this.disableControls();
       return $.post(baseUrl + '/api/issues/do_action', {
         issue: this.model.id,
         actionKey: action

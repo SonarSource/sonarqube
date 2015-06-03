@@ -91,8 +91,12 @@
 
 .issue-rule {
   padding: 0 3px;
-  background-color: fade(@blue, 30%);
+  background: fade(@blue, 30%);
   opacity: 0.5;
+
+  &:hover {
+    background: fade(@blue, 30%);
+  }
 }
 
 .issue-component {
@@ -121,15 +125,10 @@
 }
 
 .issue-meta-list {
-  .clearfix;
   padding-left: @leftPadding;
-  font-size: 0;
 }
 
 .issue-meta {
-  display: inline-block;
-  vertical-align: top;
-  margin-right: 10px;
   line-height: 1.5;
   font-size: @smallFontSize;
 }
@@ -155,14 +154,6 @@
   vertical-align: top;
   max-width: 180px;
   .text-ellipsis;
-}
-
-.issue-action {
-  border-bottom: none;
-}
-
-.issue-action + .issue-action {
-  margin-left: 4px;
 }
 
 .issue-changelog {

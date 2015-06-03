@@ -70,11 +70,13 @@ define([
         data.issue = this.options.issue.id;
       }
       this.disableForm();
+      this.options.detailView.disableControls();
       return $.post(url, data)
           .done(function () {
             that.options.detailView.updateAfterAction(true);
           }).fail(function () {
             that.enableForm();
+            that.options.detailView.enableControls();
           });
     }
   });
