@@ -216,7 +216,7 @@ public class CorePropertyDefinitions {
 
       PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1)
         .name("Period 1")
-        .description("Period used to compare measures and track new violations. Values are : <ul class='bullet'><li>Number of days before " +
+        .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
           "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
           "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li></ul>" +
           "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
@@ -245,7 +245,7 @@ public class CorePropertyDefinitions {
 
       PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4)
         .name("Period 4")
-        .description("Period used to compare measures and track new violations. This property is specific to the project. Values are : " +
+        .description("Period used to compare measures and track new issues. This property is specific to the project. Values are : " +
           "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
           "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
           "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example 1.2</li></ul>" +
