@@ -1,0 +1,7 @@
+{
+  "key": "custom-metric-key",
+  "name": "custom-metric-name",
+  "type": "INT",
+  "domain": "custom-metric-domain",
+  "description": "custom-metric-description"
+}

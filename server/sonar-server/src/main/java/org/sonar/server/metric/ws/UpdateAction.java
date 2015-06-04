@@ -37,15 +37,17 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 
-public class CreateAction implements MetricsWsAction {
-  private static final String ACTION = "create";
+public class UpdateAction implements MetricsWsAction {
+  private static final String ACTION = "update";
+
+  public static final String PARAM_ID = "id";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_KEY = "key";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_DESCRIPTION = "description";
   public static final String PARAM_DOMAIN = "domain";
 
-  private static final String FIELD_ID = "id";
+  private static final String FIELD_ID = PARAM_ID;
   private static final String FIELD_NAME = PARAM_NAME;
   private static final String FIELD_KEY = PARAM_KEY;
   private static final String FIELD_TYPE = PARAM_TYPE;
@@ -55,7 +57,7 @@ public class CreateAction implements MetricsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public CreateAction(DbClient dbClient, UserSession userSession) {
+  public UpdateAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
@@ -64,25 +66,26 @@ public class CreateAction implements MetricsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setPost(true)
-      .setDescription("Create custom metric.<br /> Requires 'Administer System' permission.")
+      .setDescription("Update a custom metric.<br /> Requires 'Administer System' permission.")
       .setSince("5.2")
       .setHandler(this);
 
-    action.createParam(PARAM_NAME)
+    action.createParam(PARAM_ID)
       .setRequired(true)
+      .setDescription("Id of the custom metric to update")
+      .setExampleValue("42");
+
+    action.createParam(PARAM_NAME)
       .setDescription("Name")
       .setExampleValue("Team Size");
 
     action.createParam(PARAM_KEY)
-      .setRequired(true)
       .setDescription("Key")
       .setExampleValue("team_size");
 
     action.createParam(PARAM_TYPE)
-      .setRequired(true)
-      .setDescription("Metric type key")
-      .setPossibleValues(Metric.ValueType.names())
-      .setExampleValue(Metric.ValueType.INT.name());
+      .setDescription("Type")
+      .setPossibleValues(Metric.ValueType.names());
 
     action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
@@ -96,20 +99,15 @@ public class CreateAction implements MetricsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    String key = request.mandatoryParam(PARAM_KEY);
+    int id = request.mandatoryParamAsInt(PARAM_ID);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       MetricDto metricTemplate = newMetricTemplate(request);
-      MetricDto metricInDb = dbClient.metricDao().selectNullableByKey(dbSession, key);
+      MetricDto metricInDb = dbClient.metricDao().selectNullableById(dbSession, id);
       checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
 
-      if (metricIsNotInDb(metricInDb)) {
-        metricInDb = insertNewMetric(dbSession, metricTemplate);
-      } else {
-        updateMetric(dbSession, metricInDb, metricTemplate);
-      }
-
+      updateMetricInDb(dbSession, metricInDb, metricTemplate);
       JsonWriter json = response.newJsonWriter();
       writeMetric(json, metricInDb);
       json.close();
@@ -119,16 +117,23 @@ public class CreateAction implements MetricsWsAction {
   }
 
   private static MetricDto newMetricTemplate(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
-    String name = request.mandatoryParam(PARAM_NAME);
-    String type = Metric.ValueType.valueOf(request.mandatoryParam(PARAM_TYPE)).name();
+    int id = request.mandatoryParamAsInt(PARAM_ID);
+    String key = request.param(PARAM_KEY);
+    String type = request.param(PARAM_TYPE);
+    String name = request.param(PARAM_NAME);
     String domain = request.param(PARAM_DOMAIN);
     String description = request.param(PARAM_DESCRIPTION);
 
-    MetricDto metricTemplate = new MetricDto()
-      .setKey(key)
-      .setShortName(name)
-      .setValueType(type);
+    MetricDto metricTemplate = new MetricDto().setId(id);
+    if (key != null) {
+      metricTemplate.setKey(key);
+    }
+    if (type != null) {
+      metricTemplate.setValueType(type);
+    }
+    if (name != null) {
+      metricTemplate.setShortName(name);
+    }
     if (domain != null) {
       metricTemplate.setDomain(domain);
     }
@@ -138,91 +143,73 @@ public class CreateAction implements MetricsWsAction {
     return metricTemplate;
   }
 
-  private void updateMetric(DbSession dbSession, MetricDto metricInDb, MetricDto metricTemplate) {
-    metricInDb
-      .setShortName(metricTemplate.getShortName())
-      .setValueType(metricTemplate.getValueType())
-      .setDomain(metricTemplate.getDomain())
-      .setDescription(metricTemplate.getDescription())
-      .setEnabled(true);
+  private void updateMetricInDb(DbSession dbSession, MetricDto metricInDb, MetricDto metricTemplate) {
+    String key = metricTemplate.getKey();
+    String name = metricTemplate.getShortName();
+    String type = metricTemplate.getValueType();
+    String domain = metricTemplate.getDomain();
+    String description = metricTemplate.getDescription();
+    if (key != null) {
+      metricInDb.setKey(key);
+    }
+    if (name != null) {
+      metricInDb.setShortName(name);
+    }
+    if (type != null) {
+      metricInDb.setValueType(type);
+    }
+    if (domain != null) {
+      metricInDb.setDomain(domain);
+    }
+    if (description != null) {
+      metricInDb.setDescription(description);
+    }
     dbClient.metricDao().update(dbSession, metricInDb);
     dbSession.commit();
   }
 
-  private MetricDto insertNewMetric(DbSession dbSession, MetricDto metricTemplate) {
-    MetricDto metric = new MetricDto()
-      .setKey(metricTemplate.getKey())
-      .setShortName(metricTemplate.getShortName())
-      .setValueType(metricTemplate.getValueType())
-      .setDomain(metricTemplate.getDomain())
-      .setDescription(metricTemplate.getDescription())
-      .setEnabled(true)
-      .setUserManaged(true)
-      .setDirection(0)
-      .setQualitative(false)
-      .setHidden(false)
-      .setOptimizedBestValue(false)
-      .setDeleteHistoricalData(false);
-
-    dbClient.metricDao().insert(dbSession, metric);
-    dbSession.commit();
-    return metric;
-  }
-
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
-    if (areOneOfTheMandatoryArgumentsEmpty(template)) {
-      throw new IllegalArgumentException(String.format("The mandatory arguments '%s','%s' and '%s' must not be empty", PARAM_KEY, PARAM_NAME, PARAM_TYPE));
+    if (isMetricFoundInDb(metricInDb) || isMetricDisabled(metricInDb) || isMetricNonCustom(metricInDb)) {
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("No active custom metric has been found for id '%d'. Maybe you want to create a metric ?",
+        template.getId()));
     }
-    if (metricIsNotInDb(metricInDb)) {
-      return;
-    }
-    if (isMetricEnabled(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An active metric already exist with key: " + metricInDb.getKey());
-    }
-    if (isMetricNonCustom(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An non custom metric already exist with key: " + metricInDb.getKey());
-    }
-    if (hasMetricTypeChanged(metricInDb, template)) {
+    if (haveMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
-      if (hasAssociatedCustomMeasures(customMeasures)) {
-        throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated measures.",
+      if (haveAssociatedCustomMeasures(customMeasures)) {
+        throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated custom measures.",
           metricInDb.getValueType()));
       }
     }
   }
 
-  private static boolean hasAssociatedCustomMeasures(List<CustomMeasureDto> customMeasures) {
-    return !customMeasures.isEmpty();
-  }
-
-  private static boolean hasMetricTypeChanged(MetricDto metricInDb, MetricDto template) {
-    return !metricInDb.getValueType().equals(template.getValueType());
+  private static void writeMetric(JsonWriter json, MetricDto metric) {
+    json.beginObject();
+    json.prop(FIELD_ID, String.valueOf(metric.getId()));
+    json.prop(FIELD_KEY, metric.getKey());
+    json.prop(FIELD_TYPE, metric.getValueType());
+    json.prop(FIELD_NAME, metric.getShortName());
+    json.prop(FIELD_DOMAIN, metric.getDomain());
+    json.prop(FIELD_DESCRIPTION, metric.getDescription());
+    json.endObject();
   }
 
   private static boolean isMetricNonCustom(MetricDto metricInDb) {
     return !metricInDb.isUserManaged();
   }
 
-  private static boolean isMetricEnabled(MetricDto metricInDb) {
-    return metricInDb.isEnabled();
+  private static boolean isMetricDisabled(MetricDto metricInDb) {
+    return !metricInDb.isEnabled();
   }
 
-  private static boolean metricIsNotInDb(@Nullable MetricDto metricInDb) {
+  private static boolean isMetricFoundInDb(@Nullable MetricDto metricInDb) {
     return metricInDb == null;
   }
 
-  private static boolean areOneOfTheMandatoryArgumentsEmpty(MetricDto template) {
-    return template.getValueType().isEmpty() || template.getShortName().isEmpty() || template.getKey().isEmpty();
+  private static boolean haveAssociatedCustomMeasures(List<CustomMeasureDto> customMeasures) {
+    return !customMeasures.isEmpty();
   }
 
-  private static void writeMetric(JsonWriter json, MetricDto metric) {
-    json.beginObject();
-    json.prop(FIELD_ID, metric.getId().toString());
-    json.prop(FIELD_KEY, metric.getKey());
-    json.prop(FIELD_NAME, metric.getShortName());
-    json.prop(FIELD_TYPE, metric.getValueType());
-    json.prop(FIELD_DOMAIN, metric.getDomain());
-    json.prop(FIELD_DESCRIPTION, metric.getDescription());
-    json.endObject();
+  private static boolean haveMetricTypeChanged(MetricDto metricInDb, MetricDto template) {
+    return !metricInDb.getValueType().equals(template.getValueType()) && template.getValueType() != null;
   }
 }

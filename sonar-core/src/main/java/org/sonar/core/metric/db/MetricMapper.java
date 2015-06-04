@@ -44,4 +44,6 @@ public interface MetricMapper {
   int countCustom();
 
   void update(MetricDto metric);
+
+  MetricDto selectById(int id);
 }

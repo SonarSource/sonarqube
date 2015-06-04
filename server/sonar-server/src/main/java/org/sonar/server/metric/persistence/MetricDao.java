@@ -113,4 +113,8 @@ public class MetricDao implements DaoComponent {
   public void update(DbSession session, MetricDto metric) {
     mapper(session).update(metric);
   }
+
+  public MetricDto selectNullableById(DbSession session, int id) {
+    return mapper(session).selectById(id);
+  }
 }

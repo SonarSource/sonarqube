@@ -73,9 +73,10 @@
   <update id="update" parameterType="org.sonar.core.metric.db.MetricDto">
     update metrics
     set
-    enabled=#{enabled, jdbcType=BOOLEAN},
+    name=#{key, jdbcType=VARCHAR},
     short_name=#{shortName, jdbcType=VARCHAR},
     val_type=#{valueType, jdbcType=VARCHAR},
+    enabled=#{enabled, jdbcType=BOOLEAN},
     domain=#{domain, jdbcType=VARCHAR},
     description=#{description, jdbcType=VARCHAR}
     where id=#{id}
@@ -108,6 +109,15 @@
       <foreach item="key" collection="keys" open="(" separator="," close=")">
         #{key}
       </foreach>
+    </where>
+  </select>
+
+  <select id="selectById" resultType="org.sonar.core.metric.db.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.id=#{id}
     </where>
   </select>
 
