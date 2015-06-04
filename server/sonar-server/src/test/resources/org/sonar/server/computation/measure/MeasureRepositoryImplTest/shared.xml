@@ -1,0 +1,7 @@
+<dataset>
+    <projects id="567" kee="file cpt key" enabled="[true]"/>
+    <snapshots id="123" project_id="567" islast="[true]"/>
+    <snapshots id="369" project_id="567" islast="[false]"/>
+    <metrics id="1" name="metric 1"  />
+    <metrics id="2" name="metric 2" />
+</dataset>

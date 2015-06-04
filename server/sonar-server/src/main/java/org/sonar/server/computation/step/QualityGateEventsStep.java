@@ -25,28 +25,33 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
+import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.metric.Metric;
+import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.notification.NotificationManager;
 
 public class QualityGateEventsStep implements ComputationStep {
-  public static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
+  private static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
+
   private final TreeRootHolder treeRootHolder;
-  private final EventRepository eventRepository;
+  private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
+  private final EventRepository eventRepository;
   private final NotificationManager notificationManager;
 
-  public QualityGateEventsStep(TreeRootHolder treeRootHolder, EventRepository eventRepository,
-    MeasureRepository measureRepository, NotificationManager notificationManager) {
-    this.eventRepository = eventRepository;
-    this.measureRepository = measureRepository;
+  public QualityGateEventsStep(TreeRootHolder treeRootHolder,
+    MetricRepository metricRepository, MeasureRepository measureRepository, EventRepository eventRepository,
+    NotificationManager notificationManager) {
     this.treeRootHolder = treeRootHolder;
+    this.metricRepository = metricRepository;
+    this.measureRepository = measureRepository;
+    this.eventRepository = eventRepository;
     this.notificationManager = notificationManager;
   }
 
@@ -61,95 +66,64 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component project) {
-    Optional<BatchReport.Measure> statusMeasure = measureRepository.findCurrent(project, CoreMetrics.ALERT_STATUS);
-    if (!statusMeasure.isPresent()) {
-      return;
-    }
-    Optional<GateStatus> status = parse(statusMeasure.get().getAlertStatus());
-    if (!status.isPresent()) {
+    Metric metric = metricRepository.getByKey(CoreMetrics.ALERT_STATUS_KEY);
+    Optional<Measure> rawStatus = measureRepository.getRawMeasure(project, metric);
+    if (!rawStatus.isPresent() || !rawStatus.get().hasQualityGateStatus()) {
       return;
     }
 
-    checkStatusChange(project, status.get(), statusMeasure.get().getAlertText());
+    checkQualityGateStatusChange(project, metric, rawStatus.get().getQualityGateStatus());
   }
 
-  private void checkStatusChange(Component project, GateStatus status, String description) {
-    Optional<MeasureDto> baseMeasure = measureRepository.findPrevious(project, CoreMetrics.ALERT_STATUS);
+  private void checkQualityGateStatusChange(Component project, Metric metric, Measure.QualityGateStatus rawStatus) {
+    Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(project, metric);
     if (!baseMeasure.isPresent()) {
-      checkStatus(project, status, description);
+      checkNewQualityGate(project, rawStatus);
       return;
     }
 
-    Optional<GateStatus> baseStatus = parse(baseMeasure.get().getAlertStatus());
-    if (!baseStatus.isPresent()) {
-      LOGGER.warn(String.format("Base status for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
-      checkStatus(project, status, description);
+    if (!baseMeasure.get().hasQualityGateStatus()) {
+      LOGGER.warn(String.format("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
+      checkNewQualityGate(project, rawStatus);
       return;
     }
+    Measure.QualityGateStatus baseStatus = baseMeasure.get().getQualityGateStatus();
 
-    if (baseStatus.get() != status) {
-      // The status has changed
-      String label = String.format("%s (was %s)", status.getColorName(), baseStatus.get().getColorName());
-      createEvent(project, label, description);
-      boolean isNewKo = (baseStatus.get() == GateStatus.OK);
-      notifyUsers(project, label, description, status, isNewKo);
+    if (baseStatus.getStatus() != rawStatus.getStatus()) {
+      // The QualityGate status has changed
+      String label = String.format("%s (was %s)", rawStatus.getStatus().getColorName(), baseStatus.getStatus().getColorName());
+      createEvent(project, label, rawStatus.getText());
+      boolean isNewKo = (rawStatus.getStatus() == Measure.Level.OK);
+      notifyUsers(project, label, rawStatus, isNewKo);
     }
   }
 
-  private void checkStatus(Component project, GateStatus status, String description) {
-    if (status != GateStatus.OK) {
+  private void checkNewQualityGate(Component project, Measure.QualityGateStatus rawStatus) {
+    if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
-      createEvent(project, status.getColorName(), description);
-      notifyUsers(project, status.getColorName(), description, status, true);
-    }
-  }
-
-  private static Optional<GateStatus> parse(@Nullable String alertStatus) {
-    if (alertStatus == null) {
-      return Optional.absent();
-    }
-
-    try {
-      return Optional.of(GateStatus.valueOf(alertStatus));
-    } catch (IllegalArgumentException e) {
-      LOGGER.error(String.format("Unsupported alertStatus value '%s' can not be parsed to AlertStatus", alertStatus));
-      return Optional.absent();
-    }
-  }
-
-  private enum GateStatus {
-    OK("Green"), WARN("Orange"), ERROR("Red");
-
-    private String colorName;
-
-    GateStatus(String colorName) {
-      this.colorName = colorName;
-    }
-
-    public String getColorName() {
-      return colorName;
+      createEvent(project, rawStatus.getStatus().getColorName(), rawStatus.getText());
+      // notifyUsers(project, alertName, alertText, alertLevel, true);
     }
   }
 
   /**
    * @param label "Red (was Orange)"
-   * @param description text detail, for example "Coverage < 80%"
-   * @param status OK, WARN or ERROR
+   * @param rawStatus OK, WARN or ERROR + optional text
    */
-  private void notifyUsers(Component project, String label, String description, GateStatus status, boolean isNewAlert) {
+  private void notifyUsers(Component project, String label, Measure.QualityGateStatus rawStatus, boolean isNewAlert) {
     Notification notification = new Notification("alerts")
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())
       .setFieldValue("projectKey", project.getKey())
       .setFieldValue("projectUuid", project.getUuid())
       .setFieldValue("alertName", label)
-      .setFieldValue("alertText", description)
-      .setFieldValue("alertLevel", status.toString())
+      .setFieldValue("alertText", rawStatus.getText())
+      .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
     notificationManager.scheduleForSending(notification);
   }
 
-  private void createEvent(Component project, String name, String description) {
+  private void createEvent(Component project, String name, @Nullable String description) {
     eventRepository.add(project, Event.createAlert(name, null, description));
   }
 

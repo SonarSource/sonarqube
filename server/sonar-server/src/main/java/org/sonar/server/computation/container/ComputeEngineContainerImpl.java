@@ -51,6 +51,7 @@ import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.language.PlatformLanguageRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.MetricCache;
+import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -123,18 +124,19 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     return Arrays.asList(
       ActivityManager.class,
 
+      // holders
+      BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
+      PeriodsHolderImpl.class,
 
       BatchReportReaderImpl.class,
 
-      BatchReportDirectoryHolderImpl.class,
-
       // repositories
       PlatformLanguageRepository.class,
+      MetricRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,
-      PeriodsHolderImpl.class,
       DbIdsRepository.class,
 
       // issues

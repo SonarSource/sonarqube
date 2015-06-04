@@ -29,16 +29,16 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
@@ -46,17 +46,21 @@ import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisi
 
 public class QualityProfileEventsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
+  private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
   private final LanguageRepository languageRepository;
 
   public QualityProfileEventsStep(TreeRootHolder treeRootHolder,
-    MeasureRepository measureRepository, EventRepository eventRepository, LanguageRepository languageRepository) {
+    MetricRepository metricRepository, MeasureRepository measureRepository, LanguageRepository languageRepository,
+    EventRepository eventRepository) {
     this.treeRootHolder = treeRootHolder;
+    this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
     this.languageRepository = languageRepository;
   }
+
 
   @Override
   public void execute() {
@@ -69,53 +73,53 @@ public class QualityProfileEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component projectComponent) {
-    Optional<MeasureDto> previousMeasure = measureRepository.findPrevious(projectComponent, CoreMetrics.QUALITY_PROFILES);
-    if (!previousMeasure.isPresent()) {
+    Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
+    if (!baseMeasure.isPresent()) {
       // first analysis -> do not generate events
       return;
     }
 
-    // Load current profiles
-    Optional<BatchReport.Measure> currentMeasure = measureRepository.findCurrent(projectComponent, CoreMetrics.QUALITY_PROFILES);
-    if (!currentMeasure.isPresent()) {
+    // Load base profiles
+    Optional<Measure> rawMeasure = measureRepository.getRawMeasure(projectComponent, metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY));
+    if (!rawMeasure.isPresent()) {
       throw new IllegalStateException("Missing measure " + CoreMetrics.QUALITY_PROFILES + " for component " + projectComponent.getRef());
     }
-    Map<String, QualityProfile> currentProfiles = QPMeasureData.fromJson(currentMeasure.get().getStringValue()).getProfilesByKey();
+    Map<String, QualityProfile> rawProfiles = QPMeasureData.fromJson(rawMeasure.get().getStringValue()).getProfilesByKey();
 
-    Map<String, QualityProfile> previousProfiles = parseJsonData(previousMeasure);
-    detectNewOrUpdatedProfiles(projectComponent, previousProfiles, currentProfiles);
-    detectNoMoreUsedProfiles(projectComponent, previousProfiles, currentProfiles);
+    Map<String, QualityProfile> baseProfiles = parseJsonData(baseMeasure);
+    detectNewOrUpdatedProfiles(projectComponent, baseProfiles, rawProfiles);
+    detectNoMoreUsedProfiles(projectComponent, baseProfiles, rawProfiles);
   }
 
-  private static Map<String, QualityProfile> parseJsonData(Optional<MeasureDto> previousMeasure) {
-    String data = previousMeasure.get().getData();
+  private static Map<String, QualityProfile> parseJsonData(Optional<Measure> measure) {
+    String data = measure.get().getStringValue();
     if (data == null) {
       return Collections.emptyMap();
     }
     return QPMeasureData.fromJson(data).getProfilesByKey();
   }
 
-  private void detectNoMoreUsedProfiles(Component context, Map<String, QualityProfile> previousProfiles, Map<String, QualityProfile> currentProfiles) {
-    for (QualityProfile previousProfile : previousProfiles.values()) {
-      if (!currentProfiles.containsKey(previousProfile.getQpKey())) {
-        markAsRemoved(context, previousProfile);
+  private void detectNoMoreUsedProfiles(Component context, Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles) {
+    for (QualityProfile baseProfile : baseProfiles.values()) {
+      if (!rawProfiles.containsKey(baseProfile.getQpKey())) {
+        markAsRemoved(context, baseProfile);
       }
     }
   }
 
-  private void detectNewOrUpdatedProfiles(Component component, Map<String, QualityProfile> previousProfiles, Map<String, QualityProfile> currentProfiles) {
-    for (QualityProfile profile : currentProfiles.values()) {
-      QualityProfile previousProfile = previousProfiles.get(profile.getQpKey());
-      if (previousProfile == null) {
+  private void detectNewOrUpdatedProfiles(Component component, Map<String, QualityProfile> baseProfiles, Map<String, QualityProfile> rawProfiles) {
+    for (QualityProfile profile : rawProfiles.values()) {
+      QualityProfile baseProfile = baseProfiles.get(profile.getQpKey());
+      if (baseProfile == null) {
         markAsAdded(component, profile);
-      } else if (profile.getRulesUpdatedAt().after(previousProfile.getRulesUpdatedAt())) {
-        markAsChanged(component, previousProfile, profile);
+      } else if (profile.getRulesUpdatedAt().after(baseProfile.getRulesUpdatedAt())) {
+        markAsChanged(component, baseProfile, profile);
       }
     }
   }
 
-  private void markAsChanged(Component component, QualityProfile previousProfile, QualityProfile profile) {
-    Date from = previousProfile.getRulesUpdatedAt();
+  private void markAsChanged(Component component, QualityProfile baseProfile, QualityProfile profile) {
+    Date from = baseProfile.getRulesUpdatedAt();
 
     String data = KeyValueFormat.format(ImmutableSortedMap.of(
       "key", profile.getQpKey(),
