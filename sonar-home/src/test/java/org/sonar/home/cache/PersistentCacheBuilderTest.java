@@ -20,6 +20,7 @@
 package org.sonar.home.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.*;
 
 import java.nio.file.Files;
 
@@ -50,6 +51,8 @@ public class PersistentCacheBuilderTest {
 
   @Test
   public void read_system_env() {
+    assumeTrue(System.getenv("SONAR_USER_HOME") == null);
+    
     System.setProperty("user.home", temp.getRoot().getAbsolutePath());
 
     PersistentCache cache = new PersistentCacheBuilder().build();
