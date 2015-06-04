@@ -50,6 +50,10 @@ public class SnapshotDao implements DaoComponent {
     return mapper(session).selectLastSnapshot(componentId);
   }
 
+  public List<SnapshotDto> selectSnapshotsByComponentId(DbSession session, long componentId) {
+    return mapper(session).selectSnapshotsByComponentId(componentId);
+  }
+
   public List<SnapshotDto> selectSnapshotAndChildrenOfProjectScope(DbSession session, long snapshotId) {
     return mapper(session).selectSnapshotAndChildrenOfScope(snapshotId, Scopes.PROJECT);
   }

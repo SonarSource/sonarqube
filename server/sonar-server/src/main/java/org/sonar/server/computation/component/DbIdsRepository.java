@@ -24,15 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Cache of persisted component (component id) that can be used in the persistence steps
+ * Cache of persisted component (component id and snapshot id) that can be used in the persistence steps
  */
 public class DbIdsRepository {
 
-  private final Map<Integer, Long> componentIdsByRef;
-
-  public DbIdsRepository() {
-    componentIdsByRef = new HashMap<>();
-  }
+  private final Map<Integer, Long> componentIdsByRef = new HashMap<>();
+  private final Map<Integer, Long> snapshotIdsByRef = new HashMap<>();
 
   public DbIdsRepository setComponentId(Component component, long componentId) {
     int ref = component.getRef();
@@ -51,6 +48,25 @@ public class DbIdsRepository {
       throw new IllegalArgumentException(String.format("Component ref '%s' has no component id", ref));
     }
     return componentId;
+  }
+
+  public DbIdsRepository setSnapshotId(Component component, long snapshotId) {
+    int ref = component.getRef();
+    Long existingSnapshotId = snapshotIdsByRef.get(ref);
+    if (existingSnapshotId != null) {
+      throw new IllegalArgumentException(String.format("Component ref '%s' has already a snapshot id", ref));
+    }
+    snapshotIdsByRef.put(ref, snapshotId);
+    return this;
+  }
+
+  public long getSnapshotId(Component component) {
+    int ref = component.getRef();
+    Long snapshotId = snapshotIdsByRef.get(ref);
+    if (snapshotId == null) {
+      throw new IllegalArgumentException(String.format("Component ref '%s' has no snapshot id", ref));
+    }
+    return snapshotId;
   }
 
 }

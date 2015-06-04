@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -30,10 +31,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -44,11 +47,14 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final long ANALYSIS_DATE = 1000;
+  private static final long NOW = 2000;
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
@@ -73,11 +79,14 @@ public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
   public void setup() throws Exception {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
-
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system2));
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(ANALYSIS_DATE)
+      .build());
     dbIdsRepository = new DbIdsRepository();
+
+    when(system2.now()).thenReturn(NOW);
+
     sut = new PersistComponentsAndSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository);
   }
 
@@ -187,6 +196,118 @@ public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
     assertThat(fileDto.parentProjectId()).isEqualTo(moduleDto.getId());
 
     assertThat(dbIdsRepository.getComponentId(project)).isEqualTo(projectDto.getId());
+    assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
+    assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
+    assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
+  }
+
+  @Test
+  public void persist_snapshots() throws Exception {
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .setVersion("1.0")
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .setPath("module")
+      .setName("Module")
+      .setVersion("1.1")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .setLanguage("java")
+      .build());
+
+    Component file = new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java");
+    Component directory = new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir", file);
+    Component module = new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY", directory);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, module);
+    treeRootHolder.setRoot(project);
+
+    sut.execute();
+
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
+
+    ComponentDto projectDto = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
+    SnapshotDto projectSnapshot = getSnapshot(projectDto.getId());
+    assertThat(projectSnapshot.getComponentId()).isEqualTo(projectDto.getId());
+    assertThat(projectSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    assertThat(projectSnapshot.getRootId()).isNull();
+    assertThat(projectSnapshot.getParentId()).isNull();
+    assertThat(projectSnapshot.getDepth()).isEqualTo(0);
+    assertThat(projectSnapshot.getPath()).isEqualTo("");
+    assertThat(projectSnapshot.getQualifier()).isEqualTo("TRK");
+    assertThat(projectSnapshot.getScope()).isEqualTo("PRJ");
+    assertThat(projectSnapshot.getVersion()).isEqualTo("1.0");
+    assertThat(projectSnapshot.getLast()).isFalse();
+    assertThat(projectSnapshot.getStatus()).isEqualTo("U");
+    assertThat(projectSnapshot.getCreatedAt()).isEqualTo(ANALYSIS_DATE);
+    assertThat(projectSnapshot.getBuildDate()).isEqualTo(NOW);
+
+    ComponentDto moduleDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");
+    SnapshotDto moduleSnapshot = getSnapshot(moduleDto.getId());
+    assertThat(moduleSnapshot.getComponentId()).isEqualTo(moduleDto.getId());
+    assertThat(moduleSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    assertThat(moduleSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
+    assertThat(moduleSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
+    assertThat(moduleSnapshot.getDepth()).isEqualTo(1);
+    assertThat(moduleSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + ".");
+    assertThat(moduleSnapshot.getQualifier()).isEqualTo("BRC");
+    assertThat(moduleSnapshot.getScope()).isEqualTo("PRJ");
+    assertThat(moduleSnapshot.getVersion()).isEqualTo("1.1");
+    assertThat(moduleSnapshot.getLast()).isFalse();
+    assertThat(moduleSnapshot.getStatus()).isEqualTo("U");
+    assertThat(moduleSnapshot.getCreatedAt()).isEqualTo(ANALYSIS_DATE);
+    assertThat(moduleSnapshot.getBuildDate()).isEqualTo(NOW);
+
+    ComponentDto directoryDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir");
+    SnapshotDto directorySnapshot = getSnapshot(directoryDto.getId());
+    assertThat(directorySnapshot.getComponentId()).isEqualTo(directoryDto.getId());
+    assertThat(directorySnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    assertThat(directorySnapshot.getRootId()).isEqualTo(projectDto.getId());
+    assertThat(directorySnapshot.getParentId()).isEqualTo(moduleDto.getId());
+    assertThat(directorySnapshot.getDepth()).isEqualTo(2);
+    assertThat(directorySnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." + moduleDto.getId() + ".");
+    assertThat(directorySnapshot.getQualifier()).isEqualTo("DIR");
+    assertThat(directorySnapshot.getScope()).isEqualTo("DIR");
+    assertThat(directorySnapshot.getVersion()).isNull();
+    assertThat(directorySnapshot.getLast()).isFalse();
+    assertThat(directorySnapshot.getStatus()).isEqualTo("U");
+    assertThat(directorySnapshot.getCreatedAt()).isEqualTo(ANALYSIS_DATE);
+    assertThat(directorySnapshot.getBuildDate()).isEqualTo(NOW);
+
+    ComponentDto fileDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java");
+    SnapshotDto fileSnapshot = getSnapshot(fileDto.getId());
+    assertThat(fileSnapshot.getComponentId()).isEqualTo(fileDto.getId());
+    assertThat(fileSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    assertThat(fileSnapshot.getRootId()).isEqualTo(projectDto.getId());
+    assertThat(fileSnapshot.getParentId()).isEqualTo(directoryDto.getId());
+    assertThat(fileSnapshot.getDepth()).isEqualTo(3);
+    assertThat(fileSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." + moduleDto.getId() + "." + directoryDto.getId() + ".");
+    assertThat(fileSnapshot.getQualifier()).isEqualTo("FIL");
+    assertThat(fileSnapshot.getScope()).isEqualTo("FIL");
+    assertThat(fileSnapshot.getVersion()).isNull();
+    assertThat(fileSnapshot.getLast()).isFalse();
+    assertThat(fileSnapshot.getStatus()).isEqualTo("U");
+    assertThat(fileSnapshot.getCreatedAt()).isEqualTo(ANALYSIS_DATE);
+    assertThat(fileSnapshot.getBuildDate()).isEqualTo(NOW);
+
+    assertThat(dbIdsRepository.getSnapshotId(project)).isEqualTo(projectSnapshot.getId());
     assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
     assertThat(dbIdsRepository.getComponentId(directory)).isEqualTo(directoryDto.getId());
     assertThat(dbIdsRepository.getComponentId(file)).isEqualTo(fileDto.getId());
@@ -481,6 +602,78 @@ public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
   }
 
   @Test
+  public void persist_snapshots_on_multi_modules() throws Exception {
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .addChildRef(2)
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_A")
+      .setName("Module A")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("SUB_MODULE_A")
+      .setName("Sub Module A")
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_B")
+      .setName("Module B")
+      .build());
+
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
+      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_A",
+        new DumbComponent(Component.Type.MODULE, 3, "DEFG", "SUB_MODULE_A")),
+      new DumbComponent(Component.Type.MODULE, 4, "CDEF", "MODULE_B")));
+
+    sut.execute();
+
+    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
+
+    ComponentDto project = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
+    SnapshotDto projectSnapshot = getSnapshot(project.getId());
+    assertThat(projectSnapshot.getRootProjectId()).isEqualTo(project.getId());
+    assertThat(projectSnapshot.getRootId()).isNull();
+    assertThat(projectSnapshot.getParentId()).isNull();
+    assertThat(projectSnapshot.getDepth()).isEqualTo(0);
+    assertThat(projectSnapshot.getPath()).isEqualTo("");
+
+    ComponentDto moduleA = dbClient.componentDao().selectNullableByKey(session, "MODULE_A");
+    SnapshotDto moduleASnapshot = getSnapshot(moduleA.getId());
+    assertThat(moduleASnapshot.getRootProjectId()).isEqualTo(project.getId());
+    assertThat(moduleASnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
+    assertThat(moduleASnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
+    assertThat(moduleASnapshot.getDepth()).isEqualTo(1);
+    assertThat(moduleASnapshot.getPath()).isEqualTo(projectSnapshot.getId() + ".");
+
+    ComponentDto subModuleA = dbClient.componentDao().selectNullableByKey(session, "SUB_MODULE_A");
+    SnapshotDto subModuleASnapshot = getSnapshot(subModuleA.getId());
+    assertThat(subModuleASnapshot.getRootProjectId()).isEqualTo(project.getId());
+    assertThat(subModuleASnapshot.getRootId()).isEqualTo(project.getId());
+    assertThat(subModuleASnapshot.getParentId()).isEqualTo(moduleA.getId());
+    assertThat(subModuleASnapshot.getDepth()).isEqualTo(2);
+    assertThat(subModuleASnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." + moduleA.getId() + ".");
+
+    ComponentDto moduleB = dbClient.componentDao().selectNullableByKey(session, "MODULE_B");
+    SnapshotDto moduleBSnapshot = getSnapshot(moduleB.getId());
+    assertThat(moduleBSnapshot.getRootProjectId()).isEqualTo(project.getId());
+    assertThat(moduleBSnapshot.getRootId()).isEqualTo(project.getId());
+    assertThat(moduleBSnapshot.getParentId()).isEqualTo(project.getId());
+    assertThat(moduleBSnapshot.getDepth()).isEqualTo(1);
+    assertThat(moduleBSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." );
+  }
+
+  @Test
   public void nothing_to_persist() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, project);
@@ -762,6 +955,12 @@ public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
     assertThat(fileReloaded.moduleUuidPath()).isEqualTo(moduleBReloaded.moduleUuidPath());
     assertThat(fileReloaded.projectUuid()).isEqualTo(project.uuid());
     assertThat(fileReloaded.parentProjectId()).isEqualTo(moduleBReloaded.getId());
+  }
+
+  private SnapshotDto getSnapshot(long componentId){
+    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByComponentId(session, componentId);
+    assertThat(projectSnapshots).hasSize(1);
+    return projectSnapshots.get(0);
   }
 
 }

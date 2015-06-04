@@ -35,6 +35,8 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectLastSnapshot(Long resourceId);
 
+  List<SnapshotDto> selectSnapshotsByComponentId(Long resourceId);
+
   List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
 
   int updateSnapshotAndChildrenLastFlagAndStatus(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,

@@ -52,14 +52,14 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  private final DbIdsRepository dbIdsRepositor;
+  private final DbIdsRepository dbIdsRepository;
 
-  public PersistComponentsAndSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepositor) {
+  public PersistComponentsAndSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
-    this.dbIdsRepositor = dbIdsRepositor;
+    this.dbIdsRepository = dbIdsRepository;
   }
 
   @Override
@@ -149,7 +149,7 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
       ComponentDto projectDto = persistComponent(project.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(projectDto, reportComponent.getVersion(), null);
+      SnapshotDto snapshotDto = persistSnapshot(projectDto, projectDto.getId(), reportComponent.getVersion(), null);
 
       addToCache(project, projectDto, snapshotDto);
 
@@ -175,7 +175,7 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath() + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
       ComponentDto moduleDto = persistComponent(module.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(moduleDto, reportComponent.getVersion(), parentSnapshot);
+      SnapshotDto snapshotDto = persistSnapshot(moduleDto, project.getId(), reportComponent.getVersion(), parentSnapshot);
 
       addToCache(module, moduleDto, snapshotDto);
       return new PersistedComponent(moduleDto, snapshotDto);
@@ -199,7 +199,7 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
       ComponentDto directoryDto = persistComponent(directory.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(directoryDto, null, parentSnapshot);
+      SnapshotDto snapshotDto = persistSnapshot(directoryDto, project.getId(), null, parentSnapshot);
 
       addToCache(directory, directoryDto, snapshotDto);
       return new PersistedComponent(directoryDto, snapshotDto);
@@ -226,21 +226,9 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
       ComponentDto fileDto = persistComponent(file.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(fileDto, null, parentSnapshot);
+      SnapshotDto snapshotDto = persistSnapshot(fileDto, project.getId(), null, parentSnapshot);
 
       addToCache(file, fileDto, snapshotDto);
-    }
-
-    private ComponentDto createComponentDto(BatchReport.Component reportComponent, org.sonar.server.computation.component.Component component) {
-      String componentKey = component.getKey();
-      String componentUuid = component.getUuid();
-
-      ComponentDto componentDto = new ComponentDto();
-      componentDto.setUuid(componentUuid);
-      componentDto.setKey(componentKey);
-      componentDto.setDeprecatedKey(componentKey);
-      componentDto.setEnabled(true);
-      return componentDto;
     }
 
     private ComponentDto persistComponent(int componentRef, ComponentDto componentDto) {
@@ -256,78 +244,82 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       }
     }
 
-    private SnapshotDto persistSnapshot(ComponentDto componentDto, @Nullable String version, @Nullable SnapshotDto parentSnapshot){
-      SnapshotDto snapshotDto = new SnapshotDto();
-//        .setRootProjectId(project.getId())
-//        .setVersion(version)
-//        .setComponentId(componentDto.getId())
-//        .setQualifier(componentDto.qualifier())
-//        .setScope(componentDto.scope())
-//        .setCreatedAt(analysisDate)
-//        .setBuildDate(system2.now());
-//
-//      if (parentSnapshot != null) {
-//        snapshotDto
-//          .setParentId(parentSnapshot.getId())
-//          .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
-//          .setDepth(parentSnapshot.getDepth() + 1)
-//          .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
-//      } else {
-//        snapshotDto
-//          .setPath("")
-//          .setDepth(0);
-//      }
-//      dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    private SnapshotDto persistSnapshot(ComponentDto componentDto, long projectId, @Nullable String version, @Nullable SnapshotDto parentSnapshot){
+      SnapshotDto snapshotDto = new SnapshotDto()
+        .setRootProjectId(projectId)
+        .setVersion(version)
+        .setComponentId(componentDto.getId())
+        .setQualifier(componentDto.qualifier())
+        .setScope(componentDto.scope())
+        .setLast(false)
+        .setStatus(SnapshotDto.STATUS_UNPROCESSED)
+        .setCreatedAt(analysisDate)
+        .setBuildDate(system2.now());
+
+      if (parentSnapshot != null) {
+        snapshotDto
+          .setParentId(parentSnapshot.getId())
+          .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
+          .setDepth(parentSnapshot.getDepth() + 1)
+          .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
+      } else {
+        snapshotDto
+          .setPath("")
+          .setDepth(0);
+      }
+      dbClient.snapshotDao().insert(dbSession, snapshotDto);
       return snapshotDto;
     }
 
     private void addToCache(Component component, ComponentDto componentDto, SnapshotDto snapshotDto) {
-      dbIdsRepositor.setComponentId(component, componentDto.getId());
+      dbIdsRepository.setComponentId(component, componentDto.getId());
+      dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
     }
+  }
 
-    private boolean updateComponent(ComponentDto existingComponent, ComponentDto newComponent) {
-      boolean isUpdated = false;
-      if (!StringUtils.equals(existingComponent.name(), newComponent.name())) {
-        existingComponent.setName(newComponent.name());
-        isUpdated = true;
-      }
-      if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {
-        existingComponent.setDescription(newComponent.description());
-        isUpdated = true;
-      }
-      if (!StringUtils.equals(existingComponent.path(), newComponent.path())) {
-        existingComponent.setPath(newComponent.path());
-        isUpdated = true;
-      }
-      if (!StringUtils.equals(existingComponent.moduleUuid(), newComponent.moduleUuid())) {
-        existingComponent.setModuleUuid(newComponent.moduleUuid());
-        isUpdated = true;
-      }
-      if (!existingComponent.moduleUuidPath().equals(newComponent.moduleUuidPath())) {
-        existingComponent.setModuleUuidPath(newComponent.moduleUuidPath());
-        isUpdated = true;
-      }
-      if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
-        existingComponent.setParentProjectId(newComponent.parentProjectId());
-        isUpdated = true;
-      }
-      return isUpdated;
+  private static ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
+    String componentKey = component.getKey();
+    String componentUuid = component.getUuid();
+
+    ComponentDto componentDto = new ComponentDto();
+    componentDto.setUuid(componentUuid);
+    componentDto.setKey(componentKey);
+    componentDto.setDeprecatedKey(componentKey);
+    componentDto.setEnabled(true);
+    return componentDto;
+  }
+
+  private static boolean updateComponent(ComponentDto existingComponent, ComponentDto newComponent) {
+    boolean isUpdated = false;
+    if (!StringUtils.equals(existingComponent.name(), newComponent.name())) {
+      existingComponent.setName(newComponent.name());
+      isUpdated = true;
     }
-
-    private String getFileQualifier(BatchReport.Component reportComponent) {
-      return reportComponent.getIsTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
+    if (!StringUtils.equals(existingComponent.description(), newComponent.description())) {
+      existingComponent.setDescription(newComponent.description());
+      isUpdated = true;
     }
-
-    private class PersistedComponent {
-      private ComponentDto componentDto;
-      private SnapshotDto parentSnapshot;
-
-      public PersistedComponent(ComponentDto componentDto, SnapshotDto parentSnapshot) {
-        this.componentDto = componentDto;
-        this.parentSnapshot = parentSnapshot;
-      }
+    if (!StringUtils.equals(existingComponent.path(), newComponent.path())) {
+      existingComponent.setPath(newComponent.path());
+      isUpdated = true;
     }
+    if (!StringUtils.equals(existingComponent.moduleUuid(), newComponent.moduleUuid())) {
+      existingComponent.setModuleUuid(newComponent.moduleUuid());
+      isUpdated = true;
+    }
+    if (!existingComponent.moduleUuidPath().equals(newComponent.moduleUuidPath())) {
+      existingComponent.setModuleUuidPath(newComponent.moduleUuidPath());
+      isUpdated = true;
+    }
+    if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
+      existingComponent.setParentProjectId(newComponent.parentProjectId());
+      isUpdated = true;
+    }
+    return isUpdated;
+  }
 
+  private static String getFileQualifier(BatchReport.Component reportComponent) {
+    return reportComponent.getIsTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   private static Map<String, ComponentDto> componentDtosByKey(List<ComponentDto> components) {
@@ -337,6 +329,16 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
         return input.key();
       }
     });
+  }
+
+  private static class PersistedComponent {
+    private ComponentDto componentDto;
+    private SnapshotDto parentSnapshot;
+
+    public PersistedComponent(ComponentDto componentDto, SnapshotDto parentSnapshot) {
+      this.componentDto = componentDto;
+      this.parentSnapshot = parentSnapshot;
+    }
   }
 
   @Override
