@@ -18,30 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-  'components/common/modals',
+  'components/common/modal-form',
   '../templates'
-], function (Modal) {
+], function (ModalForm) {
 
   var $ = jQuery;
 
-  return Modal.extend({
+  return ModalForm.extend({
     template: Templates['coding-rules-profile-activation'],
 
-    ui: {
-      qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
-      qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity',
-      qualityProfileActivate: '#coding-rules-quality-profile-activation-activate',
-      qualityProfileParameters: '[name]'
+    ui: function () {
+      return _.extend(this._super(), {
+        qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
+        qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity',
+        qualityProfileActivate: '#coding-rules-quality-profile-activation-activate',
+        qualityProfileParameters: '[name]'
+      });
     },
 
     events: function () {
-      return _.extend(Modal.prototype.events.apply(this, arguments), {
+      return _.extend(this._super(), {
         'click @ui.qualityProfileActivate': 'activate'
       });
     },
 
     onRender: function () {
-      Modal.prototype.onRender.apply(this, arguments);
+      this._super();
 
       this.ui.qualityProfileSelect.select2({
         width: '250px',
@@ -93,7 +95,7 @@ define([
       var severity = this.ui.qualityProfileSeverity.val(),
           ruleKey = this.options.rule.get('key');
 
-      this.close();
+      this.disableForm();
 
       return jQuery.ajax({
         type: 'POST',
@@ -109,9 +111,11 @@ define([
           400: null
         }
       }).done(function () {
+        that.close();
         that.trigger('profileActivated', severity, params);
-      }).fail(function () {
-        that.trigger('profileActivationFailed');
+      }).fail(function (jqXHR) {
+        that.enableForm();
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
     },
 
@@ -142,7 +146,7 @@ define([
 
       var availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
 
-      return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         change: this.model && this.model.has('severity'),
         params: params,
         qualityProfiles: availableProfiles,
