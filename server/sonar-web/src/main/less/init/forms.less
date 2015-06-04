@@ -32,6 +32,7 @@ input[type=search],
 textarea {
   border: 1px solid @darkGrey;
   .box-sizing(border-box);
+  border-radius: 2px;
   background: #fff;
   color: @baseFontColor;
   .trans(border-color);
@@ -51,7 +52,7 @@ input[type=password],
 input[type=email],
 input[type=search] {
   height: @formControlHeight;
-  padding: 0 3px;
+  padding: 0 6px;
 }
 
 input[type=search] {
@@ -69,17 +70,18 @@ input[type=button] {
   display: inline-block;
   vertical-align: baseline;
   height: @formControlHeight;
-  margin: 0 1px;
-  padding: 0 10px;
+  line-height: ~"calc(@{formControlHeight} - 0.16em)";
+  padding: 0 12px;
 
-  border: 1px solid @darkGrey;
+  border: 1px solid @darkBlue;
+  border-radius: 2px;
   .box-sizing(border-box);
 
-  background: #f4f4f4;
+  background: transparent;
 
-  color: @baseFontColor;
-  font-weight: bold;
-  font-size: @baseFontSize;
+  color: @darkBlue;
+  font-weight: 500;
+  font-size: @smallFontSize;
   text-align: center;
   text-decoration: none;
 
@@ -87,45 +89,33 @@ input[type=button] {
   outline: none;
   .trans(border-color);
 
-  &:hover, &.active {
-    border-color: #5281a0;
-    background: #4b9fd5;
+  &:hover, &:focus {
+    background: @darkBlue;
     color: #fff;
   }
 
   &:active {
-    border-color: #2790c0;
-    background: #78bdea;
-    color: #fff;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   }
 
-  &:focus {
-    border-color: @highlighted;
-  }
-
-  &[disabled],
-  &[disabled]:hover,
-  &[disabled]:active,
-  &[disabled]:focus {
+  &:disabled,
+  &:disabled:hover,
+  &:disabled:active,
+  &:disabled:focus {
     color: #bbb;
     border-color: #ddd;
     background: #ebebeb;
-    cursor: default;
+    cursor: not-allowed;
   }
 }
 
-.button { line-height: @formControlHeight; }
-
 .button-red {
-  &:hover, &:focus {
-    border-color: #900;
-    background: lighten(#900, 10%);
-    color: #fff;
-  }
+  border-color: @red;
+  color: @red;
 
-  &:active {
-    border-color: #900;
-    background: lighten(#900, 20%);
+  &:hover, &:focus {
+    background: @red;
+    color: #fff;
   }
 }
 
@@ -157,10 +147,10 @@ input[type=button] {
     color: @blue;
   }
 
-  &[disabled],
-  &[disabled]:hover,
-  &[disabled]:active,
-  &[disabled]:focus {
+  &:disabled,
+  &:disabled:hover,
+  &:disabled:active,
+  &:disabled:focus {
     color: @secondFontColor;
     background: transparent;
     cursor: default;
@@ -180,17 +170,28 @@ input[type=button] {
     display: inline-block;
     vertical-align: middle;
     margin: 0;
-    padding: 2px 8px;
-    font-size: @smallFontSize;
-    font-weight: normal;
     cursor: pointer;
 
     &:hover, &:focus, &:active, &.active {
-      z-index: @above-normal-z-index;
+      &:not(:disabled) {
+        z-index: @above-normal-z-index;
+      }
     }
+
+    &:disabled { z-index: @below-normal-z-index; }
   }
 
-  & > .button { line-height: 16px; }
+  & > button:not(:first-child),
+  & > .button:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  & > button:not(:last-child):not(.dropdown-toggle),
+  & > .button:not(:last-child):not(.dropdown-toggle) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 
   & > button + button,
   & > button + .button,
