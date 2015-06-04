@@ -91,7 +91,7 @@ define([
         this.viewerView.model.trigger('hideViewer');
         this.viewerView.close();
       }
-      $('.source-viewer').addClass('with-workspace');
+      $('html').addClass('with-workspace');
       model.trigger('showViewer');
       this.viewerView = new Viewer({ model: model });
       this.viewerView
