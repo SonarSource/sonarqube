@@ -19,13 +19,13 @@
  */
 package org.sonar.test;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.nio.file.Files;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Utilities for unit tests
@@ -93,11 +93,7 @@ public final class TestUtils {
 
   public static File newTempDir(String prefix) {
     try {
-      // Technique to create a temp directory from a temp file
-      File f = File.createTempFile(prefix, "");
-      f.delete();
-      f.mkdir();
-      return f;
+      return Files.createTempDirectory(prefix).toFile();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to create temp dir", e);
     }

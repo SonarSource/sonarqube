@@ -21,6 +21,8 @@ package org.sonar.api.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * @deprecated since 4.0 use {@link TempFolder}
@@ -48,14 +50,7 @@ public final class TempFileUtils {
   }
 
   public static File createTempDirectory(String prefix) throws IOException {
-    final File temp = File.createTempFile(prefix, Long.toString(System.nanoTime()));
-    if (!temp.delete()) {
-      throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-    }
-
-    if (!temp.mkdir()) {
-      throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-    }
-    return temp;
+    Path dir = Files.createTempDirectory(prefix);
+    return dir.toFile();
   }
 }
