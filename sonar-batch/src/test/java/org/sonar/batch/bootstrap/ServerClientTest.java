@@ -19,7 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.io.Files;
+import org.junit.Before;
+import org.sonar.home.cache.PersistentCacheBuilder;
+import org.sonar.home.cache.PersistentCache;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -39,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.write;
@@ -52,15 +55,62 @@ public class ServerClientTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
+  public TemporaryFolder cacheTmp = new TemporaryFolder();
+  @Rule
   public ExpectedException thrown = ExpectedException.none();
-  MockHttpServer server = null;
-  BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
 
+  private MockHttpServer server = null;
+  private BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
+  private DefaultAnalysisMode mode = null;
+
+  @Before
+  public void setUp() {
+    mode = mock(DefaultAnalysisMode.class);
+    when(mode.isPreview()).thenReturn(true);
+  }
+  
   @After
   public void stopServer() {
     if (server != null) {
       server.stop();
     }
+  }
+  
+  @Test
+  public void dont_cache_post_request() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseData("this is the content");
+    
+    assertThat(newServerClient().request("/foo", "POST")).isEqualTo("this is the content");
+    
+    // cache never accessed, so not even the .lock should be there
+    assertThat(getNumFilesInCache()).isEqualTo(0);
+  }
+  
+  @Test
+  public void dont_cache_non_preview_mode() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseData("this is the content");
+    
+    when(mode.isPreview()).thenReturn(false);
+    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
+    
+    // cache never accessed, so not even the .lock should be there
+    assertThat(getNumFilesInCache()).isEqualTo(0);
+  }
+  
+  @Test
+  public void cache_preview_mode() throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    server.setMockResponseData("this is the content");
+    
+    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
+    
+    //should have the .lock and one request cached
+    assertThat(getNumFilesInCache()).isEqualTo(2);
   }
 
   @Test
@@ -68,7 +118,8 @@ public class ServerClientTest {
     BootstrapProperties settings = mock(BootstrapProperties.class);
     when(settings.property("sonar.host.url")).thenReturn("http://localhost:8080/sonar/");
 
-    ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
+    PersistentCache ps = new PersistentCacheBuilder().setSonarHome(cacheTmp.getRoot().toPath()).build();
+    ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"), ps, mode);
 
     assertThat(client.getURL()).isEqualTo("http://localhost:8080/sonar");
   }
@@ -99,7 +150,7 @@ public class ServerClientTest {
 
     File file = temp.newFile();
     newServerClient().download("/foo", file);
-    assertThat(Files.toString(file, StandardCharsets.UTF_8)).isEqualTo("this is the content");
+    assertThat(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8)).isEqualTo("this is the content");
   }
 
   @Test
@@ -153,7 +204,12 @@ public class ServerClientTest {
 
   private ServerClient newServerClient() {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
-    return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
+    PersistentCache ps = new PersistentCacheBuilder().setSonarHome(cacheTmp.getRoot().toPath()).build();
+    return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"), ps, mode);
+  }
+  
+  private int getNumFilesInCache() {
+    return new File(cacheTmp.getRoot(), "ws_cache").listFiles().length;
   }
 
   static class MockHttpServer {

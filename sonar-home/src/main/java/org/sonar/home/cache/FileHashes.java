@@ -19,8 +19,6 @@
  */
 package org.sonar.home.cache;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -49,16 +47,12 @@ public class FileHashes {
    * Computes the hash of given stream. The stream is closed by this method.
    */
   public String of(InputStream input) {
-    try {
+    try(InputStream is = input) {
       MessageDigest digest = MessageDigest.getInstance("MD5");
-      byte[] hash = digest(input, digest);
+      byte[] hash = digest(is, digest);
       return toHex(hash);
-
     } catch (Exception e) {
       throw new IllegalStateException("Fail to compute hash", e);
-
-    } finally {
-      IOUtils.closeQuietly(input);
     }
   }
 

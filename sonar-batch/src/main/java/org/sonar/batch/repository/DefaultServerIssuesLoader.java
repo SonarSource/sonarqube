@@ -38,18 +38,23 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
   @Override
   public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
-    InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(componentKey), "GET", null);
-    try (InputStream is = request.getInput()) {
+    try {
+      InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(componentKey), "GET", null);
+      parseIssues(request, consumer);
+    } catch (HttpDownloader.HttpException e) {
+      throw serverClient.handleHttpException(e);
+    }
+  }
+
+  private static void parseIssues(InputSupplier<InputStream> input, Function<ServerIssue, Void> consumer) {
+    try (InputStream is = input.getInput()) {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {
         consumer.apply(previousIssue);
         previousIssue = ServerIssue.parseDelimitedFrom(is);
       }
-    } catch (HttpDownloader.HttpException e) {
-      throw serverClient.handleHttpException(e);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get previous issues", e);
     }
   }
-
 }

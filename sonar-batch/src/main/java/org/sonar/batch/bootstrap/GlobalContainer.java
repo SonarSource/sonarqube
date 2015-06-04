@@ -112,6 +112,7 @@ public class GlobalContainer extends ComponentContainer {
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
+      new PersistentCacheProvider(),
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,

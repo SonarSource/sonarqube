@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.home.cache.PersistentCache;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -39,6 +40,7 @@ import org.sonar.core.util.DefaultHttpDownloader;
 
 import javax.annotation.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +49,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -59,11 +62,15 @@ public class ServerClient {
 
   private static final String GET = "GET";
   private BootstrapProperties props;
+  private PersistentCache cache;
   private DefaultHttpDownloader.BaseHttpDownloader downloader;
+  private DefaultAnalysisMode mode;
 
-  public ServerClient(BootstrapProperties settings, EnvironmentInformation env) {
+  public ServerClient(BootstrapProperties settings, EnvironmentInformation env, PersistentCache cache, DefaultAnalysisMode mode) {
     this.props = settings;
     this.downloader = new DefaultHttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
+    this.cache = cache;
+    this.mode = mode;
   }
 
   public String getURL() {
@@ -102,31 +109,63 @@ public class ServerClient {
   }
 
   public String request(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
-    InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, requestMethod, timeoutMillis);
+    final byte[] buf = load(pathStartingWithSlash, requestMethod, wrapHttpException, timeoutMillis);
     try {
-      return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
-    } catch (HttpDownloader.HttpException e) {
-      throw wrapHttpException ? handleHttpException(e) : e;
-    } catch (IOException e) {
+      return new String(buf, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
   }
 
   public InputSupplier<InputStream> doRequest(String pathStartingWithSlash, String requestMethod, @Nullable Integer timeoutMillis) {
+    final byte[] buf = load(pathStartingWithSlash, requestMethod, false, timeoutMillis);
+
+    return new InputSupplier<InputStream>() {
+      @Override
+      public InputStream getInput() throws IOException {
+        return new ByteArrayInputStream(buf);
+      }
+    };
+  }
+
+  private byte[] load(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
-
     URI uri = URI.create(getURL() + path);
+
     try {
+      if (GET.equals(requestMethod) && mode.isPreview()) {
+        return cache.get(uri.toString(), new HttpValueLoader(uri, requestMethod, timeoutMillis));
+      } else {
+        return new HttpValueLoader(uri, requestMethod, timeoutMillis).call();
+      }
+    } catch (HttpDownloader.HttpException e) {
+      throw wrapHttpException ? handleHttpException(e) : e;
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
+    }
+  }
+
+  private class HttpValueLoader implements Callable<byte[]> {
+    private URI uri;
+    private String requestMethod;
+    private Integer timeoutMillis;
+
+    public HttpValueLoader(URI uri, String requestMethod, Integer timeoutMillis) {
+      this.uri = uri;
+      this.requestMethod = requestMethod;
+      this.timeoutMillis = timeoutMillis;
+    }
+
+    @Override
+    public byte[] call() throws Exception {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(getLogin())) {
         inputSupplier = downloader.newInputSupplier(uri, requestMethod, timeoutMillis);
       } else {
         inputSupplier = downloader.newInputSupplier(uri, requestMethod, getLogin(), getPassword(), timeoutMillis);
       }
-      return inputSupplier;
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
+      return IOUtils.toByteArray(inputSupplier.getInput());
     }
   }
 
