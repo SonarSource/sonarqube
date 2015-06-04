@@ -58,10 +58,9 @@ define([
     },
 
     addComponent: function (model) {
-      if (!this.items.has(model)) {
-        this.items.add(model);
-      }
+      var m = this.items.add2(model);
       this.save();
+      return m;
     },
 
     open: function (options) {
@@ -69,12 +68,12 @@ define([
       if (!model.isValid()) {
         throw new Error(model.validationError);
       }
-      this.addComponent(model);
-      if (model.isComponent()) {
-        this.showComponentViewer(model);
+      var m = this.addComponent(model);
+      if (m.isComponent()) {
+        this.showComponentViewer(m);
       }
-      if (model.isRule()) {
-        this.showRule(model);
+      if (m.isRule()) {
+        this.showRule(m);
       }
     },
 

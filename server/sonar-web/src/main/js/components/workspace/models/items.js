@@ -47,6 +47,13 @@ define(['./item'], function (Item) {
       var forComponent = model.isComponent() && this.findWhere({ uuid: model.get('uuid') }) != null,
           forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
       return forComponent || forRule;
+    },
+
+    add2: function (model) {
+      var tryModel = model.isComponent() ?
+          this.findWhere({ uuid: model.get('uuid') }) :
+          this.findWhere({ key: model.get('key') });
+      return tryModel != null ? tryModel : this.add(model);
     }
   });
 
