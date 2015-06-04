@@ -20,19 +20,24 @@
 
 package org.sonar.server.benchmark;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
+import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
@@ -51,6 +56,9 @@ public class PersistFileSourcesStepTest {
   public static final String PROJECT_UUID = Uuids.create();
 
   @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
   public DbTester dbTester = new DbTester();
 
   @Rule
@@ -59,22 +67,21 @@ public class PersistFileSourcesStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Test
   public void benchmark() throws Exception {
-    prepareReport();
-    persistFileSources();
+    File reportDir = prepareReport();
+    persistFileSources(reportDir);
   }
 
-  private void persistFileSources() {
+  private void persistFileSources(File reportDir) {
     LOGGER.info("Persist file sources");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
 
     long start = System.currentTimeMillis();
 
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, reportReader);
+    BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
+    batchReportDirectoryHolder.setDirectory(reportDir);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, new BatchReportReaderImpl(batchReportDirectoryHolder));
     step.execute();
 
     long end = System.currentTimeMillis();
@@ -86,10 +93,12 @@ public class PersistFileSourcesStepTest {
     benchmark.expectAround("Duration to persist FILE_SOURCES", duration, 105000, Benchmark.DEFAULT_ERROR_MARGIN_PERCENTS);
   }
 
-  private void prepareReport() throws IOException {
+  private File prepareReport() throws IOException {
     LOGGER.info("Create report");
+    File reportDir = temp.newFolder();
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+    BatchReportWriter writer = new BatchReportWriter(reportDir);
+    writer.writeMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
     BatchReport.Component.Builder project = BatchReport.Component.newBuilder()
@@ -98,31 +107,33 @@ public class PersistFileSourcesStepTest {
 
     List<Component> components = new ArrayList<>();
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
-      components.add(generateFileReport(fileRef));
+      components.add(generateFileReport(writer, fileRef));
       project.addChildRef(fileRef);
     }
     treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, "PROJECT", components.toArray(new Component[components.size()])));
 
-    reportReader.putComponent(project.build());
+    writer.writeComponent(project.build());
+
+    return reportDir;
   }
 
-  private Component generateFileReport(int fileRef) throws IOException {
+  private Component generateFileReport(BatchReportWriter writer, int fileRef) throws IOException {
     LineData lineData = new LineData();
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
     }
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    writer.writeComponent(BatchReport.Component.newBuilder()
       .setRef(fileRef)
       .setType(Constants.ComponentType.FILE)
       .setLines(NUMBER_OF_LINES)
       .build());
 
-    reportReader.putFileSourceLines(fileRef, lineData.lines);
-    reportReader.putCoverage(fileRef, lineData.coverages);
-    reportReader.putChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
-    reportReader.putSyntaxHighlighting(fileRef, lineData.highlightings);
-    reportReader.putSymbols(fileRef, lineData.symbols);
-    reportReader.putDuplications(fileRef, lineData.duplications);
+    FileUtils.writeLines(writer.getSourceFile(fileRef), lineData.lines);
+    writer.writeComponentCoverage(fileRef, lineData.coverages);
+    writer.writeComponentChangesets(lineData.changesetsBuilder.setComponentRef(fileRef).build());
+    writer.writeComponentSyntaxHighlighting(fileRef, lineData.highlightings);
+    writer.writeComponentSymbols(fileRef, lineData.symbols);
+    writer.writeComponentDuplications(fileRef, lineData.duplications);
 
     return new DumbComponent(Component.Type.FILE, fileRef, Uuids.create(), "PROJECT:" + fileRef);
   }
