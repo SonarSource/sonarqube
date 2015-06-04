@@ -132,7 +132,7 @@ public class CreateActionTest {
       .execute();
 
     result.assertJson(getClass(), "metric.json");
-    result.outputAsString().matches("\"id\"\\s*:\\s*\"\\w+\"");
+    assertThat(result.outputAsString()).matches(".*\"id\"\\s*:\\s*\"\\w+\".*");
   }
 
   @Test
