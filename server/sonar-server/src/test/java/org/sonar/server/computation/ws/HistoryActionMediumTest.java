@@ -41,7 +41,7 @@ import java.util.Date;
 public class HistoryActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks();
+  public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

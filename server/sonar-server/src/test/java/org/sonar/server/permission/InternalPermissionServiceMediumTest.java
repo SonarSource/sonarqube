@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class InternalPermissionServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks();
+  public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

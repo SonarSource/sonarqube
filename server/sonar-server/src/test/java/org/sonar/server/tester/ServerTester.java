@@ -70,9 +70,15 @@ public class ServerTester extends ExternalResource {
   private final ServletContext servletContext = new AttributeHolderServletContext();
   private URL updateCenterUrl;
   private boolean startupTasks = false;
+  private boolean esIndexes = false;
 
   public ServerTester withStartupTasks() {
     this.startupTasks = true;
+    return this;
+  }
+
+  public ServerTester withEsIndexes() {
+    this.esIndexes = true;
     return this;
   }
 
@@ -110,6 +116,9 @@ public class ServerTester extends ExternalResource {
         if (key.startsWith(PROP_PREFIX)) {
           properties.put(StringUtils.substringAfter(key, PROP_PREFIX), entry.getValue());
         }
+      }
+      if (!esIndexes) {
+        properties.put("sonar.internal.es.disableIndexes", true);
       }
       platform = new ServerTesterPlatform();
       platform.init(properties, servletContext);

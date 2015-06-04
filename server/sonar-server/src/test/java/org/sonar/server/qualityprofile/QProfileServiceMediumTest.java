@@ -64,7 +64,7 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 public class QProfileServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks().addComponents(XooProfileImporter.class, XooExporter.class);
+  public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes().addComponents(XooProfileImporter.class, XooExporter.class);
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

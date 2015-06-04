@@ -21,11 +21,10 @@ package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
-
-import java.util.Map;
 
 /**
  * This class collects definitions of all Elasticsearch indices during server startup
@@ -88,9 +87,11 @@ public class IndexDefinitions implements Startable {
 
   private final Map<String, Index> byKey = Maps.newHashMap();
   private final IndexDefinition[] defs;
+  private final org.sonar.api.config.Settings settings;
 
-  public IndexDefinitions(IndexDefinition[] defs) {
+  public IndexDefinitions(IndexDefinition[] defs, org.sonar.api.config.Settings settings) {
     this.defs = defs;
+    this.settings = settings;
   }
 
   public Map<String, Index> getIndices() {
@@ -101,12 +102,15 @@ public class IndexDefinitions implements Startable {
   public void start() {
     // collect definitions
     IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
-    for (IndexDefinition definition : defs) {
-      definition.define(context);
-    }
 
-    for (Map.Entry<String, NewIndex> entry : context.getIndices().entrySet()) {
-      byKey.put(entry.getKey(), new Index(entry.getValue()));
+    if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
+      for (IndexDefinition definition : defs) {
+        definition.define(context);
+      }
+
+      for (Map.Entry<String, NewIndex> entry : context.getIndices().entrySet()) {
+        byKey.put(entry.getKey(), new Index(entry.getValue()));
+      }
     }
   }
 

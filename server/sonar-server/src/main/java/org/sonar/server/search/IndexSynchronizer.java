@@ -19,7 +19,8 @@
  */
 package org.sonar.server.search;
 
-
+import java.util.Date;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.DbSession;
@@ -35,8 +36,6 @@ import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
 
-import java.util.Date;
-
 public class IndexSynchronizer {
 
   private static final Logger LOG = Loggers.get(IndexSynchronizer.class);
@@ -50,6 +49,7 @@ public class IndexSynchronizer {
   private final UserIndexer userIndexer;
   private final ViewIndexer viewIndexer;
   private final ActivityIndexer activityIndexer;
+  private final Settings settings;
 
   /**
    * Limitation - {@link org.sonar.server.es.BaseIndexer} are not injected through an array or a collection
@@ -57,8 +57,8 @@ public class IndexSynchronizer {
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
   public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer,
-                           TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-                           UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer) {
+    TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+    UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer, Settings settings) {
     this.db = db;
     this.index = index;
     this.sourceLineIndexer = sourceLineIndexer;
@@ -68,6 +68,7 @@ public class IndexSynchronizer {
     this.userIndexer = userIndexer;
     this.viewIndexer = viewIndexer;
     this.activityIndexer = activityIndexer;
+    this.settings = settings;
   }
 
   public void executeDeprecated() {
@@ -82,24 +83,26 @@ public class IndexSynchronizer {
   }
 
   public void execute() {
-    LOG.info("Index activities");
-    activityIndexer.setEnabled(true).index();
+    if (!settings.getBoolean("sonar.internal.es.disableIndexes")) {
+      LOG.info("Index activities");
+      activityIndexer.setEnabled(true).index();
 
-    LOG.info("Index issues");
-    issueAuthorizationIndexer.setEnabled(true).index();
-    issueIndexer.setEnabled(true).index();
+      LOG.info("Index issues");
+      issueAuthorizationIndexer.setEnabled(true).index();
+      issueIndexer.setEnabled(true).index();
 
-    LOG.info("Index source lines");
-    sourceLineIndexer.setEnabled(true).index();
+      LOG.info("Index source lines");
+      sourceLineIndexer.setEnabled(true).index();
 
-    LOG.info("Index tests");
-    testIndexer.setEnabled(true).index();
+      LOG.info("Index tests");
+      testIndexer.setEnabled(true).index();
 
-    LOG.info("Index users");
-    userIndexer.setEnabled(true).index();
+      LOG.info("Index users");
+      userIndexer.setEnabled(true).index();
 
-    LOG.info("Index views");
-    viewIndexer.setEnabled(true).index();
+      LOG.info("Index views");
+      viewIndexer.setEnabled(true).index();
+    }
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {

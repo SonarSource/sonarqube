@@ -36,7 +36,7 @@ public abstract class BaseIndexer implements Startable {
   private final ThreadPoolExecutor executor;
   private final String indexName, typeName, dateFieldName;
   protected final EsClient esClient;
-  private volatile long lastUpdatedAt = 0L;
+  private volatile long lastUpdatedAt = -1L;
 
   /**
    * Indexers are disabled during server startup, to avoid too many consecutive refreshes of the same index
@@ -65,6 +65,9 @@ public abstract class BaseIndexer implements Startable {
       Future submit = executor.submit(new Runnable() {
         @Override
         public void run() {
+          if (lastUpdatedAt == -1L) {
+            lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
+          }
           if (requestedAt > lastUpdatedAt) {
             long l = task.index(lastUpdatedAt);
             // l can be 0 if no documents were indexed
@@ -98,7 +101,7 @@ public abstract class BaseIndexer implements Startable {
 
   @Override
   public void start() {
-    lastUpdatedAt = esClient.getMaxFieldValue(indexName, typeName, dateFieldName);
+    // nothing to do at startup
   }
 
   @Override
