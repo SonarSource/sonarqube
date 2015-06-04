@@ -64,6 +64,14 @@ public class MeasureDaoTest {
     MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
+    assertThat(result.getData()).isNull();
+    assertThat(result.getVariation(1)).isEqualTo(1d);
+    assertThat(result.getVariation(2)).isEqualTo(2d);
+    assertThat(result.getVariation(3)).isEqualTo(3d);
+    assertThat(result.getVariation(4)).isEqualTo(4d);
+    assertThat(result.getVariation(5)).isEqualTo(-5d);
+    assertThat(result.getAlertStatus()).isEqualTo("OK");
+    assertThat(result.getAlertText()).isEqualTo("Green");
   }
 
   @Test

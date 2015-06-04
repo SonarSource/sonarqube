@@ -8,6 +8,8 @@
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
+    pm.alert_status as alertStatus,
+    pm.alert_text as alertText,
     pm.measure_data as dataValue,
     pm.variation_value_1 as variation1,
     pm.variation_value_2 as variation2,

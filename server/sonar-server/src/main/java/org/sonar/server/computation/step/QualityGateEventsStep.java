@@ -77,7 +77,7 @@ public class QualityGateEventsStep implements ComputationStep {
 
     Optional<AlertStatus> previousQGStatus = parse(previousMeasure.get().getAlertStatus());
     if (!previousQGStatus.isPresent()) {
-      LOGGER.warn("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event");
+      LOGGER.warn(String.format("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
       checkNewQualityGate(project, currentStatus, alertText);
       return;
     }
