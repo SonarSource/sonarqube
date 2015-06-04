@@ -21,12 +21,11 @@ package org.sonar.core.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @since 3.0
@@ -35,7 +34,7 @@ import java.util.List;
 @ServerSide
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 916;
+  public static final int LAST_VERSION = 917;
 
   /**
    * List of all the tables.n
@@ -135,7 +134,7 @@ public class DatabaseVersion {
     }
   }
 
-  public static enum Status {
+  public enum Status {
     UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
   }
 }

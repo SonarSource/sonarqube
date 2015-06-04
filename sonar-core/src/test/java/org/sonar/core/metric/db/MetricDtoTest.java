@@ -41,7 +41,6 @@ public class MetricDtoTest {
       .setBestValue(100d)
       .setOptimizedBestValue(true)
       .setDirection(1)
-      .setOrigin("JAV")
       .setHidden(true)
       .setDeleteHistoricalData(true)
       .setEnabled(true);
@@ -58,7 +57,6 @@ public class MetricDtoTest {
     assertThat(metricDto.getBestValue()).isEqualTo(100d);
     assertThat(metricDto.isOptimizedBestValue()).isTrue();
     assertThat(metricDto.getDirection()).isEqualTo(1);
-    assertThat(metricDto.getOrigin()).isEqualTo("JAV");
     assertThat(metricDto.isHidden()).isTrue();
     assertThat(metricDto.isDeleteHistoricalData()).isTrue();
     assertThat(metricDto.isEnabled()).isTrue();

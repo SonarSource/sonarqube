@@ -37,10 +37,6 @@ class Metric < ActiveRecord::Base
   TYPE_LEVEL_WARN = 'WARN'
   TYPE_LEVEL_ERROR = 'ERROR'
 
-  ORIGIN_GUI='GUI'
-  ORIGIN_JAVA='JAV'
-  ORIGIN_WS='WS'
-
   CACHE_KEY='metrics'
   I18N_DOMAIN_CACHE_KEY='i18n_domains'
   I18N_SHORT_NAME_CACHE_KEY='i18n_metric_short_names'
@@ -298,10 +294,6 @@ class Metric < ActiveRecord::Base
       xml.val_type(val_type)
       xml.hidden(hidden)
     end
-  end
-
-  def created_online?
-    origin==ORIGIN_GUI
   end
 
   HUMANIZED_ATTRIBUTES = {

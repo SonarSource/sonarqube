@@ -49,8 +49,6 @@ public class MetricDto {
 
   private boolean optimizedBestValue;
 
-  private String origin;
-
   private boolean hidden;
 
   private boolean deleteHistoricalData;
@@ -168,15 +166,6 @@ public class MetricDto {
 
   public MetricDto setOptimizedBestValue(boolean optimizedBestValue) {
     this.optimizedBestValue = optimizedBestValue;
-    return this;
-  }
-
-  public String getOrigin() {
-    return origin;
-  }
-
-  public MetricDto setOrigin(String origin) {
-    this.origin = origin;
     return this;
   }
 

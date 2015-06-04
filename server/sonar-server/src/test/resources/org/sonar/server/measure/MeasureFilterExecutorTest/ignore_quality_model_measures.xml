@@ -1,6 +1,6 @@
 <dataset>
   <metrics id="1" name="lines" val_type="FLOAT" description="Lines" domain="Size"
-           short_name="Lines" qualitative="[false]" user_managed="[false]" enabled="[true]" origin="JAV" worst_value="[null]"
+           short_name="Lines" qualitative="[false]" user_managed="[false]" enabled="[true]"  worst_value="[null]"
            optimized_best_value="[null]" best_value="[null]" direction="1" hidden="[false]"
            delete_historical_data="[null]"/>
 

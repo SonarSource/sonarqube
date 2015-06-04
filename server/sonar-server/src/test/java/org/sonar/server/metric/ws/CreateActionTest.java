@@ -102,7 +102,6 @@ public class CreateActionTest {
     assertThat(metric.isEnabled()).isTrue();
     assertThat(metric.getDirection()).isEqualTo(0);
     assertThat(metric.isQualitative()).isFalse();
-    assertThat(metric.getOrigin()).isEqualTo("GUI");
   }
 
   @Test

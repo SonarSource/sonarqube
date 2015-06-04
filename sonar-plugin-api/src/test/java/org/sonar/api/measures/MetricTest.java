@@ -48,7 +48,6 @@ public class MetricTest {
     assertThat(metric.getWorstValue(), nullValue());
     assertThat(metric.getDirection(), is(Metric.DIRECTION_NONE));
     assertThat(metric.getEnabled(), is(true));
-    assertThat(metric.getOrigin(), is(Metric.Origin.JAV));
     assertThat(metric.getFormula(), nullValue());
     assertThat(metric.getId(), nullValue());
     assertThat(metric.getUserManaged(), is(false));

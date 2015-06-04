@@ -70,15 +70,7 @@ class MetricsController < ApplicationController
     else
       metric = Metric.first(:conditions => ["name = ?", metric_name])
       if metric
-        if metric.origin != Metric::ORIGIN_GUI
-          @errors << "A standard metric named '#{metric_name}' already exists. Please change the name of the manual metric you want to create."
-          @metric = Metric.new
-          @domains = metric.domain
-          render :partial => 'metrics/create_form', :status => 400
-          return
-        else
           @reactivate_metric = metric
-        end
       else
         metric = Metric.new
       end
@@ -94,7 +86,6 @@ class MetricsController < ApplicationController
     metric.direction = 0
     metric.user_managed = true
     metric.qualitative = false
-    metric.origin = Metric::ORIGIN_GUI
     metric.enabled = true unless @reactivate_metric
 
     begin

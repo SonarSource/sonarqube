@@ -126,10 +126,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
   }
 
-  public enum Origin {
-    JAV, GUI, WS
-  }
-
   @Id
   @Column(name = "id")
   @GeneratedValue
@@ -165,10 +161,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
   @Column(name = "enabled", updatable = true, nullable = true)
   private Boolean enabled = Boolean.TRUE;
-
-  @Column(name = "origin", updatable = true, nullable = true, length = 3)
-  @Enumerated(EnumType.STRING)
-  private Origin origin = Origin.JAV;
 
   @Column(name = "worst_value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double worstValue;
@@ -245,10 +237,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   }
 
   /**
-   * Creates a fully qualified metric. This defaults some values:
-   * <ul>
-   * <li>origin : Origin.JAV</li>
-   * </ul>
+   * Creates a fully qualified metric.
    *
    * @param key         the metric key
    * @param name        the metric name
@@ -269,7 +258,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.name = name;
     this.qualitative = qualitative;
     this.userManaged = userManaged;
-    this.origin = Origin.JAV;
     if (ValueType.PERCENT.equals(this.type)) {
       this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
       this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
@@ -471,24 +459,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     return this;
   }
 
-  /**
-   * @return the origin of the metric - Internal use only
-   */
-  public Origin getOrigin() {
-    return origin;
-  }
-
-  /**
-   * Set the origin of the metric - Internal use only
-   *
-   * @param origin the origin
-   * @return this
-   */
-  public Metric setOrigin(Origin origin) {
-    this.origin = origin;
-    return this;
-  }
-
   public Double getWorstValue() {
     return worstValue;
   }
@@ -608,7 +578,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.type = with.type;
     this.name = with.name;
     this.userManaged = with.userManaged;
-    this.origin = with.origin;
     this.hidden = with.hidden;
     this.deleteHistoricalData = with.deleteHistoricalData;
     return this;

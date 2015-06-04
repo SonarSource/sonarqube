@@ -19,17 +19,15 @@
  */
 package org.sonar.jpa.dao;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.measures.Metric;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class MeasuresDaoTest extends AbstractDbUnitTestCase {
@@ -57,23 +55,18 @@ public class MeasuresDaoTest extends AbstractDbUnitTestCase {
   private Collection<Metric> createMetrics() {
     Metric m1 = new Metric("metric1");
     m1.setEnabled(false);
-    m1.setOrigin(Metric.Origin.JAV);
 
     Metric m2 = new Metric("metric2");
     m2.setEnabled(true);
-    m2.setOrigin(Metric.Origin.JAV);
 
     Metric m3 = new Metric("metric3");
     m3.setEnabled(false);
-    m3.setOrigin(Metric.Origin.GUI);
 
     Metric m4 = new Metric("metric4");
     m4.setEnabled(true);
-    m4.setOrigin(Metric.Origin.GUI);
 
     Metric m5 = new Metric("metric5");
     m5.setEnabled(true);
-    m5.setOrigin(Metric.Origin.WS);
 
     return Arrays.asList(m1, m2, m3, m4, m5);
   }

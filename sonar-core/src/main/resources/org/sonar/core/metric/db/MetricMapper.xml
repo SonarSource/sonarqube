@@ -14,7 +14,6 @@
     m.val_type as valueType,
     m.user_managed as userManaged,
     m.enabled,
-    m.origin,
     m.worst_value as worstValue,
     m.best_value as bestValue,
     m.optimized_best_value as optimizedBestValue,
@@ -60,13 +59,13 @@
   <insert id="insert" parameterType="org.sonar.core.metric.db.MetricDto" useGeneratedKeys="true" keyColumn="id"
           keyProperty="id">
     INSERT INTO metrics (
-    name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, origin, worst_value,
+    name, description, direction, domain, short_name, qualitative, val_type, user_managed, enabled, worst_value,
     best_value, optimized_best_value, hidden, delete_historical_data)
     VALUES (
     #{kee, jdbcType=VARCHAR}, #{description, jdbcType=VARCHAR}, #{direction, jdbcType=INTEGER},
     #{domain, jdbcType=VARCHAR}, #{shortName, jdbcType=VARCHAR}, #{qualitative, jdbcType=BOOLEAN},
     #{valueType, jdbcType=VARCHAR}, #{userManaged, jdbcType=BOOLEAN}, #{enabled, jdbcType=BOOLEAN},
-    #{origin, jdbcType=VARCHAR}, #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
+    #{worstValue, jdbcType=DOUBLE}, #{bestValue, jdbcType=DOUBLE},
     #{optimizedBestValue, jdbcType=BOOLEAN}, #{hidden, jdbcType=BOOLEAN}, #{deleteHistoricalData, jdbcType=BOOLEAN}
     )
   </insert>

@@ -162,8 +162,7 @@ public class CreateAction implements MetricsWsAction {
       .setQualitative(false)
       .setHidden(false)
       .setOptimizedBestValue(false)
-      .setDeleteHistoricalData(false)
-      .setOrigin("GUI");
+      .setDeleteHistoricalData(false);
 
     dbClient.metricDao().insert(dbSession, metric);
     dbSession.commit();

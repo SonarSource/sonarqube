@@ -1,6 +1,6 @@
 <dataset>
   <metrics id="5" name="alert_status" val_type="LEVEL" description="Alert" domain="General"
-           short_name="Alert" qualitative="[true]" user_managed="[false]" enabled="[true]" origin="JAV"
+           short_name="Alert" qualitative="[true]" user_managed="[false]" enabled="[true]" 
            worst_value="[null]"
            optimized_best_value="[true]" best_value="[null]" direction="1" hidden="[false]"
            delete_historical_data="[null]"/>

@@ -66,7 +66,6 @@ public class MetricDaoTest {
     assertThat(result.getDescription()).isEqualTo("Coverage by unit tests");
     assertThat(result.getDomain()).isEqualTo("Tests");
     assertThat(result.getValueType()).isEqualTo("PERCENT");
-    assertThat(result.getOrigin()).isEqualTo("JAV");
     assertThat(result.getDirection()).isEqualTo(1);
     assertThat(result.isQualitative()).isTrue();
     assertThat(result.isUserManaged()).isFalse();
@@ -99,7 +98,6 @@ public class MetricDaoTest {
     assertThat(result.getDescription()).isEqualTo("Manual metric");
     assertThat(result.getDomain()).isNullOrEmpty();
     assertThat(result.getValueType()).isEqualTo("INT");
-    assertThat(result.getOrigin()).isEqualTo("GUI");
     assertThat(result.getDirection()).isEqualTo(0);
     assertThat(result.isQualitative()).isFalse();
     assertThat(result.isUserManaged()).isTrue();
@@ -133,7 +131,6 @@ public class MetricDaoTest {
       .setBestValue(100d)
       .setOptimizedBestValue(true)
       .setDirection(1)
-      .setOrigin("JAV")
       .setHidden(true)
       .setDeleteHistoricalData(true)
       .setEnabled(true));
@@ -145,7 +142,6 @@ public class MetricDaoTest {
     assertThat(result.getDescription()).isEqualTo("Coverage by unit tests");
     assertThat(result.getDomain()).isEqualTo("Tests");
     assertThat(result.getValueType()).isEqualTo("PERCENT");
-    assertThat(result.getOrigin()).isEqualTo("JAV");
     assertThat(result.getDirection()).isEqualTo(1);
     assertThat(result.isQualitative()).isTrue();
     assertThat(result.isUserManaged()).isTrue();
