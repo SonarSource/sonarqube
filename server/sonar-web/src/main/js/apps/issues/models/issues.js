@@ -59,6 +59,16 @@ define([
       return this.forEach(function (issue, index) {
         return issue.set({ index: index });
       });
+    },
+
+    selectByKeys: function (keys) {
+      var that = this;
+      keys.forEach(function (key) {
+        var issue = that.get(key);
+        if (issue) {
+          issue.set({ selected: true });
+        }
+      });
     }
   });
 

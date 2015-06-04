@@ -29,7 +29,7 @@ define(function () {
 
     events: function () {
       return {
-        'click .js-bulk-change': 'bulkChange',
+        'click .js-bulk-change': 'onBulkChangeClick',
         'click .js-reload': 'reload',
         'click .js-next': 'selectNext',
         'click .js-prev': 'selectPrev'
@@ -38,6 +38,11 @@ define(function () {
 
     initialize: function (options) {
       this.listenTo(options.app.state, 'change', this.render);
+    },
+
+    onBulkChangeClick: function (e) {
+      e.preventDefault();
+      this.bulkChange();
     },
 
     bulkChange: function () {

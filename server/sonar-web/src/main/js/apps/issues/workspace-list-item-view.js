@@ -16,6 +16,7 @@ define([
       };
 
   return IssueView.extend({
+    checkboxTemplate: Templates['issues-issue-checkbox'],
     filterTemplate: Templates['issues-issue-filter'],
 
     events: function () {
@@ -23,7 +24,8 @@ define([
         'click': 'selectCurrent',
         'dblclick': 'openComponentViewer',
         'click .js-issue-navigate': 'openComponentViewer',
-        'click .js-issue-filter': 'onIssueFilterClick'
+        'click .js-issue-filter': 'onIssueFilterClick',
+        'click .js-toggle': 'onIssueToggle'
       });
     },
 
@@ -36,7 +38,11 @@ define([
       IssueView.prototype.onRender.apply(this, arguments);
       this.select();
       this.addFilterSelect();
+      this.addCheckbox();
       this.$el.addClass('issue-navigate-right');
+      if (this.options.app.state.get('canBulkChange')) {
+        this.$el.addClass('issue-with-checkbox');
+      }
     },
 
     onIssueFilterClick: function (e) {
@@ -67,10 +73,21 @@ define([
       this.popup.render();
     },
 
+    onIssueToggle: function (e) {
+      e.preventDefault();
+      this.model.set({ selected: !this.model.get('selected') });
+      var selected = this.model.collection.where({ selected: true }).length;
+      this.options.app.state.set({ selected: selected });
+    },
+
     addFilterSelect: function () {
       this.$('.issue-table-meta-cell-first')
           .find('.issue-meta-list')
           .append(this.filterTemplate(this.model.toJSON()));
+    },
+
+    addCheckbox: function () {
+      this.$el.append(this.checkboxTemplate(this.model.toJSON()));
     },
 
     select: function () {
@@ -86,8 +103,14 @@ define([
       var that = this;
       var key = this.model.get('key'),
           componentUuid = this.model.get('componentUuid'),
-          index = this.model.get('index');
-      this.model.reset({ key: key, componentUuid: componentUuid, index: index }, { silent: true });
+          index = this.model.get('index'),
+          selected = this.model.get('selected');
+      this.model.reset({
+        key: key,
+        componentUuid: componentUuid,
+        index: index,
+        selected: selected
+      }, { silent: true });
       return this.model.fetch(options).done(function () {
         return that.trigger('reset');
       });

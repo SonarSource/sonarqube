@@ -32,6 +32,11 @@ define([
         that.options.app.controller.showComponentViewer(selectedIssue);
         return false;
       });
+      key('space', 'list', function () {
+        var selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
+        selectedIssue.set({ selected: !selectedIssue.get('selected') });
+        return false;
+      });
       key('f', 'list', function () {
         return doAction('transition');
       });

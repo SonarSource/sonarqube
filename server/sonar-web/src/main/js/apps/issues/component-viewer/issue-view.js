@@ -5,7 +5,7 @@ define([
   return IssueView.extend({
     onRender: function () {
       IssueView.prototype.onRender.apply(this, arguments);
-      this.$el.removeClass('issue-navigate-right');
+      this.$el.removeClass('issue-navigate-right issue-with-checkbox');
     },
 
     serializeData: function () {

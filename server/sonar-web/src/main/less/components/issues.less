@@ -38,7 +38,6 @@
   padding-top: @topPadding;
   padding-bottom: @bottomPadding;
   border: 1px solid transparent;
-  border-left-width: 3px;
   background-color: @issueBackgroundColor;
 }
 
@@ -344,4 +343,33 @@ input.issue-action-options-search {
       display: none;
     }
   }
+}
+
+.issue-with-checkbox {
+  padding-left: 24px;
+
+  .issue-checkbox-container {
+    display: block;
+  }
+}
+
+.issue-checkbox-container {
+  display: none;
+  position: absolute;
+  width: 29px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.issue-checkbox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
 }

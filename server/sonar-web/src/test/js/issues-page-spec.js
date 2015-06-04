@@ -358,6 +358,64 @@ casper.test.begin(testName('Severity Facet'), function (test) {
 });
 
 
+casper.test.begin(testName('Select Issues'), 11, function (test) {
+  var issueKey = '94357807-fcb4-40cc-9598-9a715f1eee6e',
+      issueSelector = '.issue[data-key="' + issueKey + '"]';
+
+  casper
+      .start(lib.buildUrl('issues#resolved=false'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        this.searchMock = lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['apps/issues/app-new']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue');
+      })
+
+      .then(function () {
+        test.assertExists('.js-selection');
+        test.assertDoesntExist('.js-selection.icon-checkbox-checked');
+        test.assertVisible('.issue .js-toggle');
+        test.assertElementCount('.js-toggle', 50);
+      })
+
+      .then(function () {
+        test.assertDoesntExist(issueSelector + ' .js-toggle .icon-checkbox-checked');
+        casper.click(issueSelector + ' .js-toggle');
+        test.assertExists(issueSelector + ' .js-toggle .icon-checkbox-checked');
+        test.assertExists('.js-selection.icon-checkbox-single.icon-checkbox-checked');
+      })
+
+      .then(function () {
+        casper.click('.js-selection');
+        test.assertDoesntExist('.js-selection.icon-checkbox-checked');
+        test.assertDoesntExist('.js-toggle .icon-checkbox-checked');
+      })
+
+      .then(function () {
+        casper.click('.js-selection');
+        test.assertExists('.js-selection.icon-checkbox-checked');
+        test.assertElementCount('.js-toggle .icon-checkbox-checked', 50);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Bulk Change'), function (test) {
   casper
       .start(lib.buildUrl('issues'), function () {
@@ -377,14 +435,83 @@ casper.test.begin(testName('Bulk Change'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issues-bulk-change');
+        casper.waitForSelector('.js-bulk-change');
       })
 
       .then(function () {
-        casper.click('#issues-bulk-change');
+        casper.click('.js-bulk-change');
         casper.waitForSelector('#bulk-change-form', function () {
           test.assertSelectorContains('#bulk-change-form', 'bulk change form');
         });
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Bulk Change of Selected Issues'), 8, function (test) {
+  var issueKey = '94357807-fcb4-40cc-9598-9a715f1eee6e',
+      issueSelector = '.issue[data-key="' + issueKey + '"]';
+
+  casper
+      .start(lib.buildUrl('issues#resolved=false'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        this.searchMock = lib.mockRequestFromFile('/api/issues/search', 'search.json');
+        lib.mockRequest('/issues/bulk_change_form*',
+            '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['apps/issues/app-new']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue');
+      })
+
+      .then(function () {
+        test.assertExists('.js-selection');
+        test.assertDoesntExist('.js-selection.icon-checkbox-checked');
+        test.assertVisible('.issue .js-toggle');
+      })
+
+      .then(function () {
+        test.assertDoesntExist(issueSelector + ' .js-toggle .icon-checkbox-checked');
+        casper.click(issueSelector + ' .js-toggle');
+        test.assertExists(issueSelector + ' .js-toggle .icon-checkbox-checked');
+        test.assertExists('.js-selection.icon-checkbox-single.icon-checkbox-checked');
+      })
+
+      .then(function () {
+        casper.click('.js-bulk-change-selected');
+        casper.waitForSelector('#bulk-change-form');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('#bulk-change-form', 'bulk change form');
+      })
+
+      .then(function () {
+        lib.clearRequestMock(this.searchMock);
+        lib.mockRequestFromFile('/api/issues/search', 'search-changed.json');
+        casper.evaluate(function () {
+          window.onBulkIssues();
+        });
+        casper.waitForSelectorTextChange(issueSelector + ' .js-issue-set-severity');
+      })
+
+      .then(function () {
+        test.assertExists(issueSelector + ' .js-toggle .icon-checkbox-checked');
       })
 
       .then(function () {
