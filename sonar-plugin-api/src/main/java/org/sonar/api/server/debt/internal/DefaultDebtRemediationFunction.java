@@ -45,7 +45,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   }
 
   @CheckForNull
-  private String sanitizeValue(String label, @Nullable String s) {
+  private static String sanitizeValue(String label, @Nullable String s) {
     if (StringUtils.isNotBlank(s)) {
       try {
         Duration duration = Duration.decode(s, HOURS_IN_DAY);

@@ -335,7 +335,7 @@ public class Measure<G extends Serializable> implements Serializable {
     return this;
   }
 
-  private double scaleValue(double value, int scale) {
+  private static double scaleValue(double value, int scale) {
     BigDecimal bd = BigDecimal.valueOf(value);
     return bd.setScale(scale, RoundingMode.HALF_UP).doubleValue();
   }
@@ -730,13 +730,13 @@ public class Measure<G extends Serializable> implements Serializable {
     }
 
     Measure measure = (Measure) o;
-    if (metricKey != null ? !metricKey.equals(measure.metricKey) : measure.metricKey != null) {
+    if (metricKey != null ? !metricKey.equals(measure.metricKey) : (measure.metricKey != null)) {
       return false;
     }
-    if (characteristic != null ? !characteristic.equals(measure.characteristic) : measure.characteristic != null) {
+    if (characteristic != null ? !characteristic.equals(measure.characteristic) : (measure.characteristic != null)) {
       return false;
     }
-    return !(personId != null ? !personId.equals(measure.personId) : measure.personId != null);
+    return !(personId != null ? !personId.equals(measure.personId) : (measure.personId != null));
   }
 
   @Override

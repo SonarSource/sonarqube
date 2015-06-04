@@ -63,7 +63,7 @@ public abstract class AbstractChart implements Chart {
     return chart.createBufferedImage(params.getWidth(), params.getHeight());
   }
 
-  private void improveChart(JFreeChart jfrechart, ChartParameters params) {
+  private static void improveChart(JFreeChart jfrechart, ChartParameters params) {
     Color background = Color.decode("#" + params.getValue(ChartParameters.PARAM_BACKGROUND_COLOR, "FFFFFF", false));
     jfrechart.setBackgroundPaint(background);
 

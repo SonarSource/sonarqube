@@ -101,7 +101,7 @@ public class MockSourceFile implements SourceFile {
     }
 
     MockSourceFile that = (MockSourceFile) o;
-    return !(key != null ? !key.equals(that.key) : that.key != null);
+    return !(key != null ? !key.equals(that.key) : (that.key != null));
   }
 
   @Override

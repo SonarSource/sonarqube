@@ -145,7 +145,7 @@ public class SourceCode {
   public String getSlice(int startLine, int endLine) {
     StringBuffer sb = new StringBuffer();
     List lines = cl.getCode();
-    for (int i = (startLine == 0 ? startLine : startLine - 1); i < endLine && i < lines.size(); i++) {
+    for (int i = (startLine == 0 ? startLine : (startLine - 1)); i < endLine && i < lines.size(); i++) {
       if (sb.length() != 0) {
         sb.append(EOL);
       }

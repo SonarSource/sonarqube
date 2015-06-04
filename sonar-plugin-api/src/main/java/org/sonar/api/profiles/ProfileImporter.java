@@ -64,7 +64,7 @@ public abstract class ProfileImporter {
   }
 
   protected final ProfileImporter setSupportedLanguages(String... languages) {
-    supportedLanguages = (languages != null ? languages : new String[0]);
+    supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
   }
 
@@ -84,12 +84,12 @@ public abstract class ProfileImporter {
       return false;
     }
     ProfileImporter that = (ProfileImporter) o;
-    return !(importerKey != null ? !importerKey.equals(that.importerKey) : that.importerKey != null);
+    return !((importerKey != null) ? !importerKey.equals(that.importerKey) : (that.importerKey != null));
   }
 
   @Override
   public final int hashCode() {
-    return importerKey != null ? importerKey.hashCode() : 0;
+    return (importerKey != null) ? importerKey.hashCode() : 0;
   }
 
   @Override

@@ -125,7 +125,7 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   protected abstract InputStream readInputStreamParam(String key);
 
-  private void validate(String value, WebService.Param definition) {
+  private static void validate(String value, WebService.Param definition) {
     Set<String> possibleValues = definition.possibleValues();
     if (possibleValues != null && !possibleValues.contains(value)) {
       throw new IllegalArgumentException(String.format(

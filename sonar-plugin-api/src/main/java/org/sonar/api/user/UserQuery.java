@@ -48,7 +48,7 @@ public class UserQuery {
     this.searchTextSql = searchTextToSql(searchText);
   }
 
-  private String searchTextToSql(@Nullable String s) {
+  private static String searchTextToSql(@Nullable String s) {
     String sql = null;
     if (s != null) {
       sql = StringUtils.replace(s, "%", "/%");

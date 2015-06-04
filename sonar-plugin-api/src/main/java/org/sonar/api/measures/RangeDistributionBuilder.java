@@ -166,7 +166,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
     return this;
   }
 
-  private boolean areSameLimits(Number[] bottomLimits, Set<Double> limits) {
+  private static boolean areSameLimits(Number[] bottomLimits, Set<Double> limits) {
     if (limits.size() == bottomLimits.length) {
       for (Number l : bottomLimits) {
         if (!limits.contains(l.doubleValue())) {

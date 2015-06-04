@@ -19,6 +19,7 @@
  */
 package org.sonar.api.charts;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrTokenizer;
@@ -173,7 +174,7 @@ public class ChartParameters {
     return Locale.ENGLISH;
   }
 
-  private String decode(String val) {
+  private static String decode(@Nullable String val) {
     if (val != null) {
       try {
         val = URLDecoder.decode(val, CharEncoding.UTF_8);

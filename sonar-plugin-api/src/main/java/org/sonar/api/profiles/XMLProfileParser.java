@@ -96,7 +96,7 @@ public class XMLProfileParser {
     return profile;
   }
 
-  private void checkProfile(RulesProfile profile, ValidationMessages messages) {
+  private static void checkProfile(RulesProfile profile, ValidationMessages messages) {
     if (StringUtils.isBlank(profile.getName())) {
       messages.addErrorText("The mandatory node <name> is missing.");
     }
@@ -105,7 +105,7 @@ public class XMLProfileParser {
     }
   }
 
-  private SMInputFactory initStax() {
+  private static SMInputFactory initStax() {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
@@ -163,7 +163,7 @@ public class XMLProfileParser {
     return "[repository=" + repositoryKey + ", key=" + key + "]";
   }
 
-  private void processParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
+  private static void processParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
     while (propsCursor.getNext() != null) {
       SMInputCursor propCursor = propsCursor.childElementCursor();
       String key = null;

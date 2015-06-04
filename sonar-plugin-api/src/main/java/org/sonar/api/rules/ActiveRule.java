@@ -268,7 +268,7 @@ public class ActiveRule implements Cloneable {
     if (!rule.equals(that.rule)) {
       return false;
     }
-    return !(rulesProfile != null ? !rulesProfile.equals(that.rulesProfile) : that.rulesProfile != null);
+    return !((rulesProfile != null) ? !rulesProfile.equals(that.rulesProfile) : (that.rulesProfile != null));
 
   }
 

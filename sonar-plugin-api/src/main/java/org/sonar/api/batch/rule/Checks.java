@@ -161,7 +161,7 @@ public class Checks<C> {
     }
   }
 
-  private RuntimeException failToInstantiateCheck(ActiveRule activeRule, Object checkClassOrInstance, Exception e) {
+  private static RuntimeException failToInstantiateCheck(ActiveRule activeRule, Object checkClassOrInstance, Exception e) {
     throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, activeRule.ruleKey()), e);
   }
 

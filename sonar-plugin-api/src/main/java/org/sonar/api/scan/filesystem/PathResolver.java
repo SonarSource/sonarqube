@@ -89,7 +89,7 @@ public class PathResolver {
   }
 
   @CheckForNull
-  private File parentDir(Collection<File> dirs, File cursor) {
+  private static File parentDir(Collection<File> dirs, File cursor) {
     for (File dir : dirs) {
       if (PathUtils.canonicalPath(dir).equals(PathUtils.canonicalPath(cursor))) {
         return dir;
