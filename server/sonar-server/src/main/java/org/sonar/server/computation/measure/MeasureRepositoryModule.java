@@ -19,21 +19,15 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Optional;
-import org.sonar.api.measures.Metric;
-import org.sonar.server.computation.component.Component;
+import org.sonar.core.component.Module;
 
-public interface MeasureRepository {
-
-  /**
-   * Retrieves the last measure saved in DB for the specified {@link Component} for the specified {@link Metric} if it
-   * exists.
-   */
-  Optional<Measure> findPrevious(Component component, Metric<?> metric);
-
-  /**
-   * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link Metric} if it exists (ie. one created by the Compute Engine or the Batch).
-   */
-  Optional<Measure> findCurrent(Component component, Metric<?> metric);
+public class MeasureRepositoryModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+        BatchMeasureToMeasure.class,
+        MeasureDtoToMeasure.class,
+        MeasureRepositoryImpl.class
+    );
+  }
 }

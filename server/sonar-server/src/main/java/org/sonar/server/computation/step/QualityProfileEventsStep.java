@@ -29,15 +29,14 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
@@ -69,14 +68,14 @@ public class QualityProfileEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component projectComponent) {
-    Optional<MeasureDto> previousMeasure = measureRepository.findPrevious(projectComponent, CoreMetrics.QUALITY_PROFILES);
+    Optional<Measure> previousMeasure = measureRepository.findPrevious(projectComponent, CoreMetrics.QUALITY_PROFILES);
     if (!previousMeasure.isPresent()) {
       // first analysis -> do not generate events
       return;
     }
 
     // Load current profiles
-    Optional<BatchReport.Measure> currentMeasure = measureRepository.findCurrent(projectComponent, CoreMetrics.QUALITY_PROFILES);
+    Optional<Measure> currentMeasure = measureRepository.findCurrent(projectComponent, CoreMetrics.QUALITY_PROFILES);
     if (!currentMeasure.isPresent()) {
       throw new IllegalStateException("Missing measure " + CoreMetrics.QUALITY_PROFILES + " for component " + projectComponent.getRef());
     }
@@ -87,8 +86,8 @@ public class QualityProfileEventsStep implements ComputationStep {
     detectNoMoreUsedProfiles(projectComponent, previousProfiles, currentProfiles);
   }
 
-  private static Map<String, QualityProfile> parseJsonData(Optional<MeasureDto> previousMeasure) {
-    String data = previousMeasure.get().getData();
+  private static Map<String, QualityProfile> parseJsonData(Optional<Measure> previousMeasure) {
+    String data = previousMeasure.get().getStringValue();
     if (data == null) {
       return Collections.emptyMap();
     }

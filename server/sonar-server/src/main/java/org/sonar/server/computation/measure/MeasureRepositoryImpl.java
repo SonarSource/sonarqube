@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -34,24 +33,26 @@ import org.sonar.server.db.DbClient;
 public class MeasureRepositoryImpl implements MeasureRepository {
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
+  private final MeasureDtoToMeasure measureDtoToMeasure;
+  private final BatchMeasureToMeasure batchMeasureToMeasure;
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MeasureDtoToMeasure measureDtoToMeasure, BatchMeasureToMeasure batchMeasureToMeasure) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
+    this.measureDtoToMeasure = measureDtoToMeasure;
+    this.batchMeasureToMeasure = batchMeasureToMeasure;
   }
 
   @Override
-  public Optional<MeasureDto> findPrevious(Component component, Metric<?> metric) {
+  public Optional<Measure> findPrevious(Component component, Metric<?> metric) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      return Optional.fromNullable(
-        dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey())
-        );
+      return measureDtoToMeasure.toMeasure(dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey()), metric);
     }
   }
 
   @Override
-  public Optional<BatchReport.Measure> findCurrent(Component component, final Metric<?> metric) {
-    return Optional.fromNullable(Iterables.find(
+  public Optional<Measure> findCurrent(Component component, final Metric<?> metric) {
+    BatchReport.Measure batchMeasure = Iterables.find(
       reportReader.readComponentMeasures(component.getRef()),
       new Predicate<BatchReport.Measure>() {
         @Override
@@ -59,6 +60,9 @@ public class MeasureRepositoryImpl implements MeasureRepository {
           return input.getMetricKey().equals(metric.getKey());
         }
       }
-      , null));
+      , null);
+
+    return batchMeasureToMeasure.toMeasure(batchMeasure, metric);
   }
+
 }

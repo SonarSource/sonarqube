@@ -24,17 +24,17 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
+import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 
 public class QualityGateEventsStep implements ComputationStep {
-  public static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
+  private static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
+
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
   private final MeasureRepository measureRepository;
@@ -56,35 +56,35 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component project) {
-    Optional<BatchReport.Measure> currentStatus = measureRepository.findCurrent(project, CoreMetrics.ALERT_STATUS);
+    Optional<Measure> currentStatus = measureRepository.findCurrent(project, CoreMetrics.ALERT_STATUS);
     if (!currentStatus.isPresent()) {
       return;
     }
-    Optional<AlertStatus> alertLevel = parse(currentStatus.get().getAlertStatus());
-    if (!alertLevel.isPresent()) {
+    Measure measure = currentStatus.get();
+    if (!measure.hasAlertStatus()) {
       return;
     }
 
-    checkQualityGateStatusChange(project, alertLevel.get(), currentStatus.get().getAlertText());
+    checkQualityGateStatusChange(project, measure.getAlertStatus(), measure.hasAlertText() ? measure.getAlertText() : null);
   }
 
-  private void checkQualityGateStatusChange(Component project, AlertStatus currentStatus, String alertText) {
-    Optional<MeasureDto> previousMeasure = measureRepository.findPrevious(project, CoreMetrics.ALERT_STATUS);
+  private void checkQualityGateStatusChange(Component project, Measure.AlertStatus currentStatus, @Nullable String alertText) {
+    Optional<Measure> previousMeasure = measureRepository.findPrevious(project, CoreMetrics.ALERT_STATUS);
     if (!previousMeasure.isPresent()) {
       checkNewQualityGate(project, currentStatus, alertText);
       return;
     }
 
-    Optional<AlertStatus> previousQGStatus = parse(previousMeasure.get().getAlertStatus());
-    if (!previousQGStatus.isPresent()) {
+    if (!previousMeasure.get().hasAlertStatus()) {
       LOGGER.warn(String.format("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
       checkNewQualityGate(project, currentStatus, alertText);
       return;
     }
+    Measure.AlertStatus previousStatus = previousMeasure.get().getAlertStatus();
 
-    if (previousQGStatus.get() != currentStatus) {
+    if (previousStatus != currentStatus) {
       // The alert status has changed
-      String alertName = String.format("%s (was %s)", currentStatus.getColorName(), previousQGStatus.get().getColorName());
+      String alertName = String.format("%s (was %s)", currentStatus.getColorName(), previousStatus.getColorName());
       createEvent(project, alertName, alertText);
       // FIXME @Simon uncomment and/or rewrite code below when implementing notifications in CE
       // There was already a Orange/Red alert, so this is no new alert: it has just changed
@@ -93,38 +93,11 @@ public class QualityGateEventsStep implements ComputationStep {
     }
   }
 
-  private void checkNewQualityGate(Component project, AlertStatus currentStatus, String alertText) {
-    if (currentStatus != AlertStatus.OK) {
+  private void checkNewQualityGate(Component project, Measure.AlertStatus currentStatus, @Nullable String alertText) {
+    if (currentStatus != Measure.AlertStatus.OK) {
       // There were no defined alerts before, so this one is a new one
       createEvent(project, currentStatus.getColorName(), alertText);
       // notifyUsers(project, alertName, alertText, alertLevel, true);
-    }
-  }
-
-  private static Optional<AlertStatus> parse(@Nullable String alertStatus) {
-    if (alertStatus == null) {
-      return Optional.absent();
-    }
-
-    try {
-      return Optional.of(AlertStatus.valueOf(alertStatus));
-    } catch (IllegalArgumentException e) {
-      LOGGER.error(String.format("Unsupported alertStatus value '%s' can not be parsed to AlertStatus", alertStatus));
-      return Optional.absent();
-    }
-  }
-
-  private enum AlertStatus {
-    OK("Green"), WARN("Orange"), ERROR("Red");
-
-    private String colorName;
-
-    AlertStatus(String colorName) {
-      this.colorName = colorName;
-    }
-
-    public String getColorName() {
-      return colorName;
     }
   }
 
@@ -142,7 +115,7 @@ public class QualityGateEventsStep implements ComputationStep {
   // notificationManager.scheduleForSending(notification);
   // }
 
-  private void createEvent(Component project, String name, String description) {
+  private void createEvent(Component project, String name, @Nullable String description) {
     eventRepository.add(project, Event.createAlert(name, null, description));
   }
 
