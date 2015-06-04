@@ -29,4 +29,6 @@ public interface CustomMeasureMapper {
   void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
 
   CustomMeasureDto selectById(long id);
+
+  List<CustomMeasureDto> selectByMetricId(int id);
 }

@@ -21,12 +21,14 @@
 package org.sonar.server.metric.ws;
 
 import java.net.HttpURLConnection;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.custommeasure.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -100,9 +102,9 @@ public class CreateAction implements MetricsWsAction {
     try {
       MetricDto metricTemplate = newMetricTemplate(request);
       MetricDto metricInDb = dbClient.metricDao().selectNullableByKey(dbSession, key);
-      checkMetricInDbAndTemplate(metricInDb, metricTemplate);
+      checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
 
-      if (metricInDb == null) {
+      if (metricIsNotInDb(metricInDb)) {
         metricInDb = insertNewMetric(dbSession, metricTemplate);
       } else {
         updateMetric(dbSession, metricInDb, metricTemplate);
@@ -168,22 +170,51 @@ public class CreateAction implements MetricsWsAction {
     return metric;
   }
 
-  private void checkMetricInDbAndTemplate(@Nullable MetricDto metricInDb, MetricDto template) {
-    if (template.getValueType().isEmpty() || template.getShortName().isEmpty() || template.getKey().isEmpty()) {
+  private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
+    if (areOneOfTheMandatoryArgumentsEmpty(template)) {
       throw new IllegalArgumentException(String.format("The mandatory arguments '%s','%s' and '%s' must not be empty", PARAM_KEY, PARAM_NAME, PARAM_TYPE));
     }
-    if (metricInDb == null) {
+    if (
+      metricIsNotInDb(metricInDb)) {
       return;
     }
-    if (metricInDb.isEnabled()) {
+    if (isMetricEnabled(metricInDb)) {
       throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An active metric already exist with key: " + metricInDb.getKey());
     }
-    if (!metricInDb.isUserManaged()) {
+    if (isMetricNonCustom(metricInDb)) {
       throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An non custom metric already exist with key: " + metricInDb.getKey());
     }
-    if (!metricInDb.getValueType().equals(template.getValueType())) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An existing metric exist with a different type: " + metricInDb.getValueType());
+    if (hasMetricTypeChanged(metricInDb, template)) {
+      List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
+      if (hasAssociatedCustomMeasures(customMeasures)) {
+        throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated measures.",
+          metricInDb.getValueType()));
+      }
     }
+  }
+
+  private static boolean hasAssociatedCustomMeasures(List<CustomMeasureDto> customMeasures) {
+    return !customMeasures.isEmpty();
+  }
+
+  private static boolean hasMetricTypeChanged(@Nullable MetricDto metricInDb, MetricDto template) {
+    return !metricInDb.getValueType().equals(template.getValueType());
+  }
+
+  private static boolean isMetricNonCustom(@Nullable MetricDto metricInDb) {
+    return !metricInDb.isUserManaged();
+  }
+
+  private static boolean isMetricEnabled(@Nullable MetricDto metricInDb) {
+    return metricInDb.isEnabled();
+  }
+
+  private static boolean metricIsNotInDb(@Nullable MetricDto metricInDb) {
+    return metricInDb == null;
+  }
+
+  private static boolean areOneOfTheMandatoryArgumentsEmpty(MetricDto template) {
+    return template.getValueType().isEmpty() || template.getShortName().isEmpty() || template.getKey().isEmpty();
   }
 
   private void writeMetric(JsonWriter json, MetricDto metric) {

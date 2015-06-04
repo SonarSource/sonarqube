@@ -32,6 +32,8 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.custommeasure.persistence.CustomMeasureDao;
+import org.sonar.server.custommeasure.persistence.CustomMeasureTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -68,7 +70,7 @@ public class CreateActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao());
+    dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new CustomMeasureDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
 
@@ -138,7 +140,7 @@ public class CreateActionTest {
   public void update_existing_metric_when_custom_and_disabled() throws Exception {
     MetricDto metricInDb = MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
-      .setValueType(DEFAULT_TYPE)
+      .setValueType(ValueType.BOOL.name())
       .setUserManaged(true)
       .setEnabled(false);
     dbClient.metricDao().insert(dbSession, metricInDb);
@@ -195,14 +197,15 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_metric_type_is_changed() throws Exception {
+  public void fail_when_metric_type_is_changed_and_associated_measures_exist() throws Exception {
     expectedException.expect(ServerException.class);
-    dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto()
+    MetricDto metric = MetricTesting.newMetricDto()
       .setKey(DEFAULT_KEY)
       .setValueType(ValueType.BOOL.name())
       .setUserManaged(true)
-      .setEnabled(false)
-      );
+      .setEnabled(false);
+    dbClient.metricDao().insert(dbSession, metric);
+    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newDto().setMetricId(metric.getId()));
     dbSession.commit();
 
     newRequest()

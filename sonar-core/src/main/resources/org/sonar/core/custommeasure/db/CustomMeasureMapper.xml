@@ -21,6 +21,13 @@
     where m.id=#{id}
   </select>
 
+  <select id="selectByMetricId" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.metric_id=#{metricId}
+  </select>
+
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO manual_measures (
     metric_id, resource_id, value, text_value, user_login, description, created_at, updated_at
