@@ -23,6 +23,8 @@ import org.sonar.home.log.Slf4jLog;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import static org.mockito.Mockito.when;
@@ -35,7 +37,6 @@ import org.junit.Test;
 public class PersistentCacheTest {
   private final static String URI = "key1";
   private final static String VALUE = "cache content";
-  private final static long CACHE_EXPIRE = 1000;
   private PersistentCache cache = null;
 
   @Rule
@@ -45,7 +46,7 @@ public class PersistentCacheTest {
 
   @Before
   public void setUp() {
-    cache = new PersistentCache(tmp.getRoot().toPath(), CACHE_EXPIRE, log, false);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, false);
   }
 
   @Test
@@ -83,21 +84,22 @@ public class PersistentCacheTest {
 
   @Test
   public void testForceUpdate() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), CACHE_EXPIRE, log, true);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, true);
 
     assertCacheHit(false);
     assertCacheHit(false);
     assertCacheHit(false);
 
     // with forceUpdate, it should still have cached the last call
-    cache = new PersistentCache(tmp.getRoot().toPath(), CACHE_EXPIRE, log, false);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, false);
     assertCacheHit(true);
   }
 
   @Test
   public void testExpiration() throws Exception {
+    //negative time to make sure it is expired on the second call
+    cache = new PersistentCache(tmp.getRoot().toPath(), -100, log, false);
     assertCacheHit(false);
-    Thread.sleep(CACHE_EXPIRE);
     assertCacheHit(false);
   }
 
@@ -116,7 +118,7 @@ public class PersistentCacheTest {
       return VALUE;
     }
   }
-
+  
   /**
    * WSCache should be transparent regarding exceptions: if an exception is thrown by the value loader, it should pass through
    * the cache to the original caller using the cache.
