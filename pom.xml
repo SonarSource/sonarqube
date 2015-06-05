@@ -993,7 +993,7 @@
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
-        <version>1.7.0</version>
+        <version>2.0.0</version>
       </dependency>
       <dependency>
         <groupId>xpp3</groupId>
