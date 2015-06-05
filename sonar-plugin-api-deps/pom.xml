@@ -110,6 +110,11 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-squid</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-java-api</artifactId>
       <version>5.1</version>
     </dependency>
