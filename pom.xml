@@ -1459,6 +1459,11 @@
 
     <profile>
       <id>coverage-per-test</id>
+      <activation>
+        <property>
+          <name>coveragePerTest</name>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>org.codehaus.sonar-plugins.java</groupId>
@@ -1504,6 +1509,7 @@
         <skipServerTests>true</skipServerTests>
       </properties>
     </profile>
+
     <profile>
       <id>batch</id>
       <properties>
@@ -1511,6 +1517,7 @@
         <skipWebTests>true</skipWebTests>
       </properties>
     </profile>
+
     <profile>
       <id>server</id>
       <properties>
@@ -1518,6 +1525,7 @@
         <skipWebTests>true</skipWebTests>
       </properties>
     </profile>
+
     <profile>
       <id>web</id>
       <properties>
@@ -1527,6 +1535,7 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
+
     <profile>
       <!-- SonarSource internal use -->
       <id>dbTests</id>
@@ -1598,6 +1607,7 @@
       <id>analysis</id>
       <properties>
         <jsCoverage>coverage</jsCoverage>
+        <coveragePerTest>true</coveragePerTest>
       </properties>
     </profile>
   </profiles>
