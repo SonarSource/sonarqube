@@ -23,7 +23,7 @@
 
 .component-name {
   .clearfix;
-  line-height: 20px;
+  line-height: 16px;
   font-size: @smallFontSize;
 }
 
@@ -39,6 +39,10 @@
 .component-name-path {
   float: left;
   clear: left;
+}
+
+.component-name-parent + .component-name-path {
+  margin-top: 4px;
 }
 
 .component-name-file {

@@ -1,6 +1,7 @@
 <div class="issues-header-component nowrap">
-  {{#if state.component}}
-    <div class="component-name">
+  <div class="component-name">
+    {{#if state.component}}
+
       <div class="component-name-parent">
         <a class="js-back">{{t "issues.return_to_list"}}</a>&nbsp;&nbsp;&nbsp;
       </div>
@@ -18,14 +19,15 @@
           {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
         </div>
       {{/with}}
-    </div>
-  {{else}}
-    {{#if state.canBulkChange}}
-      <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"></a>
+
     {{else}}
-      &nbsp;
+      {{#if state.canBulkChange}}
+        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"></a>
+      {{else}}
+        &nbsp;
+      {{/if}}
     {{/if}}
-  {{/if}}
+  </div>
 </div>
 
 
