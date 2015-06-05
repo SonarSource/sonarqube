@@ -21,6 +21,7 @@
 package org.sonar.server.custommeasure.persistence;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -34,6 +35,7 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
+import static org.sonar.server.custommeasure.persistence.CustomMeasureTesting.newCustomMeasureDto;
 
 @Category(DbTests.class)
 public class CustomMeasureDaoTest {
@@ -58,14 +60,14 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void insert() {
-    CustomMeasureDto measure = CustomMeasureTesting.newDto();
+    CustomMeasureDto measure = newCustomMeasureDto();
 
     sut.insert(session, measure);
 
     CustomMeasureDto result = sut.selectNullableById(session, measure.getId());
     assertThat(result.getId()).isEqualTo(measure.getId());
     assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
-    assertThat(result.getResourceId()).isEqualTo(measure.getResourceId());
+    assertThat(result.getComponentId()).isEqualTo(measure.getComponentId());
     assertThat(result.getDescription()).isEqualTo(measure.getDescription());
     assertThat(result.getUserLogin()).isEqualTo(measure.getUserLogin());
     assertThat(result.getTextValue()).isEqualTo(measure.getTextValue());
@@ -76,12 +78,26 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void delete() {
-    CustomMeasureDto measure = CustomMeasureTesting.newDto();
+    CustomMeasureDto measure = newCustomMeasureDto();
     sut.insert(session, measure);
     assertThat(sut.selectNullableById(session, measure.getId())).isNotNull();
 
     sut.deleteByMetricIds(session, Arrays.asList(measure.getMetricId()));
 
     assertThat(sut.selectNullableById(session, measure.getId())).isNull();
+  }
+
+  @Test
+  public void select_by_component_id() {
+    sut.insert(session, newCustomMeasureDto().setComponentId(1));
+    sut.insert(session, newCustomMeasureDto().setComponentId(1));
+    sut.insert(session, newCustomMeasureDto().setComponentId(2));
+    session.commit();
+
+    List<CustomMeasureDto> result = sut.selectByComponentId(session, 1);
+
+    assertThat(result).hasSize(2);
+    assertThat(result).extracting("componentId").containsOnly(1);
+
   }
 }

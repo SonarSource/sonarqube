@@ -204,7 +204,7 @@ public class CreateActionTest {
       .setUserManaged(true)
       .setEnabled(false);
     dbClient.metricDao().insert(dbSession, metric);
-    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newDto().setMetricId(metric.getId()));
+    dbClient.customMeasureDao().insert(dbSession, CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId()));
     dbSession.commit();
 
     newRequest()

@@ -56,6 +56,10 @@ public class CustomMeasureDao implements DaoComponent {
     return mapper(session).selectByMetricId(id);
   }
 
+  public List<CustomMeasureDto> selectByComponentId(DbSession session, int id) {
+    return mapper(session).selectByComponentId(id);
+  }
+
   private CustomMeasureMapper mapper(DbSession session) {
     return session.getMapper(CustomMeasureMapper.class);
   }

@@ -31,4 +31,7 @@ public interface CustomMeasureMapper {
   CustomMeasureDto selectById(long id);
 
   List<CustomMeasureDto> selectByMetricId(int id);
+
+  List<CustomMeasureDto> selectByComponentId(int id);
+
 }

@@ -30,14 +30,14 @@ public class CustomMeasureTesting {
     // static stuff only
   }
 
-  public static CustomMeasureDto newDto() {
+  public static CustomMeasureDto newCustomMeasureDto() {
     return new CustomMeasureDto()
       .setDescription(RandomStringUtils.randomAlphanumeric(255))
       .setTextValue(RandomStringUtils.randomAlphanumeric(255))
       .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
       .setValue(RandomUtils.nextDouble())
       .setMetricId(RandomUtils.nextInt())
-      .setResourceId(RandomUtils.nextInt())
+      .setComponentId(RandomUtils.nextInt())
       .setCreatedAt(System2.INSTANCE.now())
       .setUpdatedAt(System2.INSTANCE.now())
       ;

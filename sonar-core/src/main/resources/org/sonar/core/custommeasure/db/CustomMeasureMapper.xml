@@ -5,7 +5,7 @@
   <sql id="selectColumns">
     m.id,
     m.metric_id as metricId,
-    m.resource_id as resourceId,
+    m.resource_id as componentId,
     m.value,
     m.text_value as textValue,
     m.user_login as userLogin,
@@ -28,12 +28,19 @@
     where m.metric_id=#{metricId}
   </select>
 
+  <select id="selectByComponentId" resultType="CustomMeasure">
+    select
+    <include refid="selectColumns"/>
+    from manual_measures m
+    where m.resource_id=#{componentId}
+  </select>
+
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO manual_measures (
     metric_id, resource_id, value, text_value, user_login, description, created_at, updated_at
     )
     VALUES (
-    #{metricId, jdbcType=INTEGER}, #{resourceId, jdbcType=INTEGER}, #{value, jdbcType=DOUBLE},
+    #{metricId, jdbcType=INTEGER}, #{componentId, jdbcType=INTEGER}, #{value, jdbcType=DOUBLE},
     #{textValue, jdbcType=VARCHAR}, #{userLogin, jdbcType=VARCHAR},#{description, jdbcType=VARCHAR},
     #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT}
     )

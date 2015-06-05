@@ -117,8 +117,8 @@ public class DeleteActionTest {
   public void delete_associated_measures() throws Exception {
     MetricDto metric = newCustomEnabledMetric(1);
     metricDao.insert(dbSession, metric);
-    CustomMeasureDto customMeasure = CustomMeasureTesting.newDto().setMetricId(metric.getId());
-    CustomMeasureDto undeletedCustomMeasure = CustomMeasureTesting.newDto().setMetricId(metric.getId() + 1);
+    CustomMeasureDto customMeasure = CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId());
+    CustomMeasureDto undeletedCustomMeasure = CustomMeasureTesting.newCustomMeasureDto().setMetricId(metric.getId() + 1);
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbClient.customMeasureDao().insert(dbSession, undeletedCustomMeasure);
     dbSession.commit();
