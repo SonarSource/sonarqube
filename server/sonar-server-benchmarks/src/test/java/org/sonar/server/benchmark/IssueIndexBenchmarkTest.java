@@ -61,7 +61,7 @@ public class IssueIndexBenchmarkTest {
   final static int ISSUES_PER_FILE = 100;
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

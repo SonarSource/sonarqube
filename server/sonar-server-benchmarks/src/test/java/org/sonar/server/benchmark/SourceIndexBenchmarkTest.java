@@ -50,7 +50,7 @@ public class SourceIndexBenchmarkTest {
   private static final int LINES_PER_FILE = 3220;
 
   @Rule
-  public ServerTester tester = new ServerTester();
+  public ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
   public Benchmark benchmark = new Benchmark();
