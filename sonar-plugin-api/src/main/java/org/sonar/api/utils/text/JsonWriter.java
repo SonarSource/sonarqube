@@ -382,7 +382,7 @@ public class JsonWriter {
     }
   }
 
-  private IllegalStateException rethrow(Exception e) {
+  private static IllegalStateException rethrow(Exception e) {
     // stacktrace is not helpful
     throw new WriterException("Fail to write JSON: " + e.getMessage());
   }

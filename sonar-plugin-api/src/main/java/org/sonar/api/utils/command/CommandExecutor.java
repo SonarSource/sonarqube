@@ -121,7 +121,7 @@ public class CommandExecutor {
     }
   }
 
-  private void verifyGobbler(Command command, StreamGobbler gobbler, String type) {
+  private static void verifyGobbler(Command command, StreamGobbler gobbler, String type) {
     if (gobbler.getException() != null) {
       throw new CommandException(command, "Error inside " + type + " stream", gobbler.getException());
     }
@@ -140,7 +140,7 @@ public class CommandExecutor {
     return execute(command, new DefaultConsumer(), new DefaultConsumer(), timeoutMilliseconds);
   }
 
-  private void closeStreams(@Nullable Process process) {
+  private static void closeStreams(@Nullable Process process) {
     if (process != null) {
       IOUtils.closeQuietly(process.getInputStream());
       IOUtils.closeQuietly(process.getOutputStream());
@@ -148,7 +148,7 @@ public class CommandExecutor {
     }
   }
 
-  private void waitUntilFinish(@Nullable StreamGobbler thread) {
+  private static void waitUntilFinish(@Nullable StreamGobbler thread) {
     if (thread != null) {
       try {
         thread.join();

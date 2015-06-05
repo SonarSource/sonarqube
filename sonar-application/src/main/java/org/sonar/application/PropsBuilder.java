@@ -83,7 +83,7 @@ class PropsBuilder {
     return appJar.getParentFile().getParentFile();
   }
 
-  private Properties loadPropertiesFile(File homeDir) throws IOException {
+  private static Properties loadPropertiesFile(File homeDir) throws IOException {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {

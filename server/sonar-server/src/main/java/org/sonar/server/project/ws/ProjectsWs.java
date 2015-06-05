@@ -67,22 +67,22 @@ public class ProjectsWs implements WebService {
     action.createParam("desc")
       .setDescription("Load project description")
       .setDefaultValue("true")
-      .setPossibleValues("true", "false");
+      .setBooleanPossibleValues();
 
     action.createParam("subprojects")
       .setDescription("Load sub-projects. Ignored if the parameter key is set")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false");
+      .setBooleanPossibleValues();
 
     action.createParam("views")
       .setDescription("Load views and sub-views. Ignored if the parameter key is set")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false");
+      .setBooleanPossibleValues();
 
     action.createParam("libs")
       .setDescription("Load libraries. Ignored if the parameter key is set")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false");
+      .setBooleanPossibleValues();
 
     action.createParam("versions")
       .setDescription("Load version")

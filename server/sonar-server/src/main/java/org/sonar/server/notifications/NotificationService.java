@@ -83,7 +83,8 @@ public class NotificationService implements Startable {
   /**
    * Constructor for {@link NotificationService}
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
+                             DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
     this.databaseSessionFactory = databaseSessionFactory;
     this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
@@ -95,7 +96,8 @@ public class NotificationService implements Startable {
   /**
    * Default constructor when no dispatchers.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient, DatabaseSessionFactory databaseSessionFactory) {
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
+                             DatabaseSessionFactory databaseSessionFactory) {
     this(settings, manager, dbClient, databaseSessionFactory, new NotificationDispatcher[0]);
   }
 
@@ -157,7 +159,8 @@ public class NotificationService implements Startable {
 
   @VisibleForTesting
   void log(long notifSentCount, long remainingNotifCount, long spentTimeInMinutes) {
-    LOG.info("{} notifications sent during the past {} minutes and {} still waiting to be sent", new Object[] {notifSentCount, spentTimeInMinutes, remainingNotifCount});
+    LOG.info("{} notifications sent during the past {} minutes and {} still waiting to be sent",
+      new Object[] {notifSentCount, spentTimeInMinutes, remainingNotifCount});
   }
 
   @VisibleForTesting

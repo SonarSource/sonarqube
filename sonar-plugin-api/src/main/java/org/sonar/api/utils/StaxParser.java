@@ -191,7 +191,7 @@ public class StaxParser {
       return inputToCheck.skip(n);
     }
 
-    private void checkBufferForISOControlChars(byte[] buffer, int off, int len) {
+    private static void checkBufferForISOControlChars(byte[] buffer, int off, int len) {
       for (int i = off; i < len; i++) {
         char streamChar = (char) buffer[i];
         if (Character.isISOControl(streamChar) && streamChar != '\n') {

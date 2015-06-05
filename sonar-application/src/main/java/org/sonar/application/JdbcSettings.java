@@ -92,7 +92,7 @@ public class JdbcSettings {
     }
   }
 
-  private void checkRequiredParameter(String url, String val) {
+  private static void checkRequiredParameter(String url, String val) {
     if (!url.contains(val)) {
       throw new MessageException(String.format("JDBC URL must have the property '%s'", val));
     }

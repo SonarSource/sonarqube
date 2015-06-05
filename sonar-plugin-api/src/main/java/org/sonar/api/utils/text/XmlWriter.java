@@ -176,7 +176,7 @@ public class XmlWriter {
     }
   }
 
-  private IllegalStateException rethrow(XMLStreamException e) {
+  private static IllegalStateException rethrow(XMLStreamException e) {
     // stacktrace is not helpful
     throw new IllegalStateException("Fail to write XML: " + e.getMessage());
   }

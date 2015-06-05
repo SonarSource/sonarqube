@@ -112,14 +112,14 @@ public class CorePropertyDefinitions {
         .name("Downcase login")
         .description("Downcase login during user authentication, typically for Active Directory")
         .type(PropertyType.BOOLEAN)
-        .defaultValue("false")
+        .defaultValue(String.valueOf(false))
         .hidden()
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS)
         .name("Create user accounts")
         .description("Create accounts when authenticating users via an external system")
         .type(PropertyType.BOOLEAN)
-        .defaultValue("true")
+        .defaultValue(String.valueOf(true))
         .hidden()
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES)
@@ -127,19 +127,19 @@ public class CorePropertyDefinitions {
         .description("When using the LDAP or OpenID plugin, at each login, the user attributes (name, email, ...) are re-synchronized")
         .hidden()
         .type(PropertyType.BOOLEAN)
-        .defaultValue("true")
+        .defaultValue(String.valueOf(true))
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE)
         .name("Ignore failures during authenticator startup")
         .type(PropertyType.BOOLEAN)
-        .defaultValue("false")
+        .defaultValue(String.valueOf(false))
         .hidden()
         .build(), 
       PropertyDefinition.builder("sonar.enableFileVariation")
         .name("Enable file variation")
         .hidden()
         .type(PropertyType.BOOLEAN)
-        .defaultValue("false")
+        .defaultValue(String.valueOf(false))
         .build(),
       PropertyDefinition.builder(CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS)
         .name("Local/technical users")
@@ -155,7 +155,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_SCM)
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
-        .defaultValue("false")
+        .defaultValue(String.valueOf(false))
         .build(),
       PropertyDefinition.builder(CoreProperties.SCM_PROVIDER_KEY)
         .name("Key of the SCM provider for this project")
@@ -183,7 +183,7 @@ public class CorePropertyDefinitions {
         .name("Enable support of gravatars")
         .description("Gravatars are profile pictures of users based on their email.")
         .type(PropertyType.BOOLEAN)
-        .defaultValue("true")
+        .defaultValue(String.valueOf(true))
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
@@ -280,7 +280,7 @@ public class CorePropertyDefinitions {
         .type(PropertyType.BOOLEAN)
         .build(),
       PropertyDefinition.builder(CoreProperties.CPD_SKIP_PROPERTY)
-        .defaultValue("false")
+        .defaultValue(String.valueOf(false))
         .name("Skip")
         .description("Disable detection of duplications")
         .hidden()

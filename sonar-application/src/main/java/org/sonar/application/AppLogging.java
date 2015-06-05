@@ -60,7 +60,7 @@ class AppLogging {
   /**
    * Enable the copy in console of the logs written in logs/sonar.log
    */
-  private void copyGobblerToConsole() {
+  private static void copyGobblerToConsole() {
     Logger consoleLogger = (Logger) LoggerFactory.getLogger(CONSOLE_LOGGER);
     Appender consoleAppender = consoleLogger.getAppender(CONSOLE_APPENDER);
 
