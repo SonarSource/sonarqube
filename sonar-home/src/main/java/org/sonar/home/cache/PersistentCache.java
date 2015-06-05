@@ -60,7 +60,7 @@ public class PersistentCache {
     this.log = log;
     this.forceUpdate = forceUpdate;
 
-    log.info("cache: " + baseDir + " default expiration time (ms): " + defaultDurationToExpireMs);
+    log.info("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
 
     if (forceUpdate) {
       log.debug("cache: forcing update");
@@ -104,20 +104,19 @@ public class PersistentCache {
   @CheckForNull
   public synchronized byte[] get(@Nonnull String obj, @Nullable Callable<byte[]> valueLoader) throws Exception {
     String key = getKey(obj);
-    log.debug("cache: " + obj + " -> " + key);
 
     try (FileLock l = lock()) {
       if (!forceUpdate) {
         byte[] cached = getCache(key);
 
         if (cached != null) {
-          log.debug("cache hit for " + obj);
+          log.debug("cache hit for " + obj + " -> " + key);
           return cached;
         }
 
-        log.debug("cache miss for " + obj);
+        log.debug("cache miss for " + obj + " -> " + key);
       } else {
-        log.debug("cache force update for " + obj);
+        log.debug("cache force update for " + obj + " -> " + key);
       }
 
       if (valueLoader != null) {

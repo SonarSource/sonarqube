@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.home.log.Slf4jLog;
+
 import org.sonar.home.cache.PersistentCacheBuilder;
 import org.picocontainer.injectors.ProviderAdapter;
 
@@ -33,6 +35,7 @@ public class PersistentCacheProvider extends ProviderAdapter {
     if (cache == null) {
       PersistentCacheBuilder builder = new PersistentCacheBuilder();
 
+      builder.setLog(new Slf4jLog(PersistentCache.class));
       String forceUpdate = props.property("sonar.forceUpdate");
 
       if ("true".equals(forceUpdate)) {
