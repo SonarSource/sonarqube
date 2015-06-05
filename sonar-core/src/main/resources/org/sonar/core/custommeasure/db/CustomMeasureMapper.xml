@@ -53,4 +53,9 @@
       #{metricId}
     </foreach>
   </delete>
+
+  <delete id="delete">
+    delete from manual_measures
+    where id=#{id}
+  </delete>
 </mapper>

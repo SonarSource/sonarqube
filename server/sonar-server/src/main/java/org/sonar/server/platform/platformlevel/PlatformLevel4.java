@@ -75,6 +75,7 @@ import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
 import org.sonar.server.computation.ws.QueueAction;
 import org.sonar.server.config.ws.PropertiesWs;
+import org.sonar.server.custommeasure.ws.CustomMeasuresWsModule;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectIssuesDashboard;
@@ -489,14 +490,14 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasureFilterFactory.class,
       MeasureFilterExecutor.class,
       MeasureFilterEngine.class,
+      ManualMeasuresWs.class,
+      MetricsWsModule.class,
+      CustomMeasuresWsModule.class,
       ProjectFilter.class,
       MyFavouritesFilter.class,
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
       TimeMachineWs.class,
-      ManualMeasuresWs.class,
-
-      MetricsWsModule.class,
 
       // quality gates
       QualityGateDao.class,

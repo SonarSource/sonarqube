@@ -18,21 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.custommeasure.db;
+package org.sonar.server.custommeasure.ws;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.api.server.ws.WebService;
 
-public interface CustomMeasureMapper {
-  void insert(CustomMeasureDto customMeasureDto);
+public class CustomMeasuresWs implements WebService {
+  public static final String ENDPOINT = "api/custom_measures";
 
-  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
+  private final CustomMeasuresWsAction[] actions;
 
-  CustomMeasureDto selectById(long id);
+  public CustomMeasuresWs(CustomMeasuresWsAction... actions) {
+    this.actions = actions;
+  }
 
-  List<CustomMeasureDto> selectByMetricId(int id);
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController(ENDPOINT)
+      .setDescription("Custom measures management")
+      .setSince("5.2");
 
-  List<CustomMeasureDto> selectByComponentId(long id);
+    for (CustomMeasuresWsAction action : actions) {
+      action.define(controller);
+    }
 
-  void delete(long id);
+    controller.done();
+  }
 }

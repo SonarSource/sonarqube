@@ -18,21 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.custommeasure.db;
+package org.sonar.server.custommeasure.ws;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.sonar.server.ws.WsAction;
 
-public interface CustomMeasureMapper {
-  void insert(CustomMeasureDto customMeasureDto);
-
-  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
-
-  CustomMeasureDto selectById(long id);
-
-  List<CustomMeasureDto> selectByMetricId(int id);
-
-  List<CustomMeasureDto> selectByComponentId(long id);
-
-  void delete(long id);
+public interface CustomMeasuresWsAction extends WsAction {
+  // marker interface
 }

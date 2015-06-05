@@ -94,10 +94,9 @@ public class CustomMeasureDaoTest {
     sut.insert(session, newCustomMeasureDto().setComponentId(2));
     session.commit();
 
-    List<CustomMeasureDto> result = sut.selectByComponentId(session, 1);
+    List<CustomMeasureDto> result = sut.selectByComponentId(session, 1L);
 
     assertThat(result).hasSize(2);
-    assertThat(result).extracting("componentId").containsOnly(1);
-
+    assertThat(result).extracting("componentId").containsOnly(1L);
   }
 }

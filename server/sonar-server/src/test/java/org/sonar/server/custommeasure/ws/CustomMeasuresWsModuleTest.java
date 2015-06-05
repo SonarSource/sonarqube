@@ -18,21 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.custommeasure.db;
+package org.sonar.server.custommeasure.ws;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public interface CustomMeasureMapper {
-  void insert(CustomMeasureDto customMeasureDto);
+import static org.assertj.core.api.Assertions.assertThat;
 
-  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
-
-  CustomMeasureDto selectById(long id);
-
-  List<CustomMeasureDto> selectByMetricId(int id);
-
-  List<CustomMeasureDto> selectByComponentId(long id);
-
-  void delete(long id);
+public class CustomMeasuresWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new CustomMeasuresWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(4);
+  }
 }

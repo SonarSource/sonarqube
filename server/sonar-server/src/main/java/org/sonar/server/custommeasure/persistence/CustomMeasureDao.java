@@ -30,11 +30,16 @@ import org.sonar.core.custommeasure.db.CustomMeasureMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.exceptions.NotFoundException;
 
 @ServerSide
 public class CustomMeasureDao implements DaoComponent {
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
     mapper(session).insert(customMeasureDto);
+  }
+
+  public void delete(DbSession session, long id) {
+    mapper(session).delete(id);
   }
 
   public void deleteByMetricIds(final DbSession session, final List<Integer> metricIds) {
@@ -52,11 +57,19 @@ public class CustomMeasureDao implements DaoComponent {
     return mapper(session).selectById(id);
   }
 
+  public CustomMeasureDto selectById(DbSession session, long id) {
+    CustomMeasureDto customMeasure = selectNullableById(session, id);
+    if (customMeasure == null) {
+      throw new NotFoundException(String.format("CustomMeasure '%d' not found", id));
+    }
+    return customMeasure;
+  }
+
   public List<CustomMeasureDto> selectByMetricId(DbSession session, int id) {
     return mapper(session).selectByMetricId(id);
   }
 
-  public List<CustomMeasureDto> selectByComponentId(DbSession session, int id) {
+  public List<CustomMeasureDto> selectByComponentId(DbSession session, long id) {
     return mapper(session).selectByComponentId(id);
   }
 
