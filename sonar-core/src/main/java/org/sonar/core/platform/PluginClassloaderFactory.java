@@ -163,8 +163,10 @@ public class PluginClassloaderFactory {
       // commons-logging is provided by SLF4j bridge
       .addInclusion("org/apache/commons/logging/")
 
-      // required for internal tests at SonarSource
+      // required for internal libs at SonarSource
       .addInclusion("org/sonar/server/platform/")
+      .addInclusion("org/sonar/core/persistence/")
+      .addInclusion("org/sonar/core/properties/")
 
       // exclusions
       .addExclusion("org/sonar/api/internal/");
