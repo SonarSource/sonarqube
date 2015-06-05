@@ -19,32 +19,6 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Optional;
-import java.util.Map;
-import org.sonar.api.measures.Metric;
-import org.sonar.server.computation.component.Component;
+public class MeasureRepositoryImplTest {
 
-public interface MeasureRepository {
-
-  /**
-   * Retrieves the last measure saved in DB for the specified {@link Component} for the specified {@link Metric} if it
-   * exists.
-   */
-  Optional<Measure> findPrevious(Component component, Metric<?> metric);
-
-  /**
-   * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link Metric} if it exists (ie. one created by the Compute Engine or the Batch).
-   */
-  Optional<Measure> findCurrent(Component component, Metric<?> metric);
-
-  /**
-   *
-   * @param component
-   * @param metric
-   * @param measure
-   */
-  void add(Component component, Metric<?> metric, Measure measure);
-
-  Map<String, Measure> getCurrentMeasures(Component component);
 }
