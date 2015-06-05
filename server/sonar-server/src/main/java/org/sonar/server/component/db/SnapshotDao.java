@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.component.SnapshotQuery;
 import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -51,7 +52,15 @@ public class SnapshotDao implements DaoComponent {
   }
 
   public List<SnapshotDto> selectSnapshotsByComponentId(DbSession session, long componentId) {
-    return mapper(session).selectSnapshotsByComponentId(componentId);
+    return mapper(session).selectSnapshotsByQuery(new SnapshotQuery().setComponentId(componentId));
+  }
+
+  public List<SnapshotDto> selectSnapshotsByQuery(DbSession session, SnapshotQuery query) {
+    return mapper(session).selectSnapshotsByQuery(query);
+  }
+
+  public List<SnapshotDto> selectPreviousVersionSnapshots(DbSession session, long componentId, String lastVersion) {
+    return mapper(session).selectPreviousVersionSnapshots(componentId, lastVersion);
   }
 
   public List<SnapshotDto> selectSnapshotAndChildrenOfProjectScope(DbSession session, long snapshotId) {

@@ -1,0 +1,54 @@
+<dataset>
+
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="PROJECT_KEY" name="project" long_name="[null]" description="[null]"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+  <!-- 2008-11-11 -->
+  <!-- Version 0.9 -->
+  <snapshots id="1000" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]"
+             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1226379600000" build_date="1226379600000" version="0.9" path=""
+             status="P" islast="false" depth="0"/>
+
+  <!-- 2008-11-12 -->
+  <!-- Version 1.0 -->
+  <snapshots id="1001" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1226494680000" build_date="1226494680000" version="1.0" path=""
+             status="P" islast="false" depth="0"/>
+
+  <!-- 2008-11-20 -->
+  <!-- First version 1.1 -->
+  <snapshots id="1002" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]"
+             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1227157200000" build_date="1227157200000" version="1.1" path=""
+             status="P" islast="false" depth="0"/>
+
+  <!-- 2008-11-22 -->
+  <snapshots id="1003" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]"
+             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1227358680000" build_date="1227358680000" version="1.1" path=""
+             status="P" islast="false" depth="0"/>
+
+  <!-- 2008-11-29 -->
+  <!-- Last version 1.1 -->
+  <snapshots id="1004" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
+             period5_param="[null]" period5_date="[null]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1227934800000" build_date="1227934800000" version="1.1" path=""
+             status="P" islast="true" depth="0"/>
+
+
+  <events id="1" name="0.9" component_uuid="ABCD" snapshot_id="1000" category="Version" event_date="1226379600000" created_at="1226379600000" description="" event_data="[null]"/>
+  <events id="2" name="1.0" component_uuid="ABCD" snapshot_id="1001" category="Version" event_date="1226494680000" created_at="1226494680000" description="" event_data="[null]"/>
+  <events id="3" name="1.1" component_uuid="ABCD" snapshot_id="1004" category="Version" event_date="1227934800000" created_at="1227934800000" description="" event_data="[null]"/>
+
+</dataset>

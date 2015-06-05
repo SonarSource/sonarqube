@@ -79,7 +79,7 @@ public class PersistComponentsAndSnapshotsStepTest extends BaseStepTest {
   public void setup() throws Exception {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(system2));
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(ANALYSIS_DATE)
       .build());
