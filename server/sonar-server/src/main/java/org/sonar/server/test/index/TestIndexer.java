@@ -61,6 +61,11 @@ public class TestIndexer extends BaseIndexer {
     });
   }
 
+  public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
+    return doIndex(bulk, dbRows);
+  }
+
   @Override
   protected long doIndex(long lastUpdatedAt) {
     return doIndex(lastUpdatedAt, null);
@@ -83,12 +88,7 @@ public class TestIndexer extends BaseIndexer {
     }
   }
 
-  public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
-    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
-    return doIndex(bulk, dbRows);
-  }
-
-  private long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
+  private static long doIndex(BulkIndexer bulk, Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
     long maxUpdatedAt = 0L;
     bulk.start();
     while (dbRows.hasNext()) {

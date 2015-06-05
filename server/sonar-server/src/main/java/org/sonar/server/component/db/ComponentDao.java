@@ -195,13 +195,13 @@ public class ComponentDao implements DaoComponent {
     return mapper(session).countGhostProjects(parameters);
   }
 
-  private void addPartialQueryParameterIfNotNull(Map<String, String> parameters, @Nullable String query) {
+  private static void addPartialQueryParameterIfNotNull(Map<String, String> parameters, @Nullable String query) {
     if (query != null) {
       parameters.put("query", "%" + query.toUpperCase() + "%");
     }
   }
 
-  private void addProjectQualifier(Map<String, String> parameters) {
+  private static void addProjectQualifier(Map<String, String> parameters) {
     parameters.put("qualifier", Qualifiers.PROJECT);
   }
 

@@ -61,7 +61,7 @@ public class QueueAction implements ComputationWsAction {
     json.close();
   }
 
-  private void writeReports(List<AnalysisReportDto> reports, JsonWriter json) {
+  private static void writeReports(List<AnalysisReportDto> reports, JsonWriter json) {
     json.name("reports").beginArray();
     for (AnalysisReportDto report : reports) {
       json.beginObject();

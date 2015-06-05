@@ -138,7 +138,7 @@ public class PersistMeasuresStep implements ComputationStep {
     return out;
   }
 
-  private MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
+  private static MeasureDto setData(BatchReport.Measure in, MeasureDto out) {
     if (in.hasStringValue()) {
       out.setData(in.getStringValue());
     }

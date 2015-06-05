@@ -103,19 +103,19 @@ public class GhostsAction implements ProjectsWsAction {
     json.endArray();
   }
 
-  private void writeIfWished(JsonWriter json, String key, String value, Set<String> fieldsToReturn) {
+  private static void writeIfWished(JsonWriter json, String key, String value, Set<String> fieldsToReturn) {
     if (fieldsToReturn.contains(key)) {
       json.prop(key, value);
     }
   }
 
-  private void writeIfWished(JsonWriter json, String key, Date value, Set<String> desiredFields) {
+  private static void writeIfWished(JsonWriter json, String key, Date value, Set<String> desiredFields) {
     if (desiredFields.contains(key)) {
       json.propDateTime(key, value);
     }
   }
 
-  private Set<String> fieldsToReturn(@Nullable List<String> desiredFieldsFromRequest) {
+  private static Set<String> fieldsToReturn(@Nullable List<String> desiredFieldsFromRequest) {
     if (desiredFieldsFromRequest == null) {
       return POSSIBLE_FIELDS;
     }

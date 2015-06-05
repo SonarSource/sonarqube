@@ -19,19 +19,17 @@
  */
 package org.sonar.api.database.model;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 import org.sonar.api.database.DatabaseSession;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import java.io.Serializable;
-import java.util.Date;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
@@ -795,7 +793,7 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
     }
   }
 
-  private IndexOutOfBoundsException newPeriodIndexOutOfBoundsException(String field) {
+  private static IndexOutOfBoundsException newPeriodIndexOutOfBoundsException(String field) {
     return new IndexOutOfBoundsException(String.format("Index of Snapshot.%s is between 1 and 5", field));
   }
 

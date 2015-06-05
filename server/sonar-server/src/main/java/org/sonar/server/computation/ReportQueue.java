@@ -20,6 +20,11 @@
 
 package org.sonar.server.computation;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
@@ -31,13 +36,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
-
-import javax.annotation.CheckForNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
@@ -84,7 +82,7 @@ public class ReportQueue {
     return dbClient.analysisReportDao();
   }
 
-  private void saveReportOnDisk(InputStream reportData, File file) throws IOException {
+  private static void saveReportOnDisk(InputStream reportData, File file) throws IOException {
     FileUtils.copyInputStreamToFile(reportData, file);
   }
 

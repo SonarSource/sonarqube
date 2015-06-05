@@ -28,6 +28,8 @@ import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.db.DbClient;
 
+import static org.sonar.server.component.db.SnapshotDao.isLast;
+
 public class SwitchSnapshotStep implements ComputationStep {
 
   private final DbClient dbClient;
@@ -71,7 +73,7 @@ public class SwitchSnapshotStep implements ComputationStep {
     SnapshotDto snapshot = dao.selectById(session, reportSnapshotId);
     SnapshotDto previousLastSnapshot = dao.selectLastSnapshotByComponentId(session, snapshot.getComponentId());
 
-    boolean isLast = dao.isLast(snapshot, previousLastSnapshot);
+    boolean isLast = isLast(snapshot, previousLastSnapshot);
     dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, isLast, SnapshotDto.STATUS_PROCESSED);
     session.commit();
   }

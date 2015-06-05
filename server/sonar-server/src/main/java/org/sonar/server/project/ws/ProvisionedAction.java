@@ -89,7 +89,7 @@ public class ProvisionedAction implements ProjectsWsAction {
     }
   }
 
-  private void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {
+  private static void writeProjects(List<ComponentDto> projects, JsonWriter json, Set<String> desiredFields) {
     json.name("projects");
     json.beginArray();
     for (ComponentDto project : projects) {
@@ -103,19 +103,19 @@ public class ProvisionedAction implements ProjectsWsAction {
     json.endArray();
   }
 
-  private void writeIfNeeded(JsonWriter json, String fieldName, String value, Set<String> desiredFields) {
+  private static void writeIfNeeded(JsonWriter json, String fieldName, String value, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
       json.prop(fieldName, value);
     }
   }
 
-  private void writeIfNeeded(JsonWriter json, String fieldName, Date date, Set<String> desiredFields) {
+  private static void writeIfNeeded(JsonWriter json, String fieldName, Date date, Set<String> desiredFields) {
     if (desiredFields.contains(fieldName)) {
       json.propDateTime(fieldName, date);
     }
   }
 
-  private Set<String> desiredFields(Request request) {
+  private static Set<String> desiredFields(Request request) {
     List<String> desiredFields = request.paramAsStrings(Param.FIELDS);
     if (desiredFields == null) {
       return POSSIBLE_FIELDS;

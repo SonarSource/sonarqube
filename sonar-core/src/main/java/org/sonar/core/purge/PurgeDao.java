@@ -20,6 +20,11 @@
 package org.sonar.core.purge;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -32,12 +37,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -187,7 +186,7 @@ public class PurgeDao implements DaoComponent {
     return this;
   }
 
-  private void deleteFileSources(String rootUuid, PurgeCommands commands) {
+  private static void deleteFileSources(String rootUuid, PurgeCommands commands) {
     commands.deleteFileSources(rootUuid);
   }
 

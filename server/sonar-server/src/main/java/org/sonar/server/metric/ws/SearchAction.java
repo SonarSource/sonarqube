@@ -126,7 +126,7 @@ public class SearchAction implements MetricsWsAction {
     json.endArray();
   }
 
-  private void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {
+  private static void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {
     if (desiredFields.contains(field)) {
       json.prop(field, value);
     }

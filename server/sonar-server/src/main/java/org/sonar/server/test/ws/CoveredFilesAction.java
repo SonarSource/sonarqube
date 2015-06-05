@@ -84,7 +84,7 @@ public class CoveredFilesAction implements TestsWsAction {
     json.endObject().close();
   }
 
-  private void writeTests(List<CoveredFileDoc> coveredFiles, Map<String, ComponentDto> componentsByUuid, JsonWriter json) {
+  private static void writeTests(List<CoveredFileDoc> coveredFiles, Map<String, ComponentDto> componentsByUuid, JsonWriter json) {
     json.name("files").beginArray();
     for (CoveredFileDoc coveredFile : coveredFiles) {
       json.beginObject();

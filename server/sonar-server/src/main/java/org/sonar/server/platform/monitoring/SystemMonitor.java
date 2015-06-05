@@ -79,27 +79,27 @@ public class SystemMonitor implements Monitor {
     return attributes;
   }
 
-  private RuntimeMXBean runtimeMXBean() {
+  private static RuntimeMXBean runtimeMXBean() {
     return ManagementFactory.getRuntimeMXBean();
   }
 
-  private Runtime runtime() {
+  private static Runtime runtime() {
     return Runtime.getRuntime();
   }
 
-  private MemoryMXBean memoryMXBean() {
+  private static MemoryMXBean memoryMXBean() {
     return ManagementFactory.getMemoryMXBean();
   }
 
-  private ClassLoadingMXBean classLoadingMXBean() {
+  private static ClassLoadingMXBean classLoadingMXBean() {
     return ManagementFactory.getClassLoadingMXBean();
   }
 
-  private ThreadMXBean threadMXBean() {
+  private static ThreadMXBean threadMXBean() {
     return ManagementFactory.getThreadMXBean();
   }
 
-  private String formatMemory(long memoryInBytes) {
+  private static String formatMemory(long memoryInBytes) {
     return String.format("%d MB", memoryInBytes / 1_000_000);
   }
 }

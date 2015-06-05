@@ -62,7 +62,7 @@ public class DomainsAction implements MetricsWsAction {
     }
   }
 
-  private void writeDomains(JsonWriter json, List<String> domains) {
+  private static void writeDomains(JsonWriter json, List<String> domains) {
     json.name("domains");
     json.beginArray();
     json.values(domains);

@@ -21,6 +21,11 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Lists;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.notifications.Notification;
@@ -29,12 +34,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Locale;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -102,7 +101,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       notification.getFieldValue(Metric.DEBT + COUNT));
   }
 
-  private boolean doNotHaveValue(Notification notification, Metric metric) {
+  private static boolean doNotHaveValue(Notification notification, Metric metric) {
     return notification.getFieldValue(metric + DOT + "1" + LABEL) == null;
   }
 
@@ -158,7 +157,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
       .append(TAB)
       .append(TAB);
 
-    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext(); ) {
+    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext();) {
       String severity = severityIterator.next();
       String severityLabel = i18n.message(getLocale(), "severity." + severity, severity);
       message.append(severityLabel).append(": ").append(notification.getFieldValue(Metric.SEVERITY + DOT + severity + COUNT));
@@ -186,7 +185,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     }
   }
 
-  private Locale getLocale() {
+  private static Locale getLocale() {
     return Locale.ENGLISH;
   }
 

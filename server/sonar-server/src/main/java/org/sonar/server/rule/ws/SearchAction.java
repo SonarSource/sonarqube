@@ -424,7 +424,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+  private static void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
     List<String> requestParams = request.paramAsStrings(facetName);
     if (requestParams != null) {
       for (String param : requestParams) {

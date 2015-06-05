@@ -191,7 +191,7 @@ public class ShowAction implements IssuesWsAction {
       .prop("subProjectName", parentProjectName);
   }
 
-  private String projectName(ComponentDto project) {
+  private static String projectName(ComponentDto project) {
     return project.longName() != null ? project.longName() : project.name();
   }
 

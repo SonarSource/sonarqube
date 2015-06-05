@@ -173,8 +173,7 @@ public class CreateAction implements MetricsWsAction {
     if (areOneOfTheMandatoryArgumentsEmpty(template)) {
       throw new IllegalArgumentException(String.format("The mandatory arguments '%s','%s' and '%s' must not be empty", PARAM_KEY, PARAM_NAME, PARAM_TYPE));
     }
-    if (
-      metricIsNotInDb(metricInDb)) {
+    if (metricIsNotInDb(metricInDb)) {
       return;
     }
     if (isMetricEnabled(metricInDb)) {
@@ -196,15 +195,15 @@ public class CreateAction implements MetricsWsAction {
     return !customMeasures.isEmpty();
   }
 
-  private static boolean hasMetricTypeChanged(@Nullable MetricDto metricInDb, MetricDto template) {
+  private static boolean hasMetricTypeChanged(MetricDto metricInDb, MetricDto template) {
     return !metricInDb.getValueType().equals(template.getValueType());
   }
 
-  private static boolean isMetricNonCustom(@Nullable MetricDto metricInDb) {
+  private static boolean isMetricNonCustom(MetricDto metricInDb) {
     return !metricInDb.isUserManaged();
   }
 
-  private static boolean isMetricEnabled(@Nullable MetricDto metricInDb) {
+  private static boolean isMetricEnabled(MetricDto metricInDb) {
     return metricInDb.isEnabled();
   }
 
@@ -216,7 +215,7 @@ public class CreateAction implements MetricsWsAction {
     return template.getValueType().isEmpty() || template.getShortName().isEmpty() || template.getKey().isEmpty();
   }
 
-  private void writeMetric(JsonWriter json, MetricDto metric) {
+  private static void writeMetric(JsonWriter json, MetricDto metric) {
     json.beginObject();
     json.prop(FIELD_ID, metric.getId());
     json.prop(FIELD_KEY, metric.getKey());
