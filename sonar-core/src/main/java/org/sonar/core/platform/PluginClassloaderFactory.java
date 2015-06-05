@@ -145,7 +145,6 @@ public class PluginClassloaderFactory {
    */
   private static Mask apiMask() {
     return new Mask()
-      // inclusions
       .addInclusion("org/sonar/api/")
       .addInclusion("org/sonar/channel/")
       .addInclusion("org/sonar/check/")
@@ -155,20 +154,22 @@ public class PluginClassloaderFactory {
       .addInclusion("org/sonar/plugins/emailnotifications/api/")
       .addInclusion("net/sourceforge/pmd/")
       .addInclusion("org/apache/maven/")
-      .addInclusion("org/slf4j/")
       .addInclusion("org/codehaus/stax2/")
       .addInclusion("org/codehaus/staxmate/")
       .addInclusion("com/ctc/wstx/")
+      .addInclusion("org/slf4j/")
 
-      // commons-logging is provided by SLF4j bridge
+      // SLF4J bridges. Do not let plugins re-initialize and configure their logging system
       .addInclusion("org/apache/commons/logging/")
+      .addInclusion("org/apache/log4j/")
+      .addInclusion("ch/qos/logback/")
 
       // required for internal libs at SonarSource
       .addInclusion("org/sonar/server/platform/")
       .addInclusion("org/sonar/core/persistence/")
       .addInclusion("org/sonar/core/properties/")
 
-      // exclusions
+      // API exclusions
       .addExclusion("org/sonar/api/internal/");
   }
 }
