@@ -1048,6 +1048,11 @@
         <version>4.12</version>
       </dependency>
       <dependency>
+        <groupId>com.tngtech.java</groupId>
+        <artifactId>junit-dataprovider</artifactId>
+        <version>1.9.2</version>
+      </dependency>
+      <dependency>
         <groupId>xmlunit</groupId>
         <artifactId>xmlunit</artifactId>
         <version>1.4</version>
