@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.component.SnapshotQuery;
 
 public interface SnapshotMapper {
 
@@ -35,7 +36,9 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectLastSnapshot(Long resourceId);
 
-  List<SnapshotDto> selectSnapshotsByComponentId(Long resourceId);
+  List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
+
+  List<SnapshotDto> selectPreviousVersionSnapshots(@Param(value = "componentId") Long componentId, @Param(value = "lastVersion") String lastVersion);
 
   List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
 

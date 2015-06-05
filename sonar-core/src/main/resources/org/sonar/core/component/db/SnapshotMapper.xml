@@ -51,11 +51,51 @@
     where s.islast=${_true} and s.project_id = #{resource}
   </select>
 
-  <select id="selectSnapshotsByComponentId" resultType="Snapshot">
-    select
+  <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
+    SELECT
     <include refid="snapshotColumns"/>
-    from snapshots s
-    where s.project_id = #{resource}
+    FROM snapshots s
+    <where>
+      <if test="query.componentId != null">
+        AND s.project_id=#{query.componentId}
+      </if>
+      <if test="query.status != null">
+        AND status=#{query.status}
+      </if>
+      <if test="query.version != null">
+        AND version=#{query.version}
+      </if>
+      <if test="query.isLast != null">
+        AND islast=#{query.isLast}
+      </if>
+      <if test="query.createdAfter != null">
+        AND created_at>=#{query.createdAfter}
+      </if>
+      <if test="query.createdBefore != null">
+        AND created_at&lt;#{query.createdBefore}
+      </if>
+    </where>
+    <if test="query.sortField != null">
+    ORDER BY
+      <if test="query.sortField == 'created_at'">
+        created_at
+      </if>
+      <if test="query.sortOrder == 'asc'">
+        asc
+      </if>
+      <if test="query.sortOrder == 'desc'">
+        desc
+      </if>
+    </if>
+  </select>
+
+  <select id="selectPreviousVersionSnapshots" parameterType="map" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns"/>
+    FROM snapshots s
+    INNER JOIN events e ON s.id = e.snapshot_id AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
+    INNER JOIN projects p ON p.uuid=e.component_uuid AND p.id=#{componentId}
+    ORDER BY e.event_date DESC
   </select>
 
   <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">
