@@ -43,7 +43,7 @@ public class SnapshotTesting {
       .setPath("");
   }
 
-  public static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {
+  private static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {
     Preconditions.checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
     Preconditions.checkNotNull(rootProjectId, "Root project id is null");
     return new SnapshotDto()

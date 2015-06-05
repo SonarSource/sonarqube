@@ -99,7 +99,7 @@ public class DeleteActionTest {
     ComponentDao componentDao = new ComponentDao();
     ResourceDao resourceDao = new ResourceDao(db.myBatis(), System2.INSTANCE);
     PurgeDao purgeDao = new PurgeDao(db.myBatis(), resourceDao, new PurgeProfiler(), System2.INSTANCE);
-    dbClient = new DbClient(db.database(), db.myBatis(), componentDao, purgeDao, new RuleDao(System2.INSTANCE), new IssueDao(db.myBatis()), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), componentDao, purgeDao, new RuleDao(System2.INSTANCE), new IssueDao(db.myBatis()), new SnapshotDao());
     dbSession = dbClient.openSession(false);
     resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);

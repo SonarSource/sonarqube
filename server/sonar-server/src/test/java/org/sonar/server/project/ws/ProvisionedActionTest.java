@@ -31,7 +31,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -72,7 +71,7 @@ public class ProvisionedActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao());
     dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();

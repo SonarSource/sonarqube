@@ -26,14 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SnapshotDaoTest extends AbstractDaoTestCase {
 
@@ -41,13 +38,10 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   SnapshotDao sut;
 
-  System2 system2;
-
   @Before
   public void createDao() {
     session = getMyBatis().openSession(false);
-    system2 = mock(System2.class);
-    sut = new SnapshotDao(system2);
+    sut = new SnapshotDao();
   }
 
   @After
@@ -101,9 +95,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void insert() {
     setupData("empty");
 
-    when(system2.now()).thenReturn(1403042400000L);
-
-    SnapshotDto dto = defaultSnapshot();
+    SnapshotDto dto = defaultSnapshot().setCreatedAt(1403042400000L);
 
     sut.insert(session, dto);
     session.commit();

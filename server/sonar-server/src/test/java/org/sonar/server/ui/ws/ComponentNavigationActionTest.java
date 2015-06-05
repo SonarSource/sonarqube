@@ -102,7 +102,7 @@ public class ComponentNavigationActionTest {
     activeDashboardDao = new ActiveDashboardDao(dbTester.myBatis());
     dbClient = new DbClient(
       dbTester.database(), dbTester.myBatis(), userDao, dashboardDao, activeDashboardDao,
-      new ComponentDao(), new SnapshotDao(system), new PropertiesDao(dbTester.myBatis()),
+      new ComponentDao(), new SnapshotDao(), new PropertiesDao(dbTester.myBatis()),
       new MeasureDao());
 
     i18n = mock(I18n.class);
@@ -237,8 +237,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(session, project);
-    dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
     session.commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
@@ -256,8 +255,7 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
     dbClient.componentDao().insert(session, project);
-    dbClient.snapshotDao().insert(session, new SnapshotDto()
-      .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
+    dbClient.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
     session.commit();
 
     userSessionRule

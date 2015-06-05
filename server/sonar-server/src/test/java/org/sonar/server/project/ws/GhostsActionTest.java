@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
@@ -63,7 +62,7 @@ public class GhostsActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao(System2.INSTANCE));
+    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao());
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new ProjectsWs(new GhostsAction(dbClient, userSessionRule)));
     db.truncateTables();

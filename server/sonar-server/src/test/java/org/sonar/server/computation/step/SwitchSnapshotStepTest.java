@@ -52,7 +52,7 @@ public class SwitchSnapshotStepTest {
     db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao(system2)), reportReader);
+    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), reportReader);
   }
 
   @Test

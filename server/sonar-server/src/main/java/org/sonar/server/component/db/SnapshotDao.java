@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -32,12 +31,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
 
 public class SnapshotDao implements DaoComponent {
-
-  private final System2 system2;
-
-  public SnapshotDao(System2 system) {
-    this.system2 = system;
-  }
 
   @CheckForNull
   public SnapshotDto selectNullableById(DbSession session, Long id) {
@@ -82,9 +75,6 @@ public class SnapshotDao implements DaoComponent {
   }
 
   public SnapshotDto insert(DbSession session, SnapshotDto item) {
-    if (item.getCreatedAt() == null) {
-      item.setCreatedAt(system2.now());
-    }
     mapper(session).insert(item);
     return item;
   }
