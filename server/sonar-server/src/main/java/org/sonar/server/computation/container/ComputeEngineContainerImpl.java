@@ -51,7 +51,7 @@ import org.sonar.server.computation.language.PlatformLanguageRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.period.PeriodFinder;
-import org.sonar.server.computation.period.PeriodsRepository;
+import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -128,7 +128,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,
-      PeriodsRepository.class,
+      PeriodsHolderImpl.class,
       DbIdsRepository.class,
 
       // issues

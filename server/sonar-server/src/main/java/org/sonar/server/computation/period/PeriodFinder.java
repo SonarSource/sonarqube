@@ -47,7 +47,7 @@ public class PeriodFinder {
   }
 
   @CheckForNull
-  Period findByDate(DbSession session, Long projectId, Date date) {
+  public Period findByDate(DbSession session, Long projectId, Date date) {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC));
     if (snapshot == null) {
       return null;
@@ -56,7 +56,7 @@ public class PeriodFinder {
   }
 
   @CheckForNull
-  Period findByDays(DbSession session, Long projectId, long analysisDate, int days) {
+  public Period findByDays(DbSession session, Long projectId, long analysisDate, int days) {
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
     long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
@@ -67,7 +67,7 @@ public class PeriodFinder {
   }
 
   @CheckForNull
-  Period findByPreviousAnalysis(DbSession session, Long projectId, long analysisDate) {
+  public Period findByPreviousAnalysis(DbSession session, Long projectId, long analysisDate) {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
@@ -76,7 +76,7 @@ public class PeriodFinder {
   }
 
   @CheckForNull
-  Period findByPreviousVersion(DbSession session, Long projectId, String version) {
+  public Period findByPreviousVersion(DbSession session, Long projectId, String version) {
     List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, version);
     if (snapshotDtos.isEmpty()) {
       return null;
@@ -86,7 +86,7 @@ public class PeriodFinder {
   }
 
   @CheckForNull
-  Period findByVersion(DbSession session, Long projectId, String version) {
+  public Period findByVersion(DbSession session, Long projectId, String version) {
     SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setVersion(version).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
