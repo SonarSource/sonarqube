@@ -6,7 +6,10 @@
       "name": "Team size",
       "description": "Number of people in the team",
       "domain": "Management",
-      "type": "INT"
+      "type": {
+        "key": "INT",
+        "name": "Integer"
+      }
     },
     {
       "id": "2",
@@ -14,7 +17,10 @@
       "name": "Uncovered lines",
       "description": "Uncovered lines",
       "domain": "Tests",
-      "type": "INT"
+      "type": {
+        "key": "INT",
+        "name": "Integer"
+      }
     }
   ],
   "total": 2,

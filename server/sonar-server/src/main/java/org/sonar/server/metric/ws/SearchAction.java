@@ -120,10 +120,20 @@ public class SearchAction implements MetricsWsAction {
       writeIfDesired(json, FIELD_NAME, metric.getShortName(), desiredFields);
       writeIfDesired(json, FIELD_DESCRIPTION, metric.getDescription(), desiredFields);
       writeIfDesired(json, FIELD_DOMAIN, metric.getDomain(), desiredFields);
-      writeIfDesired(json, FIELD_TYPE, Metric.ValueType.descriptionOf(metric.getValueType()), desiredFields);
+      writeType(json, metric.getValueType(), desiredFields);
       json.endObject();
     }
     json.endArray();
+  }
+
+  private void writeType(JsonWriter json, String typeKey, Set<String> desiredFields) {
+    if (desiredFields.contains(FIELD_TYPE)) {
+      json.name(FIELD_TYPE);
+      json.beginObject();
+      json.prop("key", typeKey);
+      json.prop("name", Metric.ValueType.descriptionOf(typeKey));
+      json.endObject();
+    }
   }
 
   private static void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {
