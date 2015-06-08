@@ -53,6 +53,8 @@ import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
+import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
+import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -128,6 +130,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
+      QualityGateHolderImpl.class,
 
       BatchReportReaderImpl.class,
 
@@ -138,6 +141,8 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,
       DbIdsRepository.class,
+
+      QualityGateServiceImpl.class,
 
       // issues
       ScmAccountCacheLoader.class,

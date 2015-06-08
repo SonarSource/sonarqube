@@ -47,6 +47,8 @@ public class ComputationSteps {
       // Read report
       ParseReportStep.class,
 
+      QualityGateLoadingStep.class,
+
       // data computation
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
