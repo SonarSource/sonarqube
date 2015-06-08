@@ -15,10 +15,11 @@ define(function () {
         });
       }
       if (method === 'update') {
+        var attrs = _.extend(_.pick(model.changed, 'name', 'description'), { id: model.id });
         _.defaults(opts, {
           url: this.urlRoot() + '/update',
           type: 'POST',
-          data: _.pick(model.toJSON(), 'id', 'name', 'description')
+          data: attrs
         });
       }
       if (method === 'delete') {

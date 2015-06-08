@@ -26,6 +26,12 @@ define([
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });
+    },
+
+    showErrors: function (errors, warnings) {
+      this.$('.js-modal-text').addClass('hidden');
+      this.disableForm();
+      this._super(errors, warnings);
     }
   });
 

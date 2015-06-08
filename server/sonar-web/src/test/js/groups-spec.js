@@ -336,6 +336,16 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       })
 
       .then(function () {
+        casper.click('.js-modal-close');
+        casper.waitWhileSelector('#delete-group-form');
+      })
+
+      .then(function () {
+        casper.click('[data-id="1"] .js-group-delete');
+        casper.waitForSelector('#delete-group-form');
+      })
+
+      .then(function () {
         lib.clearRequestMock(this.updateMock);
         lib.mockRequest('/api/usergroups/delete', '{}', { data: { id: '1'} });
         casper.click('#delete-group-submit');
