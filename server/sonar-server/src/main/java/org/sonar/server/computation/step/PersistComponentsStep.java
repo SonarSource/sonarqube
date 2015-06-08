@@ -21,6 +21,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.Maps;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -48,14 +50,15 @@ public class PersistComponentsStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-
   private final DbIdsRepository dbIdsRepository;
+  private final System2 system2;
 
-  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
+  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository, System2 system2) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.dbIdsRepository = dbIdsRepository;
+    this.system2 = system2;
   }
 
   @Override
@@ -207,6 +210,19 @@ public class PersistComponentsStep implements ComputationStep {
       addToCache(file, fileDto);
     }
 
+    private ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
+      String componentKey = component.getKey();
+      String componentUuid = component.getUuid();
+
+      ComponentDto componentDto = new ComponentDto();
+      componentDto.setUuid(componentUuid);
+      componentDto.setKey(componentKey);
+      componentDto.setDeprecatedKey(componentKey);
+      componentDto.setEnabled(true);
+      componentDto.setCreatedAt(new Date(system2.now()));
+      return componentDto;
+    }
+
     private ComponentDto persistComponent(int componentRef, ComponentDto componentDto) {
       ComponentDto existingComponent = existingComponentDtosByKey.get(componentDto.getKey());
       if (existingComponent == null) {
@@ -224,18 +240,6 @@ public class PersistComponentsStep implements ComputationStep {
       dbIdsRepository.setComponentId(component, componentDto.getId());
     }
 
-  }
-
-  private static ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
-    String componentKey = component.getKey();
-    String componentUuid = component.getUuid();
-
-    ComponentDto componentDto = new ComponentDto();
-    componentDto.setUuid(componentUuid);
-    componentDto.setKey(componentKey);
-    componentDto.setDeprecatedKey(componentKey);
-    componentDto.setEnabled(true);
-    return componentDto;
   }
 
   private static boolean updateComponent(ComponentDto existingComponent, ComponentDto newComponent) {
