@@ -143,6 +143,7 @@ public class UpdateActionTest {
   @Test
   public void fail_when_changing_key_for_an_existing_one() throws Exception {
     expectedException.expect(ServerException.class);
+    expectedException.expectMessage("The key 'metric-key' is already used by an existing metric.");
     insertMetric(newDefaultMetric().setKey("metric-key"));
     int id = insertMetric(newDefaultMetric().setKey("another-key"));
 

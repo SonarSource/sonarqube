@@ -183,9 +183,10 @@ public class UpdateAction implements MetricsWsAction {
   }
 
   private void checkNoOtherMetricWithTargetKey(DbSession dbSession, MetricDto metricInDb, MetricDto template) {
-    MetricDto metricWithTargetKey = dbClient.metricDao().selectNullableByKey(dbSession, template.getKey());
+    String targetKey = template.getKey();
+    MetricDto metricWithTargetKey = dbClient.metricDao().selectNullableByKey(dbSession, targetKey);
     if (isMetricFoundInDb(metricWithTargetKey) && !metricInDb.getId().equals(metricWithTargetKey.getId())) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "A me metric exists with the key: " + metricInDb.getKey());
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("The key '%s' is already used by an existing metric.", targetKey));
     }
   }
 
