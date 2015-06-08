@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.component.SnapshotDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +36,7 @@ public class PeriodsHolderImplTest {
   @Test
   public void get_periods() throws Exception {
     List<Period> periods = new ArrayList<>();
-    periods.add(new Period("mode", null, new SnapshotDto()));
+    periods.add(new Period(1, "mode", null, 1000L));
 
     PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
     periodsHolder.setPeriods(periods);

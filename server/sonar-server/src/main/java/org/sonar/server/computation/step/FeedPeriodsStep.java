@@ -21,30 +21,34 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Strings;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.component.SnapshotQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
-import org.sonar.server.computation.period.PeriodFinder;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
+
+import static org.sonar.core.component.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.DESC;
 
 /**
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
@@ -55,25 +59,22 @@ import org.sonar.server.db.DbClient;
  * - If a snapshot is found, a new period is added to the repository
  */
 public class FeedPeriodsStep implements ComputationStep {
-  private static final Logger LOG = LoggerFactory.getLogger(PeriodsHolderImpl.class);
 
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateUtils.DATE_FORMAT);
+  private static final Logger LOG = Loggers.get(FeedPeriodsStep.class);
 
   private static final int NUMBER_OF_PERIODS = 5;
 
   private final DbClient dbClient;
   private final Settings settings;
   private final TreeRootHolder treeRootHolder;
-  private final PeriodFinder periodFinder;
   private final BatchReportReader batchReportReader;
   private final PeriodsHolderImpl periodsHolder;
 
-  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, PeriodFinder periodFinder, BatchReportReader batchReportReader,
+  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, BatchReportReader batchReportReader,
     PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.treeRootHolder = treeRootHolder;
-    this.periodFinder = periodFinder;
     this.batchReportReader = batchReportReader;
     this.periodsHolder = periodsHolder;
   }
@@ -100,8 +101,7 @@ public class FeedPeriodsStep implements ComputationStep {
           Period period = periodResolver.resolve(index);
           // SONAR-4700 Add a past snapshot only if it exists
           if (period != null) {
-            periods.add(period.setIndex(index));
-            LOG.debug(period.toString());
+            periods.add(period);
           }
         }
       }
@@ -130,6 +130,9 @@ public class FeedPeriodsStep implements ComputationStep {
     @CheckForNull
     private Period resolve(int index) {
       String propertyValue = getPropertyValue(qualifier, settings, index);
+      if (StringUtils.isBlank(propertyValue)) {
+        return null;
+      }
       Period period = resolve(index, propertyValue);
       if (period == null && StringUtils.isNotBlank(propertyValue)) {
         LOG.debug("Property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
@@ -139,25 +142,21 @@ public class FeedPeriodsStep implements ComputationStep {
 
     @CheckForNull
     private Period resolve(int index, String property) {
-      if (StringUtils.isBlank(property)) {
-        return null;
-      }
-
       Integer days = tryToResolveByDays(property);
       if (days != null) {
-        return periodFinder.findByDays(session, projectId, analysisDate, days);
+        return findByDays(index, days);
       }
       Date date = tryToResolveByDate(property);
       if (date != null) {
-        return periodFinder.findByDate(session, projectId, date);
+        return findByDate(index, date);
       }
       if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, property)) {
-        return periodFinder.findByPreviousAnalysis(session, projectId, analysisDate);
+        return findByPreviousAnalysis(index);
       }
       if (StringUtils.equals(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, property)) {
-        return periodFinder.findByPreviousVersion(session, projectId, currentVersion);
+        return findByPreviousVersion(index);
       }
-      return periodFinder.findByVersion(session, projectId, property);
+      return findByVersion(index, property);
     }
 
     @CheckForNull
@@ -172,11 +171,95 @@ public class FeedPeriodsStep implements ComputationStep {
     @CheckForNull
     private Date tryToResolveByDate(String property) {
       try {
-        return DATE_FORMAT.parse(property);
-      } catch (ParseException e) {
+        return DateUtils.parseDate(property);
+      } catch (Exception e) {
         return null;
       }
     }
+
+    private Period findByDate(int index, Date date) {
+      SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC));
+      if (snapshot == null) {
+        return null;
+      }
+      LOG.debug(String.format("Compare to date %s (analysis of %s)", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt())));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt());
+    }
+
+    @CheckForNull
+    private Period findByDays(int index, int days) {
+      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
+      long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
+      SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
+      if (snapshot == null) {
+        return null;
+      }
+      LOG.debug(String.format("Compare over %s days (%s, analysis of %s)", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt())));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt());
+    }
+
+    @CheckForNull
+    private Period findByPreviousAnalysis(int index) {
+      SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
+      if (snapshot == null) {
+        return null;
+      }
+      LOG.debug(String.format("Compare to previous analysis (%s)", formatDate(snapshot.getCreatedAt())));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt());
+    }
+
+    @CheckForNull
+    private Period findByPreviousVersion(int index) {
+      List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, currentVersion);
+      if (snapshotDtos.isEmpty()) {
+        return null;
+      }
+      SnapshotDto snapshotDto = snapshotDtos.get(0);
+      LOG.debug(String.format("Compare to previous version (%s)", formatDate(snapshotDto.getCreatedAt())));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt());
+    }
+
+    @CheckForNull
+    private Period findByVersion(int index, String version) {
+      SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setVersion(version).setSort(BY_DATE, DESC));
+      if (snapshot == null) {
+        return null;
+      }
+      LOG.debug(String.format("Compare to version (%s) (%s)", version, formatDate(snapshot.getCreatedAt())));
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt());
+    }
+
+    @CheckForNull
+    private SnapshotDto findFirstSnapshot(DbSession session, SnapshotQuery query) {
+      List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, query);
+      if (!snapshots.isEmpty()) {
+        return snapshots.get(0);
+      }
+      return null;
+    }
+
+  }
+
+  @CheckForNull
+  private static SnapshotDto findNearestSnapshotToTargetDate(List<SnapshotDto> snapshots, Long targetDate) {
+    long bestDistance = Long.MAX_VALUE;
+    SnapshotDto nearest = null;
+    for (SnapshotDto snapshot : snapshots) {
+      long distance = Math.abs(snapshot.getCreatedAt() - targetDate);
+      if (distance <= bestDistance) {
+        bestDistance = distance;
+        nearest = snapshot;
+      }
+    }
+    return nearest;
+  }
+
+  private static SnapshotQuery createCommonQuery(Long projectId) {
+    return new SnapshotQuery().setComponentId(projectId).setStatus(SnapshotDto.STATUS_PROCESSED);
+  }
+
+  private static String formatDate(long date) {
+    return DateUtils.formatDate(org.apache.commons.lang.time.DateUtils.truncate(new Date(date), Calendar.SECOND));
   }
 
   private static String getPropertyValue(@Nullable String qualifier, Settings settings, int index) {
