@@ -52,7 +52,8 @@ public class ComputationSteps {
       QualityGateEventsStep.class,
 
       // Persist data
-      PersistComponentsAndSnapshotsStep.class,
+      PersistComponentsStep.class,
+      PersistSnapshotsStep.class,
       PersistNumberOfDaysSinceLastCommitStep.class,
       PersistMeasuresStep.class,
       PersistIssuesStep.class,

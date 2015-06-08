@@ -29,10 +29,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -42,20 +40,18 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 /**
- * Persist components and snapshots
- * Also feed the components cache {@link DbIdsRepository}
+ * Persist components
+ * Also feed the components cache {@link DbIdsRepository} with component ids
  */
-public class PersistComponentsAndSnapshotsStep implements ComputationStep {
+public class PersistComponentsStep implements ComputationStep {
 
-  private final System2 system2;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
   private final DbIdsRepository dbIdsRepository;
 
-  public PersistComponentsAndSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
-    this.system2 = system2;
+  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
@@ -67,63 +63,58 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       org.sonar.server.computation.component.Component root = treeRootHolder.getRoot();
-      List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
-      Map<String, ComponentDto> componentDtosByKey = componentDtosByKey(components);
-      PersisComponentExecutor componentContext = new PersisComponentExecutor(session, componentDtosByKey, reportReader, reportReader.readMetadata().getAnalysisDate());
+      List<ComponentDto> existingComponents = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
+      Map<String, ComponentDto> existingComponentDtosByKey = componentDtosByKey(existingComponents);
+      PersisComponent persisComponent = new PersisComponent(session, existingComponentDtosByKey, reportReader);
 
-      componentContext.recursivelyProcessComponent(root, null, null);
+      persisComponent.recursivelyProcessComponent(root, null);
       session.commit();
     } finally {
       session.close();
     }
   }
 
-  private class PersisComponentExecutor {
+  private class PersisComponent {
 
     private final BatchReportReader reportReader;
-    private final Map<String, ComponentDto> componentDtosByKey;
+    private final Map<String, ComponentDto> existingComponentDtosByKey;
     private final DbSession dbSession;
-    private final long analysisDate;
 
     private ComponentDto project;
-    private SnapshotDto projectSnapshot;
 
-    public PersisComponentExecutor(DbSession dbSession, Map<String, ComponentDto> componentDtosByKey, BatchReportReader reportReader, long analysisDate) {
+    public PersisComponent(DbSession dbSession, Map<String, ComponentDto> existingComponentDtosByKey, BatchReportReader reportReader) {
       this.reportReader = reportReader;
-      this.componentDtosByKey = componentDtosByKey;
+      this.existingComponentDtosByKey = existingComponentDtosByKey;
       this.dbSession = dbSession;
-      this.analysisDate = analysisDate;
     }
 
-    private void recursivelyProcessComponent(Component component, @Nullable ComponentDto lastModule, @Nullable SnapshotDto parentSnapshot) {
+    private void recursivelyProcessComponent(Component component, @Nullable ComponentDto lastModule) {
       BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
 
       switch (component.getType()) {
         case PROJECT:
-          PersistedComponent persistedProject = processProject(component, reportComponent);
-          this.project = persistedProject.componentDto;
-          this.projectSnapshot = persistedProject.parentSnapshot;
-          processChildren(component, project, persistedProject.parentSnapshot);
+          this.project = processProject(component, reportComponent);
+          processChildren(component, project);
           break;
         case MODULE:
-          PersistedComponent persistedModule = processModule(component, reportComponent, nonNullLastModule(lastModule), nonNullParentSnapshot(parentSnapshot));
-          processChildren(component, persistedModule.componentDto, persistedModule.parentSnapshot);
+          ComponentDto persistedModule = processModule(component, reportComponent, nonNullLastModule(lastModule));
+          processChildren(component, persistedModule);
           break;
         case DIRECTORY:
-          PersistedComponent persistedDirectory = processDirectory(component, reportComponent, nonNullLastModule(lastModule), nonNullParentSnapshot(parentSnapshot));
-          processChildren(component, nonNullLastModule(lastModule), persistedDirectory.parentSnapshot);
+          processDirectory(component, reportComponent, nonNullLastModule(lastModule));
+          processChildren(component, nonNullLastModule(lastModule));
           break;
         case FILE:
-          processFile(component, reportComponent, nonNullLastModule(lastModule), nonNullParentSnapshot(parentSnapshot));
+          processFile(component, reportComponent, nonNullLastModule(lastModule));
           break;
         default:
           throw new IllegalStateException(String.format("Unsupported component type '%s'", component.getType()));
       }
     }
 
-    private void processChildren(Component component, ComponentDto lastModule, SnapshotDto parentSnapshot) {
+    private void processChildren(Component component, ComponentDto lastModule) {
       for (Component child : component.getChildren()) {
-        recursivelyProcessComponent(child, lastModule, parentSnapshot);
+        recursivelyProcessComponent(child, lastModule);
       }
     }
 
@@ -131,11 +122,7 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       return lastModule == null ? project : lastModule;
     }
 
-    private SnapshotDto nonNullParentSnapshot(@Nullable SnapshotDto parentSnapshot) {
-      return parentSnapshot == null ? projectSnapshot : parentSnapshot;
-    }
-
-    public PersistedComponent processProject(Component project, BatchReport.Component reportComponent) {
+    public ComponentDto processProject(Component project, BatchReport.Component reportComponent) {
       ComponentDto componentDto = createComponentDto(reportComponent, project);
 
       componentDto.setScope(Scopes.PROJECT);
@@ -149,14 +136,11 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
       ComponentDto projectDto = persistComponent(project.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(projectDto, projectDto.getId(), reportComponent.getVersion(), null);
-
-      addToCache(project, projectDto, snapshotDto);
-
-      return new PersistedComponent(projectDto, snapshotDto);
+      addToCache(project, projectDto);
+      return projectDto;
     }
 
-    public PersistedComponent processModule(Component module, BatchReport.Component reportComponent, ComponentDto lastModule, SnapshotDto parentSnapshot) {
+    public ComponentDto processModule(Component module, BatchReport.Component reportComponent, ComponentDto lastModule) {
       ComponentDto componentDto = createComponentDto(reportComponent, module);
 
       componentDto.setScope(Scopes.PROJECT);
@@ -175,14 +159,11 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath() + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
       ComponentDto moduleDto = persistComponent(module.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(moduleDto, project.getId(), reportComponent.getVersion(), parentSnapshot);
-
-      addToCache(module, moduleDto, snapshotDto);
-      return new PersistedComponent(moduleDto, snapshotDto);
+      addToCache(module, moduleDto);
+      return moduleDto;
     }
 
-    public PersistedComponent processDirectory(org.sonar.server.computation.component.Component directory, BatchReport.Component reportComponent,
-      ComponentDto lastModule, SnapshotDto parentSnapshot) {
+    public ComponentDto processDirectory(org.sonar.server.computation.component.Component directory, BatchReport.Component reportComponent, ComponentDto lastModule) {
       ComponentDto componentDto = createComponentDto(reportComponent, directory);
 
       componentDto.setScope(Scopes.DIRECTORY);
@@ -199,14 +180,11 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
       ComponentDto directoryDto = persistComponent(directory.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(directoryDto, project.getId(), null, parentSnapshot);
-
-      addToCache(directory, directoryDto, snapshotDto);
-      return new PersistedComponent(directoryDto, snapshotDto);
+      addToCache(directory, directoryDto);
+      return directoryDto;
     }
 
-    public void processFile(org.sonar.server.computation.component.Component file, BatchReport.Component reportComponent,
-      ComponentDto lastModule, SnapshotDto parentSnapshot) {
+    public void processFile(org.sonar.server.computation.component.Component file, BatchReport.Component reportComponent, ComponentDto lastModule) {
       ComponentDto componentDto = createComponentDto(reportComponent, file);
 
       componentDto.setScope(Scopes.FILE);
@@ -226,13 +204,11 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
       ComponentDto fileDto = persistComponent(file.getRef(), componentDto);
-      SnapshotDto snapshotDto = persistSnapshot(fileDto, project.getId(), null, parentSnapshot);
-
-      addToCache(file, fileDto, snapshotDto);
+      addToCache(file, fileDto);
     }
 
     private ComponentDto persistComponent(int componentRef, ComponentDto componentDto) {
-      ComponentDto existingComponent = componentDtosByKey.get(componentDto.getKey());
+      ComponentDto existingComponent = existingComponentDtosByKey.get(componentDto.getKey());
       if (existingComponent == null) {
         dbClient.componentDao().insert(dbSession, componentDto);
         return componentDto;
@@ -244,37 +220,10 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
       }
     }
 
-    private SnapshotDto persistSnapshot(ComponentDto componentDto, long projectId, @Nullable String version, @Nullable SnapshotDto parentSnapshot){
-      SnapshotDto snapshotDto = new SnapshotDto()
-        .setRootProjectId(projectId)
-        .setVersion(version)
-        .setComponentId(componentDto.getId())
-        .setQualifier(componentDto.qualifier())
-        .setScope(componentDto.scope())
-        .setLast(false)
-        .setStatus(SnapshotDto.STATUS_UNPROCESSED)
-        .setCreatedAt(analysisDate)
-        .setBuildDate(system2.now());
-
-      if (parentSnapshot != null) {
-        snapshotDto
-          .setParentId(parentSnapshot.getId())
-          .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
-          .setDepth(parentSnapshot.getDepth() + 1)
-          .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
-      } else {
-        snapshotDto
-          .setPath("")
-          .setDepth(0);
-      }
-      dbClient.snapshotDao().insert(dbSession, snapshotDto);
-      return snapshotDto;
-    }
-
-    private void addToCache(Component component, ComponentDto componentDto, SnapshotDto snapshotDto) {
+    private void addToCache(Component component, ComponentDto componentDto) {
       dbIdsRepository.setComponentId(component, componentDto.getId());
-      dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
     }
+
   }
 
   private static ComponentDto createComponentDto(BatchReport.Component reportComponent, Component component) {
@@ -331,18 +280,8 @@ public class PersistComponentsAndSnapshotsStep implements ComputationStep {
     });
   }
 
-  private static class PersistedComponent {
-    private ComponentDto componentDto;
-    private SnapshotDto parentSnapshot;
-
-    public PersistedComponent(ComponentDto componentDto, SnapshotDto parentSnapshot) {
-      this.componentDto = componentDto;
-      this.parentSnapshot = parentSnapshot;
-    }
-  }
-
   @Override
   public String getDescription() {
-    return "Feed components and snapshots";
+    return "Persist components";
   }
 }
