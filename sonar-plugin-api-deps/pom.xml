@@ -112,6 +112,16 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-squid</artifactId>
       <version>4.1</version>
+      <exclusions>
+        <exclusion>
+          <!--
+          Provided at runtime by sonar-plugin-api.
+          Do not use transitive version 4.1 but the current version.
+           -->
+          <groupId>org.codehaus.sonar</groupId>
+          <artifactId>sonar-check-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
