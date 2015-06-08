@@ -1,0 +1,16 @@
+{
+  "domains": [
+    "Tests (Overall)",
+    "Complexity",
+    "Issues",
+    "SCM",
+    "Tests (Integration)",
+    "Duplication",
+    "Technical Debt",
+    "General",
+    "Management",
+    "Tests",
+    "Documentation",
+    "Size"
+  ]
+}

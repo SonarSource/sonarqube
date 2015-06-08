@@ -127,6 +127,7 @@ module.exports = (grunt) ->
           'build-app:groups'
           'build-app:markdown'
           'build-app:measures'
+          'build-app:metrics'
           'build-app:nav'
           'build-app:provisioning'
           'build-app:quality-gates'
@@ -161,6 +162,7 @@ module.exports = (grunt) ->
           'casper:groups'
           'casper:provisioning'
           'casper:computation'
+          'casper:metrics'
         ]
 
 
@@ -226,6 +228,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/computation/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/computation/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/metrics/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/metrics/templates/**/*.hbs'
           ]
 
 
@@ -327,6 +332,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/computation*.js']
       groups:
         src: ['src/test/js/groups-spec.js']
+      metrics:
+        src: ['src/test/js/metrics-spec.js']
 
     uglify:
       build:

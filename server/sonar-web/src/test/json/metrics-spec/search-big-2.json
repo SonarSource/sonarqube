@@ -1,0 +1,17 @@
+{
+  "metrics": [
+    {
+      "id": "3",
+      "key": "team_size",
+      "name": "Team size",
+      "domain": "Management",
+      "type": {
+        "key": "INT",
+        "name": "Integer"
+      }
+    }
+  ],
+  "total": 3,
+  "p": 2,
+  "ps": 2
+}

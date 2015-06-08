@@ -1,0 +1,48 @@
+{
+  "types": [
+    {
+      "key": "INT",
+      "name": "Integer"
+    },
+    {
+      "key": "FLOAT",
+      "name": "Float"
+    },
+    {
+      "key": "PERCENT",
+      "name": "Percent"
+    },
+    {
+      "key": "BOOL",
+      "name": "Yes/No"
+    },
+    {
+      "key": "STRING",
+      "name": "String"
+    },
+    {
+      "key": "MILLISEC",
+      "name": "Milliseconds"
+    },
+    {
+      "key": "DATA",
+      "name": "Data"
+    },
+    {
+      "key": "LEVEL",
+      "name": "Level"
+    },
+    {
+      "key": "DISTRIB",
+      "name": "Distribution"
+    },
+    {
+      "key": "RATING",
+      "name": "Rating"
+    },
+    {
+      "key": "WORK_DUR",
+      "name": "Work Duration"
+    }
+  ]
+}

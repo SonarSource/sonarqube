@@ -1,0 +1,28 @@
+{
+  "metrics": [
+    {
+      "id": "1",
+      "key": "burned_budget",
+      "name": "Burned budget",
+      "domain": "Management",
+      "type": {
+        "key": "FLOAT",
+        "name": "Float"
+      }
+    },
+    {
+      "id": "2",
+      "key": "business_value",
+      "name": "Business value",
+      "domain": "Complexity",
+      "type": {
+        "key": "PERCENT",
+        "name": "Percent"
+      },
+      "description": "Description of Business value"
+    }
+  ],
+  "total": 3,
+  "p": 1,
+  "ps": 2
+}

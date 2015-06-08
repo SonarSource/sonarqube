@@ -1,0 +1,36 @@
+<form id="create-metric-form" autocomplete="off">
+  <div class="modal-head">
+    <h2>{{#if id}}Update{{else}}Create{{/if}} Metric</h2>
+  </div>
+  <div class="modal-body">
+    <div class="js-modal-messages"></div>
+    <div class="modal-field">
+      <label for="create-metric-key">Key<em class="mandatory">*</em></label>
+      <input id="create-metric-key" name="key" type="text" maxlength="200" required value="{{key}}">
+    </div>
+    <div class="modal-field">
+      <label for="create-metric-name">Name<em class="mandatory">*</em></label>
+      <input id="create-metric-name" name="name" type="text" maxlength="200" required value="{{name}}">
+    </div>
+    <div class="modal-field">
+      <label for="create-metric-description">Description</label>
+      <textarea id="create-metric-description" name="description">{{description}}</textarea>
+    </div>
+    <div class="modal-field">
+      <label for="create-metric-domain">Domain</label>
+      <input id="create-metric-domain" name="domain" type="text" maxlength="200" value="{{domain}}">
+    </div>
+    <div class="modal-field">
+      <label for="create-metric-type">Type<em class="mandatory">*</em></label>
+      <select id="create-metric-type" name="type">
+        {{#each types}}
+          <option value="{{key}}" {{#eq key ../type.key}}selected{{/eq}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button id="create-metric-submit">{{#if id}}Update{{else}}Create{{/if}}</button>
+    <a href="#" class="js-modal-close" id="create-metric-cancel">Cancel</a>
+  </div>
+</form>

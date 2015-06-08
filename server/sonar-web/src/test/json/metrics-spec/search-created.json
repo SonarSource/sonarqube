@@ -1,0 +1,48 @@
+{
+  "metrics": [
+    {
+      "id": "1",
+      "key": "burned_budget",
+      "name": "Burned budget",
+      "domain": "Management",
+      "type": {
+        "key": "FLOAT",
+        "name": "Float"
+      }
+    },
+    {
+      "id": "2",
+      "key": "business_value",
+      "name": "Business value",
+      "domain": "Complexity",
+      "type": {
+        "key": "PERCENT",
+        "name": "Percent"
+      },
+      "description": "Description of Business value"
+    },
+    {
+      "id": "3",
+      "key": "team_size",
+      "name": "Team size",
+      "domain": "Management",
+      "type": {
+        "key": "INT",
+        "name": "Integer"
+      }
+    },
+    {
+      "id": "4",
+      "key": "new_metric",
+      "name": "New Metric",
+      "domain": "Domain for New Metric",
+      "type": {
+        "key": "RATING",
+        "name": "Rating"
+      }
+    }
+  ],
+  "total": 4,
+  "p": 1,
+  "ps": 100
+}
