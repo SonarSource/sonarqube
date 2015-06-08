@@ -18,9 +18,9 @@ define(function () {
       }
       if (method === 'delete') {
         _.defaults(opts, {
-          url: this.urlRoot() + '/delete',
+          url: this.urlRoot() + '/bulk_delete',
           type: 'POST',
-          data: { uuids: this.id }
+          data: { ids: this.id }
         });
       }
       return Backbone.ajax(opts);

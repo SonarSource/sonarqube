@@ -209,7 +209,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       .start(lib.buildUrl('provisioning'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
-        this.updateMock = lib.mockRequestFromFile('/api/projects/delete', 'delete-error.json', { status: 400 });
+        this.updateMock = lib.mockRequestFromFile('/api/projects/bulk_delete', 'delete-error.json', { status: 400 });
       })
 
       .then(function () {
@@ -237,7 +237,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
 
       .then(function () {
         lib.clearRequestMock(this.updateMock);
-        lib.mockRequest('/api/projects/delete', '{}', { data: { uuids: 'id-javascript'} });
+        lib.mockRequest('/api/projects/bulk_delete', '{}', { data: { ids: 'id-javascript'} });
         casper.click('#delete-project-submit');
         casper.waitWhileSelector('[data-id="id-javascript"]');
       })
