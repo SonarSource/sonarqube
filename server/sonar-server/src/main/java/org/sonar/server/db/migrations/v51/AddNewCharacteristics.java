@@ -26,10 +26,10 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
@@ -47,7 +47,7 @@ import org.sonar.server.db.migrations.Select;
  */
 public class AddNewCharacteristics extends BaseDataChange {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AddNewCharacteristics.class);
+  private static final Logger LOGGER = Loggers.get(AddNewCharacteristics.class);
 
   private static final String COMPLIANCE_NAME = "Compliance";
   private static final String COMPLIANCE_KEY_SUFFIX = "_COMPLIANCE";
