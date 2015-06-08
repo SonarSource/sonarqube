@@ -40,7 +40,7 @@ import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
-import org.sonar.server.notifications.NotificationService;
+import org.sonar.server.notification.NotificationService;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;

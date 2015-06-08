@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notifications;
+package org.sonar.server.notification;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.notification.NotificationDispatcherMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

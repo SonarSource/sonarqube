@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.notification;
+package org.sonar.server.notification;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -30,23 +30,18 @@ import java.io.InvalidClassException;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
 
-/**
- * @since 2.10
- */
-@RequiresDB
 public class DefaultNotificationManager implements NotificationManager {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultNotificationManager.class);
+  private static final Logger LOG = Loggers.get(DefaultNotificationManager.class);
 
   private static final String UNABLE_TO_READ_NOTIFICATION = "Unable to read notification";
 

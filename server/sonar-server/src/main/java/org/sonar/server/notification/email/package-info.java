@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.notification;
+@ParametersAreNonnullByDefault
+package org.sonar.server.notification.email;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
-import org.sonar.api.notifications.Notification;
-import org.sonar.api.notifications.NotificationChannel;
-
-public class NotificationChannelTest {
-
-  @Test
-  public void defaultMethods() {
-    NotificationChannel channel = new FakeNotificationChannel();
-    assertThat(channel.getKey(), is("FakeNotificationChannel"));
-    assertThat(channel.toString(), is("FakeNotificationChannel"));
-  }
-
-  class FakeNotificationChannel extends NotificationChannel {
-    @Override
-    public void deliver(Notification notification, String username) {
-    }
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

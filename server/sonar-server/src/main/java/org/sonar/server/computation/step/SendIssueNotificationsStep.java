@@ -34,13 +34,13 @@ import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
-import org.sonar.server.notifications.NotificationService;
+import org.sonar.server.notification.NotificationService;
 import org.sonar.server.util.CloseableIterator;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,
  * the standard notification DB queue is not used as a temporary storage. Notifications
- * are directly processed by {@link org.sonar.server.notifications.NotificationService}.
+ * are directly processed by {@link NotificationService}.
  */
 public class SendIssueNotificationsStep implements ComputationStep {
   /**

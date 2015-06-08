@@ -69,7 +69,6 @@ import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.resource.DefaultResourceTypes;
 
 public class BatchComponents {
@@ -107,8 +106,6 @@ public class BatchComponents {
       NewDebtDecorator.class,
       SqaleRatingDecorator.class,
       SqaleRatingSettings.class,
-
-      DefaultNotificationManager.class,
 
       // Quality Gate
       QualityGateVerifier.class,

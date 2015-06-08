@@ -44,7 +44,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.notification.NotificationManager;
+import org.sonar.server.notification.NotificationManager;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notifications;
+package org.sonar.server.notification;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
@@ -26,8 +26,6 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.notification.NotificationDispatcher;
-import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;

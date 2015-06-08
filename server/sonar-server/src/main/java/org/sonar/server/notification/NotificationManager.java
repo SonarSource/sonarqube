@@ -17,18 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.notification;
+package org.sonar.server.notification;
 
 import com.google.common.collect.Multimap;
-import org.sonar.api.batch.BatchSide;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.batch.InstantiationStrategy;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * <p>
@@ -38,12 +33,7 @@ import java.util.List;
  * Pico provides an instance of this class, and plugins just need to create notifications and pass them to this manager with
  * the {@link NotificationManager#scheduleForSending(Notification)} method.
  * </p>
- *
- * @since 2.10
  */
-@ServerSide
-@BatchSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public interface NotificationManager {
 
   /**

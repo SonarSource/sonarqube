@@ -25,9 +25,9 @@ import org.sonar.api.notifications.*;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import org.sonar.core.notification.NotificationDispatcher;
-import org.sonar.core.notification.NotificationDispatcherMetadata;
-import org.sonar.core.notification.NotificationManager;
+import org.sonar.server.notification.NotificationDispatcher;
+import org.sonar.server.notification.NotificationDispatcherMetadata;
+import org.sonar.server.notification.NotificationManager;
 
 /**
  * This dispatcher means: "notify me when a change is done on an issue that is assigned to me or reported by me".

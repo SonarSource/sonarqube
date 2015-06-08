@@ -27,9 +27,9 @@ import org.sonar.api.notifications.*;
 
 import java.util.Collection;
 import java.util.Map;
-import org.sonar.core.notification.NotificationDispatcher;
-import org.sonar.core.notification.NotificationDispatcherMetadata;
-import org.sonar.core.notification.NotificationManager;
+import org.sonar.server.notification.NotificationDispatcher;
+import org.sonar.server.notification.NotificationDispatcherMetadata;
+import org.sonar.server.notification.NotificationManager;
 
 /**
  * This dispatcher means: "notify me when an issue is resolved as false positive or won't fix".

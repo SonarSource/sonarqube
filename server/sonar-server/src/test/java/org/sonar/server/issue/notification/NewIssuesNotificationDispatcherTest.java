@@ -25,8 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.notification.NotificationDispatcher;
-import org.sonar.core.notification.NotificationManager;
+import org.sonar.server.notification.NotificationDispatcher;
+import org.sonar.server.notification.NotificationManager;
 
 import static org.mockito.Mockito.*;
 

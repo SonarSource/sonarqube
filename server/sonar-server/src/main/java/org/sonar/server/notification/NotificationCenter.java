@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.notifications;
+package org.sonar.server.notification;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.notification.NotificationDispatcherMetadata;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 

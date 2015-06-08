@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.server.notifications;
+package org.sonar.server.notification;
 
 import javax.annotation.ParametersAreNonnullByDefault;

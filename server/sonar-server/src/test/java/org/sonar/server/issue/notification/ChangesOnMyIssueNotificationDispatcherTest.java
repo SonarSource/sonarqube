@@ -27,9 +27,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.notifications.*;
-import org.sonar.core.notification.NotificationDispatcher;
-import org.sonar.core.notification.NotificationDispatcherMetadata;
-import org.sonar.core.notification.NotificationManager;
+import org.sonar.server.notification.NotificationDispatcher;
+import org.sonar.server.notification.NotificationDispatcherMetadata;
+import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
