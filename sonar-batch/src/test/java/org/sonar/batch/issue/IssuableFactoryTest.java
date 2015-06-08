@@ -26,6 +26,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.sensor.DefaultSensorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -38,7 +39,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void file_should_be_issuable() {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
+    IssuableFactory factory = new IssuableFactory(cache, mock(DefaultSensorContext.class));
     BatchComponent component = new BatchComponent(1, File.create("foo/bar.c").setEffectiveKey("foo/bar.c"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -48,7 +49,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
+    IssuableFactory factory = new IssuableFactory(cache, mock(DefaultSensorContext.class));
     BatchComponent component = new BatchComponent(1, new Project("Foo").setEffectiveKey("foo"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 

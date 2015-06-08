@@ -22,16 +22,18 @@ package org.sonar.batch.mediumtest.measures;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,19 +60,6 @@ public class MeasuresMediumTest {
   }
 
   @Test
-  public void computeMeasuresOnSampleProject() throws Exception {
-    File projectDir = new File(MeasuresMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-    File tmpDir = temp.newFolder();
-    FileUtils.copyDirectory(projectDir, tmpDir);
-    
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .start();
-
-    assertThat(result.allMeasures()).hasSize(13);
-  }
-
-  @Test
   public void computeMeasuresOnTempProject() throws IOException {
 
     File baseDir = temp.newFolder();
@@ -91,16 +80,18 @@ public class MeasuresMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
+        .put("sonar.cpd.xoo.skip", "true")
         .build())
       .start();
 
-    assertThat(result.allMeasures()).hasSize(2);
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
+      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
+        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
 
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
+      Tuple.tuple(CoreMetrics.LINES_KEY, 2));
   }
 
   @Test
@@ -129,8 +120,12 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures("com.foo.project:src/sample.xoo")).extracting("metric.key", "value").contains(tuple("lines", 3));
-    assertThat(result.measures("com.foo.project:src/sample.other")).extracting("metric.key", "value").contains(tuple("lines", 3), tuple("ncloc", 2));
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
+      .contains(tuple("lines", 3));
+    assertThat(allMeasures.get("com.foo.project:src/sample.other")).extracting("metricKey", "intValue")
+      .contains(tuple("lines", 3), tuple("ncloc", 2));
   }
 
 }

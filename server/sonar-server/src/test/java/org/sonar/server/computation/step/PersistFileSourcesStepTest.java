@@ -219,7 +219,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
+      .setRange(BatchReport.TextRange.newBuilder()
         .setStartLine(1).setEndLine(1)
         .setStartOffset(2).setEndOffset(4)
         .build())
@@ -243,10 +243,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     reportReader.putSymbols(FILE_REF, newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
         .build()));
@@ -270,12 +270,12 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     reportReader.putDuplications(FILE_REF, newArrayList(
       BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.Range.newBuilder()
+        .setOriginPosition(BatchReport.TextRange.newBuilder()
           .setStartLine(1)
           .setEndLine(2)
           .build())
         .addDuplicate(BatchReport.Duplicate.newBuilder()
-          .setRange(BatchReport.Range.newBuilder()
+          .setRange(BatchReport.TextRange.newBuilder()
             .setStartLine(3)
             .setEndLine(4)
             .build())
@@ -400,7 +400,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
+      .setRange(BatchReport.TextRange.newBuilder()
         .setStartLine(1).setEndLine(1)
         // Wrong offset -> fail
         .setStartOffset(4).setEndOffset(2)

@@ -22,20 +22,21 @@ package org.sonar.batch.mediumtest.coverage;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class CoverageMediumTest {
 
@@ -89,25 +90,12 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
     assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
 
-    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.LINES_TO_COVER)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
-
-    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.UNCOVERED_LINES)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(0));
-
-    assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
-      .forMetric(CoreMetrics.CONDITIONS_TO_COVER)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(2));
-
-    assertThat(result.allMeasures()).contains(new DefaultMeasure<String>()
-      .forMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
-      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("2=1"));
+    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue", "stringValue")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
+        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""),
+        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "2=1"));
   }
 
   @Test
@@ -138,8 +126,11 @@ public class CoverageMediumTest {
     InputFile file = result.inputFile("src/sample.xoo");
     assertThat(result.coverageFor(file, 2)).isNull();
 
-    assertThat(result.allMeasures()).extracting("metric.key").doesNotContain(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER,
-      CoreMetrics.COVERED_CONDITIONS_BY_LINE);
+    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey")
+      .doesNotContain(CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
+        CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+
   }
 
 }

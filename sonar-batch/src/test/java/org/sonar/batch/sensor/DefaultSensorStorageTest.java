@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.sensor;
 
+import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,11 +31,13 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -45,9 +48,9 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +74,7 @@ public class DefaultSensorStorageTest {
   private Settings settings;
   private ModuleIssues moduleIssues;
   private Project project;
-  private DefaultIndex sonarIndex;
+  private MeasureCache measureCache;
 
   private BatchComponentCache resourceCache;
 
@@ -85,12 +88,12 @@ public class DefaultSensorStorageTest {
     settings = new Settings();
     moduleIssues = mock(ModuleIssues.class);
     project = new Project("myProject");
-    sonarIndex = mock(DefaultIndex.class);
+    measureCache = mock(MeasureCache.class);
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new BatchComponentCache();
     sensorStorage = new DefaultSensorStorage(metricFinder, project,
-      moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), sonarIndex, coverageExclusions, resourceCache, mock(ReportPublisher.class));
+      moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache);
   }
 
   @Test
@@ -113,7 +116,7 @@ public class DefaultSensorStorageTest {
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     resourceCache.add(sonarFile, null).setInputPath(file);
-    when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
+    when(measureCache.put(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
     sensorStorage.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.NCLOC)
@@ -128,7 +131,7 @@ public class DefaultSensorStorageTest {
   public void shouldSaveProjectMeasureToSensorContext() {
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    when(sonarIndex.addMeasure(eq(project), argumentCaptor.capture())).thenReturn(null);
+    when(measureCache.put(eq(project), argumentCaptor.capture())).thenReturn(null);
 
     sensorStorage.store(new DefaultMeasure()
       .onProject()
@@ -142,15 +145,13 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void shouldAddIssueOnFile() {
-    InputFile file = new DefaultInputFile("foo", "src/Foo.php").setLines(4);
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\nBiz\n")));
 
     ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
-      .onFile(file)
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
       .forRule(RuleKey.of("foo", "bar"))
-      .message("Foo")
-      .atLine(3)
       .effortToFix(10.0));
 
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
@@ -170,9 +171,8 @@ public class DefaultSensorStorageTest {
     ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
-      .onDir(dir)
+      .addLocation(new DefaultIssueLocation().onDir(dir).message("Foo"))
       .forRule(RuleKey.of("foo", "bar"))
-      .message("Foo")
       .effortToFix(10.0));
 
     verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
@@ -190,9 +190,8 @@ public class DefaultSensorStorageTest {
     ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
 
     sensorStorage.store(new DefaultIssue()
-      .onProject()
+      .addLocation(new DefaultIssueLocation().onProject().message("Foo"))
       .forRule(RuleKey.of("foo", "bar"))
-      .message("Foo")
       .overrideSeverity(Severity.BLOCKER)
       .effortToFix(10.0));
 

@@ -29,10 +29,10 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -40,7 +40,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -104,13 +103,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(2)
-        .setRange(Range.newBuilder()
+        .setOtherFileRef(2).setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -145,13 +143,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(3)
-        .setRange(Range.newBuilder()
+        .setOtherFileRef(3).setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -185,13 +182,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(3)
-        .setRange(Range.newBuilder()
+        .setOtherFileRef(3).setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -228,13 +224,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(10)
-        .setRange(Range.newBuilder()
+        .setOtherFileRef(10).setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -267,13 +262,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     dbIdsRepository.setSnapshotId(file2, 12);
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
-        .setOtherFileRef(3)
-        .setRange(Range.newBuilder()
+        .setOtherFileRef(3).setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -296,13 +290,13 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     initReportWithProjectAndFile();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
         .setOtherFileKey("PROJECT2_KEY:file2")
-        .setRange(Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())

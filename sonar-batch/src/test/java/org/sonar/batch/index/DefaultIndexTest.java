@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +38,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.DefaultProjectTree;
-import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import java.io.IOException;
+import org.sonar.batch.sensor.DefaultSensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -85,7 +84,7 @@ public class DefaultIndexTest {
     rule = Rule.create("repoKey", "ruleKey", "Rule");
     rule.setId(1);
     rulesProfile.activateRule(rule, null);
-    index.setCurrentProject(project, mock(ModuleIssues.class));
+    index.setCurrentProject(project, mock(DefaultSensorStorage.class));
     index.doStart(project);
   }
 

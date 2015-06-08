@@ -19,12 +19,10 @@
  */
 package org.sonar.api.batch.fs;
 
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.nio.file.Path;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
@@ -126,10 +124,22 @@ public interface InputFile extends InputPath {
 
   /**
    * Return a {@link TextRange} in the given file.
-   * @param start
-   * @param end
+   * @param start start pointer
+   * @param end end pointer
    * @throw {@link IllegalArgumentException} if start or stop pointers are not valid for the given file.
    */
   TextRange newRange(TextPointer start, TextPointer end);
 
+  /**
+   * Return a {@link TextRange} in the given file.
+   * @throw {@link IllegalArgumentException} if start or stop positions are not valid for the given file.
+   */
+  TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
+
+  /**
+   * Return a {@link TextRange} in the given file that select the full line.
+   * @param line Start at 1.
+   * @throw {@link IllegalArgumentException} if line is not valid for the given file.
+   */
+  TextRange selectLine(int line);
 }

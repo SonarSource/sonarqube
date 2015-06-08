@@ -19,11 +19,11 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import org.junit.Rule;
+import java.io.StringReader;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.rule.RuleKey;
@@ -34,24 +34,24 @@ import static org.mockito.Mockito.verify;
 
 public class DefaultIssueTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  private DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\n")));
 
   @Test
   public void build_file_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .onFile(new DefaultInputFile("foo", "src/Foo.php").setLines(3))
+      .addLocation(new DefaultIssueLocation()
+        .onFile(inputFile)
+        .at(inputFile.selectLine(1))
+        .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .atLine(1)
-      .effortToFix(10.0)
-      .message("Wrong way!");
+      .effortToFix(10.0);
 
-    assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
+    assertThat(issue.locations().get(0).inputPath()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.line()).isEqualTo(1);
+    assertThat(issue.locations().get(0).textRange().start().line()).isEqualTo(1);
     assertThat(issue.effortToFix()).isEqualTo(10.0);
-    assertThat(issue.message()).isEqualTo("Wrong way!");
+    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
 
     issue.save();
 
@@ -62,15 +62,17 @@ public class DefaultIssueTest {
   public void build_directory_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .onDir(new DefaultInputDir("foo", "src"))
+      .addLocation(new DefaultIssueLocation()
+        .onDir(new DefaultInputDir("foo", "src"))
+        .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .overrideSeverity(Severity.BLOCKER)
-      .message("Wrong way!");
+      .overrideSeverity(Severity.BLOCKER);
 
-    assertThat(issue.inputPath()).isEqualTo(new DefaultInputDir("foo", "src"));
+    assertThat(issue.locations().get(0).inputPath()).isEqualTo(new DefaultInputDir("foo", "src"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.message()).isEqualTo("Wrong way!");
-    assertThat(issue.overridenSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(issue.locations().get(0).textRange()).isNull();
+    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
+    assertThat(issue.overriddenSeverity()).isEqualTo(Severity.BLOCKER);
 
     issue.save();
 
@@ -81,53 +83,21 @@ public class DefaultIssueTest {
   public void build_project_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .onProject()
+      .addLocation(new DefaultIssueLocation()
+        .onProject()
+        .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .effortToFix(10.0)
-      .message("Wrong way!");
+      .effortToFix(10.0);
 
-    assertThat(issue.inputPath()).isNull();
+    assertThat(issue.locations().get(0).inputPath()).isNull();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.line()).isNull();
+    assertThat(issue.locations().get(0).textRange()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
-    assertThat(issue.message()).isEqualTo("Wrong way!");
+    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
 
     issue.save();
 
     verify(storage).store(issue);
-  }
-
-  @Test
-  public void not_allowed_to_call_onFile_and_onProject() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("onProject already called");
-    new DefaultIssue()
-      .onProject()
-      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
-      .forRule(RuleKey.of("repo", "rule"))
-      .atLine(1)
-      .effortToFix(10.0)
-      .message("Wrong way!");
-  }
-
-  @Test
-  public void line_is_positive() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("line starts at 1, invalid value 0.");
-    new DefaultIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.php").setLines(3))
-      .forRule(RuleKey.of("repo", "rule"))
-      .atLine(0);
-  }
-
-  @Test
-  public void not_allowed_to_create_issues_on_unexisting_line() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("File [moduleKey=foo, relative=src/Foo.php, basedir=null] has 3 lines. Unable to create issue at line 5.");
-    new DefaultIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.php").setLines(3))
-      .forRule(RuleKey.of("repo", "rule"))
-      .atLine(5);
   }
 
 }

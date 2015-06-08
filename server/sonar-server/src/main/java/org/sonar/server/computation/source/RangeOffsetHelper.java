@@ -31,7 +31,7 @@ public class RangeOffsetHelper {
     // Only static methods
   }
 
-  public static String offsetToString(BatchReport.Range range, int lineIndex, int lineLength) {
+  public static String offsetToString(BatchReport.TextRange range, int lineIndex, int lineLength) {
     StringBuilder element = new StringBuilder();
 
     validateOffsetOrder(range, lineIndex);
@@ -49,19 +49,19 @@ public class RangeOffsetHelper {
     return element.toString();
   }
 
-  private static void validateOffsetOrder(BatchReport.Range range, int line) {
+  private static void validateOffsetOrder(BatchReport.TextRange range, int line) {
     if (range.getStartLine() == range.getEndLine() && range.getStartOffset() > range.getEndOffset()) {
       throw new IllegalArgumentException(String.format("End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line));
     }
   }
 
-  private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.Range range, int lineLength, int line) {
+  private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
     if (range.getStartLine() == line && range.getStartOffset() > lineLength) {
       throw new IllegalArgumentException(String.format("Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line));
     }
   }
 
-  private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.Range range, int lineLength, int line) {
+  private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
     if (range.getEndLine() == line && range.getEndOffset() > lineLength) {
       throw new IllegalArgumentException(String.format("End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line));
     }

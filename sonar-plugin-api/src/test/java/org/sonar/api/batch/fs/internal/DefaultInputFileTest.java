@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import java.io.File;
+import java.nio.file.Path;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-
-import java.io.File;
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -163,12 +162,13 @@ public class DefaultInputFileTest {
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 9));
     file.newRange(file.newPointer(1, 0), file.newPointer(2, 0));
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 5))).isEqualTo(file.newRange(0, 15));
+    file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
 
     try {
-      file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
+      file.newRange(file.newPointer(1, 1), file.newPointer(1, 0));
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=0] should be before end pointer [line=1, lineOffset=0]");
+      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=1] should be before end pointer [line=1, lineOffset=0]");
     }
     try {
       file.newRange(file.newPointer(1, 0), file.newPointer(1, 10));

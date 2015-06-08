@@ -20,12 +20,11 @@
 
 package org.sonar.api.issue;
 
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * This perspective allows to add and get issues related to the selected component. It can be used from
@@ -68,15 +67,37 @@ public interface Issuable extends Perspective {
 
     /**
      * Optional line index, starting from 1. It must not be zero or negative.
+     * @deprecated since 5.2 use {@link #addLocation(NewIssueLocation)}
      */
+    @Deprecated
     IssueBuilder line(@Nullable Integer line);
 
     /**
      * Optional, but recommended, plain-text message.
      * <p/>
      * Formats like Markdown or HTML are not supported. Size must not be greater than {@link Issue#MESSAGE_MAX_SIZE} characters.
+     * @deprecated since 5.2 use {@link #addLocation(NewIssueLocation)}
      */
+    @Deprecated
     IssueBuilder message(@Nullable String message);
+
+    /**
+     * @since 5.2
+     * Create a new location for this issue. First registered location is considered as primary location.
+     */
+    NewIssueLocation newLocation();
+
+    /**
+     * @since 5.2
+     * Register a new secondary location for this issue.
+     */
+    IssueBuilder addLocation(NewIssueLocation location);
+
+    /**
+     * @since 5.2
+     * Register an execution flow for this issue.
+     */
+    IssueBuilder addExecutionFlow(NewIssueLocation... flow);
 
     /**
      * Overrides the severity declared in Quality profile. Do not execute in standard use-cases.

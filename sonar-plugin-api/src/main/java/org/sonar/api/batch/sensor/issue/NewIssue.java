@@ -20,13 +20,10 @@
 package org.sonar.api.batch.sensor.issue;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.Nullable;
 
 /**
  * Represents an issue detected by a {@link Sensor}.
@@ -42,41 +39,33 @@ public interface NewIssue {
   NewIssue forRule(RuleKey ruleKey);
 
   /**
-   * The {@link InputFile} the issue belongs to. For global issues call {@link #onProject()}.
-   */
-  NewIssue onFile(InputFile file);
-
-  /**
-   * The {@link InputDir} the issue belongs to. For global issues call {@link #onProject()}.
-   */
-  NewIssue onDir(InputDir inputDir);
-
-  /**
-   * Tell that the issue is global to the project.
-   */
-  NewIssue onProject();
-
-  /**
-   * Line of the issue. Only available for {@link #onFile(InputFile)} issues. 
-   * If no line is specified it means that issue is global to the file.
-   */
-  NewIssue atLine(int line);
-
-  /**
    * Effort to fix the issue.
    */
   NewIssue effortToFix(@Nullable Double effortToFix);
-
-  /**
-   * Message of the issue.
-   */
-  NewIssue message(String message);
 
   /**
    * Override severity of the issue.
    * Setting a null value or not calling this method means to use severity configured in quality profile.
    */
   NewIssue overrideSeverity(@Nullable Severity severity);
+
+  /**
+   * @since 5.2
+   * Register a new location for this issue. First registered location is considered as primary location.
+   */
+  NewIssue addLocation(NewIssueLocation location);
+
+  /**
+   * @since 5.2
+   * Register an execution flow for this issue.
+   */
+  NewIssue addExecutionFlow(NewIssueLocation... flow);
+
+  /**
+   * @since 5.2
+   * Create a new location for this issue. First registered location is considered as primary location.
+   */
+  NewIssueLocation newLocation();
 
   /**
    * Save the issue. If rule key is unknown or rule not enabled in the current quality profile then a warning is logged but no exception
