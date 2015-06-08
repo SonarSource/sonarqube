@@ -79,6 +79,10 @@ public class MetricDao implements DaoComponent {
     return mapper(session).selectAllEnabled(properties, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
   }
 
+  public int countEnabled(DbSession session, @Nullable Boolean isCustom) {
+    return mapper(session).countEnabled(isCustom);
+  }
+
   public void insert(DbSession session, MetricDto dto) {
     mapper(session).insert(dto);
   }
@@ -104,10 +108,6 @@ public class MetricDao implements DaoComponent {
         return null;
       }
     });
-  }
-
-  public int countCustom(DbSession session) {
-    return mapper(session).countCustom();
   }
 
   public void update(DbSession session, MetricDto metric) {

@@ -47,12 +47,19 @@
     </where>
     ORDER BY UPPER(m.short_name), m.short_name
   </select>
-  <select id="countCustom" resultType="Integer">
+  <select id="countEnabled" resultType="Integer">
     SELECT COUNT(*)
     FROM metrics m
     <where>
       AND m.enabled=${_true}
-      AND m.user_managed=${_true}
+      <if test="isCustom!=null">
+        <if test="isCustom.equals(true)">
+          AND m.user_managed=${_true}
+        </if>
+        <if test="isCustom.equals(false)">
+          AND m.user_managed=${_false}
+        </if>
+      </if>
     </where>
   </select>
 

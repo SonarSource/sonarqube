@@ -22,6 +22,7 @@ package org.sonar.core.metric.db;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -41,7 +42,7 @@ public interface MetricMapper {
 
   void disable(@Param("ids") List<Integer> ids);
 
-  int countCustom();
+  int countEnabled(@Param("isCustom") @Nullable Boolean isCustom);
 
   void update(MetricDto metric);
 

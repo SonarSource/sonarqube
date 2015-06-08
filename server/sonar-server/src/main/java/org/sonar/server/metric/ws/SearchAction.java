@@ -89,7 +89,7 @@ public class SearchAction implements MetricsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions);
-      int nbMetrics = dbClient.metricDao().countCustom(dbSession);
+      int nbMetrics = dbClient.metricDao().countEnabled(dbSession, isCustom);
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       Set<String> desiredFields = desiredFields(request.paramAsStrings(Param.FIELDS));
