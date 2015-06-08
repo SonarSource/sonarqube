@@ -41,7 +41,7 @@ public class SearchAction implements MetricsWsAction {
 
   private static final String ACTION = "search";
 
-  public static final String PARAM_IS_CUSTOM = "is_custom";
+  public static final String PARAM_IS_CUSTOM = "isCustom";
 
   public static final String FIELD_ID = "id";
   public static final String FIELD_KEY = "key";
@@ -65,7 +65,7 @@ public class SearchAction implements MetricsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setSince("5.2")
-      .setResponseExample(getClass().getResource("example-list.json"))
+      .setResponseExample(getClass().getResource("example-search.json"))
       .addPagingParams(100)
       .addFieldsParam(OPTIONAL_FIELDS)
       .setHandler(this);
