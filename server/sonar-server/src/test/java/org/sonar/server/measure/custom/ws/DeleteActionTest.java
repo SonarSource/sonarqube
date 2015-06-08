@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.custommeasure.ws;
+package org.sonar.server.measure.custom.ws;
 
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +34,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.custommeasure.persistence.CustomMeasureDao;
+import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -42,8 +42,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.custommeasure.persistence.CustomMeasureTesting.newCustomMeasureDto;
-import static org.sonar.server.custommeasure.ws.DeleteAction.PARAM_ID;
+import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
 
 public class DeleteActionTest {
 

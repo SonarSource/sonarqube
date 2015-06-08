@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.custommeasure.persistence;
+package org.sonar.server.measure.custom.persistence;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +35,7 @@ import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
-import static org.sonar.server.custommeasure.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
 
 @Category(DbTests.class)
 public class CustomMeasureDaoTest {

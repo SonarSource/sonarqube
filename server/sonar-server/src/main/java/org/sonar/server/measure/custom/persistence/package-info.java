@@ -18,15 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.custommeasure.ws;
+@ParametersAreNonnullByDefault
+package org.sonar.server.measure.custom.persistence;
 
-import org.sonar.core.component.Module;
-
-public class CustomMeasuresWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CustomMeasuresWs.class,
-      DeleteAction.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

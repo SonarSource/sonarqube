@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.custommeasure.ws;
+package org.sonar.server.measure.custom.ws;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;

@@ -18,29 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.custommeasure.ws;
+package org.sonar.server.measure.custom.ws;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.Module;
 
-public class CustomMeasuresWs implements WebService {
-  public static final String ENDPOINT = "api/custom_measures";
-
-  private final CustomMeasuresWsAction[] actions;
-
-  public CustomMeasuresWs(CustomMeasuresWsAction... actions) {
-    this.actions = actions;
-  }
-
+public class CustomMeasuresWsModule extends Module {
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController(ENDPOINT)
-      .setDescription("Custom measures management")
-      .setSince("5.2");
-
-    for (CustomMeasuresWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  protected void configureModule() {
+    add(
+      CustomMeasuresWs.class,
+      DeleteAction.class);
   }
 }

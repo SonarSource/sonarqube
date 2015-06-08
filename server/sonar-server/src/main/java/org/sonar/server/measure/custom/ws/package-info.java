@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.server.custommeasure.ws;
+package org.sonar.server.measure.custom.ws;
 
 import javax.annotation.ParametersAreNonnullByDefault;

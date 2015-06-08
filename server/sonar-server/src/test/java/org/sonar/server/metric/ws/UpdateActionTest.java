@@ -32,7 +32,7 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.custommeasure.persistence.CustomMeasureDao;
+import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
@@ -42,7 +42,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.custommeasure.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DOMAIN;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_ID;
