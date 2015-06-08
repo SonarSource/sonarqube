@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.period;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Calendar;
 import java.util.Date;
 import javax.annotation.Nullable;
@@ -86,8 +85,7 @@ public class Period {
     return this;
   }
 
-  @VisibleForTesting
-  Long getTargetDate() {
+  public Long getTargetDate() {
     return targetDate;
   }
 

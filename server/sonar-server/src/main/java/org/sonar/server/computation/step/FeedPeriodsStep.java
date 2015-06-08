@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.period;
+package org.sonar.server.computation.step;
 
 import com.google.common.base.Strings;
 import java.text.ParseException;
@@ -41,18 +41,21 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodFinder;
+import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
 
 /**
- * Repository of periods used to compute differential measures.
- * Here are the steps to retrieve these periods :
+ * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
+ *
+ * Here is how these periods are computed :
  * - Read the 5 period properties ${@link CoreProperties#TIMEMACHINE_PERIOD_PREFIX}
  * - Try to find the matching snapshots from the properties
  * - If a snapshot is found, a new period is added to the repository
  */
-public class PeriodsRepository {
-
-  private static final Logger LOG = LoggerFactory.getLogger(PeriodsRepository.class);
+public class FeedPeriodsStep implements ComputationStep {
+  private static final Logger LOG = LoggerFactory.getLogger(PeriodsHolderImpl.class);
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateUtils.DATE_FORMAT);
 
@@ -63,25 +66,25 @@ public class PeriodsRepository {
   private final TreeRootHolder treeRootHolder;
   private final PeriodFinder periodFinder;
   private final BatchReportReader batchReportReader;
+  private final PeriodsHolderImpl periodsHolder;
 
-  private List<Period> periods = new ArrayList<>();
-
-  public PeriodsRepository(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, PeriodFinder periodFinder, BatchReportReader batchReportReader) {
+  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, PeriodFinder periodFinder, BatchReportReader batchReportReader,
+    PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.treeRootHolder = treeRootHolder;
     this.periodFinder = periodFinder;
     this.batchReportReader = batchReportReader;
+    this.periodsHolder = periodsHolder;
   }
 
-  public List<Period> getPeriods(){
-   if (periods.isEmpty()) {
-      initPeriods();
-    }
-    return periods;
+  @Override
+  public void execute() {
+    periodsHolder.setPeriods(createPeriods());
   }
 
-  private void initPeriods() {
+  private List<Period> createPeriods() {
+    List<Period> periods = new ArrayList<>();
     DbSession session = dbClient.openSession(false);
     try {
       Component project = treeRootHolder.getRoot();
@@ -105,6 +108,7 @@ public class PeriodsRepository {
     } finally {
       session.close();
     }
+    return periods;
   }
 
   private class PeriodResolver {
@@ -157,7 +161,7 @@ public class PeriodsRepository {
     }
 
     @CheckForNull
-    private Integer tryToResolveByDays(String property){
+    private Integer tryToResolveByDays(String property) {
       try {
         return Integer.parseInt(property);
       } catch (NumberFormatException e) {
@@ -166,7 +170,7 @@ public class PeriodsRepository {
     }
 
     @CheckForNull
-    private Date tryToResolveByDate(String property){
+    private Date tryToResolveByDate(String property) {
       try {
         return DATE_FORMAT.parse(property);
       } catch (ParseException e) {
@@ -184,4 +188,8 @@ public class PeriodsRepository {
     return value;
   }
 
+  @Override
+  public String getDescription() {
+    return "Feed differential periods";
+  }
 }

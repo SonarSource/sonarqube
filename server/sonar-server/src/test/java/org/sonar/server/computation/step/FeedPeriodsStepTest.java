@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.period;
+package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -43,6 +43,9 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodFinder;
+import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -50,7 +53,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
-public class PeriodsRepositoryTest {
+public class FeedPeriodsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String PROJECT_KEY = "PROJECT_KEY";
@@ -64,13 +67,20 @@ public class PeriodsRepositoryTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
+
   DbClient dbClient;
 
   DbSession dbSession;
 
   Settings settings = new Settings();
 
-  PeriodsRepository periodsRepository;
+  FeedPeriodsStep sut;
+
+  @Override
+  protected ComputationStep step() {
+    return sut;
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -91,7 +101,7 @@ public class PeriodsRepositoryTest {
     Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY);
     treeRootHolder.setRoot(project);
 
-    periodsRepository = new PeriodsRepository(dbClient, settings, treeRootHolder, new PeriodFinder(dbClient), reportReader);
+    sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, new PeriodFinder(dbClient), reportReader, periodsHolder);
   }
 
   @After
@@ -103,7 +113,8 @@ public class PeriodsRepositoryTest {
   public void no_period_on_first_analysis() throws Exception {
     // No project, no snapshot
 
-    assertThat(periodsRepository.getPeriods()).isEmpty();
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
   @Test
@@ -114,7 +125,8 @@ public class PeriodsRepositoryTest {
     Date date = DATE_FORMAT.parse(textDate);
     settings.setProperty("sonar.timemachine.period1", textDate);
 
-    List<Period> periods = periodsRepository.getPeriods();
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
     Period period =  periods.get(0);
@@ -131,7 +143,8 @@ public class PeriodsRepositoryTest {
 
     settings.setProperty("sonar.timemachine.period1", "UNKNWOWN VERSION");
 
-    assertThat(periodsRepository.getPeriods()).isEmpty();
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
   @Test
@@ -140,7 +153,8 @@ public class PeriodsRepositoryTest {
 
     settings.setProperty("sonar.timemachine.period1", "");
 
-    assertThat(periodsRepository.getPeriods()).isEmpty();
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
   @Test
@@ -153,7 +167,9 @@ public class PeriodsRepositoryTest {
     settings.setProperty("sonar.timemachine.period4", "previous_version"); // Analysis from 2008-11-12 should be returned
     settings.setProperty("sonar.timemachine.period5", "0.9"); // Anaylsis from 2008-11-11
 
-    List<Period> periods = periodsRepository.getPeriods();
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+
     List<String> periodModes = newArrayList(Iterables.transform(periods, new Function<Period, String>() {
       @Override
       public String apply(Period input) {
@@ -191,21 +207,8 @@ public class PeriodsRepositoryTest {
     settings.setProperty("sonar.timemachine.period4.TRK", "2008-11-22");
     settings.setProperty("sonar.timemachine.period5.TRK", "previous_analysis");
 
-    assertThat(periodsRepository.getPeriods()).hasSize(2);
-  }
-
-  @Test
-  public void only_load_periods_on_first_call_of_get_periods() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-
-    settings.setProperty("sonar.timemachine.period1", "2008-11-22");
-
-    // First call, periods are loaded
-    assertThat(periodsRepository.getPeriods()).hasSize(1);
-
-    // Second call, set project without key to check that it won't fail with a NPE
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, null, null));
-    assertThat(periodsRepository.getPeriods()).hasSize(1);
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).hasSize(2);
   }
 
 }
