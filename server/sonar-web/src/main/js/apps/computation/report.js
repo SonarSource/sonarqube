@@ -16,6 +16,11 @@ define(function () {
         };
       }
       return duration;
+    },
+
+    isDanger: function () {
+      var dangerStatuses = ['CANCELLED', 'FAILED'];
+      return dangerStatuses.indexOf(this.get('status')) !== -1;
     }
   });
 

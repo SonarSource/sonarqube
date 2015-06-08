@@ -19,6 +19,7 @@
  */
 @import (reference) "../variables";
 @import (reference) "../mixins";
+@import (reference) "../init/misc";
 
 .panel {
   padding: 10px;
@@ -38,4 +39,10 @@
 .panel-info {
   border: 1px solid @blue;
   background-color: @lightBlue;
+}
+
+.panel-danger {
+  border-color: transparent !important;
+  background-color: #f2dede;
+  color: #a94442;
 }

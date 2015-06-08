@@ -6,7 +6,7 @@ lib.initMessages();
 lib.changeWorkingDirectory('computation-spec');
 lib.configureCasper();
 
-casper.test.begin(testName('List'), 8, function (test) {
+casper.test.begin(testName('List'), 9, function (test) {
   casper
       .start(lib.buildUrl('computation'), function () {
         lib.setDefaultViewport();
@@ -42,6 +42,7 @@ casper.test.begin(testName('List'), 8, function (test) {
         test.assertElementCount('#computation-list li[data-id]', 3);
         test.assertSelectorContains('#computation-list', 'Duration');
         test.assertExists('.js-history.selected');
+        test.assertExists('.panel-danger[data-id="3"]');
       })
 
       .then(function () {

@@ -5,7 +5,7 @@
   "reports": [
     {
       "submittedAt": "2015-05-13T15:44:15+0200",
-      "status": "FAIL",
+      "status": "FAILED",
       "finishedAt": "2015-05-13T15:44:18+0200",
       "startedAt": "2015-05-13T15:44:15+0200",
       "projectUuid": "id-sonarqube",

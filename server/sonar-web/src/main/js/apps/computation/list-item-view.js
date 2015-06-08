@@ -4,11 +4,12 @@ define([
 
   return Marionette.ItemView.extend({
     tagName: 'li',
-    className: 'panel panel-vertical',
+    className: 'panel',
     template: Templates['computation-list-item'],
 
     onRender: function () {
       this.$el.attr('data-id', this.model.id);
+      this.$el.toggleClass('panel-danger', this.model.isDanger());
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
@@ -17,10 +18,8 @@ define([
     },
 
     serializeData: function () {
-      var dangerStatuses = ['CANCELLED', 'FAIL'];
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        duration: this.model.getDuration(),
-        danger: dangerStatuses.indexOf(this.model.get('status')) !== -1
+        duration: this.model.getDuration()
       });
     }
   });
