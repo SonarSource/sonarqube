@@ -1,0 +1,7 @@
+<dataset>
+
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="PROJECT_KEY" name="project" long_name="[null]" description="[null]"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            enabled="true" language="java" copy_resource_id="[null]" person_id="[null]"/>
+
+</dataset>

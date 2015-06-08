@@ -23,7 +23,6 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +32,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
@@ -44,7 +44,6 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.period.Period;
-import org.sonar.server.computation.period.PeriodFinder;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -66,6 +65,9 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
 
@@ -101,7 +103,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY);
     treeRootHolder.setRoot(project);
 
-    sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, new PeriodFinder(dbClient), reportReader, periodsHolder);
+    sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
   }
 
   @After
@@ -118,23 +120,20 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void get_one_period() throws Exception {
+  public void feed_one_period() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     String textDate = "2008-11-22";
-    Date date = DATE_FORMAT.parse(textDate);
     settings.setProperty("sonar.timemachine.period1", textDate);
 
     sut.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
-    Period period =  periods.get(0);
+    Period period = periods.get(0);
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
-    assertThat(period.getTargetDate()).isEqualTo(date.getTime());
-    assertThat(period.getProjectSnapshot().getId()).isEqualTo(1003L);
   }
 
   @Test
@@ -158,7 +157,214 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void get_five_different_periods() throws Exception {
+  public void ignore_unprocessed_snapshots() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "unprocessed_snapshots.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "100");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_period_by_date() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    String textDate = "2008-11-22";
+    settings.setProperty("sonar.timemachine.period1", textDate);
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    Period period = periods.get(0);
+    // Return analysis from given date 2008-11-22
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(period.getModeParameter()).isEqualTo(textDate);
+    assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs().get(0)).startsWith("Compare to date 2008-11-22 (analysis of ");
+  }
+
+  @Test
+  public void search_by_date_return_nearest_later_analysis() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    String date = "2008-11-24";
+
+    settings.setProperty("sonar.timemachine.period1", date);
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // Analysis form 2008-11-29
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(period.getModeParameter()).isEqualTo(date);
+    assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
+  }
+
+  @Test
+  public void no_period_by_date() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    // No analysis at and after this date
+    settings.setProperty("sonar.timemachine.period1", "2008-11-30");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_period_by_days() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "10");
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // return analysis from 2008-11-20
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
+    assertThat(period.getModeParameter()).isEqualTo("10");
+    assertThat(period.getSnapshotDate()).isEqualTo(1227157200000L);
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs().get(0)).startsWith("Compare over 10 days (2008-11-20, analysis of ");
+  }
+
+  @Test
+  public void no_period_by_days() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "0");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_period_by_previous_analysis() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_analysis");
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // return analysis from 2008-11-29
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+    assertThat(period.getModeParameter()).isNotNull();
+    assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs().get(0)).startsWith("Compare to previous analysis (");
+  }
+
+  @Test
+  public void no_period_by_previous_analysis() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_analysis");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_period_by_previous_version() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // Analysis form  2008-11-12
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getModeParameter()).isEqualTo("1.0");
+    assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs().get(0)).startsWith("Compare to previous version (");
+  }
+
+  @Test
+  public void feed_period_by_previous_version_wit_previous_version_deleted() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "previous_version_deleted.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // Analysis form 2008-11-11
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
+    assertThat(period.getModeParameter()).isEqualTo("0.9");
+    assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+  }
+
+  @Test
+  public void no_period_by_previous_version() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void no_period_by_previous_version_when_no_event_version() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "previous_version");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_period_by_version() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "0.9");
+
+    sut.execute();
+    List<Period> periods = periodsHolder.getPeriods();
+    assertThat(periods).hasSize(1);
+
+    // Analysis form 2008-11-11
+    Period period = periods.get(0);
+    assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
+    assertThat(period.getModeParameter()).isEqualTo("0.9");
+    assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs().get(0)).startsWith("Compare to version (0.9) (");
+  }
+
+  @Test
+  public void no_period_by_version() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
+
+    settings.setProperty("sonar.timemachine.period1", "0.8");
+
+    sut.execute();
+    assertThat(periodsHolder.getPeriods()).isEmpty();
+  }
+
+  @Test
+  public void feed_five_different_periods() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "2008-11-22"); // Analysis from 2008-11-22 should be returned
@@ -181,23 +387,23 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     assertThat(periods.get(0).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
     assertThat(periods.get(0).getIndex()).isEqualTo(1);
-    assertThat(periods.get(0).getProjectSnapshot().getId()).isEqualTo(1003L);
+    assertThat(periods.get(0).getSnapshotDate()).isEqualTo(1227358680000L);
 
     assertThat(periods.get(1).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
     assertThat(periods.get(1).getIndex()).isEqualTo(2);
-    assertThat(periods.get(1).getProjectSnapshot().getId()).isEqualTo(1002L);
+    assertThat(periods.get(1).getSnapshotDate()).isEqualTo(1227157200000L);
 
     assertThat(periods.get(2).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     assertThat(periods.get(2).getIndex()).isEqualTo(3);
-    assertThat(periods.get(2).getProjectSnapshot().getId()).isEqualTo(1004L);
+    assertThat(periods.get(2).getSnapshotDate()).isEqualTo(1227934800000L);
 
     assertThat(periods.get(3).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(periods.get(3).getIndex()).isEqualTo(4);
-    assertThat(periods.get(3).getProjectSnapshot().getId()).isEqualTo(1001L);
+    assertThat(periods.get(3).getSnapshotDate()).isEqualTo(1226494680000L);
 
     assertThat(periods.get(4).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
     assertThat(periods.get(4).getIndex()).isEqualTo(5);
-    assertThat(periods.get(4).getProjectSnapshot().getId()).isEqualTo(1000L);
+    assertThat(periods.get(4).getSnapshotDate()).isEqualTo(1226379600000L);
   }
 
   @Test
