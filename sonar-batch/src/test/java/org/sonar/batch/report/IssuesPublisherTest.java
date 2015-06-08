@@ -111,7 +111,6 @@ public class IssuesPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getDeletedComponentsCount()).isEqualTo(0);
-    assertThat(metadata.getSnapshotId()).isEqualTo(2);
 
     assertThat(reader.readComponentIssues(1)).hasSize(0);
     assertThat(reader.readComponentIssues(2)).hasSize(2);
@@ -135,7 +134,6 @@ public class IssuesPublisherTest {
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getBranch()).isEqualTo("myBranch");
     assertThat(metadata.getDeletedComponentsCount()).isEqualTo(0);
-    assertThat(metadata.getSnapshotId()).isEqualTo(2);
   }
 
   @Test

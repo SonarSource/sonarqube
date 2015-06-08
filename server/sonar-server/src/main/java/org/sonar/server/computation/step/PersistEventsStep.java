@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
@@ -44,14 +45,16 @@ public class PersistEventsStep implements ComputationStep {
   private final BatchReportReader reportReader;
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
+  private final DbIdsRepository dbIdsRepository;
 
   public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    EventRepository eventRepository) {
+    EventRepository eventRepository, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.eventRepository = eventRepository;
+    this.dbIdsRepository = dbIdsRepository;
   }
 
   @Override
@@ -68,15 +71,15 @@ public class PersistEventsStep implements ComputationStep {
 
   private void processComponent(Component component, DbSession session, long analysisDate) {
     BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
-    processEvents(session, batchComponent, component, analysisDate);
+    processEvents(session, component, analysisDate);
     saveVersionEvent(session, batchComponent, component, analysisDate);
   }
 
-  private void processEvents(DbSession session, final BatchReport.Component batchComponent, final Component component, final Long analysisDate) {
+  private void processEvents(DbSession session, final Component component, final Long analysisDate) {
     Function<Event, EventDto> eventToEventDto = new Function<Event, EventDto>() {
       @Override
       public EventDto apply(@Nonnull Event event) {
-        return newBaseEvent(batchComponent, component, analysisDate)
+        return newBaseEvent(component, analysisDate)
           .setName(event.getName())
           .setCategory(convertCategory(event.getCategory()))
           .setDescription(event.getDescription())
@@ -91,26 +94,27 @@ public class PersistEventsStep implements ComputationStep {
 
   private void saveVersionEvent(DbSession session, BatchReport.Component batchComponent, Component component, Long analysisDate) {
     if (batchComponent.hasVersion()) {
-      deletePreviousEventsHavingSameVersion(session, batchComponent, component);
-      dbClient.eventDao().insert(session, newBaseEvent(batchComponent, component, analysisDate)
-        .setName(batchComponent.getVersion())
+      String version = batchComponent.getVersion();
+      deletePreviousEventsHavingSameVersion(session, version, component);
+      dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
+        .setName(version)
         .setCategory(EventDto.CATEGORY_VERSION)
         );
     }
   }
 
-  private void deletePreviousEventsHavingSameVersion(DbSession session, BatchReport.Component batchComponent, Component component) {
+  private void deletePreviousEventsHavingSameVersion(DbSession session, String version, Component component) {
     for (EventDto dto : dbClient.eventDao().selectByComponentUuid(session, component.getUuid())) {
-      if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(batchComponent.getVersion())) {
+      if (dto.getCategory().equals(EventDto.CATEGORY_VERSION) && dto.getName().equals(version)) {
         dbClient.eventDao().delete(session, dto.getId());
       }
     }
   }
 
-  private EventDto newBaseEvent(BatchReport.Component batchComponent, Component component, Long analysisDate) {
+  private EventDto newBaseEvent(Component component, Long analysisDate) {
     return new EventDto()
       .setComponentUuid(component.getUuid())
-      .setSnapshotId(batchComponent.getSnapshotId())
+      .setSnapshotId(dbIdsRepository.getSnapshotId(component))
       .setCreatedAt(system2.now())
       .setDate(analysisDate);
   }

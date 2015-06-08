@@ -86,10 +86,6 @@ public class IssuesPublisher implements ReportPublisherStep {
     if (branch != null) {
       builder.setBranch(branch);
     }
-    Integer sid = rootProject.snapshotId();
-    if (sid != null) {
-      builder.setSnapshotId(sid);
-    }
     writer.writeMetadata(builder.build());
   }
 

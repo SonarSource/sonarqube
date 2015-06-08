@@ -54,8 +54,8 @@ public class PersistMeasuresStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache,
-    DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistMeasuresStep(DbClient dbClient, RuleCache ruleCache, MetricCache metricCache, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
+    BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.ruleCache = ruleCache;
     this.metricCache = metricCache;
@@ -92,9 +92,8 @@ public class PersistMeasuresStep implements ComputationStep {
     @Override
     protected void visitAny(Component component) {
       int componentRef = component.getRef();
-      BatchReport.Component batchComponent = reportReader.readComponent(componentRef);
       List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
-      persistMeasures(measures, dbIdsRepository.getComponentId(component), batchComponent.getSnapshotId());
+      persistMeasures(measures, dbIdsRepository.getComponentId(component), dbIdsRepository.getComponentId(component));
 
     }
 
