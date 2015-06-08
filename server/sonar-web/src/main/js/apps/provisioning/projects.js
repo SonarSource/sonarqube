@@ -33,6 +33,15 @@ define([
 
     hasMore: function () {
       return this.total > this.p * this.ps;
+    },
+
+    bulkDelete: function (ids, options) {
+      var opts = _.extend({}, options, {
+        type: 'POST',
+        url: baseUrl + '/api/projects/bulk_delete',
+        data: { ids: ids.join() }
+      });
+      return Backbone.ajax(opts);
     }
 
   });

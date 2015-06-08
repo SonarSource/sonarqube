@@ -3,6 +3,10 @@ define(function () {
   return Backbone.Model.extend({
     idAttribute: 'uuid',
 
+    defaults: {
+      selected: false
+    },
+
     urlRoot: function () {
       return baseUrl + '/api/projects';
     },
@@ -24,6 +28,10 @@ define(function () {
         });
       }
       return Backbone.ajax(opts);
+    },
+
+    toggle: function () {
+      this.set({ selected: !this.get('selected') });
     }
   });
 

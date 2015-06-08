@@ -8,7 +8,12 @@ define([
     className: 'panel panel-vertical',
     template: Templates['provisioning-list-item'],
 
+    modelEvents: {
+      'change:selected': 'onSelectedChange'
+    },
+
     events: {
+      'click .js-toggle': 'onToggleClick',
       'click .js-project-delete': 'onDeleteClick'
     },
 
@@ -21,9 +26,22 @@ define([
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
+    onToggleClick: function (e) {
+      e.preventDefault();
+      this.toggle();
+    },
+
     onDeleteClick: function (e) {
       e.preventDefault();
       this.deleteProject();
+    },
+
+    onSelectedChange: function () {
+      this.$('.js-toggle').toggleClass('icon-checkbox-checked', this.model.get('selected'));
+    },
+
+    toggle: function () {
+      this.model.toggle();
     },
 
     deleteProject: function () {

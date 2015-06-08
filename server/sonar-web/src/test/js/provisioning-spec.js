@@ -254,3 +254,130 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       });
 });
 
+
+casper.test.begin(testName('Selection'), 22, function (test) {
+  casper
+      .start(lib.buildUrl('provisioning'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['apps/provisioning/app'], function (App) {
+            App.start({ el: '#provisioning' });
+          });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#provisioning-list li');
+      })
+
+      .then(function () {
+        test.assertExists('.js-toggle-selection');
+        test.assertDoesntExist('.js-toggle-selection.icon-checkbox-checked');
+        test.assertElementCount('.js-toggle', 3);
+        test.assertDoesntExist('.js-toggle.icon-checkbox-checked');
+        test.assertExists('#provisioning-bulk-delete[disabled]');
+      })
+
+      .then(function () {
+        casper.click('#provisioning-list [data-id="id-sonarqube"] .js-toggle');
+
+        test.assertExists('.js-toggle-selection.icon-checkbox-checked.icon-checkbox-single');
+        test.assertExists('#provisioning-list [data-id="id-sonarqube"] .js-toggle.icon-checkbox-checked');
+        test.assertExists('#provisioning-bulk-delete');
+        test.assertDoesntExist('#provisioning-bulk-delete[disabled]');
+      })
+
+      .then(function () {
+        casper.click('#provisioning-list [data-id="id-javascript"] .js-toggle');
+        casper.click('#provisioning-list [data-id="id-sonarqube-release"] .js-toggle');
+
+        test.assertDoesntExist('.js-toggle-selection.icon-checkbox-checked.icon-checkbox-single');
+        test.assertExists('.js-toggle-selection.icon-checkbox-checked');
+        test.assertExists('#provisioning-bulk-delete');
+        test.assertDoesntExist('#provisioning-bulk-delete[disabled]');
+      })
+
+      .then(function () {
+        casper.click('.js-toggle-selection');
+
+        test.assertDoesntExist('.js-toggle-selection.icon-checkbox-checked');
+        test.assertElementCount('.js-toggle', 3);
+        test.assertDoesntExist('.js-toggle.icon-checkbox-checked');
+        test.assertExists('#provisioning-bulk-delete[disabled]');
+      })
+
+      .then(function () {
+        casper.click('.js-toggle-selection');
+
+        test.assertDoesntExist('.js-toggle-selection.icon-checkbox-checked.icon-checkbox-single');
+        test.assertExists('.js-toggle-selection.icon-checkbox-checked');
+        test.assertElementCount('.js-toggle.icon-checkbox-checked', 3);
+        test.assertExists('#provisioning-bulk-delete');
+        test.assertDoesntExist('#provisioning-bulk-delete[disabled]');
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Bulk Delete'), 1, function (test) {
+  casper
+      .start(lib.buildUrl('provisioning'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
+        lib.mockRequestFromFile('/api/projects/bulk_delete', 'delete-error.json', { status: 400 });
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          require(['apps/provisioning/app'], function (App) {
+            App.start({ el: '#provisioning' });
+          });
+          jQuery.ajaxSetup({ dataType: 'json' });
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('#provisioning-list li');
+      })
+
+      .then(function () {
+        casper.click('#provisioning-list [data-id="id-sonarqube"] .js-toggle');
+        casper.click('#provisioning-list [data-id="id-sonarqube-release"] .js-toggle');
+        casper.click('#provisioning-bulk-delete');
+        casper.waitForSelector('#bulk-delete-projects-form');
+      })
+
+      .then(function () {
+        casper.click('#bulk-delete-projects-submit');
+        casper.waitForSelector('.alert.alert-danger');
+      })
+
+      .then(function () {
+        lib.clearRequestMocks();
+        lib.mockRequestFromFile('/api/projects/provisioned', 'search-deleted.json');
+        lib.mockRequest('/api/projects/bulk_delete', '{}', { data: { ids: 'id-sonarqube,id-sonarqube-release' } });
+        casper.click('#bulk-delete-projects-submit');
+        casper.waitWhileSelector('[data-id="id-sonarqube"]');
+      })
+
+      .then(function () {
+        test.assert(true);
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+      .run(function () {
+        test.done();
+      });
+});
