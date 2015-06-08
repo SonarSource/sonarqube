@@ -38,7 +38,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -50,12 +49,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -69,8 +65,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.UserJsonWriter;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -79,18 +73,11 @@ public class SearchAction implements IssuesWsAction {
 
   public static final String SEARCH_ACTION = "search";
 
-  private static final String ACTIONS_EXTRA_FIELD = "actions";
-  private static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  private static final String ASSIGNEE_NAME_EXTRA_FIELD = "assigneeName";
-  private static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
-  private static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
-
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
 
   private final IssueService service;
-  private final IssueActionsWriter actionsWriter;
 
   private final IssueQueryService issueQueryService;
   private final RuleService ruleService;
@@ -98,26 +85,25 @@ public class SearchAction implements IssuesWsAction {
   private final ActionPlanService actionPlanService;
   private final UserFinder userFinder;
   private final I18n i18n;
-  private final Durations durations;
   private final Languages languages;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
+  private final IssueJsonWriter issueWriter;
+  private final IssueComponentHelper issueComponentHelper;
 
-  public SearchAction(DbClient dbClient, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
-    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages,
-    UserSession userSession, UserJsonWriter userWriter) {
+  public SearchAction(DbClient dbClient, IssueService service, IssueQueryService issueQueryService,
+    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Languages languages,
+    UserSession userSession, IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper) {
     this.dbClient = dbClient;
     this.service = service;
-    this.actionsWriter = actionsWriter;
     this.issueQueryService = issueQueryService;
     this.ruleService = ruleService;
     this.actionPlanService = actionPlanService;
     this.userFinder = userFinder;
     this.i18n = i18n;
-    this.durations = durations;
     this.languages = languages;
     this.userSession = userSession;
-    this.userWriter = userWriter;
+    this.issueWriter = issueWriter;
+    this.issueComponentHelper = issueComponentHelper;
   }
 
   @Override
@@ -193,7 +179,7 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("java,js");
     action.createParam(EXTRA_FIELDS_PARAM)
       .setDescription("Add some extra fields on each issue. Available since 4.4")
-      .setPossibleValues(ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ASSIGNEE_NAME_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
+      .setPossibleValues(IssueJsonWriter.EXTRA_FIELDS);
     action.createParam(IssueFilterParameters.CREATED_AT)
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
@@ -216,7 +202,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Only json format is available. This parameter is kept only for backward compatibility and shouldn't be used anymore");
   }
 
-  private void addComponentRelatedParams(WebService.NewAction action) {
+  private static void addComponentRelatedParams(WebService.NewAction action) {
     action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
         "This parameter is only considered when componentKeys or componentUuids is set. " +
@@ -299,7 +285,7 @@ public class SearchAction implements IssuesWsAction {
     json.endObject().close();
   }
 
-  private boolean shouldIgnorePaging(Request request) {
+  private static boolean shouldIgnorePaging(Request request) {
     List<String> componentUuids = request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS);
     // Paging can be ignored only when querying issues for a single component (e.g in component viewer)
     return componentUuids != null && componentUuids.size() == 1
@@ -325,6 +311,7 @@ public class SearchAction implements IssuesWsAction {
     Map<String, ComponentDto> componentsByUuid = newHashMap();
     Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
     Collection<ComponentDto> componentDtos = newHashSet();
+    List<ComponentDto> projectDtos = Lists.newArrayList();
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
 
     for (IssueDoc issueDoc : result.getDocs()) {
@@ -360,20 +347,7 @@ public class SearchAction implements IssuesWsAction {
       }
       usersByLogin = getUsersByLogin(userLogins);
 
-      List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(session, componentUuids);
-      List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(session, componentUuids);
-      componentDtos.addAll(fileDtos);
-      componentDtos.addAll(subProjectDtos);
-      for (ComponentDto component : componentDtos) {
-        projectUuids.add(component.projectUuid());
-      }
-
-      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(session, projectUuids);
-      componentDtos.addAll(projectDtos);
-      for (ComponentDto componentDto : componentDtos) {
-        componentsByUuid.put(componentDto.uuid(), componentDto);
-      }
-      projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
+      projectsByComponentUuid = issueComponentHelper.prepareComponentsAndProjects(projectUuids, componentUuids, componentsByUuid, componentDtos, projectDtos, session);
 
       writeProjects(json, projectDtos);
       writeComponents(json, componentDtos, projectsByComponentUuid);
@@ -391,7 +365,7 @@ public class SearchAction implements IssuesWsAction {
     writeLanguages(json);
   }
 
-  private void collectRuleKeys(Request request, SearchResult<IssueDoc> result, Set<RuleKey> ruleKeys) {
+  private static void collectRuleKeys(Request request, SearchResult<IssueDoc> result, Set<RuleKey> ruleKeys) {
     Set<String> facetRules = result.getFacets().getBucketKeys(IssueFilterParameters.RULES);
     if (facetRules != null) {
       for (String rule : facetRules) {
@@ -481,11 +455,11 @@ public class SearchAction implements IssuesWsAction {
     collectParameterValues(request, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
   }
 
-  private void collectBucketKeys(SearchResult<IssueDoc> result, String facetName, Collection<String> bucketKeys) {
+  private static void collectBucketKeys(SearchResult<IssueDoc> result, String facetName, Collection<String> bucketKeys) {
     bucketKeys.addAll(result.getFacets().getBucketKeys(facetName));
   }
 
-  private void collectParameterValues(Request request, String facetName, Collection<String> facetKeys) {
+  private static void collectParameterValues(Request request, String facetName, Collection<String> facetKeys) {
     Collection<String> paramValues = request.paramAsStrings(facetName);
     if (paramValues != null) {
       facetKeys.addAll(paramValues);
@@ -515,141 +489,10 @@ public class SearchAction implements IssuesWsAction {
     json.name("issues").beginArray();
 
     for (IssueDoc issue : result.getDocs()) {
-      json.beginObject();
-
-      String actionPlanKey = issue.actionPlanKey();
-      ComponentDto file = componentsByUuid.get(issue.componentUuid());
-      ComponentDto project = null, subProject = null;
-      if (file != null) {
-        project = projectsByComponentUuid.get(file.uuid());
-        if (!file.projectUuid().equals(file.moduleUuid())) {
-          subProject = componentsByUuid.get(file.moduleUuid());
-        }
-      }
-      Duration debt = issue.debt();
-      Date updateDate = issue.updateDate();
-
-      json
-        .prop("key", issue.key())
-        .prop("component", file != null ? file.getKey() : null)
-        // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
-        .prop("componentId", file != null ? file.getId() : null)
-        .prop("project", project != null ? project.getKey() : null)
-        .prop("subProject", subProject != null ? subProject.getKey() : null)
-        .prop("rule", issue.ruleKey().toString())
-        .prop("status", issue.status())
-        .prop("resolution", issue.resolution())
-        .prop("severity", issue.severity())
-        .prop("message", issue.message())
-        .prop("line", issue.line())
-        .prop("debt", debt != null ? durations.encode(debt) : null)
-        .prop("reporter", issue.reporter())
-        .prop("author", issue.authorLogin())
-        .prop("actionPlan", actionPlanKey)
-        .prop("creationDate", isoDate(issue.creationDate()))
-        .prop("updateDate", isoDate(updateDate))
-        // TODO Remove as part of Front-end rework on Issue Domain
-        .prop("fUpdateAge", formatAgeDate(updateDate))
-        .prop("closeDate", isoDate(issue.closeDate()));
-
-      json.name("assignee");
-      userWriter.write(json, usersByLogin.get(issue.assignee()));
-
-      writeTags(issue, json);
-      writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
-      writeIssueAttributes(issue, json);
-      writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
-      json.endObject();
+      issueWriter.write(json, issue, usersByLogin, componentsByUuid, projectsByComponentUuid, commentsByIssues, actionPlanByKeys, extraFields);
     }
 
     json.endArray();
-  }
-
-  private static void writeTags(Issue issue, JsonWriter json) {
-    Collection<String> tags = issue.tags();
-    if (tags != null && !tags.isEmpty()) {
-      json.name("tags").beginArray();
-      for (String tag : tags) {
-        json.value(tag);
-      }
-      json.endArray();
-    }
-  }
-
-  private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
-    if (!issueComments.isEmpty()) {
-      json.name("comments").beginArray();
-      String login = userSession.getLogin();
-      for (IssueComment comment : issueComments) {
-        String userLogin = comment.userLogin();
-        User user = userLogin != null ? usersByLogin.get(userLogin) : null;
-        json.beginObject()
-          .prop("key", comment.key())
-          .prop("login", comment.userLogin())
-          .prop("email", user != null ? user.email() : null)
-          .prop("userName", user != null ? user.name() : null)
-          .prop("htmlText", Markdown.convertToHtml(comment.markdownText()))
-          .prop("markdown", comment.markdownText())
-          .prop("updatable", login != null && login.equals(userLogin))
-          .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
-          .endObject();
-      }
-      json.endArray();
-    }
-  }
-
-  private static void writeIssueAttributes(Issue issue, JsonWriter json) {
-    if (!issue.attributes().isEmpty()) {
-      json.name("attr").beginObject();
-      for (Map.Entry<String, String> entry : issue.attributes().entrySet()) {
-        json.prop(entry.getKey(), entry.getValue());
-      }
-      json.endObject();
-    }
-  }
-
-  private void writeIssueExtraFields(Issue issue, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
-    @Nullable List<String> extraFields,
-    JsonWriter json) {
-    if (extraFields != null) {
-      if (extraFields.contains(ACTIONS_EXTRA_FIELD)) {
-        actionsWriter.writeActions(issue, json);
-      }
-
-      if (extraFields.contains(TRANSITIONS_EXTRA_FIELD)) {
-        actionsWriter.writeTransitions(issue, json);
-      }
-
-      writeAssigneeIfNeeded(issue, usersByLogin, extraFields, json);
-
-      writeReporterIfNeeded(issue, usersByLogin, extraFields, json);
-
-      writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
-    }
-  }
-
-  private void writeAssigneeIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
-    String assignee = issue.assignee();
-    if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
-      User user = usersByLogin.get(assignee);
-      json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
-    }
-  }
-
-  private void writeReporterIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
-    String reporter = issue.reporter();
-    if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
-      User user = usersByLogin.get(reporter);
-      json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
-    }
-  }
-
-  private void writeActionPlanIfNeeded(Issue issue, Map<String, ActionPlan> actionPlanByKeys, List<String> extraFields, JsonWriter json) {
-    String actionPlanKey = issue.actionPlanKey();
-    if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
-      ActionPlan actionPlan = actionPlanByKeys.get(actionPlanKey);
-      json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
-    }
   }
 
   private void writeComponents(JsonWriter json, Collection<ComponentDto> components, Map<String, ComponentDto> projectsByComponentUuid) {
@@ -754,39 +597,6 @@ public class SearchAction implements IssuesWsAction {
     return actionPlans;
   }
 
-  private Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = buildProjectsByUuid(projects);
-    return buildProjectsByComponentUuid(components, projectsByUuid);
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = newHashMap();
-    for (ComponentDto project : projects) {
-      if (project == null) {
-        throw new IllegalStateException("Found a null project in issues");
-      }
-      if (project.uuid() == null) {
-        throw new IllegalStateException("Project has no UUID: " + project.getKey());
-      }
-      projectsByUuid.put(project.uuid(), project);
-    }
-    return projectsByUuid;
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
-    Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
-    for (ComponentDto component : components) {
-      if (component.uuid() == null) {
-        throw new IllegalStateException("Component has no UUID: " + component.getKey());
-      }
-      if (!projectsByUuid.containsKey(component.projectUuid())) {
-        throw new IllegalStateException("Project cannot be found for component: " + component.getKey() + " / " + component.uuid());
-      }
-      projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
-    }
-    return projectsByComponentUuid;
-  }
-
   @CheckForNull
   private static String isoDate(@Nullable Date date) {
     if (date != null) {
@@ -799,14 +609,6 @@ public class SearchAction implements IssuesWsAction {
   private String formatDate(@Nullable Date date) {
     if (date != null) {
       return i18n.formatDateTime(userSession.locale(), date);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private String formatAgeDate(@Nullable Date date) {
-    if (date != null) {
-      return i18n.ageFromNow(userSession.locale(), date);
     }
     return null;
   }

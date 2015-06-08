@@ -307,7 +307,7 @@ class Api::IssuesController < Api::ApiController
 
     respond_to do |format|
       # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => jsonp(hash), :status => result.httpStatus }
+      format.json { render :json => Internal.issues.writeIssueJson(result.get), :status => result.httpStatus }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
     end
   end

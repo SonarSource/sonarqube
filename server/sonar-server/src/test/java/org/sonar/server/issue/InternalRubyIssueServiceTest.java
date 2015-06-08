@@ -22,6 +22,10 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,21 +39,21 @@ import org.sonar.api.user.User;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.ws.IssueComponentHelper;
+import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -87,6 +91,16 @@ public class InternalRubyIssueServiceTest {
 
   InternalRubyIssueService service;
 
+  IssueJsonWriter issueWriter;
+
+  IssueComponentHelper issueComponentHelper;
+
+  UserIndex userIndex;
+
+  DbClient dbClient;
+
+  DbSession dbSession;
+
   @Before
   public void setUp() {
     issueService = mock(IssueService.class);
@@ -98,12 +112,17 @@ public class InternalRubyIssueServiceTest {
     actionService = mock(ActionService.class);
     issueFilterService = mock(IssueFilterService.class);
     issueBulkChangeService = mock(IssueBulkChangeService.class);
+    issueWriter = mock(IssueJsonWriter.class);
+    issueComponentHelper = mock(IssueComponentHelper.class);
+    userIndex = mock(UserIndex.class);
+    dbClient = mock(DbClient.class);
+    dbSession = mock(DbSession.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, userSessionRule);
+      issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, userIndex, dbClient, userSessionRule);
   }
 
   @Test
