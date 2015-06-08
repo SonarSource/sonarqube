@@ -357,16 +357,6 @@ module ApplicationHelper
 
   #
   #
-  # JFree Eastwood is a partial implementation of Google Chart Api
-  #
-  #
-  def gchart(parameters, options={})
-    image_tag("#{ApplicationController.root_context}/gchart?#{parameters}", options)
-  end
-
-
-  #
-  #
   # Piechart for a distribution string or measure (foo=1;bar=2)
   #
   #
