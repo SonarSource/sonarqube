@@ -92,6 +92,75 @@ casper.test.begin(testName('Base'), function (test) {
 });
 
 
+casper.test.begin(testName('Context'), function (test) {
+  casper
+      .start(lib.buildUrl('issues-context'), function () {
+        lib.setDefaultViewport();
+
+
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.evaluate(function () {
+          window.config = {
+            resource: 'uuid',
+            resourceQualifier: 'TRL',
+            resourceName: 'SonarQube',
+            periodDate: null
+          };
+          require(['apps/issues/app-context']);
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.facet[data-value=BLOCKER]', function () {
+          // Facets
+          test.assertExists('.facet[data-value=BLOCKER]');
+          test.assertExists('.facet[data-value=CRITICAL]');
+          test.assertExists('.facet[data-value=MAJOR]');
+          test.assertExists('.facet[data-value=MINOR]');
+          test.assertExists('.facet[data-value=INFO]');
+
+          test.assertExists('.facet[data-value=OPEN]');
+          test.assertExists('.facet[data-value=REOPENED]');
+          test.assertExists('.facet[data-value=CONFIRMED]');
+          test.assertExists('.facet[data-value=RESOLVED]');
+          test.assertExists('.facet[data-value=CLOSED]');
+
+          test.assertExists('.facet[data-unresolved]');
+          test.assertExists('.facet[data-value=REMOVED]');
+          test.assertExists('.facet[data-value=FIXED]');
+          test.assertExists('.facet[data-value=FALSE-POSITIVE]');
+
+          // Issues
+          test.assertElementCount('.issue', 50);
+          test.assertElementCount('.issue.selected', 1);
+          test.assertSelectorContains('.issue', '1 more branches need to be covered by unit tests to reach');
+
+          // Filters
+          test.assertExists('.js-new-search');
+
+          // Workspace header
+          test.assertSelectorContains('#issues-total', '4623');
+          test.assertExists('.js-prev');
+          test.assertExists('.js-next');
+          test.assertExists('.js-reload');
+          test.assertExists('.js-bulk-change');
+        });
+      })
+
+      .then(function () {
+        lib.sendCoverage();
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
 casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
   casper
       .start(lib.buildUrl('issues'), function () {
