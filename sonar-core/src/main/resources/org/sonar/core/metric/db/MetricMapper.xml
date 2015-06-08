@@ -45,7 +45,7 @@
         </if>
       </if>
     </where>
-    ORDER BY UPPER(m.short_name)
+    ORDER BY UPPER(m.short_name), m.short_name
   </select>
   <select id="countCustom" resultType="Integer">
     SELECT COUNT(*)
