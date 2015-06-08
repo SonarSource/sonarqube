@@ -31,6 +31,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.MetricCache;
@@ -50,15 +51,17 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   private final System2 system;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
+  private final DbIdsRepository dbIdsRepository;
 
   public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache,
-    TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+    TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
     this.metricCache = metricCache;
     this.system = system;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.dbIdsRepository = dbIdsRepository;
   }
 
   @Override
@@ -69,7 +72,8 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   @Override
   public void execute() {
     NumberOfDaysSinceLastCommitVisitor visitor = new NumberOfDaysSinceLastCommitVisitor();
-    visitor.visit(treeRootHolder.getRoot());
+    Component project = treeRootHolder.getRoot();
+    visitor.visit(project);
 
     long lastCommitTimestamp = visitor.lastCommitTimestampFromReport;
     if (lastCommitTimestamp == 0L) {
@@ -78,7 +82,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
 
     if (lastCommitTimestamp != 0L) {
-      persistNumberOfDaysSinceLastCommit(lastCommitTimestamp);
+      persistNumberOfDaysSinceLastCommit(lastCommitTimestamp, dbIdsRepository.getSnapshotId(project));
     }
   }
 
@@ -88,14 +92,14 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     return lastCommitDate == null ? null : lastCommitDate.getTime();
   }
 
-  private void persistNumberOfDaysSinceLastCommit(long lastCommitTimestamp) {
+  private void persistNumberOfDaysSinceLastCommit(long lastCommitTimestamp, long projectSnapshotId) {
     long numberOfDaysSinceLastCommit = (system.now() - lastCommitTimestamp) / MILLISECONDS_PER_DAY;
     DbSession dbSession = dbClient.openSession(true);
     try {
       dbClient.measureDao().insert(dbSession, new MeasureDto()
         .setValue((double) numberOfDaysSinceLastCommit)
         .setMetricId(metricCache.get(CoreMetrics.DAYS_SINCE_LAST_COMMIT_KEY).getId())
-        .setSnapshotId(reportReader.readMetadata().getSnapshotId()));
+        .setSnapshotId(projectSnapshotId));
       dbSession.commit();
     } finally {
       MyBatis.closeQuietly(dbSession);

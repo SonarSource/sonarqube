@@ -48,51 +48,42 @@ public final class BatchReport {
         getProjectKeyBytes();
 
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     boolean hasBranch();
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     java.lang.String getBranch();
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     com.google.protobuf.ByteString
         getBranchBytes();
 
     /**
-     * <code>optional int32 root_component_ref = 3;</code>
+     * <code>optional int32 root_component_ref = 4;</code>
      */
     boolean hasRootComponentRef();
     /**
-     * <code>optional int32 root_component_ref = 3;</code>
+     * <code>optional int32 root_component_ref = 4;</code>
      */
     int getRootComponentRef();
 
     /**
-     * <code>optional int64 snapshot_id = 4;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    boolean hasSnapshotId();
-    /**
-     * <code>optional int64 snapshot_id = 4;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    long getSnapshotId();
-
-    /**
      * <code>optional int32 deleted_components_count = 5;</code>
+     *
+     * <pre>
+     * temporary fields used during development of computation stack
+     * </pre>
      */
     boolean hasDeletedComponentsCount();
     /**
      * <code>optional int32 deleted_components_count = 5;</code>
+     *
+     * <pre>
+     * temporary fields used during development of computation stack
+     * </pre>
      */
     int getDeletedComponentsCount();
   }
@@ -159,25 +150,20 @@ public final class BatchReport {
               projectKey_ = bs;
               break;
             }
-            case 24: {
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              branch_ = bs;
+              break;
+            }
+            case 32: {
               bitField0_ |= 0x00000008;
               rootComponentRef_ = input.readInt32();
               break;
             }
-            case 32: {
-              bitField0_ |= 0x00000010;
-              snapshotId_ = input.readInt64();
-              break;
-            }
             case 40: {
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000010;
               deletedComponentsCount_ = input.readInt32();
-              break;
-            }
-            case 50: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
-              branch_ = bs;
               break;
             }
           }
@@ -289,16 +275,16 @@ public final class BatchReport {
       }
     }
 
-    public static final int BRANCH_FIELD_NUMBER = 6;
+    public static final int BRANCH_FIELD_NUMBER = 3;
     private java.lang.Object branch_;
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     public boolean hasBranch() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     public java.lang.String getBranch() {
       java.lang.Object ref = branch_;
@@ -315,7 +301,7 @@ public final class BatchReport {
       }
     }
     /**
-     * <code>optional string branch = 6;</code>
+     * <code>optional string branch = 3;</code>
      */
     public com.google.protobuf.ByteString
         getBranchBytes() {
@@ -331,54 +317,39 @@ public final class BatchReport {
       }
     }
 
-    public static final int ROOT_COMPONENT_REF_FIELD_NUMBER = 3;
+    public static final int ROOT_COMPONENT_REF_FIELD_NUMBER = 4;
     private int rootComponentRef_;
     /**
-     * <code>optional int32 root_component_ref = 3;</code>
+     * <code>optional int32 root_component_ref = 4;</code>
      */
     public boolean hasRootComponentRef() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional int32 root_component_ref = 3;</code>
+     * <code>optional int32 root_component_ref = 4;</code>
      */
     public int getRootComponentRef() {
       return rootComponentRef_;
-    }
-
-    public static final int SNAPSHOT_ID_FIELD_NUMBER = 4;
-    private long snapshotId_;
-    /**
-     * <code>optional int64 snapshot_id = 4;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    public boolean hasSnapshotId() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional int64 snapshot_id = 4;</code>
-     *
-     * <pre>
-     * temporary fields used during development of computation stack
-     * </pre>
-     */
-    public long getSnapshotId() {
-      return snapshotId_;
     }
 
     public static final int DELETED_COMPONENTS_COUNT_FIELD_NUMBER = 5;
     private int deletedComponentsCount_;
     /**
      * <code>optional int32 deleted_components_count = 5;</code>
+     *
+     * <pre>
+     * temporary fields used during development of computation stack
+     * </pre>
      */
     public boolean hasDeletedComponentsCount() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional int32 deleted_components_count = 5;</code>
+     *
+     * <pre>
+     * temporary fields used during development of computation stack
+     * </pre>
      */
     public int getDeletedComponentsCount() {
       return deletedComponentsCount_;
@@ -389,7 +360,6 @@ public final class BatchReport {
       projectKey_ = "";
       branch_ = "";
       rootComponentRef_ = 0;
-      snapshotId_ = 0L;
       deletedComponentsCount_ = 0;
     }
     private byte memoizedIsInitialized = -1;
@@ -411,17 +381,14 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getProjectKeyBytes());
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getBranchBytes());
+      }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt32(3, rootComponentRef_);
+        output.writeInt32(4, rootComponentRef_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt64(4, snapshotId_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeInt32(5, deletedComponentsCount_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(6, getBranchBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -440,21 +407,17 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getProjectKeyBytes());
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getBranchBytes());
+      }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, rootComponentRef_);
+          .computeInt32Size(4, rootComponentRef_);
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(4, snapshotId_);
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(5, deletedComponentsCount_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getBranchBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -581,10 +544,8 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000004);
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
-        snapshotId_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000010);
         deletedComponentsCount_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -632,10 +593,6 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.snapshotId_ = snapshotId_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
         result.deletedComponentsCount_ = deletedComponentsCount_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -668,9 +625,6 @@ public final class BatchReport {
         }
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
-        }
-        if (other.hasSnapshotId()) {
-          setSnapshotId(other.getSnapshotId());
         }
         if (other.hasDeletedComponentsCount()) {
           setDeletedComponentsCount(other.getDeletedComponentsCount());
@@ -836,13 +790,13 @@ public final class BatchReport {
 
       private java.lang.Object branch_ = "";
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public boolean hasBranch() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public java.lang.String getBranch() {
         java.lang.Object ref = branch_;
@@ -859,7 +813,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public com.google.protobuf.ByteString
           getBranchBytes() {
@@ -875,7 +829,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public Builder setBranch(
           java.lang.String value) {
@@ -888,7 +842,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public Builder clearBranch() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -897,7 +851,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>optional string branch = 6;</code>
+       * <code>optional string branch = 3;</code>
        */
       public Builder setBranchBytes(
           com.google.protobuf.ByteString value) {
@@ -912,19 +866,19 @@ public final class BatchReport {
 
       private int rootComponentRef_ ;
       /**
-       * <code>optional int32 root_component_ref = 3;</code>
+       * <code>optional int32 root_component_ref = 4;</code>
        */
       public boolean hasRootComponentRef() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional int32 root_component_ref = 3;</code>
+       * <code>optional int32 root_component_ref = 4;</code>
        */
       public int getRootComponentRef() {
         return rootComponentRef_;
       }
       /**
-       * <code>optional int32 root_component_ref = 3;</code>
+       * <code>optional int32 root_component_ref = 4;</code>
        */
       public Builder setRootComponentRef(int value) {
         bitField0_ |= 0x00000008;
@@ -933,7 +887,7 @@ public final class BatchReport {
         return this;
       }
       /**
-       * <code>optional int32 root_component_ref = 3;</code>
+       * <code>optional int32 root_component_ref = 4;</code>
        */
       public Builder clearRootComponentRef() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -942,81 +896,49 @@ public final class BatchReport {
         return this;
       }
 
-      private long snapshotId_ ;
-      /**
-       * <code>optional int64 snapshot_id = 4;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public boolean hasSnapshotId() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional int64 snapshot_id = 4;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public long getSnapshotId() {
-        return snapshotId_;
-      }
-      /**
-       * <code>optional int64 snapshot_id = 4;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public Builder setSnapshotId(long value) {
-        bitField0_ |= 0x00000010;
-        snapshotId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 snapshot_id = 4;</code>
-       *
-       * <pre>
-       * temporary fields used during development of computation stack
-       * </pre>
-       */
-      public Builder clearSnapshotId() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        snapshotId_ = 0L;
-        onChanged();
-        return this;
-      }
-
       private int deletedComponentsCount_ ;
       /**
        * <code>optional int32 deleted_components_count = 5;</code>
+       *
+       * <pre>
+       * temporary fields used during development of computation stack
+       * </pre>
        */
       public boolean hasDeletedComponentsCount() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional int32 deleted_components_count = 5;</code>
+       *
+       * <pre>
+       * temporary fields used during development of computation stack
+       * </pre>
        */
       public int getDeletedComponentsCount() {
         return deletedComponentsCount_;
       }
       /**
        * <code>optional int32 deleted_components_count = 5;</code>
+       *
+       * <pre>
+       * temporary fields used during development of computation stack
+       * </pre>
        */
       public Builder setDeletedComponentsCount(int value) {
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         deletedComponentsCount_ = value;
         onChanged();
         return this;
       }
       /**
        * <code>optional int32 deleted_components_count = 5;</code>
+       *
+       * <pre>
+       * temporary fields used during development of computation stack
+       * </pre>
        */
       public Builder clearDeletedComponentsCount() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         deletedComponentsCount_ = 0;
         onChanged();
         return this;
@@ -1803,23 +1725,6 @@ public final class BatchReport {
      */
     com.google.protobuf.ByteString
         getDescriptionBytes();
-
-    /**
-     * <code>optional int64 snapshot_id = 13;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    boolean hasSnapshotId();
-    /**
-     * <code>optional int64 snapshot_id = 13;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    long getSnapshotId();
   }
   /**
    * Protobuf type {@code Component}
@@ -1962,11 +1867,6 @@ public final class BatchReport {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000200;
               description_ = bs;
-              break;
-            }
-            case 104: {
-              bitField0_ |= 0x00000400;
-              snapshotId_ = input.readInt64();
               break;
             }
           }
@@ -2432,29 +2332,6 @@ public final class BatchReport {
       }
     }
 
-    public static final int SNAPSHOT_ID_FIELD_NUMBER = 13;
-    private long snapshotId_;
-    /**
-     * <code>optional int64 snapshot_id = 13;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    public boolean hasSnapshotId() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
-    }
-    /**
-     * <code>optional int64 snapshot_id = 13;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    public long getSnapshotId() {
-      return snapshotId_;
-    }
-
     private void initFields() {
       ref_ = 0;
       path_ = "";
@@ -2468,7 +2345,6 @@ public final class BatchReport {
       key_ = "";
       lines_ = 0;
       description_ = "";
-      snapshotId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2522,9 +2398,6 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeBytes(12, getDescriptionBytes());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeInt64(13, snapshotId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2592,10 +2465,6 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(12, getDescriptionBytes());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(13, snapshotId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2743,8 +2612,6 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000400);
         description_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
-        snapshotId_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00001000);
         return this;
       }
 
@@ -2827,10 +2694,6 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000200;
         }
         result.description_ = description_;
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
-          to_bitField0_ |= 0x00000400;
-        }
-        result.snapshotId_ = snapshotId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2924,9 +2787,6 @@ public final class BatchReport {
           bitField0_ |= 0x00000800;
           description_ = other.description_;
           onChanged();
-        }
-        if (other.hasSnapshotId()) {
-          setSnapshotId(other.getSnapshotId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3938,54 +3798,6 @@ public final class BatchReport {
   }
   bitField0_ |= 0x00000800;
         description_ = value;
-        onChanged();
-        return this;
-      }
-
-      private long snapshotId_ ;
-      /**
-       * <code>optional int64 snapshot_id = 13;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public boolean hasSnapshotId() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
-      }
-      /**
-       * <code>optional int64 snapshot_id = 13;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public long getSnapshotId() {
-        return snapshotId_;
-      }
-      /**
-       * <code>optional int64 snapshot_id = 13;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public Builder setSnapshotId(long value) {
-        bitField0_ |= 0x00001000;
-        snapshotId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 snapshot_id = 13;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public Builder clearSnapshotId() {
-        bitField0_ = (bitField0_ & ~0x00001000);
-        snapshotId_ = 0L;
         onChanged();
         return this;
       }
@@ -22332,78 +22144,77 @@ public final class BatchReport {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022batch_report.proto\032\017constants.proto\"\231\001" +
+      "\n\022batch_report.proto\032\017constants.proto\"\204\001" +
       "\n\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013pro" +
-      "ject_key\030\002 \001(\t\022\016\n\006branch\030\006 \001(\t\022\032\n\022root_c" +
-      "omponent_ref\030\003 \001(\005\022\023\n\013snapshot_id\030\004 \001(\003\022" +
-      " \n\030deleted_components_count\030\005 \001(\005\"?\n\rCom" +
-      "ponentLink\022 \n\004type\030\001 \001(\0162\022.ComponentLink" +
-      "Type\022\014\n\004href\030\002 \001(\t\"\201\002\n\tComponent\022\013\n\003ref\030" +
-      "\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004typ" +
-      "e\030\004 \001(\0162\016.ComponentType\022\017\n\007is_test\030\005 \001(\010" +
-      "\022\020\n\010language\030\006 \001(\t\022\025\n\tchild_ref\030\007 \003(\005B\002\020",
-      "\001\022\034\n\004link\030\010 \003(\0132\016.ComponentLink\022\017\n\007versi" +
-      "on\030\t \001(\t\022\013\n\003key\030\n \001(\t\022\r\n\005lines\030\013 \001(\005\022\023\n\013" +
-      "description\030\014 \001(\t\022\023\n\013snapshot_id\030\r \001(\003\"\316" +
-      "\003\n\007Measure\022%\n\nvalue_type\030\001 \001(\0162\021.Measure" +
-      "ValueType\022\025\n\rboolean_value\030\002 \001(\010\022\021\n\tint_" +
-      "value\030\003 \001(\005\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014doubl" +
-      "e_value\030\005 \001(\001\022\024\n\014string_value\030\006 \001(\t\022\022\n\nm" +
-      "etric_key\030\007 \001(\t\022\023\n\013description\030\t \001(\t\022\020\n\010" +
-      "rule_key\030\n \001(\t\022\033\n\010severity\030\013 \001(\0162\t.Sever" +
-      "ity\022\024\n\014alert_status\030\014 \001(\t\022\022\n\nalert_text\030",
-      "\r \001(\t\022\031\n\021variation_value_1\030\016 \001(\001\022\031\n\021vari" +
-      "ation_value_2\030\017 \001(\001\022\031\n\021variation_value_3" +
-      "\030\020 \001(\001\022\031\n\021variation_value_4\030\021 \001(\001\022\031\n\021var" +
-      "iation_value_5\030\022 \001(\001\022\026\n\016characteric_id\030\023" +
-      " \001(\005\022\021\n\tperson_id\030\024 \001(\005\"<\n\010Measures\022\025\n\rc" +
-      "omponent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Me" +
-      "asure\"\231\004\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t" +
-      "\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030" +
-      "\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\013\n\003ta" +
-      "g\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006is_new",
-      "\030\010 \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_minutes\030" +
-      "\n \001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006status\030\014 \001(" +
-      "\t\022\020\n\010checksum\030\r \001(\t\022\027\n\017manual_severity\030\016" +
-      " \001(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t" +
-      "\022\027\n\017action_plan_key\030\021 \001(\t\022\022\n\nattributes\030" +
-      "\022 \001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcreation_" +
-      "date\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013update" +
-      "_date\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff" +
-      "_fields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026mus" +
-      "t_send_notification\030\032 \001(\010\"N\n\006Issues\022\025\n\rc",
-      "omponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006.Issu" +
-      "e\022\026\n\016component_uuid\030\003 \001(\t\"\254\001\n\nChangesets" +
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003" +
-      "(\0132\025.Changesets.Changeset\022 \n\024changesetIn" +
-      "dexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revi" +
-      "sion\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003" +
-      "\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n" +
-      "\005range\030\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003" +
-      " \001(\t\"M\n\013Duplication\022\037\n\017origin_position\030\001" +
-      " \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplic",
-      "ate\"H\n\014Duplications\022\025\n\rcomponent_ref\030\001 \001" +
-      "(\005\022!\n\013duplication\030\002 \003(\0132\014.Duplication\"W\n" +
-      "\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002" +
-      " \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset" +
-      "\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006s" +
-      "ymbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033" +
-      "\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\treference" +
-      "\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(" +
-      "\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017" +
-      "\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions",
-      "\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n" +
-      "\032overall_covered_conditions\030\007 \001(\005\"L\n\022Syn" +
-      "taxHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037" +
-      "\n\004type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022" +
-      "\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStat" +
-      "us\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace" +
-      "\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021" +
-      "\n\ttest_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132" +
-      "\033.CoverageDetail.CoveredFile\0329\n\013CoveredF" +
-      "ile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 ",
-      "\003(\005B\002\020\001B#\n\037org.sonar.batch.protocol.outp" +
-      "utH\001"
+      "ject_key\030\002 \001(\t\022\016\n\006branch\030\003 \001(\t\022\032\n\022root_c" +
+      "omponent_ref\030\004 \001(\005\022 \n\030deleted_components" +
+      "_count\030\005 \001(\005\"?\n\rComponentLink\022 \n\004type\030\001 " +
+      "\001(\0162\022.ComponentLinkType\022\014\n\004href\030\002 \001(\t\"\354\001" +
+      "\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014" +
+      "\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.ComponentTy" +
+      "pe\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001(\t\022\025\n" +
+      "\tchild_ref\030\007 \003(\005B\002\020\001\022\034\n\004link\030\010 \003(\0132\016.Com",
+      "ponentLink\022\017\n\007version\030\t \001(\t\022\013\n\003key\030\n \001(\t" +
+      "\022\r\n\005lines\030\013 \001(\005\022\023\n\013description\030\014 \001(\t\"\316\003\n" +
+      "\007Measure\022%\n\nvalue_type\030\001 \001(\0162\021.MeasureVa" +
+      "lueType\022\025\n\rboolean_value\030\002 \001(\010\022\021\n\tint_va" +
+      "lue\030\003 \001(\005\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014double_" +
+      "value\030\005 \001(\001\022\024\n\014string_value\030\006 \001(\t\022\022\n\nmet" +
+      "ric_key\030\007 \001(\t\022\023\n\013description\030\t \001(\t\022\020\n\010ru" +
+      "le_key\030\n \001(\t\022\033\n\010severity\030\013 \001(\0162\t.Severit" +
+      "y\022\024\n\014alert_status\030\014 \001(\t\022\022\n\nalert_text\030\r " +
+      "\001(\t\022\031\n\021variation_value_1\030\016 \001(\001\022\031\n\021variat",
+      "ion_value_2\030\017 \001(\001\022\031\n\021variation_value_3\030\020" +
+      " \001(\001\022\031\n\021variation_value_4\030\021 \001(\001\022\031\n\021varia" +
+      "tion_value_5\030\022 \001(\001\022\026\n\016characteric_id\030\023 \001" +
+      "(\005\022\021\n\tperson_id\030\024 \001(\005\"<\n\010Measures\022\025\n\rcom" +
+      "ponent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Meas" +
+      "ure\"\231\004\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020" +
+      "\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 " +
+      "\001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030" +
+      "\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\016\n\006is_new\030\010" +
+      " \001(\010\022\014\n\004uuid\030\t \001(\t\022\027\n\017debt_in_minutes\030\n ",
+      "\001(\003\022\022\n\nresolution\030\013 \001(\t\022\016\n\006status\030\014 \001(\t\022" +
+      "\020\n\010checksum\030\r \001(\t\022\027\n\017manual_severity\030\016 \001" +
+      "(\010\022\020\n\010reporter\030\017 \001(\t\022\020\n\010assignee\030\020 \001(\t\022\027" +
+      "\n\017action_plan_key\030\021 \001(\t\022\022\n\nattributes\030\022 " +
+      "\001(\t\022\024\n\014author_login\030\023 \001(\t\022\025\n\rcreation_da" +
+      "te\030\024 \001(\003\022\022\n\nclose_date\030\025 \001(\003\022\023\n\013update_d" +
+      "ate\030\026 \001(\003\022\023\n\013selected_at\030\027 \001(\003\022\023\n\013diff_f" +
+      "ields\030\030 \001(\t\022\022\n\nis_changed\030\031 \001(\010\022\036\n\026must_" +
+      "send_notification\030\032 \001(\010\"N\n\006Issues\022\025\n\rcom" +
+      "ponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\022",
+      "\026\n\016component_uuid\030\003 \001(\t\"\254\001\n\nChangesets\022\025" +
+      "\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\013" +
+      "2\025.Changesets.Changeset\022 \n\024changesetInde" +
+      "xByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revisi" +
+      "on\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R" +
+      "\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005r" +
+      "ange\030\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003 \001" +
+      "(\t\"M\n\013Duplication\022\037\n\017origin_position\030\001 \001" +
+      "(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicat" +
+      "e\"H\n\014Duplications\022\025\n\rcomponent_ref\030\001 \001(\005",
+      "\022!\n\013duplication\030\002 \003(\0132\014.Duplication\"W\n\005R" +
+      "ange\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001" +
+      "(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004" +
+      " \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006sym" +
+      "bol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013" +
+      "declaration\030\001 \001(\0132\006.Range\022\031\n\treference\030\002" +
+      " \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022" +
+      "\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007" +
+      "it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions\030\005" +
+      " \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n\032o",
+      "verall_covered_conditions\030\007 \001(\005\"L\n\022Synta" +
+      "xHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004" +
+      "type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022\014\n" +
+      "\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStatus" +
+      "\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004" +
+      " \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\t" +
+      "test_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033." +
+      "CoverageDetail.CoveredFile\0329\n\013CoveredFil" +
+      "e\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(" +
+      "\005B\002\020\001B#\n\037org.sonar.batch.protocol.output",
+      "H\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -22423,7 +22234,7 @@ public final class BatchReport {
     internal_static_Metadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Metadata_descriptor,
-        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", "SnapshotId", "DeletedComponentsCount", });
+        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", "DeletedComponentsCount", });
     internal_static_ComponentLink_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_ComponentLink_fieldAccessorTable = new
@@ -22435,7 +22246,7 @@ public final class BatchReport {
     internal_static_Component_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Component_descriptor,
-        new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "Key", "Lines", "Description", "SnapshotId", });
+        new java.lang.String[] { "Ref", "Path", "Name", "Type", "IsTest", "Language", "ChildRef", "Link", "Version", "Key", "Lines", "Description", });
     internal_static_Measure_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_Measure_fieldAccessorTable = new

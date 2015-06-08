@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -123,22 +122,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
+    dbIdsRepository.setSnapshotId(project, 3L);
     dbIdsRepository.setComponentId(file, fileDto.getId());
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(new Date().getTime())
-      .setRootComponentRef(1)
-      .setProjectKey("project-key")
-      .setSnapshotId(3)
-      .build());
-
-    reportReader.putComponent(defaultComponent()
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(
-      defaultComponent()
-        .setRef(2)
-        .build());
+    dbIdsRepository.setSnapshotId(file, 4L);
 
     reportReader.putMeasures(1, Arrays.asList(
       BatchReport.Measure.newBuilder()
@@ -410,8 +396,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   private BatchReport.Component.Builder defaultComponent() {
     return BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setSnapshotId(FILE_SNAPSHOT_ID);
+      .setRef(1);
   }
 
   private ComponentDto addComponent(int ref, String key) {

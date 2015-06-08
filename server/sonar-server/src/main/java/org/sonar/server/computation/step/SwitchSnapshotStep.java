@@ -25,7 +25,9 @@ import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 import static org.sonar.server.component.db.SnapshotDao.isLast;
@@ -33,18 +35,21 @@ import static org.sonar.server.component.db.SnapshotDao.isLast;
 public class SwitchSnapshotStep implements ComputationStep {
 
   private final DbClient dbClient;
-  private final BatchReportReader reportReader;
+  private final TreeRootHolder treeRootHolder;
+  private final DbIdsRepository dbIdsRepository;
 
-  public SwitchSnapshotStep(DbClient dbClient, BatchReportReader reportReader) {
+  public SwitchSnapshotStep(DbClient dbClient, TreeRootHolder treeRootHolder, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
-    this.reportReader = reportReader;
+    this.treeRootHolder = treeRootHolder;
+    this.dbIdsRepository = dbIdsRepository;
   }
 
   @Override
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      long snapshotId = reportReader.readMetadata().getSnapshotId();
+      Component project = treeRootHolder.getRoot();
+      long snapshotId = dbIdsRepository.getSnapshotId(project);
       disablePreviousSnapshot(session, snapshotId);
       enableCurrentSnapshot(session, snapshotId);
     } finally {

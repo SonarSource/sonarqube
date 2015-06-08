@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.core.metric.db.MetricDto;
@@ -137,32 +136,13 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setSnapshotId(project, 10);
     dbIdsRepository.setComponentId(module, 3);
+    dbIdsRepository.setSnapshotId(module, 11);
     dbIdsRepository.setComponentId(file, 2);
+    dbIdsRepository.setSnapshotId(file, 12);
 
     saveDuplicationMetric();
-
-    // TODO remove this when snapshot id will come from the DbIdsRepo
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setSnapshotId(10L)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setSnapshotId(11L)
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(12L)
-      .setPath("file")
-      .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -196,32 +176,13 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setSnapshotId(project, 10);
     dbIdsRepository.setComponentId(directory, 3);
+    dbIdsRepository.setSnapshotId(directory, 11);
     dbIdsRepository.setComponentId(file, 2);
+    dbIdsRepository.setSnapshotId(file, 12);
 
     saveDuplicationMetric();
-
-    // TODO remove this when snapshot id will come from the DbIdsRepo
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setSnapshotId(10L)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setSnapshotId(11L)
-      .addChildRef(3)
-      .setPath("dir")
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(12L)
-      .setPath("file")
-      .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -256,40 +217,15 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setSnapshotId(project, 10);
     dbIdsRepository.setComponentId(directory1, 2);
+    dbIdsRepository.setSnapshotId(directory1, 11);
     dbIdsRepository.setComponentId(directory2, 3);
+    dbIdsRepository.setSnapshotId(directory2, 12);
     dbIdsRepository.setComponentId(file, 10);
+    dbIdsRepository.setSnapshotId(file, 20);
 
     saveDuplicationMetric();
-
-    // TODO remove this when snapshot id will come from the DbIdsRepo
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setSnapshotId(10L)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setSnapshotId(11L)
-      .addChildRef(3)
-      .setPath("dir")
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setSnapshotId(12L)
-      .addChildRef(10)
-      .setPath("dir2")
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(10)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(20L)
-      .setPath("file")
-      .build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -324,28 +260,11 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setSnapshotId(project, 10);
     dbIdsRepository.setComponentId(file, 2);
-
-    // TODO remove this when snapshot id will come from the DbIdsRepo
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setSnapshotId(10L)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(11L)
-      .setPath("file")
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(12L)
-      .setPath("file2")
-      .build());
+    dbIdsRepository.setSnapshotId(file, 11);
+    dbIdsRepository.setComponentId(file2, 2);
+    dbIdsRepository.setSnapshotId(file2, 12);
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
       .setOriginPosition(Range.newBuilder()
@@ -406,22 +325,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
+    dbIdsRepository.setSnapshotId(project, 10);
     dbIdsRepository.setComponentId(file, 2);
-
-    // TODO remove this when snapshot id will come from the DbIdsRepo
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setSnapshotId(10L)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.FILE)
-      .setSnapshotId(11L)
-      .setPath("file")
-      .build());
+    dbIdsRepository.setSnapshotId(file, 11);
   }
 
   private MetricDto saveDuplicationMetric() {

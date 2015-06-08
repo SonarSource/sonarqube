@@ -100,8 +100,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
       .setVersion("1.1")
       .build());
 
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY);
-    treeRootHolder.setRoot(project);
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
   }

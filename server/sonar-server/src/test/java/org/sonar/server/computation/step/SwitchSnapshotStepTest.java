@@ -27,10 +27,12 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -42,8 +44,11 @@ public class SwitchSnapshotStepTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
+  DbIdsRepository dbIdsRepository = new DbIdsRepository();
 
   SwitchSnapshotStep sut;
 
@@ -52,15 +57,16 @@ public class SwitchSnapshotStepTest {
     db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), reportReader);
+    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), treeRootHolder, dbIdsRepository);
   }
 
   @Test
   public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setSnapshotId(1L).build());
+    Component project = DumbComponent.DUMB_PROJECT;
+    treeRootHolder.setRoot(project);
+    dbIdsRepository.setSnapshotId(project, 1);
 
     sut.execute();
 

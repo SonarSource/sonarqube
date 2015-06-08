@@ -72,10 +72,6 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
     // protocol buffers does not accept null values
 
-    Integer sid = batchComponent.snapshotId();
-    if (sid != null) {
-      builder.setSnapshotId(sid);
-    }
     if (batchComponent.isFile()) {
       builder.setIsTest(ResourceUtils.isUnitTestFile(r));
       builder.setLines(((InputFile) batchComponent.inputPath()).lines());

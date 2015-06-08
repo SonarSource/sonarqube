@@ -86,18 +86,17 @@ public class PersistDuplicationsStep implements ComputationStep {
     private void visitComponent(Component component) {
       List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getRef());
       if (!duplications.isEmpty()) {
-        BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
-        saveDuplications(batchComponent, component, duplications);
+        saveDuplications( component, duplications);
       }
     }
 
-    private void saveDuplications(BatchReport.Component batchComponent, Component component, List<BatchReport.Duplication> duplications) {
+    private void saveDuplications(Component component, List<BatchReport.Duplication> duplications) {
       String duplicationXml = createXmlDuplications(component.getKey(), duplications);
       MeasureDto measureDto = new MeasureDto()
         .setMetricId(duplicationMetric.getId())
         .setData(duplicationXml)
         .setComponentId(dbIdsRepository.getComponentId(component))
-        .setSnapshotId(batchComponent.getSnapshotId());
+        .setSnapshotId(dbIdsRepository.getSnapshotId(component));
       dbClient.measureDao().insert(session, measureDto);
     }
 

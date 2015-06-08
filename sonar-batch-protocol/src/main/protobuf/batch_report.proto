@@ -43,11 +43,10 @@ message Metadata {
   optional int64 analysis_date = 1;
   // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
   optional string project_key = 2;
-  optional string branch = 6;
-  optional int32 root_component_ref = 3;
+  optional string branch = 3;
+  optional int32 root_component_ref = 4;
 
   // temporary fields used during development of computation stack
-  optional int64 snapshot_id = 4;
   optional int32 deleted_components_count = 5;
 }
 
@@ -74,9 +73,6 @@ message Component {
   optional int32 lines = 11;
   // Only available on PROJECT and MODULE types
   optional string description = 12;
-
-  // temporary fields during development of computation stack
-  optional int64 snapshot_id = 13;
 }
 
 message Measure {
