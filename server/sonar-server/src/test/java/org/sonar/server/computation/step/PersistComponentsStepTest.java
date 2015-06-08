@@ -21,12 +21,15 @@
 package org.sonar.server.computation.step;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
@@ -44,6 +47,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class PersistComponentsStepTest extends BaseStepTest {
@@ -63,11 +68,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   DbIdsRepository dbIdsRepository;
 
+  System2 system2 = mock(System2.class);
+
   DbSession session;
 
   DbClient dbClient;
 
-  long now;
+  Date now;
 
   PersistComponentsStep sut;
 
@@ -79,9 +86,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     dbIdsRepository = new DbIdsRepository();
 
-    now = DATE_FORMAT.parse("2015-06-02").getTime();
+    now = DATE_FORMAT.parse("2015-06-02");
+    when(system2.now()).thenReturn(now.getTime());
 
-    sut = new PersistComponentsStep( dbClient, treeRootHolder, reportReader, dbIdsRepository);
+    sut = new PersistComponentsStep( dbClient, treeRootHolder, reportReader, dbIdsRepository, system2);
   }
 
   @Override
@@ -133,6 +141,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     sut.execute();
+    session.commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -148,6 +157,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.qualifier()).isEqualTo("TRK");
     assertThat(projectDto.scope()).isEqualTo("PRJ");
     assertThat(projectDto.parentProjectId()).isNull();
+    assertThat(projectDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto moduleDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY");
     assertThat(moduleDto).isNotNull();
@@ -161,6 +171,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.qualifier()).isEqualTo("BRC");
     assertThat(moduleDto.scope()).isEqualTo("PRJ");
     assertThat(moduleDto.parentProjectId()).isEqualTo(projectDto.getId());
+    assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto directoryDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir");
     assertThat(directoryDto).isNotNull();
@@ -174,6 +185,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.qualifier()).isEqualTo("DIR");
     assertThat(directoryDto.scope()).isEqualTo("DIR");
     assertThat(directoryDto.parentProjectId()).isEqualTo(moduleDto.getId());
+    assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
     ComponentDto fileDto = dbClient.componentDao().selectNullableByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java");
     assertThat(fileDto).isNotNull();
@@ -188,6 +200,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(fileDto.qualifier()).isEqualTo("FIL");
     assertThat(fileDto.scope()).isEqualTo("FIL");
     assertThat(fileDto.parentProjectId()).isEqualTo(moduleDto.getId());
+    assertThat(fileDto.getCreatedAt()).isEqualTo(now);
 
     assertThat(dbIdsRepository.getComponentId(project)).isEqualTo(projectDto.getId());
     assertThat(dbIdsRepository.getComponentId(module)).isEqualTo(moduleDto.getId());
@@ -765,6 +778,32 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(fileReloaded.moduleUuidPath()).isEqualTo(moduleBReloaded.moduleUuidPath());
     assertThat(fileReloaded.projectUuid()).isEqualTo(project.uuid());
     assertThat(fileReloaded.parentProjectId()).isEqualTo(moduleBReloaded.getId());
+  }
+
+  @Test
+  public void not_update_create_at() throws Exception {
+    Date oldDate = DateUtils.parseDate("2015-01-01");
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project").setCreatedAt(oldDate);
+    dbClient.componentDao().insert(session, project);
+    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setPath("path").setCreatedAt(oldDate);
+    dbClient.componentDao().insert(session, module);
+    session.commit();
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("New project name")
+      .addChildRef(2)
+      .build());
+
+    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
+
+    sut.execute();
+
+    ComponentDto projectReloaded = dbClient.componentDao().selectNullableByKey(session, PROJECT_KEY);
+    assertThat(projectReloaded.name()).isEqualTo("New project name");
+    assertThat(projectReloaded.getCreatedAt()).isNotEqualTo(now);
   }
 
 }
