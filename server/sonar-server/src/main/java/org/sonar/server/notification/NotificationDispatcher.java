@@ -37,9 +37,7 @@ import org.sonar.api.server.ServerSide;
  * <li>notify me by Jabber when someone mentions me in an issue comment</li>
  * <li>send me by SMS when there are system notifications (like password reset, account creation, ...)</li>
  * </ul> 
- * 
- * @since 2.10
- */
+  */
 @ServerSide
 @ExtensionPoint
 public abstract class NotificationDispatcher {

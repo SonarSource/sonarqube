@@ -34,18 +34,15 @@ import java.util.concurrent.TimeUnit;
 import org.picocontainer.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
 
-/**
- * @since 2.10
- */
 @Properties({
   @Property(
     key = NotificationService.PROPERTY_DELAY,
@@ -78,11 +75,8 @@ public class NotificationService implements Startable {
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
 
-  /**
-   * Constructor for {@link NotificationService}
-   */
   public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
-                             DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
+    DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
     this.databaseSessionFactory = databaseSessionFactory;
     this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
@@ -95,7 +89,7 @@ public class NotificationService implements Startable {
    * Default constructor when no dispatchers.
    */
   public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
-                             DatabaseSessionFactory databaseSessionFactory) {
+    DatabaseSessionFactory databaseSessionFactory) {
     this(settings, manager, dbClient, databaseSessionFactory, new NotificationDispatcher[0]);
   }
 

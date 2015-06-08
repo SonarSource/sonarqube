@@ -26,9 +26,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 
 /**
- * <p>
  * The notification manager receives notifications and is in charge of storing them so that they are processed by the notification service.
- * </p>
  * <p>
  * Pico provides an instance of this class, and plugins just need to create notifications and pass them to this manager with
  * the {@link NotificationManager#scheduleForSending(Notification)} method.

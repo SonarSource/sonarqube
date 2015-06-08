@@ -20,20 +20,13 @@
 package org.sonar.server.notification;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.server.ServerSide;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * @since 3.5
- */
-@ServerSide
 public class NotificationCenter {
 
   private static final Logger LOG = Loggers.get(NotificationCenter.class);
@@ -41,9 +34,6 @@ public class NotificationCenter {
   private final NotificationDispatcherMetadata[] dispatchersMetadata;
   private final NotificationChannel[] channels;
 
-  /**
-   * Constructor for {@link NotificationCenter}
-   */
   public NotificationCenter(NotificationDispatcherMetadata[] metadata, NotificationChannel[] channels) {
     this.dispatchersMetadata = metadata;
     this.channels = channels;
@@ -64,17 +54,11 @@ public class NotificationCenter {
     this(new NotificationDispatcherMetadata[0], channels);
   }
 
-  /**
-   * Default constructor.
-   */
   public NotificationCenter() {
     this(new NotificationDispatcherMetadata[0], new NotificationChannel[0]);
     LOG.warn("There is no notification channel - no notification will be delivered!");
   }
 
-  /**
-   * Returns all the available channels.
-   */
   public List<NotificationChannel> getChannels() {
     return Arrays.asList(channels);
   }

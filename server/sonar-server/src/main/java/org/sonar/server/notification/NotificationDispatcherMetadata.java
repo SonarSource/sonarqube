@@ -29,8 +29,6 @@ import org.sonar.api.server.ServerSide;
  * to tell more about them.
  * <p/>
  * Instances of these classes must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
- *
- * @since 3.5
  */
 @ServerSide
 public final class NotificationDispatcherMetadata {
