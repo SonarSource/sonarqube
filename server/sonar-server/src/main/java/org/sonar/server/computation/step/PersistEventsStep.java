@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
-import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -74,21 +73,17 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   private void processEvents(DbSession session, final BatchReport.Component batchComponent, final Component component, final Long analysisDate) {
-    final List<BatchReport.Event> events = batchComponent.getEventList();
-    if (events.isEmpty()) {
-      return;
-    }
-
     Function<Event, EventDto> eventToEventDto = new Function<Event, EventDto>() {
       @Override
       public EventDto apply(@Nonnull Event event) {
         return newBaseEvent(batchComponent, component, analysisDate)
-            .setName(event.getName())
-            .setCategory(convertCategory(event.getCategory()))
-            .setDescription(event.getDescription())
-            .setData(event.getData());
+          .setName(event.getName())
+          .setCategory(convertCategory(event.getCategory()))
+          .setDescription(event.getDescription())
+          .setData(event.getData());
       }
     };
+    // FIXME bulk insert
     for (EventDto batchEventDto : transform(eventRepository.getEvents(component), eventToEventDto)) {
       dbClient.eventDao().insert(session, batchEventDto);
     }

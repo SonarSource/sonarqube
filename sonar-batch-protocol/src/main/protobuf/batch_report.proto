@@ -56,15 +56,6 @@ message ComponentLink {
   optional string href = 2;
 }
 
-// temporary message during development of computation stack
-message Event {
-  optional int32 component_ref = 1;
-  optional string name = 2;
-  optional string description = 3;
-  optional EventCategory category = 4;
-  optional string event_data = 5;
-}
-
 message Component {
   optional int32 ref = 1;
   optional string path = 2;
@@ -86,7 +77,6 @@ message Component {
 
   // temporary fields during development of computation stack
   optional int64 snapshot_id = 13;
-  repeated Event event = 14;
 }
 
 message Measure {

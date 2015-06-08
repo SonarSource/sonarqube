@@ -32,9 +32,7 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Component.Builder;
 import org.sonar.batch.protocol.output.BatchReport.ComponentLink;
-import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 
@@ -45,12 +43,10 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache resourceCache;
   private final ImmutableProjectReactor reactor;
-  private final EventCache eventCache;
 
-  public ComponentsPublisher(ImmutableProjectReactor reactor, BatchComponentCache resourceCache, EventCache eventCache) {
+  public ComponentsPublisher(ImmutableProjectReactor reactor, BatchComponentCache resourceCache) {
     this.reactor = reactor;
     this.resourceCache = resourceCache;
-    this.eventCache = eventCache;
   }
 
   @Override
@@ -105,19 +101,10 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
     writeLinks(batchComponent, builder);
     writeVersion(batchComponent, builder);
-    writeEvents(batchComponent, builder);
     writer.writeComponent(builder.build());
 
     for (BatchComponent child : batchComponent.children()) {
       recursiveWriteComponent(child, writer);
-    }
-  }
-
-  private void writeEvents(BatchComponent batchResource, Builder builder) {
-    if (ResourceUtils.isProject(batchResource.resource())) {
-      for (Event event : eventCache.getEvents(batchResource.batchId())) {
-        builder.addEvent(event);
-      }
     }
   }
 

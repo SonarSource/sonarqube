@@ -106,47 +106,6 @@ public class PersistEventsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_report_events() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
-
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null);
-    treeRootHolder.setRoot(root);
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(150000000L)
-      .build());
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setSnapshotId(1000L)
-      .addEvent(BatchReport.Event.newBuilder()
-        .setName("Red (was Orange)")
-        .setCategory(Constants.EventCategory.ALERT)
-        .setDescription("Open issues > 0")
-        .build()
-      )
-      .addEvent(BatchReport.Event.newBuilder()
-        .setName("Changes in 'Default' (Java)")
-        .setCategory(Constants.EventCategory.PROFILE)
-        .setEventData("from=2014-10-12T08:36:25+0000;key=java-default;to=2014-10-12T10:36:25+0000")
-        .build()
-      )
-      .build());
-
-    when(eventRepository.getEvents(root)).thenReturn(ImmutableList.of(
-      Event.createAlert("Red (was Orange)", null, "Open issues > 0"),
-      Event.createProfile("Changes in 'Default' (Java)", "from=2014-10-12T08:36:25+0000;key=java-default;to=2014-10-12T10:36:25+0000", null))
-      );
-
-    treeRootHolder.setRoot(root);
-    step.execute();
-
-    dbTester.assertDbUnit(getClass(), "add_events-result.xml", "events");
-  }
-
-  @Test
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
@@ -163,11 +122,6 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setSnapshotId(1000L)
-      .addEvent(BatchReport.Event.newBuilder()
-        .setName("Red (was Orange)")
-        .setCategory(Constants.EventCategory.ALERT)
-        .setDescription("Open issues > 0")
-        .build())
       .addChildRef(2)
       .build());
 
@@ -175,12 +129,7 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setSnapshotId(1001L)
-      .addEvent(BatchReport.Event.newBuilder()
-        .setName("Red (was Orange)")
-        .setCategory(Constants.EventCategory.ALERT)
-        .setDescription("Open issues > 0")
-        .build()
-      ).build());
+      .build());
 
     Component child = root.getChildren().get(0);
 

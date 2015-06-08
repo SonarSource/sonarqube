@@ -20,8 +20,6 @@
 package org.sonar.batch.report;
 
 import java.io.File;
-import java.util.Arrays;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,31 +33,20 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.ComponentLinkType;
-import org.sonar.batch.protocol.Constants.EventCategory;
 import org.sonar.batch.protocol.output.BatchReport.Component;
-import org.sonar.batch.protocol.output.BatchReport.Event;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ComponentsPublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private BatchComponentCache resourceCache;
-  private EventCache eventCache;
-
-  @Before
-  public void prepare() {
-    resourceCache = new BatchComponentCache();
-    eventCache = mock(EventCache.class);
-  }
+  BatchComponentCache resourceCache = new BatchComponentCache();
 
   @Test
   public void add_components_to_report() throws Exception {
@@ -99,7 +86,7 @@ public class ComponentsPublisherTest {
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -160,7 +147,7 @@ public class ComponentsPublisherTest {
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
+    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -178,48 +165,5 @@ public class ComponentsPublisherTest {
     assertThat(module1Protobuf.getLinkCount()).isEqualTo(1);
     assertThat(module1Protobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.CI);
     assertThat(module1Protobuf.getLink(0).getHref()).isEqualTo("http://ci");
-  }
-
-  @Test
-  public void add_components_with_events() throws Exception {
-    // inputs
-    ProjectDefinition rootDef = ProjectDefinition.create().setKey("foo");
-    rootDef.properties().put(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0");
-    Project root = new Project("foo").setName("Root project")
-      .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
-    root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
-
-    Project module1 = new Project("module1").setName("Module1");
-    module1.setParent(root);
-    module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
-    ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
-    rootDef.addSubProject(moduleDef);
-
-    when(eventCache.getEvents(2)).thenReturn(Arrays.asList(Event.newBuilder().setName("name").setCategory(EventCategory.ALERT).setComponentRef(2).build()));
-
-    Directory dir = Directory.create("src");
-    dir.setEffectiveKey("module1:src");
-    dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
-
-    ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
-
-    ComponentsPublisher publisher = new ComponentsPublisher(reactor, resourceCache, eventCache);
-
-    File outputDir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(outputDir);
-    publisher.publish(writer);
-
-    BatchReportReader reader = new BatchReportReader(outputDir);
-    Component rootProtobuf = reader.readComponent(1);
-    assertThat(rootProtobuf.getVersion()).isEqualTo("1.0");
-    assertThat(rootProtobuf.getEventCount()).isEqualTo(0);
-
-    Component module1Protobuf = reader.readComponent(2);
-    assertThat(module1Protobuf.getVersion()).isEqualTo("1.0");
-    assertThat(module1Protobuf.getEventCount()).isEqualTo(1);
-    assertThat(module1Protobuf.getEvent(0).getCategory()).isEqualTo(EventCategory.ALERT);
   }
 }

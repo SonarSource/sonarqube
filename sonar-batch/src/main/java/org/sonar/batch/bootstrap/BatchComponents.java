@@ -57,9 +57,7 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.rule.QProfileEventsDecorator;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
 import org.sonar.batch.scan.report.IssuesReportBuilder;
@@ -113,7 +111,6 @@ public class BatchComponents {
       DefaultNotificationManager.class,
 
       // Quality Gate
-      GenerateQualityGateEvents.class,
       QualityGateVerifier.class,
 
       // Issue tracking
@@ -122,7 +119,6 @@ public class BatchComponents {
       InitialOpenIssuesSensor.class,
 
       // to be moved to compute engine
-      QProfileEventsDecorator.class,
       CountUnresolvedIssuesDecorator.class,
       CountFalsePositivesDecorator.class,
       UnitTestDecorator.class,

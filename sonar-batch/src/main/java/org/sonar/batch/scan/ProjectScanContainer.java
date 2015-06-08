@@ -60,7 +60,6 @@ import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
-import org.sonar.batch.report.EventCache;
 import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.report.MeasuresPublisher;
 import org.sonar.batch.report.ReportPublisher;
@@ -192,9 +191,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Quality Gate
       new QualityGateProvider(),
-
-      // Events
-      EventCache.class,
 
       ProjectSettings.class,
 
