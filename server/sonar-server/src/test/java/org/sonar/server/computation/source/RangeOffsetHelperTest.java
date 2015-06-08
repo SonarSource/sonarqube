@@ -30,7 +30,7 @@ public class RangeOffsetHelperTest {
 
   @Test
   public void append_range() {
-    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
       .setStartLine(1).setEndLine(1)
       .setStartOffset(2).setEndOffset(3)
       .build(), 1, 5)).isEqualTo("2,3");
@@ -38,7 +38,7 @@ public class RangeOffsetHelperTest {
 
   @Test
   public void append_range_not_finishing_in_current_line() {
-    assertThat( RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
       .build(), 1, 5)).isEqualTo("2,5");
@@ -46,7 +46,7 @@ public class RangeOffsetHelperTest {
 
   @Test
   public void append_range_that_began_in_previous_line_and_finish_in_current_line() {
-    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
       .build(), 3, 5)).isEqualTo("0,3");
@@ -54,7 +54,7 @@ public class RangeOffsetHelperTest {
 
   @Test
   public void append_range_that_began_in_previous_line_and_not_finishing_in_current_line() {
-    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
       .setStartLine(1).setEndLine(3)
       .setStartOffset(2).setEndOffset(3)
       .build(), 2, 5)).isEqualTo("0,5");
@@ -62,7 +62,7 @@ public class RangeOffsetHelperTest {
 
   @Test
   public void do_nothing_if_offset_is_empty() {
-    assertThat(RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
+    assertThat(RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
       .setStartLine(1).setEndLine(1)
       .setStartOffset(0).setEndOffset(0)
       .build(), 1, 5)).isEmpty();
@@ -71,10 +71,10 @@ public class RangeOffsetHelperTest {
   @Test
   public void fail_when_end_offset_is_before_start_offset() {
     try {
-      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(4).setEndOffset(2)
-          .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(4).setEndOffset(2)
+        .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
@@ -85,10 +85,10 @@ public class RangeOffsetHelperTest {
   @Test
   public void fail_when_end_offset_is_higher_than_line_length() {
     try {
-      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(4).setEndOffset(10)
-          .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(4).setEndOffset(10)
+        .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {
@@ -99,10 +99,10 @@ public class RangeOffsetHelperTest {
   @Test
   public void fail_when_start_offset_is_higher_than_line_length() {
     try {
-      RangeOffsetHelper.offsetToString(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(10).setEndOffset(11)
-          .build(),
+      RangeOffsetHelper.offsetToString(BatchReport.TextRange.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(10).setEndOffset(11)
+        .build(),
         1, 5);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException e) {

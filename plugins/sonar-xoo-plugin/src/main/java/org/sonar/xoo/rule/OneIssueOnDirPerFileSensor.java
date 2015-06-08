@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
@@ -50,10 +51,12 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
     if (inputDir != null) {
-      context.newIssue()
+      NewIssue newIssue = context.newIssue();
+      newIssue
         .forRule(ruleKey)
-        .onDir(inputDir)
-        .message("This issue is generated for file " + file.relativePath())
+        .addLocation(newIssue.newLocation()
+          .onDir(inputDir)
+          .message("This issue is generated for file " + file.relativePath()))
         .save();
     }
   }

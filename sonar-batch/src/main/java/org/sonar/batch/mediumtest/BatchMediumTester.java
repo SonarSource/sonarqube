@@ -266,7 +266,8 @@ public class BatchMediumTester {
     }
 
     public FakeProjectRepositoriesLoader addQProfile(String language, String name) {
-      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date()));
+      // Use a fixed date to allow assertions
+      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date(1234567891212L)));
       return this;
     }
 

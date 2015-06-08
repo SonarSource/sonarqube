@@ -21,44 +21,43 @@ package org.sonar.batch.issue;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
 /**
  * @since 3.6
  */
 public class DefaultIssuable implements Issuable {
 
-  private final ModuleIssues moduleIssues;
   private final IssueCache cache;
   private final BatchComponent component;
-  private final Project project;
+  private final SensorContext sensorContext;
 
-  DefaultIssuable(BatchComponent component, Project project, ModuleIssues moduleIssues, IssueCache cache) {
+  DefaultIssuable(BatchComponent component, IssueCache cache, SensorContext sensorContext) {
     this.component = component;
-    this.project = project;
-    this.moduleIssues = moduleIssues;
     this.cache = cache;
+    this.sensorContext = sensorContext;
   }
 
   @Override
   public IssueBuilder newIssueBuilder() {
-    return new DefaultIssueBuilder().componentKey(component.key()).projectKey(project.getKey());
+    DefaultIssue newIssue = (DefaultIssue) sensorContext.newIssue();
+    return new DeprecatedIssueBuilderWrapper(component, newIssue);
   }
 
   @Override
   public boolean addIssue(Issue issue) {
-    return moduleIssues.initAndAddIssue((DefaultIssue) issue);
+    ((DeprecatedIssueWrapper) issue).wrapped().save();
+    return true;
   }
 
   @Override
   public List<Issue> resolvedIssues() {
     List<Issue> result = Lists.newArrayList();
-    for (DefaultIssue issue : cache.byComponent(component.key())) {
+    for (org.sonar.core.issue.DefaultIssue issue : cache.byComponent(component.key())) {
       if (issue.resolution() != null) {
         result.add(issue);
       }
@@ -69,7 +68,7 @@ public class DefaultIssuable implements Issuable {
   @Override
   public List<Issue> issues() {
     List<Issue> result = Lists.newArrayList();
-    for (DefaultIssue issue : cache.byComponent(component.key())) {
+    for (org.sonar.core.issue.DefaultIssue issue : cache.byComponent(component.key())) {
       if (issue.resolution() == null) {
         result.add(issue);
       }

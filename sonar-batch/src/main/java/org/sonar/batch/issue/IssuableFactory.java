@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.Issuable;
-import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.deprecated.perspectives.PerspectiveBuilder;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.sensor.DefaultSensorContext;
 
 /**
  * Create the perspective {@link Issuable} on components.
@@ -30,19 +31,17 @@ import org.sonar.batch.index.BatchComponent;
  */
 public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
-  private final ModuleIssues moduleIssues;
   private final IssueCache cache;
-  private final DefaultProjectTree projectTree;
+  private final SensorContext sensorContext;
 
-  public IssuableFactory(ModuleIssues moduleIssues, IssueCache cache, DefaultProjectTree projectTree) {
+  public IssuableFactory(IssueCache cache, DefaultSensorContext sensorContext) {
     super(Issuable.class);
-    this.moduleIssues = moduleIssues;
     this.cache = cache;
-    this.projectTree = projectTree;
+    this.sensorContext = sensorContext;
   }
 
   @Override
   public Issuable loadPerspective(Class<Issuable> perspectiveClass, BatchComponent component) {
-    return new DefaultIssuable(component, projectTree.getRootProject(), moduleIssues, cache);
+    return new DefaultIssuable(component, cache, sensorContext);
   }
 }

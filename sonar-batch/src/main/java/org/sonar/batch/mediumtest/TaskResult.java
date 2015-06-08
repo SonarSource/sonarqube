@@ -19,11 +19,9 @@
  */
 package org.sonar.batch.mediumtest;
 
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,30 +36,23 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.measures.Measure;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
-import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.batch.protocol.output.BatchReport.Symbol;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.CloseableIterator;
 
@@ -70,7 +61,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   private static final Logger LOG = LoggerFactory.getLogger(TaskResult.class);
 
   private List<Issue> issues = new ArrayList<>();
-  private Multimap<String, org.sonar.api.batch.sensor.measure.Measure> measures = LinkedHashMultimap.create();
   private Map<String, List<Duplication>> duplications = new HashMap<>();
   private Map<String, InputFile> inputFiles = new HashMap<>();
   private Map<String, Component> reportComponents = new HashMap<>();
@@ -94,8 +84,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
     storeFs(container);
 
-    storeMeasures(container);
-
     storeDuplication(container);
   }
 
@@ -114,28 +102,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   public BatchReportReader getReportReader() {
     return reader;
-  }
-
-  private void storeMeasures(ProjectScanContainer container) {
-    BatchComponentCache resourceCache = container.getComponentByType(BatchComponentCache.class);
-    for (Entry<Measure> measureEntry : container.getComponentByType(MeasureCache.class).entries()) {
-      String componentKey = measureEntry.key()[0].toString();
-      InputPath path = resourceCache.get(componentKey).inputPath();
-      Measure oldMeasure = measureEntry.value();
-      DefaultMeasure<Serializable> newMeasure = new DefaultMeasure<>().forMetric(oldMeasure.getMetric());
-      if (path != null) {
-        if (path instanceof InputFile) {
-          newMeasure.onFile((InputFile) path);
-        } else {
-          // Ignore measure on directories since this will disappear in target architecture
-          continue;
-        }
-      } else {
-        newMeasure.onProject();
-      }
-      newMeasure.withValue(oldMeasure.value());
-      measures.put(componentKey, newMeasure);
-    }
   }
 
   private void storeDuplication(ProjectScanContainer container) {
@@ -159,14 +125,6 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return issues;
   }
 
-  public Collection<org.sonar.api.batch.sensor.measure.Measure> allMeasures() {
-    return measures.values();
-  }
-
-  public Collection<org.sonar.api.batch.sensor.measure.Measure> measures(String componentKey) {
-    return measures.get(componentKey);
-  }
-
   public Collection<InputFile> inputFiles() {
     return inputFiles.values();
   }
@@ -187,6 +145,18 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
   public List<Duplication> duplicationsFor(InputFile inputFile) {
     return duplications.get(((DefaultInputFile) inputFile).key());
+  }
+
+  public Map<String, List<BatchReport.Measure>> allMeasures() {
+    Map<String, List<BatchReport.Measure>> result = new HashMap<>();
+    for (Map.Entry<String, Component> component : reportComponents.entrySet()) {
+      List<BatchReport.Measure> measures = new ArrayList<>();
+      try (CloseableIterator<BatchReport.Measure> it = reader.readComponentMeasures(component.getValue().getRef())) {
+        Iterators.addAll(measures, it);
+      }
+      result.put(component.getKey(), measures);
+    }
+    return result;
   }
 
   /**
@@ -214,7 +184,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return result;
   }
 
-  private static TextRange toRange(InputFile file, Range reportRange) {
+  private static TextRange toRange(InputFile file, BatchReport.TextRange reportRange) {
     return file.newRange(file.newPointer(reportRange.getStartLine(), reportRange.getStartOffset()), file.newPointer(reportRange.getEndLine(), reportRange.getEndOffset()));
   }
 
@@ -224,7 +194,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
    * @param symbolStartLineOffset 0-based end offset for the symbol in file
    */
   @CheckForNull
-  public List<Range> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
+  public List<BatchReport.TextRange> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
     try (CloseableIterator<Symbol> symbols = getReportReader().readComponentSymbols(ref)) {
       while (symbols.hasNext()) {

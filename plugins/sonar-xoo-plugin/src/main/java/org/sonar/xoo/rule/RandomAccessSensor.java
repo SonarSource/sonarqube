@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.rule;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
@@ -27,11 +29,9 @@ import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
-
-import java.io.File;
-import java.io.IOException;
 
 public class RandomAccessSensor implements Sensor {
 
@@ -63,11 +63,13 @@ public class RandomAccessSensor implements Sensor {
 
   private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
-    context.newIssue()
+    NewIssue newIssue = context.newIssue();
+    newIssue
       .forRule(ruleKey)
-      .onFile(file)
-      .atLine(1)
-      .message("This issue is generated on each file")
+      .addLocation(newIssue.newLocation()
+        .onFile(file)
+        .at(file.selectLine(1))
+        .message("This issue is generated on each file"))
       .save();
   }
 }

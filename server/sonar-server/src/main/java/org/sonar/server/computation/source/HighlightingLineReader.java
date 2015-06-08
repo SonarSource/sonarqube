@@ -63,7 +63,7 @@ public class HighlightingLineReader implements LineReader {
     incrementHighlightingListMatchingLine(line);
     for (Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
       BatchReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
-      BatchReport.Range range = syntaxHighlighting.getRange();
+      BatchReport.TextRange range = syntaxHighlighting.getRange();
       if (range.getStartLine() <= line) {
         String offsets = RangeOffsetHelper.offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
         if (!offsets.isEmpty()) {

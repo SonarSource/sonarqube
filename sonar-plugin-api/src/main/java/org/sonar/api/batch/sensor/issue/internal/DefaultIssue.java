@@ -19,36 +19,32 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.Uuids;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
-  private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
-  private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
-  private static final String ON_FILE_OR_ON_DIR_ALREADY_CALLED = "onFile or onDir already called";
-  private static final String ON_PROJECT_ALREADY_CALLED = "onProject already called";
   private String key;
-  private boolean onProject = false;
-  private InputPath path;
   private RuleKey ruleKey;
-  private String message;
-  private Integer line;
   private Double effortToFix;
-  private Severity overridenSeverity;
+  private Severity overriddenSeverity;
+  private List<IssueLocation> locations = new ArrayList<>();
+  private List<List<IssueLocation>> executionFlows = new ArrayList<>();
 
   public DefaultIssue() {
     super(null);
@@ -67,57 +63,36 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public DefaultIssue onFile(InputFile file) {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    Preconditions.checkNotNull(file, INPUT_FILE_SHOULD_BE_NON_NULL);
-    this.path = file;
-    return this;
-  }
-
-  @Override
-  public DefaultIssue onDir(InputDir dir) {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    Preconditions.checkNotNull(dir, INPUT_DIR_SHOULD_BE_NON_NULL);
-    this.path = dir;
-    return this;
-  }
-
-  @Override
-  public DefaultIssue onProject() {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    this.onProject = true;
-    return this;
-  }
-
-  @Override
-  public DefaultIssue atLine(int line) {
-    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "atLine should be called after onFile.");
-    Preconditions.checkArgument(line > 0, "line starts at 1, invalid value " + line + ".");
-    int lines = ((InputFile) path).lines();
-    Preconditions.checkArgument(line <= lines, "File " + path + " has " + lines + " lines. Unable to create issue at line " + line + ".");
-    this.line = line;
-    return this;
-  }
-
-  @Override
   public DefaultIssue effortToFix(@Nullable Double effortToFix) {
     this.effortToFix = effortToFix;
     return this;
   }
 
   @Override
-  public DefaultIssue message(String message) {
-    this.message = message;
+  public DefaultIssue overrideSeverity(@Nullable Severity severity) {
+    this.overriddenSeverity = severity;
     return this;
   }
 
   @Override
-  public DefaultIssue overrideSeverity(@Nullable Severity severity) {
-    this.overridenSeverity = severity;
+  public NewIssueLocation newLocation() {
+    return new DefaultIssueLocation();
+  }
+
+  @Override
+  public DefaultIssue addLocation(NewIssueLocation location) {
+    locations.add((DefaultIssueLocation) location);
     return this;
+  }
+
+  @Override
+  public DefaultIssue addExecutionFlow(NewIssueLocation... flow) {
+    List<IssueLocation> flowAsList = new ArrayList<>();
+    for (NewIssueLocation issueLocation : flow) {
+      flowAsList.add((DefaultIssueLocation) issueLocation);
+    }
+    executionFlows.add(flowAsList);
+    return null;
   }
 
   @Override
@@ -125,25 +100,9 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
     return this.ruleKey;
   }
 
-  @CheckForNull
   @Override
-  public InputPath inputPath() {
-    return this.path;
-  }
-
-  @Override
-  public Integer line() {
-    return this.line;
-  }
-
-  @Override
-  public String message() {
-    return this.message;
-  }
-
-  @Override
-  public Severity overridenSeverity() {
-    return this.overridenSeverity;
+  public Severity overriddenSeverity() {
+    return this.overriddenSeverity;
   }
 
   @Override
@@ -156,9 +115,30 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
+  public List<IssueLocation> locations() {
+    return ImmutableList.copyOf(this.locations);
+  }
+
+  @Override
+  public List<ExecutionFlow> executionFlows() {
+    return Lists.transform(this.executionFlows, new Function<List<IssueLocation>, ExecutionFlow>() {
+      @Override
+      public ExecutionFlow apply(final List<IssueLocation> input) {
+        return new ExecutionFlow() {
+          @Override
+          public List<IssueLocation> locations() {
+            return ImmutableList.copyOf(input);
+          }
+        };
+      }
+    });
+  }
+
+  @Override
   public void doSave() {
     Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+    Preconditions.checkState(!locations.isEmpty(), "At least one location is mandatory on every issue");
     storage.store(this);
   }
 

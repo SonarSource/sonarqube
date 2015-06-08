@@ -57,7 +57,7 @@ public class SymbolsLineReader implements LineReader {
       StringBuilder symbolString = new StringBuilder(lineBuilder.getSymbols());
 
       appendSymbol(symbolString, lineSymbol.getDeclaration(), line, symbolId, lineBuilder.getSource());
-      for (BatchReport.Range range : lineSymbol.getReferenceList()) {
+      for (BatchReport.TextRange range : lineSymbol.getReferenceList()) {
         appendSymbol(symbolString, range, line, symbolId, lineBuilder.getSource());
       }
 
@@ -67,7 +67,7 @@ public class SymbolsLineReader implements LineReader {
     }
   }
 
-  private static void appendSymbol(StringBuilder lineSymbol, BatchReport.Range range, int line, int symbolId, String sourceLine) {
+  private static void appendSymbol(StringBuilder lineSymbol, BatchReport.TextRange range, int line, int symbolId, String sourceLine) {
     if (matchLine(range, line)) {
       String offsets = RangeOffsetHelper.offsetToString(range, line, sourceLine.length());
       if (!offsets.isEmpty()) {
@@ -89,7 +89,7 @@ public class SymbolsLineReader implements LineReader {
         lineSymbols.add(symbol);
         symbolsIndex.add(symbol);
       } else {
-        for (BatchReport.Range range : symbol.getReferenceList()) {
+        for (BatchReport.TextRange range : symbol.getReferenceList()) {
           if (matchLine(range, line) && !symbolsIndex.contains(symbol)) {
             lineSymbols.add(symbol);
             symbolsIndex.add(symbol);
@@ -100,7 +100,7 @@ public class SymbolsLineReader implements LineReader {
     return lineSymbols;
   }
 
-  private static boolean matchLine(BatchReport.Range range, int line) {
+  private static boolean matchLine(BatchReport.TextRange range, int line) {
     return range.getStartLine() <= line && range.getEndLine() >= line;
   }
 

@@ -24,7 +24,6 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -138,7 +137,7 @@ public class PersistDuplicationsStep implements ComputationStep {
       appendDuplication(xml, componentKey, duplicate.getRange());
     }
 
-    private void appendDuplication(StringBuilder xml, String componentKey, Range range) {
+    private void appendDuplication(StringBuilder xml, String componentKey, BatchReport.TextRange range) {
       int length = range.getEndLine() - range.getStartLine() + 1;
       xml.append("<b s=\"").append(range.getStartLine())
         .append("\" l=\"").append(length)

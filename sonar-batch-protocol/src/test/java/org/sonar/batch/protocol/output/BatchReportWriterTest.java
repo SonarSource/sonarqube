@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 
@@ -166,14 +165,14 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isFalse();
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
         .setOtherFileKey("COMPONENT_A")
         .setOtherFileRef(2)
-        .setRange(Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -198,13 +197,13 @@ public class BatchReportWriterTest {
 
     // write data
     BatchReport.Symbol symbol = BatchReport.Symbol.newBuilder()
-      .setDeclaration(BatchReport.Range.newBuilder()
+      .setDeclaration(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setStartOffset(3)
         .setEndLine(1)
         .setEndOffset(5)
         .build())
-      .addReference(BatchReport.Range.newBuilder()
+      .addReference(BatchReport.TextRange.newBuilder()
         .setStartLine(10)
         .setStartOffset(15)
         .setEndLine(11)
@@ -230,7 +229,7 @@ public class BatchReportWriterTest {
 
     underTest.writeComponentSyntaxHighlighting(1, Arrays.asList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1)
           .setEndLine(1)
           .build())

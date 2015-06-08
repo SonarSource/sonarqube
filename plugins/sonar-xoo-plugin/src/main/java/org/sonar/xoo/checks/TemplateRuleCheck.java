@@ -21,6 +21,7 @@ package org.sonar.xoo.checks;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.check.Rule;
@@ -36,10 +37,12 @@ public class TemplateRuleCheck implements Check {
 
   @Override
   public void execute(SensorContext sensorContext, InputFile file, RuleKey ruleKey) {
-    sensorContext.newIssue()
-      .onFile(file)
+    NewIssue newIssue = sensorContext.newIssue();
+    newIssue
       .forRule(ruleKey)
-      .atLine(line)
+      .addLocation(newIssue.newLocation()
+        .onFile(file)
+        .at(file.selectLine(line)))
       .save();
   }
 

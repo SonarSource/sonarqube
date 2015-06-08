@@ -26,10 +26,10 @@ import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.protocol.output.*;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
-import org.sonar.batch.protocol.output.BatchReport.Range;
+import org.sonar.batch.protocol.output.BatchReportWriter;
 
 public class DuplicationsPublisher implements ReportPublisherStep {
 
@@ -69,7 +69,7 @@ public class DuplicationsPublisher implements ReportPublisherStep {
     dupBuilder.clear();
     Block originBlock = input.originBlock();
     blockBuilder.clear();
-    dupBuilder.setOriginPosition(Range.newBuilder()
+    dupBuilder.setOriginPosition(BatchReport.TextRange.newBuilder()
       .setStartLine(originBlock.startLine())
       .setEndLine(originBlock.startLine() + originBlock.length() - 1)
       .build());
@@ -85,7 +85,7 @@ public class DuplicationsPublisher implements ReportPublisherStep {
         }
       }
       dupBuilder.addDuplicate(blockBuilder
-        .setRange(Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(duplicate.startLine())
           .setEndLine(duplicate.startLine() + duplicate.length() - 1)
           .build())

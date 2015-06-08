@@ -35,7 +35,7 @@ import static com.google.common.collect.Maps.newHashMap;
 public class DuplicationLineReader implements LineReader {
 
   private final List<BatchReport.Duplication> duplications;
-  private final Map<BatchReport.Range, Integer> duplicationIdsByRange;
+  private final Map<BatchReport.TextRange, Integer> duplicationIdsByRange;
 
   public DuplicationLineReader(Iterator<BatchReport.Duplication> duplications) {
     this.duplications = newArrayList(duplications);
@@ -49,14 +49,14 @@ public class DuplicationLineReader implements LineReader {
   @Override
   public void read(FileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
-    List<BatchReport.Range> blocks = findDuplicationBlockMatchingLine(line);
-    for (BatchReport.Range block : blocks) {
+    List<BatchReport.TextRange> blocks = findDuplicationBlockMatchingLine(line);
+    for (BatchReport.TextRange block : blocks) {
       lineBuilder.addDuplication(duplicationIdsByRange.get(block));
     }
   }
 
-  private List<BatchReport.Range> findDuplicationBlockMatchingLine(int line) {
-    List<BatchReport.Range> blocks = newArrayList();
+  private List<BatchReport.TextRange> findDuplicationBlockMatchingLine(int line) {
+    List<BatchReport.TextRange> blocks = newArrayList();
     for (BatchReport.Duplication duplication : duplications) {
       if (matchLine(duplication.getOriginPosition(), line)) {
         blocks.add(duplication.getOriginPosition());
@@ -74,16 +74,16 @@ public class DuplicationLineReader implements LineReader {
     return !duplicate.hasOtherFileKey() && !duplicate.hasOtherFileRef();
   }
 
-  private static boolean matchLine(BatchReport.Range range, int line) {
+  private static boolean matchLine(BatchReport.TextRange range, int line) {
     return range.getStartLine() <= line && line <= range.getEndLine();
   }
 
-  private static int length(BatchReport.Range range) {
+  private static int length(BatchReport.TextRange range) {
     return (range.getEndLine() - range.getStartLine()) + 1;
   }
 
-  private Map<BatchReport.Range, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {
-    Map<BatchReport.Range, Integer> map = newHashMap();
+  private Map<BatchReport.TextRange, Integer> createDuplicationIdsByRange(List<BatchReport.Duplication> duplications) {
+    Map<BatchReport.TextRange, Integer> map = newHashMap();
     int blockId = 1;
     for (BatchReport.Duplication duplication : this.duplications) {
       map.put(duplication.getOriginPosition(), blockId);

@@ -30,19 +30,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -195,36 +190,6 @@ public class ModuleIssuesTest {
     ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
     verify(cache).put(argument.capture());
     assertThat(argument.getValue().message()).isEqualTo("Avoid Cycle");
-  }
-
-  @Test
-  public void add_deprecated_violation() {
-    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
-    initModuleIssues();
-
-    org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
-    Resource resource = File.create("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
-    Violation violation = new Violation(rule, resource);
-    violation.setLineId(42);
-    violation.setSeverity(RulePriority.CRITICAL);
-    violation.setMessage("the message");
-
-    when(filters.accept(any(DefaultIssue.class))).thenReturn(true);
-
-    boolean added = moduleIssues.initAndAddViolation(violation);
-    assertThat(added).isTrue();
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    DefaultIssue issue = argument.getValue();
-    assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.line()).isEqualTo(42);
-    assertThat(issue.message()).isEqualTo("the message");
-    assertThat(issue.key()).isNotEmpty();
-    assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
-    assertThat(issue.componentKey()).isEqualTo("struts:src/org/struts/Action.java");
-    assertThat(issue.projectKey()).isEqualTo("org.apache:struts-core");
   }
 
   @Test

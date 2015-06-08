@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,6 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
@@ -37,9 +40,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -101,7 +101,8 @@ public class ComponentIndexerTest {
 
   private ComponentIndexer createIndexer(Languages languages) {
     BatchComponentCache resourceCache = mock(BatchComponentCache.class);
-    when(resourceCache.get(any(Resource.class))).thenReturn(new BatchComponent(1, org.sonar.api.resources.File.create("foo.php"), null));
+    when(resourceCache.get(any(Resource.class)))
+      .thenReturn(new BatchComponent(2, org.sonar.api.resources.File.create("foo.php"), new BatchComponent(1, Directory.create("src"), null)));
     return new ComponentIndexer(project, languages, sonarIndex, resourceCache);
   }
 

@@ -27,6 +27,7 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.xoo.Xoo;
 
 public class CreateIssueByInternalKeySensor implements Sensor {
@@ -54,10 +55,12 @@ public class CreateIssueByInternalKeySensor implements Sensor {
     ActiveRule rule = context.activeRules().findByInternalKey(XooRulesDefinition.XOO_REPOSITORY,
       context.settings().getString(INTERNAL_KEY_PROPERTY));
     if (rule != null) {
-      context.newIssue()
+      NewIssue newIssue = context.newIssue();
+      newIssue
         .forRule(rule.ruleKey())
-        .onFile(file)
-        .message("This issue is generated on each file")
+        .addLocation(newIssue.newLocation()
+          .onFile(file)
+          .message("This issue is generated on each file"))
         .save();
     }
   }

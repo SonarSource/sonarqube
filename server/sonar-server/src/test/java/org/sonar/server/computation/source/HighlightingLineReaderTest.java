@@ -52,7 +52,7 @@ public class HighlightingLineReaderTest {
   public void read_one_line() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(2).setEndOffset(4)
           .build())
@@ -68,21 +68,21 @@ public class HighlightingLineReaderTest {
   public void read_many_lines() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(0).setEndOffset(4)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build(),
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2)
           .setStartOffset(0).setEndOffset(1)
           .build())
         .setType(Constants.HighlightingType.COMMENT)
         .build(),
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(4).setEndLine(4)
           .setStartOffset(1).setEndOffset(2)
           .build())
@@ -103,14 +103,14 @@ public class HighlightingLineReaderTest {
   public void read_many_syntax_highlighting_on_same_line() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(2).setEndOffset(3)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build(),
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(4).setEndOffset(5)
           .build())
@@ -126,7 +126,7 @@ public class HighlightingLineReaderTest {
   public void read_nested_syntax_highlighting_on_same_line() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(0).setEndOffset(4)
           .build())
@@ -134,7 +134,7 @@ public class HighlightingLineReaderTest {
         .build(),
       // This highlighting is nested in previous one
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(2).setEndOffset(3)
           .build())
@@ -151,7 +151,7 @@ public class HighlightingLineReaderTest {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       // This highlighting begin on line 1 and finish on line 3
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(3)
           .setStartOffset(3).setEndOffset(2)
           .build())
@@ -172,21 +172,21 @@ public class HighlightingLineReaderTest {
   public void read_many_syntax_highlighting_on_many_lines() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(3)
           .setStartOffset(3).setEndOffset(2)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build(),
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(4)
           .setStartOffset(0).setEndOffset(3)
           .build())
         .setType(Constants.HighlightingType.HIGHLIGHTING_STRING)
         .build(),
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2)
           .setStartOffset(1).setEndOffset(2)
           .build())
@@ -208,7 +208,7 @@ public class HighlightingLineReaderTest {
   public void read_highlighting_declared_on_a_whole_line() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(2)
           .setStartOffset(0).setEndOffset(0)
           .build())
@@ -229,7 +229,7 @@ public class HighlightingLineReaderTest {
   public void fail_when_end_offset_is_before_start_offset() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(4).setEndOffset(2)
           .build())
@@ -248,7 +248,7 @@ public class HighlightingLineReaderTest {
   public void fail_when_end_offset_is_higher_than_line_length() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(2).setEndOffset(10)
           .build())
@@ -267,7 +267,7 @@ public class HighlightingLineReaderTest {
   public void fail_when_start_offset_is_higher_than_line_length() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(newArrayList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1)
           .setStartOffset(10).setEndOffset(11)
           .build())
