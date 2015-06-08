@@ -22,6 +22,10 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,11 +49,6 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -103,7 +102,7 @@ public class InternalRubyIssueServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, userSessionRule);
+      issueFilterService, issueBulkChangeService, null, null, null, userSessionRule);
   }
 
   @Test

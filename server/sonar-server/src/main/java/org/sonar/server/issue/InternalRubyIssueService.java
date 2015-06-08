@@ -23,15 +23,22 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -42,15 +49,21 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.db.IssueFilterDto;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
@@ -58,10 +71,13 @@ import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.ws.IssueJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
@@ -90,6 +106,9 @@ public class InternalRubyIssueService {
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
+  private final IssueJsonWriter issueWriter;
+  private final UserIndex userIndex;
+  private final DbClient dbClient;
   private final UserSession userSession;
 
   public InternalRubyIssueService(
@@ -99,6 +118,7 @@ public class InternalRubyIssueService {
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
+    IssueJsonWriter issueWriter, UserIndex userIndex, DbClient dbClient,
     UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
@@ -109,6 +129,9 @@ public class InternalRubyIssueService {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+    this.issueWriter = issueWriter;
+    this.userIndex = userIndex;
+    this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
@@ -667,4 +690,99 @@ public class InternalRubyIssueService {
   public boolean isUserIssueAdmin(String projectUuid) {
     return userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid);
   }
+
+  /**
+   * Used by issue modification actions currently implemented in Rails
+   * @param issue
+   * @return the JSON representation of the modified issue, as a ready to use string
+   */
+  public String writeIssueJson(Issue issue) {
+    StringWriter writer = new StringWriter();
+    JsonWriter json = JsonWriter.of(writer);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Map<String, User> usersByLogin = getIssueUsersByLogin(issue);
+
+      Set<String> componentUuids = ImmutableSet.of(issue.componentUuid());
+      Set<String> projectUuids = Sets.newHashSet();
+      Set<ComponentDto> componentDtos = Sets.newHashSet();
+
+      Map<String, ComponentDto> componentsByUuid = Maps.newHashMap();
+      Map<String, ComponentDto> projectsByComponentUuid = Maps.newHashMap();
+
+      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
+      List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
+      List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, componentUuids);
+      componentDtos.addAll(fileDtos);
+      componentDtos.addAll(subProjectDtos);
+      for (ComponentDto component : componentDtos) {
+        projectUuids.add(component.projectUuid());
+      }
+
+      componentDtos.addAll(projectDtos);
+      for (ComponentDto componentDto : componentDtos) {
+        componentsByUuid.put(componentDto.uuid(), componentDto);
+      }
+      projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
+
+      json.beginObject().name("issue");
+      issueWriter.write(json, issue,
+        usersByLogin,
+        componentsByUuid,
+        projectsByComponentUuid,
+        ImmutableMultimap.<String, DefaultIssueComment>of(),
+        ImmutableMap.<String, ActionPlan>of(),
+        ImmutableList.<String>of());
+      json.endObject().close();
+    } finally {
+      MyBatis.closeQuietly(dbSession);
+      IOUtils.closeQuietly(writer);
+    }
+    return writer.toString();
+  }
+
+  private Map<String, User> getIssueUsersByLogin(Issue issue) {
+    Map<String, User> usersByLogin = Maps.newHashMap();
+    if (issue.assignee() != null) {
+      usersByLogin.put(issue.assignee(), userIndex.getByLogin(issue.assignee()));
+    }
+    if (issue.reporter() != null) {
+      usersByLogin.put(issue.reporter(), userIndex.getByLogin(issue.reporter()));
+    }
+    return usersByLogin;
+  }
+
+  private static Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
+    Map<String, ComponentDto> projectsByUuid = buildProjectsByUuid(projects);
+    return buildProjectsByComponentUuid(components, projectsByUuid);
+  }
+
+  private static Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
+    Map<String, ComponentDto> projectsByUuid = newHashMap();
+    for (ComponentDto project : projects) {
+      if (project == null) {
+        throw new IllegalStateException("Found a null project in issues");
+      }
+      if (project.uuid() == null) {
+        throw new IllegalStateException("Project has no UUID: " + project.getKey());
+      }
+      projectsByUuid.put(project.uuid(), project);
+    }
+    return projectsByUuid;
+  }
+
+  private static Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
+    Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
+    for (ComponentDto component : components) {
+      if (component.uuid() == null) {
+        throw new IllegalStateException("Component has no UUID: " + component.getKey());
+      }
+      if (!projectsByUuid.containsKey(component.projectUuid())) {
+        throw new IllegalStateException("Project cannot be found for component: " + component.getKey() + " / " + component.uuid());
+      }
+      projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
+    }
+    return projectsByComponentUuid;
+  }
+
 }
