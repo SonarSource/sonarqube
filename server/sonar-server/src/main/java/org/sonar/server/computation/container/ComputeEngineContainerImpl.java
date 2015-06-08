@@ -53,6 +53,7 @@ import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
+import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.step.ComputationStep;
@@ -144,6 +145,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       DbIdsRepository.class,
 
       QualityGateServiceImpl.class,
+      EvaluationResultTextConverterImpl.class,
 
       // issues
       ScmAccountCacheLoader.class,

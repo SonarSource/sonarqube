@@ -45,16 +45,17 @@ public class ComputationSteps {
       ValidateProjectStep.class,
       FeedDebtModelStep.class,
 
-      FeedPeriodsStep.class,
-
       // Read report
       ParseReportStep.class,
 
+      // load project related stuffs
       QualityGateLoadingStep.class,
+      FeedPeriodsStep.class,
 
       // data computation
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
+      QualityGateMeasuresStep.class,
       FillMeasuresWithVariationsStep.class,
 
       // Persist data

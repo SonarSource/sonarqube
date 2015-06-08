@@ -31,13 +31,17 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class Condition {
 
-  enum Operator {
+  public enum Operator {
     EQUALS("EQ"), NOT_EQUALS("NE"), GREATER_THAN("GT"), LESS_THAN("LT");
 
     private final String dbValue;
 
     Operator(String dbValue) {
       this.dbValue = dbValue;
+    }
+
+    public String getDbValue() {
+      return dbValue;
     }
   }
 
