@@ -141,6 +141,18 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void fail_when_changing_key_for_an_existing_one() throws Exception {
+    expectedException.expect(ServerException.class);
+    insertMetric(newDefaultMetric().setKey("metric-key"));
+    int id = insertMetric(newDefaultMetric().setKey("another-key"));
+
+    newRequest()
+      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_KEY, "metric-key")
+      .execute();
+  }
+
+  @Test
   public void fail_when_metric_not_in_db() throws Exception {
     expectedException.expect(ServerException.class);
 

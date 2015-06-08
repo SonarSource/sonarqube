@@ -169,16 +169,23 @@ public class UpdateAction implements MetricsWsAction {
   }
 
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
-    if (isMetricFoundInDb(metricInDb) || isMetricDisabled(metricInDb) || isMetricNonCustom(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("No active custom metric has been found for id '%d'. Maybe you want to create a metric ?",
-        template.getId()));
+    if (!isMetricFoundInDb(metricInDb) || isMetricDisabled(metricInDb) || !isMetricCustom(metricInDb)) {
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("No active custom metric has been found for id '%d'.", template.getId()));
     }
+    checkNoOtherMetricWithTargetKey(dbSession, metricInDb, template);
     if (haveMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
       if (haveAssociatedCustomMeasures(customMeasures)) {
         throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated custom measures.",
           metricInDb.getValueType()));
       }
+    }
+  }
+
+  private void checkNoOtherMetricWithTargetKey(DbSession dbSession, MetricDto metricInDb, MetricDto template) {
+    MetricDto metricWithTargetKey = dbClient.metricDao().selectNullableByKey(dbSession, template.getKey());
+    if (isMetricFoundInDb(metricWithTargetKey) && !metricInDb.getId().equals(metricWithTargetKey.getId())) {
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "A me metric exists with the key: " + metricInDb.getKey());
     }
   }
 
@@ -193,8 +200,8 @@ public class UpdateAction implements MetricsWsAction {
     json.endObject();
   }
 
-  private static boolean isMetricNonCustom(MetricDto metricInDb) {
-    return !metricInDb.isUserManaged();
+  private static boolean isMetricCustom(MetricDto metricInDb) {
+    return metricInDb.isUserManaged();
   }
 
   private static boolean isMetricDisabled(MetricDto metricInDb) {
@@ -202,7 +209,7 @@ public class UpdateAction implements MetricsWsAction {
   }
 
   private static boolean isMetricFoundInDb(@Nullable MetricDto metricInDb) {
-    return metricInDb == null;
+    return metricInDb != null;
   }
 
   private static boolean haveAssociatedCustomMeasures(List<CustomMeasureDto> customMeasures) {
