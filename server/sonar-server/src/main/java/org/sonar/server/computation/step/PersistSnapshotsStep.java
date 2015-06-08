@@ -31,6 +31,8 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodsHolder;
 import org.sonar.server.db.DbClient;
 
 /**
@@ -43,15 +45,17 @@ public class PersistSnapshotsStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-
   private final DbIdsRepository dbIdsRepository;
+  private final PeriodsHolder periodsHolder;
 
-  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
+  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository,
+    PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.dbIdsRepository = dbIdsRepository;
+    this.periodsHolder = periodsHolder;
   }
 
   @Override
@@ -88,22 +92,22 @@ public class PersistSnapshotsStep implements ComputationStep {
       switch (component.getType()) {
         case PROJECT:
           this.projectId = componentId;
-          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot);
+          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot, true);
           addToCache(component, projectSnapshot);
           processChildren(component, projectSnapshot);
           break;
         case MODULE:
-          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot);
+          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot, true);
           addToCache(component, moduleSnapshot);
           processChildren(component, moduleSnapshot);
           break;
         case DIRECTORY:
-          SnapshotDto directorySnapshot = persistSnapshot(componentId, Qualifiers.DIRECTORY, Scopes.DIRECTORY, null, parentSnapshot);
+          SnapshotDto directorySnapshot = persistSnapshot(componentId, Qualifiers.DIRECTORY, Scopes.DIRECTORY, null, parentSnapshot, false);
           addToCache(component, directorySnapshot);
           processChildren(component, directorySnapshot);
           break;
         case FILE:
-          SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(reportComponent), Scopes.FILE, null, parentSnapshot);
+          SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(reportComponent), Scopes.FILE, null, parentSnapshot, false);
           addToCache(component, fileSnapshot);
           break;
         default:
@@ -117,7 +121,7 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
     }
 
-    private SnapshotDto persistSnapshot(long componentId, String qualifier, String scope, @Nullable String version, @Nullable SnapshotDto parentSnapshot) {
+    private SnapshotDto persistSnapshot(long componentId, String qualifier, String scope, @Nullable String version, @Nullable SnapshotDto parentSnapshot, boolean setPeriods) {
       SnapshotDto snapshotDto = new SnapshotDto()
         .setRootProjectId(projectId)
         .setVersion(version)
@@ -128,6 +132,9 @@ public class PersistSnapshotsStep implements ComputationStep {
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)
         .setBuildDate(system2.now());
+      if (setPeriods) {
+        updateSnapshotPeriods(snapshotDto);
+      }
 
       if (parentSnapshot != null) {
         snapshotDto
@@ -142,6 +149,15 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
       dbClient.snapshotDao().insert(dbSession, snapshotDto);
       return snapshotDto;
+    }
+
+    private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
+      for (Period period : periodsHolder.getPeriods()) {
+        int index = period.getIndex();
+        snapshotDto.setPeriodMode(index, period.getMode());
+        snapshotDto.setPeriodParam(index, period.getModeParameter());
+        snapshotDto.setPeriodDate(index, period.getSnapshotDate());
+      }
     }
 
     private void addToCache(Component component, SnapshotDto snapshotDto) {

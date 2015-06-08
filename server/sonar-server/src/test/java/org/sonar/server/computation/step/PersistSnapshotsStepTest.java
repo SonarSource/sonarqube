@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -37,6 +39,7 @@ import org.sonar.core.component.SnapshotQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -44,6 +47,8 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodsHolderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -52,9 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
-public class PersistSnapshotStepTest extends BaseStepTest {
-
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+public class PersistSnapshotsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
@@ -67,9 +70,14 @@ public class PersistSnapshotStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
+  @Rule
+  public PeriodsHolderRule periodsHolderRule = new PeriodsHolderRule();
+
   System2 system2 = mock(System2.class);
 
   DbIdsRepository dbIdsRepository;
+
+  Settings settings = new Settings();
 
   DbSession session;
 
@@ -87,17 +95,17 @@ public class PersistSnapshotStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
 
-    analysisDate = DATE_FORMAT.parse("2015-06-01").getTime();
+    analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(analysisDate)
       .build());
     dbIdsRepository = new DbIdsRepository();
 
-    now = DATE_FORMAT.parse("2015-06-02").getTime();
+    now = DateUtils.parseDateQuietly("2015-06-02").getTime();
 
     when(system2.now()).thenReturn(now);
 
-    sut = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository);
+    sut = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository, periodsHolderRule);
   }
 
   @Override
@@ -307,11 +315,6 @@ public class PersistSnapshotStepTest extends BaseStepTest {
     Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, moduleA, moduleB);
     treeRootHolder.setRoot(project);
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_A",
-        new DumbComponent(Component.Type.MODULE, 3, "DEFG", "SUB_MODULE_A")),
-      new DumbComponent(Component.Type.MODULE, 4, "CDEF", "MODULE_B")));
-
     dbIdsRepository.setComponentId(project, projectDto.getId());
     dbIdsRepository.setComponentId(moduleA, moduleADto.getId());
     dbIdsRepository.setComponentId(subModuleA, subModuleADto.getId());
@@ -347,10 +350,151 @@ public class PersistSnapshotStepTest extends BaseStepTest {
     assertThat(moduleBSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleBSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleBSnapshot.getDepth()).isEqualTo(1);
-    assertThat(moduleBSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." );
+    assertThat(moduleBSnapshot.getPath()).isEqualTo(projectSnapshot.getId() + ".");
   }
 
-  private SnapshotDto getUnprocessedSnapshot(long componentId){
+  @Test
+  public void persist_snapshots_with_periods() throws Exception {
+    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbClient.componentDao().insert(session, projectDto);
+    SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
+    dbClient.snapshotDao().insert(session, snapshotDto);
+    session.commit();
+    periodsHolderRule.addPeriod(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate));
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .setVersion("1.0")
+      .addChildRef(2)
+      .build());
+
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY);
+    treeRootHolder.setRoot(project);
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+
+    sut.execute();
+
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    assertThat(projectSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
+    assertThat(projectSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
+    assertThat(projectSnapshot.getPeriodModeParameter(1)).isNotNull();
+  }
+
+  @Test
+  public void only_persist_snapshots_with_periods_on_project_and_module() throws Exception {
+    periodsHolderRule.addPeriod(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate));
+
+    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbClient.componentDao().insert(session, projectDto);
+    SnapshotDto projectSnapshot = SnapshotTesting.createForProject(projectDto);
+    dbClient.snapshotDao().insert(session, projectSnapshot);
+
+    ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
+    dbClient.componentDao().insert(session, moduleDto);
+    SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(moduleDto, projectSnapshot);
+    dbClient.snapshotDao().insert(session, moduleSnapshot);
+
+    ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
+    dbClient.componentDao().insert(session, directoryDto);
+    SnapshotDto directorySnapshot = SnapshotTesting.createForComponent(directoryDto, moduleSnapshot);
+    dbClient.snapshotDao().insert(session, directorySnapshot);
+
+    ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
+    dbClient.componentDao().insert(session, fileDto);
+    SnapshotDto fileSnapshot = SnapshotTesting.createForComponent(fileDto, directorySnapshot);
+    dbClient.snapshotDao().insert(session, fileSnapshot);
+
+    session.commit();
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .setVersion("1.0")
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .setPath("module")
+      .setName("Module")
+      .setVersion("1.1")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .setLanguage("java")
+      .build());
+
+    Component file = new DumbComponent(Component.Type.FILE, 4, "DEFG", "MODULE_KEY:src/main/java/dir/Foo.java");
+    Component directory = new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "MODULE_KEY:src/main/java/dir", file);
+    Component module = new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY", directory);
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, module);
+    treeRootHolder.setRoot(project);
+
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+    dbIdsRepository.setComponentId(module, moduleDto.getId());
+    dbIdsRepository.setComponentId(directory, directoryDto.getId());
+    dbIdsRepository.setComponentId(file, fileDto.getId());
+
+    sut.execute();
+
+    SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    assertThat(newProjectSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+
+    SnapshotDto newModuleSnapshot = getUnprocessedSnapshot(moduleDto.getId());
+    assertThat(newModuleSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
+
+    SnapshotDto newDirectorySnapshot = getUnprocessedSnapshot(directoryDto.getId());
+    assertThat(newDirectorySnapshot.getPeriodMode(1)).isNull();
+
+    SnapshotDto newFileSnapshot = getUnprocessedSnapshot(fileDto.getId());
+    assertThat(newFileSnapshot.getPeriodMode(1)).isNull();
+  }
+
+  @Test
+  public void set_no_period_on_snapshots_when_no_period() throws Exception {
+    ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbClient.componentDao().insert(session, projectDto);
+    SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto);
+    dbClient.snapshotDao().insert(session, snapshotDto);
+    session.commit();
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .setVersion("1.0")
+      .addChildRef(2)
+      .build());
+
+    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY);
+    treeRootHolder.setRoot(project);
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+
+    sut.execute();
+
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    assertThat(projectSnapshot.getPeriodMode(1)).isNull();
+    assertThat(projectSnapshot.getPeriodDate(1)).isNull();
+    assertThat(projectSnapshot.getPeriodModeParameter(1)).isNull();
+  }
+
+  private SnapshotDto getUnprocessedSnapshot(long componentId) {
     List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session,
       new SnapshotQuery().setComponentId(componentId).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
