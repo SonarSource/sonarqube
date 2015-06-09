@@ -55,11 +55,11 @@ define([
       SearchResultsView = SelectableCollectionView.extend({
         className: 'menu',
         tagName: 'ul',
-        itemView: SearchItemView,
+        childView: SearchItemView,
         emptyView: SearchEmptyView
       });
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     className: 'navbar-search',
     tagName: 'form',
     template: Templates['nav-search'],

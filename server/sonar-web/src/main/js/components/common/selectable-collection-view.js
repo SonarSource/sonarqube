@@ -26,7 +26,7 @@ define(function () {
       this.listenTo(this.collection, 'reset', this.resetSelectedIndex);
     },
 
-    itemViewOptions: function (model, index) {
+    childViewOptions: function (model, index) {
       return { index: index };
     },
 

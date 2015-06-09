@@ -58,7 +58,7 @@ define([
       }).done(function () {
         that.collection.fetch({ reset: true });
         that.collection.trigger('destroy');
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         that.enableForm();

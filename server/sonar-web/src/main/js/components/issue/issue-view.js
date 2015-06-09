@@ -72,7 +72,7 @@ define([
         data: { issue: this.model.get('key') }
       }).done(function () {
         if (that.popup) {
-          that.popup.close();
+          that.popup.destroy();
         }
         that.popup = new ChangeLogView({
           triggerEl: t,
@@ -86,7 +86,7 @@ define([
 
     updateAfterAction: function (fetch) {
       if (this.popup) {
-        this.popup.close();
+        this.popup.destroy();
       }
       if (fetch) {
         this.resetIssue();
@@ -176,7 +176,7 @@ define([
         triggerEl: $('body')
       });
       view.submit(window.SS.user, window.SS.userName);
-      view.close();
+      view.destroy();
     },
 
     plan: function (e) {

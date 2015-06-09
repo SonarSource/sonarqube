@@ -75,7 +75,7 @@ define([
         return that.selectActiveOption();
       });
       key('escape', this.keyScope, function () {
-        return that.close();
+        return that.destroy();
       });
       key('backspace', this.keyScope, function () {
         return false;
@@ -96,8 +96,8 @@ define([
       key.setScope(this.currentKeyScope);
     },
 
-    onClose: function () {
-      PopupView.prototype.onClose.apply(this, arguments);
+    onDestroy: function () {
+      PopupView.prototype.onDestroy.apply(this, arguments);
       this.unbindShortcuts();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
       $('.tooltip').remove();
@@ -105,7 +105,7 @@ define([
 
     selectOption: function (e) {
       e.preventDefault();
-      this.close();
+      this.destroy();
     },
 
     selectActiveOption: function () {

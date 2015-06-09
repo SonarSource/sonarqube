@@ -22,7 +22,7 @@ define([
         }
       }).done(function () {
         collection.total--;
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });

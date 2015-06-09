@@ -52,7 +52,7 @@ define([
         }
       }).done(function (r) {
         that.addProfile(r);
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.enableForm();
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);

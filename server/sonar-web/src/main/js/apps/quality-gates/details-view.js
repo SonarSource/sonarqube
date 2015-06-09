@@ -5,7 +5,7 @@ define([
   './templates'
 ], function (Conditions, DetailConditionsView, ProjectsView) {
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     template: Templates['quality-gate-detail'],
 
     regions: {

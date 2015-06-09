@@ -6,10 +6,10 @@ define([
   return Marionette.CompositeView.extend({
     className: 'list-group',
     template: Templates['quality-gates-gates'],
-    itemView: ItemView,
-    itemViewContainer: '.js-list',
+    childView: ItemView,
+    childViewContainer: '.js-list',
 
-    itemViewOptions: function (model) {
+    childViewOptions: function (model) {
       return {
         collectionView: this,
         highlighted: model.id === this.highlighted

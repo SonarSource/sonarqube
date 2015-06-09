@@ -26,7 +26,7 @@ define(
     function (BaseFilters, MoreCriteriaFilters) {
 
       return Marionette.CompositeView.extend({
-        itemViewContainer: '.navigator-filters-list',
+        childViewContainer: '.navigator-filters-list',
 
 
         collectionEvents: {
@@ -34,12 +34,12 @@ define(
         },
 
 
-        getItemView: function (item) {
+        getChildView: function (item) {
           return item.get('type') || BaseFilters.BaseFilterView;
         },
 
 
-        itemViewOptions: function () {
+        childViewOptions: function () {
           return {
             filterBarView: this,
             app: this.options.app
@@ -94,7 +94,7 @@ define(
 
 
         getEnabledFilters: function() {
-          return this.$(this.itemViewContainer).children()
+          return this.$(this.childViewContainer).children()
               .not('.navigator-filter-disabled')
               .not('.navigator-filter-inactive')
               .not('.navigator-filter-favorite');
@@ -146,8 +146,8 @@ define(
         },
 
 
-        onAfterItemAdded: function (itemView) {
-          if (itemView.model.get('type') === MoreCriteriaFilters.FavoriteFilterView) {
+        onAddChild: function (childView) {
+          if (childView.model.get('type') === MoreCriteriaFilters.FavoriteFilterView) {
             jQuery('.navigator-header').addClass('navigator-header-favorite');
           }
         },

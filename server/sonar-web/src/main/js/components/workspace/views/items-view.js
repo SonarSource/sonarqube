@@ -25,10 +25,10 @@ define([
   return Marionette.CompositeView.extend({
     className: 'workspace-nav',
     template: Templates['workspace-items'],
-    itemViewContainer: '.workspace-nav-list',
-    itemView: ItemView,
+    childViewContainer: '.workspace-nav-list',
+    childView: ItemView,
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return { collectionView: this };
     }
   });

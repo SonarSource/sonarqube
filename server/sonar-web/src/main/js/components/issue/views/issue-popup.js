@@ -11,7 +11,7 @@ define([
 
     events: function () {
       return {
-        'click .js-issue-form-cancel': 'close'
+        'click .js-issue-form-cancel': 'destroy'
       };
     },
 
@@ -21,8 +21,8 @@ define([
       this.options.view.render();
     },
 
-    onClose: function () {
-      this.options.view.close();
+    onDestroy: function () {
+      this.options.view.destroy();
     },
 
     attachCloseEvents: function () {

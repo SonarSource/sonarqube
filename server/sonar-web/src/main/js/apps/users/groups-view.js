@@ -34,9 +34,9 @@ define([
       });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.model.collection.refresh();
-      Modal.prototype.onClose.apply(this, arguments);
+      Modal.prototype.onDestroy.apply(this, arguments);
     }
   });
 

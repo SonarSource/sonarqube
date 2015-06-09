@@ -11,7 +11,7 @@ define([
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },

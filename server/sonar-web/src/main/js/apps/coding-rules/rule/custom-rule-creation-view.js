@@ -51,7 +51,7 @@ define([
         'keydown @ui.customRuleCreationKey': 'flagKey',
         'keyup @ui.customRuleCreationKey': 'flagKey',
 
-        'click #coding-rules-custom-rule-creation-cancel': 'close',
+        'click #coding-rules-custom-rule-creation-cancel': 'destroy',
         'click @ui.customRuleCreationCreate': 'create',
         'click @ui.customRuleCreationReactivate': 'reactivate'
       });
@@ -168,7 +168,7 @@ define([
         } else {
           that.options.app.controller.showDetails(that.model);
         }
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;

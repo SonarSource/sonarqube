@@ -11,7 +11,7 @@ define([
       return this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       return this.$('[data-toggle="tooltip"]').tooltip('destroy');
     }
   });

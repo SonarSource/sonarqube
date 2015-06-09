@@ -50,7 +50,7 @@ define([
         }
       }).done(function () {
         that.model.set({ name: name });
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
       });

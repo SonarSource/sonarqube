@@ -28,7 +28,7 @@ define([
 
   var $ = jQuery;
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     template: Templates['quality-profiles-profile-details'],
 
     regions: {

@@ -23,7 +23,7 @@ define([
       window.onBulkIssues = _.bind(this.afterBulkChange, this);
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this._super();
       window.onBulkIssues = this._onBulkIssues;
     },

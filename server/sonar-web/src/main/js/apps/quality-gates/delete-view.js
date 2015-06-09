@@ -22,7 +22,7 @@ define([
           };
       return this.model.destroy(options)
           .done(function () {
-            that.close();
+            that.destroy();
           }).fail(function (jqXHR) {
             that.enableForm();
             that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);

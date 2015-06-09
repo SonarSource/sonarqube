@@ -45,7 +45,7 @@ define([
               options = { key: that.model.id };
           $.post(url, options).done(function () {
             that.model.collection.remove(that.model);
-            that.close();
+            that.destroy();
           });
         }
       });

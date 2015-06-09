@@ -41,7 +41,7 @@ define([
 
       var $ = jQuery;
 
-      return Marionette.Layout.extend({
+      return Marionette.LayoutView.extend({
         className: 'coding-rule-details',
         template: Templates['coding-rules-rule-details'],
 
@@ -99,7 +99,7 @@ define([
           this.$el.scrollParent().scrollTop(0);
         },
 
-        onClose: function () {
+        onDestroy: function () {
           this.unbindShortcuts();
         },
 

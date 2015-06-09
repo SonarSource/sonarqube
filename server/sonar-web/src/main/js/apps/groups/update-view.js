@@ -18,7 +18,7 @@ define([
         }
       }).done(function () {
         that.collection.refresh();
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.enableForm();
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);

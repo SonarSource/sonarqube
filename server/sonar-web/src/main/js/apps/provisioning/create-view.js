@@ -20,7 +20,7 @@ define([
         }
       }).done(function () {
         that.collection.refresh();
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.enableForm();
         that.showErrors([{ msg: jqXHR.responseJSON.err_msg }]);

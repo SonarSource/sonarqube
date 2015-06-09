@@ -28,7 +28,7 @@ define([
     template: Templates['quality-profiles-delete-profile'],
 
     modelEvents: {
-      'destroy': 'close'
+      'destroy': 'destroy'
     },
 
     onFormSubmit: function () {

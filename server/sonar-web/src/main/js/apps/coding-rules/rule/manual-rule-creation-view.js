@@ -115,7 +115,7 @@ define([
           r = JSON.parse(r);
         }
         that.options.app.controller.showDetails(r.rule.key);
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         if (jqXHR.status === 409) {
           that.existingRule = jqXHR.responseJSON.rule;

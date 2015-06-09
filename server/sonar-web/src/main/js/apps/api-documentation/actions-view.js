@@ -24,7 +24,7 @@ define([
   var $ = jQuery;
 
   return Marionette.CollectionView.extend({
-    itemView: ActionView,
+    childView: ActionView,
 
     scrollToTop: function () {
       var parent = this.$el.scrollParent();

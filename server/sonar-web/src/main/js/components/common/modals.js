@@ -41,7 +41,7 @@ define(function () {
       this.keyScope = key.getScope();
       key.setScope('modal');
       key('escape', 'modal', function () {
-        that.close();
+        that.destroy();
         return false;
       });
       this.show();
@@ -58,7 +58,7 @@ define(function () {
       }, 0);
     },
 
-    onClose: function () {
+    onDestroy: function () {
       $('html').removeClass(this.htmlClassName);
       this.removeOverlay();
       key.deleteScope('modal');
@@ -67,7 +67,7 @@ define(function () {
 
     onCloseClick: function (e) {
       e.preventDefault();
-      this.close();
+      this.destroy();
     },
 
     renderOverlay: function () {
@@ -85,7 +85,7 @@ define(function () {
       var that = this;
       $('body').on('click.' + EVENT_SCOPE, function () {
         $('body').off('click.' + EVENT_SCOPE);
-        that.close();
+        that.destroy();
       });
     }
   });

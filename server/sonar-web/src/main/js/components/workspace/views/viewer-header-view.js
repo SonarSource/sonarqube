@@ -44,7 +44,7 @@ define([
       this.$('.js-normal-size').addClass('hidden');
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
       $('.tooltip').remove();
     },

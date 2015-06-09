@@ -3,7 +3,7 @@ define([
 ], function () {
 
   var $ = jQuery;
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     template: Templates['issues-layout'],
 
     regions: {

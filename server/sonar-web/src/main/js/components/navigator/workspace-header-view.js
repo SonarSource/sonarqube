@@ -48,7 +48,7 @@ define(function () {
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 

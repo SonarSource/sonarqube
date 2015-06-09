@@ -38,7 +38,7 @@ define([
         var obj = {};
         obj[property] = '' + value;
         that.options.app.state.updateFilter(obj);
-        popup.close();
+        popup.destroy();
       });
       popup.render();
     }

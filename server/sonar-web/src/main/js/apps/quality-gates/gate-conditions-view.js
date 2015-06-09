@@ -7,9 +7,9 @@ define([
 
   return Marionette.CompositeView.extend({
     template: Templates['quality-gate-detail-conditions'],
-    itemView: ConditionView,
+    childView: ConditionView,
     emptyView: ConditionsEmptyView,
-    itemViewContainer: '.js-conditions',
+    childViewContainer: '.js-conditions',
 
     ui: {
       metricSelect: '#quality-gate-new-condition-metric'
@@ -20,7 +20,7 @@ define([
       'change @ui.metricSelect': 'addCondition'
     },
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         canEdit: this.options.canEdit,
         gate: this.model,

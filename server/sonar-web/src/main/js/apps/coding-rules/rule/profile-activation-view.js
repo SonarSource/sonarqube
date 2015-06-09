@@ -111,7 +111,7 @@ define([
           400: null
         }
       }).done(function () {
-        that.close();
+        that.destroy();
         that.trigger('profileActivated', severity, params);
       }).fail(function (jqXHR) {
         that.enableForm();

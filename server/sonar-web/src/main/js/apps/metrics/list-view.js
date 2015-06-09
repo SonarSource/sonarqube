@@ -5,9 +5,9 @@ define([
 
   return Marionette.CollectionView.extend({
     tagName: 'ul',
-    itemView: ListItemView,
+    childView: ListItemView,
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         types: this.options.types,
         domains: this.options.domains

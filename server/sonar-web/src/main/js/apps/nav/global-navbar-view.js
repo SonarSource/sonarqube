@@ -23,7 +23,7 @@ define([
   './templates'
 ], function (SearchView, ShortcutsHelpView) {
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     template: Templates['nav-global-navbar'],
 
     modelEvents: {
@@ -82,7 +82,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
+      return _.extend(Marionette.LayoutView.prototype.serializeData.apply(this, arguments), {
         user: window.SS.user,
         userName: window.SS.userName,
         userEmail: window.SS.userEmail,

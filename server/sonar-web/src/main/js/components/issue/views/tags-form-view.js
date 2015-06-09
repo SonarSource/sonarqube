@@ -142,7 +142,7 @@ define([
         this.selectActiveOption();
       }
       if (e.keyCode === 27) {
-        this.close();
+        this.destroy();
       }
       if ([9, 13, 27, 38, 40].indexOf(e.keyCode) !== -1) {
         return false;

@@ -37,7 +37,7 @@ define([
       }
     },
 
-    onClose: function () {
+    onDestroy: function () {
       if (key != null && this.key != null) {
         key.setScope(this.key);
       }
@@ -61,13 +61,13 @@ define([
       var that = this;
       return issue.fetch().done(function () {
         that.trigger('add', issue);
-        that.close();
+        that.destroy();
       });
     },
 
     cancel: function (e) {
       e.preventDefault();
-      this.close();
+      this.destroy();
     },
 
     serializeData: function () {

@@ -27,7 +27,7 @@ define(function () {
       loadMore: '.js-more'
     },
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         app: this.options.app
       };
@@ -44,7 +44,7 @@ define(function () {
       this.bindShortcuts();
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.unbindScrollEvents();
       this.unbindShortcuts();
     },

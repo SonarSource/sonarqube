@@ -39,7 +39,7 @@ define([
       var that = this;
       $('body').on('click.component-viewer-more-actions', function () {
         $('body').off('click.component-viewer-more-actions');
-        that.close();
+        that.destroy();
       });
     },
 

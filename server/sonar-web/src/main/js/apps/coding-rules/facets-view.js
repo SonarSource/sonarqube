@@ -68,7 +68,7 @@ define([
 
       return FacetsView.extend({
 
-        getItemView: function (model) {
+        getChildView: function (model) {
           var view = viewsMapping[model.get('property')];
           return view ? view : BaseFacet;
         }

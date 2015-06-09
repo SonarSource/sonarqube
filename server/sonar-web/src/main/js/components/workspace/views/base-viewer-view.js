@@ -21,11 +21,11 @@ define([
   './viewer-header-view'
 ], function (HeaderView) {
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     className: 'workspace-viewer',
 
     modelEvents: {
-      'destroy': 'close'
+      'destroy': 'destroy'
     },
 
     regions: {

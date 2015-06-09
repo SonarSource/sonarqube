@@ -33,7 +33,7 @@ define([
       });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.model.collection.refresh();
       this._super();
     }

@@ -26,7 +26,7 @@ define([
     template: Templates['workspace-rule'],
 
     modelEvents: {
-      'destroy': 'close',
+      'destroy': 'destroy',
       'change': 'render'
     },
 
@@ -35,12 +35,12 @@ define([
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },
 
     serializeData: function () {
-     return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
+     return _.extend(Marionette.LayoutView.prototype.serializeData.apply(this, arguments), {
        allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
      });
     }

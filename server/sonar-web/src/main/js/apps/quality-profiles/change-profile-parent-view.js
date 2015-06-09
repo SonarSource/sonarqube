@@ -60,7 +60,7 @@ define([
       }).done(function () {
         that.model.collection.fetch();
         that.model.trigger('select', that.model);
-        that.close();
+        that.destroy();
       }).fail(function (jqXHR) {
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         that.enableForm();

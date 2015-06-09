@@ -89,7 +89,7 @@ define([
       var that = this;
       if (this.viewerView != null) {
         this.viewerView.model.trigger('hideViewer');
-        this.viewerView.close();
+        this.viewerView.destroy();
       }
       $('html').addClass('with-workspace');
       model.trigger('showViewer');
@@ -112,7 +112,7 @@ define([
 
     closeComponentViewer: function () {
       if (this.viewerView != null) {
-        this.viewerView.close();
+        this.viewerView.destroy();
         $('.with-workspace').removeClass('with-workspace');
       }
     },

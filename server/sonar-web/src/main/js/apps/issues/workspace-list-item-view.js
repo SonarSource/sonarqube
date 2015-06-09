@@ -68,7 +68,7 @@ define([
           });
         }
         that.options.app.state.updateFilter(obj);
-        that.popup.close();
+        that.popup.destroy();
       });
       this.popup.render();
     },

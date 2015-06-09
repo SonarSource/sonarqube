@@ -12,9 +12,17 @@ define([
   return WorkspaceListView.extend({
     template: Templates['issues-workspace-list'],
     componentTemplate: Templates['issues-workspace-list-component'],
-    itemView: IssueView,
-    itemViewContainer: '.js-list',
+    childView: IssueView,
+    childViewContainer: '.js-list',
     emptyView: EmptyView,
+
+    collectionEvents: {
+      'all': 'log'
+    },
+
+    log: function () {
+      console.log(arguments);
+    },
 
     bindShortcuts: function () {
       var that = this;
@@ -82,8 +90,8 @@ define([
       }
     },
 
-    appendHtml: function (compositeView, itemView, index) {
-      var $container = this.getItemViewContainer(compositeView),
+    attachHtml: function (compositeView, childView, index) {
+      var $container = this.getChildViewContainer(compositeView),
           model = this.collection.at(index);
       if (model != null) {
         var prev = this.collection.at(index - 1),
@@ -99,11 +107,11 @@ define([
           $container.append(this.componentTemplate(model.toJSON()));
         }
       }
-      $container.append(itemView.el);
+      $container.append(childView.el);
     },
 
-    closeChildren: function () {
-      WorkspaceListView.prototype.closeChildren.apply(this, arguments);
+    destroyChildren: function () {
+      WorkspaceListView.prototype.destroyChildren.apply(this, arguments);
       this.$('.issues-workspace-list-component').remove();
     }
   });

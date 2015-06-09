@@ -24,13 +24,13 @@ define([
   return Marionette.CollectionView.extend({
     className: 'search-navigator-facets-list',
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         app: this.options.app
       };
     },
 
-    getItemView: function () {
+    getChildView: function () {
       return BaseFacet;
     },
 

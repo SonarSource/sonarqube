@@ -31,20 +31,20 @@ define(function () {
     attachCloseEvents: function () {
       var that = this;
       key('escape', function () {
-        that.close();
+        that.destroy();
       });
       $('body').on('click.bubble-popup', function () {
         $('body').off('click.bubble-popup');
-        that.close();
+        that.destroy();
       });
       this.options.triggerEl.on('click.bubble-popup', function (e) {
         that.options.triggerEl.off('click.bubble-popup');
         e.stopPropagation();
-        that.close();
+        that.destroy();
       });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       $('body').off('click.bubble-popup');
       this.options.triggerEl.off('click.bubble-popup');
     }

@@ -26,14 +26,14 @@ define([
     className: 'list-group',
     template: Templates['quality-profiles-profiles'],
     languageTemplate: Templates['quality-profiles-profiles-language'],
-    itemView: ProfileView,
-    itemViewContainer: '.js-list',
+    childView: ProfileView,
+    childViewContainer: '.js-list',
 
     collectionEvents: {
       'filter': 'filterByLanguage'
     },
 
-    itemViewOptions: function (model) {
+    childViewOptions: function (model) {
       return {
         collectionView: this,
         highlighted: model.get('key') === this.highlighted
@@ -45,8 +45,8 @@ define([
       this.render();
     },
 
-    appendHtml: function (compositeView, itemView, index) {
-      var $container = this.getItemViewContainer(compositeView),
+    attachHtml: function (compositeView, childView, index) {
+      var $container = this.getChildViewContainer(compositeView),
           model = this.collection.at(index);
       if (model != null) {
         var prev = this.collection.at(index - 1),
@@ -62,7 +62,7 @@ define([
           $container.append(this.languageTemplate(model.toJSON()));
         }
       }
-      return $container.append(itemView.el);
+      compositeView._insertAfter(childView);
     },
 
     closeChildren: function () {

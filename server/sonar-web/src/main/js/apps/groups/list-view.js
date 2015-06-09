@@ -5,7 +5,7 @@ define([
 
   return Marionette.CollectionView.extend({
     tagName: 'ul',
-    itemView: ListItemView
+    childView: ListItemView
   });
 
 });

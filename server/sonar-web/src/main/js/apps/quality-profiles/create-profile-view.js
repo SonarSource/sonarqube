@@ -74,7 +74,7 @@ define([
           that.showErrors(r.errors, r.warnings);
         } else {
           that.addProfile(r.profile);
-          that.close();
+          that.destroy();
         }
       });
     },

@@ -25,10 +25,10 @@ define([
 
   return Marionette.CompositeView.extend({
     template: Templates['coding-rules-custom-rules'],
-    itemView: CustomRuleView,
-    itemViewContainer: '#coding-rules-detail-custom-rules',
+    childView: CustomRuleView,
+    childViewContainer: '#coding-rules-detail-custom-rules',
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         app: this.options.app,
         templateRule: this.model

@@ -42,7 +42,7 @@ define([
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
 
-      return Marionette.Layout.extend({
+      return Marionette.LayoutView.extend({
         className: 'source-viewer',
         template: Templates['source-viewer'],
 
@@ -106,9 +106,9 @@ define([
           this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
         },
 
-        onClose: function () {
+        onDestroy: function () {
           this.issueViews.forEach(function (view) {
-            return view.close();
+            return view.destroy();
           });
           this.issueViews = [];
           this.clearTooltips();

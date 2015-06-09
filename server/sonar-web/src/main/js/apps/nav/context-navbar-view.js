@@ -68,7 +68,7 @@ define([
             return href.indexOf(url) !== -1;
           }),
           isOverviewActive = !isMoreActive && href.indexOf('/dashboard') !== -1 && search.indexOf('did=') === -1;
-      return _.extend(Marionette.Layout.prototype.serializeData.apply(this, arguments), {
+      return _.extend(Marionette.LayoutView.prototype.serializeData.apply(this, arguments), {
         canManageContextDashboards: !!window.SS.user,
         contextKeyEncoded: encodeURIComponent(this.model.get('componentKey')),
 

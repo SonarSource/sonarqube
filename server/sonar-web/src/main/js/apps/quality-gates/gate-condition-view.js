@@ -68,7 +68,7 @@ define([
     },
 
     cancelAddCondition: function () {
-      this.close();
+      this.destroy();
     },
 
     enableUpdate: function () {

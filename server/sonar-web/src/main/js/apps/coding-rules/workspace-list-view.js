@@ -26,8 +26,8 @@ define([
 
   return WorkspaceListView.extend({
     template: Templates['coding-rules-workspace-list'],
-    itemView: WorkspaceListItemView,
-    itemViewContainer: '.js-list',
+    childView: WorkspaceListItemView,
+    childViewContainer: '.js-list',
     emptyView: WorkspaceListEmptyView,
 
     bindShortcuts: function () {

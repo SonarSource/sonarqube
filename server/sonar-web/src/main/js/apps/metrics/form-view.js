@@ -35,7 +35,7 @@ define([
       this.$('#create-metric-type').select2({ width: '250px' });
     },
 
-    onClose: function () {
+    onDestroy: function () {
       this._super();
       this.$('[data-toggle="tooltip"]').tooltip('destroy');
     },

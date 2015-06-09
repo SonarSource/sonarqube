@@ -73,8 +73,8 @@ define([
       return key.deleteScope('componentViewer');
     },
 
-    onClose: function () {
-      SourceViewer.prototype.onClose.apply(this, arguments);
+    onDestroy: function () {
+      SourceViewer.prototype.onDestroy.apply(this, arguments);
       this.unbindScrollEvents();
       return this.unbindShortcuts();
     },

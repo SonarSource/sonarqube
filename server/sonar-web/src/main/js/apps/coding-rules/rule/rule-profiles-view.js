@@ -25,10 +25,10 @@ define([
 
   return Marionette.CompositeView.extend({
     template: Templates['coding-rules-rule-profiles'],
-    itemView: ProfileView,
-    itemViewContainer: '#coding-rules-detail-quality-profiles',
+    childView: ProfileView,
+    childViewContainer: '#coding-rules-detail-quality-profiles',
 
-    itemViewOptions: function () {
+    childViewOptions: function () {
       return {
         app: this.options.app,
         rule: this.model

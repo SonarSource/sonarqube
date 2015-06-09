@@ -23,7 +23,7 @@ define([
 
   var $ = jQuery;
 
-  return Marionette.Layout.extend({
+  return Marionette.LayoutView.extend({
     template: Templates['api-documentation-layout'],
 
     regions: {

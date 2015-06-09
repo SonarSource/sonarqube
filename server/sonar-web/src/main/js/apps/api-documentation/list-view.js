@@ -23,9 +23,9 @@ define([
 
   return Marionette.CollectionView.extend({
     className: 'list-group',
-    itemView: ItemView,
+    childView: ItemView,
 
-    itemViewOptions: function (model) {
+    childViewOptions: function (model) {
       return {
         collectionView: this,
         highlighted: model.get('path') === this.highlighted,
