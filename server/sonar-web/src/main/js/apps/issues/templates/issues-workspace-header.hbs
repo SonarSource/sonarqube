@@ -22,7 +22,8 @@
 
     {{else}}
       {{#if state.canBulkChange}}
-        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"></a>
+        <a class="js-selection icon-checkbox {{#if allSelected}}icon-checkbox-checked{{/if}} {{#if someSelected}}icon-checkbox-checked icon-checkbox-single{{/if}}"
+            data-toggle="tooltip" title="{{t 'issues.toggle_selection_tooltip'}}"></a>
       {{else}}
         &nbsp;
       {{/if}}

@@ -40,6 +40,18 @@ define(function () {
       this.listenTo(options.app.state, 'change', this.render);
     },
 
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    },
+
+    onBeforeRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
+    onClose: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
     onBulkChangeClick: function (e) {
       e.preventDefault();
       this.bulkChange();

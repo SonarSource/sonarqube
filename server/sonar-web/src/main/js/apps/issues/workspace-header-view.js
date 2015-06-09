@@ -24,6 +24,7 @@ define([
     },
 
     onClose: function () {
+      this._super();
       window.onBulkIssues = this._onBulkIssues;
     },
 
