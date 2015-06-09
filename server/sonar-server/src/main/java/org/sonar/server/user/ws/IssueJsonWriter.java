@@ -48,12 +48,11 @@ public class IssueJsonWriter {
 
   private static final String ACTIONS_EXTRA_FIELD = "actions";
   private static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  private static final String ASSIGNEE_NAME_EXTRA_FIELD = "assigneeName";
   private static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
   private static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
 
   public static final Set<String> EXTRA_FIELDS = ImmutableSet.of(
-    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ASSIGNEE_NAME_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
+    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
 
   private final I18n i18n;
   private final Durations durations;
@@ -181,19 +180,9 @@ public class IssueJsonWriter {
         actionsWriter.writeTransitions(issue, json);
       }
 
-      writeAssigneeIfNeeded(issue, usersByLogin, extraFields, json);
-
       writeReporterIfNeeded(issue, usersByLogin, extraFields, json);
 
       writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
-    }
-  }
-
-  private void writeAssigneeIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
-    String assignee = issue.assignee();
-    if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
-      User user = usersByLogin.get(assignee);
-      json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
     }
   }
 
