@@ -46,10 +46,10 @@ import org.sonar.server.user.UserSession;
 
 public class IssueJsonWriter {
 
-  private static final String ACTIONS_EXTRA_FIELD = "actions";
-  private static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  private static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
-  private static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
+  public static final String ACTIONS_EXTRA_FIELD = "actions";
+  public static final String TRANSITIONS_EXTRA_FIELD = "transitions";
+  public static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
+  public static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
 
   public static final Set<String> EXTRA_FIELDS = ImmutableSet.of(
     ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);

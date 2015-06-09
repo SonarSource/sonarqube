@@ -732,7 +732,7 @@ public class InternalRubyIssueService {
         projectsByComponentUuid,
         ImmutableMultimap.<String, DefaultIssueComment>of(),
         ImmutableMap.<String, ActionPlan>of(),
-        ImmutableList.<String>of());
+        ImmutableList.of(IssueJsonWriter.ACTIONS_EXTRA_FIELD, IssueJsonWriter.TRANSITIONS_EXTRA_FIELD));
       json.endObject().close();
     } finally {
       MyBatis.closeQuietly(dbSession);
