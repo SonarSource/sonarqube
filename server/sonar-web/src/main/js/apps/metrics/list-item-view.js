@@ -15,7 +15,9 @@ define([
     },
 
     onRender: function () {
-      this.$el.attr('data-id', this.model.id);
+      this.$el
+          .attr('data-id', this.model.id)
+          .attr('data-key', this.model.get('key'));
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
