@@ -51,12 +51,12 @@ public class PersistentCacheProviderTest {
   }
 
   @Test
-  public void test_forceUpdate() {
-    // normally don't force update
-    assertThat(provider.provide(props).isForceUpdate()).isFalse();
-
-    when(props.property("sonar.forceUpdate")).thenReturn("true");
-    provider = new PersistentCacheProvider();
+  public void test_enableCache() {
+    // normally force update (cache disabled)
     assertThat(provider.provide(props).isForceUpdate()).isTrue();
+
+    when(props.property("sonar.enableHttpCache")).thenReturn("true");
+    provider = new PersistentCacheProvider();
+    assertThat(provider.provide(props).isForceUpdate()).isFalse();
   }
 }

@@ -36,9 +36,9 @@ public class PersistentCacheProvider extends ProviderAdapter {
       PersistentCacheBuilder builder = new PersistentCacheBuilder();
 
       builder.setLog(new Slf4jLog(PersistentCache.class));
-      String forceUpdate = props.property("sonar.forceUpdate");
+      String enableCache = props.property("sonar.enableHttpCache");
 
-      if ("true".equals(forceUpdate)) {
+      if (!"true".equals(enableCache)) {
         builder.forceUpdate(true);
       }
 
