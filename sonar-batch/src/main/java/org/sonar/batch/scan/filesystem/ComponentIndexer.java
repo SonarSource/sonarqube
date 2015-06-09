@@ -27,9 +27,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.index.ResourcePersister;
-
-import javax.annotation.Nullable;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -42,28 +39,17 @@ public class ComponentIndexer {
   private final Languages languages;
   private final SonarIndex sonarIndex;
   private final Project module;
-  private final ResourcePersister resourcePersister;
   private final BatchComponentCache resourceCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache, @Nullable ResourcePersister resourcePersister) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.resourceCache = resourceCache;
-    this.resourcePersister = resourcePersister;
-  }
-
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache) {
-    this(module, languages, sonarIndex, resourceCache, null);
   }
 
   public void execute(DefaultModuleFileSystem fs) {
     module.setBaseDir(fs.baseDir());
-
-    if (resourcePersister != null) {
-      // Force persistence of module structure in order to know if project should be migrated
-      resourcePersister.persist();
-    }
 
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
@@ -71,11 +57,6 @@ public class ComponentIndexer {
       Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);
       sonarIndex.index(sonarFile);
       resourceCache.get(sonarFile).setInputPath(inputFile);
-    }
-
-    if (resourcePersister != null) {
-      // Persist all files in order to have snapshot availables
-      resourcePersister.persist();
     }
   }
 }

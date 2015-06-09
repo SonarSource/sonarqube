@@ -24,37 +24,53 @@ import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+import org.sonar.core.resource.ResourceQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class InitialOpenIssuesSensorTest {
 
   InitialOpenIssuesStack stack = mock(InitialOpenIssuesStack.class);
   IssueDao issueDao = mock(IssueDao.class);
   IssueChangeDao issueChangeDao = mock(IssueChangeDao.class);
+  ResourceDao resourceDao = mock(ResourceDao.class);
 
-  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao, issueChangeDao);
+  InitialOpenIssuesSensor sensor = new InitialOpenIssuesSensor(stack, issueDao, issueChangeDao, resourceDao);
 
   @Test
   public void should_select_module_open_issues() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L));
 
-    verify(issueDao).selectNonClosedIssuesByModule(eq(1), any(ResultHandler.class));
+    sensor.analyse(new Project("key"), null);
+
+    verify(issueDao).selectNonClosedIssuesByModule(eq(1L), any(ResultHandler.class));
   }
 
   @Test
   public void should_select_module_open_issues_changelog() {
-    Project project = new Project("key");
-    project.setId(1);
-    sensor.analyse(project, null);
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L));
 
-    verify(issueChangeDao).selectChangelogOnNonClosedIssuesByModuleAndType(eq(1), any(ResultHandler.class));
+    sensor.analyse(new Project("key"), null);
+
+    verify(issueChangeDao).selectChangelogOnNonClosedIssuesByModuleAndType(eq(1L), any(ResultHandler.class));
+  }
+
+  @Test
+  public void nothing_to_on_new_component() {
+    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+
+    sensor.analyse(new Project("key"), null);
+
+    verifyZeroInteractions(issueDao);
+    verifyZeroInteractions(issueChangeDao);
   }
 
   @Test

@@ -20,14 +20,13 @@
 
 package org.sonar.core.issue.db;
 
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import javax.annotation.CheckForNull;
 
 /**
  * @since 3.6
@@ -52,7 +51,7 @@ public class IssueDao {
     }
   }
 
-  public void selectNonClosedIssuesByModule(int componentId, ResultHandler handler) {
+  public void selectNonClosedIssuesByModule(long componentId, ResultHandler handler) {
     SqlSession session = mybatis.openSession(false);
     try {
       session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModule", componentId, handler);

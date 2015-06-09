@@ -21,8 +21,11 @@ package org.sonar.batch.qualitygate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Locale;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorBarriers;
@@ -42,9 +45,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
-
-import java.util.ArrayList;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,7 +70,6 @@ public class QualityGateVerifierTest {
   Periods periods;
   I18n i18n;
   Durations durations;
-  private BatchComponentCache resourceCache;
 
   @Before
   public void before() {
@@ -94,7 +93,7 @@ public class QualityGateVerifierTest {
 
     project = new Project("foo");
 
-    resourceCache = new BatchComponentCache();
+    BatchComponentCache resourceCache = new BatchComponentCache();
     resourceCache.add(project, null).setSnapshot(snapshot);
 
     verifier = new QualityGateVerifier(qualityGate, resourceCache, periods, i18n, durations);
@@ -357,6 +356,7 @@ public class QualityGateVerifierTest {
   }
 
   @Test
+  @Ignore("Disabled because snapshot is no more created by the batch")
   public void shouldLabelAlertContainsPeriod() {
     measureClasses.setVariation1(40d);
 
@@ -376,6 +376,7 @@ public class QualityGateVerifierTest {
   }
 
   @Test
+  @Ignore("Disabled because snapshot is no more created by the batch")
   public void shouldLabelAlertForNewMetricDoNotContainsVariationWord() {
     Metric newMetric = new Metric.Builder("new_metric_key", "New Metric", Metric.ValueType.INT).create();
     Measure measure = new Measure(newMetric, 15d);
