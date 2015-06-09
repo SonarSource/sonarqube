@@ -93,8 +93,7 @@ public class PersistMeasuresStep implements ComputationStep {
     protected void visitAny(Component component) {
       int componentRef = component.getRef();
       List<BatchReport.Measure> measures = reportReader.readComponentMeasures(componentRef);
-      persistMeasures(measures, dbIdsRepository.getComponentId(component), dbIdsRepository.getComponentId(component));
-
+      persistMeasures(measures, dbIdsRepository.getComponentId(component), dbIdsRepository.getSnapshotId(component));
     }
 
     private void persistMeasures(List<BatchReport.Measure> batchReportMeasures, long componentId, long snapshotId) {
