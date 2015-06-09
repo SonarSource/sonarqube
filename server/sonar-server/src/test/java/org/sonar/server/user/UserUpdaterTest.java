@@ -497,6 +497,24 @@ public class UserUpdaterTest {
   }
 
   @Test
+  public void fail_to_associate_default_group_when_default_group_does_not_exist() {
+    settings.setProperty(CoreProperties.CORE_DEFAULT_GROUP, "polop");
+
+    try {
+      userUpdater.create(NewUser.create()
+        .setLogin("user")
+        .setName("User")
+        .setEmail("user@mail.com")
+        .setPassword("password")
+        .setPasswordConfirmation("password")
+        .setScmAccounts(newArrayList("u1", "u_1")));
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class)
+        .hasMessage("The default group 'polop' for new users does not exist. Please update the general security settings to fix this issue.");
+    }
+  }
+
+  @Test
   public void reactivate_user_when_creating_user_with_existing_login() {
     db.prepareDbUnit(getClass(), "reactivate_user.xml");
     when(system2.now()).thenReturn(1418215735486L);

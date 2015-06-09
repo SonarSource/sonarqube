@@ -322,7 +322,11 @@ public class UserUpdater {
         return input != null && input.getKey().equals(defaultGroup);
       }
     })) {
-      GroupDto groupDto = dbClient.groupDao().selectByKey(dbSession, defaultGroup);
+      GroupDto groupDto = dbClient.groupDao().selectNullableByKey(dbSession, defaultGroup);
+      if (groupDto == null) {
+        throw new IllegalStateException(String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
+          defaultGroup));
+      }
       dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
     }
   }
