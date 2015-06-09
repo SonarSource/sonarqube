@@ -16,14 +16,6 @@ define([
     childViewContainer: '.js-list',
     emptyView: EmptyView,
 
-    collectionEvents: {
-      'all': 'log'
-    },
-
-    log: function () {
-      console.log(arguments);
-    },
-
     bindShortcuts: function () {
       var that = this;
       var doAction = function (action) {
