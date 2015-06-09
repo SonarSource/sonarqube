@@ -1,0 +1,31 @@
+{
+  "issue": {
+    "key": "59fc17f7-c977-4cb6-8f04-fbe88e4b9186",
+    "component": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "componentId": 19983,
+    "project": "org.codehaus.sonar:sonar",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "rule": "squid:S1192",
+    "status": "CONFIRMED",
+    "severity": "CRITICAL",
+    "message": "Define a constant instead of duplicating this literal \"Fail to get keys from cache \" 3 times.",
+    "line": 2,
+    "debt": "10min",
+    "author": "simon.brandhof@gmail.com",
+    "creationDate": "2014-02-20T07:48:16+0100",
+    "updateDate": "2014-02-24T16:57:34+0100",
+    "fUpdateAge": "9 months",
+    "actions": [
+      "comment",
+      "assign",
+      "assign_to_me",
+      "plan",
+      "set_severity"
+    ],
+    "transitions": [
+      "unconfirm",
+      "resolve",
+      "falsepositive"
+    ]
+  }
+}

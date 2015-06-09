@@ -23,22 +23,7 @@ define([
     },
 
     submit: function (severity) {
-      var that = this;
-      var _severity = this.getTransition();
-      if (severity === _severity) {
-        return;
-      }
-      this.model.set({ severity: severity });
-      return $.ajax({
-        type: 'POST',
-        url: baseUrl + '/api/issues/set_severity',
-        data: {
-          issue: this.model.id,
-          severity: severity
-        }
-      }).fail(function () {
-        that.model.set({ severity: _severity });
-      });
+      return this.model.setSeverity(severity);
     },
 
     serializeData: function () {

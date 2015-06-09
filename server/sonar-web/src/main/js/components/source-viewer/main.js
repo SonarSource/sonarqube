@@ -275,7 +275,7 @@ define([
               options = {
                 data: {
                   componentUuids: this.model.id,
-                  extra_fields: 'actions,transitions,assigneeName,actionPlanName',
+                  extra_fields: 'actions,transitions,actionPlanName',
                   resolved: false,
                   s: 'FILE_LINE',
                   asc: true,
