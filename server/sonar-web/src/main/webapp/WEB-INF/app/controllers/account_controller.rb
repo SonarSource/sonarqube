@@ -88,7 +88,7 @@ class AccountController < ApplicationController
   private
 
   def notification_service
-    java_facade.getCoreComponentByClassname('org.sonar.server.notifications.NotificationCenter')
+    java_facade.getCoreComponentByClassname('org.sonar.server.notification.NotificationCenter')
   end
   
   def dispatchers_for_scope(scope)

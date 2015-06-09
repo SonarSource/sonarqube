@@ -55,7 +55,7 @@ class EmailConfigurationController < ApplicationController
     flash[:error] = message('email_configuration.test.to_address_required')
   else
     begin
-    java_facade.getCoreComponentByClassname('org.sonar.server.notifications.email.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
+    java_facade.getCoreComponentByClassname('org.sonar.server.notification.email.EmailNotificationChannel').sendTestEmail(to_address, subject, message)
     flash[:notice] = message('email_configuration.test.email_was_sent_to_x', :params => [to_address])
     rescue Exception => e
     flash[:error] = e.message
