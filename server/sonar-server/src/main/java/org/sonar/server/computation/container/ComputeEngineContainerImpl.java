@@ -29,6 +29,7 @@ import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.component.Module;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ComputationService;
@@ -81,6 +82,14 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     add(steps);
     addSingletons(componentClasses());
     addSingletons(steps.orderedStepClasses());
+    populateFromModules();
+  }
+
+  private void populateFromModules() {
+    List<Module> modules = getComponentsByType(Module.class);
+    for (Module module : modules) {
+      module.configure(this);
+    }
   }
 
   /**
