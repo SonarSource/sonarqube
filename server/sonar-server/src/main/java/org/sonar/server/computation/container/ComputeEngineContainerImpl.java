@@ -48,7 +48,7 @@ import org.sonar.server.computation.issue.ScmAccountCache;
 import org.sonar.server.computation.issue.ScmAccountCacheLoader;
 import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.language.PlatformLanguageRepository;
-import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.MeasureRepositoryModule;
 import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -121,7 +121,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
       // repositories
       PlatformLanguageRepository.class,
-      MeasureRepositoryImpl.class,
+      MeasureRepositoryModule.class,
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,
 

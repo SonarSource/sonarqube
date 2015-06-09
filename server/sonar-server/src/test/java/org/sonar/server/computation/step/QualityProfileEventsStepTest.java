@@ -36,15 +36,15 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.UtcDateUtils;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.language.LanguageRepository;
+import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.measure.MeasureImpl;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
@@ -85,7 +85,7 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void no_effect_if_no_previous_measure() {
-    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<MeasureDto>absent());
+    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<Measure>absent());
 
     underTest.execute();
 
@@ -94,8 +94,8 @@ public class QualityProfileEventsStepTest {
 
   @Test(expected = IllegalStateException.class)
   public void ISE_if_no_current_measure() {
-    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasureDto()));
-    when(measureRepository.findCurrent(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<BatchReport.Measure>absent());
+    when(measureRepository.findPrevious(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasure()));
+    when(measureRepository.findCurrent(treeRootHolder.getRoot(), CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.<Measure>absent());
 
     underTest.execute();
   }
@@ -248,8 +248,8 @@ public class QualityProfileEventsStepTest {
   }
 
   private void mockMeasures(Component component, @Nullable QualityProfile[] previous, @Nullable QualityProfile[] current) {
-    when(measureRepository.findPrevious(component, CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasureDto(previous)));
-    when(measureRepository.findCurrent(component, CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newQPBatchMeasure(current)));
+    when(measureRepository.findPrevious(component, CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasure(previous)));
+    when(measureRepository.findCurrent(component, CoreMetrics.QUALITY_PROFILES)).thenReturn(Optional.of(newMeasure(current)));
   }
 
   private static void verifyEvent(Event event, String expectedName, @Nullable String expectedData) {
@@ -274,12 +274,8 @@ public class QualityProfileEventsStepTest {
     return qps;
   }
 
-  private static MeasureDto newMeasureDto(@Nullable QualityProfile... qps) {
-    return new MeasureDto().setData(toJson(qps));
-  }
-
-  private static BatchReport.Measure newQPBatchMeasure(@Nullable QualityProfile... qps) {
-    return BatchReport.Measure.newBuilder().setStringValue(toJson(qps)).build();
+  private static Measure newMeasure(@Nullable QualityProfile... qps) {
+    return MeasureImpl.create(toJson(qps));
   }
 
   private static String toJson(@Nullable QualityProfile... qps) {
