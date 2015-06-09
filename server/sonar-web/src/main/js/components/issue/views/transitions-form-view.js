@@ -19,18 +19,7 @@ define([
     },
 
     submit: function (transition) {
-      var that = this;
-      this.options.view.disableControls();
-      return $.ajax({
-        type: 'POST',
-        url: baseUrl + '/api/issues/do_transition',
-        data: {
-          issue: this.model.get('key'),
-          transition: transition
-        }
-      }).done(function () {
-        return that.options.view.resetIssue({});
-      });
+      return this.model.transition(transition);
     }
   });
 

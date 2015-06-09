@@ -1,5 +1,5 @@
 define([
-  'components/issue/models/issue'
+  './issue'
 ], function (Issue) {
 
   return Backbone.Collection.extend({
@@ -19,8 +19,7 @@ define([
         var component = find(r.components, issue.component),
             project = find(r.projects, issue.project),
             subProject = find(r.components, issue.subProject),
-            rule = find(r.rules, issue.rule),
-            assignee = find(r.users, issue.assignee, 'login');
+            rule = find(r.rules, issue.rule);
         _.extend(issue, { index: index });
         if (component) {
           _.extend(issue, {
@@ -44,11 +43,6 @@ define([
         if (rule) {
           _.extend(issue, {
             ruleName: rule.name
-          });
-        }
-        if (assignee) {
-          _.extend(issue, {
-            assigneeEmail: assignee.email
           });
         }
         return issue;

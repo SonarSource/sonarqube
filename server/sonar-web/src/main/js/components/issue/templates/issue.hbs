@@ -58,20 +58,20 @@
           <li class="issue-meta">
             {{#inArray actions "assign"}}
               <button class="button-link issue-action issue-action-with-options js-issue-assign">
-                {{#if assignee}}
+                {{#if assignee.login}}
                   {{#ifShowAvatars}}
-                    <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                    <span class="text-top">{{avatarHelper assignee.email 16}}</span>
                   {{/ifShowAvatars}}
                 {{/if}}
-                <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+                <span class="issue-meta-label">{{#if assignee.login}}{{assignee.name}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
               </button>
             {{else}}
-              {{#if assignee}}
+              {{#if assignee.login}}
                 {{#ifShowAvatars}}
-                  <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
+                  <span class="text-top">{{avatarHelper assignee.email 16}}</span>
                 {{/ifShowAvatars}}
               {{/if}}
-              <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
+              <span class="issue-meta-label">{{#if assignee.login}}{{assignee.name}}{{else}}{{t 'unassigned'}}{{/if}}</span>
             {{/inArray}}
           </li>
 

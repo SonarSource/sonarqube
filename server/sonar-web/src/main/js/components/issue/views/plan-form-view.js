@@ -27,37 +27,8 @@ define([
       return ActionOptionsView.prototype.selectOption.apply(this, arguments);
     },
 
-    submit: function (actionPlan, actionPlanName) {
-      var that = this;
-      var _actionPlan = this.getActionPlan(),
-          _actionPlanName = this.getActionPlanName();
-      if (actionPlan === _actionPlan) {
-        return;
-      }
-      if (actionPlan === '') {
-        this.model.set({
-          actionPlan: null,
-          actionPlanName: null
-        });
-      } else {
-        this.model.set({
-          actionPlan: actionPlan,
-          actionPlanName: actionPlanName
-        });
-      }
-      return $.ajax({
-        type: 'POST',
-        url: baseUrl + '/api/issues/plan',
-        data: {
-          issue: this.model.id,
-          plan: actionPlan
-        }
-      }).fail(function () {
-        return that.model.set({
-          assignee: _actionPlan,
-          assigneeName: _actionPlanName
-        });
-      });
+    submit: function (actionPlan) {
+      return this.model.plan(actionPlan);
     },
 
     getActionPlans: function () {

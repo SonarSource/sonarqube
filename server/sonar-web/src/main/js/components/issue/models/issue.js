@@ -39,10 +39,16 @@ define(function () {
         });
       }
       var xhr = options.xhr = Backbone.ajax(opts);
-      model.trigger('request', model, xhr, options);
+      model.trigger('request', model, xhr, opts);
       return xhr;
     },
 
+    /**
+     * Reset issue attributes (delete old, replace with new)
+     * @param attrs
+     * @param options
+     * @returns {Object}
+     */
     reset: function (attrs, options) {
       for (var key in this.attributes) {
         if (this.attributes.hasOwnProperty(key) && !(key in attrs)) {
@@ -50,6 +56,83 @@ define(function () {
         }
       }
       return this.set(attrs, options);
+    },
+
+    /**
+     * Do an action over an issue
+     * @param {Object|null} options Options for jQuery ajax
+     * @returns {jqXHR}
+     * @private
+     */
+    _action: function (options) {
+      var model = this;
+      var success = function (r) {
+        var attrs = model.parse(r);
+        model.reset(attrs);
+        if (options.success) {
+          options.success(model, r, options);
+        }
+      };
+      var opts = _.extend({ type: 'POST' }, options, { success: success });
+      var xhr = options.xhr = Backbone.ajax(opts);
+      model.trigger('request', model, xhr, opts);
+      return xhr;
+    },
+
+    /**
+     * Assign issue
+     * @param {String|null} assignee Assignee, can be null to unassign issue
+     * @param {Object|null} options Options for jQuery ajax
+     * @returns {jqXHR}
+     */
+    assign: function (assignee, options) {
+      var opts = _.extend({
+        url: this.urlRoot() + '/assign',
+        data: { issue: this.id, assignee: assignee }
+      }, options);
+      return this._action(opts);
+    },
+
+    /**
+     * Plan issue
+     * @param {String|null} plan Action Plan, can be null to unplan issue
+     * @param {Object|null} options Options for jQuery ajax
+     * @returns {jqXHR}
+     */
+    plan: function (plan, options) {
+      var opts = _.extend({
+        url: this.urlRoot() + '/plan',
+        data: { issue: this.id, plan: plan }
+      }, options);
+      return this._action(opts);
+    },
+
+    /**
+     * Set severity of issue
+     * @param {String|null} severity Severity
+     * @param {Object|null} options Options for jQuery ajax
+     * @returns {jqXHR}
+     */
+    setSeverity: function (severity, options) {
+      var opts = _.extend({
+        url: this.urlRoot() + '/set_severity',
+        data: { issue: this.id, severity: severity }
+      }, options);
+      return this._action(opts);
+    },
+
+    /**
+     * Do transition on issue
+     * @param {String|null} transition Transition
+     * @param {Object|null} options Options for jQuery ajax
+     * @returns {jqXHR}
+     */
+    transition: function (transition, options) {
+      var opts = _.extend({
+        url: this.urlRoot() + '/do_transition',
+        data: { issue: this.id, transition: transition }
+      }, options);
+      return this._action(opts);
     }
   });
 

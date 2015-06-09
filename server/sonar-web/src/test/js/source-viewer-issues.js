@@ -37,7 +37,7 @@ casper.test.begin(testName(), 16, function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/issues/search', 'issues.json', { data: { componentUuids: 'uuid' } });
-        lib.mockRequest('/api/issues/set_severity', '{}',
+        lib.mockRequestFromFile('/api/issues/set_severity', 'set-severity.json',
             { data: { issue: '59fc17f7-c977-4cb6-8f04-fbe88e4b9186', severity: 'CRITICAL' } });
       })
 
@@ -45,6 +45,7 @@ casper.test.begin(testName(), 16, function (test) {
         casper.evaluate(function () {
           window.file = { uuid: 'uuid', key: 'key' };
           require(['apps/source-viewer/app']);
+          jQuery.ajaxSetup({ dataType: 'json' });
         });
       })
 

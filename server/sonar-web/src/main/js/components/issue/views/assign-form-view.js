@@ -24,11 +24,11 @@ define([
     },
 
     getAssignee: function () {
-      return this.model.get('assignee');
+      return this.model.get('assignee').login;
     },
 
     getAssigneeName: function () {
-      return this.model.get('assigneeName');
+      return this.model.get('assignee').name;
     },
 
     onRender: function () {
@@ -59,28 +59,8 @@ define([
       return this._super(e);
     },
 
-    submit: function (assignee, assigneeName) {
-      var that = this;
-      var _assignee = this.getAssignee(),
-          _assigneeName = this.getAssigneeName();
-      if (assignee === _assignee) {
-        return;
-      }
-      if (assignee === '') {
-        this.model.set({ assignee: null, assigneeName: null });
-      } else {
-        this.model.set({ assignee: assignee, assigneeName: assigneeName });
-      }
-      return $.ajax({
-        type: 'POST',
-        url: baseUrl + '/api/issues/assign',
-        data: {
-          issue: this.model.id,
-          assignee: assignee
-        }
-      }).fail(function () {
-        that.model.set({ assignee: _assignee, assigneeName: _assigneeName });
-      });
+    submit: function (assignee) {
+      return this.model.assign(assignee);
     },
 
     onInputClick: function (e) {
