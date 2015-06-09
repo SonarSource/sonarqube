@@ -21,22 +21,20 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.session.ResultHandler;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -75,7 +73,7 @@ public class IssueChangeDao implements DaoComponent {
     }
   }
 
-  public void selectChangelogOnNonClosedIssuesByModuleAndType(Integer componentId, ResultHandler handler) {
+  public void selectChangelogOnNonClosedIssuesByModuleAndType(long componentId, ResultHandler handler) {
     DbSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();

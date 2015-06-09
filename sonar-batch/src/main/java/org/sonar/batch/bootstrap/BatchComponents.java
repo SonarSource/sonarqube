@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.compute.ApplyProjectRolesDecorator;
 import org.sonar.batch.compute.BranchCoverageDecorator;
 import org.sonar.batch.compute.CommentDensityDecorator;
 import org.sonar.batch.compute.CountFalsePositivesDecorator;
@@ -42,7 +41,6 @@ import org.sonar.batch.compute.NewOverallCoverageFileAnalyzer;
 import org.sonar.batch.compute.OverallBranchCoverageDecorator;
 import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
-import org.sonar.batch.compute.TimeMachineConfigurationPersister;
 import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.compute.VariationDecorator;
 import org.sonar.batch.cpd.CpdComponents;
@@ -127,12 +125,10 @@ public class BatchComponents {
       OverallLineCoverageDecorator.class,
       OverallCoverageDecorator.class,
       OverallBranchCoverageDecorator.class,
-      ApplyProjectRolesDecorator.class,
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
       VariationDecorator.class,
-      TimeMachineConfigurationPersister.class,
       NewCoverageFileAnalyzer.class,
       NewItCoverageFileAnalyzer.class,
       NewOverallCoverageFileAnalyzer.class,

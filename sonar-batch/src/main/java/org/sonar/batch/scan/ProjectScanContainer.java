@@ -44,10 +44,9 @@ import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesStack;
@@ -81,7 +80,6 @@ import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.user.DefaultUserFinder;
 
@@ -138,7 +136,6 @@ public class ProjectScanContainer extends ComponentContainer {
       PhasesTimeProfiler.class,
       ResourceTypes.class,
       PermissionFacade.class,
-      DefaultResourcePermissions.class,
       DefaultProjectTree.class,
       ProjectExclusions.class,
       ProjectReactorValidator.class,
@@ -210,7 +207,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(
       PastMeasuresLoader.class,
-      ResourcePersister.class,
 
       // Users
       DefaultUserFinder.class,

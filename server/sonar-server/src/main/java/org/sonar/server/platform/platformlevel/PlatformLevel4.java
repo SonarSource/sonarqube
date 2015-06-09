@@ -38,12 +38,10 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.metric.DefaultMetricFinder;
-import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
-import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.resource.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
@@ -75,7 +73,6 @@ import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
 import org.sonar.server.computation.ws.QueueAction;
 import org.sonar.server.config.ws.PropertiesWs;
-import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectIssuesDashboard;
@@ -165,12 +162,14 @@ import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
+import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.template.MyFavouritesFilter;
 import org.sonar.server.measure.template.ProjectFilter;
 import org.sonar.server.measure.ws.ManualMeasuresWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.ws.MetricsWsModule;
+import org.sonar.server.notification.DefaultNotificationManager;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
@@ -346,7 +345,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultResourceTypes.get(),
       SettingsChangeNotifier.class,
       PageDecorations.class,
-      DefaultResourcePermissions.class,
       Periods.class,
       ServerWs.class,
       BackendCleanup.class,

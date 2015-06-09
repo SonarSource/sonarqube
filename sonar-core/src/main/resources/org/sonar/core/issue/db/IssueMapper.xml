@@ -148,7 +148,7 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
+  <select id="selectNonClosedIssuesByModule" parameterType="Long" resultType="Issue">
     select
     i.id,
     i.kee as kee,
@@ -180,8 +180,7 @@
     p.kee as componentKey,
     root.kee as projectKey
     from issues i
-    inner join (select p.id, p.uuid,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or
-    (p.id=#{id})) p on p.uuid=i.component_uuid
+    inner join (select p.id, p.uuid,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or (p.id=#{id})) p on p.uuid=i.component_uuid
     inner join rules r on r.id=i.rule_id
     left outer join projects root on root.uuid=i.project_uuid
     where i.status &lt;&gt; 'CLOSED'
