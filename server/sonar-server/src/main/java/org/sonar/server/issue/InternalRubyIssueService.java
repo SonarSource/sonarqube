@@ -710,7 +710,6 @@ public class InternalRubyIssueService {
       Map<String, ComponentDto> componentsByUuid = Maps.newHashMap();
       Map<String, ComponentDto> projectsByComponentUuid = Maps.newHashMap();
 
-      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
       List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
       List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, componentUuids);
       componentDtos.addAll(fileDtos);
@@ -718,6 +717,7 @@ public class InternalRubyIssueService {
       for (ComponentDto component : componentDtos) {
         projectUuids.add(component.projectUuid());
       }
+      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
 
       componentDtos.addAll(projectDtos);
       for (ComponentDto componentDto : componentDtos) {
