@@ -93,7 +93,11 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
 
   @Override
   public List<BatchReport.Measure> readComponentMeasures(int componentRef) {
-    return measures.get(componentRef);
+    List<BatchReport.Measure> res = this.measures.get(componentRef);
+    if (res == null) {
+      return Collections.emptyList();
+    }
+    return res;
   }
 
   public void putMeasures(int componentRef, List<BatchReport.Measure> measures) {
