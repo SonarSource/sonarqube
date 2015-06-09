@@ -30,7 +30,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.batch.protocol.Constants.ComponentType.DIRECTORY;
 import static org.sonar.batch.protocol.Constants.ComponentType.FILE;
 import static org.sonar.batch.protocol.Constants.ComponentType.MODULE;

@@ -58,16 +58,14 @@ public class PropertiesDao implements DaoComponent {
    * Returns the logins of users who have subscribed to the given notification dispatcher with the given notification channel.
    * If a resource ID is passed, the search is made on users who have specifically subscribed for the given resource.
    *
-   * @param notificationDispatcherKey the key of the notification dispatcher
-   * @param notificationChannelKey    the key of the notification channel
-   * @param resourceId                the resource id
    * @return the list of logins (maybe be empty - obviously)
    */
-  public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable Long resourceId) {
+  public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey,
+                                               @Nullable String projectUuid) {
     SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      return mapper.findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, resourceId);
+      return mapper.findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectUuid);
     } finally {
       MyBatis.closeQuietly(session);
     }

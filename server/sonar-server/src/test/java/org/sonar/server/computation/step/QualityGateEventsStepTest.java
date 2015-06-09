@@ -25,14 +25,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.notifications.Notification;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -42,166 +42,187 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS;
+import static org.sonar.server.computation.component.DumbComponent.DUMB_PROJECT;
 
 public class QualityGateEventsStepTest {
-  private static final DumbComponent PROJECT_COMPONENT = new DumbComponent(1, Component.Type.PROJECT, new DumbComponent(2, Component.Type.MODULE));
-  private static final String INVALID_ALERT_STATUS = "trololo";
+
+  static final String INVALID_STATUS = "trololo";
+  static final String DESCRIPTION = "gate errors";
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  private ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
+  ArgumentCaptor<Event> eventArgumentCaptor = ArgumentCaptor.forClass(Event.class);
+  ArgumentCaptor<Notification> notificationArgumentCaptor = ArgumentCaptor.forClass(Notification.class);
 
-  private EventRepository eventRepository = mock(EventRepository.class);
-  private MeasureRepository measureRepository = mock(MeasureRepository.class);
-  private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, eventRepository, measureRepository);
-  public static final String ALERT_TEXT = "alert text";
+  EventRepository eventRepository = mock(EventRepository.class);
+  MeasureRepository measureRepository = mock(MeasureRepository.class);
+  NotificationManager notificationManager = mock(NotificationManager.class);
+  QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, eventRepository, measureRepository, notificationManager);
 
   @Before
   public void setUp() throws Exception {
-    treeRootHolder.setRoot(PROJECT_COMPONENT);
+    treeRootHolder.setRoot(DUMB_PROJECT);
   }
 
   @Test
-  public void no_event_if_no_current_ALERT_STATUS_measure() {
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.<BatchReport.Measure>absent());
+  public void no_event_if_no_status_measure() {
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.<BatchReport.Measure>absent());
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verifyNoMoreInteractions(measureRepository, eventRepository);
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verifyNoMoreInteractions(measureRepository, eventRepository, notificationManager);
   }
 
   @Test
-  public void no_event_created_if_current_ALTER_STATUS_measure_is_null() {
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.of(BatchReport.Measure.newBuilder().build()));
+  public void no_event_created_if_status_measure_is_null() {
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.of(BatchReport.Measure.newBuilder().build()));
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verifyNoMoreInteractions(measureRepository, eventRepository);
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verifyNoMoreInteractions(measureRepository, eventRepository, notificationManager);
   }
 
   @Test
-  public void no_event_created_if_current_ALTER_STATUS_measure_is_unsupported_value() {
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.of(BatchReport.Measure.newBuilder().setAlertStatus(INVALID_ALERT_STATUS).build()));
+  public void no_event_created_if_status_measure_has_unsupported_value() {
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.of(BatchReport.Measure.newBuilder().setAlertStatus(INVALID_STATUS).build()));
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verifyNoMoreInteractions(measureRepository, eventRepository);
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verifyNoMoreInteractions(measureRepository, eventRepository, notificationManager);
   }
 
   @Test
-  public void no_event_created_if_no_past_ALTER_STATUS_and_current_is_OK() {
+  public void no_event_created_if_OK_and_no_base_status() {
     String alertStatus = "OK";
 
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(alertStatus, null));
-    when(measureRepository.findPrevious(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.<MeasureDto>absent());
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(alertStatus, null));
+    when(measureRepository.findPrevious(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.<MeasureDto>absent());
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(measureRepository).findPrevious(PROJECT_COMPONENT, ALERT_STATUS);
-    verifyNoMoreInteractions(measureRepository, eventRepository);
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verify(measureRepository).findPrevious(DUMB_PROJECT, ALERT_STATUS);
+    verifyNoMoreInteractions(measureRepository, eventRepository, notificationManager);
   }
 
   @Test
-  public void event_created_if_no_past_ALTER_STATUS_and_current_is_WARN() {
-    verify_event_created_if_no_past_ALTER_STATUS("WARN", "Orange", null);
+  public void event_created_if_WARN_and_no_base_status() {
+    verify_event_created_if_no_base_status("WARN", "Orange", null);
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_and_current_is_ERROR() {
-    verify_event_created_if_no_past_ALTER_STATUS("ERROR", "Red", null);
+  public void event_created_if_ERROR_and_no_base_status() {
+    verify_event_created_if_no_base_status("ERROR", "Red", null);
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_has_no_alertStatus_and_current_is_ERROR() {
-    verify_event_created_if_no_past_ALTER_STATUS("ERROR", "Red", new MeasureDto());
+  public void event_created_if_ERROR_and_base_measure_has_no_status() {
+    verify_event_created_if_no_base_status("ERROR", "Red", new MeasureDto());
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_has_no_alertStatus_and_current_is_WARN() {
-    verify_event_created_if_no_past_ALTER_STATUS("WARN", "Orange", new MeasureDto());
+  public void event_created_if_WARN_and_base_measure_has_no_status() {
+    verify_event_created_if_no_base_status("WARN", "Orange", new MeasureDto());
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_has_invalid_alertStatus_and_current_is_ERROR() {
-    verify_event_created_if_no_past_ALTER_STATUS("ERROR", "Red", new MeasureDto().setAlertStatus(INVALID_ALERT_STATUS));
+  public void event_created_if_ERROR_and_base_status_has_invalid_value() {
+    verify_event_created_if_no_base_status("ERROR", "Red", new MeasureDto().setAlertStatus(INVALID_STATUS));
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_has_invalid_alertStatus_and_current_is_WARN() {
-    verify_event_created_if_no_past_ALTER_STATUS("WARN", "Orange", new MeasureDto().setAlertStatus(INVALID_ALERT_STATUS));
+  public void event_created_if_WARN_and_base_status_has_invalid_value() {
+    verify_event_created_if_no_base_status("WARN", "Orange", new MeasureDto().setAlertStatus(INVALID_STATUS));
   }
 
-  private void verify_event_created_if_no_past_ALTER_STATUS(String currentAlterStatus, String expectedEventName, @Nullable MeasureDto measureDto) {
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(currentAlterStatus, ALERT_TEXT));
-    when(measureRepository.findPrevious(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.fromNullable(measureDto));
+  private void verify_event_created_if_no_base_status(String status, String expectedLabel, @Nullable MeasureDto measureDto) {
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(status, DESCRIPTION));
+    when(measureRepository.findPrevious(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.fromNullable(measureDto));
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(measureRepository).findPrevious(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(eventRepository).add(eq(PROJECT_COMPONENT), eventArgumentCaptor.capture());
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verify(measureRepository).findPrevious(DUMB_PROJECT, ALERT_STATUS);
+    verify(eventRepository).add(eq(DUMB_PROJECT), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
     Event event = eventArgumentCaptor.getValue();
     assertThat(event.getCategory()).isEqualTo(Event.Category.ALERT);
-    assertThat(event.getName()).isEqualTo(expectedEventName);
-    assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
+    assertThat(event.getName()).isEqualTo(expectedLabel);
+    assertThat(event.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(event.getData()).isNull();
+
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    Notification notification = notificationArgumentCaptor.getValue();
+    assertThat(notification.getType()).isEqualTo("alerts");
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(DUMB_PROJECT.getKey());
+    assertThat(notification.getFieldValue("projectUuid")).isEqualTo(DUMB_PROJECT.getUuid());
+    assertThat(notification.getFieldValue("projectName")).isEqualTo(DUMB_PROJECT.getName());
+    assertThat(notification.getFieldValue("alertLevel")).isEqualTo(status);
+    assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
   }
 
   @Test
-  public void no_event_created_if_past_ALTER_STATUS_but_status_is_the_same() {
+  public void no_event_created_if_status_same_as_base() {
     String alertStatus = "OK";
 
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(alertStatus, ALERT_TEXT));
-    when(measureRepository.findPrevious(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.of(new MeasureDto().setAlertStatus(alertStatus)));
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(alertStatus, DESCRIPTION));
+    when(measureRepository.findPrevious(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.of(new MeasureDto().setAlertStatus(alertStatus)));
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(measureRepository).findPrevious(PROJECT_COMPONENT, ALERT_STATUS);
-    verifyNoMoreInteractions(measureRepository, eventRepository);
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verify(measureRepository).findPrevious(DUMB_PROJECT, ALERT_STATUS);
+    verifyNoMoreInteractions(measureRepository, eventRepository, notificationManager);
   }
 
   @Test
-  public void event_created_if_past_ALTER_STATUS_exists_and_status_has_changed() {
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("OK", "WARN", "Orange (was Green)");
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("OK", "ERROR", "Red (was Green)");
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("WARN", "OK", "Green (was Orange)");
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("WARN", "ERROR", "Red (was Orange)");
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("ERROR", "OK", "Green (was Red)");
-    verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed("ERROR", "WARN", "Orange (was Red)");
+  public void event_created_if_status_changed() {
+    verify_event_created_if_status_changed("OK", "WARN", "Orange (was Green)");
+    verify_event_created_if_status_changed("OK", "ERROR", "Red (was Green)");
+    verify_event_created_if_status_changed("WARN", "OK", "Green (was Orange)");
+    verify_event_created_if_status_changed("WARN", "ERROR", "Red (was Orange)");
+    verify_event_created_if_status_changed("ERROR", "OK", "Green (was Red)");
+    verify_event_created_if_status_changed("ERROR", "WARN", "Orange (was Red)");
   }
 
-  private void verify_event_created_if_past_ALTER_STATUS_exists_and_status_has_changed(String previousAlterStatus, String newAlertStatus, String expectedEventName) {
-    when(measureRepository.findCurrent(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(newAlertStatus, ALERT_TEXT));
-    when(measureRepository.findPrevious(PROJECT_COMPONENT, ALERT_STATUS)).thenReturn(Optional.of(new MeasureDto().setAlertStatus(previousAlterStatus)));
+  private void verify_event_created_if_status_changed(String baseStatus, String status, String expectedLabel) {
+    when(measureRepository.findCurrent(DUMB_PROJECT, ALERT_STATUS)).thenReturn(createBatchReportMeasure(status, DESCRIPTION));
+    when(measureRepository.findPrevious(DUMB_PROJECT, ALERT_STATUS)).thenReturn(Optional.of(new MeasureDto().setAlertStatus(baseStatus)));
 
     underTest.execute();
 
-    verify(measureRepository).findCurrent(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(measureRepository).findPrevious(PROJECT_COMPONENT, ALERT_STATUS);
-    verify(eventRepository).add(eq(PROJECT_COMPONENT), eventArgumentCaptor.capture());
+    verify(measureRepository).findCurrent(DUMB_PROJECT, ALERT_STATUS);
+    verify(measureRepository).findPrevious(DUMB_PROJECT, ALERT_STATUS);
+    verify(eventRepository).add(eq(DUMB_PROJECT), eventArgumentCaptor.capture());
     verifyNoMoreInteractions(measureRepository, eventRepository);
 
     Event event = eventArgumentCaptor.getValue();
     assertThat(event.getCategory()).isEqualTo(Event.Category.ALERT);
-    assertThat(event.getName()).isEqualTo(expectedEventName);
-    assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
+    assertThat(event.getName()).isEqualTo(expectedLabel);
+    assertThat(event.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(event.getData()).isNull();
 
-    reset(measureRepository, eventRepository);
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    Notification notification = notificationArgumentCaptor.getValue();
+    assertThat(notification.getType()).isEqualTo("alerts");
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(DUMB_PROJECT.getKey());
+    assertThat(notification.getFieldValue("projectUuid")).isEqualTo(DUMB_PROJECT.getUuid());
+    assertThat(notification.getFieldValue("projectName")).isEqualTo(DUMB_PROJECT.getName());
+    assertThat(notification.getFieldValue("alertLevel")).isEqualTo(status);
+    assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
+
+    reset(measureRepository, eventRepository, notificationManager);
   }
 
-  private static Optional<BatchReport.Measure> createBatchReportMeasure(String alertStatus, @Nullable String alertText) {
-    BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder().setAlertStatus(alertStatus);
-    if (alertText != null) {
-      builder.setAlertText(alertText);
+  private static Optional<BatchReport.Measure> createBatchReportMeasure(String status, @Nullable String description) {
+    BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder().setAlertStatus(status);
+    if (description != null) {
+      builder.setAlertText(description);
     }
     return Optional.of(builder.build());
   }

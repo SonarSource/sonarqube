@@ -32,6 +32,7 @@ import static com.google.common.collect.Iterables.filter;
 public class ComponentImpl implements Component {
   private final Type type;
   private final int ref;
+  private final String name;
   private final List<Component> children;
 
   // Mutable values
@@ -41,6 +42,7 @@ public class ComponentImpl implements Component {
   public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
     this.ref = component.getRef();
     this.type = convertType(component.getType());
+    this.name = component.getName();
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
 
@@ -88,6 +90,11 @@ public class ComponentImpl implements Component {
       throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", getRef()));
     }
     return key;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   public ComponentImpl setKey(String key) {

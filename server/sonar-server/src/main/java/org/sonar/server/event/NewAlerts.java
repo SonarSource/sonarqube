@@ -56,10 +56,9 @@ public class NewAlerts extends NotificationDispatcher {
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    String projectIdString = notification.getFieldValue("projectId");
-    if (projectIdString != null) {
-      int projectId = Integer.parseInt(projectIdString);
-      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(this, projectId);
+    String projectUuid = notification.getFieldValue("projectUuid");
+    if (projectUuid != null) {
+      Multimap<String, NotificationChannel> subscribedRecipients = notifications.findSubscribedRecipientsForDispatcher(this, projectUuid);
 
       for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
         String userLogin = channelsByRecipients.getKey();

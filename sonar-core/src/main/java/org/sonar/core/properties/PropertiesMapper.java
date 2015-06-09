@@ -28,7 +28,7 @@ import java.util.List;
 
 public interface PropertiesMapper {
 
-  List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("rId") Long resourceId);
+  List<String> findUsersForNotification(@Param("notifKey") String notificationKey, @Nullable @Param("projectUuid") String projectUuid);
 
   List<String> findNotificationSubscribers(@Param("propKey") String propertyKey, @Nullable @Param("componentKey") String componentKey);
 

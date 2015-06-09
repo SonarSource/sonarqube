@@ -59,10 +59,10 @@ public interface NotificationManager {
    * </p>
    *
    * @param dispatcher the dispatcher for which this list of users is requested
-   * @param resourceId the optional resource which is concerned by this request
+   * @param projectUuid UUID of the project
    * @return the list of user login along with the subscribed channels
    */
-  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId);
+  Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, String projectUuid);
 
   Multimap<String, NotificationChannel> findNotificationSubscribers(NotificationDispatcher dispatcher, @Nullable String componentKey);
 }

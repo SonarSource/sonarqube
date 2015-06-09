@@ -46,7 +46,7 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
-public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
+public class FillComponentsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
@@ -60,7 +60,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
   DbClient dbClient;
   DbSession session;
 
-  PopulateComponentsUuidAndKeyStep sut;
+  FillComponentsStep sut;
 
   @Before
   public void setup() throws Exception {
@@ -68,7 +68,7 @@ public class PopulateComponentsUuidAndKeyStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
-    sut = new PopulateComponentsUuidAndKeyStep(dbClient, reportReader, treeRootHolder);
+    sut = new FillComponentsStep(dbClient, reportReader, treeRootHolder);
   }
 
   @After

@@ -132,7 +132,8 @@ public class DefaultNotificationManager implements NotificationManager {
    * {@inheritDoc}
    */
   @Override
-  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId) {
+  public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher,
+                                                                                     @Nullable String projectUuid) {
     String dispatcherKey = dispatcher.getKey();
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
@@ -142,9 +143,9 @@ public class DefaultNotificationManager implements NotificationManager {
       // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
       addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, null), recipients, channel);
 
-      if (resourceId != null) {
-        // Find users subscribed to the dispatcher specifically for the resource
-        addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, resourceId.longValue()), recipients, channel);
+      if (projectUuid != null) {
+        // Find users subscribed to the dispatcher specifically for the project
+        addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, projectUuid), recipients, channel);
       }
     }
 

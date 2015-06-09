@@ -20,7 +20,7 @@
 package org.sonar.server.computation.component;
 
 import java.util.List;
-import org.sonar.server.computation.step.PopulateComponentsUuidAndKeyStep;
+import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
   enum Type {
@@ -44,12 +44,12 @@ public interface Component {
   Type getType();
 
   /**
-   * Return the component uuid only when {@link PopulateComponentsUuidAndKeyStep} has been executed, otherwise it will throw an exception.
+   * Return the component uuid only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
    */
   String getUuid();
 
   /**
-   * Return the component key only when {@link PopulateComponentsUuidAndKeyStep} has been executed, otherwise it will throw an exception.
+   * Return the component key only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
    */
   String getKey();
 
@@ -57,6 +57,11 @@ public interface Component {
    * The component ref in the batch report.
    */
   int getRef();
+
+  /**
+   * The component name as defined in the batch report.
+   */
+  String getName();
 
   List<Component> getChildren();
 

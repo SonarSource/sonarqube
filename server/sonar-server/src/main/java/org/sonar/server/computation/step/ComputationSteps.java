@@ -41,7 +41,7 @@ public class ComputationSteps {
 
       // Builds Component tree
       BuildComponentTreeStep.class,
-      PopulateComponentsUuidAndKeyStep.class,
+      FillComponentsStep.class,
       ValidateProjectStep.class,
 
       // Read report

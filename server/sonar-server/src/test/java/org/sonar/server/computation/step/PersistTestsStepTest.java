@@ -98,13 +98,14 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     initBasicReport();
 
-    root = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "MODULE", "MODULE_KEY",
-        new DumbComponent(Component.Type.FILE, 3, TEST_FILE_UUID_1, "TEST_FILE1_KEY"),
-        new DumbComponent(Component.Type.FILE, 4, TEST_FILE_UUID_2, "TEST_FILE2_KEY"),
-        new DumbComponent(Component.Type.FILE, 5, MAIN_FILE_UUID_1, "MAIN_FILE1_KEY"),
-        new DumbComponent(Component.Type.FILE, 6, MAIN_FILE_UUID_2, "MAIN_FILE2_KEY")
-      ));
+    root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE_UUID").setKey("MODULE_KEY").addChildren(
+        DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").build(),
+        DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").build(),
+        DumbComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
+        DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()
+        ).build()
+      ).build();
     treeRootHolder.setRoot(root);
   }
 
@@ -335,5 +336,5 @@ public class PersistTestsStepTest extends BaseStepTest {
       .setRef(MAIN_FILE_REF_2)
       .setType(Constants.ComponentType.FILE)
       .build());
-  }
+ }
 }

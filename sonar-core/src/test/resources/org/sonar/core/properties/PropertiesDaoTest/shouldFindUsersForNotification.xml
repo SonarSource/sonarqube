@@ -1,5 +1,8 @@
 <dataset>
 
+  <projects id="45" uuid="uuid_45"/>
+  <projects id="56" uuid="uuid_56"/>
+
   <properties
     id="1"
     prop_key="notification.NewViolations.Email"

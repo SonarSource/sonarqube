@@ -19,34 +19,48 @@
  */
 package org.sonar.server.computation.component;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import static java.util.Arrays.asList;
+
 /**
  * Implementation of {@link Component} for unit tests.
  */
 public class DumbComponent implements Component {
-  public static final Component DUMB_PROJECT = new DumbComponent(Type.PROJECT, 1, "PROJECT_KEY", "PROJECT_UUID");
+
+  public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").build();
 
   private final Type type;
   private final int ref;
-  private final String uuid;
-  private final String key;
+  private final String uuid, key, name;
   private final List<Component> children;
 
-  public DumbComponent(int ref, Type type, @Nullable Component... children) {
-    this(type, ref, null, null, children);
-  }
-
+  /**
+   * @deprecated use Builder
+   */
+  @Deprecated
   public DumbComponent(Type type, int ref, @Nullable String uuid, @Nullable String key, @Nullable Component... children) {
     this.type = type;
     this.ref = ref;
     this.uuid = uuid;
     this.key = key;
+    this.name = key;
     this.children = children == null ? Collections.<Component>emptyList() : ImmutableList.copyOf(Arrays.asList(children));
+  }
+  
+  private DumbComponent(Builder builder) {
+    this.type = builder.type;
+    this.ref = builder.ref;
+    this.uuid = builder.uuid;
+    this.key = builder.key;
+    this.name = builder.name;
+    this.children = ImmutableList.copyOf(builder.children);
   }
 
   @Override
@@ -56,12 +70,23 @@ public class DumbComponent implements Component {
 
   @Override
   public String getUuid() {
+    if (uuid == null) {
+      throw new UnsupportedOperationException(String.format("Component uuid of ref '%d' has not be fed yet", ref));
+    }
     return uuid;
   }
 
   @Override
   public String getKey() {
+    if (key == null) {
+      throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", ref));
+    }
     return key;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
@@ -74,4 +99,44 @@ public class DumbComponent implements Component {
     return children;
   }
 
+  public static Builder builder(Type type, int ref) {
+    return new Builder(type, ref);
+  }
+
+  public static final class Builder {
+    private final Type type;
+    private final int ref;
+    private String uuid, key, name;
+    private final List<Component> children = new ArrayList<>();
+
+    private Builder(Type type, int ref) {
+      Preconditions.checkNotNull(type, "Component type must not be null");
+      this.type = type;
+      this.ref = ref;
+    }
+
+    public Builder setUuid(@Nullable String s) {
+      this.uuid = s;
+      return this;
+    }
+
+    public Builder setName(@Nullable String s) {
+      this.name = s;
+      return this;
+    }
+
+    public Builder setKey(@Nullable String s) {
+      this.key = s;
+      return this;
+    }
+
+    public Builder addChildren(Component... c) {
+      this.children.addAll(asList(c));
+      return this;
+    }
+
+    public DumbComponent build() {
+      return new DumbComponent(this);
+    }
+  }
 }

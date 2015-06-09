@@ -62,10 +62,10 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     List<String> users = dao.findUsersForNotification("NewViolations", "Email", null);
     assertThat(users).isEmpty();
 
-    users = dao.findUsersForNotification("NewViolations", "Email", 78L);
+    users = dao.findUsersForNotification("NewViolations", "Email", "uuid_78");
     assertThat(users).isEmpty();
 
-    users = dao.findUsersForNotification("NewViolations", "Email", 45L);
+    users = dao.findUsersForNotification("NewViolations", "Email", "uuid_45");
     assertThat(users).hasSize(1);
     assertThat(users).containsOnly("user2");
 
@@ -73,10 +73,10 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     assertThat(users).hasSize(1);
     assertThat(users).containsOnly("user3");
 
-    users = dao.findUsersForNotification("NewViolations", "Twitter", 78L);
+    users = dao.findUsersForNotification("NewViolations", "Twitter", "uuid_78");
     assertThat(users).isEmpty();
 
-    users = dao.findUsersForNotification("NewViolations", "Twitter", 56L);
+    users = dao.findUsersForNotification("NewViolations", "Twitter", "uuid_56");
     assertThat(users).hasSize(2);
     assertThat(users).containsOnly("user1", "user3");
   }

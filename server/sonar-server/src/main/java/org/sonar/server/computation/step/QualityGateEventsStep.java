@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -32,17 +33,21 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.notification.NotificationManager;
 
 public class QualityGateEventsStep implements ComputationStep {
   public static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
   private final MeasureRepository measureRepository;
+  private final NotificationManager notificationManager;
 
-  public QualityGateEventsStep(TreeRootHolder treeRootHolder, EventRepository eventRepository, MeasureRepository measureRepository) {
+  public QualityGateEventsStep(TreeRootHolder treeRootHolder, EventRepository eventRepository,
+    MeasureRepository measureRepository, NotificationManager notificationManager) {
     this.eventRepository = eventRepository;
     this.measureRepository = measureRepository;
     this.treeRootHolder = treeRootHolder;
+    this.notificationManager = notificationManager;
   }
 
   @Override
@@ -56,70 +61,68 @@ public class QualityGateEventsStep implements ComputationStep {
   }
 
   private void executeForProject(Component project) {
-    Optional<BatchReport.Measure> currentStatus = measureRepository.findCurrent(project, CoreMetrics.ALERT_STATUS);
-    if (!currentStatus.isPresent()) {
+    Optional<BatchReport.Measure> statusMeasure = measureRepository.findCurrent(project, CoreMetrics.ALERT_STATUS);
+    if (!statusMeasure.isPresent()) {
       return;
     }
-    Optional<AlertStatus> alertLevel = parse(currentStatus.get().getAlertStatus());
-    if (!alertLevel.isPresent()) {
+    Optional<GateStatus> status = parse(statusMeasure.get().getAlertStatus());
+    if (!status.isPresent()) {
       return;
     }
 
-    checkQualityGateStatusChange(project, alertLevel.get(), currentStatus.get().getAlertText());
+    checkStatusChange(project, status.get(), statusMeasure.get().getAlertText());
   }
 
-  private void checkQualityGateStatusChange(Component project, AlertStatus currentStatus, String alertText) {
-    Optional<MeasureDto> previousMeasure = measureRepository.findPrevious(project, CoreMetrics.ALERT_STATUS);
-    if (!previousMeasure.isPresent()) {
-      checkNewQualityGate(project, currentStatus, alertText);
+  private void checkStatusChange(Component project, GateStatus status, String description) {
+    Optional<MeasureDto> baseMeasure = measureRepository.findPrevious(project, CoreMetrics.ALERT_STATUS);
+    if (!baseMeasure.isPresent()) {
+      checkStatus(project, status, description);
       return;
     }
 
-    Optional<AlertStatus> previousQGStatus = parse(previousMeasure.get().getAlertStatus());
-    if (!previousQGStatus.isPresent()) {
-      LOGGER.warn(String.format("Previous alterStatus for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
-      checkNewQualityGate(project, currentStatus, alertText);
+    Optional<GateStatus> baseStatus = parse(baseMeasure.get().getAlertStatus());
+    if (!baseStatus.isPresent()) {
+      LOGGER.warn(String.format("Base status for project %s is not a supported value. Can not compute Quality Gate event", project.getKey()));
+      checkStatus(project, status, description);
       return;
     }
 
-    if (previousQGStatus.get() != currentStatus) {
-      // The alert status has changed
-      String alertName = String.format("%s (was %s)", currentStatus.getColorName(), previousQGStatus.get().getColorName());
-      createEvent(project, alertName, alertText);
-      // FIXME @Simon uncomment and/or rewrite code below when implementing notifications in CE
-      // There was already a Orange/Red alert, so this is no new alert: it has just changed
-      // boolean isNewAlert = previousQGStatus == AlertStatus.OK;
-      // notifyUsers(project, alertName, alertText, alertLevel, isNewAlert);
+    if (baseStatus.get() != status) {
+      // The status has changed
+      String label = String.format("%s (was %s)", status.getColorName(), baseStatus.get().getColorName());
+      createEvent(project, label, description);
+      boolean isNewKo = (baseStatus.get() == GateStatus.OK);
+      notifyUsers(project, label, description, status, isNewKo);
     }
   }
 
-  private void checkNewQualityGate(Component project, AlertStatus currentStatus, String alertText) {
-    if (currentStatus != AlertStatus.OK) {
+  private void checkStatus(Component project, GateStatus status, String description) {
+    if (status != GateStatus.OK) {
       // There were no defined alerts before, so this one is a new one
-      createEvent(project, currentStatus.getColorName(), alertText);
-      // notifyUsers(project, alertName, alertText, alertLevel, true);
+      createEvent(project, status.getColorName(), description);
+      notifyUsers(project, status.getColorName(), description, status, true);
     }
   }
 
-  private static Optional<AlertStatus> parse(@Nullable String alertStatus) {
+  private static Optional<GateStatus> parse(@Nullable String alertStatus) {
     if (alertStatus == null) {
       return Optional.absent();
     }
 
     try {
-      return Optional.of(AlertStatus.valueOf(alertStatus));
+      return Optional.of(GateStatus.valueOf(alertStatus));
     } catch (IllegalArgumentException e) {
       LOGGER.error(String.format("Unsupported alertStatus value '%s' can not be parsed to AlertStatus", alertStatus));
       return Optional.absent();
     }
   }
 
-  private enum AlertStatus {
+  private enum GateStatus {
     OK("Green"), WARN("Orange"), ERROR("Red");
 
     private String colorName;
 
-    AlertStatus(String colorName) {
+    GateStatus(String colorName) {
       this.colorName = colorName;
     }
 
@@ -128,19 +131,23 @@ public class QualityGateEventsStep implements ComputationStep {
     }
   }
 
-  // FIXME @Simon uncomment and/or rewrite code below when implementing notifications in CE
-  // protected void notifyUsers(Component project, String alertName, String alertText, AlertStatus alertLevel, boolean isNewAlert) {
-  // Notification notification = new Notification("alerts")
-  // .setDefaultMessage("Alert on " + project.getName() + ": " + alertName)
-  // .setFieldValue("projectName", project.getName())
-  // .setFieldValue("projectKey", project.getKey())
-  // .setFieldValue("projectId", String.valueOf(project.getId()))
-  // .setFieldValue("alertName", alertName)
-  // .setFieldValue("alertText", alertText)
-  // .setFieldValue("alertLevel", alertLevel.toString())
-  // .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
-  // notificationManager.scheduleForSending(notification);
-  // }
+  /**
+   * @param label "Red (was Orange)"
+   * @param description text detail, for example "Coverage < 80%"
+   * @param status OK, WARN or ERROR
+   */
+  private void notifyUsers(Component project, String label, String description, GateStatus status, boolean isNewAlert) {
+    Notification notification = new Notification("alerts")
+      .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
+      .setFieldValue("projectName", project.getName())
+      .setFieldValue("projectKey", project.getKey())
+      .setFieldValue("projectUuid", project.getUuid())
+      .setFieldValue("alertName", label)
+      .setFieldValue("alertText", description)
+      .setFieldValue("alertLevel", status.toString())
+      .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+    notificationManager.scheduleForSending(notification);
+  }
 
   private void createEvent(Component project, String name, String description) {
     eventRepository.add(project, Event.createAlert(name, null, description));
