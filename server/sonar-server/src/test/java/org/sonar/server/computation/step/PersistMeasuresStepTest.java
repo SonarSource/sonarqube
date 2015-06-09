@@ -172,7 +172,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         "rule_priority as \"severity\" from project_measures");
 
     Map<String, Object> dto = dtos.get(0);
-    assertThat(dto.get("snapshotId")).isNotNull();
+    assertThat(dto.get("snapshotId")).isEqualTo(3L);
     assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
     assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
@@ -180,7 +180,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("severity")).isEqualTo(0L);
 
     dto = dtos.get(1);
-    assertThat(dto.get("snapshotId")).isNotNull();
+    assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
     assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
