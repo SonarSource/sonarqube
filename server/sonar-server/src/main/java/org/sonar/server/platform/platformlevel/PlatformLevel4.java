@@ -19,6 +19,9 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.server.issue.ws.IssueComponentHelper;
+import org.sonar.server.issue.ws.IssueJsonWriter;
+
 import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
@@ -309,7 +312,6 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CurrentAction;
 import org.sonar.server.user.ws.FavoritesWs;
-import org.sonar.server.user.ws.IssueJsonWriter;
 import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
@@ -606,6 +608,7 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueChangelogFormatter.class,
       IssuesWs.class,
       IssueJsonWriter.class,
+      IssueComponentHelper.class,
       org.sonar.server.issue.ws.ShowAction.class,
       org.sonar.server.issue.ws.SearchAction.class,
       org.sonar.server.issue.ws.TagsAction.class,

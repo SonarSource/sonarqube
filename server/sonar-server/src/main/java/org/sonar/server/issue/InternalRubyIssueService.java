@@ -19,6 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import org.sonar.server.issue.ws.IssueComponentHelper;
+import org.sonar.server.issue.ws.IssueJsonWriter;
+
+import org.elasticsearch.common.collect.Lists;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -72,10 +76,8 @@ import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.ws.IssueJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -107,6 +109,7 @@ public class InternalRubyIssueService {
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final IssueJsonWriter issueWriter;
+  private final IssueComponentHelper issueComponentHelper;
   private final UserIndex userIndex;
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -118,7 +121,7 @@ public class InternalRubyIssueService {
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
-    IssueJsonWriter issueWriter, UserIndex userIndex, DbClient dbClient,
+    IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, UserIndex userIndex, DbClient dbClient,
     UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
@@ -130,6 +133,7 @@ public class InternalRubyIssueService {
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.issueWriter = issueWriter;
+    this.issueComponentHelper = issueComponentHelper;
     this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -706,6 +710,7 @@ public class InternalRubyIssueService {
       Set<String> componentUuids = ImmutableSet.of(issue.componentUuid());
       Set<String> projectUuids = Sets.newHashSet();
       Set<ComponentDto> componentDtos = Sets.newHashSet();
+      List<ComponentDto> projectDtos = Lists.newArrayList();
 
       Map<String, ComponentDto> componentsByUuid = Maps.newHashMap();
       Map<String, ComponentDto> projectsByComponentUuid = Maps.newHashMap();
@@ -717,13 +722,14 @@ public class InternalRubyIssueService {
       for (ComponentDto component : componentDtos) {
         projectUuids.add(component.projectUuid());
       }
-      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(dbSession, projectUuids);
-
+      projectDtos.addAll(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
       componentDtos.addAll(projectDtos);
+
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);
       }
-      projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
+
+      projectsByComponentUuid = issueComponentHelper.doSomething(projectUuids, componentUuids, componentsByUuid, componentDtos, subProjectDtos, dbSession);
 
       json.beginObject().name("issue");
       issueWriter.write(json, issue,
@@ -751,38 +757,4 @@ public class InternalRubyIssueService {
     }
     return usersByLogin;
   }
-
-  private static Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = buildProjectsByUuid(projects);
-    return buildProjectsByComponentUuid(components, projectsByUuid);
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = newHashMap();
-    for (ComponentDto project : projects) {
-      if (project == null) {
-        throw new IllegalStateException("Found a null project in issues");
-      }
-      if (project.uuid() == null) {
-        throw new IllegalStateException("Project has no UUID: " + project.getKey());
-      }
-      projectsByUuid.put(project.uuid(), project);
-    }
-    return projectsByUuid;
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
-    Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
-    for (ComponentDto component : components) {
-      if (component.uuid() == null) {
-        throw new IllegalStateException("Component has no UUID: " + component.getKey());
-      }
-      if (!projectsByUuid.containsKey(component.projectUuid())) {
-        throw new IllegalStateException("Project cannot be found for component: " + component.getKey() + " / " + component.uuid());
-      }
-      projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
-    }
-    return projectsByComponentUuid;
-  }
-
 }

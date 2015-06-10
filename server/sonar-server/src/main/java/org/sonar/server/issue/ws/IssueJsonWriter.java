@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.user.ws;
+package org.sonar.server.issue.ws;
+
+import org.sonar.server.user.ws.UserJsonWriter;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -41,7 +43,6 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.user.UserSession;
 
 public class IssueJsonWriter {

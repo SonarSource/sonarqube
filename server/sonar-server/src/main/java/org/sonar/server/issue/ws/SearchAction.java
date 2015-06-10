@@ -65,8 +65,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.IssueJsonWriter;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -90,10 +88,11 @@ public class SearchAction implements IssuesWsAction {
   private final Languages languages;
   private final UserSession userSession;
   private final IssueJsonWriter issueWriter;
+  private final IssueComponentHelper issueComponentHelper;
 
   public SearchAction(DbClient dbClient, IssueService service, IssueQueryService issueQueryService,
     RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Languages languages,
-    UserSession userSession, IssueJsonWriter issueWriter) {
+    UserSession userSession, IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper) {
     this.dbClient = dbClient;
     this.service = service;
     this.issueQueryService = issueQueryService;
@@ -104,6 +103,7 @@ public class SearchAction implements IssuesWsAction {
     this.languages = languages;
     this.userSession = userSession;
     this.issueWriter = issueWriter;
+    this.issueComponentHelper = issueComponentHelper;
   }
 
   @Override
@@ -311,6 +311,7 @@ public class SearchAction implements IssuesWsAction {
     Map<String, ComponentDto> componentsByUuid = newHashMap();
     Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
     Collection<ComponentDto> componentDtos = newHashSet();
+    List<ComponentDto> projectDtos = Lists.newArrayList();
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
 
     for (IssueDoc issueDoc : result.getDocs()) {
@@ -346,20 +347,7 @@ public class SearchAction implements IssuesWsAction {
       }
       usersByLogin = getUsersByLogin(userLogins);
 
-      List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(session, componentUuids);
-      List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(session, componentUuids);
-      componentDtos.addAll(fileDtos);
-      componentDtos.addAll(subProjectDtos);
-      for (ComponentDto component : componentDtos) {
-        projectUuids.add(component.projectUuid());
-      }
-      List<ComponentDto> projectDtos = dbClient.componentDao().selectByUuids(session, projectUuids);
-
-      componentDtos.addAll(projectDtos);
-      for (ComponentDto componentDto : componentDtos) {
-        componentsByUuid.put(componentDto.uuid(), componentDto);
-      }
-      projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
+      projectsByComponentUuid = issueComponentHelper.doSomething(projectUuids, componentUuids, componentsByUuid, componentDtos, projectDtos, session);
 
       writeProjects(json, projectDtos);
       writeComponents(json, componentDtos, projectsByComponentUuid);
@@ -607,39 +595,6 @@ public class SearchAction implements IssuesWsAction {
       actionPlans.put(actionPlan.key(), actionPlan);
     }
     return actionPlans;
-  }
-
-  private Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = buildProjectsByUuid(projects);
-    return buildProjectsByComponentUuid(components, projectsByUuid);
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
-    Map<String, ComponentDto> projectsByUuid = newHashMap();
-    for (ComponentDto project : projects) {
-      if (project == null) {
-        throw new IllegalStateException("Found a null project in issues");
-      }
-      if (project.uuid() == null) {
-        throw new IllegalStateException("Project has no UUID: " + project.getKey());
-      }
-      projectsByUuid.put(project.uuid(), project);
-    }
-    return projectsByUuid;
-  }
-
-  private static Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
-    Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
-    for (ComponentDto component : components) {
-      if (component.uuid() == null) {
-        throw new IllegalStateException("Component has no UUID: " + component.getKey());
-      }
-      if (!projectsByUuid.containsKey(component.projectUuid())) {
-        throw new IllegalStateException("Project cannot be found for component: " + component.getKey() + " / " + component.uuid());
-      }
-      projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
-    }
-    return projectsByComponentUuid;
   }
 
   @CheckForNull

@@ -102,7 +102,7 @@ public class InternalRubyIssueServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, null, null, null, userSessionRule);
+      issueFilterService, issueBulkChangeService, null, null, null, null, userSessionRule);
   }
 
   @Test
