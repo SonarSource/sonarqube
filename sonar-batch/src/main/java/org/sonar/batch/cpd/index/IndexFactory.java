@@ -20,50 +20,27 @@
 package org.sonar.batch.cpd.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.core.duplication.DuplicationDao;
-
-import javax.annotation.Nullable;
 
 @BatchSide
 public class IndexFactory {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IndexFactory.class);
-
   private final Settings settings;
-  private final DuplicationDao dao;
   private final DefaultAnalysisMode mode;
-  private final DatabaseSession session;
-  private final BatchComponentCache resourceCache;
 
-  public IndexFactory(DefaultAnalysisMode mode, Settings settings, @Nullable DuplicationDao dao, @Nullable DatabaseSession session, BatchComponentCache resourceCache) {
+  public IndexFactory(DefaultAnalysisMode mode, Settings settings) {
     this.mode = mode;
     this.settings = settings;
-    this.dao = dao;
-    this.session = session;
-    this.resourceCache = resourceCache;
-  }
-
-  /**
-   * Used by new sensor mode
-   */
-  public IndexFactory(DefaultAnalysisMode mode, Settings settings, BatchComponentCache resourceCache) {
-    this(mode, settings, null, null, resourceCache);
   }
 
   public SonarDuplicationsIndex create(@Nullable Project project, String languageKey) {
-    if (verifyCrossProject(project, LOG) && dao != null && session != null) {
-      return new SonarDuplicationsIndex(new DbDuplicationsIndex(project, dao, languageKey, session, resourceCache));
-    }
     return new SonarDuplicationsIndex();
   }
 
