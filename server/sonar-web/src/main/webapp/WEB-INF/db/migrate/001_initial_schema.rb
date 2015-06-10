@@ -27,7 +27,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column 'qualifier', :string, :limit => 3
       t.column 'kee', :string, :limit => 400
       t.column 'root_id', :integer
-      t.column :profile_id, :integer, :null => true
       t.column :language, :string, :null => true, :limit => 5
       t.column :copy_resource_id, :integer, :null => true
       t.column :long_name, :string, :null => true, :limit => 256

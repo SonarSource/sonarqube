@@ -46,12 +46,6 @@ class CreateRuleChanges < ActiveRecord::Migration
       t.column :new_value,               :string,    :limit => 4000, :null => true
     end
     add_index :active_rule_param_changes, [:active_rule_change_id], :name => 'active_rule_param_changes_cid'
-
-    add_column 'rules_profiles', 'version',      :integer, :default => 1
-    add_column 'rules_profiles', 'used_profile', :boolean, :default => false
-
-    RulesProfile.reset_column_information
-    RulesProfile.update_all(RulesProfile.sanitize_sql_for_assignment({:used_profile => false, :version => 1}))
   end
 
 end
