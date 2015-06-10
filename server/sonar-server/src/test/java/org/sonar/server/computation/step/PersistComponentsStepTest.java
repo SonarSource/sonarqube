@@ -797,7 +797,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .addChildRef(2)
       .build());
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
 

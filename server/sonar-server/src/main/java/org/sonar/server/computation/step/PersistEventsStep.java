@@ -23,7 +23,6 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.event.EventDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -70,9 +69,8 @@ public class PersistEventsStep implements ComputationStep {
   }
 
   private void processComponent(Component component, DbSession session, long analysisDate) {
-    BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
     processEvents(session, component, analysisDate);
-    saveVersionEvent(session, batchComponent, component, analysisDate);
+    saveVersionEvent(session, component, analysisDate);
   }
 
   private void processEvents(DbSession session, final Component component, final Long analysisDate) {
@@ -92,9 +90,9 @@ public class PersistEventsStep implements ComputationStep {
     }
   }
 
-  private void saveVersionEvent(DbSession session, BatchReport.Component batchComponent, Component component, Long analysisDate) {
-    if (batchComponent.hasVersion()) {
-      String version = batchComponent.getVersion();
+  private void saveVersionEvent(DbSession session, Component component, Long analysisDate) {
+    String version = component.getVersion();
+    if (version != null) {
       deletePreviousEventsHavingSameVersion(session, version, component);
       dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
         .setName(version)

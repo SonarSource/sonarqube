@@ -21,6 +21,7 @@ package org.sonar.server.computation.component;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -32,7 +33,7 @@ import static com.google.common.collect.Iterables.filter;
 public class ComponentImpl implements Component {
   private final Type type;
   private final int ref;
-  private final String name;
+  private final String name, version;
   private final List<Component> children;
 
   // Mutable values
@@ -43,6 +44,7 @@ public class ComponentImpl implements Component {
     this.ref = component.getRef();
     this.type = convertType(component.getType());
     this.name = component.getName();
+    this.version = component.hasVersion() ? component.getVersion() : null;
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
 
@@ -95,6 +97,12 @@ public class ComponentImpl implements Component {
   @Override
   public String getName() {
     return name;
+  }
+
+  @Override
+  @CheckForNull
+  public String getVersion() {
+    return version;
   }
 
   public ComponentImpl setKey(String key) {

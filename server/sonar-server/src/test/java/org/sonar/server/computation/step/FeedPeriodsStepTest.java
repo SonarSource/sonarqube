@@ -33,7 +33,6 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -93,14 +92,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
       .setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime())
       .build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setVersion("1.1")
-      .build());
-
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
 
     sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
   }

@@ -131,31 +131,14 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     session.commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setVersion("1.0")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setVersion("1.1")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.FILE)
       .build());
 
     Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
+    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").setVersion("1.1").addChildren(directory).build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.0").addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -246,16 +229,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     session.commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(3)
       .setType(Constants.ComponentType.FILE)
       .setIsTest(true)
@@ -288,26 +261,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     ComponentDto moduleBDto = ComponentTesting.newModuleDto("DEFG", projectDto).setKey("MODULE_B");
     dbClient.componentDao().insert(session, moduleBDto);
     session.commit();
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .addChildRef(2)
-      .addChildRef(4)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.MODULE)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.MODULE)
-      .build());
 
     Component moduleB = DumbComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("MODULE_B").build();
     Component subModuleA = DumbComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_A").build();
@@ -362,15 +315,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     session.commit();
     periodsHolderRule.addPeriod(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate));
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .setVersion("1.0")
-      .addChildRef(2)
-      .build());
-
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -409,29 +353,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
     session.commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .setVersion("1.0")
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .setKey("MODULE_KEY")
-      .setPath("module")
-      .setName("Module")
-      .setVersion("1.1")
-      .addChildRef(3)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.DIRECTORY)
-      .setPath("src/main/java/dir")
-      .addChildRef(4)
-      .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(4)
       .setType(Constants.ComponentType.FILE)
@@ -472,15 +393,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto);
     dbClient.snapshotDao().insert(session, snapshotDto);
     session.commit();
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .setName("Project")
-      .setVersion("1.0")
-      .addChildRef(2)
-      .build());
 
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
