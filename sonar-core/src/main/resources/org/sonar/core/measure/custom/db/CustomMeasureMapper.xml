@@ -29,11 +29,11 @@
     where m.metric_id=#{metricId}
   </select>
 
-  <select id="selectByComponentId" resultType="CustomMeasure">
+  <select id="selectByComponentUuid" resultType="CustomMeasure">
     select
     <include refid="selectColumns"/>
     from manual_measures m
-    where m.resource_id=#{componentId}
+    where m.component_uuid=#{componentUuid}
   </select>
 
   <insert id="insert" parameterType="CustomMeasure" useGeneratedKeys="true" keyColumn="id" keyProperty="id">

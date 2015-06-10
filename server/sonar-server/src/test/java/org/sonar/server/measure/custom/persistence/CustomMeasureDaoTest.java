@@ -89,15 +89,15 @@ public class CustomMeasureDaoTest {
   }
 
   @Test
-  public void select_by_component_id() {
-    sut.insert(session, newCustomMeasureDto().setComponentId(1));
-    sut.insert(session, newCustomMeasureDto().setComponentId(1));
-    sut.insert(session, newCustomMeasureDto().setComponentId(2));
+  public void select_by_component_uuid() {
+    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    sut.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
     session.commit();
 
-    List<CustomMeasureDto> result = sut.selectByComponentId(session, 1L);
+    List<CustomMeasureDto> result = sut.selectByComponentUuid(session, "u1");
 
     assertThat(result).hasSize(2);
-    assertThat(result).extracting("componentId").containsOnly(1L);
+    assertThat(result).extracting("componentUuid").containsOnly("u1");
   }
 }
