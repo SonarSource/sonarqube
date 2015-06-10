@@ -19,13 +19,12 @@
  */
 package org.sonar.core.purge;
 
+import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -51,7 +50,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    checkTables("shouldDeleteSnapshot", "snapshots", "project_measures", "duplications_index", "events", "dependencies");
+    checkTables("shouldDeleteSnapshot", "snapshots", "project_measures", "duplications_index", "events");
   }
 
   /**
@@ -81,8 +80,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     } finally {
       MyBatis.closeQuietly(session);
     }
-    checkTables("shouldPurgeSnapshot",
-      "snapshots", "project_measures", "duplications_index", "events", "dependencies");
+    checkTables("shouldPurgeSnapshot", "snapshots", "project_measures", "duplications_index", "events");
   }
 
   @Test

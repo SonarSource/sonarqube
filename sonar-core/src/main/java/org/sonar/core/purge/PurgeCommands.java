@@ -21,9 +21,8 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
-
 import java.util.List;
+import org.apache.ibatis.session.SqlSession;
 
 class PurgeCommands {
 
@@ -156,8 +155,6 @@ class PurgeCommands {
 
     List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDependencies(snapshotIdsPartition);
-
     deleteSnapshotDuplications(snapshotIdsPartition);
 
     profiler.start("deleteSnapshotEvents (events)");
@@ -191,8 +188,6 @@ class PurgeCommands {
     // note that events are not deleted
     List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDependencies(snapshotIdsPartition);
-
     deleteSnapshotDuplications(snapshotIdsPartition);
 
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
@@ -215,20 +210,6 @@ class PurgeCommands {
     profiler.start("deleteSnapshotDuplications (duplications_index)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshotDuplications(partSnapshotIds);
-    }
-    session.commit();
-    profiler.stop();
-  }
-
-  private void deleteSnapshotDependencies(final List<List<Long>> snapshotIdsPartition) {
-    profiler.start("deleteSnapshotDependencies (dependencies)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      // SONAR-4586
-      // On MsSQL, the maximum number of parameters allowed in a query is 2000, so we have to execute 3 queries instead of one with 3 or
-      // inside
-      purgeMapper.deleteSnapshotDependenciesFromSnapshotId(partSnapshotIds);
-      purgeMapper.deleteSnapshotDependenciesToSnapshotId(partSnapshotIds);
-      purgeMapper.deleteSnapshotDependenciesProjectSnapshotId(partSnapshotIds);
     }
     session.commit();
     profiler.stop();

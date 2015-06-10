@@ -36,8 +36,8 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.cluster.WorkQueue;
@@ -53,8 +53,6 @@ import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.config.Logback;
-import org.sonar.core.measure.custom.db.CustomMeasureDto;
-import org.sonar.core.measure.custom.db.CustomMeasureMapper;
 import org.sonar.core.dashboard.ActiveDashboardDto;
 import org.sonar.core.dashboard.ActiveDashboardMapper;
 import org.sonar.core.dashboard.DashboardDto;
@@ -63,7 +61,6 @@ import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetMapper;
 import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.dashboard.WidgetPropertyMapper;
-import org.sonar.core.design.FileDependencyMapper;
 import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.event.EventDto;
@@ -80,6 +77,8 @@ import org.sonar.core.issue.db.IssueFilterFavouriteDto;
 import org.sonar.core.issue.db.IssueFilterFavouriteMapper;
 import org.sonar.core.issue.db.IssueFilterMapper;
 import org.sonar.core.issue.db.IssueMapper;
+import org.sonar.core.measure.custom.db.CustomMeasureDto;
+import org.sonar.core.measure.custom.db.CustomMeasureMapper;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.core.measure.db.MeasureFilterMapper;
@@ -249,7 +248,7 @@ public class MyBatis {
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
-      FileDependencyMapper.class, DuplicationMapper.class,
+      DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,

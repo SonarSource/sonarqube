@@ -103,27 +103,6 @@
     </foreach>
   </delete>
 
-  <delete id="deleteSnapshotDependenciesFromSnapshotId" parameterType="map">
-    delete from dependencies where from_snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
-  </delete>
-
-  <delete id="deleteSnapshotDependenciesToSnapshotId" parameterType="map">
-    delete from dependencies where to_snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
-  </delete>
-
-  <delete id="deleteSnapshotDependenciesProjectSnapshotId" parameterType="map">
-    delete from dependencies where project_snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
-    </foreach>
-  </delete>
-
   <delete id="deleteSnapshotDuplications" parameterType="map">
     delete from duplications_index where snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">

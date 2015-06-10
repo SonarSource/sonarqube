@@ -22,9 +22,6 @@
                     person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
-  <dependencies id="1" from_component_uuid="A" from_parent_uuid="P_A" from_snapshot_id="1" to_component_uuid="CC" to_parent_uuid="P_CC" to_snapshot_id="30"
-                parent_dependency_id="[null]" project_snapshot_id="1" root_project_snapshot_id="1"
-                dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB" created_at="1228222680000"/>
   <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
   <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0"

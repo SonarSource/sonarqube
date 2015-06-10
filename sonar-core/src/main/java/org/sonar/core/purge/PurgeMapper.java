@@ -19,11 +19,9 @@
  */
 package org.sonar.core.purge;
 
-import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.Nullable;
-
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.ibatis.annotations.Param;
 
 public interface PurgeMapper {
 
@@ -36,12 +34,6 @@ public interface PurgeMapper {
   List<IdUuidPair> selectComponentIdUuidsByRootId(long rootProjectId);
 
   void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
-
-  void deleteSnapshotDependenciesFromSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
-
-  void deleteSnapshotDependenciesToSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
-
-  void deleteSnapshotDependenciesProjectSnapshotId(@Param("snapshotIds") List<Long> snapshotIds);
 
   void deleteSnapshotDuplications(@Param("snapshotIds") List<Long> snapshotIds);
 

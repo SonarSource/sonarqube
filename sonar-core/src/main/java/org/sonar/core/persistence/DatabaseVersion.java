@@ -34,10 +34,10 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 919;
+  public static final int LAST_VERSION = 922;
 
   /**
-   * List of all the tables.n
+   * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
    */
@@ -51,7 +51,6 @@ public class DatabaseVersion {
     "authors",
     "characteristics",
     "dashboards",
-    "dependencies",
     "duplications_index",
     "events",
     "file_sources",
