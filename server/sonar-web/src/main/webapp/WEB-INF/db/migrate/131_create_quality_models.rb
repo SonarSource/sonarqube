@@ -35,6 +35,8 @@ class CreateQualityModels < ActiveRecord::Migration
       t.column 'rule_id', :integer, :null => true
       t.column 'depth', :integer, :null => true
       t.column 'characteristic_order', :integer, :null => true
+      t.column 'description', :string, :null => true, :limit => 4000
+      t.column 'enabled', :boolean, :null => true
     end
 
     create_table 'characteristic_edges', :id => false do |t|
