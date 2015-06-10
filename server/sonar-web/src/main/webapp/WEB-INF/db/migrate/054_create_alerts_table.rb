@@ -26,6 +26,7 @@ class CreateAlertsTable < ActiveRecord::Migration
       t.column :operator,   :string, :limit => 3, :null => true
       t.column :value_error,    :string, :limit => 64, :null => true
       t.column :value_warning,  :string, :limit => 64, :null => true
+      t.column 'period', :integer, :null => true
     end
   end
 
