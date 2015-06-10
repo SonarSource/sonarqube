@@ -191,7 +191,7 @@ public class PersistComponentsStep implements ComputationStep {
       ComponentDto componentDto = createComponentDto(reportComponent, file);
 
       componentDto.setScope(Scopes.FILE);
-      componentDto.setQualifier(getFileQualifier(reportComponent));
+      componentDto.setQualifier(getFileQualifier(file));
       componentDto.setName(FilenameUtils.getName(reportComponent.getPath()));
       componentDto.setLongName(reportComponent.getPath());
       if (reportComponent.hasPath()) {
@@ -271,8 +271,8 @@ public class PersistComponentsStep implements ComputationStep {
     return isUpdated;
   }
 
-  private static String getFileQualifier(BatchReport.Component reportComponent) {
-    return reportComponent.getIsTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
+  private static String getFileQualifier(Component component) {
+    return component.isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   private static Map<String, ComponentDto> componentDtosByKey(List<ComponentDto> components) {

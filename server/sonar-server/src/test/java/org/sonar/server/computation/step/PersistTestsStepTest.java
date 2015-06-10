@@ -96,12 +96,10 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     sut = new PersistTestsStep(dbClient, system2, reportReader, treeRootHolder);
 
-    initBasicReport();
-
     root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE_UUID").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").build(),
-        DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").build(),
+        DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setUnitTest(true).build(),
+        DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setUnitTest(true).build(),
         DumbComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
         DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()
         ).build()
@@ -210,8 +208,8 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(log.logs(LoggerLevel.WARN)).hasSize(1);
     assertThat(log.logs(LoggerLevel.WARN).get(0)).isEqualTo("Some coverage tests are not taken into account during analysis of project 'PROJECT_KEY'");
     assertThat(log.logs(LoggerLevel.TRACE)).hasSize(2);
-    assertThat(log.logs(LoggerLevel.TRACE).get(0)).isEqualTo("The following test coverages for file 'TEST-PATH-1' have not been taken into account: name#2");
-    assertThat(log.logs(LoggerLevel.TRACE).get(1)).startsWith("The following test coverages for file 'TEST-PATH-2' have not been taken into account: ");
+    assertThat(log.logs(LoggerLevel.TRACE).get(0)).isEqualTo("The following test coverages for file 'TEST_FILE1_KEY' have not been taken into account: name#2");
+    assertThat(log.logs(LoggerLevel.TRACE).get(1)).startsWith("The following test coverages for file 'TEST_FILE2_KEY' have not been taken into account: ");
     assertThat(log.logs(LoggerLevel.TRACE).get(1)).contains("name#1", "name#2");
   }
 
@@ -299,42 +297,4 @@ public class PersistTestsStepTest extends BaseStepTest {
       )
       .build();
   }
-
-  private void initBasicReport() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setProjectKey(PROJECT_KEY)
-      .build());
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .addAllChildRef(Arrays.asList(TEST_FILE_REF_1, TEST_FILE_REF_2, MAIN_FILE_REF_1, MAIN_FILE_REF_2))
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(TEST_FILE_REF_1)
-      .setIsTest(true)
-      .setType(Constants.ComponentType.FILE)
-      .setPath(TEST_FILE_PATH_1)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(TEST_FILE_REF_2)
-      .setIsTest(true)
-      .setType(Constants.ComponentType.FILE)
-      .setPath(TEST_FILE_PATH_2)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(MAIN_FILE_REF_1)
-      .setType(Constants.ComponentType.FILE)
-      .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(MAIN_FILE_REF_2)
-      .setType(Constants.ComponentType.FILE)
-      .build());
- }
 }

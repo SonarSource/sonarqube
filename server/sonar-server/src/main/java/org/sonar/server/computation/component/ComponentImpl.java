@@ -34,6 +34,7 @@ public class ComponentImpl implements Component {
   private final Type type;
   private final int ref;
   private final String name, version;
+  private final boolean isUnitTest;
   private final List<Component> children;
 
   // Mutable values
@@ -45,6 +46,7 @@ public class ComponentImpl implements Component {
     this.type = convertType(component.getType());
     this.name = component.getName();
     this.version = component.hasVersion() ? component.getVersion() : null;
+    this.isUnitTest = component.hasIsTest() && component.getIsTest();
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
   }
 
@@ -108,6 +110,11 @@ public class ComponentImpl implements Component {
   public ComponentImpl setKey(String key) {
     this.key = key;
     return this;
+  }
+
+  @Override
+  public boolean isUnitTest() {
+    return isUnitTest;
   }
 
   @Override

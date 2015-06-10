@@ -28,10 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
@@ -76,8 +74,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   System2 system2 = mock(System2.class);
 
   DbIdsRepository dbIdsRepository;
-
-  Settings settings = new Settings();
 
   DbSession session;
 
@@ -129,11 +125,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
     dbClient.componentDao().insert(session, fileDto);
     session.commit();
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .build());
 
     Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
@@ -228,13 +219,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(session, fileDto);
     session.commit();
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(3)
-      .setType(Constants.ComponentType.FILE)
-      .setIsTest(true)
-      .build());
-
-    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/main/java/dir/Foo.java").build();
+    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/main/java/dir/Foo.java").setUnitTest(true).build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/main/java/dir").addChildren(file).build();
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
     treeRootHolder.setRoot(project);
@@ -352,13 +337,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.snapshotDao().insert(session, fileSnapshot);
 
     session.commit();
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(4)
-      .setType(Constants.ComponentType.FILE)
-      .setPath("src/main/java/dir/Foo.java")
-      .setLanguage("java")
-      .build());
 
     Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
