@@ -34,6 +34,7 @@ class CreateManualMeasures < ActiveRecord::Migration
       t.timestamps
     end
     alter_to_big_primary_key('manual_measures')
+    add_index 'manual_measures', 'resource_id', :name => 'manual_measures_resource_id'
   end
 
 end
