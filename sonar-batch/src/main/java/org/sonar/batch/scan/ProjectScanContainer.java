@@ -219,9 +219,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultTechnicalDebtModel.class,
 
       // Issue tracking
-      InitialOpenIssuesStack.class,
-
-      ProjectLock.class);
+      InitialOpenIssuesStack.class);
   }
 
   private void addBatchExtensions() {

@@ -19,20 +19,15 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.Nullable;
-
 import java.util.Date;
+import javax.annotation.Nullable;
+import org.sonar.api.server.ServerSide;
 
 /**
  * A semaphore shared among all the processes that can connect to the central database.
- * It's ignored when enabling the dry run mode.
  *
  * @since 3.4
  */
-@BatchSide
 @ServerSide
 public interface Semaphores {
 

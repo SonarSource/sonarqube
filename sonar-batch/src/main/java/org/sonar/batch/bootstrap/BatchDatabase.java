@@ -19,10 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.util.Properties;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.DefaultDatabase;
-
-import java.util.Properties;
 
 /**
  * @since 2.12
@@ -38,11 +37,10 @@ public class BatchDatabase extends DefaultDatabase {
 
   @Override
   protected void doCompleteProperties(Properties properties) {
-    // three connections are required : one for Hibernate, one for MyBatis for regular operations,
-    // and one for the SemaphoreUpdater
+    // two connections are required : one for Hibernate, and one for MyBatis for regular operations
     // Note that Hibernate will be removed soon
-    properties.setProperty("sonar.jdbc.initialSize", "3");
-    properties.setProperty("sonar.jdbc.maxActive", "3");
+    properties.setProperty("sonar.jdbc.initialSize", "2");
+    properties.setProperty("sonar.jdbc.maxActive", "2");
     // SONAR-2965
     properties.setProperty("sonar.jdbc.defaultAutoCommit", "false");
   }

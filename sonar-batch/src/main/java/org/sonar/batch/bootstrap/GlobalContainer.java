@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -51,8 +53,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SemaphoreUpdater;
-import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -65,9 +65,6 @@ import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
-
-import java.util.List;
-import java.util.Map;
 
 public class GlobalContainer extends ComponentContainer {
 
@@ -152,8 +149,6 @@ public class GlobalContainer extends ComponentContainer {
       RuleI18nManager.class,
       MeasuresDao.class,
       HibernateUserFinder.class,
-      SemaphoreUpdater.class,
-      SemaphoresImpl.class,
       PastSnapshotFinderByDate.class,
       PastSnapshotFinderByDays.class,
       PastSnapshotFinderByPreviousAnalysis.class,
