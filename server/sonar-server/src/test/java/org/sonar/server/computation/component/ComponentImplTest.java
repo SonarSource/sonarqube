@@ -27,6 +27,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentImplTest {
+
   private ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
 
   @Test(expected = NullPointerException.class)

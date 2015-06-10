@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static java.util.Arrays.asList;
@@ -32,11 +33,11 @@ import static java.util.Arrays.asList;
  */
 public class DumbComponent implements Component {
 
-  public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").build();
+  public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
 
   private final Type type;
   private final int ref;
-  private final String uuid, key, name;
+  private final String uuid, key, name, version;
   private final List<Component> children;
 
   private DumbComponent(Builder builder) {
@@ -45,6 +46,7 @@ public class DumbComponent implements Component {
     this.uuid = builder.uuid;
     this.key = builder.key;
     this.name = builder.name;
+    this.version = builder.version;
     this.children = ImmutableList.copyOf(builder.children);
   }
 
@@ -75,6 +77,12 @@ public class DumbComponent implements Component {
   }
 
   @Override
+  @CheckForNull
+  public String getVersion() {
+    return version;
+  }
+
+  @Override
   public int getRef() {
     return ref;
   }
@@ -91,7 +99,7 @@ public class DumbComponent implements Component {
   public static final class Builder {
     private final Type type;
     private final int ref;
-    private String uuid, key, name;
+    private String uuid, key, name, version;
     private final List<Component> children = new ArrayList<>();
 
     private Builder(Type type, int ref) {
@@ -112,6 +120,11 @@ public class DumbComponent implements Component {
 
     public Builder setKey(@Nullable String s) {
       this.key = s;
+      return this;
+    }
+
+    public Builder setVersion(@Nullable String s) {
+      this.version = s;
       return this;
     }
 

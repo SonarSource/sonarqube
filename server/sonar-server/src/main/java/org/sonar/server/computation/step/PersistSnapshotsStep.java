@@ -86,18 +86,17 @@ public class PersistSnapshotsStep implements ComputationStep {
     }
 
     private void process(Component component, @Nullable SnapshotDto parentSnapshot) {
-      BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
       long componentId = dbIdsRepository.getComponentId(component);
 
       switch (component.getType()) {
         case PROJECT:
           this.projectId = componentId;
-          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot, true);
+          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, component.getVersion(), parentSnapshot, true);
           addToCache(component, projectSnapshot);
           processChildren(component, projectSnapshot);
           break;
         case MODULE:
-          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, reportComponent.getVersion(), parentSnapshot, true);
+          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, component.getVersion(), parentSnapshot, true);
           addToCache(component, moduleSnapshot);
           processChildren(component, moduleSnapshot);
           break;
@@ -107,6 +106,7 @@ public class PersistSnapshotsStep implements ComputationStep {
           processChildren(component, directorySnapshot);
           break;
         case FILE:
+          BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
           SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(reportComponent), Scopes.FILE, null, parentSnapshot, false);
           addToCache(component, fileSnapshot);
           break;

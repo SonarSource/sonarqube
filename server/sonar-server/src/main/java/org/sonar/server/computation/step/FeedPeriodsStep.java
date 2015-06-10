@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
@@ -34,7 +35,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.SnapshotQuery;
@@ -81,34 +81,34 @@ public class FeedPeriodsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    periodsHolder.setPeriods(createPeriods());
-  }
-
-  private List<Period> createPeriods() {
-    List<Period> periods = new ArrayList<>();
     DbSession session = dbClient.openSession(false);
     try {
-      Component project = treeRootHolder.getRoot();
-      ComponentDto projectDto = dbClient.componentDao().selectNullableByKey(session, project.getKey());
-      // No project on first analysis, no period
-      if (projectDto != null) {
-        BatchReport.Component batchProject = batchReportReader.readComponent(project.getRef());
-        PeriodResolver periodResolver = new PeriodResolver(session, projectDto.getId(), batchReportReader.readMetadata().getAnalysisDate(), batchProject.getVersion(),
-          // TODO qualifier will be different for Views
-          Qualifiers.PROJECT);
-
-        for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
-          Period period = periodResolver.resolve(index);
-          // SONAR-4700 Add a past snapshot only if it exists
-          if (period != null) {
-            periods.add(period);
-          }
-        }
-      }
+      periodsHolder.setPeriods(buildPeriods(session));
     } finally {
       session.close();
     }
-    return periods;
+  }
+
+  private List<Period> buildPeriods(DbSession session) {
+    Component project = treeRootHolder.getRoot();
+    ComponentDto projectDto = dbClient.componentDao().selectNullableByKey(session, project.getKey());
+    // No project on first analysis, no period
+    if (projectDto != null) {
+      List<Period> periods = new ArrayList<>(5);
+      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getVersion(),
+        // TODO qualifier will be different for Views
+        Qualifiers.PROJECT);
+
+      for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
+        Period period = periodResolver.resolve(index);
+        // SONAR-4700 Add a past snapshot only if it exists
+        if (period != null) {
+          periods.add(period);
+        }
+      }
+      return periods;
+    }
+    return Collections.emptyList();
   }
 
   private class PeriodResolver {
@@ -128,7 +128,7 @@ public class FeedPeriodsStep implements ComputationStep {
     }
 
     @CheckForNull
-    private Period resolve(int index) {
+    public Period resolve(int index) {
       String propertyValue = getPropertyValue(qualifier, settings, index);
       if (StringUtils.isBlank(propertyValue)) {
         return null;
@@ -157,24 +157,6 @@ public class FeedPeriodsStep implements ComputationStep {
         return findByPreviousVersion(index);
       }
       return findByVersion(index, property);
-    }
-
-    @CheckForNull
-    private Integer tryToResolveByDays(String property) {
-      try {
-        return Integer.parseInt(property);
-      } catch (NumberFormatException e) {
-        return null;
-      }
-    }
-
-    @CheckForNull
-    private Date tryToResolveByDate(String property) {
-      try {
-        return DateUtils.parseDate(property);
-      } catch (Exception e) {
-        return null;
-      }
     }
 
     private Period findByDate(int index, Date date) {
@@ -237,7 +219,26 @@ public class FeedPeriodsStep implements ComputationStep {
       }
       return null;
     }
+  }
 
+  @CheckForNull
+  private static Integer tryToResolveByDays(String property) {
+    try {
+      return Integer.parseInt(property);
+    } catch (NumberFormatException e) {
+      // Nothing to, it means that the property is not a number of days
+      return null;
+    }
+  }
+
+  @CheckForNull
+  private static Date tryToResolveByDate(String property) {
+    try {
+      return DateUtils.parseDate(property);
+    } catch (Exception e) {
+      // Nothing to, it means that the property is not a date
+      return null;
+    }
   }
 
   @CheckForNull

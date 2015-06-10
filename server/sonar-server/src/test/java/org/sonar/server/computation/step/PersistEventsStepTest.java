@@ -29,7 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -53,8 +52,10 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
@@ -98,11 +99,6 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setAnalysisDate(150000000L)
       .build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .build());
-
     step.execute();
 
     dbTester.assertDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml", "events");
@@ -124,17 +120,6 @@ public class PersistEventsStepTest extends BaseStepTest {
       .setAnalysisDate(150000000L)
       .build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .addChildRef(2)
-      .build());
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
-      .build());
-
     Component child = root.getChildren().get(0);
 
     when(eventRepository.getEvents(root)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
@@ -150,19 +135,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.0").build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1000L);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setAnalysisDate(150000000L)
-      .build());
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setVersion("1.0")
       .build());
 
     step.execute();
@@ -174,19 +153,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() throws Exception {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.5-SNAPSHOT").build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1001L);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .setAnalysisDate(150000000L)
-      .build());
-
-    reportReader.putComponent(BatchReport.Component.newBuilder()
-      .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
-      .setVersion("1.5-SNAPSHOT")
       .build());
 
     step.execute();

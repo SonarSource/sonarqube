@@ -63,6 +63,11 @@ public interface Component {
    */
   String getName();
 
+  /**
+   * The project or module version as defined in the batch report.
+   */
+  String getVersion();
+
   List<Component> getChildren();
 
 }
