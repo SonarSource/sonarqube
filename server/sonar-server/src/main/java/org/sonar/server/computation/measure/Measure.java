@@ -19,11 +19,9 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -57,48 +55,6 @@ public interface Measure {
       } catch (IllegalArgumentException e) {
         return Optional.absent();
       }
-    }
-  }
-
-  /**
-   * A QualityGate status has a level and an optional describing text.
-   */
-  @Immutable
-  final class QualityGateStatus {
-    private final Level status;
-    @CheckForNull
-    private final String text;
-
-    /**
-     * Creates a QualityGateStatus without a text.
-     */
-    public QualityGateStatus(Level status) {
-      this(status, null);
-    }
-
-    /**
-     * Creates a QualityGateStatus with a optional text.
-     */
-    public QualityGateStatus(Level status, @Nullable String text) {
-      this.status = requireNonNull(status);
-      this.text = text;
-    }
-
-    public Level getStatus() {
-      return status;
-    }
-
-    @CheckForNull
-    public String getText() {
-      return text;
-    }
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this)
-          .add("status", status)
-          .add("text", text)
-          .toString();
     }
   }
 

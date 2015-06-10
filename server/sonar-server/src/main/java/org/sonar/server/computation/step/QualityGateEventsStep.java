@@ -32,6 +32,7 @@ import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.measure.QualityGateStatus;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.notification.NotificationManager;
@@ -75,7 +76,7 @@ public class QualityGateEventsStep implements ComputationStep {
     checkQualityGateStatusChange(project, metric, rawStatus.get().getQualityGateStatus());
   }
 
-  private void checkQualityGateStatusChange(Component project, Metric metric, Measure.QualityGateStatus rawStatus) {
+  private void checkQualityGateStatusChange(Component project, Metric metric, QualityGateStatus rawStatus) {
     Optional<Measure> baseMeasure = measureRepository.getBaseMeasure(project, metric);
     if (!baseMeasure.isPresent()) {
       checkNewQualityGate(project, rawStatus);
@@ -87,7 +88,7 @@ public class QualityGateEventsStep implements ComputationStep {
       checkNewQualityGate(project, rawStatus);
       return;
     }
-    Measure.QualityGateStatus baseStatus = baseMeasure.get().getQualityGateStatus();
+    QualityGateStatus baseStatus = baseMeasure.get().getQualityGateStatus();
 
     if (baseStatus.getStatus() != rawStatus.getStatus()) {
       // The QualityGate status has changed
@@ -98,7 +99,7 @@ public class QualityGateEventsStep implements ComputationStep {
     }
   }
 
-  private void checkNewQualityGate(Component project, Measure.QualityGateStatus rawStatus) {
+  private void checkNewQualityGate(Component project, QualityGateStatus rawStatus) {
     if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
       createEvent(project, rawStatus.getStatus().getColorName(), rawStatus.getText());
@@ -110,7 +111,7 @@ public class QualityGateEventsStep implements ComputationStep {
    * @param label "Red (was Orange)"
    * @param rawStatus OK, WARN or ERROR + optional text
    */
-  private void notifyUsers(Component project, String label, Measure.QualityGateStatus rawStatus, boolean isNewAlert) {
+  private void notifyUsers(Component project, String label, QualityGateStatus rawStatus, boolean isNewAlert) {
     Notification notification = new Notification("alerts")
       .setDefaultMessage(String.format("Alert on %s: %s", project.getName(), label))
       .setFieldValue("projectName", project.getName())

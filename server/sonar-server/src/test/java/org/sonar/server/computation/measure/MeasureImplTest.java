@@ -215,7 +215,7 @@ public class MeasureImplTest {
 
   @Test
   public void getAlertStatus_returns_argument_from_setAlertStatus() {
-    Measure.QualityGateStatus someStatus = new Measure.QualityGateStatus(Measure.Level.OK);
+    QualityGateStatus someStatus = new QualityGateStatus(Measure.Level.OK);
 
     assertThat(MeasureImpl.create(true, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
     assertThat(MeasureImpl.create(false, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);

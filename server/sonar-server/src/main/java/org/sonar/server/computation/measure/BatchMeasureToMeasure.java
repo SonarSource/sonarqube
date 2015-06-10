@@ -109,7 +109,7 @@ public class BatchMeasureToMeasure {
       Optional<Measure.Level> qualityGateStatus = Measure.Level.toLevel(batchMeasure.getAlertStatus());
       if (qualityGateStatus.isPresent()) {
         String text = batchMeasure.hasAlertText() ? batchMeasure.getAlertText() : null;
-        measure.setQualityGateStatus(new Measure.QualityGateStatus(qualityGateStatus.get(), text));
+        measure.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), text));
       }
     }
     return Optional.of((Measure) measure);

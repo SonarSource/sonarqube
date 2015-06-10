@@ -111,7 +111,7 @@ public class MeasureDtoToMeasure {
     if (measureDto.getAlertStatus() != null && !measure.hasQualityGateStatus()) {
       Optional<Measure.Level> qualityGateStatus = toLevel(measureDto.getAlertStatus());
       if (qualityGateStatus.isPresent()) {
-        measure.setQualityGateStatus(new Measure.QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
+        measure.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
       }
     }
 

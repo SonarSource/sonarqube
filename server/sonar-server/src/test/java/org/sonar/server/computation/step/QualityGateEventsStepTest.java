@@ -33,6 +33,7 @@ import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureImpl;
 import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.measure.QualityGateStatus;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.notification.NotificationManager;
@@ -55,9 +56,9 @@ public class QualityGateEventsStepTest {
     .build();
   private static final String INVALID_ALERT_STATUS = "trololo";
   private static final String ALERT_TEXT = "alert text";
-  private static final Measure.QualityGateStatus OK_QUALITY_GATE_STATUS = new Measure.QualityGateStatus(OK, ALERT_TEXT);
-  private static final Measure.QualityGateStatus WARN_QUALITY_GATE_STATUS = new Measure.QualityGateStatus(WARN, ALERT_TEXT);
-  private static final Measure.QualityGateStatus ERROR_QUALITY_GATE_STATUS = new Measure.QualityGateStatus(ERROR, ALERT_TEXT);
+  private static final QualityGateStatus OK_QUALITY_GATE_STATUS = new QualityGateStatus(OK, ALERT_TEXT);
+  private static final QualityGateStatus WARN_QUALITY_GATE_STATUS = new QualityGateStatus(WARN, ALERT_TEXT);
+  private static final QualityGateStatus ERROR_QUALITY_GATE_STATUS = new QualityGateStatus(ERROR, ALERT_TEXT);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -115,7 +116,7 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_created_if_no_base_ALERT_STATUS_and_raw_is_OK() {
-    Measure.QualityGateStatus someQGStatus = new Measure.QualityGateStatus(Measure.Level.OK);
+    QualityGateStatus someQGStatus = new QualityGateStatus(Measure.Level.OK);
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue().setQualityGateStatus(someQGStatus)));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue()));
@@ -158,7 +159,7 @@ public class QualityGateEventsStepTest {
   }
 
   private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedLabel) {
-    Measure.QualityGateStatus someQGStatus = new Measure.QualityGateStatus(rawAlterStatus, ALERT_TEXT);
+    QualityGateStatus someQGStatus = new QualityGateStatus(rawAlterStatus, ALERT_TEXT);
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue().setQualityGateStatus(someQGStatus)));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue()));
@@ -209,10 +210,10 @@ public class QualityGateEventsStepTest {
   }
 
   private void verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(Measure.Level previousAlertStatus,
-    Measure.QualityGateStatus newQualityGateStatus, String expectedLabel) {
+    QualityGateStatus newQualityGateStatus, String expectedLabel) {
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue().setQualityGateStatus(newQualityGateStatus)));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
-      of(MeasureImpl.createNoValue().setQualityGateStatus(new Measure.QualityGateStatus(previousAlertStatus))));
+      of(MeasureImpl.createNoValue().setQualityGateStatus(new QualityGateStatus(previousAlertStatus))));
 
     underTest.execute();
 
