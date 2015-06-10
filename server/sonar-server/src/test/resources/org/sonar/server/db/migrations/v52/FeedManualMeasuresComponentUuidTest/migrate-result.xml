@@ -1,0 +1,6 @@
+<dataset>
+
+  <manual_measures id="1" resource_id="10" component_uuid="ABCD"/>
+  <manual_measures id="2" resource_id="20" component_uuid="EFGH"/>
+
+</dataset>

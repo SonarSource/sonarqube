@@ -18,12 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.custommeasure.db;
+package org.sonar.core.measure.custom.db;
 
 public class CustomMeasureDto {
   private long id;
   private int metricId;
   private long componentId;
+  private String componentUuid;
   private double value;
   private String textValue;
   private String userLogin;
@@ -109,6 +110,15 @@ public class CustomMeasureDto {
 
   public CustomMeasureDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
+    return this;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public CustomMeasureDto setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
     return this;
   }
 }

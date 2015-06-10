@@ -18,8 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@ParametersAreNonnullByDefault
-package org.sonar.core.custommeasure.db;
+package org.sonar.server.db.migrations.v52;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.core.persistence.DbTester;
 
+public class FeedManualMeasuresComponentUuidTest {
+
+  @ClassRule
+  public static DbTester db = new DbTester().schema(FeedManualMeasuresComponentUuidTest.class, "schema.sql");
+
+  FeedManualMeasuresComponentUuid sut;
+
+  @Before
+  public void setUp() {
+    db.executeUpdateSql("truncate table manual_measures");
+    db.executeUpdateSql("truncate table projects");
+
+    sut = new FeedManualMeasuresComponentUuid(db.database());
+  }
+
+  @Test
+  public void migrate_empty_db() throws Exception {
+    sut.execute();
+  }
+
+  @Test
+  public void migrate() throws Exception {
+    db.prepareDbUnit(this.getClass(), "migrate.xml");
+    sut.execute();
+    db.assertDbUnit(this.getClass(), "migrate-result.xml", "manual_measures");
+  }
+}

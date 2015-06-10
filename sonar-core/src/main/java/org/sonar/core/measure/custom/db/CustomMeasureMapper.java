@@ -17,18 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.core.measure.custom.db;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() throws Exception {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(57);
-  }
+public interface CustomMeasureMapper {
+  void insert(CustomMeasureDto customMeasureDto);
+
+  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
+
+  CustomMeasureDto selectById(long id);
+
+  List<CustomMeasureDto> selectByMetricId(int id);
+
+  List<CustomMeasureDto> selectByComponentId(long id);
+
+  void delete(long id);
 }

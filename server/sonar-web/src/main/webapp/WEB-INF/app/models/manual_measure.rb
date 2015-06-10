@@ -168,6 +168,7 @@ class ManualMeasure < ActiveRecord::Base
   end
 
   def before_create
+    self.component_uuid=@resource.uuid
     self.created_at=DateTime.now
   end
 end

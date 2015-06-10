@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.custommeasure.db.CustomMeasureDto;
+import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;

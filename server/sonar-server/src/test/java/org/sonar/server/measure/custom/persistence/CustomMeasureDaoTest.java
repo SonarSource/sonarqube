@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.custommeasure.db.CustomMeasureDto;
+import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
@@ -68,6 +68,7 @@ public class CustomMeasureDaoTest {
     assertThat(result.getId()).isEqualTo(measure.getId());
     assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
     assertThat(result.getComponentId()).isEqualTo(measure.getComponentId());
+    assertThat(result.getComponentUuid()).isEqualTo(measure.getComponentUuid());
     assertThat(result.getDescription()).isEqualTo(measure.getDescription());
     assertThat(result.getUserLogin()).isEqualTo(measure.getUserLogin());
     assertThat(result.getTextValue()).isEqualTo(measure.getTextValue());

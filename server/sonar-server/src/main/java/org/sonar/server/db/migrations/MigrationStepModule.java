@@ -66,10 +66,12 @@ import org.sonar.server.db.migrations.v51.RenameComponentRelatedParamsInIssueFil
 import org.sonar.server.db.migrations.v51.UpdateProjectsModuleUuidPath;
 import org.sonar.server.db.migrations.v52.AddDependenciesColumns;
 import org.sonar.server.db.migrations.v52.AddDependenciesComponentUuidColumns;
+import org.sonar.server.db.migrations.v52.AddManualMeasuresComponentUuidColumn;
 import org.sonar.server.db.migrations.v52.DropDependenciesComponentColumns;
 import org.sonar.server.db.migrations.v52.FeedDependenciesComponentUuids;
 import org.sonar.server.db.migrations.v52.FeedEventsComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedFileSourcesDataType;
+import org.sonar.server.db.migrations.v52.FeedManualMeasuresComponentUuid;
 import org.sonar.server.db.migrations.v52.FeedMetricsBooleans;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
@@ -146,6 +148,8 @@ public class MigrationStepModule extends Module {
       DropDependenciesComponentColumns.class,
       FeedFileSourcesDataType.class,
       FeedMetricsBooleans.class,
+      AddManualMeasuresComponentUuidColumn.class,
+      FeedManualMeasuresComponentUuid.class,
       AddDependenciesColumns.class);
   }
 }

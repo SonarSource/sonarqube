@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
 
+package org.sonar.server.db.migrations.v52;
+
+import java.sql.Types;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.persistence.DbTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class AddManualMeasuresComponentUuidColumnTest {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() throws Exception {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(57);
+  @ClassRule
+  public static DbTester db = new DbTester().schema(AddManualMeasuresComponentUuidColumnTest.class, "schema.sql");
+
+  AddManualMeasuresComponentUuidColumn sut;
+
+  @Before
+  public void setUp() {
+    sut = new AddManualMeasuresComponentUuidColumn(db.database());
   }
+
+  @Test
+  public void update_columns() throws Exception {
+    sut.execute();
+
+    db.assertColumnDefinition("manual_measures", "component_uuid", Types.VARCHAR, 50);
+  }
+
 }

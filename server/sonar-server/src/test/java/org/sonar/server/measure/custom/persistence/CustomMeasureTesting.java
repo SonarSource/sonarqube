@@ -23,7 +23,7 @@ package org.sonar.server.measure.custom.persistence;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.custommeasure.db.CustomMeasureDto;
+import org.sonar.core.measure.custom.db.CustomMeasureDto;
 
 public class CustomMeasureTesting {
   private CustomMeasureTesting() {
@@ -38,8 +38,8 @@ public class CustomMeasureTesting {
       .setValue(RandomUtils.nextDouble())
       .setMetricId(RandomUtils.nextInt())
       .setComponentId(RandomUtils.nextInt())
+      .setComponentUuid(RandomStringUtils.random(50))
       .setCreatedAt(System2.INSTANCE.now())
-      .setUpdatedAt(System2.INSTANCE.now())
-      ;
+      .setUpdatedAt(System2.INSTANCE.now());
   }
 }
