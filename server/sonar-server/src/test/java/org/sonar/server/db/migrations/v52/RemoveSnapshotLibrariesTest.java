@@ -18,34 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.design;
+package org.sonar.server.db.migrations.v52;
 
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.migrations.MigrationStep;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class RemoveSnapshotLibrariesTest {
 
-public class FileDependencyDtoTest {
+  @ClassRule
+  public static DbTester db = new DbTester().schema(RemoveSnapshotLibrariesTest.class, "schema.sql");
+
+  MigrationStep migration;
+
+  @Before
+  public void setUp() {
+    db.executeUpdateSql("truncate table snapshots");
+
+    migration = new RemoveSnapshotLibraries(db.database());
+  }
 
   @Test
-  public void test_getters_and_setters() throws Exception {
-    FileDependencyDto dto = new FileDependencyDto()
-      .setId(1L)
-      .setFromComponentUuid("ABCD")
-      .setToComponentUuid("EFGH")
-      .setFromParentUuid("IJKL")
-      .setToParentUuid("MNOP")
-      .setRootProjectSnapshotId(10L)
-      .setWeight(2)
-      .setCreatedAt(1000L);
+  public void migrate_empty_db() throws Exception {
+    migration.execute();
+  }
 
-    assertThat(dto.getId()).isEqualTo(1L);
-    assertThat(dto.getFromComponentUuid()).isEqualTo("ABCD");
-    assertThat(dto.getToComponentUuid()).isEqualTo("EFGH");
-    assertThat(dto.getFromParentUuid()).isEqualTo("IJKL");
-    assertThat(dto.getToParentUuid()).isEqualTo("MNOP");
-    assertThat(dto.getRootProjectSnapshotId()).isEqualTo(10L);
-    assertThat(dto.getWeight()).isEqualTo(2);
-    assertThat(dto.getCreatedAt()).isEqualTo(1000L);
+  @Test
+  public void remove_libraries() throws Exception {
+    db.prepareDbUnit(this.getClass(), "remove_libraries.xml");
+    migration.execute();
+    db.assertDbUnit(this.getClass(), "remove_libraries-result.xml", "snapshots");
   }
 
 }

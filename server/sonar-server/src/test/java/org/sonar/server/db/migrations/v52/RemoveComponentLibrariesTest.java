@@ -17,18 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.design;
 
-import org.apache.ibatis.annotations.Param;
+package org.sonar.server.db.migrations.v52;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.migrations.MigrationStep;
 
-public interface FileDependencyMapper {
+public class RemoveComponentLibrariesTest {
 
-  List<FileDependencyDto> selectFromParents(@Param("fromParentUuid") String fromParentUuid, @Param("toParentUuid") String toParentUuid, @Param("projectId") Long projectId);
+  @ClassRule
+  public static DbTester db = new DbTester().schema(RemoveComponentLibrariesTest.class, "schema.sql");
 
-  List<FileDependencyDto> selectAll();
+  MigrationStep migration;
 
-  void insert(FileDependencyDto dto);
+  @Before
+  public void setUp() {
+    db.executeUpdateSql("truncate table projects");
+
+    migration = new RemoveComponentLibraries(db.database());
+  }
+
+  @Test
+  public void migrate_empty_db() throws Exception {
+    migration.execute();
+  }
+
+  @Test
+  public void remove_libraries() throws Exception {
+    db.prepareDbUnit(this.getClass(), "remove_libraries.xml");
+    migration.execute();
+    db.assertDbUnit(this.getClass(), "remove_libraries-result.xml", "projects");
+  }
 
 }
