@@ -102,14 +102,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :parent_id, :integer, :null => true
     end
 
-    create_table :rule_failures do |t|
-      t.column :snapshot_id,         :integer,   :null => false
-      t.column :rule_id,             :integer,   :null => false
-      t.column :failure_level,       :integer,   :null => false
-      t.column :message,             :string,    :limit => 500
-      t.column :line, :integer, :null => true
-    end
-
     create_table :rules_parameters do |t|
       t.column :rule_id,             :integer,   :null => false
       t.column :name,                :string,    :null => false, :limit => 128

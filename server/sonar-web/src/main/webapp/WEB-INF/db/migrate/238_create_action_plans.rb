@@ -35,19 +35,7 @@ class CreateActionPlans < ActiveRecord::Migration
     end
     alter_to_big_primary_key('action_plans')
 
-    create_table :action_plans_reviews, :id => false do |t|
-      t.integer :action_plan_id
-      t.integer :review_id
-    end
-
-    # Index names were not explicitly set before sonar 3.3.
-    # They were generated before 3.3 by :
-    # - activerecord-oracle_enhanced-adapter for Oracle : I_ACT* (see bellow)
-    # - activerecord for other dbs : index_action_plans_on_project_id,
-    #   index_action_plans_reviews_on_action_plan_id and index_action_plans_reviews_on_review_id
     add_index "action_plans", "project_id", :name => 'I_ACTION_PLANS_PROJECT_ID'
-    add_index "action_plans_reviews", "action_plan_id", :name => 'I_ACT_PLA_REV_ACT_PLA_ID'
-    add_index "action_plans_reviews", "review_id", :name => 'I_ACT_PLA_REV_REV_ID'
 
   end
 
