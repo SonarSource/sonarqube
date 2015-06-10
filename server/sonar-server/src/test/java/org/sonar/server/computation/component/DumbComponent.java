@@ -38,6 +38,7 @@ public class DumbComponent implements Component {
   private final Type type;
   private final int ref;
   private final String uuid, key, name, version;
+  private final boolean isUnitTest;
   private final List<Component> children;
 
   private DumbComponent(Builder builder) {
@@ -47,6 +48,7 @@ public class DumbComponent implements Component {
     this.key = builder.key;
     this.name = builder.name;
     this.version = builder.version;
+    this.isUnitTest = builder.isUnitTest;
     this.children = ImmutableList.copyOf(builder.children);
   }
 
@@ -83,6 +85,11 @@ public class DumbComponent implements Component {
   }
 
   @Override
+  public boolean isUnitTest() {
+    return isUnitTest;
+  }
+
+  @Override
   public int getRef() {
     return ref;
   }
@@ -100,6 +107,7 @@ public class DumbComponent implements Component {
     private final Type type;
     private final int ref;
     private String uuid, key, name, version;
+    private boolean isUnitTest;
     private final List<Component> children = new ArrayList<>();
 
     private Builder(Type type, int ref) {
@@ -125,6 +133,11 @@ public class DumbComponent implements Component {
 
     public Builder setVersion(@Nullable String s) {
       this.version = s;
+      return this;
+    }
+
+    public Builder setUnitTest(boolean b){
+      this.isUnitTest = b;
       return this;
     }
 

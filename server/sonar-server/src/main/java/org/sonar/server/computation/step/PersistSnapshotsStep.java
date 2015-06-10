@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -106,8 +105,7 @@ public class PersistSnapshotsStep implements ComputationStep {
           processChildren(component, directorySnapshot);
           break;
         case FILE:
-          BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
-          SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(reportComponent), Scopes.FILE, null, parentSnapshot, false);
+          SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(component), Scopes.FILE, null, parentSnapshot, false);
           addToCache(component, fileSnapshot);
           break;
         default:
@@ -165,8 +163,8 @@ public class PersistSnapshotsStep implements ComputationStep {
     }
   }
 
-  private static String getFileQualifier(BatchReport.Component reportComponent) {
-    return reportComponent.getIsTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
+  private static String getFileQualifier(Component component) {
+    return component.isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   @Override

@@ -115,17 +115,16 @@ public class PersistTestsStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      BatchReport.Component batchComponent = reportReader.readComponent(file.getRef());
-      if (batchComponent.getIsTest()) {
-        persistTestResults(batchComponent);
+      if (file.isUnitTest()) {
+        persistTestResults(file);
       }
     }
 
-    private void persistTestResults(BatchReport.Component component) {
-      Multimap<String, FileSourceDb.Test.Builder> testsByName = buildDbTests(component);
+    private void persistTestResults(Component component) {
+      Multimap<String, FileSourceDb.Test.Builder> testsByName = buildDbTests(component.getRef());
       Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getRef());
       List<FileSourceDb.Test> tests = addCoveredFilesToTests(testsByName, coveredFilesByName);
-      if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component)) {
+      if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component.getKey())) {
         hasUnprocessedCoverageDetails = true;
       }
 
@@ -156,13 +155,12 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private boolean checkIfThereAreUnprocessedCoverageDetails(Multimap<String, FileSourceDb.Test.Builder> testsByName,
-      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName,
-      BatchReport.Component component) {
+      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName, String componentKey) {
       Set<String> unprocessedCoverageDetailNames = new HashSet<>(coveredFilesByName.rowKeySet());
       unprocessedCoverageDetailNames.removeAll(testsByName.keySet());
       boolean hasUnprocessedCoverage = !unprocessedCoverageDetailNames.isEmpty();
       if (hasUnprocessedCoverage) {
-        LOG.trace("The following test coverages for file '{}' have not been taken into account: {}", component.getPath(), Joiner.on(", ").join(unprocessedCoverageDetailNames));
+        LOG.trace("The following test coverages for file '{}' have not been taken into account: {}", componentKey, Joiner.on(", ").join(unprocessedCoverageDetailNames));
       }
       return hasUnprocessedCoverage;
     }
@@ -183,10 +181,10 @@ public class PersistTestsStep implements ComputationStep {
       return tests;
     }
 
-    private Multimap<String, FileSourceDb.Test.Builder> buildDbTests(BatchReport.Component component) {
+    private Multimap<String, FileSourceDb.Test.Builder> buildDbTests(int componentRed) {
       Multimap<String, FileSourceDb.Test.Builder> tests = ArrayListMultimap.create();
 
-      try (CloseableIterator<BatchReport.Test> testIterator = reportReader.readTests(component.getRef())) {
+      try (CloseableIterator<BatchReport.Test> testIterator = reportReader.readTests(componentRed)) {
         while (testIterator.hasNext()) {
           BatchReport.Test batchTest = testIterator.next();
           FileSourceDb.Test.Builder dbTest = FileSourceDb.Test.newBuilder();

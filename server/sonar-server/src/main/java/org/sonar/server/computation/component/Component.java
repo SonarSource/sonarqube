@@ -68,6 +68,11 @@ public interface Component {
    */
   String getVersion();
 
+  /**
+   * Is this component a unit test or test ?
+   */
+  boolean isUnitTest();
+
   List<Component> getChildren();
 
 }
