@@ -4,16 +4,16 @@
 <mapper namespace="org.sonar.core.properties.PropertiesMapper">
 
   <select id="findUsersForNotification" parameterType="map" resultType="String">
-    SELECT U.login
-    FROM properties P, users U
+    select u.login
+    from users u
+    inner join properties p on p.user_id=u.id
     <if test="projectUuid == null">
-      WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value LIKE 'true'
-      AND P.resource_id is null
+      where p.prop_key = #{notifKey} and p.text_value LIKE 'true' and p.resource_id is null
     </if>
     <if test="projectUuid != null">
-      inner join projects c on c.id=P.resource_id
-      WHERE P.user_id = U.id AND P.prop_key = #{notifKey} AND P.text_value LIKE 'true'
-      AND c.uuid = #{projectUuid}
+      inner join projects c on c.id=p.resource_id
+      where p.prop_key = #{notifKey} AND p.text_value LIKE 'true'
+      and c.uuid = #{projectUuid} and p.resource_id is not null
     </if>
   </select>
 
