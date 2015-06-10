@@ -32,7 +32,7 @@ public interface CustomMeasureMapper {
 
   List<CustomMeasureDto> selectByMetricId(int id);
 
-  List<CustomMeasureDto> selectByComponentId(long id);
+  List<CustomMeasureDto> selectByComponentUuid(String s);
 
   void delete(long id);
 

@@ -69,12 +69,12 @@ public class CustomMeasureDao implements DaoComponent {
     return mapper(session).selectByMetricId(metricId);
   }
 
-  public List<CustomMeasureDto> selectByComponentId(DbSession session, long componentId) {
-    return mapper(session).selectByComponentId(componentId);
-  }
-
   public int countByComponentIdAndMetricId(DbSession session, String componentUuid, int metricId) {
     return mapper(session).countByComponentIdAndMetricId(componentUuid, metricId);
+  }
+
+  public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid) {
+    return mapper(session).selectByComponentUuid(componentUuid);
   }
 
   private CustomMeasureMapper mapper(DbSession session) {

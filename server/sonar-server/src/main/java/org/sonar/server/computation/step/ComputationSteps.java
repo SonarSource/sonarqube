@@ -53,6 +53,7 @@ public class ComputationSteps {
       QualityGateLoadingStep.class,
 
       // data computation
+      CustomMeasuresCopyStep.class,
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
       FillMeasuresWithVariationsStep.class,
