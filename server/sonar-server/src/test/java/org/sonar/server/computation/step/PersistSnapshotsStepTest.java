@@ -147,7 +147,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getRootId()).isNull();
     assertThat(projectSnapshot.getParentId()).isNull();
     assertThat(projectSnapshot.getDepth()).isEqualTo(0);
-    assertThat(projectSnapshot.getPath()).isEqualTo("");
+    assertThat(projectSnapshot.getPath()).isNullOrEmpty();
     assertThat(projectSnapshot.getQualifier()).isEqualTo("TRK");
     assertThat(projectSnapshot.getScope()).isEqualTo("PRJ");
     assertThat(projectSnapshot.getVersion()).isEqualTo("1.0");
@@ -267,7 +267,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getRootId()).isNull();
     assertThat(projectSnapshot.getParentId()).isNull();
     assertThat(projectSnapshot.getDepth()).isEqualTo(0);
-    assertThat(projectSnapshot.getPath()).isEqualTo("");
+    assertThat(projectSnapshot.getPath()).isNullOrEmpty();
 
     SnapshotDto moduleASnapshot = getUnprocessedSnapshot(moduleADto.getId());
     assertThat(moduleASnapshot.getRootProjectId()).isEqualTo(projectDto.getId());

@@ -21,6 +21,7 @@
 package org.sonar.server.component;
 
 import com.google.common.base.Preconditions;
+import org.assertj.core.util.Strings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 
@@ -35,7 +36,7 @@ public class SnapshotTesting {
     return createBasicSnapshot(component, parentSnapshot.getRootProjectId())
       .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
       .setParentId(parentSnapshot.getId())
-      .setPath(parentSnapshot.getPath() == null ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
+      .setPath(Strings.isNullOrEmpty(parentSnapshot.getPath()) ? Long.toString(parentSnapshot.getId()) + "." : parentSnapshot.getPath() + Long.toString(parentSnapshot.getId()) + ".");
   }
 
   public static SnapshotDto createForProject(ComponentDto project) {

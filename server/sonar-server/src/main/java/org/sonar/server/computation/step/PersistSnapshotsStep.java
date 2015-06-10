@@ -142,6 +142,7 @@ public class PersistSnapshotsStep implements ComputationStep {
           .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
       } else {
         snapshotDto
+          // On Oracle, the path will be null
           .setPath("")
           .setDepth(0);
       }

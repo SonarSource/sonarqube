@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.db;
 
+import com.google.common.base.Strings;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -69,7 +70,7 @@ public class SnapshotDao implements DaoComponent {
 
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
     Long rootId = snapshot.getId();
-    String path = snapshot.getPath() + snapshot.getId() + ".%";
+    String path = Strings.nullToEmpty(snapshot.getPath()) + snapshot.getId() + ".%";
     Long pathRootId = snapshot.getRootIdOrSelf();
 
     return mapper(session).updateSnapshotAndChildrenLastFlagAndStatus(rootId, pathRootId, path, isLast, status);
@@ -77,7 +78,7 @@ public class SnapshotDao implements DaoComponent {
 
   public int updateSnapshotAndChildrenLastFlag(DbSession session, SnapshotDto snapshot, boolean isLast) {
     Long rootId = snapshot.getId();
-    String path = snapshot.getPath() + snapshot.getId() + ".%";
+    String path = Strings.nullToEmpty(snapshot.getPath()) + snapshot.getId() + ".%";
     Long pathRootId = snapshot.getRootIdOrSelf();
 
     return mapper(session).updateSnapshotAndChildrenLastFlag(rootId, pathRootId, path, isLast);

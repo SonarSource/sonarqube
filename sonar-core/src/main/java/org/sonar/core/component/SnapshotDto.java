@@ -176,11 +176,15 @@ public final class SnapshotDto {
     return this;
   }
 
+  /**
+   * On project's snapshot, the path is empty (or null on Oracle)
+   */
+  @CheckForNull
   public String getPath() {
     return path;
   }
 
-  public SnapshotDto setPath(String path) {
+  public SnapshotDto setPath(@Nullable String path) {
     this.path = path;
     return this;
   }
