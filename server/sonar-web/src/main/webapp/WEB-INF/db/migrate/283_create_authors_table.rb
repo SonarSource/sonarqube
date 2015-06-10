@@ -21,7 +21,7 @@
 #
 # Sonar 3.0
 #
-class AddAuthorsPrimaryKey < ActiveRecord::Migration
+class CreateAuthorsTable < ActiveRecord::Migration
 
   def self.up
     create_table 'authors' do |t|
