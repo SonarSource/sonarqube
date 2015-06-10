@@ -82,6 +82,8 @@ class InitialSchema < ActiveRecord::Migration
       t.column :diff_value_1, :decimal, :null => true, :precision => 30, :scale => 20
       t.column :diff_value_2, :decimal, :null => true, :precision => 30, :scale => 20
       t.column :diff_value_3, :decimal, :null => true, :precision => 30, :scale => 20
+      t.column :characteristic_id, :integer, :null => true
+      t.column 'person_id', :integer, :null => true
     end
 
     create_table :rules do |t|
