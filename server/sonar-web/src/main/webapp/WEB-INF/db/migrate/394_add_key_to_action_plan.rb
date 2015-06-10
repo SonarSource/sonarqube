@@ -23,15 +23,8 @@
 #
 class AddKeyToActionPlan < ActiveRecord::Migration
 
-  class ActionPlan < ActiveRecord::Base
-  end
-
   def self.up
     add_column 'action_plans', 'kee', :string, :null => true, :limit => 100
-    ActionPlan.reset_column_information
-    ActionPlan.all.each do |a|
-      a.update_attributes!(:kee => Java::OrgSonarApiUtilsInternal::Uuids.create())
-    end
   end
 
 end

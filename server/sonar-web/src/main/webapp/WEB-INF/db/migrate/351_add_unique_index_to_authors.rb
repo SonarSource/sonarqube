@@ -23,27 +23,8 @@
 #
 class AddUniqueIndexToAuthors < ActiveRecord::Migration
 
-  class Author < ActiveRecord::Base
-  end
-
   def self.up
-    delete_duplicated_authors
     add_index :authors, :login, :unique => true, :name => 'uniq_author_logins'
   end
 
-  private
-  def self.delete_duplicated_authors
-    say_with_time 'Delete duplicated authors' do
-      authors_by_login={}
-      authors=Author.find(:all, :select => 'id,login', :order => 'id')
-      authors.each do |author|
-        if authors_by_login[author.login]
-          # already exists
-          author.destroy
-        else
-          authors_by_login[author.login]=author
-        end
-      end
-    end
-  end
 end

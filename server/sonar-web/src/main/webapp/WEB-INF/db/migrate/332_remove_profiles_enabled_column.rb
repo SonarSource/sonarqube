@@ -23,20 +23,7 @@
 #
 class RemoveProfilesEnabledColumn < ActiveRecord::Migration
 
-  class Profile < ActiveRecord::Base
-    set_table_name 'rules_profiles'
-  end
-
-  class ActiveRule < ActiveRecord::Base
-  end
-
   def self.up
-    disabled_profiles = Profile.find(:all, :conditions => {:enabled => false})
-    disabled_profiles.each do |profile|
-      ActiveRule.delete_all ['profile_id=?', profile.id]
-      Profile.delete(profile.id)
-    end
-    
     remove_column('rules_profiles', 'enabled')
   end
 

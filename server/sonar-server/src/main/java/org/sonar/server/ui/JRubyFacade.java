@@ -307,10 +307,6 @@ public final class JRubyFacade {
     get(ResourceIndexDao.class).indexProjects();
   }
 
-  public void indexResource(long resourceId) {
-    get(ResourceIndexDao.class).indexResource(resourceId);
-  }
-
   /*
    * /!\ Used by Views
    */
