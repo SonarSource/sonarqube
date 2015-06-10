@@ -1,5 +1,5 @@
 define([
-  './action-options-view',
+  'components/common/action-options-view',
   '../templates'
 ], function (ActionOptionsView) {
 
@@ -18,8 +18,8 @@ define([
     },
 
     initialize: function () {
-      ActionOptionsView.prototype.initialize.apply(this, arguments);
-      this.assignees = [];
+      this._super();
+      this.assignees = null;
       this.debouncedSearch = _.debounce(this.search, 250);
     },
 
@@ -33,7 +33,7 @@ define([
 
     onRender: function () {
       var that = this;
-      ActionOptionsView.prototype.onRender.apply(this, arguments);
+      this._super();
       this.renderTags();
       setTimeout(function () {
         that.$('input').focus();
@@ -41,21 +41,22 @@ define([
     },
 
     renderTags: function () {
-      this.$('.issue-action-option').remove();
+      this.$('.menu').empty();
       this.getAssignees().forEach(this.renderAssignee, this);
+      this.bindUIElements();
       this.selectInitialOption();
     },
 
     renderAssignee: function (assignee) {
       var html = this.optionTemplate(assignee);
-      this.$('.issue-action-options').append(html);
+      this.$('.menu').append(html);
     },
 
     selectOption: function (e) {
       var assignee = $(e.currentTarget).data('value'),
           assigneeName = $(e.currentTarget).data('text');
       this.submit(assignee, assigneeName);
-      return ActionOptionsView.prototype.selectOption.apply(this, arguments);
+      return this._super(e);
     },
 
     submit: function (assignee, assigneeName) {
@@ -123,19 +124,23 @@ define([
           that.resetAssignees(data.users);
         });
       } else {
-        this.resetAssignees([]);
+        this.resetAssignees();
       }
     },
 
     resetAssignees: function (users) {
-      this.assignees = users.map(function (user) {
-        return { id: user.login, text: user.name };
-      });
+      if (users) {
+        this.assignees = users.map(function (user) {
+          return { id: user.login, text: user.name };
+        });
+      } else {
+        this.assignees = null;
+      }
       this.renderTags();
     },
 
     getAssignees: function () {
-      if (this.assignees.length > 0) {
+      if (this.assignees) {
         return this.assignees;
       }
       var assignees = [{ id: '', text: t('unassigned') }],

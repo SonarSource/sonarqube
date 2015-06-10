@@ -1,5 +1,5 @@
 define([
-  'components/issue/views/action-options-view',
+  'components/common/action-options-view',
   './templates'
 ], function (ActionOptionsView) {
 
@@ -8,19 +8,15 @@ define([
   return ActionOptionsView.extend({
     template: Templates['issues-issue-filter-form'],
 
-    selectInitialOption: function () {
-      return this.makeActive(this.getOptions().first());
-    },
-
     selectOption: function (e) {
       var property = $(e.currentTarget).data('property'),
           value = $(e.currentTarget).data('value');
       this.trigger('select', property, value);
-      return ActionOptionsView.prototype.selectOption.apply(this, arguments);
+      this._super(e);
     },
 
     serializeData: function () {
-      return _.extend(ActionOptionsView.prototype.serializeData.apply(this, arguments), {
+      return _.extend(this._super(), {
         s: this.model.get('severity')
       });
     }

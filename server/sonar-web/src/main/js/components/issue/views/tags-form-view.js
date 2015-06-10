@@ -1,5 +1,5 @@
 define([
-  './action-options-view',
+  'components/common/action-options-view',
   '../templates'
 ], function (ActionOptionsView) {
 
@@ -32,7 +32,7 @@ define([
 
     requestTags: function () {
       var that = this;
-      return $.get(baseUrl + '/api/issues/tags', { ps: 25 }).done(function (data) {
+      return $.get(baseUrl + '/api/issues/tags', { ps: 10 }).done(function (data) {
         that.tags = data.tags;
         that.renderTags();
       });
@@ -60,7 +60,7 @@ define([
     },
 
     renderTags: function () {
-      this.$('.issue-action-option').remove();
+      this.$('.menu').empty();
       this.filterTags(this.getTags()).forEach(this.renderSelectedTag, this);
       this.filterTags(_.difference(this.tags, this.getTags())).forEach(this.renderTag, this);
       if (this.query.length > 0 && this.tags.indexOf(this.query) === -1 && this.getTags().indexOf(this.query) === -1) {
@@ -75,7 +75,7 @@ define([
         selected: true,
         custom: false
       });
-      return this.$('.issue-action-options').append(html);
+      return this.$('.menu').append(html);
     },
 
     renderTag: function (tag) {
@@ -84,7 +84,7 @@ define([
         selected: false,
         custom: false
       });
-      return this.$('.issue-action-options').append(html);
+      return this.$('.menu').append(html);
     },
 
     renderCustomTag: function (tag) {
@@ -93,7 +93,7 @@ define([
         selected: false,
         custom: true
       });
-      return this.$('.issue-action-options').append(html);
+      return this.$('.menu').append(html);
     },
 
     selectOption: function (e) {

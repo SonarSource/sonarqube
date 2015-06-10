@@ -1,9 +1,11 @@
-<div class="issue-action-options">
+<ul class="menu">
   {{#each items}}
-    <a href="#" class="issue-action-option js-issue-severity" data-value="{{this}}">
-      {{severityIcon this}} {{t 'severity' this}}
-    </a>
+    <li>
+      <a href="#" class="js-issue-severity" data-value="{{this}}">
+        {{severityIcon this}} {{t 'severity' this}}
+      </a>
+    </li>
   {{/each}}
-</div>
+</ul>
 
 <div class="bubble-popup-arrow"></div>

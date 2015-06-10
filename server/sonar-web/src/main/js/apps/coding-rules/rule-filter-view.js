@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-  'components/issue/views/action-options-view',
+  'components/common/action-options-view',
   './templates'
 ], function (ActionOptionsView) {
   var $ = jQuery;

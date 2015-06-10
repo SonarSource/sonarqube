@@ -1,10 +1,12 @@
-<div class="issue-action-options">
+<ul class="menu">
   {{#each transitions}}
-    <a href="#" class="issue-action-option js-issue-transition" data-value="{{this}}"
-        title="{{t 'issue.transition' this 'description'}}" data-placement="right" data-toggle="tooltip">
-      {{t 'issue.transition' this}}
-    </a>
+    <li>
+      <a href="#" class="js-issue-transition" data-value="{{this}}"
+         title="{{t 'issue.transition' this 'description'}}" data-placement="right" data-container="body">
+        {{t 'issue.transition' this}}
+      </a>
+    </li>
   {{/each}}
-</div>
+</ul>
 
 <div class="bubble-popup-arrow"></div>

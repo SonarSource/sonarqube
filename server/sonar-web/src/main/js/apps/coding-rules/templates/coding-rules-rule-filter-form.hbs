@@ -1,38 +1,50 @@
-<h6>{{t 'coding_rules.filter_similar_rules'}}</h6>
+<header class="menu-search">
+  <h6>{{t 'coding_rules.filter_similar_rules'}}</h6>
+</header>
 
-<div class="issue-action-options">
-  <a href="#" class="issue-action-option" data-property="languages" data-value="{{lang}}">
-    {{langName}}
-  </a>
+<ul class="menu">
+  <li>
+    <a href="#" class="issue-action-option" data-property="languages" data-value="{{lang}}">
+      {{langName}}
+    </a>
+  </li>
 
   {{#if severity}}
-    <a href="#" class="issue-action-option" data-property="severities" data-value="{{severity}}">
-      {{severityHelper severity}}
-    </a>
+    <li>
+      <a href="#" class="issue-action-option" data-property="severities" data-value="{{severity}}">
+        {{severityHelper severity}}
+      </a>
+    </li>
   {{/if}}
 
   {{#if debtChar}}
-    <hr>
+    <li class="divider"></li>
 
-    <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtChar}}">
-      {{debtCharName}}
-    </a>
+    <li>
+      <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtChar}}">
+        {{debtCharName}}
+      </a>
+    </li>
 
     {{#if debtSubChar}}
-      <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtSubChar}}">
-        {{debtSubCharName}}
-      </a>
+      <li>
+        <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtSubChar}}">
+          {{debtSubCharName}}
+        </a>
+      </li>
     {{/if}}
   {{/if}}
 
   {{#notEmpty tags}}
-    <hr>
+    <li class="divider"></li>
     {{#each tags}}
-      <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
-        <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
-      </a>
+      <li>
+        <a href="#" class="issue-action-option" data-property="tags" data-value="{{this}}">
+          <i class="icon-tags icon-half-transparent"></i>&nbsp;{{this}}
+        </a>
+      </li>
     {{/each}}
   {{/notEmpty}}
-</div>
+</ul>
 
 <div class="bubble-popup-arrow"></div>

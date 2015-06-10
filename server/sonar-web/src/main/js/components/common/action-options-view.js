@@ -5,16 +5,17 @@ define([
   var $ = jQuery;
 
   return PopupView.extend({
-    keyScope: 'issue-action-options',
+    className: 'bubble-popup bubble-popup-menu',
+    keyScope: 'action-options',
 
     ui: {
-      options: '.issue-action-option'
+      options: '.menu > li > a'
     },
 
     events: function () {
       return {
-        'click .issue-action-option': 'selectOption',
-        'mouseenter .issue-action-option': 'activateOptionByPointer'
+        'click @ui.options': 'selectOption',
+        'mouseenter @ui.options': 'activateOptionByPointer'
       };
     },
 
@@ -25,11 +26,10 @@ define([
     onRender: function () {
       PopupView.prototype.onRender.apply(this, arguments);
       this.selectInitialOption();
-      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
 
     getOptions: function () {
-      return this.$('.issue-action-option');
+      return this.$('.menu > li > a');
     },
 
     getActiveOption: function () {
@@ -38,8 +38,8 @@ define([
 
     makeActive: function (option) {
       if (option.length > 0) {
-        this.getOptions().removeClass('active');
-        option.addClass('active');
+        this.getOptions().removeClass('active').tooltip('hide');
+        option.addClass('active').tooltip('show');
       }
     },
 
@@ -48,12 +48,12 @@ define([
     },
 
     selectNextOption: function () {
-      this.makeActive(this.getActiveOption().nextAll('.issue-action-option').first());
+      this.makeActive(this.getActiveOption().parent().nextAll('li:not(.divider)').first().children('a'));
       return false;
     },
 
     selectPreviousOption: function () {
-      this.makeActive(this.getActiveOption().prevAll('.issue-action-option').first());
+      this.makeActive(this.getActiveOption().parent().prevAll('li:not(.divider)').first().children('a'));
       return false;
     },
 

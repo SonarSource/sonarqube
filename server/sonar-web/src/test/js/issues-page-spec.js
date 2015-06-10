@@ -237,16 +237,16 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.issue-action-option[data-value=design]');
+        casper.waitForSelector('a[data-value=design]');
       })
 
       .then(function () {
-        casper.click('.issue-action-option[data-value=design]');
+        casper.click('a[data-value=design]');
         test.assertSelectorContains('.issue.selected .js-issue-tags', 'security, cwe, design');
       })
 
       .then(function () {
-        casper.click('.issue-action-option[data-value=cwe]');
+        casper.click('a[data-value=cwe]');
         test.assertSelectorContains('.issue.selected .js-issue-tags', 'security, design');
       })
 
@@ -284,13 +284,13 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
 
       .then(function () {
         casper.click('.issue.selected .js-issue-transition');
-        casper.waitForSelector('.issue-action-option');
+        casper.waitForSelector('.menu > li > a');
       })
 
       .then(function () {
-        test.assertExists('.issue-action-option[data-value=unconfirm]');
-        test.assertExists('.issue-action-option[data-value=resolve]');
-        test.assertExists('.issue-action-option[data-value=falsepositive]');
+        test.assertExists('a[data-value=unconfirm]');
+        test.assertExists('a[data-value=resolve]');
+        test.assertExists('a[data-value=falsepositive]');
       })
 
       .then(function () {

@@ -19,6 +19,8 @@
  */
 @import (reference) "../mixins";
 @import (reference) "../variables";
+@import (reference) "../init/links";
+@import (reference) "../init/type";
 @import (reference) "ui";
 
 .menu {
@@ -33,7 +35,7 @@
   > li > a,
   > li > span {
     display: block;
-    padding: 4px 20px;
+    padding: 4px 16px;
     line-height: 16px;
     clear: both;
     font-weight: normal;
@@ -42,6 +44,8 @@
 
   > li > a {
     color: @baseFontColor;
+    .link-no-underline;
+    .trans(none);
   }
 
   .divider {
@@ -57,16 +61,22 @@
   &:hover, &:focus {
     text-decoration: none;
     color: @baseFontColor;
-    background-color: @lightBlue;
+    background-color: @barBackgroundColor;
   }
 }
 
-
-.menu > .active > a {
+.menu > .active > a,
+.menu > li > a.active {
   &, &:hover, &:focus {
     color: @baseFontColor;
     text-decoration: none;
     outline: 0;
-    background-color: @lightBlue;
+    background-color: @barBackgroundColor;
   }
+}
+
+.menu-search {
+  padding: 4px 16px 0;
+
+  .search-box-input { font-size: @smallFontSize; }
 }

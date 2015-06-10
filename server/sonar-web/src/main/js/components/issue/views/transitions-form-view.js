@@ -1,5 +1,5 @@
 define([
-  './action-options-view',
+  'components/common/action-options-view',
   '../templates'
 ], function (ActionOptionsView) {
 
