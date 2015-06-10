@@ -25,7 +25,6 @@ class UpdateLanguageKeyMaxSize < ActiveRecord::Migration
   
   def self.up
     change_column :projects, :language, :string, :null => true, :limit => 20
-    change_column :rules_profiles, :language, :string, :null => true, :limit => 20
   end
 
 end
