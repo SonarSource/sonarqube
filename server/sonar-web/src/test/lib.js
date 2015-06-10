@@ -1,24 +1,5 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-/* globals casper: false, exports: false */
-
+/* jshint node:true */
+/* globals casper: false */
 var fs = require('fs');
 
 var getPort = function () {
@@ -31,7 +12,7 @@ var BASE_URL = 'http://localhost:' + getPort() + '/pages/',
     WINDOW_HEIGHT = 800;
 
 
-exports.initMessages = function () {
+var initMessages = function () {
   if (casper.cli.options.verbose) {
     // Dump log messages
     casper.removeAllListeners('remote.message');
@@ -46,13 +27,23 @@ exports.initMessages = function () {
     });
   }
 };
+exports.initMessages = initMessages;
 
 
-exports.changeWorkingDirectory = function (dir) {
+function getFileName(path) {
+  var idx = path.lastIndexOf(fs.separator),
+      dotIdx = path.lastIndexOf('.');
+  return path.substr(idx + 1, dotIdx - idx - 1);
+}
+
+var changeWorkingDirectory = exports.changeWorkingDirectory = function (dir) {
   var commandLineArgs = require('system').args;
   // Since Casper has control, the invoked script is deep in the argument stack
   // commandLineArgs = casper/bin/bootstrap.js,--casper-path=.../casperjs,--cli,--test,[file(s) under test],[options]
   var currentFile = commandLineArgs[4];
+  if (!dir) {
+    dir = getFileName(currentFile);
+  }
   var curFilePath = currentFile.split(fs.separator);
   if (curFilePath.length > 1) {
     curFilePath.pop(); // test name
@@ -82,27 +73,27 @@ exports.testName = function () {
 
 var mockRequest = function (url, response, options) {
   return casper.evaluate(function (url, response, options) {
-    return jQuery.mockjax(_.extend({ url: url, responseText: response}, options));
+    return jQuery.mockjax(_.extend({ url: url, responseText: response }, options));
   }, url, response, options || {});
 };
-exports.mockRequest = mockRequest;
+exports.mockRequest = exports.smock = mockRequest;
 
 
-exports.mockRequestFromFile = function (url, fileName, options) {
+exports.mockRequestFromFile = exports.fmock = function (url, fileName, options) {
   var response = fs.read(fileName);
   return mockRequest(url, response, options);
 };
 
 
 exports.clearRequestMocks = function () {
-  casper.evaluate(function() {
+  casper.evaluate(function () {
     jQuery.mockjaxClear();
   });
 };
 
 
 exports.clearRequestMock = function (mockId) {
-  casper.evaluate(function(mockId) {
+  casper.evaluate(function (mockId) {
     jQuery.mockjaxClear(mockId);
   }, mockId);
 };
@@ -111,7 +102,7 @@ exports.clearRequestMock = function (mockId) {
 function patchWithTimestamp(url) {
   var t = Date.now(),
       hashStart = url.indexOf('#'),
-      hash =  hashStart !== -1 ? url.substr(hashStart) : '',
+      hash = hashStart !== -1 ? url.substr(hashStart) : '',
       base = hashStart !== -1 ? url.substr(0, hashStart) : url;
   return base + '?' + t + hash;
 }
@@ -136,7 +127,9 @@ exports.capture = function (fileName) {
   if (!fileName) {
     fileName = 'screenshot.png';
   }
-  casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
+  casper.wait(500, function () {
+    casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
+  });
 };
 
 
@@ -158,35 +151,62 @@ exports.waitWhileElementCount = function (selector, count, callback) {
 };
 
 
-exports.assertLinkHref = function assertElementCount(selector, href, message) {
-  var linkHref = this.casper.evaluate(function(selector) {
-      return document.querySelector(selector);
-  }, selector);
-  return this.assert(elementCount === count, message, {
-    type: "assertElementCount",
-    standard: f('%d element%s matching selector "%s" found',
-        count,
-        count > 1 ? 's' : '',
-        selector),
-    values: {
-      selector: selector,
-      expected: count,
-      obtained: elementCount
+var sendCoverage = exports.sendCoverage = function () {
+  return casper.evaluate(function () {
+    if (window.__coverage__) {
+      jQuery.ajax({
+        type: 'POST',
+        url: '/coverage/client',
+        data: JSON.stringify(window.__coverage__),
+        processData: false,
+        contentType: 'application/json; charset=UTF-8',
+        async: false
+      });
     }
   });
 };
 
 
-exports.sendCoverage = function () {
-  return casper.evaluate(function () {
-    jQuery.ajax({
-      type: 'POST',
-      url: '/coverage/client',
-      data: JSON.stringify(window.__coverage__),
-      processData: false,
-      contentType: 'application/json; charset=UTF-8',
-      async: false
-    });
+var describe = global.describe = function (name, fn) {
+  this._extraName = name;
+  casper.options.waitTimeout = 20000;
+  initMessages();
+  changeWorkingDirectory();
+  fn();
+};
+
+
+var it = global.it = function (name, testCount, fn) {
+  var testName = this._extraName + ' ' + name;
+  var patchedFn = function (test) {
+    var startTime = new Date().getTime();
+    fn(casper, test)
+        .then(function () {
+          var endTime = new Date().getTime();
+          test.assert(true, '✓ done within ' + (endTime - startTime) + 'ms');
+        })
+        .then(function () {
+          sendCoverage();
+        })
+        .run(function () {
+          test.done();
+        });
+  };
+
+  // increase test count by 1 for the additional `test.assert()` statement
+  testCount++;
+
+  return casper.test.begin(testName, testCount, patchedFn);
+};
+
+
+var xit = global.xit = function (name) {
+  var testName = this._extraName + ' ' + name;
+  return casper.test.begin(testName, function (test) {
+    casper
+        .echo('IGNORED', 'WARNING')
+        .run(function () {
+          test.done();
+        });
   });
-  casper.wait(500);
 };
