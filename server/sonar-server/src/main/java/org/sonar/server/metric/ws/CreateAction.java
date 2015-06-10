@@ -35,6 +35,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 
 public class CreateAction implements MetricsWsAction {
@@ -54,10 +55,12 @@ public class CreateAction implements MetricsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final RubyBridge rubyBridge;
 
-  public CreateAction(DbClient dbClient, UserSession userSession) {
+  public CreateAction(DbClient dbClient, UserSession userSession, RubyBridge rubyBridge) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.rubyBridge = rubyBridge;
   }
 
   @Override
@@ -113,6 +116,7 @@ public class CreateAction implements MetricsWsAction {
       JsonWriter json = response.newJsonWriter();
       writeMetric(json, metricInDb);
       json.close();
+      rubyBridge.metricCache().invalidate();
     } finally {
       MyBatis.closeQuietly(dbSession);
     }

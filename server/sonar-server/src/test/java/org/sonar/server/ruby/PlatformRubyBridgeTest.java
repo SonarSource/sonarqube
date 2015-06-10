@@ -88,4 +88,18 @@ public class PlatformRubyBridgeTest {
     }
   }
 
+  /**
+   * unit test only makes sure the wrapping and method forwarding provided by JRuby works so building the
+   * RubyRailsRoutes object and calling its trigger method is enough as it would otherwise raise an exception
+   */
+  @Test
+  public void testInvalidateCache() {
+    try {
+      underTest.metricCache().invalidate();
+    } catch (RaiseException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Loading error with container loadPath " + container.getLoadPaths(), e);
+    }
+  }
+
 }

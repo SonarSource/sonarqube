@@ -17,26 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.ruby;
 
-/**
- * This component acts as a bridge between a Ruby runtime and Java. Each method it defines creates a wrapping
- * Java object which an underlying Ruby implementation.
- */
-public interface RubyBridge {
-  /**
-   * Returns a wrapper class that allows calling the database migration in Ruby.
-   *
-   * @return a  {@link RubyDatabaseMigration}
-   */
-  RubyDatabaseMigration databaseMigration();
-
-  /**
-   * Returns a class that allows calling the (re)creation of web routes in Rails.
-   *
-   * @return a {@link RubyRailsRoutes}
-   */
-  RubyRailsRoutes railsRoutes();
-
-  RubyMetricCache metricCache();
+public interface CallInvalidateMetricCache {
+  void callInvalidate();
 }

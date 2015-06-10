@@ -32,16 +32,19 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
 import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.metric.ws.UpdateAction.PARAM_DOMAIN;
@@ -75,7 +78,7 @@ public class UpdateActionTest {
     dbSession = dbClient.openSession(false);
     db.truncateTables();
 
-    ws = new WsTester(new MetricsWs(new UpdateAction(dbClient, userSessionRule)));
+    ws = new WsTester(new MetricsWs(new UpdateAction(dbClient, userSessionRule, mock(RubyBridge.class, RETURNS_DEEP_STUBS))));
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 

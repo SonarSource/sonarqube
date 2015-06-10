@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,10 +43,12 @@ public class DeleteAction implements MetricsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final RubyBridge rubyBridge;
 
-  public DeleteAction(DbClient dbClient, UserSession userSession) {
+  public DeleteAction(DbClient dbClient, UserSession userSession, RubyBridge rubyBridge) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.rubyBridge = rubyBridge;
   }
 
   @Override
@@ -79,6 +82,7 @@ public class DeleteAction implements MetricsWsAction {
     }
 
     response.noContent();
+    rubyBridge.metricCache().invalidate();
   }
 
   private List<Integer> loadIds(DbSession dbSession, Request request) {

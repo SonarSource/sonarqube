@@ -12,3 +12,11 @@ class DatabaseVersion
   end
 
 end
+
+class Metric
+
+  def self.clear_cache
+
+  end
+
+end
