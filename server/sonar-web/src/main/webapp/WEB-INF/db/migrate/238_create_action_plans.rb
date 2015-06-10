@@ -28,10 +28,11 @@ class CreateActionPlans < ActiveRecord::Migration
       t.timestamps
       t.column 'name',          :string,      :null => true,    :limit => 200
       t.column 'description',   :string,      :null => true,    :limit => 1000
-      t.column 'dead_line',     :datetime,    :null => true
+      t.column 'deadline',     :datetime,    :null => true
       t.column 'user_login',    :string,      :null => true,    :limit => 40
       t.column 'project_id',    :integer,     :null => true
       t.column 'status',        :string,      :null => true,    :limit => 10
+      t.column 'kee',           :string,      :null => true,    :limit => 100
     end
     alter_to_big_primary_key('action_plans')
 
