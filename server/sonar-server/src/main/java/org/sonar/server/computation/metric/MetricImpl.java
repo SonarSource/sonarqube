@@ -62,13 +62,12 @@ public final class MetricImpl implements Metric {
       return false;
     }
     MetricImpl metric = (MetricImpl) o;
-    return Objects.equals(key, metric.key) &&
-        Objects.equals(type, metric.type);
+    return Objects.equals(key, metric.key);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, type);
+    return key.hashCode();
   }
 
   @Override

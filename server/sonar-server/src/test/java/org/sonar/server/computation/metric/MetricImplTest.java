@@ -53,24 +53,20 @@ public class MetricImplTest {
   }
 
   @Test
-  public void equals_uses_key_and_name() {
+  public void equals_uses_only_key() {
     MetricImpl expected = new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT);
 
     assertThat(new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT)).isEqualTo(expected);
+    assertThat(new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.STRING)).isEqualTo(expected);
     assertThat(new MetricImpl("some other key", SOME_NAME, Metric.MetricType.FLOAT)).isNotEqualTo(expected);
-    assertThat(new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.STRING)).isNotEqualTo(expected);
   }
 
   @Test
-  public void equals_ignores_valueType() {
-    assertThat(new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT)).isEqualTo(new MetricImpl(SOME_KEY, "some other name", Metric.MetricType.FLOAT));
-  }
-
-  @Test
-  public void hashcode_uses_only_key_and_valueType() {
+  public void hashcode_uses_only_key() {
     int expected = new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT).hashCode();
 
     assertThat(new MetricImpl(SOME_KEY, "some other name", Metric.MetricType.FLOAT).hashCode()).isEqualTo(expected);
+    assertThat(new MetricImpl(SOME_KEY, "some other name", Metric.MetricType.BOOL).hashCode()).isEqualTo(expected);
   }
 
   @Test
