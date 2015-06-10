@@ -58,7 +58,6 @@ class CreateDashboards < ActiveRecord::Migration
       t.column :widget_id, :integer, :null => false
       t.column :kee, :string, :null => true, :limit => 100
       t.column :text_value, :string, :null => true, :limit => 4000
-      t.column :value_type, :string, :null => true, :limit => 20
     end
     add_index :widget_properties, [:widget_id], :name => 'widget_properties_widgets'
   end
