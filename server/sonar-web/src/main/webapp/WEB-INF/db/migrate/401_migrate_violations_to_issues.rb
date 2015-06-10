@@ -25,21 +25,6 @@
 class MigrateViolationsToIssues < ActiveRecord::Migration
 
   def self.up
-    remove_index_quietly('rule_failure_snapshot_id')
-    remove_index_quietly('rule_failure_rule_id')
-    remove_index_quietly('rf_permanent_id')
-
-    # Required for MSSQL to unlock the table RULE_FAILURES
-    ActiveRecord::Base.connection.commit_db_transaction
-
-    execute_java_migration('org.sonar.server.db.migrations.v36.ViolationMigrationStep')
-
-    # Currently not possible in Java because of Oracle (triggers and sequences must be dropped)
-    drop_table('rule_failures')
-    drop_table('reviews')
-    drop_table('review_comments')
-    drop_table('action_plans_reviews')
-
     add_index :issues,  :kee,                 :name => 'issues_kee',         :unique => true
     add_index :issues,  :component_id,        :name => 'issues_component_id'
     add_index :issues,  :root_component_id,   :name => 'issues_root_component_id'
@@ -52,12 +37,4 @@ class MigrateViolationsToIssues < ActiveRecord::Migration
     add_index :issues,  :issue_creation_date, :name => 'issues_creation_date'
   end
 
-
-  def self.remove_index_quietly(name)
-    begin
-      remove_index('rule_failures', :name => name)
-    rescue
-      # probably already removed
-    end
-  end
 end
