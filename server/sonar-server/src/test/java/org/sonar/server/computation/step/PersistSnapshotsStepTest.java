@@ -33,7 +33,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.SnapshotQuery;
+import org.sonar.core.component.db.SnapshotQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;

@@ -32,6 +32,11 @@ import org.sonar.api.CoreProperties;
  */
 public interface PeriodsHolder {
 
+  /**
+   * Return the list of differential periods.
+   *
+   * @throws IllegalStateException if the periods haven't been initialized
+   */
   List<Period> getPeriods();
 
 }

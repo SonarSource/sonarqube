@@ -781,7 +781,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void not_update_create_at() throws Exception {
+  public void do_not_update_created_at_on_existing_component() throws Exception {
     Date oldDate = DateUtils.parseDate("2015-01-01");
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project").setCreatedAt(oldDate);
     dbClient.componentDao().insert(session, project);

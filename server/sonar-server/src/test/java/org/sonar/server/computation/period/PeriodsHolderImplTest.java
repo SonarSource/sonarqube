@@ -45,10 +45,44 @@ public class PeriodsHolderImplTest {
   }
 
   @Test
-  public void fail_to_get_periods_if_not_initialized() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+  public void get_periods_throws_illegal_state_exception_if_not_initialized() throws Exception {
+    thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Periods have not been initialized yet");
 
     new PeriodsHolderImpl().getPeriods();
+  }
+
+  @Test
+  public void set_null_periods_trows_null_pointer_exception() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Periods cannot be null");
+
+    new PeriodsHolderImpl().setPeriods(null);
+  }
+
+  @Test
+  public void set_periods_throws_illegal_state_exception_if_already_initialized() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Periods have already been initialized");
+
+    List<Period> periods = new ArrayList<>();
+    periods.add(new Period(1, "mode", null, 1000L));
+
+    PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
+    periodsHolder.setPeriods(periods);
+    periodsHolder.setPeriods(periods);
+  }
+
+  @Test
+  public void update_periods_throws_unsupported_operation_exception() throws Exception {
+    thrown.expect(UnsupportedOperationException.class);
+
+    List<Period> periods = new ArrayList<>();
+    periods.add(new Period(1, "mode", null, 1000L));
+
+    PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
+    periodsHolder.setPeriods(periods);
+
+    periodsHolder.getPeriods().add(new Period(2, "mode", null, 1001L));
   }
 }

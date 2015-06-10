@@ -42,9 +42,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.timemachine.Periods;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -67,14 +65,12 @@ public class QualityGateVerifierTest {
   Measure measureComplexity;
   Resource project;
   Snapshot snapshot;
-  Periods periods;
   I18n i18n;
   Durations durations;
 
   @Before
   public void before() {
     context = mock(DecoratorContext.class);
-    periods = mock(Periods.class);
     i18n = mock(I18n.class);
     when(i18n.message(any(Locale.class), eq("variation"), eq("variation"))).thenReturn("variation");
     durations = mock(Durations.class);
@@ -93,10 +89,7 @@ public class QualityGateVerifierTest {
 
     project = new Project("foo");
 
-    BatchComponentCache resourceCache = new BatchComponentCache();
-    resourceCache.add(project, null).setSnapshot(snapshot);
-
-    verifier = new QualityGateVerifier(qualityGate, resourceCache, periods, i18n, durations);
+    verifier = new QualityGateVerifier(qualityGate, i18n, durations);
   }
 
   @Test
@@ -361,7 +354,7 @@ public class QualityGateVerifierTest {
     measureClasses.setVariation1(40d);
 
     when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
-    when(periods.label(snapshot, 1)).thenReturn("since someday");
+    // when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes
@@ -385,7 +378,7 @@ public class QualityGateVerifierTest {
     measureClasses.setVariation1(40d);
 
     when(i18n.message(any(Locale.class), eq("metric.new_metric_key.name"), anyString())).thenReturn("New Measure");
-    when(periods.label(snapshot, 1)).thenReturn("since someday");
+    // when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(newMetric, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes increases
