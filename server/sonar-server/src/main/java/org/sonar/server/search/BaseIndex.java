@@ -144,7 +144,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
       @Override
       public DOMAIN next() {
-        if(!hasNext()){
+        if (!hasNext()) {
           throw new NoSuchElementException();
         }
         return toDoc(hits.poll().getSource());
@@ -272,44 +272,23 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     } else if (field.type() == IndexField.Type.STRING) {
       return mapStringField(field, allowRecursive);
     } else if (field.type() == IndexField.Type.BOOLEAN) {
-      return mapBooleanField(field);
+      return mapBooleanField();
     } else if (field.type() == IndexField.Type.OBJECT) {
       return mapNestedField(field);
     } else if (field.type() == IndexField.Type.DATE) {
-      return mapDateField(field);
+      return mapDateField();
     } else if (field.type() == IndexField.Type.DOUBLE) {
-      return mapDoubleField(field);
-    } else if (field.type() == IndexField.Type.INTEGER) {
-      return mapIntegerField(field);
-    } else if (field.type() == IndexField.Type.LONG) {
-      return mapLongField(field);
-    } else if (field.type() == IndexField.Type.UUID_PATH) {
-      return mapUuidPathField(field);
+      return mapDoubleField();
     } else {
       throw new IllegalStateException("Mapping does not exist for type: " + field.type());
     }
   }
 
-  private static Map mapUuidPathField(IndexField field) {
-    return ImmutableMap.of(
-      "type", "string",
-      "index", "analyzed",
-      "analyzer", "uuid_analyzer");
-  }
-
-  protected Map mapDoubleField(IndexField field) {
+  protected Map mapDoubleField() {
     return ImmutableMap.of("type", "double");
   }
 
-  protected Map mapIntegerField(IndexField field) {
-    return ImmutableMap.of("type", "integer");
-  }
-
-  protected Map mapLongField(IndexField field) {
-    return ImmutableMap.of("type", "long");
-  }
-
-  protected Map mapBooleanField(IndexField field) {
+  protected Map mapBooleanField() {
     return ImmutableMap.of("type", "boolean");
   }
 
@@ -327,7 +306,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return mapping;
   }
 
-  protected Map mapDateField(IndexField field) {
+  protected Map mapDateField() {
     return ImmutableMap.of(
       "type", "date",
       "format", "date_time");
@@ -339,7 +318,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       && (field.isSortable() || field.isSearchable());
   }
 
-  protected Map mapGramsField(IndexField field) {
+  protected Map mapGramsField() {
     return ImmutableMap.of(
       "type", "string",
       "index", "analyzed",
@@ -347,7 +326,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       "search_analyzer", "search_grams");
   }
 
-  protected Map mapWordsField(IndexField field) {
+  protected Map mapWordsField() {
     return ImmutableMap.of(
       "type", "string",
       "index", "analyzed",
@@ -365,9 +344,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     }
     if (field.isSearchable()) {
       if (field.type() != IndexField.Type.TEXT) {
-        mapping.put(IndexField.SEARCH_PARTIAL_SUFFIX, mapGramsField(field));
+        mapping.put(IndexField.SEARCH_PARTIAL_SUFFIX, mapGramsField());
       }
-      mapping.put(IndexField.SEARCH_WORDS_SUFFIX, mapWordsField(field));
+      mapping.put(IndexField.SEARCH_WORDS_SUFFIX, mapWordsField());
     }
     mapping.put(field.field(), mapField(field, false));
     return mapping;

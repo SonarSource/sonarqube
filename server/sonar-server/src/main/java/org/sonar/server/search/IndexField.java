@@ -28,7 +28,7 @@ import java.util.Collections;
 public class IndexField {
 
   public enum Type {
-    STRING, TEXT, DATE, BOOLEAN, INTEGER, LONG, DOUBLE, OBJECT, UUID_PATH
+    STRING, TEXT, DATE, BOOLEAN, DOUBLE, OBJECT
   }
 
   public static final String SORT_SUFFIX = "sort";
