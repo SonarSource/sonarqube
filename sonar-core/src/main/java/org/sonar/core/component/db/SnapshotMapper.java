@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.SnapshotQuery;
 
 public interface SnapshotMapper {
 

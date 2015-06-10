@@ -21,22 +21,24 @@
 package org.sonar.server.computation.period;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 public class PeriodsHolderImpl implements PeriodsHolder {
 
-  private boolean isPeriodsInitialized = false;
-  private List<Period> periods = new ArrayList<>();
+  @CheckForNull
+  private ImmutableList<Period> periods;
 
   public void setPeriods(List<Period> periods) {
-    this.periods = periods;
-    isPeriodsInitialized = true;
+    Preconditions.checkNotNull(periods, "Periods cannot be null");
+    Preconditions.checkState(this.periods == null, "Periods have already been initialized");
+    this.periods = ImmutableList.copyOf(periods);
   }
 
   @Override
   public List<Period> getPeriods() {
-    Preconditions.checkArgument(isPeriodsInitialized, "Periods have not been initialized yet");
+    Preconditions.checkState(periods != null, "Periods have not been initialized yet");
     return periods;
   }
 

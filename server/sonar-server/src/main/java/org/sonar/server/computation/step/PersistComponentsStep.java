@@ -68,16 +68,15 @@ public class PersistComponentsStep implements ComputationStep {
       org.sonar.server.computation.component.Component root = treeRootHolder.getRoot();
       List<ComponentDto> existingComponents = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
       Map<String, ComponentDto> existingComponentDtosByKey = componentDtosByKey(existingComponents);
-      PersisComponent persisComponent = new PersisComponent(session, existingComponentDtosByKey, reportReader);
-
-      persisComponent.recursivelyProcessComponent(root, null);
+      PersistComponentExecutor persistComponentExecutor = new PersistComponentExecutor(session, existingComponentDtosByKey, reportReader);
+      persistComponentExecutor.recursivelyProcessComponent(root, null);
       session.commit();
     } finally {
       session.close();
     }
   }
 
-  private class PersisComponent {
+  private class PersistComponentExecutor {
 
     private final BatchReportReader reportReader;
     private final Map<String, ComponentDto> existingComponentDtosByKey;
@@ -85,13 +84,13 @@ public class PersistComponentsStep implements ComputationStep {
 
     private ComponentDto project;
 
-    public PersisComponent(DbSession dbSession, Map<String, ComponentDto> existingComponentDtosByKey, BatchReportReader reportReader) {
+    public PersistComponentExecutor(DbSession dbSession, Map<String, ComponentDto> existingComponentDtosByKey, BatchReportReader reportReader) {
       this.reportReader = reportReader;
       this.existingComponentDtosByKey = existingComponentDtosByKey;
       this.dbSession = dbSession;
     }
 
-    private void recursivelyProcessComponent(Component component, @Nullable ComponentDto lastModule) {
+    public void recursivelyProcessComponent(Component component, @Nullable ComponentDto lastModule) {
       BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
 
       switch (component.getType()) {

@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.component;
+package org.sonar.core.component.db;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.component.SnapshotQuery.SORT_FIELD.BY_DATE;
-import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
 
 public class SnapshotQueryTest {
 

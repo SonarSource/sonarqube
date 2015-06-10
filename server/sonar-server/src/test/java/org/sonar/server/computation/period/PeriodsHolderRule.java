@@ -44,7 +44,7 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
   }
 
   private void clear() {
-    this.periods = new ArrayList<>();
+    this.periods.clear();
   }
 
   @Override

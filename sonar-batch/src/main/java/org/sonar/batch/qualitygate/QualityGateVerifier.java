@@ -42,9 +42,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.timemachine.Periods;
 
 public class QualityGateVerifier implements Decorator {
 
@@ -58,15 +56,11 @@ public class QualityGateVerifier implements Decorator {
 
   private QualityGate qualityGate;
 
-  private Periods periods;
   private I18n i18n;
   private Durations durations;
-  private BatchComponentCache resourceCache;
 
-  public QualityGateVerifier(QualityGate qualityGate, BatchComponentCache resourceCache, Periods periods, I18n i18n, Durations durations) {
+  public QualityGateVerifier(QualityGate qualityGate, I18n i18n, Durations durations) {
     this.qualityGate = qualityGate;
-    this.resourceCache = resourceCache;
-    this.periods = periods;
     this.i18n = i18n;
     this.durations = durations;
   }
@@ -166,11 +160,11 @@ public class QualityGateVerifier implements Decorator {
       .append(" ").append(operatorLabel(condition.operator())).append(" ")
       .append(alertValue(condition, level));
 
-    // Disabled because snapshot is no more created by the batch
-//    if (alertPeriod != null) {
-//      Snapshot snapshot = resourceCache.get(project).snapshot();
-//      stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
-//    }
+    // TODO Disabled because snapshot is no more created by the batch, but should be reactivated when the decorator will be moved to the batch
+    // if (alertPeriod != null) {
+    // Snapshot snapshot = resourceCache.get(project).snapshot();
+    // stringBuilder.append(" ").append(periods.label(snapshot, alertPeriod));
+    // }
 
     return stringBuilder.toString();
   }

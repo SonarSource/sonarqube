@@ -27,14 +27,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.SnapshotQuery;
+import org.sonar.core.component.db.SnapshotQuery;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.component.SnapshotQuery.SORT_FIELD.BY_DATE;
-import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.ASC;
-import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.DESC;
 
 public class SnapshotDaoTest extends AbstractDaoTestCase {
 

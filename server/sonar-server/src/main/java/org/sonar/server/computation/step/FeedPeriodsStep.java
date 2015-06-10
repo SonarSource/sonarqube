@@ -37,7 +37,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.SnapshotQuery;
+import org.sonar.core.component.db.SnapshotQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -46,9 +46,9 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
 
-import static org.sonar.core.component.SnapshotQuery.SORT_FIELD.BY_DATE;
-import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.ASC;
-import static org.sonar.core.component.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.DESC;
 
 /**
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
@@ -71,7 +71,7 @@ public class FeedPeriodsStep implements ComputationStep {
   private final PeriodsHolderImpl periodsHolder;
 
   public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, BatchReportReader batchReportReader,
-    PeriodsHolderImpl periodsHolder) {
+                         PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.treeRootHolder = treeRootHolder;
