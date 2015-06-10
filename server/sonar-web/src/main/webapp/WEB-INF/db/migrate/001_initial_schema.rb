@@ -85,11 +85,6 @@ class InitialSchema < ActiveRecord::Migration
       t.column :diff_value_3, :decimal, :null => true, :precision => 30, :scale => 20
     end
 
-    create_table :rules_categories do |t|
-      t.column :name,                :string,    :null => false, :limit => 255
-      t.column :description,         :string,    :null => false, :limit => 1000
-    end
-
     create_table :rules do |t|
       t.column :name,                :string,    :null => false, :limit => 192
       t.column :plugin_rule_key,     :string,    :null => false, :limit => 200

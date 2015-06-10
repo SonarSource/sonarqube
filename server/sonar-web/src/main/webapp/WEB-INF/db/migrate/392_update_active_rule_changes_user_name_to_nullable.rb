@@ -30,10 +30,6 @@ class UpdateActiveRuleChangesUserNameToNullable < ActiveRecord::Migration
     # Due to an issue on Oracle, it's not possible to use change_column to set a column to nullable, we had to create another column
 
     add_column 'active_rule_changes', 'username', :string, :limit => 200, :null => true
-    ActiveRuleChange.reset_column_information
-    ActiveRuleChange.all.each do |a|
-      a.update_attributes!(:username => a.user_name)
-    end
 
     remove_column 'active_rule_changes', 'user_name'
   end

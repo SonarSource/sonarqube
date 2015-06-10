@@ -29,6 +29,10 @@ public class MigrationStepModuleTest {
   public void verify_count_of_added_MigrationStep_types() {
     ComponentContainer container = new ComponentContainer();
     new MigrationStepModule().configure(container);
+<<<<<<< HEAD
     assertThat(container.size()).isEqualTo(53);
+=======
+    assertThat(container.size()).isEqualTo(56);
+>>>>>>> Remove unused db migrations of data (not structures)
   }
 }

@@ -23,18 +23,7 @@
 #
 class RemoveProfilesDefaultColumn < ActiveRecord::Migration
 
-  class Profile < ActiveRecord::Base
-    set_table_name 'rules_profiles'
-  end
-
-  class Property < ActiveRecord::Base
-  end
-
   def self.up
-    Profile.find(:all, :conditions => ['default_profile=?', true]).each do |profile|
-      Property.create :prop_key => "sonar.profile.#{profile.language}", :text_value => profile.name
-    end
-
     remove_column('rules_profiles', 'default_profile')
   end
 

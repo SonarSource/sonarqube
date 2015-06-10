@@ -24,12 +24,6 @@
 class AddAuthorsPrimaryKey < ActiveRecord::Migration
 
   def self.up
-    begin
-      drop_table 'authors'
-    rescue
-      # table does not exist -> this is not an upgrade but a fresh install
-    end
-
     create_table 'authors' do |t|
       t.column 'person_id', :integer, :null => false
       t.column 'login', :string, :null => true, :limit => 100
