@@ -118,7 +118,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbClient.permissionTemplateDao().addGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
     dbSession.commit();
 
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY);
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 
@@ -146,7 +146,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     dbSession.commit();
 
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY);
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 

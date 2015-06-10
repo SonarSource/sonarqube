@@ -88,7 +88,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -109,8 +109,9 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null));
+    DumbComponent root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build()
+      ).build();
     treeRootHolder.setRoot(root);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
@@ -146,7 +147,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -169,7 +170,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() throws Exception {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

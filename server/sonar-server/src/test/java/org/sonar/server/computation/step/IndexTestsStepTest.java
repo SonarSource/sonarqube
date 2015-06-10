@@ -75,7 +75,7 @@ public class IndexTestsStepTest extends BaseStepTest {
     TestTesting.updateDataColumn(connection, "FILE1_UUID", TestTesting.newRandomTests(1));
     connection.close();
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", "PROJECT_KEY"));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey("PROJECT_KEY").build());
 
     step().execute();
 

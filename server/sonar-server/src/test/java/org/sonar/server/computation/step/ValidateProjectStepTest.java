@@ -90,7 +90,7 @@ public class ValidateProjectStepTest {
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
     dbSession.commit();
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
   }
@@ -108,7 +108,7 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
   }
@@ -123,7 +123,7 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
   }
@@ -138,7 +138,7 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":origin/master"));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
 
     sut.execute();
   }
@@ -157,7 +157,7 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY + ":bran#ch"));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
 
     sut.execute();
   }
@@ -183,8 +183,9 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.MODULE)
       .setKey("Module$Key")
       .build());
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", invalidProjectKey,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", "Module$Key")));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(invalidProjectKey).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
+      .build());
 
     sut.execute();
   }
@@ -214,8 +215,9 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+      .build());
 
     sut.execute();
   }
@@ -247,8 +249,9 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, module);
     dbSession.commit();
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+      .build());
 
     sut.execute();
   }
@@ -281,9 +284,10 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbSession, module);
     dbSession.commit();
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", MODULE_KEY)));
-    
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+      .build());
+
     sut.execute();
   }
 }

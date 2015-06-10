@@ -110,7 +110,7 @@ public class PersistFileSourcesStepTest {
       components.add(generateFileReport(writer, fileRef));
       project.addChildRef(fileRef);
     }
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, "PROJECT", components.toArray(new Component[components.size()])));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey("PROJECT").build());
 
     writer.writeComponent(project.build());
 
@@ -135,7 +135,7 @@ public class PersistFileSourcesStepTest {
     writer.writeComponentSymbols(fileRef, lineData.symbols);
     writer.writeComponentDuplications(fileRef, lineData.duplications);
 
-    return new DumbComponent(Component.Type.FILE, fileRef, Uuids.create(), "PROJECT:" + fileRef);
+    return DumbComponent.builder(Component.Type.FILE, fileRef).setUuid(Uuids.create()).setKey("PROJECT:" + fileRef).build();
   }
 
   private static class LineData {

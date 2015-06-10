@@ -96,12 +96,11 @@ public class ComponentTreeRule implements TestRule {
   }
 
   private DumbComponent newComponent(BatchReport.Component component, BUILD_OPTIONS build_options) {
-    return new DumbComponent(
-      ComponentImpl.convertType(component.getType()),
-      component.getRef(),
-      build_options.uuid ? uuidOf(component.getRef()) : null,
-      build_options.key ? keyOf(component.getRef()) : null,
-      buildChildren(component, build_options));
+    return DumbComponent.builder(ComponentImpl.convertType(component.getType()), component.getRef())
+      .setUuid(build_options.uuid ? uuidOf(component.getRef()) : null)
+      .setKey(build_options.key ? keyOf(component.getRef()) : null)
+      .addChildren(buildChildren(component, build_options))
+      .build();
   }
 
   private Component[] buildChildren(BatchReport.Component component, final BUILD_OPTIONS build_options) {

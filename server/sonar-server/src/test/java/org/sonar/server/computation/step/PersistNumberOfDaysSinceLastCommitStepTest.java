@@ -123,8 +123,9 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "project-uuid", null,
-      new DumbComponent(Component.Type.FILE, 2, "file-uuid", null)));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("project-uuid").addChildren(
+      DumbComponent.builder(Component.Type.FILE, 2).setUuid("file-uuid").build())
+      .build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setSnapshotId(1000)

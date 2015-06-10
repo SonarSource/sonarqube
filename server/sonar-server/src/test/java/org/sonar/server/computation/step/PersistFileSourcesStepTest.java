@@ -128,8 +128,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void persist_last_line() throws Exception {
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
-      new DumbComponent(Component.Type.FILE, FILE_REF, FILE_UUID, "PROJECT_KEY:file")));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("PROJECT_KEY:file").build())
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -433,9 +434,11 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   private void initBasicReport(int numberOfLines) throws IOException {
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY,
-      new DumbComponent(Component.Type.MODULE, 2, "MODULE", "MODULE_KEY",
-        new DumbComponent(Component.Type.FILE, FILE_REF, FILE_UUID, "MODULE_KEY:src/Foo.java"))));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
+        DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("MODULE_KEY:src/Foo.java").build())
+        .build())
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)

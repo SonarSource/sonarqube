@@ -53,10 +53,10 @@ public class TreeRootHolderImplTest {
 
   @Test
   public void get_by_ref() throws Exception {
-    Component file = new DumbComponent(Component.Type.FILE, 4, null, null);
-    Component directory = new DumbComponent(Component.Type.DIRECTORY, 3, null, null, file);
-    Component module = new DumbComponent(Component.Type.MODULE, 2, null, null, directory);
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, null, null, module);
+    Component file = DumbComponent.builder(Component.Type.FILE, 4).build();
+    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).addChildren(file).build();
+    Component module = DumbComponent.builder(Component.Type.MODULE, 2).addChildren(directory).build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     assertThat(treeRootHolder.getComponentByRef(1)).isEqualTo(project);

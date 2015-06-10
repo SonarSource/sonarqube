@@ -66,6 +66,6 @@ public class EventRepositoryImplTest {
   }
 
   private static Component newComponent(int i) {
-    return new DumbComponent(Component.Type.FILE, i, null, null);
+    return DumbComponent.builder(Component.Type.FILE, i).build();
   }
 }

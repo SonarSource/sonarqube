@@ -49,7 +49,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   @Test
   public void call_indexProject_of_dao() throws IOException {
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "PROJECT_UUID", PROJECT_KEY);
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, 123L);
     treeRootHolder.setRoot(project);
 

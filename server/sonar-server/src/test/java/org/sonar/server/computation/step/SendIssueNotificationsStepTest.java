@@ -73,7 +73,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
     sut = new SendIssueNotificationsStep(issueCache, mock(RuleCache.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, PROJECT_UUID, PROJECT_KEY));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

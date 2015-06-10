@@ -39,15 +39,20 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
   private static final Component MODULE_2 = component(MODULE, 2, DIRECTORY_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final DepthTraversalTypeAwareVisitor spyProjectVisitor = spy(new DepthTraversalTypeAwareVisitor(PROJECT, POST_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyModuleVisitor = spy(new DepthTraversalTypeAwareVisitor(MODULE, POST_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyDirectoryVisitor = spy(new DepthTraversalTypeAwareVisitor(DIRECTORY, POST_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyFileVisitor = spy(new DepthTraversalTypeAwareVisitor(FILE, POST_ORDER) {});
+  private final DepthTraversalTypeAwareVisitor spyProjectVisitor = spy(new DepthTraversalTypeAwareVisitor(PROJECT, POST_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyModuleVisitor = spy(new DepthTraversalTypeAwareVisitor(MODULE, POST_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyDirectoryVisitor = spy(new DepthTraversalTypeAwareVisitor(DIRECTORY, POST_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyFileVisitor = spy(new DepthTraversalTypeAwareVisitor(FILE, POST_ORDER) {
+  });
   private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
 
   @Test(expected = NullPointerException.class)
   public void non_null_max_depth_fast_fail() {
-    new DepthTraversalTypeAwareVisitor(null, POST_ORDER) {};
+    new DepthTraversalTypeAwareVisitor(null, POST_ORDER) {
+    };
   }
 
   @Test(expected = NullPointerException.class)
@@ -260,7 +265,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
-    return new DumbComponent(type, ref, null, null, children);
+    return DumbComponent.builder(type, ref).addChildren(children).build();
   }
 
 }

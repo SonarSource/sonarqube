@@ -22,8 +22,6 @@ package org.sonar.server.computation.component;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 
@@ -41,19 +39,6 @@ public class DumbComponent implements Component {
   private final String uuid, key, name;
   private final List<Component> children;
 
-  /**
-   * @deprecated use Builder
-   */
-  @Deprecated
-  public DumbComponent(Type type, int ref, @Nullable String uuid, @Nullable String key, @Nullable Component... children) {
-    this.type = type;
-    this.ref = ref;
-    this.uuid = uuid;
-    this.key = key;
-    this.name = key;
-    this.children = children == null ? Collections.<Component>emptyList() : ImmutableList.copyOf(Arrays.asList(children));
-  }
-  
   private DumbComponent(Builder builder) {
     this.type = builder.type;
     this.ref = builder.ref;

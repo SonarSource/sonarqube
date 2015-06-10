@@ -118,8 +118,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     ComponentDto projectDto = addComponent(1, "project-key");
     ComponentDto fileDto = addComponent(2, "file-key");
 
-    Component file = new DumbComponent(Component.Type.FILE, 2, "CDEF", "MODULE_KEY:file");
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, file);
+    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("CDEF").setKey("MODULE_KEY:file").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());

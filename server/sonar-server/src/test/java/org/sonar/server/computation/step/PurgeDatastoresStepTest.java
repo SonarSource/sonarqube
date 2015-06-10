@@ -69,7 +69,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   @Test
   public void call_purge_method_of_the_purge_task() throws IOException {
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "UUID-1234", PROJECT_KEY);
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("UUID-1234").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, 123L);
 

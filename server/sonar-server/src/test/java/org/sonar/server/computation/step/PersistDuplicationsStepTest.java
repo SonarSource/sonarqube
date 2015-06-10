@@ -131,9 +131,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_module() throws Exception {
-    Component file = new DumbComponent(Component.Type.FILE, 3, "CDEF", "MODULE_KEY:file");
-    Component module = new DumbComponent(Component.Type.MODULE, 2, "BCDE", "MODULE_KEY", file);
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, module);
+    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("MODULE_KEY:file").build();
+    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(file).build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -190,9 +190,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_folder() {
-    Component file = new DumbComponent(Component.Type.FILE, 3, "CDEF", "PROJECT_KEY:file");
-    Component directory = new DumbComponent(Component.Type.DIRECTORY, 2, "BCDE", "PROJECT_KEY:dir", file);
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, directory);
+    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file").build();
+    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir").addChildren(file).build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -249,10 +249,10 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_sub_folder() {
-    Component file = new DumbComponent(Component.Type.FILE, 10, "DEFG", "PROJECT_KEY:file");
-    Component directory1 = new DumbComponent(Component.Type.DIRECTORY, 3, "CDEF", "PROJECT_KEY:dir1", file);
-    Component directory2 = new DumbComponent(Component.Type.DIRECTORY, 2, "BCDE", "PROJECT_KEY:dir2", directory1);
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, directory2);
+    Component file = DumbComponent.builder(Component.Type.FILE, 10).setUuid("DEFG").setKey("PROJECT_KEY:file").build();
+    Component directory1 = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:dir1").addChildren(file).build();
+    Component directory2 = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir2").addChildren(directory1).build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory2).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -318,9 +318,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   public void persist_duplications_on_different_files() {
     saveDuplicationMetric();
 
-    Component file2 = new DumbComponent(Component.Type.FILE, 3, "CDEF", "PROJECT_KEY:file2");
-    Component file = new DumbComponent(Component.Type.FILE, 2, "BCDE", "PROJECT_KEY:file");
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, file, file2);
+    Component file2 = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file2").build();
+    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file, file2).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -401,8 +401,8 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    Component file = new DumbComponent(Component.Type.FILE, 2, "BCDE", "PROJECT_KEY:file");
-    Component project = new DumbComponent(Component.Type.PROJECT, 1, "ABCD", PROJECT_KEY, file);
+    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);

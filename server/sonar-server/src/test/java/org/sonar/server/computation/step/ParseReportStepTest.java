@@ -63,9 +63,10 @@ public class ParseReportStepTest extends BaseStepTest {
 
   @Test
   public void extract_report_from_db_and_browse_components() throws Exception {
-    DumbComponent root = new DumbComponent(Component.Type.PROJECT, 1, "PROJECT_UUID", PROJECT_KEY,
-      new DumbComponent(Component.Type.FILE, 2, "FILE1_UUID", "PROJECT_KEY:file1"),
-      new DumbComponent(Component.Type.FILE, 3, "FILE2_UUID", "PROJECT_KEY:file2"));
+    DumbComponent root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.FILE, 2).setUuid("FILE1_UUID").setKey("PROJECT_KEY:file1").build(),
+      DumbComponent.builder(Component.Type.FILE, 3).setUuid("FILE2_UUID").setKey("PROJECT_KEY:file2").build())
+      .build();
 
     generateReport();
 

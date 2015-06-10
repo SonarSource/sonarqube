@@ -90,8 +90,9 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void add_links_on_project_and_module() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
-      new DumbComponent(Component.Type.MODULE, 2, "BCDE", null)));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
+      .build());
 
     // project and 1 module
     reportReader.putComponent(BatchReport.Component.newBuilder()
@@ -119,7 +120,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void nothing_to_do_when_link_already_exists() throws Exception {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -136,8 +137,9 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void do_not_add_links_on_file() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null,
-      new DumbComponent(Component.Type.FILE, 2, "BCDE", null)));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+      DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
+      .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -159,7 +161,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void update_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "update_link.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -176,7 +178,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void delete_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "delete_link.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -192,7 +194,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void not_delete_custom_link() throws Exception {
     dbTester.prepareDbUnit(getClass(), "not_delete_custom_link.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -208,7 +210,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void fail_when_trying_to_add_same_link_type_multiple_times() throws Exception {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "ABCD", null));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)

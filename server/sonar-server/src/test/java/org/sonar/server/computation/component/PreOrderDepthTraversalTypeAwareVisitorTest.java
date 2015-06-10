@@ -39,15 +39,20 @@ public class PreOrderDepthTraversalTypeAwareVisitorTest {
   private static final Component MODULE_2 = component(MODULE, 2, DIRECTORY_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final DepthTraversalTypeAwareVisitor spyProjectVisitor = spy(new DepthTraversalTypeAwareVisitor(PROJECT, PRE_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyModuleVisitor = spy(new DepthTraversalTypeAwareVisitor(MODULE, PRE_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyDirectoryVisitor = spy(new DepthTraversalTypeAwareVisitor(DIRECTORY, PRE_ORDER) {});
-  private final DepthTraversalTypeAwareVisitor spyFileVisitor = spy(new DepthTraversalTypeAwareVisitor(FILE, PRE_ORDER) {});
+  private final DepthTraversalTypeAwareVisitor spyProjectVisitor = spy(new DepthTraversalTypeAwareVisitor(PROJECT, PRE_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyModuleVisitor = spy(new DepthTraversalTypeAwareVisitor(MODULE, PRE_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyDirectoryVisitor = spy(new DepthTraversalTypeAwareVisitor(DIRECTORY, PRE_ORDER) {
+  });
+  private final DepthTraversalTypeAwareVisitor spyFileVisitor = spy(new DepthTraversalTypeAwareVisitor(FILE, PRE_ORDER) {
+  });
   private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
 
   @Test(expected = NullPointerException.class)
   public void non_null_max_depth_fast_fail() {
-    new DepthTraversalTypeAwareVisitor(null, PRE_ORDER) {};
+    new DepthTraversalTypeAwareVisitor(null, PRE_ORDER) {
+    };
   }
 
   @Test(expected = NullPointerException.class)
@@ -260,7 +265,7 @@ public class PreOrderDepthTraversalTypeAwareVisitorTest {
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
-    return new DumbComponent(type, ref, null, null, children);
+    return DumbComponent.builder(type, ref).addChildren(children).build();
   }
 
 }

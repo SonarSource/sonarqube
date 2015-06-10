@@ -80,7 +80,7 @@ public class QualityProfileEventsStepTest {
 
   @Before
   public void setUp() throws Exception {
-    treeRootHolder.setRoot(new DumbComponent(Component.Type.PROJECT, 1, "uuid", "key"));
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid").setKey("key").build());
   }
 
   @Test
