@@ -20,8 +20,6 @@
 
 package org.sonar.server.issue.ws;
 
-import org.sonar.server.user.ws.UserJsonWriter;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
@@ -44,6 +42,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ws.UserJsonWriter;
 
 public class IssueJsonWriter {
 

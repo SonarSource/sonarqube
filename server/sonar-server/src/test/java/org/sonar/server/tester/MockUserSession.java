@@ -52,7 +52,7 @@ public class MockUserSession extends AbstractUserSession<MockUserSession> implem
     this.projectKeyByPermission = ruleUserSession.projectKeyByPermission;
     this.projectUuidByPermission = ruleUserSession.projectUuidByPermission;
     this.projectUuidByComponentUuid = ruleUserSession.projectUuidByComponentUuid;
-    this.projectPermissions = ruleUserSession.projectPermissions;
+    this.projectPermissionsCheckedByKey = ruleUserSession.projectPermissionsCheckedByKey;
     this.name = ruleUserSession.name;
     this.locale = ruleUserSession.locale;
   }
@@ -97,13 +97,13 @@ public class MockUserSession extends AbstractUserSession<MockUserSession> implem
    */
   @Deprecated
   public MockUserSession addProjectPermissions(String projectPermission, String... projectKeys) {
-    this.projectPermissions.add(projectPermission);
+    this.projectPermissionsCheckedByKey.add(projectPermission);
     this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
     return this;
   }
 
   public MockUserSession addProjectUuidPermissions(String projectPermission, String... projectUuids) {
-    this.projectPermissions.add(projectPermission);
+    this.projectPermissionsCheckedByUuid.add(projectPermission);
     this.projectUuidByPermission.putAll(projectPermission, newArrayList(projectUuids));
     return this;
   }
@@ -131,12 +131,12 @@ public class MockUserSession extends AbstractUserSession<MockUserSession> implem
 
   @Override
   public boolean hasProjectPermission(String permission, String projectKey) {
-    return projectPermissions.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey);
+    return projectPermissionsCheckedByKey.contains(permission) && projectKeyByPermission.get(permission).contains(projectKey);
   }
 
   @Override
   public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    return projectPermissions.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
+    return projectPermissionsCheckedByUuid.contains(permission) && projectUuidByPermission.get(permission).contains(projectUuid);
   }
 
   @Override

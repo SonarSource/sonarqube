@@ -19,9 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.server.issue.ws.IssueComponentHelper;
-import org.sonar.server.issue.ws.IssueJsonWriter;
-
 import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
@@ -159,6 +156,8 @@ import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.ws.ComponentTagsAction;
 import org.sonar.server.issue.ws.IssueActionsWriter;
+import org.sonar.server.issue.ws.IssueComponentHelper;
+import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.issue.ws.SetTagsAction;
 import org.sonar.server.language.ws.LanguageWs;

@@ -48,7 +48,8 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   protected HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
   protected HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   protected Map<String, String> projectUuidByComponentUuid = newHashMap();
-  protected List<String> projectPermissions = newArrayList();
+  protected List<String> projectPermissionsCheckedByKey = newArrayList();
+  protected List<String> projectPermissionsCheckedByUuid = newArrayList();
   protected String name;
   protected Locale locale = Locale.ENGLISH;
 

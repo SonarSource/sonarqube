@@ -75,19 +75,19 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
 
   @Override
   public boolean hasProjectPermission(String permission, String projectKey) {
-    if (!projectPermissions.contains(permission)) {
+    if (!projectPermissionsCheckedByKey.contains(permission)) {
       Collection<String> projectKeys = authorizationDao.selectAuthorizedRootProjectsKeys(userId, permission);
       for (String key : projectKeys) {
         projectKeyByPermission.put(permission, key);
       }
-      projectPermissions.add(permission);
+      projectPermissionsCheckedByKey.add(permission);
     }
     return projectKeyByPermission.get(permission).contains(projectKey);
   }
 
   @Override
   public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
-    if (!projectPermissions.contains(permission)) {
+    if (!projectPermissionsCheckedByUuid.contains(permission)) {
       Collection<String> projectUuids = authorizationDao.selectAuthorizedRootProjectsUuids(userId, permission);
       addProjectPermission(permission, projectUuids);
     }
@@ -98,7 +98,7 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
     for (String key : authorizedProjectUuids) {
       projectUuidByPermission.put(permission, key);
     }
-    projectPermissions.add(permission);
+    projectPermissionsCheckedByUuid.add(permission);
   }
 
   @Override

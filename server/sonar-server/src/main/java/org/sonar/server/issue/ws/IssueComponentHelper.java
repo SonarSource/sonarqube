@@ -19,15 +19,15 @@
  */
 package org.sonar.server.issue.ws;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import org.sonar.server.db.DbClient;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * This class computes some collections of {@link ComponentDto}s used to serialize issues.

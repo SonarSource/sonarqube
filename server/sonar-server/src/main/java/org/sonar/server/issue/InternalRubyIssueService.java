@@ -19,10 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import org.sonar.server.issue.ws.IssueComponentHelper;
-import org.sonar.server.issue.ws.IssueJsonWriter;
-
-import org.elasticsearch.common.collect.Lists;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -32,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.StringWriter;
@@ -73,13 +70,15 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.ws.IssueComponentHelper;
+import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
+
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
