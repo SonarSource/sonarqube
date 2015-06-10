@@ -34,7 +34,7 @@ public class BatchMeasureToMeasure {
     }
 
     String data = batchMeasure.hasStringValue() ? batchMeasure.getStringValue() : null;
-    switch (metric.getMetricType().getValueType()) {
+    switch (metric.getType().getValueType()) {
       case INT:
         return toIntegerMeasure(batchMeasure, data);
       case LONG:
@@ -50,7 +50,7 @@ public class BatchMeasureToMeasure {
       case NO_VALUE:
         return toNoValueMeasure(batchMeasure);
       default:
-        throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getMetricType().getValueType());
+        throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
   }
 

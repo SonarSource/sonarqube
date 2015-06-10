@@ -49,7 +49,7 @@ public class MetricImplTest {
 
     assertThat(metric.getKey()).isEqualTo(SOME_KEY);
     assertThat(metric.getName()).isEqualTo(SOME_NAME);
-    assertThat(metric.getMetricType()).isEqualTo(Metric.MetricType.FLOAT);
+    assertThat(metric.getType()).isEqualTo(Metric.MetricType.FLOAT);
   }
 
   @Test
@@ -76,7 +76,7 @@ public class MetricImplTest {
   @Test
   public void all_fields_are_displayed_in_toString() {
     assertThat(new MetricImpl(SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT).toString())
-      .isEqualTo("MetricImpl{key=key, name=name, metricType=FLOAT}");
+      .isEqualTo("MetricImpl{key=key, name=name, type=FLOAT}");
 
   }
 }

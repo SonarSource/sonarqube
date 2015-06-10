@@ -30,12 +30,12 @@ public final class MetricImpl implements Metric {
 
   private final String key;
   private final String name;
-  private final MetricType metricType;
+  private final MetricType type;
 
-  public MetricImpl(String key, String name, MetricType metricType) {
+  public MetricImpl(String key, String name, MetricType type) {
     this.key = requireNonNull(key);
     this.name = requireNonNull(name);
-    this.metricType = requireNonNull(metricType);
+    this.type = requireNonNull(type);
   }
 
   @Override
@@ -49,8 +49,8 @@ public final class MetricImpl implements Metric {
   }
 
   @Override
-  public MetricType getMetricType() {
-    return metricType;
+  public MetricType getType() {
+    return type;
   }
 
   @Override
@@ -63,12 +63,12 @@ public final class MetricImpl implements Metric {
     }
     MetricImpl metric = (MetricImpl) o;
     return Objects.equals(key, metric.key) &&
-        Objects.equals(metricType, metric.metricType);
+        Objects.equals(type, metric.type);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, metricType);
+    return Objects.hash(key, type);
   }
 
   @Override
@@ -76,7 +76,7 @@ public final class MetricImpl implements Metric {
     return com.google.common.base.Objects.toStringHelper(this)
         .add("key", key)
         .add("name", name)
-        .add("metricType", metricType)
+        .add("type", type)
         .toString();
   }
 }

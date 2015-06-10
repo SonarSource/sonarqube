@@ -37,7 +37,7 @@ public class MeasureDtoToMeasure {
 
     Double value = measureDto.getValue();
     String data = measureDto.getData();
-    switch (metric.getMetricType().getValueType()) {
+    switch (metric.getType().getValueType()) {
       case INT:
         return toIntegerMeasure(measureDto, value, data);
       case LONG:
@@ -53,7 +53,7 @@ public class MeasureDtoToMeasure {
       case NO_VALUE:
         return toNoValueMeasure(measureDto);
       default:
-        throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getMetricType().getValueType());
+        throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
   }
 

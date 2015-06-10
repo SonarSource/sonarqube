@@ -89,7 +89,7 @@ public class MetricRepositoryImplTest {
 
     assertThat(metric.getKey()).isEqualTo(metricDto.getKey());
     assertThat(metric.getName()).isEqualTo(metricDto.getShortName());
-    assertThat(metric.getMetricType()).isEqualTo(expected);
+    assertThat(metric.getType()).isEqualTo(expected);
   }
 
   @Test(expected = IllegalArgumentException.class)

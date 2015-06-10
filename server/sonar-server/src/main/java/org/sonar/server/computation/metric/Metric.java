@@ -29,7 +29,7 @@ public interface Metric {
 
   String getName();
 
-  MetricType getMetricType();
+  MetricType getType();
 
   enum MetricType {
     INT(Measure.ValueType.INT),

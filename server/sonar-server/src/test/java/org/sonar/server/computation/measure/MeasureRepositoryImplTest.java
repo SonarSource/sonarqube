@@ -86,9 +86,9 @@ public class MeasureRepositoryImplTest {
   @Before
   public void setUp() throws Exception {
     when(metric1.getKey()).thenReturn(METRIC_KEY_1);
-    when(metric1.getMetricType()).thenReturn(Metric.MetricType.STRING);
+    when(metric1.getType()).thenReturn(Metric.MetricType.STRING);
     when(metric2.getKey()).thenReturn(METRIC_KEY_2);
-    when(metric2.getMetricType()).thenReturn(Metric.MetricType.STRING);
+    when(metric2.getType()).thenReturn(Metric.MetricType.STRING);
 
     // references to metrics are consistent with DB by design
     when(metricRepository.getByKey(METRIC_KEY_1)).thenReturn(metric1);

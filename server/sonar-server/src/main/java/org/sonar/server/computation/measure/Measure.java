@@ -154,8 +154,6 @@ public interface Measure {
    * <p>
    * If the measure type is {@link Measure.ValueType#STRING}, the value returned by this function is the same as {@link #getStringValue()}.
    * </p>
-   *
-   * @throws IllegalStateException if the value type of the measure is not {@link Measure.ValueType#BOOLEAN}
    */
   @CheckForNull
   String getData();
