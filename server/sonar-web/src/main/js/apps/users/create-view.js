@@ -18,7 +18,8 @@ define([
       return user.save(null, {
         statusCode: {
           // do not show global error
-          400: null
+          400: null,
+          500: null
         }
       }).done(function () {
         that.collection.refresh();
