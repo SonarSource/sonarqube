@@ -19,10 +19,10 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Preconditions;
 import java.util.Locale;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public final class MeasureImpl implements Measure {
@@ -36,6 +36,8 @@ public final class MeasureImpl implements Measure {
   private final Level dataLevel;
   @Nullable
   private QualityGateStatus qualityGateStatus;
+  @Nullable
+  private MeasureVariations variations;
 
   protected MeasureImpl(ValueType valueType, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel) {
     this.valueType = valueType;
@@ -141,8 +143,23 @@ public final class MeasureImpl implements Measure {
 
   @Override
   public QualityGateStatus getQualityGateStatus() {
-    Preconditions.checkState(qualityGateStatus != null, "Measure does not have an QualityGate status");
+    checkState(qualityGateStatus != null, "Measure does not have an QualityGate status");
     return this.qualityGateStatus;
   }
 
+  public MeasureImpl setVariations(MeasureVariations variations) {
+    this.variations = requireNonNull(variations, "Can not set null MeasureVariations");
+    return this;
+  }
+
+  @Override
+  public boolean hasVariations() {
+    return variations != null;
+  }
+
+  @Override
+  public MeasureVariations getVariations() {
+    checkState(variations != null, "Measure does not have variations");
+    return variations;
+  }
 }

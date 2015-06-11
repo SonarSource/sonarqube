@@ -20,7 +20,11 @@
 package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.measure.Measure.Level;
 import org.sonar.server.computation.metric.Metric;
@@ -29,6 +33,7 @@ import org.sonar.server.computation.metric.MetricImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
+@RunWith(DataProviderRunner.class)
 public class MeasureDtoToMeasureTest {
   private static final Metric SOME_INT_METRIC = new MetricImpl("key", "name", Metric.MetricType.INT);
   private static final Metric SOME_LONG_METRIC = new MetricImpl("key", "name", Metric.MetricType.WORK_DUR);
@@ -272,5 +277,48 @@ public class MeasureDtoToMeasureTest {
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
     assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Level.OK);
     assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
+  }
+
+  @DataProvider
+  public static Object[][] all_types_MeasureDtos() {
+    return new Object[][] {
+        {new MeasureDto().setValue(1d), SOME_BOOLEAN_METRIC},
+        {new MeasureDto().setValue(1d), SOME_INT_METRIC},
+        {new MeasureDto().setValue(1d), SOME_LONG_METRIC},
+        {new MeasureDto().setValue(1d), SOME_DOUBLE_METRIC},
+        {new MeasureDto().setData("1"), SOME_STRING_METRIC},
+        {new MeasureDto().setData(Measure.Level.OK.name()), SOME_LEVEL_METRIC}
+    };
+  }
+
+  @Test
+  @UseDataProvider("all_types_MeasureDtos")
+  public void toMeasure_creates_no_MeasureVariation_if_dto_has_none_whichever_the_ValueType(MeasureDto measureDto, Metric metric) {
+    assertThat(underTest.toMeasure(measureDto, metric).get().hasVariations()).isFalse();
+  }
+
+  @Test
+  @UseDataProvider("all_types_MeasureDtos")
+  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one(MeasureDto builder, Metric metric) {
+    assertThat(underTest.toMeasure(builder.setVariation(1, 1d), metric).get().getVariations().getVariation1()).isEqualTo(1);
+    assertThat(underTest.toMeasure(builder.setVariation(2, 2d), metric).get().getVariations().getVariation2()).isEqualTo(2);
+    assertThat(underTest.toMeasure(builder.setVariation(3, 3d), metric).get().getVariations().getVariation3()).isEqualTo(3);
+    assertThat(underTest.toMeasure(builder.setVariation(4, 4d), metric).get().getVariations().getVariation4()).isEqualTo(4);
+    assertThat(underTest.toMeasure(builder.setVariation(5, 5d), metric).get().getVariations().getVariation5()).isEqualTo(5);
+  }
+
+  @Test
+  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one() {
+    MeasureDto measureDto = new MeasureDto()
+        .setData("1")
+        .setVariation(2, 2d).setVariation(3, 3d).setVariation(5, 5d);
+
+    Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_STRING_METRIC);
+
+    assertThat(measure.get().getVariations().hasVariation1()).isFalse();
+    assertThat(measure.get().getVariations().getVariation2()).isEqualTo(2);
+    assertThat(measure.get().getVariations().getVariation3()).isEqualTo(3);
+    assertThat(measure.get().getVariations().hasVariation4()).isFalse();
+    assertThat(measure.get().getVariations().getVariation5()).isEqualTo(5);
   }
 }

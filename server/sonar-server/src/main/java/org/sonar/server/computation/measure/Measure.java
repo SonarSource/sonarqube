@@ -23,8 +23,6 @@ import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import static java.util.Objects.requireNonNull;
-
 public interface Measure {
 
   enum ValueType {
@@ -126,5 +124,17 @@ public interface Measure {
    * @throws IllegalStateException if the measure has no QualityGate status
    */
   QualityGateStatus getQualityGateStatus();
+
+  /**
+   * Any Measure, which ever is its value type, can have a Variations.
+   */
+  boolean hasVariations();
+
+  /**
+   * The variations of this measure.
+   *
+   * @throws IllegalStateException if the measure has no MeasureVariations
+   */
+  MeasureVariations getVariations();
 
 }

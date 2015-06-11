@@ -112,7 +112,28 @@ public class BatchMeasureToMeasure {
         measure.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), text));
       }
     }
+    if (hasAnyVariation(batchMeasure))  {
+      measure.setVariations(createVariations(batchMeasure));
+    }
     return Optional.of((Measure) measure);
+  }
+
+  private static boolean hasAnyVariation(BatchReport.Measure batchMeasure) {
+    return batchMeasure.hasVariationValue1()
+        || batchMeasure.hasVariationValue2()
+        || batchMeasure.hasVariationValue3()
+        || batchMeasure.hasVariationValue4()
+        || batchMeasure.hasVariationValue5();
+  }
+
+  private static MeasureVariations createVariations(BatchReport.Measure batchMeasure) {
+    return new MeasureVariations(
+        batchMeasure.hasVariationValue1() ? batchMeasure.getVariationValue1() : null,
+        batchMeasure.hasVariationValue2() ? batchMeasure.getVariationValue2() : null,
+        batchMeasure.hasVariationValue3() ? batchMeasure.getVariationValue3() : null,
+        batchMeasure.hasVariationValue4() ? batchMeasure.getVariationValue4() : null,
+        batchMeasure.hasVariationValue5() ? batchMeasure.getVariationValue5() : null
+    );
   }
 
 }

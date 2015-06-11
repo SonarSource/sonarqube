@@ -114,8 +114,30 @@ public class MeasureDtoToMeasure {
         measure.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
       }
     }
+    if (hasAnyVariation(measureDto)) {
+      measure.setVariations(createVariations(measureDto));
+    }
 
     return Optional.of((Measure) measure);
+  }
+
+  private static boolean hasAnyVariation(MeasureDto measureDto) {
+    for (int i = 1; i < 6; i++) {
+      if (measureDto.getVariation(i) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static MeasureVariations createVariations(MeasureDto measureDto) {
+    return new MeasureVariations(
+        measureDto.getVariation(1),
+        measureDto.getVariation(2),
+        measureDto.getVariation(3),
+        measureDto.getVariation(4),
+        measureDto.getVariation(5)
+    );
   }
 
 }
