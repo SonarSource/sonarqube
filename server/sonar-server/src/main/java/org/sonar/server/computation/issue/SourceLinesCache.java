@@ -19,6 +19,12 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset;
@@ -26,13 +32,6 @@ import org.sonar.batch.protocol.output.BatchReport.Changesets.Changeset.Builder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Cache of the lines of the currently processed file. Only a <strong>single</strong> file
@@ -65,13 +64,13 @@ public class SourceLinesCache {
   /**
    * Marks the currently processed component
    */
-  void init(String fileUuid, @Nullable Integer fileReportRef, BatchReportReader thisReportReader) {
-    loaded = false;
-    currentFileUuid = fileUuid;
-    currentFileReportRef = fileReportRef;
-    lastCommitDate = 0L;
-    lastCommitAuthor = null;
-    reportReader = thisReportReader;
+  void init(String fileUuid, @Nullable Integer fileReportRef, BatchReportReader reportReader) {
+    this.loaded = false;
+    this.currentFileUuid = fileUuid;
+    this.currentFileReportRef = fileReportRef;
+    this.lastCommitDate = 0L;
+    this.lastCommitAuthor = null;
+    this.reportReader = reportReader;
     clear();
   }
 
@@ -88,7 +87,7 @@ public class SourceLinesCache {
     }
     String author = null;
     if (lineNumber <= scm.getChangesetIndexByLineCount()) {
-      BatchReport.Changesets.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineNumber-1));
+      BatchReport.Changesets.Changeset changeset = scm.getChangeset(scm.getChangesetIndexByLine(lineNumber - 1));
       author = changeset.hasAuthor() ? changeset.getAuthor() : null;
     }
 
