@@ -43,6 +43,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.db.UserGroupDao;
@@ -492,7 +493,7 @@ public class UserUpdaterTest {
         .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("u1", "u_1")));
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("The default group property 'sonar.defaultGroup' is null");
+      assertThat(e).isInstanceOf(ServerException.class).hasMessage("The default group property 'sonar.defaultGroup' is null");
     }
   }
 
@@ -509,7 +510,7 @@ public class UserUpdaterTest {
         .setPasswordConfirmation("password")
         .setScmAccounts(newArrayList("u1", "u_1")));
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class)
+      assertThat(e).isInstanceOf(ServerException.class)
         .hasMessage("The default group 'polop' for new users does not exist. Please update the general security settings to fix this issue.");
     }
   }

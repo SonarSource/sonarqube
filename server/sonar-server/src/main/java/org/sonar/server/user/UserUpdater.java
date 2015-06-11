@@ -24,6 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.net.HttpURLConnection;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.sonar.core.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
@@ -313,7 +315,7 @@ public class UserUpdater {
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
     final String defaultGroup = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
     if (defaultGroup == null) {
-      throw new IllegalStateException(String.format("The default group property '%s' is null", CoreProperties.CORE_DEFAULT_GROUP));
+      throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, String.format("The default group property '%s' is null", CoreProperties.CORE_DEFAULT_GROUP));
     }
     List<GroupDto> userGroups = dbClient.groupDao().findByUserLogin(dbSession, userDto.getLogin());
     if (!Iterables.any(userGroups, new Predicate<GroupDto>() {
@@ -324,8 +326,9 @@ public class UserUpdater {
     })) {
       GroupDto groupDto = dbClient.groupDao().selectNullableByKey(dbSession, defaultGroup);
       if (groupDto == null) {
-        throw new IllegalStateException(String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
-          defaultGroup));
+        throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
+          String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",
+            defaultGroup));
       }
       dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(userDto.getId()).setGroupId(groupDto.getId()));
     }
