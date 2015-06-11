@@ -49,13 +49,20 @@ define([
     },
 
     onFavoriteClick: function () {
-      var that = this,
-          url = baseUrl + '/favourites/toggle/' + this.model.get('contextId'),
-          isContextFavorite = this.model.get('isContextFavorite');
-      this.model.set({ isContextFavorite: !isContextFavorite });
-      return $.post(url).fail(function () {
-        that.model.set({ isContextFavorite: isContextFavorite });
-      });
+      var that = this;
+      var component = this.model.get('component'),
+          isFavorite = component.isFavorite,
+          urlSuffix = (isFavorite ? '/' : '?key=') + encodeURIComponent(component.key),
+          opts = {
+            url: baseUrl + '/api/favourites' + urlSuffix,
+            success: function () {
+              component.isFavorite = !isFavorite;
+              that.model.trigger('change:component');
+            }
+          };
+      opts.type = isFavorite ? 'DELETE': 'POST';
+      console.log(isFavorite, component);
+      return $.ajax(opts);
     },
 
     serializeData: function () {

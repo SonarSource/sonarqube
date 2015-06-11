@@ -3,7 +3,7 @@
   "uuid": "acfc6a2d-d28c-4302-987c-697544fb096e",
   "name": "MAIF :: Cobol plugin",
   "isComparable": true,
-  "canBeFavorite": false,
+  "canBeFavorite": true,
   "isFavorite": false,
   "dashboards": [
     {
