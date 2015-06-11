@@ -133,6 +133,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
       executorService.shutdown();
       bulkRequestBuilder.setRefresh(hasInlineRefreshRequest);
     } catch (Exception e) {
+      LOGGER.error("Could not execute normalization for stack", e);
       throw new IllegalStateException("Could not execute normalization for stack", e);
     }
   }
