@@ -20,7 +20,8 @@ define([
         this.headerView = new HeaderView({
           collection: this.metrics,
           domains: this.domains,
-          types: this.types
+          types: this.types,
+          app: App
         });
         this.layout.headerRegion.show(this.headerView);
 
@@ -38,20 +39,22 @@ define([
 
         // Go!
         this.metrics.fetch();
-      },
-      requestDomains = function () {
-        return $.get(baseUrl + '/api/metrics/domains').done(function (r) {
-          App.domains = r.domains;
-        });
-      },
-      requestTypes = function () {
-        return $.get(baseUrl + '/api/metrics/types').done(function (r) {
-          App.types = r.types;
-        });
       };
 
+
+  App.requestDomains = function () {
+    return $.get(baseUrl + '/api/metrics/domains').done(function (r) {
+      App.domains = r.domains;
+    });
+  };
+  App.requestTypes = function () {
+    return $.get(baseUrl + '/api/metrics/types').done(function (r) {
+      App.types = r.types;
+    });
+  };
+
   App.on('start', function (options) {
-    $.when(window.requestMessages(), requestDomains(), requestTypes()).done(function () {
+    $.when(window.requestMessages(), App.requestDomains(), App.requestTypes()).done(function () {
       init.call(App, options);
     });
   });

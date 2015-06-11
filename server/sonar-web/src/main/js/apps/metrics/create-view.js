@@ -22,6 +22,9 @@ define([
         }
       }).done(function () {
         that.collection.refresh();
+        if (that.options.domains.indexOf(metric.get('domain')) === -1) {
+          that.options.domains.push(metric.get('domain'));
+        }
         that.destroy();
       }).fail(function (jqXHR) {
         that.enableForm();

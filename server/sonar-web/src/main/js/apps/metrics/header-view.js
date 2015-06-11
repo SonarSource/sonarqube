@@ -19,7 +19,8 @@ define([
       new CreateView({
         collection: this.collection,
         domains: this.options.domains,
-        types: this.options.types
+        types: this.options.types,
+        app: this.options.app
       }).render();
     }
   });
