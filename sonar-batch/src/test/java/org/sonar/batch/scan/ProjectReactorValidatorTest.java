@@ -26,14 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProjectReactorValidatorTest {
 
@@ -42,104 +36,11 @@ public class ProjectReactorValidatorTest {
 
   private ProjectReactorValidator validator;
   private Settings settings;
-  private ResourceDao resourceDao;
 
   @Before
   public void prepare() {
     settings = new Settings();
-    resourceDao = mock(ResourceDao.class);
-    validator = new ProjectReactorValidator(settings, resourceDao);
-  }
-
-  @Test
-  public void not_fail_if_provisioning_enforced_and_project_exists() {
-    String key = "project-key";
-    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
-    when(resourceDao.findByKey(key)).thenReturn(mock(Component.class));
-    ProjectReactor reactor = createProjectReactor(key);
-    validator.validate(reactor);
-  }
-
-  @Test
-  public void not_fail_if_provisioning_enforced_and_project_with_branch_exists() {
-    String key = "project-key";
-    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
-    when(resourceDao.findByKey(key + ":branch")).thenReturn(mock(Component.class));
-    ProjectReactor reactor = createProjectReactor(key, "branch");
-    validator.validate(reactor);
-  }
-
-  @Test(expected = SonarException.class)
-  public void fail_if_provisioning_enforced_and_project_not_provisioned() {
-    String key = "project-key";
-    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
-    when(resourceDao.findByKey(key)).thenReturn(null);
-    ProjectReactor reactor = createProjectReactor(key);
-    validator.validate(reactor);
-  }
-
-  // SONAR-4692
-  @Test(expected = SonarException.class)
-  public void fail_if_module_part_of_another_project() {
-    String rootProjectKey = "project-key";
-    String moduleKey = "module-key";
-    ResourceDto rootResource = mock(ResourceDto.class);
-
-    when(rootResource.getKey()).thenReturn("another-project-key");
-
-    when(resourceDao.getRootProjectByComponentKey(moduleKey)).thenReturn(rootResource);
-    ProjectReactor reactor = createProjectReactor(rootProjectKey);
-    reactor.getRoot().addSubProject(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, moduleKey));
-    validator.validate(reactor);
-  }
-
-  // SONAR-4692
-  @Test
-  public void not_fail_if_module_part_of_same_project() {
-    String rootProjectKey = "project-key";
-    String moduleKey = "module-key";
-    ResourceDto rootResource = mock(ResourceDto.class);
-
-    when(rootResource.getKey()).thenReturn(rootProjectKey);
-
-    when(resourceDao.getRootProjectByComponentKey(moduleKey)).thenReturn(rootResource);
-    ProjectReactor reactor = createProjectReactor(rootProjectKey);
-    reactor.getRoot().addSubProject(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, moduleKey));
-    validator.validate(reactor);
-  }
-
-  // SONAR-4692
-  @Test
-  public void not_fail_if_new_module() {
-    String rootProjectKey = "project-key";
-    String moduleKey = "module-key";
-
-    when(resourceDao.getRootProjectByComponentKey(moduleKey)).thenReturn(null);
-
-    ProjectReactor reactor = createProjectReactor(rootProjectKey);
-    reactor.getRoot().addSubProject(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, moduleKey));
-    validator.validate(reactor);
-  }
-
-  // SONAR-4245
-  @Test
-  public void shouldFailWhenTryingToConvertProjectIntoModule() {
-    String rootProjectKey = "project-key";
-    String moduleKey = "module-key";
-    ResourceDto rootResource = mock(ResourceDto.class);
-
-    when(rootResource.getKey()).thenReturn(moduleKey);
-
-    when(resourceDao.getRootProjectByComponentKey(moduleKey)).thenReturn(rootResource);
-
-    ProjectReactor reactor = createProjectReactor(rootProjectKey);
-    reactor.getRoot().addSubProject(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, moduleKey));
-
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("The project 'module-key' is already defined in SonarQube but not as a module of project 'project-key'. "
-      + "If you really want to stop directly analysing project 'module-key', please first delete it from SonarQube and then relaunch the analysis of project 'project-key'.");
-
-    validator.validate(reactor);
+    validator = new ProjectReactorValidator(settings);
   }
 
   @Test
