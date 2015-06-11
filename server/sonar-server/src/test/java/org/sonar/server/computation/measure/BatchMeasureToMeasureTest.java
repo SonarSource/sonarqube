@@ -23,14 +23,20 @@ import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class BatchMeasureToMeasureTest {
@@ -44,8 +50,17 @@ public class BatchMeasureToMeasureTest {
   private static final String SOME_DATA = "some_data man!";
   private static final String SOME_ALERT_TEXT = "some alert text_be_careFul!";
   private static final BatchReport.Measure EMPTY_BATCH_MEASURE = BatchReport.Measure.newBuilder().build();
+  private static final RuleKey SOME_RULE_KEY = RuleKey.of("A", "B");
+  private static final int SOME_RULE_ID = 9513;
+  private static final RuleDto SOME_RULE = new RuleDto().setRuleKey(SOME_RULE_KEY.toString()).setId(SOME_RULE_ID);
 
-  private BatchMeasureToMeasure underTest = new BatchMeasureToMeasure();
+  private RuleCache ruleCache = mock(RuleCache.class);
+  private BatchMeasureToMeasure underTest = new BatchMeasureToMeasure(ruleCache);
+
+  @Before
+  public void setUp() throws Exception {
+    when(ruleCache.get(SOME_RULE_KEY)).thenReturn(SOME_RULE);
+  }
 
   @Test
   public void toMeasure_returns_absent_for_null_argument() {
@@ -60,6 +75,25 @@ public class BatchMeasureToMeasureTest {
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
     underTest.toMeasure(null, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void toMeasure_throws_IAE_if_batch_Measure_has_both_ruleKey_and_characteristicId() {
+    underTest.toMeasure(BatchReport.Measure.newBuilder().setRuleKey(SOME_RULE_KEY.toString()).setCharactericId(42).build(), SOME_STRING_METRIC);
+  }
+
+  @Test
+  public void toMeasure_maps_characteristicId_if_present() {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder().setCharactericId(42).build();
+
+    assertThat(underTest.toMeasure(batchMeasure, SOME_STRING_METRIC).get().getCharacteristicId()).isEqualTo(42);
+  }
+
+  @Test
+  public void toMeasure_maps_ruleKey_if_present() {
+    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder().setRuleKey(SOME_RULE_KEY.toString()).build();
+
+    assertThat(underTest.toMeasure(batchMeasure, SOME_STRING_METRIC).get().getRuleId()).isEqualTo(SOME_RULE_ID);
   }
 
   @Test

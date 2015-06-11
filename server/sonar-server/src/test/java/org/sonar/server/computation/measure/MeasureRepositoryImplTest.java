@@ -37,6 +37,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
@@ -74,11 +75,12 @@ public class MeasureRepositoryImplTest {
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);
-  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
+  private RuleCache ruleCache = mock(RuleCache.class);
+  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, ruleCache);
 
   private DbClient mockedDbClient = mock(DbClient.class);
   private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
-  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository);
+  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, ruleCache);
 
   @CheckForNull
   private DbSession dbSession;

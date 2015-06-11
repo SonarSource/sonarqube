@@ -281,7 +281,7 @@ public class QualityProfileEventsStepTest {
   }
 
   private static Measure newMeasure(@Nullable QualityProfile... qps) {
-    return MeasureImpl.create(toJson(qps));
+    return MeasureImpl.builder().create(toJson(qps));
   }
 
   private static String toJson(@Nullable QualityProfile... qps) {

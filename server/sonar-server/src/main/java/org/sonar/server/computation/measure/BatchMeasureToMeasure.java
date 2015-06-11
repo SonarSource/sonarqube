@@ -22,10 +22,18 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 
 public class BatchMeasureToMeasure {
+  private final RuleCache ruleCache;
+
+  public BatchMeasureToMeasure(RuleCache ruleCache) {
+    this.ruleCache = ruleCache;
+  }
 
   public Optional<Measure> toMeasure(@Nullable BatchReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
@@ -33,75 +41,90 @@ public class BatchMeasureToMeasure {
       return Optional.absent();
     }
 
+    MeasureImpl.Builder builder = createBuilder(batchMeasure);
     String data = batchMeasure.hasStringValue() ? batchMeasure.getStringValue() : null;
     switch (metric.getType().getValueType()) {
       case INT:
-        return toIntegerMeasure(batchMeasure, data);
+        return toIntegerMeasure(builder, batchMeasure, data);
       case LONG:
-        return toLongMeasure(batchMeasure, data);
+        return toLongMeasure(builder, batchMeasure, data);
       case DOUBLE:
-        return toDoubleMeasure(batchMeasure, data);
+        return toDoubleMeasure(builder, batchMeasure, data);
       case BOOLEAN:
-        return toBooleanMeasure(batchMeasure, data);
+        return toBooleanMeasure(builder, batchMeasure, data);
       case STRING:
-        return toStringMeasure(batchMeasure);
+        return toStringMeasure(builder, batchMeasure);
       case LEVEL:
-        return toLevelMeasure(batchMeasure);
+        return toLevelMeasure(builder, batchMeasure);
       case NO_VALUE:
-        return toNoValueMeasure(batchMeasure);
+        return toNoValueMeasure(builder, batchMeasure);
       default:
         throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
   }
 
-  private static Optional<Measure> toIntegerMeasure(BatchReport.Measure batchMeasure, @Nullable String data) {
+  private MeasureImpl.Builder createBuilder(BatchReport.Measure batchMeasure) {
+    if (batchMeasure.hasCharactericId() && batchMeasure.hasRuleKey()) {
+      throw new IllegalArgumentException("Measure with both characteristicId and ruleKey are not supported");
+    }
+    if (batchMeasure.hasCharactericId()) {
+      return MeasureImpl.builder().forCharacteristic(batchMeasure.getCharactericId());
+    }
+    if (batchMeasure.hasRuleKey()) {
+      RuleDto ruleDto = ruleCache.get(RuleKey.parse(batchMeasure.getRuleKey()));
+      return MeasureImpl.builder().forRule(ruleDto.getId());
+    }
+    return MeasureImpl.builder();
+  }
+
+  private static Optional<Measure> toIntegerMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasIntValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(batchMeasure.getIntValue(), data), batchMeasure);
+    return toMeasure(builder.create(batchMeasure.getIntValue(), data), batchMeasure);
   }
 
-  private static Optional<Measure> toLongMeasure(BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toLongMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasLongValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(batchMeasure.getLongValue(), data), batchMeasure);
+    return toMeasure(builder.create(batchMeasure.getLongValue(), data), batchMeasure);
   }
 
-  private static Optional<Measure> toDoubleMeasure(BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toDoubleMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasDoubleValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(batchMeasure.getDoubleValue(), data), batchMeasure);
+    return toMeasure(builder.create(batchMeasure.getDoubleValue(), data), batchMeasure);
   }
 
-  private static Optional<Measure> toBooleanMeasure(BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toBooleanMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasBooleanValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(batchMeasure.getBooleanValue(), data), batchMeasure);
+    return toMeasure(builder.create(batchMeasure.getBooleanValue(), data), batchMeasure);
   }
 
-  private static Optional<Measure> toStringMeasure(BatchReport.Measure batchMeasure) {
+  private static Optional<Measure> toStringMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(batchMeasure.getStringValue()), batchMeasure);
+    return toMeasure(builder.create(batchMeasure.getStringValue()), batchMeasure);
   }
   
-  private static Optional<Measure> toLevelMeasure(BatchReport.Measure batchMeasure) {
+  private static Optional<Measure> toLevelMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
     Optional<Measure.Level> level = Measure.Level.toLevel(batchMeasure.getStringValue());
     if (!level.isPresent()) {
-      return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+      return toMeasure(builder.createNoValue(), batchMeasure);
     }
-    return toMeasure(MeasureImpl.create(level.get()), batchMeasure);
+    return toMeasure(builder.create(level.get()), batchMeasure);
   }
 
-  private static Optional<Measure> toNoValueMeasure(BatchReport.Measure batchMeasure) {
-    return toMeasure(MeasureImpl.createNoValue(), batchMeasure);
+  private static Optional<Measure> toNoValueMeasure(MeasureImpl.Builder builder, BatchReport.Measure batchMeasure) {
+    return toMeasure(builder.createNoValue(), batchMeasure);
   }
 
   private static Optional<Measure> toMeasure(MeasureImpl measure, BatchReport.Measure batchMeasure) {

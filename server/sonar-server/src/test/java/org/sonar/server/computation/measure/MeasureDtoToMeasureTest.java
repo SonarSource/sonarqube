@@ -23,7 +23,9 @@ import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.measure.Measure.Level;
@@ -46,6 +48,9 @@ public class MeasureDtoToMeasureTest {
   private static final String SOME_ALERT_TEXT = "some alert text_be_careFul!";
   private static final MeasureDto EMPTY_MEASURE_DTO = new MeasureDto();
 
+  @Rule
+  public final ExpectedException expectedException = ExpectedException.none();
+
   private MeasureDtoToMeasure underTest = new MeasureDtoToMeasure();
 
   @Test
@@ -61,6 +66,22 @@ public class MeasureDtoToMeasureTest {
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
     underTest.toMeasure(null, null);
+  }
+
+  @Test
+  public void toMeasure_throws_IAE_if_MeasureDto_has_non_null_ruleId() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Measures with ruleId are not supported");
+
+    underTest.toMeasure(new MeasureDto().setRuleId(12), SOME_STRING_METRIC);
+  }
+
+  @Test
+  public void toMeasure_throws_IAE_if_MeasureDto_has_non_null_characteristicId() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Measures with characteristicId are not supported");
+
+    underTest.toMeasure(new MeasureDto().setCharacteristicId(12), SOME_STRING_METRIC);
   }
 
   @Test

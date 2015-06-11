@@ -35,6 +35,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
@@ -46,13 +47,15 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
   private final MeasureDtoToMeasure measureDtoToMeasure = new MeasureDtoToMeasure();
-  private final BatchMeasureToMeasure batchMeasureToMeasure = new BatchMeasureToMeasure();
+  private final BatchMeasureToMeasure batchMeasureToMeasure;
   private final Function<BatchReport.Measure, Measure> batchMeasureToMeasureFunction;
   private final Map<Integer, Map<String, Measure>> measures = new HashMap<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, final MetricRepository metricRepository) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader,
+    final MetricRepository metricRepository, final RuleCache ruleCache) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
+    this.batchMeasureToMeasure = new BatchMeasureToMeasure(ruleCache);
 
     this.batchMeasureToMeasureFunction = new Function<BatchReport.Measure, Measure>() {
       @Nullable

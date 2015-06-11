@@ -56,6 +56,12 @@ public interface Measure {
     }
   }
 
+  @CheckForNull
+  Integer getRuleId();
+
+  @CheckForNull
+  Integer getCharacteristicId();
+
   /**
    * The type of value stored in the measure.
    */
@@ -136,5 +142,13 @@ public interface Measure {
    * @throws IllegalStateException if the measure has no MeasureVariations
    */
   MeasureVariations getVariations();
+
+  /**
+   * The optional description of the measure. Relevant for manual measures.
+   */
+  @CheckForNull
+  String getDescription();
+
+
 
 }

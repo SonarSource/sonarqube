@@ -28,33 +28,36 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.server.computation.measure.Measure.ValueType;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.computation.measure.MeasureImpl.builder;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureImplTest {
 
-  private static final MeasureImpl INT_MEASURE = MeasureImpl.create((int) 1, null);
-  private static final MeasureImpl LONG_MEASURE = MeasureImpl.create(1l, null);
-  private static final MeasureImpl DOUBLE_MEASURE = MeasureImpl.create(1d, null);
-  private static final MeasureImpl STRING_MEASURE = MeasureImpl.create("some_sT ring");
-  private static final MeasureImpl TRUE_MEASURE = MeasureImpl.create(true, null);
-  private static final MeasureImpl FALSE_MEASURE = MeasureImpl.create(false, null);
-  private static final MeasureImpl LEVEL_MEASURE = MeasureImpl.create(Measure.Level.OK);
-  private static final MeasureImpl NO_VALUE_MEASURE = MeasureImpl.createNoValue();
+  private static final MeasureImpl INT_MEASURE = builder().create((int) 1, null);
+  private static final MeasureImpl LONG_MEASURE = builder().create(1l, null);
+  private static final MeasureImpl DOUBLE_MEASURE = builder().create(1d, null);
+  private static final MeasureImpl STRING_MEASURE = builder().create("some_sT ring");
+  private static final MeasureImpl TRUE_MEASURE = builder().create(true, null);
+  private static final MeasureImpl FALSE_MEASURE = builder().create(false, null);
+  private static final MeasureImpl LEVEL_MEASURE = builder().create(Measure.Level.OK);
+  private static final MeasureImpl NO_VALUE_MEASURE = builder().createNoValue();
 
   private static final List<MeasureImpl> MEASURES = ImmutableList.of(
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE
     );
+  private static final int SOME_RULE_ID = 95236;
+  private static final int SOME_CHARACTERISTIC_ID = 42;
 
-  @Test(expected = NullPointerException.class)
-  public void create_from_String_throws_NPE_if_arg_is_null() {
-    MeasureImpl.create((String) null);
-  }
+  @Rule
+  public final ExpectedException executionException = ExpectedException.none();
 
   @DataProvider
   public static Object[][] all_but_INT_MEASURE() {
@@ -96,10 +99,53 @@ public class MeasureImplTest {
       .filter(new Predicate<MeasureImpl>() {
         @Override
         public boolean apply(@Nonnull MeasureImpl input) {
-            return input.getValueType() != valueType;
+          return input.getValueType() != valueType;
         }
       }).transform(WrapInArray.INSTANCE)
-        .toArray(MeasureImpl[].class);
+      .toArray(MeasureImpl[].class);
+  }
+
+  @Test
+  public void forRule_throw_UOE_if_characteristicId_is_already_set() {
+    executionException.expect(UnsupportedOperationException.class);
+    executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
+
+    builder().forCharacteristic(SOME_CHARACTERISTIC_ID).forRule(SOME_RULE_ID);
+  }
+
+  @Test
+  public void forCharacteristic_throw_UOE_if_ruleKey_is_already_set() {
+    executionException.expect(UnsupportedOperationException.class);
+    executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
+
+    builder().forRule(SOME_RULE_ID).forCharacteristic(SOME_CHARACTERISTIC_ID);
+  }
+
+  @Test
+  public void getRuleId_returns_null_when_ruleKey_has_not_been_set() {
+    assertThat(builder().createNoValue().getRuleId()).isNull();
+    assertThat(builder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getRuleId()).isNull();
+  }
+
+  @Test
+  public void getRuleId_returns_key_set_in_builder() {
+    assertThat(builder().forRule(SOME_RULE_ID).createNoValue().getRuleId()).isEqualTo(SOME_RULE_ID);
+  }
+
+  @Test
+  public void getCharacteristicId_returns_null_when_ruleKey_has_not_been_set() {
+    assertThat(builder().createNoValue().getCharacteristicId()).isNull();
+    assertThat(builder().forRule(SOME_RULE_ID).createNoValue().getCharacteristicId()).isNull();
+  }
+
+  @Test
+  public void getCharacteristicId_returns_id_set_in_builder() {
+    assertThat(builder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void create_from_String_throws_NPE_if_arg_is_null() {
+    builder().create((String) null);
   }
 
   @Test
@@ -217,13 +263,13 @@ public class MeasureImplTest {
   public void getAlertStatus_returns_argument_from_setAlertStatus() {
     QualityGateStatus someStatus = new QualityGateStatus(Measure.Level.OK);
 
-    assertThat(MeasureImpl.create(true, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create(false, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create((int) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create((long) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create((double) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create("str").setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(MeasureImpl.create(Measure.Level.OK).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create(true, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create(false, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create((int) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create((long) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create((double) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create("str").setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(builder().create(Measure.Level.OK).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
   }
 
   @Test(expected = NullPointerException.class)
@@ -236,11 +282,11 @@ public class MeasureImplTest {
   public void getData_returns_argument_from_factory_method() {
     String someData = "lololool";
 
-    assertThat(MeasureImpl.create(true, someData).getData()).isEqualTo(someData);
-    assertThat(MeasureImpl.create(false, someData).getData()).isEqualTo(someData);
-    assertThat(MeasureImpl.create((int) 1, someData).getData()).isEqualTo(someData);
-    assertThat(MeasureImpl.create((long) 1, someData).getData()).isEqualTo(someData);
-    assertThat(MeasureImpl.create((double) 1, someData).getData()).isEqualTo(someData);
+    assertThat(builder().create(true, someData).getData()).isEqualTo(someData);
+    assertThat(builder().create(false, someData).getData()).isEqualTo(someData);
+    assertThat(builder().create((int) 1, someData).getData()).isEqualTo(someData);
+    assertThat(builder().create((long) 1, someData).getData()).isEqualTo(someData);
+    assertThat(builder().create((double) 1, someData).getData()).isEqualTo(someData);
   }
 
   @Test

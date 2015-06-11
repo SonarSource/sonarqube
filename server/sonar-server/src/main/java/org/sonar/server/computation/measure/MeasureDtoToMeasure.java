@@ -20,20 +20,23 @@
 package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
-import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.metric.Metric;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.measure.Measure.Level.toLevel;
 
 public class MeasureDtoToMeasure {
 
   public Optional<Measure> toMeasure(@Nullable MeasureDto measureDto, Metric metric) {
-    Objects.requireNonNull(metric);
+    requireNonNull(metric);
     if (measureDto == null) {
       return Optional.absent();
     }
+    checkArgument(measureDto.getCharacteristicId() == null, "Measures with characteristicId are not supported");
+    checkArgument(measureDto.getRuleId() == null, "Measures with ruleId are not supported");
 
     Double value = measureDto.getValue();
     String data = measureDto.getData();
@@ -59,52 +62,52 @@ public class MeasureDtoToMeasure {
 
   private static Optional<Measure> toIntegerMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(value.intValue(), data), measureDto);
+    return toMeasure(MeasureImpl.builder().create(value.intValue(), data), measureDto);
   }
 
   private static Optional<Measure> toLongMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(value.longValue(), data), measureDto);
+    return toMeasure(MeasureImpl.builder().create(value.longValue(), data), measureDto);
   }
 
   private static Optional<Measure> toDoubleMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(value.doubleValue(), data), measureDto);
+    return toMeasure(MeasureImpl.builder().create(value.doubleValue(), data), measureDto);
   }
 
   private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(value == 1.0d, data), measureDto);
+    return toMeasure(MeasureImpl.builder().create(value == 1.0d, data), measureDto);
   }
 
   private static Optional<Measure> toStringMeasure(MeasureDto measureDto, @Nullable String data) {
     if (data == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(data), measureDto);
+    return toMeasure(MeasureImpl.builder().create(data), measureDto);
   }
 
   private static Optional<Measure> toLevelMeasure(MeasureDto measureDto, @Nullable String data) {
     if (data == null) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
     Optional<Measure.Level> level = toLevel(data);
     if (!level.isPresent()) {
-      return toMeasure(MeasureImpl.createNoValue(), measureDto);
+      return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
     }
-    return toMeasure(MeasureImpl.create(level.get()), measureDto);
+    return toMeasure(MeasureImpl.builder().create(level.get()), measureDto);
   }
 
   private static Optional<Measure> toNoValueMeasure(MeasureDto measureDto) {
-    return toMeasure(MeasureImpl.createNoValue(), measureDto);
+    return toMeasure(MeasureImpl.builder().createNoValue(), measureDto);
   }
 
   private static Optional<Measure> toMeasure(MeasureImpl measure, MeasureDto measureDto) {
