@@ -21,10 +21,24 @@
 #
 # Sonar 2.14
 #
-class AddProjectsPersonId < ActiveRecord::Migration
+class CreateRuleAndActiveRuleNotes < ActiveRecord::Migration
 
   def self.up
-    add_column 'projects', 'person_id', :integer, :null => true
+    create_table :active_rule_notes do |t|
+      t.timestamps
+      t.column :active_rule_id,     :integer,     :null => true
+      t.column :user_login,         :string,      :null => true,    :limit => 40
+      t.column :data,               :binary,      :null => true
+    end
+    add_index :active_rule_notes, :active_rule_id, :name => 'arn_active_rule_id'
+    
+    create_table :rule_notes do |t|
+      t.timestamps
+      t.column :rule_id,        :integer,     :null => true
+      t.column :user_login,     :string,      :null => true,    :limit => 40
+      t.column :data,           :binary,      :null => true
+    end
+    add_index :rule_notes, :rule_id, :name => 'rule_notes_rule_id'
   end
 
 end
