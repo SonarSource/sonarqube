@@ -43,6 +43,7 @@ public class ComputationSteps {
       BuildComponentTreeStep.class,
       FillComponentsStep.class,
       ValidateProjectStep.class,
+      FeedDebtModelStep.class,
 
       // Read report
       ParseReportStep.class,

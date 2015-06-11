@@ -24,12 +24,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -49,6 +47,7 @@ public class DefaultDebtModel implements DebtModel {
     characteristicsByKey.put(null, characteristic);
     return this;
   }
+
 
   public DefaultDebtModel addSubCharacteristic(DebtCharacteristic subCharacteristic, String characteristicKey) {
     characteristicsByKey.put(characteristicKey, subCharacteristic);

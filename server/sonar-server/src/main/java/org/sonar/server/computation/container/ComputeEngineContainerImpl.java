@@ -40,6 +40,7 @@ import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
+import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueComputation;
@@ -131,6 +132,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
+      DebtModelHolderImpl.class,
 
       BatchReportReaderImpl.class,
 
