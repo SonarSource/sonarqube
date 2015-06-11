@@ -61,7 +61,6 @@ define([
             }
           };
       opts.type = isFavorite ? 'DELETE': 'POST';
-      console.log(isFavorite, component);
       return $.ajax(opts);
     },
 
