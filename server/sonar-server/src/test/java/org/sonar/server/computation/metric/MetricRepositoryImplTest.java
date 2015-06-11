@@ -80,13 +80,14 @@ public class MetricRepositoryImplTest {
   }
 
   private void verify_mapping_and_valueType_conversion_from_DB_impl(String valueType, Metric.MetricType expected) {
-    MetricDto metricDto = new MetricDto().setKey(SOME_KEY + valueType).setShortName(SOME_NAME).setValueType(valueType);
+    MetricDto metricDto = new MetricDto().setId(SOME_KEY.hashCode()).setKey(SOME_KEY + valueType).setShortName(SOME_NAME).setValueType(valueType);
 
     dbClient.metricDao().insert(dbSession, metricDto);
     dbSession.commit();
 
     Metric metric = underTest.getByKey(metricDto.getKey());
 
+    assertThat(metric.getId()).isEqualTo(metricDto.getId());
     assertThat(metric.getKey()).isEqualTo(metricDto.getKey());
     assertThat(metric.getName()).isEqualTo(metricDto.getShortName());
     assertThat(metric.getType()).isEqualTo(expected);

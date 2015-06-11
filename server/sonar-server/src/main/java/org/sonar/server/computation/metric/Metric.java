@@ -23,6 +23,11 @@ import org.sonar.server.computation.measure.Measure;
 
 public interface Metric {
   /**
+   * The metric's id (ie. its database identifier)
+   */
+  int getId();
+
+  /**
    * The Metric's key is its domain identifier.
    */
   String getKey();

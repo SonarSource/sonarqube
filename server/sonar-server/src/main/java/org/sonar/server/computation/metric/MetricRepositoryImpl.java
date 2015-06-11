@@ -59,7 +59,7 @@ public class MetricRepositoryImpl implements MetricRepository {
   }
 
   private static Metric toMetric(MetricDto metricDto) {
-    return new MetricImpl(metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()));
+    return new MetricImpl(metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()));
   }
 
 }

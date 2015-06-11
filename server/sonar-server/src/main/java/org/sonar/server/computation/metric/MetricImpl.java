@@ -28,14 +28,21 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public final class MetricImpl implements Metric {
 
+  private final int id;
   private final String key;
   private final String name;
   private final MetricType type;
 
-  public MetricImpl(String key, String name, MetricType type) {
+  public MetricImpl(int id, String key, String name, MetricType type) {
+    this.id = id;
     this.key = requireNonNull(key);
     this.name = requireNonNull(name);
     this.type = requireNonNull(type);
+  }
+
+  @Override
+  public int getId() {
+    return id;
   }
 
   @Override
@@ -73,6 +80,7 @@ public final class MetricImpl implements Metric {
   @Override
   public String toString() {
     return com.google.common.base.Objects.toStringHelper(this)
+        .add("id", id)
         .add("key", key)
         .add("name", name)
         .add("type", type)
