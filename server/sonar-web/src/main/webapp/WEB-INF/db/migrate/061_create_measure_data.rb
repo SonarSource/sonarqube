@@ -25,7 +25,8 @@ class CreateMeasureData < ActiveRecord::Migration
       t.column :snapshot_id, :integer, :null => true
       t.column :data, :binary, :null => true
     end
-    add_index :measure_data, :measure_id, :name => 'measure_data_measure_id'   
+    add_index :measure_data, :measure_id, :name => 'measure_data_measure_id'
+    add_index :measure_data, :snapshot_id, :name => 'm_data_sid'
   end
 
 end

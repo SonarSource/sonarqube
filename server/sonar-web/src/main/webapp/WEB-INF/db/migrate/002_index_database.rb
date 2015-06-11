@@ -20,11 +20,14 @@
 class IndexDatabase < ActiveRecord::Migration
   
   def self.up
+    add_index 'projects', 'root_id', :name => 'projects_root_id'
+    add_index :project_measures, [:snapshot_id, :metric_id], :name => 'measures_sid_metric'
     add_index :rules_parameters, :rule_id, :name => 'rules_parameters_rule_id'
 
     add_index :snapshots, :project_id, :name => 'snapshot_project_id'
     add_index :snapshots, :parent_snapshot_id, :name => 'snapshots_parent'
     add_index :snapshots, :root_snapshot_id, :name => 'snapshots_root'
+    add_index :snapshots, :qualifier, :name => 'snapshots_qualifier'
     
     add_index :metrics, :name, :unique => true, :name => 'metrics_unique_name'       
   end
