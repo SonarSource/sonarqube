@@ -30,7 +30,7 @@ var initMessages = function () {
 exports.initMessages = initMessages;
 
 
-function getFileName(path) {
+function getFileName (path) {
   var idx = path.lastIndexOf(fs.separator),
       dotIdx = path.lastIndexOf('.');
   return path.substr(idx + 1, dotIdx - idx - 1);
@@ -99,7 +99,7 @@ exports.clearRequestMock = function (mockId) {
 };
 
 
-function patchWithTimestamp(url) {
+function patchWithTimestamp (url) {
   var t = Date.now(),
       hashStart = url.indexOf('#'),
       hash = hashStart !== -1 ? url.substr(hashStart) : '',
@@ -127,9 +127,7 @@ exports.capture = function (fileName) {
   if (!fileName) {
     fileName = 'screenshot.png';
   }
-  casper.wait(500, function () {
-    casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
-  });
+  casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
 };
 
 
@@ -176,8 +174,25 @@ var describe = global.describe = function (name, fn) {
 };
 
 
+var xdescribe = global.xdescribe = function (name) {
+  return casper.test.begin(name, 0, function (test) {
+    casper
+        .start()
+        .then(function () {
+          test.assert(true, '∅ ignored');
+        })
+        .run(function () {
+          test.done();
+        });
+  });
+};
+
+
 var it = global.it = function (name, testCount, fn) {
   var testName = this._extraName + ' ' + name;
+  if (typeof testCount !== 'number') {
+    casper.die('please set the number of tests for ' + testName);
+  }
   var patchedFn = function (test) {
     var startTime = new Date().getTime();
     fn(casper, test)
@@ -204,7 +219,10 @@ var xit = global.xit = function (name) {
   var testName = this._extraName + ' ' + name;
   return casper.test.begin(testName, function (test) {
     casper
-        .echo('IGNORED', 'WARNING')
+        .start()
+        .then(function () {
+          casper.echo('IGNORED', 'WARNING');
+        })
         .run(function () {
           test.done();
         });
