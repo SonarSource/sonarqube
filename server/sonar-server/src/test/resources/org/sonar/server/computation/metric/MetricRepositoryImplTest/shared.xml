@@ -1,0 +1,7 @@
+<dataset>
+    <!-- enabled metrics -->
+    <metrics id="1" name="ncloc" VAL_TYPE="INT" short_name="ncloc_name" enabled="[true]" />
+    <metrics id="2" name="coverage" VAL_TYPE="INT" short_name="coverage_name" enabled="[true]" />
+    <!-- disabled metric -->
+    <metrics id="3" name="complexity" VAL_TYPE="INT" short_name="complexity_name" enabled="[false]" />
+</dataset>

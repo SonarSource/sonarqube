@@ -19,14 +19,12 @@
  */
 package org.sonar.server.computation.metric;
 
-import javax.annotation.CheckForNull;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.persistence.DbSession;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -36,71 +34,99 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class MetricRepositoryImplTest {
-  private static final String SOME_KEY = "some key";
-  private static final String SOME_NAME = "the short name";
+  private static final String SOME_KEY = "some_key";
+  private static final long SOME_ID = 156;
 
   @ClassRule
   public static final DbTester dbTester = new DbTester();
+  @Rule
+  public final ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao());
-  private MetricRepository underTest = new MetricRepositoryImpl(dbClient);
-
-  @CheckForNull
-  private DbSession dbSession;
+  private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);
 
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
   }
 
-  @After
-  public void tearDown() throws Exception {
-    if (dbSession != null) {
-      dbSession.close();
-    }
-  }
-
   @Test(expected = NullPointerException.class)
-  public void findByKey_throws_NPE_if_arg_is_null() {
+  public void getByKey_throws_NPE_if_arg_is_null() {
     underTest.getByKey(null);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void findByKey_throws_ISE_of_Metric_does_not_exist() {
+  @Test
+  public void getByKey_throws_ISE_if_start_has_not_been_called() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Metric cache has not been initialized");
+
     underTest.getByKey(SOME_KEY);
   }
 
   @Test
-  public void verify_mapping_and_valueType_conversion_from_DB() {
-    dbSession = dbClient.openSession(false);
+  public void getByKey_throws_ISE_of_Metric_does_not_exist() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Metric with key '%s' does not exist", SOME_KEY));
 
-    for (Metric.MetricType metricType : Metric.MetricType.values()) {
-      verify_mapping_and_valueType_conversion_from_DB_impl(metricType.name(), metricType);
-    }
-  }
-
-  private void verify_mapping_and_valueType_conversion_from_DB_impl(String valueType, Metric.MetricType expected) {
-    MetricDto metricDto = new MetricDto().setId(SOME_KEY.hashCode()).setKey(SOME_KEY + valueType).setShortName(SOME_NAME).setValueType(valueType);
-
-    dbClient.metricDao().insert(dbSession, metricDto);
-    dbSession.commit();
-
-    Metric metric = underTest.getByKey(metricDto.getKey());
-
-    assertThat(metric.getId()).isEqualTo(metricDto.getId());
-    assertThat(metric.getKey()).isEqualTo(metricDto.getKey());
-    assertThat(metric.getName()).isEqualTo(metricDto.getShortName());
-    assertThat(metric.getType()).isEqualTo(expected);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void findByKey_throws_IAE_if_valueType_can_not_be_parsed() {
-    MetricDto metricDto = new MetricDto().setKey(SOME_KEY).setShortName(SOME_NAME).setValueType("trololo");
-
-    dbSession = dbClient.openSession(false);
-    dbClient.metricDao().insert(dbSession, metricDto);
-    dbSession.commit();
-
+    underTest.start();
     underTest.getByKey(SOME_KEY);
   }
+
+  @Test
+  public void getByKey_throws_ISE_of_Metric_is_disabled() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Metric with key '%s' does not exist", "complexity"));
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.start();
+    underTest.getByKey("complexity");
+  }
+
+  @Test
+  public void getByKey_find_enabled_Metrics() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.start();
+    assertThat(underTest.getByKey("ncloc").getId()).isEqualTo(1);
+    assertThat(underTest.getByKey("coverage").getId()).isEqualTo(2);
+  }
+
+  @Test
+  public void getById_throws_ISE_if_start_has_not_been_called() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Metric cache has not been initialized");
+
+    underTest.getById(SOME_ID);
+  }
+
+  @Test
+  public void getById_throws_ISE_of_Metric_does_not_exist() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", SOME_ID));
+
+    underTest.start();
+    underTest.getById(SOME_ID);
+  }
+
+  @Test
+  public void getById_throws_ISE_of_Metric_is_disabled() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", 3));
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.start();
+    underTest.getById(3);
+  }
+
+  @Test
+  public void getById_find_enabled_Metrics() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.start();
+    assertThat(underTest.getById(1).getKey()).isEqualTo("ncloc");
+    assertThat(underTest.getById(2).getKey()).isEqualTo("coverage");
+  }
+
 }

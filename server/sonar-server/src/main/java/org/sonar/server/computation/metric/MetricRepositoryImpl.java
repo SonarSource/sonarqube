@@ -19,47 +19,91 @@
  */
 package org.sonar.server.computation.metric;
 
+import com.google.common.base.Function;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import org.picocontainer.Startable;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 
+import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
-public class MetricRepositoryImpl implements MetricRepository {
+public class MetricRepositoryImpl implements MetricRepository, Startable {
   private final DbClient dbClient;
+  @CheckForNull
+  private Map<String, Metric> metricsByKey;
+  @CheckForNull
+  private Map<Long, Metric> metricsById;
 
   public MetricRepositoryImpl(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
   @Override
-  public Metric getByKey(String key) {
-    requireNonNull(key);
-
+  public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      MetricDto metricDto = dbClient.metricDao().selectNullableByKey(dbSession, key);
-      if (metricDto == null) {
-        throw new IllegalStateException(String.format("Metric with key '%s' does not exist", key));
-      }
-
-      return toMetric(metricDto);
+      List<MetricDto> metricList = dbClient.metricDao().selectEnabled(dbSession);
+      this.metricsByKey = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToKey.INSTANCE);
+      this.metricsById = from(metricList).transform(MetricDtoToMetric.INSTANCE).uniqueIndex(MetricToId.INSTANCE);
     }
   }
 
   @Override
-  public Metric getById(long id) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      MetricDto metricDto = dbClient.metricDao().selectNullableById(dbSession, id);
-      if (metricDto == null) {
-        throw new IllegalStateException(String.format("Metric with id '%s' does not exist", id));
-      }
+  public void stop() {
+    // nothing to do when stopping
+  }
 
-      return toMetric(metricDto);
+  @Override
+  public Metric getByKey(String key) {
+    requireNonNull(key);
+    verifyMetricsInitialized();
+
+    Metric res = this.metricsByKey.get(key);
+    if (res == null) {
+      throw new IllegalStateException(String.format("Metric with key '%s' does not exist", key));
+    }
+    return res;
+  }
+
+  @Override
+  public Metric getById(long id) {
+    verifyMetricsInitialized();
+
+    Metric res = this.metricsById.get(id);
+    if (res == null) {
+      throw new IllegalStateException(String.format("Metric with id '%s' does not exist", id));
+    }
+    return res;
+  }
+
+  private void verifyMetricsInitialized() {
+    if (this.metricsByKey == null) {
+      throw new IllegalStateException("Metric cache has not been initialized");
     }
   }
 
-  private static Metric toMetric(MetricDto metricDto) {
-    return new MetricImpl(metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()));
+  private enum MetricToKey implements Function<Metric, String> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public String apply(@Nonnull Metric metric) {
+      return metric.getKey();
+    }
+  }
+
+  private enum MetricToId implements Function<Metric, Long> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public Long apply(@Nonnull Metric metric) {
+      return (long) metric.getId();
+    }
   }
 
 }
