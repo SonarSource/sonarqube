@@ -29,6 +29,7 @@ define(['components/common/modals'], function (ModalView) {
 
     events: function () {
       return _.extend(ModalView.prototype.events.apply(this, arguments), {
+        'keydown input,textarea,select': 'onInputKeydown',
         'submit form': 'onFormSubmit'
       });
     },
@@ -39,6 +40,13 @@ define(['components/common/modals'], function (ModalView) {
       setTimeout(function () {
         that.$(':tabbable').first().focus();
       }, 0);
+    },
+
+    onInputKeydown: function (e) {
+      if (e.keyCode === 27) {
+        // escape
+        this.destroy();
+      }
     },
 
     onFormSubmit: function (e) {
