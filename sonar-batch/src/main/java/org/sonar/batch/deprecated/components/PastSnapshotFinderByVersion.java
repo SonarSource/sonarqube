@@ -19,15 +19,13 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.components.PastSnapshot;
-
 import java.util.Date;
 import java.util.List;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -41,12 +39,11 @@ public class PastSnapshotFinderByVersion {
   }
 
   public PastSnapshot findByVersion(Snapshot projectSnapshot, String version) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt desc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where version=:version AND resourceId=:resourceId AND status=:status order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("version", version)
       .setParameter("resourceId", projectSnapshot.getResourceId())
       .setParameter("status", Snapshot.STATUS_PROCESSED)
-      .setParameter("lib", Qualifiers.LIBRARY)
       .setMaxResults(1)
       .getResultList();
 

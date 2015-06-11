@@ -20,6 +20,12 @@
 package org.sonar.batch.components;
 
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
+import javax.persistence.Query;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
@@ -27,16 +33,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-
-import javax.annotation.Nullable;
-import javax.persistence.Query;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Can't be moved. Used by devcockpit.
@@ -80,14 +77,13 @@ public class PastMeasuresLoader {
     String sql = "select m.metric_id, m.characteristic_id, m.person_id, m.rule_id, m.value from project_measures m, snapshots s" +
       " where m.snapshot_id=s.id and m.metric_id in (:metricIds) " +
       "       and (s.root_snapshot_id=:rootSnapshotId or s.id=:rootSnapshotId) " +
-      "       and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib"
+      "       and s.status=:status and s.project_id=(select p.id from projects p where p.kee=:resourceKey"
       + (StringUtils.isNotBlank(path) ? " and p.path=:path" : "")
       + ")";
     Query q = session.createNativeQuery(sql)
       .setParameter("metricIds", metricByIds.keySet())
       .setParameter("rootSnapshotId", ObjectUtils.defaultIfNull(projectPastSnapshot.getRootId(), projectPastSnapshot.getId()))
       .setParameter("resourceKey", resourceKey)
-      .setParameter("lib", Qualifiers.LIBRARY)
       .setParameter("status", Snapshot.STATUS_PROCESSED);
     if (StringUtils.isNotBlank(path)) {
       q.setParameter("path", path);

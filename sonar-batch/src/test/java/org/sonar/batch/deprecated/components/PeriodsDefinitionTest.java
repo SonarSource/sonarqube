@@ -59,7 +59,7 @@ public class PeriodsDefinitionTest extends AbstractDbUnitTestCase {
     verify(pastSnapshotFinder).find(argThat(new ArgumentMatcher<Snapshot>() {
       @Override
       public boolean matches(Object o) {
-        return ((Snapshot) o).getResourceId() == 2 /* see database in shared.xml */;
+        return ((Snapshot) o).getResourceId() == 1 /* see database in shared.xml */;
       }
     }), anyString(), eq(settings), eq(1));
   }

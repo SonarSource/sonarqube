@@ -19,18 +19,15 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.batch.components.PastSnapshot;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.batch.components.PastSnapshot;
 
 @BatchSide
 public class PastSnapshotFinderByDays {
@@ -43,12 +40,11 @@ public class PastSnapshotFinderByDays {
 
   public PastSnapshot findFromDays(Snapshot projectSnapshot, int days) {
     Date targetDate = DateUtils.addDays(projectSnapshot.getCreatedAt(), -days);
-    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt<:date AND qualifier<>:lib order by createdAt asc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where resourceId=:resourceId AND status=:status AND createdAt<:date order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("date", projectSnapshot.getCreatedAtMs())
       .setParameter("resourceId", projectSnapshot.getResourceId())
       .setParameter("status", Snapshot.STATUS_PROCESSED)
-      .setParameter("lib", Qualifiers.LIBRARY)
       .getResultList();
 
     Snapshot snapshot = getNearestToTarget(snapshots, targetDate);

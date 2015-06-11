@@ -21,6 +21,14 @@ package org.sonar.batch.deprecated.components;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.persistence.Query;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.database.DatabaseSession;
@@ -29,15 +37,10 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.DefaultIndex;
-
-import javax.annotation.Nullable;
-import javax.persistence.Query;
-import java.util.*;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -95,10 +98,9 @@ public class DefaultTimeMachine implements TimeMachine {
       .append(MeasureModel.class.getSimpleName())
       .append(" m, ")
       .append(Snapshot.class.getSimpleName())
-      .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status AND s.qualifier<>:lib");
+      .append(" s WHERE m.snapshotId=s.id AND s.resourceId=:resourceId AND s.status=:status");
     params.put("resourceId", resource.getId());
     params.put("status", Snapshot.STATUS_PROCESSED);
-    params.put("lib", Qualifiers.LIBRARY);
 
     sb.append(" AND m.characteristicId IS NULL");
     sb.append(" AND m.personId IS NULL");

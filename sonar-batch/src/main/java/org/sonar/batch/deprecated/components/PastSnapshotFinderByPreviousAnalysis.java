@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.components.PastSnapshot;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.components.PastSnapshot;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
@@ -44,13 +42,12 @@ public class PastSnapshotFinderByPreviousAnalysis {
 
   public PastSnapshot findByPreviousAnalysis(Snapshot projectSnapshot) {
     String hql = "from " + Snapshot.class.getSimpleName()
-      + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last and qualifier<>:lib order by createdAt desc";
+      + " where createdAt<:date AND resourceId=:resourceId AND status=:status and last=:last order by createdAt desc";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("date", projectSnapshot.getCreatedAtMs())
       .setParameter("resourceId", projectSnapshot.getResourceId())
       .setParameter("status", Snapshot.STATUS_PROCESSED)
       .setParameter("last", true)
-      .setParameter("lib", Qualifiers.LIBRARY)
       .setMaxResults(1)
       .getResultList();
 

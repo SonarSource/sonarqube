@@ -19,19 +19,16 @@
  */
 package org.sonar.batch.deprecated.components;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.batch.components.PastSnapshot;
-
-import javax.annotation.CheckForNull;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.components.PastSnapshot;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
 
@@ -60,12 +57,11 @@ public class PastSnapshotFinderByDate {
 
   @CheckForNull
   private Snapshot findSnapshot(Integer projectId, Date date) {
-    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status AND qualifier<>:lib order by createdAt asc";
+    String hql = "from " + Snapshot.class.getSimpleName() + " where createdAt>=:date AND resourceId=:resourceId AND status=:status order by createdAt asc";
     List<Snapshot> snapshots = session.createQuery(hql)
       .setParameter("date", dateToLong(date))
       .setParameter("resourceId", projectId)
       .setParameter("status", Snapshot.STATUS_PROCESSED)
-      .setParameter("lib", Qualifiers.LIBRARY)
       .setMaxResults(1)
       .getResultList();
 

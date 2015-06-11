@@ -20,18 +20,15 @@
 
 package org.sonar.batch.deprecated.components;
 
+import java.util.List;
+import javax.persistence.Query;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.PastSnapshotFinder;
-
-import javax.persistence.Query;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static org.sonar.api.utils.DateUtils.dateToLong;
@@ -72,9 +69,8 @@ public class PeriodsDefinition {
 
   private Snapshot buildProjectSnapshot() {
     Query query = session
-      .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.qualifier<>:lib and p.enabled=:enabled");
+      .createNativeQuery("select p.id from projects p where p.kee=:resourceKey and p.enabled=:enabled");
     query.setParameter("resourceKey", projectTree.getRootProject().getKey());
-    query.setParameter("lib", Qualifiers.LIBRARY);
     query.setParameter("enabled", Boolean.TRUE);
 
     Snapshot snapshot = null;
