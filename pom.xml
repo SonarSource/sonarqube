@@ -73,7 +73,7 @@
     <tomcat.version>8.0.18</tomcat.version>
     <elasticsearch.version>1.4.4</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.min.version>3.0.5</maven.min.version>
+    <maven.min.version>3.1</maven.min.version>
     <jdk.min.version>1.7</jdk.min.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
@@ -116,7 +116,7 @@
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
-          <version>0.0.20</version>
+          <version>0.0.23</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -372,15 +372,7 @@
                   <version>${jdk.min.version}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
-                  <message>Maven ${maven.min.version} to 3.2.x is required.
-                  </message>
-                  <!-- maven 3.3.1 is not supported because of frontend-maven-plugin :
-                  https://github.com/eirslett/frontend-maven-plugin/issues/184
-                  https://github.com/eirslett/frontend-maven-plugin/commit/c21b91cc91b8a4f329ad48f6fc1f6269ad0f1f5d
-                  Upgrading to frontend-m-p 0.0.23 drops support of maven 3.0, which is currently the reference version
-                  used at SonarSource.
-                  -->
-                  <version>[${maven.min.version},3.3)</version>
+                  <version>[${maven.min.version},)</version>
                 </requireMavenVersion>
                 <bannedDependencies>
                   <!-- See SONAR-2512 -->
