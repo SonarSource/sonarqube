@@ -127,6 +127,10 @@ define([
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
 
+    onDestroy: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
     selectBar: function (e) {
       var periodStart = $(e.currentTarget).data('period-start'),
           periodEnd = $(e.currentTarget).data('period-end');
