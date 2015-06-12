@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DebtModelHolderImplTest {
@@ -33,83 +34,87 @@ public class DebtModelHolderImplTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private static final Characteristic PORTABILITY = new Characteristic(1, "PORTABILITY");
+  private static final Characteristic COMPILER_RELATED_PORTABILITY = new Characteristic(2, "COMPILER_RELATED_PORTABILITY");
+  private static final Characteristic HARDWARE_RELATED_PORTABILITY = new Characteristic(3, "HARDWARE_RELATED_PORTABILITY");
+
+  private static final Characteristic MAINTAINABILITY = new Characteristic(4, "MAINTAINABILITY");
+  private static final Characteristic READABILITY = new Characteristic(5, "READABILITY");
+
   DebtModelHolderImpl sut = new DebtModelHolderImpl();
 
   @Test
   public void add_characteristics() throws Exception {
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"),
-      Arrays.asList(new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY"), new CharacteristicImpl(4, "READABILITY")));
-    sut.addCharacteristics(new CharacteristicImpl(3, "MAINTAINABILITY"), Collections.singletonList(new CharacteristicImpl(4, "READABILITY")));
+    sut.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, HARDWARE_RELATED_PORTABILITY));
+    sut.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
 
-    assertThat(sut.rootCharacteristics()).hasSize(2);
-    assertThat(sut.subCharacteristicsByRootKey("PORTABILITY")).hasSize(2);
+    assertThat(sut.findRootCharacteristics()).hasSize(2);
+    assertThat(sut.findSubCharacteristicsByRootKey("PORTABILITY")).hasSize(2);
   }
 
   @Test
-  public void add_characteristics_fail_with_a_NPE_if_root_characteristic_is_null() throws Exception {
+  public void add_characteristics_fail_with_NPE_if_root_characteristic_is_null() throws Exception {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("rootCharacteristic cannot be null");
 
-    sut.addCharacteristics(null, Collections.singletonList(new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY")));
+    sut.addCharacteristics(null, singletonList(COMPILER_RELATED_PORTABILITY));
   }
 
   @Test
-  public void add_characteristics_fail_with_a_NPE_if_sub_characteristics_are_null() throws Exception {
+  public void add_characteristics_fail_with_NPE_if_sub_characteristics_are_null() throws Exception {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("subCharacteristics cannot be null");
 
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"), null);
+    sut.addCharacteristics(PORTABILITY, null);
   }
 
   @Test
-  public void add_characteristics_fail_with_a_ISE_if_sub_characteristics_are_empty() throws Exception {
-    thrown.expect(IllegalStateException.class);
+  public void add_characteristics_fail_with_IAE_if_sub_characteristics_are_empty() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("subCharacteristics cannot be empty");
 
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"), Collections.<Characteristic>emptyList());
+    sut.addCharacteristics(PORTABILITY, Collections.<Characteristic>emptyList());
   }
 
   @Test
   public void get_characteristic_by_key() throws Exception {
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"), Collections.singletonList(new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY")));
+    sut.addCharacteristics(PORTABILITY, singletonList(COMPILER_RELATED_PORTABILITY));
 
-    assertThat(sut.characteristicByKey("PORTABILITY")).isNotNull();
-    assertThat(sut.characteristicByKey("COMPILER_RELATED_PORTABILITY")).isNotNull();
-    assertThat(sut.characteristicByKey("UNKNOWN")).isNull();
+    assertThat(sut.getCharacteristicByKey("PORTABILITY").get()).isEqualTo(PORTABILITY);
+    assertThat(sut.getCharacteristicByKey("COMPILER_RELATED_PORTABILITY").get()).isEqualTo(COMPILER_RELATED_PORTABILITY);
+    assertThat(sut.getCharacteristicByKey("UNKNOWN").isPresent()).isFalse();
   }
 
   @Test
-  public void get_characteristic_by_key_throws_a_ISE_when_not_initialized() throws Exception {
+  public void get_characteristic_by_key_throws_ISE_when_not_initialized() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Characteristics have not been initialized yet");
 
-    sut.characteristicByKey("PORTABILITY");
+    sut.getCharacteristicByKey("PORTABILITY");
   }
 
   @Test
   public void get_root_characteristics() throws Exception {
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"),
-      Arrays.asList(new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY"), new CharacteristicImpl(4, "READABILITY")));
-    sut.addCharacteristics(new CharacteristicImpl(3, "MAINTAINABILITY"), Collections.singletonList(new CharacteristicImpl(4, "READABILITY")));
+    sut.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, READABILITY));
+    sut.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
 
-    assertThat(sut.rootCharacteristics()).hasSize(2);
+    assertThat(sut.findRootCharacteristics()).hasSize(2);
   }
 
   @Test
-  public void get_root_characteristics_throws_a_ISE_when_not_initialized() throws Exception {
+  public void get_root_characteristics_throws_ISE_when_not_initialized() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Characteristics have not been initialized yet");
 
-    sut.rootCharacteristics();
+    sut.findRootCharacteristics();
   }
 
   @Test
   public void get_sub_characteristics_by_root_key() throws Exception {
-    sut.addCharacteristics(new CharacteristicImpl(1, "PORTABILITY"),
-      Arrays.asList(new CharacteristicImpl(2, "COMPILER_RELATED_PORTABILITY"), new CharacteristicImpl(4, "READABILITY")));
+    sut.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, READABILITY));
 
-    assertThat(sut.subCharacteristicsByRootKey("PORTABILITY")).hasSize(2);
-    assertThat(sut.subCharacteristicsByRootKey("UNKNOWN")).isEmpty();
+    assertThat(sut.findSubCharacteristicsByRootKey("PORTABILITY")).hasSize(2);
+    assertThat(sut.findSubCharacteristicsByRootKey("UNKNOWN")).isEmpty();
   }
 
   @Test
@@ -117,6 +122,6 @@ public class DebtModelHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Characteristics have not been initialized yet");
 
-    sut.subCharacteristicsByRootKey("PORTABILITY");
+    sut.findSubCharacteristicsByRootKey("PORTABILITY");
   }
 }

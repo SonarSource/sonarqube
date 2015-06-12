@@ -20,10 +20,61 @@
 
 package org.sonar.server.computation.debt;
 
-public interface Characteristic {
+import javax.annotation.concurrent.Immutable;
 
-  int id();
+import static java.util.Objects.requireNonNull;
 
-  String key();
+@Immutable
+public class Characteristic {
+
+  private final int id;
+  private final String key;
+
+  public Characteristic(int id, String key) {
+    requireNonNull(key, "key cannot be null");
+    this.id = id;
+    this.key = key;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    Characteristic that = (Characteristic) o;
+
+    if (id != that.id) {
+      return false;
+    }
+    return key.equals(that.key);
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = id;
+    result = 31 * result + key.hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "CharacteristicImpl{" +
+      "id=" + id +
+      ", key='" + key + '\'' +
+      '}';
+  }
 
 }

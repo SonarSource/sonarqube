@@ -20,33 +20,34 @@
 
 package org.sonar.server.computation.debt;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-public class CharacteristicImpl implements Characteristic {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private int id;
-  private String key;
+public class CharacteristicTest {
 
-  public CharacteristicImpl(int id, String key) {
-    Preconditions.checkNotNull(key, "key cannot be null");
-    this.id = id;
-    this.key = key;
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void test_getter_and_setter() throws Exception {
+    Characteristic characteristic = new Characteristic(1, "PORTABILITY");
+    assertThat(characteristic.getId()).isEqualTo(1);
+    assertThat(characteristic.getKey()).isEqualTo("PORTABILITY");
   }
 
-  @Override
-  public int id() {
-    return id;
+  @Test
+  public void test_to_string() throws Exception {
+    assertThat(new Characteristic(1, "PORTABILITY").toString()).isEqualTo("CharacteristicImpl{id=1, key='PORTABILITY'}");
   }
 
-  @Override
-  public String key() {
-    return key;
-  }
+  @Test
+  public void creating_a_new_characteristic_with_null_key_throws_a_NPE() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("key cannot be null");
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    new Characteristic(1, null);
   }
 }

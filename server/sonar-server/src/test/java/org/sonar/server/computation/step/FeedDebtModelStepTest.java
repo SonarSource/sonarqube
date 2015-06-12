@@ -76,11 +76,11 @@ public class FeedDebtModelStepTest extends BaseStepTest {
 
     sut.execute();
 
-    Collection<Characteristic> rootChars = debtModelHolder.rootCharacteristics();
+    Collection<Characteristic> rootChars = debtModelHolder.findRootCharacteristics();
     assertThat(rootChars).extracting("id").containsOnly(1);
     assertThat(rootChars).extracting("key").containsOnly("PORTABILITY");
 
-    Collection<Characteristic> subChars = debtModelHolder.subCharacteristicsByRootKey("PORTABILITY");
+    Collection<Characteristic> subChars = debtModelHolder.findSubCharacteristicsByRootKey("PORTABILITY");
     assertThat(subChars).extracting("id").containsOnly(2, 3);
     assertThat(subChars).extracting("key").containsOnly("COMPILER_RELATED_PORTABILITY", "HARDWARE_RELATED_PORTABILITY");
   }

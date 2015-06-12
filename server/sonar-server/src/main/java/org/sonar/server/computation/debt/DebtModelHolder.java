@@ -20,8 +20,9 @@
 
 package org.sonar.server.computation.debt;
 
+import com.google.common.base.Optional;
 import java.util.Collection;
-import javax.annotation.CheckForNull;
+import java.util.Set;
 
 public interface DebtModelHolder {
 
@@ -30,22 +31,21 @@ public interface DebtModelHolder {
    *
    * @throws IllegalStateException if the holder is empty
    */
-  @CheckForNull
-  Characteristic characteristicByKey(String key);
+  Optional<Characteristic> getCharacteristicByKey(String key);
 
   /**
-   * Return the list of root characteristics
+   * Return the set of root characteristics
    *
    * @throws IllegalStateException if the holder is empty
    */
-  Collection<Characteristic> rootCharacteristics();
+  Set<Characteristic> findRootCharacteristics();
 
   /**
-   * Return the list of sub characteristics from a root characteristic key
+   * Return the collection of sub characteristics from a root characteristic key
    *
    * @throws IllegalStateException if the holder is empty
    */
-  Collection<Characteristic> subCharacteristicsByRootKey(String rootCharacteristicKey);
+  Collection<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey);
 
 
 }

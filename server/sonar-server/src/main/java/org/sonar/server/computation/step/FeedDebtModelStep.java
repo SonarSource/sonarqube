@@ -24,15 +24,14 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
 import org.sonar.server.db.DbClient;
 
@@ -43,34 +42,10 @@ public class FeedDebtModelStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final MutableDebtModelHolder mutableDebtModelHolder;
-  private final Function<CharacteristicDto, Characteristic> dtoToCharFunction;
-  private final Function<CharacteristicDto, Integer> dtoToParentIdFunction;
-  private final Predicate<CharacteristicDto> isRootPredicate;
 
   public FeedDebtModelStep(DbClient dbClient, MutableDebtModelHolder mutableDebtModelHolder) {
     this.dbClient = dbClient;
     this.mutableDebtModelHolder = mutableDebtModelHolder;
-    this.dtoToCharFunction = new Function<CharacteristicDto, Characteristic>() {
-      @Nullable
-      @Override
-      public Characteristic apply(@Nonnull CharacteristicDto characteristicDto) {
-        return toCharacteristic(characteristicDto);
-      }
-    };
-    this.dtoToParentIdFunction = new Function<CharacteristicDto, Integer>() {
-      @Nullable
-      @Override
-      public Integer apply(@Nonnull CharacteristicDto characteristicDto) {
-        Integer parentId = characteristicDto.getParentId();
-        return parentId != null ? parentId : null;
-      }
-    };
-    this.isRootPredicate = new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(@Nonnull CharacteristicDto characteristicDto) {
-        return characteristicDto.getParentId() == null;
-      }
-    };
   }
 
   @Override
@@ -85,24 +60,63 @@ public class FeedDebtModelStep implements ComputationStep {
 
   private void feedDebtModel(DbSession session) {
     List<CharacteristicDto> characteristicDtos = dbClient.debtCharacteristicDao().selectEnabledCharacteristics(session);
-    List<CharacteristicDto> rootCharacteristicDtos = FluentIterable.from(characteristicDtos)
-      .filter(isRootPredicate).toList();
-    Multimap<Integer, CharacteristicDto> subCharacteristicDtosByParentId = FluentIterable.from(characteristicDtos)
-      .filter(Predicates.not(isRootPredicate))
-      .index(dtoToParentIdFunction);
-    for (CharacteristicDto rootCharacteristicDto : rootCharacteristicDtos) {
-      Collection<CharacteristicDto> subCharacteristicDtos = subCharacteristicDtosByParentId.get(rootCharacteristicDto.getId());
+    Map<Integer, CharacteristicDto> rootCharacteristicsById = FluentIterable.from(characteristicDtos)
+      .filter(IsRootPredicate.INSTANCE)
+      .uniqueIndex(CharacteristicDtoToId.INSTANCE);
 
-      Characteristic rootCharacteristic = toCharacteristic(rootCharacteristicDto);
-      List<Characteristic> subCharacteristic = FluentIterable.from(subCharacteristicDtos)
-        .transform(dtoToCharFunction)
-        .toList();
-      mutableDebtModelHolder.addCharacteristics(rootCharacteristic, subCharacteristic);
+    for (Map.Entry<Integer, Collection<CharacteristicDto>> entry : FluentIterable.from(characteristicDtos)
+      .filter(Predicates.not(IsRootPredicate.INSTANCE))
+      .index(DtoToParentIdFunction.INSTANCE)
+      .asMap().entrySet()) {
+      mutableDebtModelHolder.addCharacteristics(
+        toCharacteristic(rootCharacteristicsById.get(entry.getKey())),
+        FluentIterable.from(entry.getValue()).transform(DtoToCharFunction.INSTANCE)
+        );
     }
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto) {
-    return new CharacteristicImpl(dto.getId(), dto.getKey());
+    return new Characteristic(dto.getId(), dto.getKey());
+  }
+
+  private enum CharacteristicDtoToId implements Function<CharacteristicDto, Integer> {
+    INSTANCE;
+
+    @Nullable
+    @Override
+    public Integer apply(@Nonnull CharacteristicDto characteristicDto) {
+      return characteristicDto.getId();
+    }
+  }
+
+  private enum DtoToCharFunction implements Function<CharacteristicDto, Characteristic> {
+    INSTANCE;
+
+    @Nullable
+    @Override
+    public Characteristic apply(@Nonnull CharacteristicDto characteristicDto) {
+      return toCharacteristic(characteristicDto);
+    }
+  }
+
+  private enum DtoToParentIdFunction implements Function<CharacteristicDto, Integer> {
+    INSTANCE;
+
+    @Nullable
+    @Override
+    public Integer apply(@Nonnull CharacteristicDto characteristicDto) {
+      Integer parentId = characteristicDto.getParentId();
+      return parentId == null ? null : parentId;
+    }
+  }
+
+  private enum IsRootPredicate implements Predicate<CharacteristicDto> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull CharacteristicDto characteristicDto) {
+      return characteristicDto.getParentId() == null;
+    }
   }
 
   @Override

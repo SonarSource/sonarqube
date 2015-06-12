@@ -20,8 +20,6 @@
 
 package org.sonar.server.computation.debt;
 
-import java.util.List;
-
 public interface MutableDebtModelHolder extends DebtModelHolder {
 
   /**
@@ -33,5 +31,5 @@ public interface MutableDebtModelHolder extends DebtModelHolder {
    * @throws NullPointerException if {@code rootCharacteristic} is {@code null}
    * @throws NullPointerException if {@code subCharacteristics} is {@code null}
    */
-  void addCharacteristics(Characteristic rootCharacteristic, List<? extends Characteristic> subCharacteristics);
+  void addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics);
 }

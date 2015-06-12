@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.debt;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -28,35 +28,40 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 public class DebtModelHolderImpl implements MutableDebtModelHolder {
 
-  private Multimap<Characteristic, Characteristic> subCharacteristicsByRootCharacteristic = ArrayListMultimap.create();
-  private Map<String, Characteristic> characteristicByKey = new HashMap<>();
+  private final Multimap<Characteristic, Characteristic> subCharacteristicsByRootCharacteristic = ArrayListMultimap.create();
+  private final Map<String, Characteristic> characteristicByKey = new HashMap<>();
 
   @Override
-  public void addCharacteristics(Characteristic rootCharacteristic, List<? extends Characteristic> subCharacteristics) {
-    Preconditions.checkNotNull(rootCharacteristic, "rootCharacteristic cannot be null");
-    Preconditions.checkNotNull(subCharacteristics, "subCharacteristics cannot be null");
-    Preconditions.checkState(!subCharacteristics.isEmpty(), "subCharacteristics cannot be empty");
+  public void addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics) {
+    requireNonNull(rootCharacteristic, "rootCharacteristic cannot be null");
+    requireNonNull(subCharacteristics, "subCharacteristics cannot be null");
+    checkArgument(subCharacteristics.iterator().hasNext(), "subCharacteristics cannot be empty");
     subCharacteristicsByRootCharacteristic.putAll(rootCharacteristic, subCharacteristics);
 
-    characteristicByKey.put(rootCharacteristic.key(), rootCharacteristic);
+    characteristicByKey.put(rootCharacteristic.getKey(), rootCharacteristic);
     for (Characteristic characteristic : subCharacteristics) {
-      characteristicByKey.put(characteristic.key(), characteristic);
+      characteristicByKey.put(characteristic.getKey(), characteristic);
     }
   }
 
   @Override
-  public Collection<Characteristic> rootCharacteristics() {
+  public Set<Characteristic> findRootCharacteristics() {
     checkCharacteristicsAreInitialized();
     return ImmutableSet.copyOf(subCharacteristicsByRootCharacteristic.keySet());
   }
 
   @Override
-  public Collection<Characteristic> subCharacteristicsByRootKey(String rootCharacteristicKey) {
+  public Collection<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey) {
     checkCharacteristicsAreInitialized();
     Characteristic rootCharacteristic = characteristicByKey.get(rootCharacteristicKey);
     if (rootCharacteristic == null) {
@@ -66,12 +71,12 @@ public class DebtModelHolderImpl implements MutableDebtModelHolder {
   }
 
   @Override
-  public Characteristic characteristicByKey(String key) {
+  public Optional<Characteristic> getCharacteristicByKey(String key) {
     checkCharacteristicsAreInitialized();
-    return characteristicByKey.get(key);
+    return fromNullable(characteristicByKey.get(key));
   }
 
   private void checkCharacteristicsAreInitialized() {
-    Preconditions.checkState(!characteristicByKey.isEmpty(), "Characteristics have not been initialized yet");
+    checkState(!characteristicByKey.isEmpty(), "Characteristics have not been initialized yet");
   }
 }
