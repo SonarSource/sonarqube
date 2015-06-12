@@ -91,3 +91,17 @@
     .link-base-color;
   }
 }
+
+@supports (display: flex) {
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+  }
+
+  .page-wrapper {
+    flex: 1;
+    min-height: 0 !important;
+  }
+}
