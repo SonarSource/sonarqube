@@ -1,0 +1,9 @@
+<h2 class="spacer-bottom"><%= message('my_profile.favorites.title') -%></h2>
+<table class="data">
+  <% for f in current_user.favourites %>
+    <tr>
+      <td class="thin"><%= link_to_favourite f -%></td>
+      <td><%= qualifier_icon f %> <%= link_to_resource f %></td>
+    </tr>
+  <% end %>
+</table>

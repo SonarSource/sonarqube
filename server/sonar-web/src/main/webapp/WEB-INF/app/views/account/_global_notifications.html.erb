@@ -1,27 +1,31 @@
-<h2><%= message('my_profile.overall_notifications.title') -%></h2>
+<h2 class="spacer-bottom"><%= message('my_profile.overall_notifications.title') -%></h2>
 
-<span><%= message('notification.dispatcher.information') -%></span>
-<br/><br/>
+<p class="spacer-bottom"><%= message('notification.dispatcher.information') -%></p>
+
 <table class="form">
+  <thead>
   <tr>
-    <td></td>
+    <th></th>
     <% for channel in @channels %>
-      <td class="text-center"><b><%= message('notification.channel.' + channel.getKey()) -%></b></td>
+      <th class="text-center"><%= message('notification.channel.' + channel.getKey()) -%></th>
     <% end %>
   </tr>
+  </thead>
+  <tbody>
   <% for dispatcher in @global_dispatchers %>
     <tr>
       <td><%= message('notification.dispatcher.' + dispatcher) -%></td>
       <%
-           for channel in @channels
-             notification_id = dispatcher + '.' + channel.getKey()
-             check_box_id = 'global_notifs[' + notification_id + ']'
-             check_box_checked = @global_notifications[notification_id]
+         for channel in @channels
+           notification_id = dispatcher + '.' + channel.getKey()
+           check_box_id = 'global_notifs[' + notification_id + ']'
+           check_box_checked = @global_notifications[notification_id]
       %>
-      <td class="text-center">
+        <td class="text-center">
           <%= check_box_tag check_box_id, 'true', check_box_checked %>
-      </td>
+        </td>
       <% end %>
     </tr>
   <% end %>
+  </tbody>
 </table>

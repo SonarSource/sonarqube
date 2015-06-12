@@ -56,6 +56,10 @@ class AccountController < ApplicationController
     redirect_to :controller => 'account', :action => 'index'
   end
 
+  def change_password_form
+    render :partial => 'change_password_form'
+  end
+
   def update_notifications
     verify_post_request
     # Global notifs
@@ -69,7 +73,7 @@ class AccountController < ApplicationController
     if project_notifs
       project_notifs.each do |r_id, per_project_notif|
         per_project_notif.each do |dispatch, channels|
-          channels.each do |channel|
+          channels.each do |channel, value|
             current_user.add_property(:prop_key => 'notification.' + dispatch + '.' + channel, :text_value => 'true', :resource_id => r_id)
           end
         end

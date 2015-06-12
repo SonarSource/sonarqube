@@ -1,78 +1,57 @@
-<h2><%= message('my_profile.per_project_notifications.title') -%></h2>
-    
+<h2 class="spacer-bottom"><%= message('my_profile.per_project_notifications.title') -%></h2>
+
+<% @per_project_notifications.each do |r_id, per_project_notif| %>
+  <div class="spacer-bottom js-project" data-project-id="<%= r_id -%>">
     <table class="form">
+      <thead>
       <tr>
-        <td>
-          <%= resource_select_tag 'new_project', {
-                :qualifiers => ['TRK'],
-                :width => '250px',
-                :select2_options => {'placeholder' => "'" + message('my_profile.add_project') + "'"}
-              } -%>
-          <script>
-              $j('#new_project').change(function (event) {
-                var id = event.target.value;
-                if (id != null) {
-                  //window.location = '<%= ApplicationController.root_context -%>/account/index?new_project=' + id;
-                  $j('#notif_form').submit();
-                }
-              });
-          </script>
-        </td>
-        
-        <% 
-           unless @per_project_notifications.empty?
-             @per_project_dispatchers.each do |dispatcher| 
-        %>
-          <td style="width: 180px;" class="text-center"><b><%= message('notification.dispatcher.' + dispatcher) -%></b></td>
-        <% 
-             end
-           end
-        %>
-      </tr>
-      
-      <% 
-         unless @per_project_notifications.empty?
-           index = 0
-           @per_project_notifications.each do |r_id, per_project_notif|
-             index += 1
-      %>
-      <tr id="row_<%= index -%>">
-        <td class="text-middle">
-          <table style="width: 100%">
-            <tr>
-              <td class="nowrap" style="vertical-align: bottom; width: 100%;"><b><%= Project.by_key(r_id).name -%></b></td>
-              <td class="nowrap" style="padding-left: 10px">
-                <a href="#" onclick="$j('#row_<%= index -%>').detach(); return false;" id="remove-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('my_profile.remove_this_line') -%>"/></a>
-              </td>
-            </tr>
-          </table>
-        </td>
-        
-        <% 
-           @per_project_dispatchers.each_with_index do |dispatcher, d_index|
-             subscribed_channels = per_project_notif[dispatcher]
-             select_id = index.to_s + "_" + dispatcher
-        %>
-          <td>
-            <select id="<%= select_id -%>" name="project_notifs[<%= r_id.to_s -%>][<%= dispatcher-%>][]" multiple style="width: 100%">
-              <% @channels.each do |channel| -%>
-                <option value="<%= channel.getKey() -%>" <%= 'selected' if per_project_notif[dispatcher].include?(channel.getKey()) || (r_id==@new_project_id && channel.getKey()=='EmailNotificationChannel') -%>><%= message('notification.channel.' + channel.getKey()) -%></option>
-              <% end %>
-            </select>
-            <script>
-              $j('#<%= select_id -%>').select2();
-              <% if @selected_project_id == r_id && d_index == 0 -%>
-                // focus the input field and scroll the page to it
-                $j('#<%= select_id -%>').select2("focus");
-                $j(document).scrollTop( $j('#row_<%= index -%>').offset().top );
-              <% end %>
-            </script>
-          </td>
+        <th>
+          <a class="spacer-right icon-delete js-delete-project" href="#"></a>
+          <h3 class="display-inline-block"><%= Project.by_key(r_id).name -%></h3>
+        </th>
+        <% for channel in @channels %>
+          <th class="text-center"><%= message('notification.channel.' + channel.getKey()) -%></th>
         <% end %>
       </tr>
-      
-           <% end %>
-      
+      </thead>
+      <tbody>
+      <% @per_project_dispatchers.each do |dispatcher| %>
+        <tr>
+          <td><%= message('notification.dispatcher.' + dispatcher) -%></td>
+          <%
+             for channel in @channels
+               check_box_id = 'project_notifs[' + r_id.to_s + '][' + dispatcher + '][' + channel.getKey() + ']'
+               check_box_checked = per_project_notif[dispatcher].include?(channel.getKey())
+          %>
+            <td class="text-center">
+              <%= check_box_tag check_box_id, 'true', check_box_checked %>
+            </td>
+          <% end %>
+        </tr>
       <% end %>
-      
+      </tbody>
     </table>
+  </div>
+<% end %>
+
+<div class="spacer-bottom">
+  <%= resource_select_tag 'new_project', {:qualifiers => ['TRK'], :width => '250px',
+                                          :select2_options => {'placeholder' => "'" + message('my_profile.add_project') + "'"}
+                                       } -%>
+</div>
+
+<script>
+  (function ($) {
+    $('#new_project').on('change', function (e) {
+      var id = $(e.currentTarget).val();
+      if (id != null) {
+        $('#notif_form').submit();
+      }
+    });
+
+    $('.js-delete-project').on('click', function (e) {
+      e.preventDefault();
+      $(e.currentTarget).closest('[data-project-id]').remove();
+    });
+  })(window.jQuery);
+</script>
