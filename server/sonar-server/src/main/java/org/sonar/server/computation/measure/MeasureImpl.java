@@ -46,7 +46,7 @@ public final class MeasureImpl implements Measure {
   @Nullable
   private String description;
 
-  protected MeasureImpl(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel) {
+  private MeasureImpl(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Double value, @Nullable String data, @Nullable Level dataLevel) {
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;

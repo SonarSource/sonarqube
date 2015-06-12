@@ -30,13 +30,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
@@ -49,7 +47,9 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
-import org.sonar.server.computation.measure.MetricCache;
+import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -63,25 +63,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PersistMeasuresStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
-  private static final String METRIC_KEY = "metric-key";
+  private static final String STRING_METRIC_KEY = "string-metric-key";
+  private static final String DOUBLE_METRIC_KEY = "double-metric-key";
   private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule-key");
-
-  private static final long FILE_COMPONENT_ID = 3L;
-  private static final long FILE_SNAPSHOT_ID = 3L;
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbClient dbClient;
   DbSession session;
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
-  MetricDto metric;
+  MetricDto stringMetric;
+  MetricDto doubleMetric;
   RuleDto rule;
 
   PersistMeasuresStep sut;
@@ -93,17 +90,21 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
     session = dbClient.openSession(false);
 
-    metric = new MetricDto().setKey(METRIC_KEY).setEnabled(true).setOptimizedBestValue(false).setHidden(false).setDeleteHistoricalData(false);
-    dbClient.metricDao().insert(session, metric);
+    stringMetric = new MetricDto().setValueType("STRING").setShortName("String metric").setKey(STRING_METRIC_KEY).setEnabled(true);
+    dbClient.metricDao().insert(session, stringMetric);
+    doubleMetric = new MetricDto().setValueType("FLOAT").setShortName("Double metric").setKey(DOUBLE_METRIC_KEY).setEnabled(true);
+    dbClient.metricDao().insert(session, doubleMetric);
     rule = RuleTesting.newDto(RULE_KEY);
     dbClient.ruleDao().insert(session, rule);
     session.commit();
 
     RuleCache ruleCache = new RuleCache(new RuleCacheLoader(dbClient));
-    MetricCache metricCache = new MetricCache(dbClient);
+    MetricRepositoryImpl metricRepository = new MetricRepositoryImpl(dbClient);
+    metricRepository.start();
+    MeasureRepository measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, ruleCache);
     session.commit();
 
-    sut = new PersistMeasuresStep(dbClient, ruleCache, metricCache, dbIdsRepository, treeRootHolder, reportReader);
+    sut = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
   }
 
   @After
@@ -113,8 +114,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void insert_measures_from_report() throws Exception {
-    ComponentDto projectDto = addComponent(1, "project-key");
-    ComponentDto fileDto = addComponent(2, "file-key");
+    ComponentDto projectDto = addComponent("project-key");
+    ComponentDto fileDto = addComponent("file-key");
 
     Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("CDEF").setKey("MODULE_KEY:file").build();
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
@@ -137,8 +138,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setAlertStatus("WARN")
         .setAlertText("Open issues > 0")
         .setDescription("measure-description")
-        .setMetricKey(METRIC_KEY)
-        .setRuleKey(RULE_KEY.toString())
+        .setMetricKey(STRING_METRIC_KEY)
         .setCharactericId(123456)
         .build()));
 
@@ -154,9 +154,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setAlertStatus("ERROR")
         .setAlertText("Blocker issues variation > 0")
         .setDescription("measure-description")
-        .setMetricKey(METRIC_KEY)
+        .setMetricKey(DOUBLE_METRIC_KEY)
         .setRuleKey(RULE_KEY.toString())
-        .setCharactericId(123456)
         .build()));
 
     sut.execute();
@@ -165,234 +164,28 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
 
     List<Map<String, Object>> dtos = dbTester.select(
-      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\" " +
-        " from project_measures");
+      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
+        "rule_priority as \"severity\" from project_measures");
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
     assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
-    assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
-    assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
+    assertThat(dto.get("metricId")).isEqualTo(stringMetric.getId().longValue());
+    assertThat(dto.get("ruleId")).isNull();
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
+    assertThat(dto.get("severity")).isNull();
 
     dto = dtos.get(1);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
-    assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
+    assertThat(dto.get("metricId")).isEqualTo(doubleMetric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
+    assertThat(dto.get("characteristicId")).isNull();
     assertThat(dto.get("value")).isEqualTo(123.123d);
+    assertThat(dto.get("severity")).isNull();
   }
 
-  @Test
-  public void map_full_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    ComponentDto componentDto = addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.DOUBLE)
-      .setDoubleValue(123.123d)
-      .setVariationValue1(1.1d)
-      .setVariationValue2(2.2d)
-      .setVariationValue3(3.3d)
-      .setVariationValue4(4.4d)
-      .setVariationValue5(5.5d)
-      .setAlertStatus("WARN")
-      .setAlertText("Open issues > 0")
-      .setDescription("measure-description")
-      .setMetricKey(METRIC_KEY)
-      .setRuleKey(RULE_KEY.toString())
-      .setCharactericId(123456)
-      .setPersonId(5432)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, componentDto.getId(), FILE_SNAPSHOT_ID);
-
-    assertThat(measure).isEqualToComparingFieldByField(new MeasureDto()
-      .setComponentId(componentDto.getId())
-      .setSnapshotId(3L)
-      .setCharacteristicId(123456)
-      .setPersonId(5432)
-      .setValue(123.123d)
-      .setVariation(1, 1.1d)
-      .setVariation(2, 2.2d)
-      .setVariation(3, 3.3d)
-      .setVariation(4, 4.4d)
-      .setVariation(5, 5.5d)
-      .setAlertStatus("WARN")
-      .setAlertText("Open issues > 0")
-      .setDescription("measure-description")
-      .setMetricId(metric.getId())
-      .setRuleId(rule.getId()));
-  }
-
-  @Test
-  public void map_minimal_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    ComponentDto componentDto = addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.INT)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, componentDto.getId(), FILE_SNAPSHOT_ID);
-
-    assertThat(measure).isEqualToComparingFieldByField(new MeasureDto()
-      .setComponentId(componentDto.getId())
-      .setSnapshotId(FILE_SNAPSHOT_ID)
-      .setMetricId(metric.getId()));
-  }
-
-  @Test
-  public void map_boolean_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.BOOLEAN)
-      .setBooleanValue(true)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isEqualTo(1.0);
-
-    batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.BOOLEAN)
-      .setBooleanValue(false)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isEqualTo(0.0);
-
-    batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.BOOLEAN)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isNull();
-  }
-
-  @Test
-  public void map_double_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.DOUBLE)
-      .setDoubleValue(3.2)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isEqualTo(3.2);
-
-    batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.DOUBLE)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isNull();
-  }
-
-  @Test
-  public void map_int_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.INT)
-      .setIntValue(3)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isEqualTo(3.0);
-
-    batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.INT)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isNull();
-  }
-
-  @Test
-  public void map_long_batch_measure() {
-    BatchReport.Component component = defaultComponent().build();
-    addComponent(component.getRef(), "component-key");
-
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.LONG)
-      .setLongValue(3L)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    MeasureDto measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isEqualTo(3.0);
-
-    batchMeasure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.LONG)
-      .setMetricKey(METRIC_KEY)
-      .build();
-
-    measure = sut.toMeasureDto(batchMeasure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-
-    assertThat(measure.getValue()).isNull();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_when_no_metric_key() {
-    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
-      .setValueType(MeasureValueType.STRING)
-      .setStringValue("string-value")
-      .build();
-    BatchReport.Component component = defaultComponent()
-      .build();
-    addComponent(component.getRef(), "component-key");
-    sut.toMeasureDto(measure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_when_no_value() {
-    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
-      .setMetricKey("repo:metric-key")
-      .build();
-    BatchReport.Component component = defaultComponent()
-      .build();
-    addComponent(component.getRef(), "component-key");
-    sut.toMeasureDto(measure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_when_forbid_metric() {
-    BatchReport.Measure measure = BatchReport.Measure.newBuilder()
-      .setMetricKey("duplications_data")
-      .build();
-    BatchReport.Component component = defaultComponent()
-      .build();
-    addComponent(component.getRef(), "component-key");
-    sut.toMeasureDto(measure, FILE_COMPONENT_ID, FILE_SNAPSHOT_ID);
-  }
-
-  private BatchReport.Component.Builder defaultComponent() {
-    return BatchReport.Component.newBuilder()
-      .setRef(1);
-  }
-
-  private ComponentDto addComponent(int ref, String key) {
+  private ComponentDto addComponent(String key) {
     ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
     dbClient.componentDao().insert(session, componentDto);
     session.commit();
