@@ -44,7 +44,7 @@ class ProjectMeasure < ActiveRecord::Base
   end
 
   def rule_measure?
-    rule_id || rule_priority
+    rule_id != nil
   end
 
   def data
@@ -233,14 +233,12 @@ class ProjectMeasure < ActiveRecord::Base
 
   # Deprecated in v.2.13. Replaced by severity()
   def rule_priority_text
-    severity
+    nil
   end
 
+  # not used for a while. Deprecated in 5.2.
   def severity
-    @severity ||=
-      begin
-        rule_priority ? Sonar::RulePriority.to_s(rule_priority) : nil
-      end
+    nil
   end
 
   def key

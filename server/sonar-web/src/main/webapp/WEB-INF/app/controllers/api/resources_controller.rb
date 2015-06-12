@@ -274,20 +274,10 @@ class Api::ResourcesController < Api::ApiController
     if params['filter_rules']
       (params['filter_rules']=='true') ? params['rules']='false' : params['rules']='true'
     end
-
-    if params['metrics']
-      if params['metrics'].include? 'mandatory_violations'
-        params['metrics']=params['metrics'].gsub(/mandatory_violations/, 'violations')
-        params['rule_priorities']='MAJOR'
-      elsif params['metrics'].include? 'optional_violations'
-        params['metrics']=params['metrics'].gsub(/optional_violations/, 'violations')
-        params['rule_priorities']='INFO'
-      end
-    end
   end
 
   def select_columns_for_measures
-    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.rule_priority,project_measures.text_value,project_measures.characteristic_id,project_measures.measure_data'
+    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.text_value,project_measures.characteristic_id,project_measures.measure_data'
     if params[:includetrends]=='true'
       select_columns+=',project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
@@ -315,17 +305,6 @@ class Api::ResourcesController < Api::ApiController
       measures_values[:rule_ids]=rule_ids.compact
     end
 
-    param_priorities = params['rule_priorities'] || 'false'
-    if param_priorities=='true'
-      measures_conditions << "project_measures.rule_priority IS NOT NULL"
-    elsif param_priorities=='false'
-      measures_conditions << "project_measures.rule_priority IS NULL" if param_rules=='false'
-    else
-      measures_conditions << "project_measures.rule_priority IN (:priorities)"
-      measures_values[:priorities]=param_priorities.split(',').map do |p|
-        Sonar::RulePriority.id(p)
-      end.compact
-    end
   end
 
   def add_characteristic_filters(measures_conditions, measures_values)
@@ -454,9 +433,6 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:rule_key] = rule.key if rule
           json_measure[:rule_name] = rule.name if rule
         end
-        if measure.rule_priority
-          json_measure[:rule_priority] = Sonar::RulePriority.to_s(measure.rule_priority)
-        end
         if measure.characteristic_id
           characteristic=@characteristic_by_id[measure.characteristic_id]
           json_measure[:ctic_key]=(characteristic ? characteristic.kee : '')
@@ -540,9 +516,6 @@ class Api::ResourcesController < Api::ApiController
               rule = rules_by_id[measure.rule_id]
               xml.rule_key(rule.key) if rule
               xml.rule_name(rule.name) if rule
-            end
-            if measure.rule_priority
-              xml.rule_priority(Sonar::RulePriority.to_s(measure.rule_priority))
             end
             if measure.characteristic_id
               characteristic=@characteristic_by_id[measure.characteristic_id]

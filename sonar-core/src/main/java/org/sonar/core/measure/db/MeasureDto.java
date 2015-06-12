@@ -23,9 +23,6 @@ package org.sonar.core.measure.db;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.Severity;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class MeasureDto {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
@@ -39,7 +36,6 @@ public class MeasureDto {
   private String alertStatus;
   private String alertText;
   private String description;
-  private Integer severityIndex;
 
   private Long componentId;
   private Long snapshotId;
@@ -239,23 +235,4 @@ public class MeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public String getSeverity() {
-    if (severityIndex == null) {
-      return null;
-    }
-
-    return Severity.ALL.get(severityIndex);
-  }
-
-  public MeasureDto setSeverity(@Nullable String severity) {
-    if (severity == null) {
-      return this;
-    }
-
-    checkArgument(Severity.ALL.contains(severity), "Severity must be included in the org.sonar.api.rule.Severity values");
-
-    this.severityIndex = Severity.ALL.indexOf(severity);
-    return this;
-  }
 }

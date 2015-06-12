@@ -33,7 +33,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
@@ -138,7 +137,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setAlertStatus("WARN")
         .setAlertText("Open issues > 0")
         .setDescription("measure-description")
-        .setSeverity(Constants.Severity.INFO)
         .setMetricKey(METRIC_KEY)
         .setRuleKey(RULE_KEY.toString())
         .setCharactericId(123456)
@@ -156,7 +154,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setAlertStatus("ERROR")
         .setAlertText("Blocker issues variation > 0")
         .setDescription("measure-description")
-        .setSeverity(Constants.Severity.BLOCKER)
         .setMetricKey(METRIC_KEY)
         .setRuleKey(RULE_KEY.toString())
         .setCharactericId(123456)
@@ -168,8 +165,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
 
     List<Map<String, Object>> dtos = dbTester.select(
-      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
-        "rule_priority as \"severity\" from project_measures");
+      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\" " +
+        " from project_measures");
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
@@ -177,7 +174,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
-    assertThat(dto.get("severity")).isEqualTo(0L);
 
     dto = dtos.get(1);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
@@ -185,7 +181,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("metricId")).isEqualTo(metric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
     assertThat(dto.get("value")).isEqualTo(123.123d);
-    assertThat(dto.get("severity")).isEqualTo(4L);
   }
 
   @Test
@@ -204,7 +199,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setAlertStatus("WARN")
       .setAlertText("Open issues > 0")
       .setDescription("measure-description")
-      .setSeverity(Constants.Severity.CRITICAL)
       .setMetricKey(METRIC_KEY)
       .setRuleKey(RULE_KEY.toString())
       .setCharactericId(123456)
@@ -227,7 +221,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
       .setAlertStatus("WARN")
       .setAlertText("Open issues > 0")
       .setDescription("measure-description")
-      .setSeverity(Severity.CRITICAL)
       .setMetricId(metric.getId())
       .setRuleId(rule.getId()));
   }
