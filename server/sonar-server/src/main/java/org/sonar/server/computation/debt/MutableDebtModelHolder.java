@@ -23,7 +23,7 @@ package org.sonar.server.computation.debt;
 public interface MutableDebtModelHolder extends DebtModelHolder {
 
   /**
-   * Sets the characteristics in the {@link DebtModelHolder}. Settings characteristics more than once is not allowed
+   * Sets the characteristics in the {@link DebtModelHolder}.
    *
    * @param rootCharacteristic a root {@link Characteristic}, can not be {@code null}
    * @param subCharacteristics list of sub characteristics of the root characteristic, can not be {@code null}

@@ -66,11 +66,11 @@ public class FeedDebtModelStep implements ComputationStep {
 
     for (Map.Entry<Integer, Collection<CharacteristicDto>> entry : FluentIterable.from(characteristicDtos)
       .filter(Predicates.not(IsRootPredicate.INSTANCE))
-      .index(DtoToParentIdFunction.INSTANCE)
+      .index(CharacteristicDtoToParentId.INSTANCE)
       .asMap().entrySet()) {
       mutableDebtModelHolder.addCharacteristics(
         toCharacteristic(rootCharacteristicsById.get(entry.getKey())),
-        FluentIterable.from(entry.getValue()).transform(DtoToCharFunction.INSTANCE)
+        FluentIterable.from(entry.getValue()).transform(CharacteristicDtoToCharacteristic.INSTANCE)
         );
     }
   }
@@ -89,7 +89,7 @@ public class FeedDebtModelStep implements ComputationStep {
     }
   }
 
-  private enum DtoToCharFunction implements Function<CharacteristicDto, Characteristic> {
+  private enum CharacteristicDtoToCharacteristic implements Function<CharacteristicDto, Characteristic> {
     INSTANCE;
 
     @Nullable
@@ -99,14 +99,14 @@ public class FeedDebtModelStep implements ComputationStep {
     }
   }
 
-  private enum DtoToParentIdFunction implements Function<CharacteristicDto, Integer> {
+  private enum CharacteristicDtoToParentId implements Function<CharacteristicDto, Integer> {
     INSTANCE;
 
     @Nullable
     @Override
     public Integer apply(@Nonnull CharacteristicDto characteristicDto) {
       Integer parentId = characteristicDto.getParentId();
-      return parentId == null ? null : parentId;
+      return parentId == null ? characteristicDto.getId() : parentId;
     }
   }
 
