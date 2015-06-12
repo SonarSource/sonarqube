@@ -22,12 +22,11 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -126,13 +125,13 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   @Override
-  public Multimap<String, Measure> getRawMeasures(Component component) {
+  public SetMultimap<String, Measure> getRawMeasures(Component component) {
     Map<String, Measure> rawMeasures = measures.get(component.getRef());
     ListMultimap<String, BatchReport.Measure> batchMeasures = from(reportReader.readComponentMeasures(component.getRef()))
       .index(BatchMeasureToMetricKey.INSTANCE);
 
     if (rawMeasures == null && batchMeasures.isEmpty()) {
-      return ImmutableListMultimap.of();
+      return ImmutableSetMultimap.of();
     }
 
     ListMultimap<String, Measure> rawMeasuresFromBatch = Multimaps.transformValues(batchMeasures, batchMeasureToMeasureFunction);

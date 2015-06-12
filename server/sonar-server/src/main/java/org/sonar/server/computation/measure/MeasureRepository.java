@@ -20,7 +20,7 @@
 package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.SetMultimap;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
@@ -30,6 +30,14 @@ public interface MeasureRepository {
   /**
    * Retrieves the base measure (ie. the one currently existing in DB) for the specified {@link Component} for
    * the specified {@link MetricImpl} if it exists.
+   * <p>
+   * This method searches for Measure which are specific to the Component and not associated to a rule or a
+   * characteristic.
+   * </p>
+   * <strong>
+   * It will never return a Measure with a non {@code null} {@link Measure#getRuleId()}
+   * or {@link Measure#getCharacteristicId()}
+   * </strong>
    *
    * @throws NullPointerException if either argument is {@code null}
    */
@@ -37,14 +45,19 @@ public interface MeasureRepository {
 
   /**
    * Retrieves the measure created during the current analysis for the specified {@link Component} for the specified
-   * {@link MetricImpl} if it exists (ie. one created by the Compute Engine or the Batch).
+   * {@link Metric} if it exists (ie. one created by the Compute Engine or the Batch) and which is <strong>not</strong>
+   * associated to a rule or a characteristic.
    */
   Optional<Measure> getRawMeasure(Component component, Metric metric);
 
   /**
-   * @return {@link Measure}s for the specified {@link Component} mapped by their metric key.
+   * Returns the {@link Measure}s for the specified {@link Component} mapped by their metric key.
+   * <p>
+   * Their can be multiple measures for the same Metric but only one which has no rule nor characteristic, one with a
+   * specific ruleId and one with specific characteristicId (see {@link Measure#equals(Object)}.
+   * </p>
    */
-  Multimap<String, Measure> getRawMeasures(Component component);
+  SetMultimap<String, Measure> getRawMeasures(Component component);
 
   /**
    * Adds the specified measure for the specified Component and Metric. There can be no more than one measure for a

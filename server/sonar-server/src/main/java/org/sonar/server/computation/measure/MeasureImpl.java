@@ -20,6 +20,7 @@
 package org.sonar.server.computation.measure;
 
 import java.util.Locale;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -234,5 +235,38 @@ public final class MeasureImpl implements Measure {
   @CheckForNull
   public String getDescription() {
     return description;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MeasureImpl measure = (MeasureImpl) o;
+    return Objects.equals(ruleId, measure.ruleId) &&
+        Objects.equals(characteristicId, measure.characteristicId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ruleId, characteristicId);
+  }
+
+  @Override
+  public String toString() {
+    return com.google.common.base.Objects.toStringHelper(this)
+        .add("valueType", valueType)
+        .add("ruleId", ruleId)
+        .add("characteristicId", characteristicId)
+        .add("value", value)
+        .add("data", data)
+        .add("dataLevel", dataLevel)
+        .add("qualityGateStatus", qualityGateStatus)
+        .add("variations", variations)
+        .add("description", description)
+        .toString();
   }
 }

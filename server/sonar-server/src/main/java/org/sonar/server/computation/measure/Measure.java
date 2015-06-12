@@ -149,6 +149,10 @@ public interface Measure {
   @CheckForNull
   String getDescription();
 
-
+  /**
+   * a Metric is equal to another Metric if it has the same ruleId/characteristicId paar (both being potentially
+   * {@code null} but only one of them can be non {@code null}.
+   */
+  boolean equals(Object o);
 
 }
