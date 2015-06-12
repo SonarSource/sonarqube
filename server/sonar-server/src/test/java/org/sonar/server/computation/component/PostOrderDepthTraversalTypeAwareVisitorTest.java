@@ -66,6 +66,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyFileVisitor.visit(component);
 
     inOrder.verify(spyFileVisitor).visit(component);
+    inOrder.verify(spyFileVisitor).visitAny(component);
     inOrder.verify(spyFileVisitor).visitFile(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -76,6 +77,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyFileVisitor.visit(component);
 
     inOrder.verify(spyFileVisitor).visit(component);
+    inOrder.verify(spyFileVisitor).visitAny(component);
     inOrder.verify(spyFileVisitor).visitModule(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -86,6 +88,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyFileVisitor.visit(component);
 
     inOrder.verify(spyFileVisitor).visit(component);
+    inOrder.verify(spyFileVisitor).visitAny(component);
     inOrder.verify(spyFileVisitor).visitDirectory(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -96,12 +99,13 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyFileVisitor.visit(component);
 
     inOrder.verify(spyFileVisitor).visit(component);
+    inOrder.verify(spyFileVisitor).visitAny(component);
     inOrder.verify(spyFileVisitor).visitProject(component);
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  public void visit_file_with_depth_DIRECTORY_does_not_call_visit_file() {
+  public void visit_file_with_depth_DIRECTORY_does_not_call_visit_file_nor_visitAny() {
     Component component = component(FILE, 1);
     spyDirectoryVisitor.visit(component);
 
@@ -115,6 +119,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyDirectoryVisitor.visit(component);
 
     inOrder.verify(spyDirectoryVisitor).visit(component);
+    inOrder.verify(spyDirectoryVisitor).visitAny(component);
     inOrder.verify(spyDirectoryVisitor).visitDirectory(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -125,6 +130,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyDirectoryVisitor.visit(component);
 
     inOrder.verify(spyDirectoryVisitor).visit(component);
+    inOrder.verify(spyDirectoryVisitor).visitAny(component);
     inOrder.verify(spyDirectoryVisitor).visitModule(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -135,12 +141,13 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyDirectoryVisitor.visit(component);
 
     inOrder.verify(spyDirectoryVisitor).visit(component);
+    inOrder.verify(spyDirectoryVisitor).visitAny(component);
     inOrder.verify(spyDirectoryVisitor).visitProject(component);
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  public void visit_file_with_depth_MODULE_does_not_call_visit_file() {
+  public void visit_file_with_depth_MODULE_does_not_call_visit_file_nor_visitAny() {
     Component component = component(FILE, 1);
     spyModuleVisitor.visit(component);
 
@@ -149,7 +156,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
   }
 
   @Test
-  public void visit_directory_with_depth_MODULE_does_not_call_visit_directory() {
+  public void visit_directory_with_depth_MODULE_does_not_call_visit_directory_nor_visitAny() {
     Component component = component(DIRECTORY, 1);
     spyModuleVisitor.visit(component);
 
@@ -163,6 +170,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyModuleVisitor.visit(component);
 
     inOrder.verify(spyModuleVisitor).visit(component);
+    inOrder.verify(spyModuleVisitor).visitAny(component);
     inOrder.verify(spyModuleVisitor).visitModule(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -173,12 +181,13 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyModuleVisitor.visit(component);
 
     inOrder.verify(spyModuleVisitor).visit(component);
+    inOrder.verify(spyModuleVisitor).visitAny(component);
     inOrder.verify(spyModuleVisitor).visitModule(component);
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  public void visit_file_with_depth_PROJECT_does_not_call_visit_file() {
+  public void visit_file_with_depth_PROJECT_does_not_call_visit_file_nor_visitAny() {
     Component component = component(FILE, 1);
     spyProjectVisitor.visit(component);
 
@@ -187,7 +196,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
   }
 
   @Test
-  public void visit_directory_with_depth_PROJECT_does_not_call_visit_directory() {
+  public void visit_directory_with_depth_PROJECT_does_not_call_visit_directory_nor_visitAny() {
     Component component = component(DIRECTORY, 1);
     spyProjectVisitor.visit(component);
 
@@ -196,7 +205,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
   }
 
   @Test
-  public void visit_module_with_depth_PROJECT_does_not_call_visit_module() {
+  public void visit_module_with_depth_PROJECT_does_not_call_visit_module_nor_visitAny() {
     Component component = component(MODULE, 1);
     spyProjectVisitor.visit(component);
 
@@ -210,6 +219,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyProjectVisitor.visit(component);
 
     inOrder.verify(spyProjectVisitor).visit(component);
+    inOrder.verify(spyProjectVisitor).visitAny(component);
     inOrder.verify(spyProjectVisitor).visitProject(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -222,11 +232,16 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     inOrder.verify(spyFileVisitor).visit(MODULE_2);
     inOrder.verify(spyFileVisitor).visit(DIRECTORY_3);
     inOrder.verify(spyFileVisitor).visit(FILE_4);
+    inOrder.verify(spyFileVisitor).visitAny(FILE_4);
     inOrder.verify(spyFileVisitor).visitFile(FILE_4);
     inOrder.verify(spyFileVisitor).visit(FILE_5);
+    inOrder.verify(spyFileVisitor).visitAny(FILE_5);
     inOrder.verify(spyFileVisitor).visitFile(FILE_5);
+    inOrder.verify(spyFileVisitor).visitAny(DIRECTORY_3);
     inOrder.verify(spyFileVisitor).visitDirectory(DIRECTORY_3);
+    inOrder.verify(spyFileVisitor).visitAny(MODULE_2);
     inOrder.verify(spyFileVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyFileVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyFileVisitor).visitProject(COMPONENT_TREE);
     inOrder.verifyNoMoreInteractions();
   }
@@ -238,8 +253,11 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     inOrder.verify(spyDirectoryVisitor).visit(COMPONENT_TREE);
     inOrder.verify(spyDirectoryVisitor).visit(MODULE_2);
     inOrder.verify(spyDirectoryVisitor).visit(DIRECTORY_3);
+    inOrder.verify(spyDirectoryVisitor).visitAny(DIRECTORY_3);
     inOrder.verify(spyDirectoryVisitor).visitDirectory(DIRECTORY_3);
+    inOrder.verify(spyDirectoryVisitor).visitAny(MODULE_2);
     inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyDirectoryVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyDirectoryVisitor).visitProject(COMPONENT_TREE);
     inOrder.verifyNoMoreInteractions();
   }
@@ -250,7 +268,9 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
 
     inOrder.verify(spyModuleVisitor).visit(COMPONENT_TREE);
     inOrder.verify(spyModuleVisitor).visit(MODULE_2);
+    inOrder.verify(spyModuleVisitor).visitAny(MODULE_2);
     inOrder.verify(spyModuleVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyModuleVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyModuleVisitor).visitProject(COMPONENT_TREE);
     inOrder.verifyNoMoreInteractions();
   }
@@ -260,6 +280,7 @@ public class PostOrderDepthTraversalTypeAwareVisitorTest {
     spyProjectVisitor.visit(COMPONENT_TREE);
 
     inOrder.verify(spyProjectVisitor).visit(COMPONENT_TREE);
+    inOrder.verify(spyProjectVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyProjectVisitor).visitProject(COMPONENT_TREE);
     inOrder.verifyNoMoreInteractions();
   }

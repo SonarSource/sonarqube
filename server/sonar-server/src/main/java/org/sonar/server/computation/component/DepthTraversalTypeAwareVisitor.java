@@ -43,17 +43,18 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
     }
 
     if (order == Order.PRE_ORDER) {
-      visitAny(component);
+      visitNode(component);
     }
 
     visitChildren(component);
 
     if (order == Order.POST_ORDER) {
-      visitAny(component);
+      visitNode(component);
     }
   }
 
-  protected void visitAny(Component component) {
+  protected void visitNode(Component component) {
+    visitAny(component);
     switch (component.getType()) {
       case PROJECT:
         visitProject(component);
@@ -102,6 +103,11 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
 
   @Override
   public void visitUnknown(Component unknownComponent) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitAny(Component component) {
     // empty implementation, meant to be override at will by subclasses
   }
 
