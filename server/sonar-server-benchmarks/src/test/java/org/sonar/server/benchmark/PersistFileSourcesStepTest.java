@@ -110,7 +110,11 @@ public class PersistFileSourcesStepTest {
       components.add(generateFileReport(writer, fileRef));
       project.addChildRef(fileRef);
     }
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey("PROJECT").build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1)
+      .setUuid(PROJECT_UUID)
+      .setKey("PROJECT")
+      .addChildren(components.toArray(new Component[components.size()]))
+      .build());
 
     writer.writeComponent(project.build());
 
