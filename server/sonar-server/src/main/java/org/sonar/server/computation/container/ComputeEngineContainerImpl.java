@@ -51,7 +51,6 @@ import org.sonar.server.computation.issue.ScmAccountCacheLoader;
 import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.language.PlatformLanguageRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
-import org.sonar.server.computation.measure.MetricCache;
 import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
@@ -154,7 +153,6 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       RuleCache.class,
       RuleCacheLoader.class,
       IssueCache.class,
-      MetricCache.class,
       UpdateConflictResolver.class,
 
       // views

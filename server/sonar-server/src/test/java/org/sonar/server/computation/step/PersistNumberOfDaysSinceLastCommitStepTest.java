@@ -29,7 +29,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -37,7 +36,9 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.computation.measure.MetricCache;
+import org.sonar.server.computation.metric.Metric;
+import org.sonar.server.computation.metric.MetricImpl;
+import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -63,7 +64,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
   DbClient dbClient;
   SourceLineIndex sourceLineIndex;
-  MetricCache metricCache;
+  MetricRepository metricRepository;
   Settings projectSettings;
   LanguageRepository languageRepository;
 
@@ -72,12 +73,12 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     db.truncateTables();
     dbClient = new DbClient(db.database(), db.myBatis(), new MeasureDao());
     sourceLineIndex = mock(SourceLineIndex.class);
-    metricCache = mock(MetricCache.class);
+    metricRepository = mock(MetricRepository.class);
     projectSettings = new Settings();
     languageRepository = mock(LanguageRepository.class);
-    when(metricCache.get(anyString())).thenReturn(new MetricDto().setId(10));
+    when(metricRepository.getByKey(anyString())).thenReturn(new MetricImpl(10, "key", "name", Metric.MetricType.STRING));
 
-    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricCache, treeRootHolder, reportReader, dbIdsRepository);
+    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricRepository, treeRootHolder, reportReader, dbIdsRepository);
   }
 
   @Override

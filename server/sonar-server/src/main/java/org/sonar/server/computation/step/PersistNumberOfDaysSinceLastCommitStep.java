@@ -34,7 +34,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.measure.MetricCache;
+import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
 
@@ -47,17 +47,17 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final SourceLineIndex sourceLineIndex;
-  private final MetricCache metricCache;
+  private final MetricRepository metricRepository;
   private final System2 system;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final DbIdsRepository dbIdsRepository;
 
-  public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricCache metricCache,
+  public PersistNumberOfDaysSinceLastCommitStep(System2 system, DbClient dbClient, SourceLineIndex sourceLineIndex, MetricRepository metricRepository,
     TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
-    this.metricCache = metricCache;
+    this.metricRepository = metricRepository;
     this.system = system;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
@@ -98,7 +98,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     try {
       dbClient.measureDao().insert(dbSession, new MeasureDto()
         .setValue((double) numberOfDaysSinceLastCommit)
-        .setMetricId(metricCache.get(CoreMetrics.DAYS_SINCE_LAST_COMMIT_KEY).getId())
+        .setMetricId(metricRepository.getByKey(CoreMetrics.DAYS_SINCE_LAST_COMMIT_KEY).getId())
         .setSnapshotId(projectSnapshotId));
       dbSession.commit();
     } finally {
