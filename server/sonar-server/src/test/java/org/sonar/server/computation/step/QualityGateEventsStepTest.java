@@ -157,7 +157,7 @@ public class QualityGateEventsStepTest {
     verify_event_created_if_no_base_ALERT_STATUS_measure(WARN, "Orange");
   }
 
-  private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedEventName) {
+  private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedLabel) {
     Measure.QualityGateStatus someQGStatus = new Measure.QualityGateStatus(rawAlterStatus, ALERT_TEXT);
 
     when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(MeasureImpl.createNoValue().setQualityGateStatus(someQGStatus)));
@@ -172,9 +172,18 @@ public class QualityGateEventsStepTest {
 
     Event event = eventArgumentCaptor.getValue();
     assertThat(event.getCategory()).isEqualTo(Event.Category.ALERT);
-    assertThat(event.getName()).isEqualTo(expectedEventName);
+    assertThat(event.getName()).isEqualTo(expectedLabel);
     assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
     assertThat(event.getData()).isNull();
+
+    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    Notification notification = notificationArgumentCaptor.getValue();
+    assertThat(notification.getType()).isEqualTo("alerts");
+    assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
+    assertThat(notification.getFieldValue("projectUuid")).isEqualTo(PROJECT_COMPONENT.getUuid());
+    assertThat(notification.getFieldValue("projectName")).isEqualTo(PROJECT_COMPONENT.getName());
+    assertThat(notification.getFieldValue("alertLevel")).isEqualTo(rawAlterStatus.name());
+    assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
   }
 
   @Test

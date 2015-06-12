@@ -102,7 +102,7 @@ public class QualityGateEventsStep implements ComputationStep {
     if (rawStatus.getStatus() != Measure.Level.OK) {
       // There were no defined alerts before, so this one is a new one
       createEvent(project, rawStatus.getStatus().getColorName(), rawStatus.getText());
-      // notifyUsers(project, alertName, alertText, alertLevel, true);
+      notifyUsers(project, rawStatus.getStatus().getColorName(), rawStatus, true);
     }
   }
 
