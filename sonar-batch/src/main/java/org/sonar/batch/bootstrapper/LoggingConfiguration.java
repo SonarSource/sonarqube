@@ -27,6 +27,7 @@ import org.sonar.core.config.Logback;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -70,6 +71,11 @@ public final class LoggingConfiguration {
 
     setShowSql(sql);
     setVerbose(verbose);
+    return this;
+  }
+  
+  public LoggingConfiguration setStreams(PrintStream out, PrintStream err) {
+    
     return this;
   }
 

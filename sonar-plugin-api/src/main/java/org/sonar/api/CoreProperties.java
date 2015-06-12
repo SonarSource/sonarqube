@@ -467,7 +467,15 @@ public interface CoreProperties {
    * @since 4.0
    */
   String WORKING_DIRECTORY = "sonar.working.directory";
+  
   String WORKING_DIRECTORY_DEFAULT_VALUE = ".sonar";
+  
+  /**
+   * @since 5.2
+   */
+  String GLOBAL_WORKING_DIRECTORY = "sonar.globalWorking.directory";
+  String GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE = ".";
+  
 
   /**
    * @since 3.4

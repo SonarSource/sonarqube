@@ -19,6 +19,8 @@
  */
 package org.sonar.api.utils.internal;
 
+import org.sonar.api.utils.ProjectTempFolder;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
@@ -51,7 +53,7 @@ import java.io.IOException;
  *
  * @since 5.1
  */
-public class JUnitTempFolder extends ExternalResource implements TempFolder {
+public class JUnitTempFolder extends ExternalResource implements TempFolder, ProjectTempFolder {
 
   private final TemporaryFolder junit = new TemporaryFolder();
 

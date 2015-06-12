@@ -17,31 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.api.utils;
 
-import org.apache.commons.io.FileUtils;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
+import javax.annotation.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 
-public class TempFolderProvider extends ProviderAdapter {
+import org.sonar.api.batch.BatchSide;
 
-  private TempFolder tempFolder;
 
-  public TempFolder provide(ServerFileSystem fs) {
-    if (tempFolder == null) {
-      File tempDir = new File(fs.getTempDir(), "tmp");
-      try {
-        FileUtils.forceMkdir(tempDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create temp directory " + tempDir, e);
-      }
-      tempFolder = new DefaultTempFolder(tempDir);
-    }
-    return tempFolder;
-  }
+/**
+ * Use this component to deal with temp files/folders that have a scope linked to each
+ * project analysis.
+ * Root location will typically be the working directory (see sonar.working.directory)
+
+ * @since 5.2
+ *
+ */
+@BatchSide
+public interface ProjectTempFolder {
+
+  /**
+   * Create a directory in temp folder with a random unique name.
+   */
+  File newDir();
+
+  /**
+   * Create a directory in temp folder using provided name.
+   */
+  File newDir(String name);
+
+  File newFile();
+
+  File newFile(@Nullable String prefix, @Nullable String suffix);
+
 }

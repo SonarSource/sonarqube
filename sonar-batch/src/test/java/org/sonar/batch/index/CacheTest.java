@@ -20,32 +20,12 @@
 package org.sonar.batch.index;
 
 import com.google.common.collect.Iterables;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.index.Cache.Entry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CacheTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  Caches caches;
-
-  @Before
-  public void start() {
-    caches = CachesTest.createCacheOnTemp(temp);
-    caches.start();
-  }
-
-  @After
-  public void stop() {
-    caches.stop();
-  }
+public class CacheTest extends AbstractCachesTest {
 
   @Test
   public void one_part_key() {

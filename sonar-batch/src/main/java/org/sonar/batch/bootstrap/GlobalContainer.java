@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.index.CachesManager;
+
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.Durations;
@@ -98,6 +101,7 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
+      CachesManager.class,
       GlobalSettings.class,
       ServerClient.class,
       Logback.class,

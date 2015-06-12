@@ -17,31 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+package org.sonar.batch.index;
 
-import org.apache.commons.io.FileUtils;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.IOException;
+public abstract class AbstractCachesTest {
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
 
-public class TempFolderProvider extends ProviderAdapter {
+  protected Caches caches;
+  protected static CachesManager cachesManager;
 
-  private TempFolder tempFolder;
+  @BeforeClass
+  public static void startClass() {
+    cachesManager = CachesManagerTest.createCacheOnTemp(temp);
+    cachesManager.start();
+  }
 
-  public TempFolder provide(ServerFileSystem fs) {
-    if (tempFolder == null) {
-      File tempDir = new File(fs.getTempDir(), "tmp");
-      try {
-        FileUtils.forceMkdir(tempDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create temp directory " + tempDir, e);
-      }
-      tempFolder = new DefaultTempFolder(tempDir);
-    }
-    return tempFolder;
+  @Before
+  public void start() {
+    caches = new Caches(cachesManager);
+    caches.start();
+  }
+
+  @After
+  public void stop() {
+    caches.stop();
+    caches = null;
+  }
+
+  @AfterClass
+  public static void stopClass() {
+    cachesManager.stop();
+    cachesManager = null;
   }
 }

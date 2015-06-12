@@ -31,7 +31,7 @@ import java.io.File;
  * depends on situation:
  * <ul>
  * <li>${SONAR_HOME}/temp on server side</li>
- * <li>Working directory on batch side (see sonar.working.directory)</li>
+ * <li>${SONAR_HOME}/.sonartmp<rnd> on the batch side</li>
  * </ul>
  * @since 4.0
  *

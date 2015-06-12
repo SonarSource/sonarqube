@@ -19,19 +19,15 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.index.AbstractCachesTest;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.Severity;
-import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.CachesTest;
 
 import javax.annotation.Nullable;
 
@@ -41,23 +37,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueCacheTest {
-
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
-  Caches caches;
-
-  @Before
-  public void start() {
-    caches = CachesTest.createCacheOnTemp(temp);
-    caches.start();
-  }
-
-  @After
-  public void stop() {
-    caches.stop();
-  }
+public class IssueCacheTest extends AbstractCachesTest {
 
   @Test
   public void should_add_new_issue() {

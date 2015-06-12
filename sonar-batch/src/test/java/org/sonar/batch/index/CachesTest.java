@@ -19,73 +19,22 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.TempFolderProvider;
-
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 
+import com.persistit.exception.PersistitException;
+import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class CachesTest {
-
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
-  public static Caches createCacheOnTemp(TemporaryFolder temp) {
-    try {
-      BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath()));
-      return new Caches(new TempFolderProvider().provide(bootstrapProps));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  Caches caches;
-
-  @Before
-  public void prepare() {
-    caches = createCacheOnTemp(temp);
-  }
-
-  @After
-  public void stop() {
-    caches.stop();
-  }
-
-  @Test
-  public void should_stop_and_clean_temp_dir() {
-    File tempDir = caches.tempDir();
-    assertThat(tempDir).isDirectory().exists();
-    assertThat(caches.persistit()).isNotNull();
-    assertThat(caches.persistit().isInitialized()).isTrue();
-
-    caches.stop();
-
-    assertThat(tempDir).doesNotExist();
-    assertThat(caches.tempDir()).isNull();
-    assertThat(caches.persistit()).isNull();
-  }
-
+public class CachesTest extends AbstractCachesTest {
   @Test
   public void should_create_cache() {
-    caches.start();
     Cache<Element> cache = caches.createCache("foo");
     assertThat(cache).isNotNull();
   }
 
   @Test
   public void should_not_create_cache_twice() {
-    caches.start();
     caches.<Element>createCache("foo");
     try {
       caches.<Element>createCache("foo");
@@ -95,7 +44,48 @@ public class CachesTest {
     }
   }
 
-  static class Element implements Serializable {
+  @Test
+  public void should_clean_resources() throws PersistitException {
+    Cache<String> c = caches.<String>createCache("test1");
+    for (int i = 0; i < 1_000_000; i++) {
+      c.put("a" + i, "a" + i);
+    }
+
+    caches.stop();
+
+    // manager continues up
+    assertThat(cachesManager.persistit().isInitialized()).isTrue();
+
+    caches = new Caches(cachesManager);
+    caches.start();
+    caches.createCache("test1");
+  }
+
+  @Test
+  public void leak_test() throws PersistitException {
+    caches.stop();
+
+    System.out.println(cachesManager.tempDir());
+
+    int len = 1 * 1024 * 1024;
+    StringBuilder sb = new StringBuilder(len);
+    for (int i = 0; i < len; i++) {
+      sb.append("a");
+    }
+
+    for (int i = 0; i < 3; i++) {
+      caches = new Caches(cachesManager);
+      caches.start();
+      Cache<String> c = caches.<String>createCache("test" + i);
+      c.put("key" + i, sb.toString());
+      cachesManager.persistit().flush();
+
+      caches.stop();
+    }
+  }
+
+  private static class Element implements Serializable {
+    private static final long serialVersionUID = 1L;
 
   }
 }
