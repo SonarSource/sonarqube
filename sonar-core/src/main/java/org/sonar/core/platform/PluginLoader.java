@@ -97,7 +97,7 @@ public class PluginLoader {
         boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         def.setCompatibilityMode(compatibilityMode);
         if (compatibilityMode) {
-          Loggers.get(getClass()).info("API compatibility mode is enabled on plugin {} [{}] " +
+          Loggers.get(getClass()).debug("API compatibility mode is enabled on plugin {} [{}] " +
             "(built with API lower than {})",
             info.getName(), info.getKey(), COMPATIBILITY_MODE_MAX_VERSION);
         }
