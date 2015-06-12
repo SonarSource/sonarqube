@@ -20,46 +20,24 @@
 
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.index.AbstractCachesTest;
+
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.TempFolderProvider;
-import org.sonar.batch.index.Caches;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InitialOpenIssuesStackTest {
-
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
-  public static Caches createCacheOnTemp(TemporaryFolder temp) {
-    BootstrapProperties bootstrapSettings = new BootstrapProperties(Collections.<String, String>emptyMap());
-    try {
-      bootstrapSettings.properties().put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return new Caches(new TempFolderProvider().provide(bootstrapSettings));
-  }
+public class InitialOpenIssuesStackTest extends AbstractCachesTest {
 
   InitialOpenIssuesStack stack;
-  Caches caches;
 
   @Before
   public void before() {
-    caches = createCacheOnTemp(temp);
-    caches.start();
     stack = new InitialOpenIssuesStack(caches);
   }
 

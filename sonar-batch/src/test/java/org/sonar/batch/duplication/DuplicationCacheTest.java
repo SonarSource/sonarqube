@@ -19,39 +19,19 @@
  */
 package org.sonar.batch.duplication;
 
-import org.junit.After;
-import org.junit.Before;
+import org.sonar.batch.index.AbstractCachesTest;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
-import org.sonar.batch.index.Caches;
-import org.sonar.batch.index.CachesTest;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DuplicationCacheTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+public class DuplicationCacheTest extends AbstractCachesTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-
-  Caches caches;
-
-  @Before
-  public void start() {
-    caches = CachesTest.createCacheOnTemp(temp);
-    caches.start();
-  }
-
-  @After
-  public void stop() {
-    caches.stop();
-  }
 
   @Test
   public void should_add_clone_groups() {

@@ -19,33 +19,57 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.TempFolder;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TempFolderProvider extends ProviderAdapter {
-
+  static final String TMP_NAME = ".sonartmp";
   private TempFolder tempFolder;
 
   public TempFolder provide(BootstrapProperties bootstrapProps) {
     if (tempFolder == null) {
-      String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-      File workingDir = new File(workingDirPath).getAbsoluteFile();
-      File tempDir = new File(workingDir, ".sonartmp");
+
+      String workingPathName = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
+      Path workingPath = Paths.get(workingPathName).normalize();
+
+      if (!workingPath.isAbsolute()) {
+        Path home = findHome(bootstrapProps);
+        workingPath = home.resolve(workingPath).normalize();
+      }
+
+      Path tempDir = workingPath.resolve(TMP_NAME);
       try {
-        FileUtils.forceMkdir(tempDir);
+        Files.createDirectories(tempDir);
       } catch (IOException e) {
         throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
       }
-      tempFolder = new DefaultTempFolder(tempDir);
+      tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     }
     return tempFolder;
+  }
+
+  private static Path findHome(BootstrapProperties props) {
+    String home = props.property("sonar.userHome");
+    if (home != null) {
+      return Paths.get(home);
+    }
+
+    home = System.getenv("SONAR_USER_HOME");
+
+    if (home != null) {
+      return Paths.get(home);
+    }
+
+    home = System.getProperty("user.home");
+    return Paths.get(home, ".sonar");
   }
 
 }
