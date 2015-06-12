@@ -22,10 +22,12 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import java.util.Collections;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -124,23 +126,25 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   @Override
-  public Map<String, Measure> getRawMeasures(Component component) {
+  public Multimap<String, Measure> getRawMeasures(Component component) {
     Map<String, Measure> rawMeasures = measures.get(component.getRef());
-    ImmutableMap<String, BatchReport.Measure> batchMeasures = from(reportReader.readComponentMeasures(component.getRef()))
-      .uniqueIndex(BatchMeasureToMetricKey.INSTANCE);
+    ListMultimap<String, BatchReport.Measure> batchMeasures = from(reportReader.readComponentMeasures(component.getRef()))
+      .index(BatchMeasureToMetricKey.INSTANCE);
 
     if (rawMeasures == null && batchMeasures.isEmpty()) {
-      return Collections.emptyMap();
+      return ImmutableListMultimap.of();
     }
 
-    Map<String, Measure> rawMeasuresFromBatch = Maps.transformValues(batchMeasures, batchMeasureToMeasureFunction);
+    ListMultimap<String, Measure> rawMeasuresFromBatch = Multimaps.transformValues(batchMeasures, batchMeasureToMeasureFunction);
     if (rawMeasures == null) {
-      return ImmutableMap.copyOf(rawMeasuresFromBatch);
+      return ImmutableSetMultimap.copyOf(rawMeasuresFromBatch);
     }
 
-    ImmutableMap.Builder<String, Measure> builder = ImmutableMap.builder();
+    ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
     builder.putAll(rawMeasuresFromBatch);
-    builder.putAll(rawMeasures);
+    for (Map.Entry<String, Measure> entry : rawMeasures.entrySet()) {
+      builder.put(entry.getKey(), entry.getValue());
+    }
     return builder.build();
   }
 

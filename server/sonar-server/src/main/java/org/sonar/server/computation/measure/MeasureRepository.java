@@ -20,7 +20,7 @@
 package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
-import java.util.Map;
+import com.google.common.collect.Multimap;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
@@ -44,7 +44,7 @@ public interface MeasureRepository {
   /**
    * @return {@link Measure}s for the specified {@link Component} mapped by their metric key.
    */
-  Map<String, Measure> getRawMeasures(Component component);
+  Multimap<String, Measure> getRawMeasures(Component component);
 
   /**
    * Adds the specified measure for the specified Component and Metric. There can be no more than one measure for a

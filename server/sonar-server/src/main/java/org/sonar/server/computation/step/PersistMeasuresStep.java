@@ -21,6 +21,8 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
@@ -87,23 +89,25 @@ public class PersistMeasuresStep implements ComputationStep {
 
     @Override
     public void visitAny(Component component) {
-      Map<String, Measure> measures = measureRepository.getRawMeasures(component);
+      Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
       long componentId = dbIdsRepository.getComponentId(component);
       long snapshotId = dbIdsRepository.getSnapshotId(component);
 
       persistMeasures(measures, componentId, snapshotId);
     }
 
-    private void persistMeasures(Map<String, Measure> batchReportMeasures, long componentId, long snapshotId) {
-      for (Map.Entry<String, Measure> measure : batchReportMeasures.entrySet()) {
-        String metricKey = measure.getKey();
+    private void persistMeasures(Multimap<String, Measure> batchReportMeasures, long componentId, long snapshotId) {
+      for (Map.Entry<String, Collection<Measure>> measures : batchReportMeasures.asMap().entrySet()) {
+        String metricKey = measures.getKey();
         if (FORBIDDEN_METRIC_KEYS.contains(metricKey)) {
           throw new IllegalStateException(String.format("Measures on metric '%s' cannot be send in the report", metricKey));
         }
 
         Metric metric = metricRepository.getByKey(metricKey);
-        MeasureDto measureDto = MeasureToMeasureDto.INSTANCE.toMeasureDto(measure.getValue(), metric, componentId, snapshotId);
-        dbClient.measureDao().insert(session, measureDto);
+        for (Measure measure : measures.getValue()) {
+          MeasureDto measureDto = MeasureToMeasureDto.INSTANCE.toMeasureDto(measure, metric, componentId, snapshotId);
+          dbClient.measureDao().insert(session, measureDto);
+        }
       }
     }
   }
