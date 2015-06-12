@@ -178,7 +178,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     }
   }
 
-  private void saveIssuesPerRules(DecoratorContext context, RulePriority severity, Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity) {
+  private static void saveIssuesPerRules(DecoratorContext context, RulePriority severity, Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity) {
     Metric metric = SeverityUtils.severityToIssueMetric(severity);
 
     Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));

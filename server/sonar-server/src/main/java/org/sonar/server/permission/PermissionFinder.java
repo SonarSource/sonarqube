@@ -85,7 +85,7 @@ public class PermissionFinder {
     return toGroupQueryResult(permissionTemplateDao.selectGroups(query, permissionTemplateId), query);
   }
 
-  private UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int limit) {
+  private static UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int limit) {
     boolean hasMoreResults = false;
     if (dtos.size() == limit) {
       hasMoreResults = true;

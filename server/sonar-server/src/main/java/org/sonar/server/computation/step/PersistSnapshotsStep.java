@@ -62,7 +62,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       Component root = treeRootHolder.getRoot();
-      ProcessPersistSnapshot processPersistSnapshot = new ProcessPersistSnapshot(session, reportReader, reportReader.readMetadata().getAnalysisDate());
+      ProcessPersistSnapshot processPersistSnapshot = new ProcessPersistSnapshot(session, reportReader.readMetadata().getAnalysisDate());
       processPersistSnapshot.process(root, null);
       session.commit();
     } finally {
@@ -72,14 +72,12 @@ public class PersistSnapshotsStep implements ComputationStep {
 
   private class ProcessPersistSnapshot {
 
-    private final BatchReportReader reportReader;
     private final DbSession dbSession;
     private final long analysisDate;
 
     private long projectId;
 
-    public ProcessPersistSnapshot(DbSession dbSession, BatchReportReader reportReader, long analysisDate) {
-      this.reportReader = reportReader;
+    public ProcessPersistSnapshot(DbSession dbSession, long analysisDate) {
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
     }

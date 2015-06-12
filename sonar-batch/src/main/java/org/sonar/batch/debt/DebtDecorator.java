@@ -188,7 +188,7 @@ public final class DebtDecorator implements Decorator {
     context.saveMeasure(measure);
   }
 
-  private boolean shouldSaveMeasure(DecoratorContext context) {
+  private static boolean shouldSaveMeasure(DecoratorContext context) {
     return context.getMeasure(CoreMetrics.TECHNICAL_DEBT) == null;
   }
 

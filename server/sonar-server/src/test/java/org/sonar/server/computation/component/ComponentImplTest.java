@@ -28,8 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentImplTest {
 
-  private ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
-
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_if_component_arg_is_Null() {
     new ComponentImpl(null, null);
@@ -37,24 +35,48 @@ public class ComponentImplTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void getUuid_throws_UOE_if_uuid_has_not_been_set_yet() {
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
     component.getUuid();
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void getKey_throws_UOE_if_uuid_has_not_been_set_yet() {
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
     component.getKey();
   }
 
   @Test
   public void verify_setUuid() {
     String uuid = "toto";
-    assertThat(component.setUuid(uuid).getUuid()).isEqualTo(uuid);
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList()).setUuid(uuid);
+    assertThat(component.getUuid()).isEqualTo(uuid);
   }
 
   @Test
   public void verify_setKey() {
     String key = "toto";
-    assertThat(component.setKey(key).getKey()).isEqualTo(key);
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList()).setKey(key);
+    assertThat(component.getKey()).isEqualTo(key);
+  }
+
+  @Test
+  public void get_name_from_batch_component() throws Exception {
+    String name = "project";
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setName(name).build(), Collections.<Component>emptyList());
+    assertThat(component.getName()).isEqualTo(name);
+  }
+
+  @Test
+  public void get_version_from_batch_component() throws Exception {
+    String version = "1.0";
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setVersion(version).build(), Collections.<Component>emptyList());
+    assertThat(component.getVersion()).isEqualTo(version);
+  }
+
+  @Test
+  public void get_is_unit_test_from_batch_component() throws Exception {
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setIsTest(true).build(), Collections.<Component>emptyList());
+    assertThat(component.isUnitTest()).isTrue();
   }
 
   @Test

@@ -58,7 +58,7 @@ public class UserIndexer extends BaseIndexer {
     }
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<UserDoc> users) {
+  private static long doIndex(BulkIndexer bulk, Iterator<UserDoc> users) {
     long maxUpdatedAt = 0L;
     bulk.start();
     while (users.hasNext()) {

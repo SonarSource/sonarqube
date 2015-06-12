@@ -109,7 +109,7 @@ public class DebtModelXMLExporter {
     xml.append("</" + CHARACTERISTIC + ">");
   }
 
-  private void processRule(RuleDebt rule, StringBuilder xml) {
+  private static void processRule(RuleDebt rule, StringBuilder xml) {
     xml.append("<" + CHARACTERISTIC + ">");
     xml.append("<" + REPOSITORY_KEY + ">");
     xml.append(StringEscapeUtils.escapeXml(rule.ruleKey().repository()));

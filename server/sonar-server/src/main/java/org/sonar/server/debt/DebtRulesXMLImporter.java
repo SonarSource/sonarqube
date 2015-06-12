@@ -166,7 +166,7 @@ public class DebtRulesXMLImporter {
   }
 
   @CheckForNull
-  private RuleDebt createRule(RuleKey ruleKey, Properties properties, ValidationMessages validationMessages) {
+  private static RuleDebt createRule(RuleKey ruleKey, Properties properties, ValidationMessages validationMessages) {
     Property function = properties.function();
     if (function != null) {
 

@@ -53,7 +53,7 @@ public class DuplicationsJsonWriter {
     json.endObject();
   }
 
-  private void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json) {
+  private static void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json) {
     for (DuplicationsParser.Block block : blocks) {
       json.beginObject().name("blocks").beginArray();
       for (DuplicationsParser.Duplication duplication : block.duplications()) {

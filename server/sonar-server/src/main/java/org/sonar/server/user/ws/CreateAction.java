@@ -115,7 +115,7 @@ public class CreateAction implements UsersWsAction {
     json.endObject().close();
   }
 
-  private void writeUser(JsonWriter json, UserDoc user) {
+  private static void writeUser(JsonWriter json, UserDoc user) {
     json.name("user").beginObject()
       .prop("login", user.login())
       .prop("name", user.name())

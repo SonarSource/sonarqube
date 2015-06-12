@@ -44,7 +44,7 @@ public class GroupMembershipService {
     return finder.find(parseQuery(params));
   }
 
-  private GroupMembershipQuery parseQuery(Map<String, Object> params) {
+  private static GroupMembershipQuery parseQuery(Map<String, Object> params) {
     GroupMembershipQuery.Builder builder = GroupMembershipQuery.builder();
     builder.membership(membership(params));
     builder.groupSearch((String) params.get("query"));

@@ -119,7 +119,7 @@ class HtmlTextDecorator {
     }
   }
 
-  private void addLine(List<String> decoratedHtmlLines, String line, int currentLine, @Nullable Integer from, @Nullable Integer to) {
+  private static void addLine(List<String> decoratedHtmlLines, String line, int currentLine, @Nullable Integer from, @Nullable Integer to) {
     if (canAddLine(currentLine, from) && !shouldStop(currentLine, to)) {
       decoratedHtmlLines.add(line);
     }

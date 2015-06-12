@@ -60,7 +60,7 @@ public class IssuesWs implements WebService {
     controller.done();
   }
 
-  private void defineRailsActions(NewController controller) {
+  private static void defineRailsActions(NewController controller) {
     defineChangelogAction(controller);
     defineAssignAction(controller);
     defineAddCommentAction(controller);
