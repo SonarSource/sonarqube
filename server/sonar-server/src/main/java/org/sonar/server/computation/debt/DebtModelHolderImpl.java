@@ -22,10 +22,8 @@ package org.sonar.server.computation.debt;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,13 +59,13 @@ public class DebtModelHolderImpl implements MutableDebtModelHolder {
   }
 
   @Override
-  public Collection<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey) {
+  public Set<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey) {
     checkCharacteristicsAreInitialized();
     Characteristic rootCharacteristic = characteristicByKey.get(rootCharacteristicKey);
     if (rootCharacteristic == null) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     }
-    return ImmutableList.copyOf(subCharacteristicsByRootCharacteristic.get(rootCharacteristic));
+    return ImmutableSet.copyOf(subCharacteristicsByRootCharacteristic.get(rootCharacteristic));
   }
 
   @Override

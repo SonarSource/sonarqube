@@ -21,7 +21,6 @@
 package org.sonar.server.computation.debt;
 
 import com.google.common.base.Optional;
-import java.util.Collection;
 import java.util.Set;
 
 public interface DebtModelHolder {
@@ -45,7 +44,6 @@ public interface DebtModelHolder {
    *
    * @throws IllegalStateException if the holder is empty
    */
-  Collection<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey);
-
+  Set<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey);
 
 }
