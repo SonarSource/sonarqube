@@ -88,7 +88,6 @@ message Measure {
   // temporary fields during development of computation stack
   optional string description = 9;
   optional string rule_key = 10;
-  optional Severity severity = 11;
   optional string alert_status = 12;
   optional string alert_text = 13;
   optional double variation_value_1 = 14;

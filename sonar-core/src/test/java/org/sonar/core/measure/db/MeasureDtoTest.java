@@ -73,19 +73,4 @@ public class MeasureDtoTest {
   public void fail_to_get_out_of_bounds_variation() {
     sut.getVariation(6);
   }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_if_non_existent_severity() {
-    sut.setSeverity("MAYOR");
-  }
-
-  @Test
-  public void severity_values_are_retrieved() {
-    assertThat(sut.getSeverity()).isNull();
-
-    for (String severity : Severity.ALL) {
-      sut = new MeasureDto().setSeverity(severity);
-      assertThat(sut.getSeverity()).isEqualTo(severity);
-    }
-  }
 }

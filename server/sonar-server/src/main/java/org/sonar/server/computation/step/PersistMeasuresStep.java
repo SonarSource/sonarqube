@@ -124,7 +124,6 @@ public class PersistMeasuresStep implements ComputationStep {
     out.setAlertStatus(in.hasAlertStatus() ? in.getAlertStatus() : null);
     out.setAlertText(in.hasAlertText() ? in.getAlertText() : null);
     out.setDescription(in.hasDescription() ? in.getDescription() : null);
-    out.setSeverity(in.hasSeverity() ? in.getSeverity().name() : null);
     out.setComponentId(componentId);
     out.setSnapshotId(snapshotId);
     out.setMetricId(metricCache.get(in.getMetricKey()).getId());

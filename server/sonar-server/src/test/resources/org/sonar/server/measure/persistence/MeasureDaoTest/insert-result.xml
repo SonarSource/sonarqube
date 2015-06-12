@@ -10,7 +10,7 @@
       value="2.0"
       text_value="measure-value"
       tendency="[null]"
-      rule_priority="0"
+      rule_priority="[null]"
       measure_date="[null]"
       measure_data="[null]"
       variation_value_1="1.0"

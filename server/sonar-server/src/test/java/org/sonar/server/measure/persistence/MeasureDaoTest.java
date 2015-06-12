@@ -20,18 +20,16 @@
 
 package org.sonar.server.measure.persistence;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.rule.Severity;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,7 +153,6 @@ public class MeasureDaoTest {
       .setComponentId(6L)
       .setValue(2.0d)
       .setData("measure-value")
-      .setSeverity(Severity.INFO)
       .setVariation(1, 1.0d)
       .setVariation(2, 2.0d)
       .setVariation(3, 3.0d)

@@ -20,23 +20,18 @@
 package org.sonar.api.database.model;
 
 import com.google.common.base.Throwables;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import javax.annotation.CheckForNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.rules.RulePriority;
-
-import javax.annotation.CheckForNull;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * This class is the Hibernate model to store a measure in the DB
@@ -72,10 +67,6 @@ public class MeasureModel implements Cloneable {
 
   @Column(name = "rule_id", updatable = true, nullable = true)
   private Integer ruleId;
-
-  @Column(name = "rule_priority", updatable = false, nullable = true)
-  @Enumerated(EnumType.ORDINAL)
-  private RulePriority rulePriority;
 
   @Column(name = "alert_status", updatable = true, nullable = true, length = 5)
   private String alertStatus;
@@ -235,7 +226,7 @@ public class MeasureModel implements Cloneable {
    * @return whether the measure is about rule
    */
   public boolean isRuleMeasure() {
-    return ruleId != null || rulePriority != null;
+    return ruleId != null;
   }
 
   public Integer getMetricId() {
@@ -275,20 +266,6 @@ public class MeasureModel implements Cloneable {
   public MeasureModel setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
-  }
-
-  /**
-   * @return the rule priority
-   */
-  public RulePriority getRulePriority() {
-    return rulePriority;
-  }
-
-  /**
-   * Sets the rule priority
-   */
-  public void setRulePriority(RulePriority rulePriority) {
-    this.rulePriority = rulePriority;
   }
 
   /**
@@ -481,7 +458,6 @@ public class MeasureModel implements Cloneable {
     clone.setVariationValue4(getVariationValue4());
     clone.setVariationValue5(getVariationValue5());
     clone.setValue(getValue());
-    clone.setRulePriority(getRulePriority());
     clone.setRuleId(getRuleId());
     clone.setSnapshotId(getSnapshotId());
     clone.setUrl(getUrl());

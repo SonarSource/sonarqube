@@ -23,25 +23,23 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.sonar.api.measures.*;
+import java.io.Serializable;
+import javax.annotation.Nullable;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
 
 public class MeasuresPublisher implements ReportPublisherStep {
 
@@ -119,10 +117,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
       RuleKey ruleKey = ruleMeasure.ruleKey();
       if (ruleKey != null) {
         builder.setRuleKey(ruleKey.toString());
-      }
-      RulePriority severity = ruleMeasure.getSeverity();
-      if (severity != null) {
-        builder.setSeverity(Constants.Severity.valueOf(severity.toString()));
       }
     }
     Level alertStatus = measure.getAlertStatus();
