@@ -46,5 +46,5 @@ public interface MetricMapper {
 
   void update(MetricDto metric);
 
-  MetricDto selectById(int id);
+  MetricDto selectById(long id);
 }
