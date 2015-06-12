@@ -32,4 +32,11 @@ public interface MetricRepository {
    */
   Metric getByKey(String key);
 
+  /**
+   * Gets the {@link Metric} with the specific id.
+   *
+   * @throws IllegalStateException if no Metric with the specified id is found
+   */
+  Metric getById(long id);
+
 }

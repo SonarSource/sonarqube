@@ -46,6 +46,18 @@ public class MetricRepositoryImpl implements MetricRepository {
     }
   }
 
+  @Override
+  public Metric getById(long id) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      MetricDto metricDto = dbClient.metricDao().selectNullableById(dbSession, id);
+      if (metricDto == null) {
+        throw new IllegalStateException(String.format("Metric with id '%s' does not exist", id));
+      }
+
+      return toMetric(metricDto);
+    }
+  }
+
   private static Metric toMetric(MetricDto metricDto) {
     return new MetricImpl(metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()));
   }

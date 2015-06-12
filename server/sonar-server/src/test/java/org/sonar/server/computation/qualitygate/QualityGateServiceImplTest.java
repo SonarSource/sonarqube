@@ -39,12 +39,12 @@ public class QualityGateServiceImplTest {
   private static final long SOME_ID = 123;
   private static final String SOME_NAME = "some name";
   private static final QualityGateDto QUALITY_GATE_DTO = new QualityGateDto().setId(SOME_ID).setName(SOME_NAME);
-  private static final String METRIC_KEY_1 = "metric_key_1";
-  private static final String METRIC_KEY_2 = "metric_key_2";
+  private static final long METRIC_ID_1 = 951;
+  private static final long METRIC_ID_2 = 753;
   private static final Metric METRIC_1 = mock(Metric.class);
   private static final Metric METRIC_2 = mock(Metric.class);
-  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricKey(METRIC_KEY_1).setOperator("=").setPeriod(1).setWarningThreshold("warnin_th").setErrorThreshold("error_th");
-  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricKey(METRIC_KEY_2).setOperator("=");
+  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricId(METRIC_ID_1).setOperator("=").setPeriod(1).setWarningThreshold("warnin_th").setErrorThreshold("error_th");
+  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricId(METRIC_ID_2).setOperator("=");
 
   private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
@@ -73,8 +73,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(SOME_ID)).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(SOME_ID)).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getByKey(METRIC_KEY_1)).thenReturn(METRIC_1);
-    when(metricRepository.getByKey(METRIC_KEY_2)).thenReturn(METRIC_2);
+    when(metricRepository.getById(METRIC_ID_1)).thenReturn(METRIC_1);
+    when(metricRepository.getById(METRIC_ID_2)).thenReturn(METRIC_2);
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 

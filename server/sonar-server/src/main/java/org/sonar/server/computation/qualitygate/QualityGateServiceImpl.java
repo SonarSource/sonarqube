@@ -43,7 +43,7 @@ public class QualityGateServiceImpl implements QualityGateService {
       @Override
       @Nonnull
       public Condition apply(@Nonnull QualityGateConditionDto input) {
-        Metric metric = metricRepository.getByKey(input.getMetricKey());
+        Metric metric = metricRepository.getById(input.getMetricId());
         return new Condition(metric, input.getPeriod(), input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold());
       }
     };
