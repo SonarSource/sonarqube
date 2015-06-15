@@ -141,6 +141,9 @@ public class ConditionUtilsTest {
     when(condition.errorThreshold()).thenReturn("10.1");
     assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
+    when(condition.errorThreshold()).thenReturn("10.2");
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
+
     when(condition.errorThreshold()).thenReturn("10.3");
     assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
   }
@@ -153,6 +156,9 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.1");
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
+
+    when(condition.errorThreshold()).thenReturn("10.2");
     assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("10.3");
