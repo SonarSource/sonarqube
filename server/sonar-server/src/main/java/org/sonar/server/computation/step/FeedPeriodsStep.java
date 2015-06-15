@@ -165,7 +165,7 @@ public class FeedPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug(String.format("Compare to date %s (analysis of %s)", formatDate(date.getTime()), formatDate(snapshot.getCreatedAt())));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt());
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DATE, DateUtils.formatDate(date), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -177,7 +177,7 @@ public class FeedPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug(String.format("Compare over %s days (%s, analysis of %s)", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt())));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt());
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -187,7 +187,7 @@ public class FeedPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug(String.format("Compare to previous analysis (%s)", formatDate(snapshot.getCreatedAt())));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt());
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull
@@ -198,7 +198,7 @@ public class FeedPeriodsStep implements ComputationStep {
       }
       SnapshotDto snapshotDto = snapshotDtos.get(0);
       LOG.debug(String.format("Compare to previous version (%s)", formatDate(snapshotDto.getCreatedAt())));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt());
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, snapshotDto.getVersion(), snapshotDto.getCreatedAt(), snapshotDto.getId());
     }
 
     @CheckForNull
@@ -208,7 +208,7 @@ public class FeedPeriodsStep implements ComputationStep {
         return null;
       }
       LOG.debug(String.format("Compare to version (%s) (%s)", version, formatDate(snapshot.getCreatedAt())));
-      return new Period(index, CoreProperties.TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt());
+      return new Period(index, CoreProperties.TIMEMACHINE_MODE_VERSION, version, snapshot.getCreatedAt(), snapshot.getId());
     }
 
     @CheckForNull

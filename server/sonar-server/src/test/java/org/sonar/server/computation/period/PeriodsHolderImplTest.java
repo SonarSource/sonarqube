@@ -36,7 +36,7 @@ public class PeriodsHolderImplTest {
   @Test
   public void get_periods() throws Exception {
     List<Period> periods = new ArrayList<>();
-    periods.add(new Period(1, "mode", null, 1000L));
+    periods.add(new Period(1, "mode", null, 1000L, 10L));
 
     PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
     periodsHolder.setPeriods(periods);
@@ -66,7 +66,7 @@ public class PeriodsHolderImplTest {
     thrown.expectMessage("Periods have already been initialized");
 
     List<Period> periods = new ArrayList<>();
-    periods.add(new Period(1, "mode", null, 1000L));
+    periods.add(new Period(1, "mode", null, 1000L, 10L));
 
     PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
     periodsHolder.setPeriods(periods);
@@ -78,11 +78,11 @@ public class PeriodsHolderImplTest {
     thrown.expect(UnsupportedOperationException.class);
 
     List<Period> periods = new ArrayList<>();
-    periods.add(new Period(1, "mode", null, 1000L));
+    periods.add(new Period(1, "mode", null, 1000L, 10L));
 
     PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
     periodsHolder.setPeriods(periods);
 
-    periodsHolder.getPeriods().add(new Period(2, "mode", null, 1001L));
+    periodsHolder.getPeriods().add(new Period(2, "mode", null, 1001L, 11L));
   }
 }
