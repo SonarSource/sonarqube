@@ -22,19 +22,22 @@ package org.sonar.server.computation.period;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public class Period {
 
   private int index;
   private String mode, modeParameter;
   private long snapshotDate;
+  private final long snapshotId;
 
-  public Period(int index, String mode, @Nullable String modeParameter, long snapshotDate) {
+  public Period(int index, String mode, @Nullable String modeParameter, long snapshotDate, long snapshotId) {
     this.index = index;
     this.mode = mode;
     this.modeParameter = modeParameter;
     this.snapshotDate = snapshotDate;
+    this.snapshotId = snapshotId;
   }
 
   public int getIndex() {
@@ -43,6 +46,10 @@ public class Period {
 
   public Long getSnapshotDate() {
     return snapshotDate;
+  }
+
+  public long getSnapshotId() {
+    return snapshotId;
   }
 
   public String getMode() {
@@ -56,7 +63,12 @@ public class Period {
 
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this);
+    return "Period{" +
+      "index=" + index +
+      ", mode='" + mode + '\'' +
+      ", modeParameter='" + modeParameter + '\'' +
+      ", snapshotDate=" + snapshotDate +
+      ", snapshotId=" + snapshotId +
+      '}';
   }
-
 }

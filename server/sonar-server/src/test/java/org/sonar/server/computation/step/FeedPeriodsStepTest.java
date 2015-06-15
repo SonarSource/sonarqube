@@ -125,6 +125,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1003L);
   }
 
   @Test
@@ -173,6 +174,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(textDate);
     assertThat(period.getSnapshotDate()).isEqualTo(1227358680000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1003L);
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare to date 2008-11-22 (analysis of ");
@@ -194,6 +196,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
     assertThat(period.getModeParameter()).isEqualTo(date);
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1004L);
   }
 
   @Test
@@ -222,6 +225,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DAYS);
     assertThat(period.getModeParameter()).isEqualTo("10");
     assertThat(period.getSnapshotDate()).isEqualTo(1227157200000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1002L);
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare over 10 days (2008-11-20, analysis of ");
@@ -252,6 +256,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
     assertThat(period.getModeParameter()).isNotNull();
     assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1004L);
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare to previous analysis (");
@@ -282,6 +287,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("1.0");
     assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1001L);
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare to previous version (");
@@ -302,6 +308,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1000L);
   }
 
   @Test
@@ -339,6 +346,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("0.9");
     assertThat(period.getSnapshotDate()).isEqualTo(1226379600000L);
+    assertThat(period.getSnapshotId()).isEqualTo(1000L);
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare to version (0.9) (");
