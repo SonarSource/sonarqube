@@ -36,21 +36,21 @@ import org.sonar.server.computation.measure.Measure.ValueType;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.measure.MeasureImpl.builder;
+import static org.sonar.server.computation.measure.Measure.builder;
 
 @RunWith(DataProviderRunner.class)
-public class MeasureImplTest {
+public class MeasureTest {
 
-  private static final MeasureImpl INT_MEASURE = builder().create((int) 1, null);
-  private static final MeasureImpl LONG_MEASURE = builder().create(1l, null);
-  private static final MeasureImpl DOUBLE_MEASURE = builder().create(1d, null);
-  private static final MeasureImpl STRING_MEASURE = builder().create("some_sT ring");
-  private static final MeasureImpl TRUE_MEASURE = builder().create(true, null);
-  private static final MeasureImpl FALSE_MEASURE = builder().create(false, null);
-  private static final MeasureImpl LEVEL_MEASURE = builder().create(Measure.Level.OK);
-  private static final MeasureImpl NO_VALUE_MEASURE = builder().createNoValue();
+  private static final Measure INT_MEASURE = builder().create((int) 1, null);
+  private static final Measure LONG_MEASURE = builder().create(1l, null);
+  private static final Measure DOUBLE_MEASURE = builder().create(1d, null);
+  private static final Measure STRING_MEASURE = builder().create("some_sT ring");
+  private static final Measure TRUE_MEASURE = builder().create(true, null);
+  private static final Measure FALSE_MEASURE = builder().create(false, null);
+  private static final Measure LEVEL_MEASURE = builder().create(Measure.Level.OK);
+  private static final Measure NO_VALUE_MEASURE = builder().createNoValue();
 
-  private static final List<MeasureImpl> MEASURES = ImmutableList.of(
+  private static final List<Measure> MEASURES = ImmutableList.of(
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE
     );
   private static final int SOME_RULE_ID = 95236;
@@ -91,18 +91,18 @@ public class MeasureImplTest {
 
   @DataProvider
   public static Object[][] all() {
-    return from(MEASURES).transform(WrapInArray.INSTANCE).toArray(MeasureImpl[].class);
+    return from(MEASURES).transform(WrapInArray.INSTANCE).toArray(Measure[].class);
   }
 
-  private static MeasureImpl[][] getMeasuresExcept(final ValueType valueType) {
+  private static Measure[][] getMeasuresExcept(final ValueType valueType) {
     return from(MEASURES)
-      .filter(new Predicate<MeasureImpl>() {
+      .filter(new Predicate<Measure>() {
         @Override
-        public boolean apply(@Nonnull MeasureImpl input) {
+        public boolean apply(@Nonnull Measure input) {
           return input.getValueType() != valueType;
         }
       }).transform(WrapInArray.INSTANCE)
-      .toArray(MeasureImpl[].class);
+      .toArray(Measure[].class);
   }
 
   @Test
@@ -274,7 +274,7 @@ public class MeasureImplTest {
 
   @Test(expected = NullPointerException.class)
   @UseDataProvider("all")
-  public void setAlertStatus_throws_NPE_if_arg_is_null(MeasureImpl measure) {
+  public void setAlertStatus_throws_NPE_if_arg_is_null(Measure measure) {
     measure.setQualityGateStatus(null);
   }
 
@@ -294,13 +294,13 @@ public class MeasureImplTest {
     assertThat(LEVEL_MEASURE.getData()).isNull();
   }
 
-  private enum WrapInArray implements Function<MeasureImpl, MeasureImpl[]> {
+  private enum WrapInArray implements Function<Measure, Measure[]> {
     INSTANCE;
 
     @Nullable
     @Override
-    public MeasureImpl[] apply(@Nonnull MeasureImpl input) {
-      return new MeasureImpl[] {input};
+    public Measure[] apply(@Nonnull Measure input) {
+      return new Measure[] {input};
     }
   }
 }

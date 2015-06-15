@@ -44,7 +44,6 @@ import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.measure.Measure;
-import org.sonar.server.computation.measure.MeasureImpl;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -281,7 +280,7 @@ public class QualityProfileEventsStepTest {
   }
 
   private static Measure newMeasure(@Nullable QualityProfile... qps) {
-    return MeasureImpl.builder().create(toJson(qps));
+    return Measure.builder().create(toJson(qps));
   }
 
   private static String toJson(@Nullable QualityProfile... qps) {

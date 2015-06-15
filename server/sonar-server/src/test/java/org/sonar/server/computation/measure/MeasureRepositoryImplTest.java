@@ -71,7 +71,7 @@ public class MeasureRepositoryImplTest {
   private static final long LAST_SNAPSHOT_ID = 123;
   private static final long OTHER_SNAPSHOT_ID = 369;
   private static final long COMPONENT_ID = 567;
-  private static final Measure SOME_MEASURE = mock(Measure.class);
+  private static final Measure SOME_MEASURE = Measure.builder().create(Measure.Level.OK);
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);
@@ -153,12 +153,12 @@ public class MeasureRepositoryImplTest {
 
   @Test(expected = NullPointerException.class)
   public void add_throws_NPE_if_Component_argument_is_null() {
-    underTest.add(null, metric1, mock(Measure.class));
+    underTest.add(null, metric1, SOME_MEASURE);
   }
 
   @Test(expected = NullPointerException.class)
   public void add_throws_NPE_if_Component_metric_is_null() {
-    underTest.add(FILE_COMPONENT, null, mock(Measure.class));
+    underTest.add(FILE_COMPONENT, null, SOME_MEASURE);
   }
 
   @Test(expected = NullPointerException.class)
@@ -168,8 +168,8 @@ public class MeasureRepositoryImplTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void add_throws_UOE_if_measure_already_exists() {
-    underTest.add(FILE_COMPONENT, metric1, mock(Measure.class));
-    underTest.add(FILE_COMPONENT, metric1, mock(Measure.class));
+    underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
+    underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
   }
 
   @Test
@@ -230,7 +230,7 @@ public class MeasureRepositoryImplTest {
         BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
     ));
 
-    Measure addedMeasure = mock(Measure.class);
+    Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
