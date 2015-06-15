@@ -1,37 +1,44 @@
-  <table class="spaced">
-		<tr>
-			<td align="center">
-				<div id="login_form">
-					<form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
-            <input type="hidden" name="return_to_anchor" value="<%= @return_to_anchor %>">
-						<h3><%= label_tag message('login') %></h3>
-						<p>
-							<%= text_field_tag 'login', '', {:maxlength => 255, :disabled => false, :style => 'width:200px;'} %>
-							<% if Property.value('sonar.allowUsersToSignUp')=='true' %>
-							  <br/><span class="desc"><%= message('sessions.new_account', :params => [url_for(:controller => 'users', :action => 'new')]) -%></span>
-							<% end %>
-						</p>
-						<h3><%= label_tag message('password') %></h3>
-						<p>
-							<%= password_field_tag 'password', nil, {:style => 'width:200px;', :autocomplete => 'off'} %>
-						</p>
-						<p>
-							<%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', message('sessions.remember_me') %>
-						</p>
-						<p>
-							<%= submit_tag message('sessions.log_in') %> or <a href="<%= home_path -%>" class="action"><%= message('cancel') -%></a>
-						</p>
-					</form>
-					<% if flash[:loginerror] %>
-						<div class="error" style=""> <%= flash[:loginerror]  %></div>
-					<% end %>
-				</div>
-			</td>
-		</tr>
-	</table>
-  <script>
-    $j('#login').focus();
-    if (!$j('[name=return_to_anchor]').val()) {
-      $j('[name=return_to_anchor]').val(window.location.hash);
-    }
-  </script>
+<form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
+  <input type="hidden" name="return_to_anchor" value="">
+
+  <h1 class="maintenance-title text-center">Log In to SonarQube</h1>
+
+  <% if flash[:loginerror] %>
+    <div class="alert alert-danger"> <%= flash[:loginerror] %></div>
+  <% end %>
+  <% if flash[:notice] %>
+    <div class="alert alert-info"><%= flash[:notice] %></div>
+  <% end %>
+
+  <div class="big-spacer-bottom">
+    <label for="login" class="login-label"><%= message('login') %></label>
+    <input type="text" id="login" name="login" class="login-input" maxlength="255" required
+           placeholder="<%= message('login') %>">
+    <% if Property.value('sonar.allowUsersToSignUp')=='true' %>
+      <p class="note spacer-top spacer-left spacer-right">
+        <%= message('sessions.new_account', :params => [url_for(:controller => 'users', :action => 'new')]) -%>
+      </p>
+    <% end %>
+  </div>
+
+  <p class="big-spacer-bottom">
+    <label for="password" class="login-label"><%= message('password') %></label>
+    <input type="password" id="password" name="password" class="login-input" required
+           placeholder="<%= message('password') %>">
+  </p>
+
+  <p class="big-spacer-bottom">
+    <input class="login-remember-me" id="remember_me" name="remember_me" type="checkbox" checked>
+    <label for="remember_me"></label>
+    <label for="remember_me"><%= message('sessions.remember_me') -%></label>
+  </p>
+
+  <button class="block-button"><%= message('sessions.log_in') %></button>
+</form>
+
+<script>
+  (function ($) {
+    $('#login').focus();
+    $('[name="return_to_anchor"]').val(window.location.hash);
+  })(window.jQuery);
+</script>

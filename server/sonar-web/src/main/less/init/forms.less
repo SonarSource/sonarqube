@@ -206,6 +206,23 @@ input[type=button] {
   }
 }
 
+.block-button {
+  width: 100%;
+  height: 39px;
+  background: @darkBlue;
+  border: 1px solid @darkBlue;
+  color: #fff;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  &:hover, &:active, &.active, &:focus {
+    border-color: #5281a0;
+    background: #4b9fd5;
+    color: #fff;
+  }
+}
+
 .input-tiny   { width: 60px; }
 .input-small  { width: 100px; }
 .input-medium { width: 150px; }
