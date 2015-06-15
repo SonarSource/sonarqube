@@ -1,0 +1,9 @@
+<h1 class="maintenance-title text-success">Done</h1>
+<p>Database migration has run and has been successful.</p>
+{{#if startedAt}}
+  <p class="maintenance-text text-center">
+    Started {{fromNow startedAt}}<br>
+    <small class="text-muted">{{dt startedAt}}</small>
+  </p>
+{{/if}}
+<p class="maintenance-spinner"><i class="spinner"></i></p>

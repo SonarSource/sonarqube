@@ -1,0 +1,11 @@
+<h1 class="maintenance-title">Database Migration</h1>
+{{#if message}}
+  <p class="maintenance-text text-center">{{message}}</p>
+{{/if}}
+{{#if startedAt}}
+  <p class="maintenance-text text-center">
+    Started {{fromNow startedAt}}<br>
+    <small class="text-muted">{{dt startedAt}}</small>
+  </p>
+{{/if}}
+<p class="maintenance-spinner"><i class="spinner"></i></p>

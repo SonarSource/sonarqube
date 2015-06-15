@@ -1,7 +1,2 @@
-<div class="error migration" style="padding:10px">
-  <%= image_tag 'exclamation.png' -%>
-  <b>Impossible to upgrade database</b>
-  <br/>
-  <br/>
-  <%= DatabaseMigrationManager.instance.message -%>
-</div>
+<h1 class="maintenance-title text-danger">Impossible to upgrade database</h1>
+<p class="maintenance-text"><%= DatabaseMigrationManager.instance.message -%></p>

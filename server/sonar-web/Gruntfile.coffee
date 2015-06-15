@@ -125,6 +125,7 @@ module.exports = (grunt) ->
           'build-app:computation'
           'build-app:drilldown'
           'build-app:groups'
+          'build-app:maintenance'
           'build-app:markdown'
           'build-app:measures'
           'build-app:metrics'
@@ -231,6 +232,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/metrics/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/metrics/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/maintenance/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/maintenance/templates/**/*.hbs'
           ]
 
 

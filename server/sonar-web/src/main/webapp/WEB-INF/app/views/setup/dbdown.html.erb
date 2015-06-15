@@ -1,6 +1,5 @@
-<div class="alert alert-danger">
-  <h3 class="text-danger">Fail to connect to database</h3>
-  <p>Database connection cannot be established. Please check database status and JDBC settings.</p>
-  <br/>
+<h1 class="maintenance-title text-danger">Fail to connect to database</h1>
+<p class="maintenance-text">Database connection cannot be established. Please check database status and JDBC settings.</p>
+<div class="maintenance-spinner">
   <%= button_to "Try again", { :action => "index" }, :method => :get %>
 </div>

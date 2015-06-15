@@ -1,14 +1,10 @@
 <form action="<%= ApplicationController.root_context -%>/setup/setup_database" method="POST">
-<div class="admin migration">
-  <h1 class="marginbottom10">Upgrade database</h1>
-  <br/>
-  <h3>Important</h3>
-  <ul>
-    <li>The database upgrade can take several minutes.</li>
-    <li>It is mandatory to <b>back up database</b> before upgrading.</li>
-    <li><b>Copy the directory /extensions</b> from previous version before upgrading.</li>
-  </ul>
-  <br/>
-    <input 	type="submit" value="Upgrade">
-</div>
+  <h1 class="maintenance-title">Upgrade database</h1>
+  <p class="maintenance-text">The database upgrade can take several minutes.</p>
+  <p class="maintenance-text">It is mandatory to <strong>back up database</strong> before upgrading.</p>
+  <p class="maintenance-text"><strong>Copy the directory /extensions</strong> from previous version before upgrading.
+  </p>
+  <div class="maintenance-spinner">
+    <input type="submit" value="Upgrade">
+  </div>
 </form>

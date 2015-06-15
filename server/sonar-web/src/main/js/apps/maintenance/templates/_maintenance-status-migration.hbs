@@ -1,0 +1,10 @@
+<h1 class="maintenance-title">SonarQube is under maintenance</h1>
+<p class="maintenance-text">Whilst waiting, you might want to check
+  <a href="http://redirect.sonarsource.com/doc/plugin-library.html">new plugins</a> to extend the current functionality.
+</p>
+<p class="maintenance-text">If you are an administrator and have no idea why this message is showing, you should read the
+  <a href="http://redirect.sonarsource.com/doc/upgrading.html">upgrade guide</a>.
+</p>
+{{#eq status 'DB_MIGRATION_RUNNING'}}
+  <p class="maintenance-spinner"><i class="spinner"></i></p>
+{{/eq}}
