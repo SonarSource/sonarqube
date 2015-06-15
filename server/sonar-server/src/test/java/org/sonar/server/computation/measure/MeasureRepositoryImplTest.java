@@ -178,6 +178,64 @@ public class MeasureRepositoryImplTest {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void update_throws_NPE_if_Component_argument_is_null() {
+    underTest.update(null, metric1, SOME_MEASURE);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void update_throws_NPE_if_Component_metric_is_null() {
+    underTest.update(FILE_COMPONENT, null, SOME_MEASURE);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void update_throws_NPE_if_Component_measure_is_null() {
+    underTest.update(FILE_COMPONENT, metric1, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void update_throws_UOE_if_measure_does_not_exists() {
+    underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
+  }
+
+  @Test
+  public void update_supports_updating_to_the_same_value() {
+    underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
+    underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
+  }
+
+  @Test
+  public void update_updates_the_stored_value() {
+    Measure newMeasure = Measure.updateMeasure(SOME_MEASURE).create();
+
+    underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
+    underTest.update(FILE_COMPONENT, metric1, newMeasure);
+
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1).get()).isSameAs(newMeasure);
+  }
+
+  @Test
+  public void update_updates_the_stored_value_for_rule() {
+    Measure initialMeasure = Measure.newMeasure().forRule(123).createNoValue();
+    Measure newMeasure = Measure.updateMeasure(initialMeasure).create();
+
+    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
+    underTest.update(FILE_COMPONENT, metric1, newMeasure);
+
+    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
+  }
+
+  @Test
+  public void update_updates_the_stored_value_for_characteristic() {
+    Measure initialMeasure = Measure.newMeasure().forCharacteristic(952).createNoValue();
+    Measure newMeasure = Measure.updateMeasure(initialMeasure).create();
+
+    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
+    underTest.update(FILE_COMPONENT, metric1, newMeasure);
+
+    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
+  }
+
   @Test
   public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
     try {

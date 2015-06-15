@@ -127,13 +127,42 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         String.format(
-          "a measure can be set only once for a specific Component (ref=%s) and Metric (key=%s). Use update method",
+          "a measure can be set only once for a specific Component (ref=%s), Metric (key=%s)%s. Use update method",
           component.getRef(),
-          metric.getKey()
+          metric.getKey(),
+          buildRuleOrCharacteristicMsgPart(measure)
           ));
     }
-    // assuming the measure comes from batch
     addLocal(component, metric, measure);
+  }
+
+  @Override
+  public void update(Component component, Metric metric, Measure measure) {
+    requireNonNull(component);
+    requireNonNull(metric);
+    requireNonNull(measure);
+
+    Optional<Measure> existingMeasure = findLocal(component, metric, measure);
+    if (!existingMeasure.isPresent()) {
+      throw new UnsupportedOperationException(
+        String.format(
+          "a measure can be updated only if one already exists for a specific Component (ref=%s), Metric (key=%s)%s. Use add method",
+          component.getRef(),
+          metric.getKey(),
+          buildRuleOrCharacteristicMsgPart(measure)
+          ));
+    }
+    addLocal(component, metric, measure);
+  }
+
+  private static String buildRuleOrCharacteristicMsgPart(Measure measure) {
+    if (measure.getRuleId() != null) {
+      return " and rule (id=" + measure.getRuleId() + ")";
+    }
+    if (measure.getCharacteristicId() != null) {
+      return " and Characteristic (id=" + measure.getCharacteristicId() + ")";
+    }
+    return "";
   }
 
   @Override
@@ -161,14 +190,14 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
   private Optional<Measure> findInBatch(Component component, final Metric metric) {
     BatchReport.Measure batchMeasure = Iterables.find(
-        reportReader.readComponentMeasures(component.getRef()),
-        new Predicate<BatchReport.Measure>() {
-          @Override
-          public boolean apply(@Nonnull BatchReport.Measure input) {
-            return input.getMetricKey().equals(metric.getKey());
-          }
+      reportReader.readComponentMeasures(component.getRef()),
+      new Predicate<BatchReport.Measure>() {
+        @Override
+        public boolean apply(@Nonnull BatchReport.Measure input) {
+          return input.getMetricKey().equals(metric.getKey());
         }
-        , null);
+      }
+      , null);
 
     return batchMeasureToMeasure.toMeasure(batchMeasure, metric);
   }
@@ -253,10 +282,10 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     @Override
     public String toString() {
       return com.google.common.base.Objects.toStringHelper(this)
-          .add("metricKey", metricKey)
-          .add("ruleId", ruleId)
-          .add("characteristicId", characteristicId)
-          .toString();
+        .add("metricKey", metricKey)
+        .add("ruleId", ruleId)
+        .add("characteristicId", characteristicId)
+        .toString();
     }
   }
 }

@@ -77,10 +77,19 @@ public interface MeasureRepository {
 
   /**
    * Adds the specified measure for the specified Component and Metric. There can be no more than one measure for a
-   * specific combination of Component and Metric.
+   * specific combination of Component, Metric and association to a specific rule or characteristic.
    *
-   * @throws NullPointerException if any of the argument is null
+   * @throws NullPointerException if any of the arguments is null
    * @throws UnsupportedOperationException when trying to add a measure when one already exists for the specified Component/Metric paar
    */
   void add(Component component, Metric metric, Measure measure);
+
+  /**
+   * Updates the specified measure for the specified Component and Metric. There can be no more than one measure for a
+   * specific combination of Component, Metric and association to a specific rule or characteristic.
+   *
+   * @throws NullPointerException if any of the arguments is null
+   * @throws UnsupportedOperationException when trying to update a non existing measure
+   */
+  void update(Component component, Metric metric, Measure measure);
 }
