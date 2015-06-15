@@ -20,13 +20,13 @@
 
 package org.sonar.server.computation.debt;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class Characteristic {
-
   private final int id;
   private final String key;
 
@@ -45,7 +45,7 @@ public class Characteristic {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -54,12 +54,7 @@ public class Characteristic {
     }
 
     Characteristic that = (Characteristic) o;
-
-    if (id != that.id) {
-      return false;
-    }
-    return key.equals(that.key);
-
+    return id == that.id && key.equals(that.key);
   }
 
   @Override
@@ -71,7 +66,7 @@ public class Characteristic {
 
   @Override
   public String toString() {
-    return "CharacteristicImpl{" +
+    return "Characteristic{" +
       "id=" + id +
       ", key='" + key + '\'' +
       '}';
