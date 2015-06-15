@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.qualitygate;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.metric.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,12 +29,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ConditionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   private static final Metric SOME_METRIC = mock(Metric.class);
-  private static final String SOME_OPERATOR = "ope";
+  private static final String SOME_OPERATOR = "EQ";
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_for_null_metric_argument() {
-    new Condition(null, null, SOME_OPERATOR, null, null);
+    new Condition(null, SOME_OPERATOR, null, null, null);
   }
 
   @Test(expected = NullPointerException.class)
@@ -41,15 +47,23 @@ public class ConditionTest {
   }
 
   @Test
+  public void constructor_throws_IAE_if_operator_is_not_valid() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unsupported operator value: 'troloto'");
+
+    new Condition(SOME_METRIC, "troloto", null, null, null);
+  }
+
+  @Test
   public void verify_getters() {
     Integer period = 1;
     String error = "error threshold";
     String warning = "warning threshold";
 
-    Condition condition = new Condition(SOME_METRIC, period, SOME_OPERATOR, error, warning);
+    Condition condition = new Condition(SOME_METRIC, SOME_OPERATOR, error, warning, period);
 
     assertThat(condition.getMetric()).isSameAs(SOME_METRIC);
-    assertThat(condition.getOperator()).isSameAs(SOME_OPERATOR);
+    assertThat(condition.getOperator()).isSameAs(Condition.Operator.EQUALS);
     assertThat(condition.getPeriod()).isEqualTo(period);
     assertThat(condition.getErrorThreshold()).isEqualTo(error);
     assertThat(condition.getWarningThreshold()).isEqualTo(warning);
@@ -59,8 +73,8 @@ public class ConditionTest {
   public void all_fields_are_displayed_in_toString() {
     when(SOME_METRIC.toString()).thenReturn("metric1");
 
-    assertThat(new Condition(SOME_METRIC, 1, SOME_OPERATOR, "error_l", "warn").toString())
-        .isEqualTo("Condition{metric=metric1, period=1, operator=ope, warningThreshold=warn, errorThreshold=error_l}");
+    assertThat(new Condition(SOME_METRIC, SOME_OPERATOR, "error_l", "warn", 1).toString())
+        .isEqualTo("Condition{metric=metric1, period=1, operator=EQUALS, warningThreshold=warn, errorThreshold=error_l}");
 
   }
 

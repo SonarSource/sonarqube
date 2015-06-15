@@ -31,22 +31,42 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class Condition {
 
+  enum Operator {
+    EQUALS("EQ"), NOT_EQUALS("NE"), GREATER_THAN("GT"), LESS_THAN("LT");
+
+    private final String dbValue;
+
+    Operator(String dbValue) {
+      this.dbValue = dbValue;
+    }
+  }
+
   private final Metric metric;
-  @CheckForNull
-  private final Integer period;
-  private final String operator;
+  private final Operator operator;
   @CheckForNull
   private final String warningThreshold;
   @CheckForNull
   private final String errorThreshold;
+  @CheckForNull
+  private final Integer period;
 
-  public Condition(Metric metric, @Nullable Integer period,
-    String operator, @Nullable String errorThreshold, @Nullable String warningThreshold) {
+  public Condition(Metric metric, String operator,
+    @Nullable String errorThreshold, @Nullable String warningThreshold,
+    @Nullable Integer period) {
     this.metric = requireNonNull(metric);
-    this.operator = requireNonNull(operator);
+    this.operator = parseFromDbValue(requireNonNull(operator));
     this.period = period;
     this.errorThreshold = errorThreshold;
     this.warningThreshold = warningThreshold;
+  }
+
+  private static Operator parseFromDbValue(String str) {
+    for (Operator operator : Operator.values()) {
+      if (operator.dbValue.equals(str)) {
+        return operator;
+      }
+    }
+    throw new IllegalArgumentException(String.format("Unsupported operator value: '%s'", str));
   }
 
   public Metric getMetric() {
@@ -58,7 +78,7 @@ public class Condition {
     return period;
   }
 
-  public String getOperator() {
+  public Operator getOperator() {
     return operator;
   }
 

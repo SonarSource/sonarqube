@@ -43,8 +43,8 @@ public class QualityGateServiceImplTest {
   private static final long METRIC_ID_2 = 753;
   private static final Metric METRIC_1 = mock(Metric.class);
   private static final Metric METRIC_2 = mock(Metric.class);
-  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricId(METRIC_ID_1).setOperator("=").setPeriod(1).setWarningThreshold("warnin_th").setErrorThreshold("error_th");
-  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricId(METRIC_ID_2).setOperator("=");
+  private static final QualityGateConditionDto CONDITION_1 = new QualityGateConditionDto().setId(321).setMetricId(METRIC_ID_1).setOperator("EQ").setPeriod(1).setWarningThreshold("warnin_th").setErrorThreshold("error_th");
+  private static final QualityGateConditionDto CONDITION_2 = new QualityGateConditionDto().setId(456).setMetricId(METRIC_ID_2).setOperator("NE");
 
   private QualityGateDao qualityGateDao = mock(QualityGateDao.class);
   private QualityGateConditionDao qualityGateConditionDao = mock(QualityGateConditionDao.class);
@@ -81,8 +81,8 @@ public class QualityGateServiceImplTest {
     assertThat(res).isPresent();
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
-        new Condition(METRIC_1, CONDITION_1.getPeriod(), CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold(), CONDITION_1.getWarningThreshold()),
-        new Condition(METRIC_2, CONDITION_2.getPeriod(), CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), CONDITION_2.getWarningThreshold())
+        new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold(), CONDITION_1.getWarningThreshold(), CONDITION_1.getPeriod()),
+        new Condition(METRIC_2, CONDITION_2.getOperator(), CONDITION_2.getErrorThreshold(), CONDITION_2.getWarningThreshold(), CONDITION_2.getPeriod())
         );
   }
 }
